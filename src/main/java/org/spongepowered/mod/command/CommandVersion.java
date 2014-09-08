@@ -43,7 +43,7 @@ public class CommandVersion extends CommandBase {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "Displays the Sponge and Minecraft verion of this server.";
+        return "Displays the Sponge and Minecraft version of this server.";
     }
 
     @Override
