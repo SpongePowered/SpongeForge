@@ -34,17 +34,17 @@ public class SpongeProxyEvent extends Event {
     }
 
     @Override
-    public boolean isCancelable() {
+    public boolean isCancellable() {
         return event.isCancellable();
     }
 
     @Override
-    public boolean isCanceled() {
+    public boolean isCancelled() {
         return event.isCancelled();
     }
 
     @Override
-    public void setCanceled(boolean cancel) {
+    public void setCancelled(boolean cancel) {
         event.setCancelled(cancel);
     }
 
