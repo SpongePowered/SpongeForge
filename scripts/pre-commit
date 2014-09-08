@@ -1,2 +1,2 @@
 #! /bin/env sh
-./gradlew --daemon --no-search-upwards
+./gradlew --daemon --no-search-upward
