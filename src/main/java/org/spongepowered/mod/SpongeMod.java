@@ -23,27 +23,24 @@
  */
 package org.spongepowered.mod;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
+import com.google.common.collect.Maps;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import cpw.mods.fml.common.*;
+import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLStateEvent;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.event.state.SpongeServerAboutToStartEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.mod.command.CommandPlugins;
+import org.spongepowered.mod.command.CommandVersion;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 
-import com.google.common.collect.Maps;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-
-import cpw.mods.fml.common.DummyModContainer;
-import cpw.mods.fml.common.LoadController;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainerFactory;
-import cpw.mods.fml.common.ModMetadata;
-import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
-import cpw.mods.fml.common.event.FMLStateEvent;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class SpongeMod extends DummyModContainer {
     public static SpongeMod instance;
@@ -58,11 +55,12 @@ public class SpongeMod extends DummyModContainer {
         super(new ModMetadata());
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongePluginContainer.class);
+
         
         this.getMetadata().name = "SpongeAPIMod";
         this.getMetadata().modId = "SpongeAPIMod";
         SpongeMod.instance = this;
-        game = new SpongeGame();
+        this.game = new SpongeGame();
     }
 
     public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object proxyInstance) {
@@ -93,5 +91,13 @@ public class SpongeMod extends DummyModContainer {
         if (event instanceof FMLServerAboutToStartEvent) {
             game.getEventManager().fire(new SpongeServerAboutToStartEvent(game));
         }
+
+
+        if (event instanceof FMLServerStartingEvent){
+            ((FMLServerStartingEvent) event).registerServerCommand(new CommandVersion(game));
+            ((FMLServerStartingEvent) event).registerServerCommand(new CommandPlugins(game));
+        }
     }
+
+
 }
