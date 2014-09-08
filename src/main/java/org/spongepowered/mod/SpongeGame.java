@@ -30,6 +30,7 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.util.GameInfo;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
@@ -37,12 +38,10 @@ public final class SpongeGame implements Game {
     private final Logger logger = LogManager.getLogger("sponge");
     private final SpongePluginManager pluginManager;
     private final SpongeEventManager eventManager;
-    private final String version = "Minecraft 1.7.10 (implementing Sponge: 0.0.1)";
 
     public SpongeGame() {
         this.pluginManager = new SpongePluginManager();
         this.eventManager = new SpongeEventManager();
-        getLogger().info("Starting: " + version);
     }
 
     @Override
@@ -71,7 +70,7 @@ public final class SpongeGame implements Game {
     }
 
     @Override
-    public String getVersion() {
-        return version;
+    public GameInfo getVersion() {
+        return new GameInfo();
     }
 }

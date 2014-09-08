@@ -92,7 +92,6 @@ public class SpongeMod extends DummyModContainer {
             game.getEventManager().fire(new SpongeServerAboutToStartEvent(game));
         }
 
-
         if (event instanceof FMLServerStartingEvent){
             ((FMLServerStartingEvent) event).registerServerCommand(new CommandVersion(game));
             ((FMLServerStartingEvent) event).registerServerCommand(new CommandPlugins(game));
