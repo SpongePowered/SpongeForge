@@ -48,3 +48,4 @@ Links
 -----
 
 * [Visit our website](http://www.spongepowered.org/)
+* [Chat with us](https://webchat.esper.net/?channels=sponge)
