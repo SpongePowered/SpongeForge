@@ -60,7 +60,7 @@ public class SpongeMod extends DummyModContainer {
         this.getMetadata().name = "SpongeAPIMod";
         this.getMetadata().modId = "SpongeAPIMod";
         SpongeMod.instance = this;
-        this.game = new SpongeGame();
+        game = new SpongeGame();
     }
 
     public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object proxyInstance) {
