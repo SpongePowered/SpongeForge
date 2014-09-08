@@ -48,36 +48,4 @@ public class SpongeProxyEvent extends Event {
         event.setCancelled(cancel);
     }
 
-    @Override
-    public boolean hasResult() {
-        return event.result!= org.spongepowered.api.event.Result.NO_RESULT;
-    }
-
-    @Override
-    public Result getResult() {
-        final org.spongepowered.api.event.Result result = event.result;
-
-        switch (result) {
-            case ALLOW:
-                return Result.ALLOW;
-            case DENY:
-                return Result.DENY;
-            default:
-                return Result.DEFAULT;
-        }
-    }
-
-    @Override
-    public void setResult(Result value) {
-        switch (value) {
-            case ALLOW:
-                event.result = org.spongepowered.api.event.Result.ALLOW;
-                break;
-            case DENY:
-                event.result = org.spongepowered.api.event.Result.DENY;
-                break;
-            default:
-                event.result = org.spongepowered.api.event.Result.DEFAULT;
-        }
-    }
 }
