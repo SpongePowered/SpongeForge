@@ -30,6 +30,7 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.util.GameInfo;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
@@ -66,5 +67,10 @@ public final class SpongeGame implements Game {
     @Override
     public EventManager getEventManager() {
         return eventManager;
+    }
+
+    @Override
+    public GameInfo getVersion() {
+        return new GameInfo();
     }
 }
