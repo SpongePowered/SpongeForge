@@ -43,11 +43,11 @@ public class CommandVersion extends CommandBase {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "Displays the version of this SpongeModded server";
+        return "Displays the Sponge and Minecraft version of this server.";
     }
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
-        sender.addChatMessage(new ChatComponentText(game.getVersion()));
+        sender.addChatMessage(new ChatComponentText(game.getVersion().toString()));
     }
 }
