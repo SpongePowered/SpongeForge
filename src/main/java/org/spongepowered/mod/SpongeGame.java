@@ -30,7 +30,8 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.api.util.GameInfo;
+import org.spongepowered.api.util.IGameInfo;
+import org.spongepowered.mod.util.GameInfo;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
@@ -38,6 +39,7 @@ public final class SpongeGame implements Game {
     private final Logger logger = LogManager.getLogger("sponge");
     private final SpongePluginManager pluginManager;
     private final SpongeEventManager eventManager;
+    private final IGameInfo IGameInfo = new GameInfo();
 
     public SpongeGame() {
         this.pluginManager = new SpongePluginManager();
