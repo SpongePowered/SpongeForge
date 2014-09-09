@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import cpw.mods.fml.common.event.*;
+import net.minecraftforge.common.MinecraftForge;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.event.state.*;
 import org.spongepowered.api.plugin.Plugin;
@@ -62,6 +63,9 @@ public class SpongeMod extends DummyModContainer {
         this.getMetadata().modId = "SpongeAPIMod";
         SpongeMod.instance = this;
         game = new SpongeGame();
+
+        //Register SpongeGame events
+        MinecraftForge.EVENT_BUS.register(game);
     }
 
     public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object proxyInstance) {
