@@ -28,7 +28,9 @@ import java.util.Collections;
 import java.util.Map;
 
 import cpw.mods.fml.common.event.*;
+import net.minecraftforge.event.ServerChatEvent;
 import org.objectweb.asm.Type;
+import org.spongepowered.api.event.player.SpongePlayerChatEvent;
 import org.spongepowered.api.event.state.*;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -88,7 +90,7 @@ public class SpongeMod extends DummyModContainer {
 
     // We're not an FML mod, so we need to directly subscribe to the bus
     @Subscribe
-    public void onEvent(FMLStateEvent event) {
+    public void onStateEvent(FMLStateEvent event) {
         if (event instanceof FMLConstructionEvent) {
             game.getEventManager().call(new SpongeConstructionEvent(game));
         } else if (event instanceof FMLLoadCompleteEvent) {
@@ -110,5 +112,9 @@ public class SpongeMod extends DummyModContainer {
         } else if (event instanceof FMLServerStoppedEvent) {
             game.getEventManager().call(new SpongeServerStoppedEvent(game));
         }
+    }
+    @Subscribe
+    public void onChatEvent(ServerChatEvent evt) {
+        game.getEventManager().call(new SpongePlayerChatEvent(game, evt.player, evt.message));
     }
 }
