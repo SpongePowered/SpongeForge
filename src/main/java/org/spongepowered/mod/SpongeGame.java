@@ -24,6 +24,7 @@
 package org.spongepowered.mod;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraft.server.MinecraftServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
@@ -33,6 +34,7 @@ import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.world.World;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
+import org.spongepowered.mod.world.SpongeWorldCollection;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -43,6 +45,7 @@ public final class SpongeGame implements Game {
     private final Logger logger = LogManager.getLogger("sponge");
     private final SpongePluginManager pluginManager;
     private final SpongeEventManager eventManager;
+    private final MinecraftServer server = MinecraftServer.getServer();
 
     public SpongeGame() {
         this.pluginManager = new SpongePluginManager();
@@ -76,7 +79,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public Collection<World> getWorlds() {
-        return null;
+        return new SpongeWorldCollection(server.worldServers);
     }
 
     @Override

@@ -23,26 +23,21 @@
  */
 package org.spongepowered.mod;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
+import com.google.common.collect.Maps;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import cpw.mods.fml.common.*;
 import cpw.mods.fml.common.event.*;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.event.state.*;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.world.World;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 
-import com.google.common.collect.Maps;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-
-import cpw.mods.fml.common.DummyModContainer;
-import cpw.mods.fml.common.LoadController;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainerFactory;
-import cpw.mods.fml.common.ModMetadata;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class SpongeMod extends DummyModContainer {
     public static SpongeMod instance;
@@ -105,6 +100,10 @@ public class SpongeMod extends DummyModContainer {
             game.getEventManager().call(new SpongeServerStartingEvent(game));
         } else if (event instanceof FMLServerStartedEvent) {
             game.getEventManager().call(new SpongeServerStartedEvent(game));
+
+            for (World world : game.getWorlds())
+                game.getLogger().info(world.getName());
+
         } else if (event instanceof FMLServerStoppingEvent) {
             game.getEventManager().call(new SpongeServerStoppingEvent(game));
         } else if (event instanceof FMLServerStoppedEvent) {
