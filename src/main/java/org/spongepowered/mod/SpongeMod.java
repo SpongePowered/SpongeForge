@@ -89,26 +89,5 @@ public class SpongeMod extends DummyModContainer {
     // We're not an FML mod, so we need to directly subscribe to the bus
     @Subscribe
     public void onEvent(FMLStateEvent event) {
-        if (event instanceof FMLConstructionEvent) {
-            game.getEventManager().call(new SpongeConstructionEvent(game));
-        } else if (event instanceof FMLLoadCompleteEvent) {
-            game.getEventManager().call(new SpongeLoadCompleteEvent(game));
-        } else if (event instanceof FMLPreInitializationEvent) {
-            game.getEventManager().call(new SpongePreInitializationEvent(game));
-        } else if (event instanceof FMLInitializationEvent) {
-            game.getEventManager().call(new SpongeInitializationEvent(game));
-        } else if (event instanceof FMLPostInitializationEvent) {
-            game.getEventManager().call(new SpongePostInitializationEvent(game));
-        } else if (event instanceof FMLServerAboutToStartEvent) {
-            game.getEventManager().call(new SpongeServerAboutToStartEvent(game));
-        } else if (event instanceof FMLServerStartingEvent) {
-            game.getEventManager().call(new SpongeServerStartingEvent(game));
-        } else if (event instanceof FMLServerStartedEvent) {
-            game.getEventManager().call(new SpongeServerStartedEvent(game));
-        } else if (event instanceof FMLServerStoppingEvent) {
-            game.getEventManager().call(new SpongeServerStoppingEvent(game));
-        } else if (event instanceof FMLServerStoppedEvent) {
-            game.getEventManager().call(new SpongeServerStoppedEvent(game));
-        }
     }
 }

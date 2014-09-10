@@ -24,12 +24,11 @@
 package org.spongepowered.mod.event;
 
 import cpw.mods.fml.common.eventhandler.Event;
-import org.spongepowered.api.event.SpongeEvent;
 
 public class SpongeProxyEvent extends Event {
-    private final SpongeEvent event;
+    private final org.spongepowered.api.event.Event event;
 
-    public SpongeProxyEvent(SpongeEvent event) {
+    public SpongeProxyEvent(org.spongepowered.api.event.Event event) {
         this.event = event;
     }
 
@@ -50,12 +49,12 @@ public class SpongeProxyEvent extends Event {
 
     @Override
     public boolean hasResult() {
-        return event.result!= org.spongepowered.api.event.Result.NO_RESULT;
+        return event.getResult() != org.spongepowered.api.event.Result.NO_RESULT;
     }
 
     @Override
     public Result getResult() {
-        final org.spongepowered.api.event.Result result = event.result;
+        final org.spongepowered.api.event.Result result = event.getResult();
 
         switch (result) {
             case ALLOW:
@@ -71,13 +70,13 @@ public class SpongeProxyEvent extends Event {
     public void setResult(Result value) {
         switch (value) {
             case ALLOW:
-                event.result = org.spongepowered.api.event.Result.ALLOW;
+                event.setResult(org.spongepowered.api.event.Result.ALLOW);
                 break;
             case DENY:
-                event.result = org.spongepowered.api.event.Result.DENY;
+                event.setResult(org.spongepowered.api.event.Result.DENY);
                 break;
             default:
-                event.result = org.spongepowered.api.event.Result.DEFAULT;
+                event.setResult(org.spongepowered.api.event.Result.DEFAULT);
         }
     }
 }

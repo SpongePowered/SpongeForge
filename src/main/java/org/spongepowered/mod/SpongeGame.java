@@ -23,19 +23,22 @@
  */
 package org.spongepowered.mod;
 
-import cpw.mods.fml.common.FMLCommonHandler;
+import java.util.Collection;
+import java.util.UUID;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.entity.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.world.World;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
-import java.util.Collection;
-import java.util.UUID;
+import cpw.mods.fml.common.FMLCommonHandler;
 
 public final class SpongeGame implements Game {
     private static final String apiVersion = Game.class.getPackage().getImplementationVersion();
@@ -101,5 +104,25 @@ public final class SpongeGame implements Game {
     @Override
     public String getImplementationVersion() {
         return implementationVersion != null ? implementationVersion : "UNKNOWN";
+    }
+
+    @Override
+    public GameRegistry getRegistry() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<Player> getOnlinePlayers() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getMaxPlayers() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Player getPlayer(UUID uniqueId) {
+        throw new UnsupportedOperationException();
     }
 }
