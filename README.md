@@ -17,34 +17,10 @@ Then use the provided Gradle runtime to compile.
 
 Note: This project currently needs a very recent build of Forge. Please see `build.gradle` for the current version/branch requirements.
 
-Contributing
+Contributing & Pull request guidelines
 ------------
-
-Before doing any major code changes, you probably want to have access to the minecraft source for reference:
-
-    ./gradlew setupDecompWorkspace
-
-Make sure your code compiles, passes tests and checkstyle, and has the correct license headers before committing:
-
-    ./gradlew
-
-A pre-commit hook is available that automatically checks and applies the license headers. To use it, copy it to .git/hooks
-
-    cp scripts/pre-commit .git/hooks
-
-Sponge is available under the MIT license. The license can be found in LICENSE.txt.
-
-Contributions must be licensed under the MIT license.
-
-Pull request guidelines
------------------
-
-* Read the [Contribution Guidelines](https://docs.google.com/document/d/1483QXESTnQ8iGcnsL6sdgv6JWNm5NqZ50OuZUMpvLB0) document
-* Try and keep your PRs to only 1 commit
-* Keep all related changes in a single PR
-* Be descriptive, explain the reasoning behind your changes
-* Document your code (Javadocs)
-* Don't close and reopen a new PR every time you want to make a change to your submission
+Checkout our [Contributing File](https://github.com/SpongePowered/Sponge/blob/master/CONTRIBUTING.md) 
+Note: There are slight differences between SpongeAPI and Sponge Contributing guidelines so make sure your looking at the right one.
 
 Links
 -----
