@@ -125,4 +125,9 @@ public final class SpongeGame implements Game {
     public Player getPlayer(UUID uniqueId) {
         throw new UnsupportedOperationException();
     }
+    
+    @Override
+    public Player getPlayer(String username) {
+        throw new UnsupportedOperationException();
+    }
 }
