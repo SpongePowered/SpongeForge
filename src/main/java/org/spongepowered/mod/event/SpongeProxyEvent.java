@@ -44,7 +44,7 @@ public class SpongeProxyEvent extends Event {
     /**
      * Checks if the parent {@link org.spongepowered.api.event.Event} is cancelable
      * 
-     * @return <code>true</code> if cancelable, <code>false</code> if not
+     * @return {@code true} if cancelable, {@code false} if not
      */
     @Override
     public boolean isCancelable() {
