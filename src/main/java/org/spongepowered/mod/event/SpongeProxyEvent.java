@@ -23,8 +23,14 @@
  */
 package org.spongepowered.mod.event;
 
+import org.spongepowered.api.event.Result;
+
 import cpw.mods.fml.common.eventhandler.Event;
 
+/**
+ * Represents an cancalable {@link SpongeProxyEvent}
+ *
+ */
 public class SpongeProxyEvent extends Event {
     private final org.spongepowered.api.event.Event event;
 
@@ -32,26 +38,46 @@ public class SpongeProxyEvent extends Event {
         this.event = event;
     }
 
+    /**
+     * Checks if this {@link SpongeProxyEvent} is cancalable
+     * @return <code>true</code> if cancalable, <code>false</code> if not
+     */
     @Override
     public boolean isCancelable() {
         return event.isCancellable();
     }
 
+    /**
+     * Checks if this {@link SpongeProxyEvent} is already canceled
+     * @return <code>true</code> if canceled, <code>false</code> if not
+     */
     @Override
     public boolean isCanceled() {
         return event.isCancelled();
     }
 
+    /**
+     * Sets this event canceled
+     * @param cancel <code>true</code> to cancel
+     */
     @Override
     public void setCanceled(boolean cancel) {
         event.setCancelled(cancel);
     }
 
+    /**
+     * Checks, if this event has a result
+     * @return <code>true</code> if there is a result to get, <code>false</code> if not
+     */
     @Override
     public boolean hasResult() {
         return event.getResult() != org.spongepowered.api.event.Result.NO_RESULT;
     }
 
+    /**
+     * Returns the event {@link Result}
+     * @return Event {@link Result}
+     */
     @Override
     public Result getResult() {
         final org.spongepowered.api.event.Result result = event.getResult();
@@ -66,6 +92,10 @@ public class SpongeProxyEvent extends Event {
         }
     }
 
+    /**
+     * Sets the event {@link Result}
+     * @param value New result value as {@link Result}
+     */
     @Override
     public void setResult(Result value) {
         switch (value) {
