@@ -34,12 +34,16 @@ import cpw.mods.fml.common.eventhandler.Event;
 public class SpongeProxyEvent extends Event {
     private final org.spongepowered.api.event.Event event;
 
+    /**
+     * Initializes the {@link SpongeProxyEvent} with parent {@link org.spongepowered.api.event.Event}
+     * @param event Parent {@link org.spongepowered.api.event.Event}
+     */
     public SpongeProxyEvent(org.spongepowered.api.event.Event event) {
         this.event = event;
     }
 
     /**
-     * Checks if this {@link SpongeProxyEvent} is cancalable
+     * Checks if the parent {@link org.spongepowered.api.event.Event} is cancalable
      * @return <code>true</code> if cancalable, <code>false</code> if not
      */
     @Override
@@ -48,8 +52,8 @@ public class SpongeProxyEvent extends Event {
     }
 
     /**
-     * Checks if this {@link SpongeProxyEvent} is already canceled
-     * @return <code>true</code> if canceled, <code>false</code> if not
+     * Checks if parent {@link org.spongepowered.api.event.Event} is already canceled
+     * @return {@code true} if canceled, {@code false} if not
      */
     @Override
     public boolean isCanceled() {
@@ -57,8 +61,8 @@ public class SpongeProxyEvent extends Event {
     }
 
     /**
-     * Sets this event canceled
-     * @param cancel <code>true</code> to cancel
+     * Sets the parent {@link org.spongepowered.api.event.Event} canceled
+     * @param cancel {@code true} to cancel
      */
     @Override
     public void setCanceled(boolean cancel) {
@@ -66,8 +70,8 @@ public class SpongeProxyEvent extends Event {
     }
 
     /**
-     * Checks, if this event has a result
-     * @return <code>true</code> if there is a result to get, <code>false</code> if not
+     * Checks, if parent {@link org.spongepowered.api.event.Event} has a result
+     * @return {@code true} if there is a result to get, {@code false} if not
      */
     @Override
     public boolean hasResult() {
@@ -75,8 +79,8 @@ public class SpongeProxyEvent extends Event {
     }
 
     /**
-     * Returns the event {@link Result}
-     * @return Event {@link Result}
+     * Returns the {@link Result} of parent {@link org.spongepowered.api.event.Event}
+     * @return The parents {@link org.spongepowered.api.event.Event} {@link Result}
      */
     @Override
     public Result getResult() {
@@ -93,7 +97,7 @@ public class SpongeProxyEvent extends Event {
     }
 
     /**
-     * Sets the event {@link Result}
+     * Sets the parent event {@link Result}
      * @param value New result value as {@link Result}
      */
     @Override
