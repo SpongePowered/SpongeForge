@@ -23,8 +23,6 @@
  */
 package org.spongepowered.mod.event;
 
-import org.spongepowered.api.event.Result;
-
 import cpw.mods.fml.common.eventhandler.Event;
 
 /**
