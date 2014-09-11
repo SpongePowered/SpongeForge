@@ -1,0 +1,16 @@
+[
+{
+  "modid": "spongepowered",
+  "name": "Sponge",
+  "description": "The primary implementation of the Sponge API!",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "http://spongepowered.org",
+  "updateUrl": "http://spongepowered.org",
+  "authorList": [""],
+  "credits": "The Sponge Team & many other contributors!",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

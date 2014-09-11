@@ -97,6 +97,7 @@ public final class SpongeGame implements Game {
 
     }
 
+    @Override
     public String getAPIVersion() {
         return apiVersion != null ? apiVersion : "UNKNOWN";
     }
