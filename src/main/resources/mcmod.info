@@ -1,5 +1,6 @@
 [
 {
+<<<<<<< HEAD
   "modid": "spongepowered",
   "name": "Sponge",
   "description": "The primary implementation of the Sponge API!",
