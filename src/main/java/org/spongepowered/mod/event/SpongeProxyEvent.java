@@ -26,9 +26,9 @@ package org.spongepowered.mod.event;
 import cpw.mods.fml.common.eventhandler.Event;
 
 public class SpongeProxyEvent extends Event {
-    private final org.spongepowered.api.event.Event event;
+    private final org.spongepowered.api.event.SpongeEvent event;
 
-    public SpongeProxyEvent(org.spongepowered.api.event.Event event) {
+    public SpongeProxyEvent(org.spongepowered.api.event.SpongeEvent event) {
         this.event = event;
     }
 
