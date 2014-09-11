@@ -34,6 +34,7 @@ public class SpongeProxyEvent extends Event {
 
     /**
      * Initializes the {@link SpongeProxyEvent} with parent {@link org.spongepowered.api.event.Event}
+     * 
      * @param event Parent {@link org.spongepowered.api.event.Event}
      */
     public SpongeProxyEvent(org.spongepowered.api.event.Event event) {
@@ -41,8 +42,9 @@ public class SpongeProxyEvent extends Event {
     }
 
     /**
-     * Checks if the parent {@link org.spongepowered.api.event.Event} is cancalable
-     * @return <code>true</code> if cancalable, <code>false</code> if not
+     * Checks if the parent {@link org.spongepowered.api.event.Event} is cancelable
+     * 
+     * @return <code>true</code> if cancelable, <code>false</code> if not
      */
     @Override
     public boolean isCancelable() {
@@ -51,6 +53,7 @@ public class SpongeProxyEvent extends Event {
 
     /**
      * Checks if parent {@link org.spongepowered.api.event.Event} is already canceled
+     * 
      * @return {@code true} if canceled, {@code false} if not
      */
     @Override
@@ -60,6 +63,7 @@ public class SpongeProxyEvent extends Event {
 
     /**
      * Sets the parent {@link org.spongepowered.api.event.Event} canceled
+     * 
      * @param cancel {@code true} to cancel
      */
     @Override
@@ -69,6 +73,7 @@ public class SpongeProxyEvent extends Event {
 
     /**
      * Checks, if parent {@link org.spongepowered.api.event.Event} has a result
+     * 
      * @return {@code true} if there is a result to get, {@code false} if not
      */
     @Override
@@ -78,6 +83,7 @@ public class SpongeProxyEvent extends Event {
 
     /**
      * Returns the {@link cpw.mods.fml.common.eventhandler.Event.Result} of parent {@link org.spongepowered.api.event.Event}
+     * 
      * @return The parents {@link org.spongepowered.api.event.Event} {@link cpw.mods.fml.common.eventhandler.Event.Result}
      */
     @Override
@@ -96,6 +102,7 @@ public class SpongeProxyEvent extends Event {
 
     /**
      * Sets the parent event {@link cpw.mods.fml.common.eventhandler.Event.Result}
+     * 
      * @param value New result value as {@link cpw.mods.fml.common.eventhandler.Event.Result}
      */
     @Override
