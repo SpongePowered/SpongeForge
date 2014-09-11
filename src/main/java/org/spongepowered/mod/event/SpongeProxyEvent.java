@@ -28,7 +28,7 @@ import org.spongepowered.api.event.Result;
 import cpw.mods.fml.common.eventhandler.Event;
 
 /**
- * Represents an cancalable {@link SpongeProxyEvent}
+ * Represents an cancelable {@link SpongeProxyEvent}
  *
  */
 public class SpongeProxyEvent extends Event {
