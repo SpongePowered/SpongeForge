@@ -77,8 +77,8 @@ public class SpongeProxyEvent extends Event {
     }
 
     /**
-     * Returns the {@link Result} of parent {@link org.spongepowered.api.event.Event}
-     * @return The parents {@link org.spongepowered.api.event.Event} {@link Result}
+     * Returns the {@link cpw.mods.fml.common.eventhandler.Event.Result} of parent {@link org.spongepowered.api.event.Event}
+     * @return The parents {@link org.spongepowered.api.event.Event} {@link cpw.mods.fml.common.eventhandler.Event.Result}
      */
     @Override
     public Result getResult() {
@@ -95,8 +95,8 @@ public class SpongeProxyEvent extends Event {
     }
 
     /**
-     * Sets the parent event {@link Result}
-     * @param value New result value as {@link Result}
+     * Sets the parent event {@link cpw.mods.fml.common.eventhandler.Event.Result}
+     * @param value New result value as {@link cpw.mods.fml.common.eventhandler.Event.Result}
      */
     @Override
     public void setResult(Result value) {
