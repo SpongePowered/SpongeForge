@@ -20,7 +20,7 @@ Note: This project currently needs a very recent build of Forge. Please see `bui
 Contributing
 ------------
 
-Before doing any major code changes, you probably want to have access to the minecraft source for reference:
+Before doing any major code changes, you probably want to have access to the Minecraft source for reference:
 
     ./gradlew setupDecompWorkspace
 
