@@ -23,41 +23,40 @@
  */
 package org.spongepowered.mod;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
-import cpw.mods.fml.common.event.*;
-import org.objectweb.asm.Type;
-import org.spongepowered.api.event.state.*;
-import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.mod.plugin.SpongePluginContainer;
-
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainerFactory;
 import cpw.mods.fml.common.ModMetadata;
+import cpw.mods.fml.common.event.FMLStateEvent;
+import org.objectweb.asm.Type;
+import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.mod.plugin.SpongePluginContainer;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class SpongeMod extends DummyModContainer {
+
     public static SpongeMod instance;
     private final SpongeGame game;
 
     private Map<Object, PluginContainer> plugins = Maps.newHashMap();
     private EventBus eventBus;
     private LoadController controller;
+
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be instantiated before FML scans the system
     // For mods (or plugins)
     public SpongeMod() {
         super(new ModMetadata());
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongePluginContainer.class);
-        
+
         this.getMetadata().name = "SpongeAPIMod";
         this.getMetadata().modId = "SpongeAPIMod";
         SpongeMod.instance = this;
@@ -77,7 +76,7 @@ public class SpongeMod extends DummyModContainer {
         Object proxy = Loader.instance().getIndexedModList().get(s);
         return plugins.get(proxy);
     }
-    
+
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
