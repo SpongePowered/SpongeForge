@@ -43,7 +43,7 @@ public class SpongePluginManager implements PluginManager {
     @Override
     @Nullable
     public PluginContainer getPluginByID(String id) {
-        return SpongeMod.instance.getPlugin(id);
+        return SpongeMod.instance.getPluginByID(id);
     }
 
     @Override
