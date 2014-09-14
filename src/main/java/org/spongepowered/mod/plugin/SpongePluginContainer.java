@@ -23,23 +23,17 @@
  */
 package org.spongepowered.mod.plugin;
 
+import com.google.common.eventbus.Subscribe;
 import cpw.mods.fml.common.FMLModContainer;
 import cpw.mods.fml.common.MetadataCollection;
 import cpw.mods.fml.common.discovery.ModCandidate;
 import cpw.mods.fml.common.event.FMLConstructionEvent;
-
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.mod.SpongeMod;
-
-import com.google.common.eventbus.Subscribe;
 
 import java.util.Map;
 
 public class SpongePluginContainer extends FMLModContainer implements PluginContainer {
-    // DUMMY proxy class for FML to track
-    public static class ProxyMod {
-        
-    }
 
     private final Map<String, Object> fmlDescriptor;
 
@@ -70,9 +64,14 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
         super.constructMod(event);
         SpongeMod.instance.registerPluginContainer(this, getID(), getInstance());
     }
-    
+
     @Override
     public Object getInstance() {
         return getMod();
+    }
+
+    // DUMMY proxy class for FML to track
+    public static class ProxyMod {
+
     }
 }

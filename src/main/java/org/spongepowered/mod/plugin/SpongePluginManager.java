@@ -32,6 +32,7 @@ import org.spongepowered.mod.SpongeMod;
 import java.util.Collection;
 
 public class SpongePluginManager implements PluginManager {
+
     @Override
     public PluginContainer getPlugin(String s) {
         return SpongeMod.instance.getPlugin(s);

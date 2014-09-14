@@ -23,9 +23,7 @@
  */
 package org.spongepowered.mod;
 
-import java.util.Collection;
-import java.util.UUID;
-
+import cpw.mods.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
@@ -38,9 +36,11 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
-import cpw.mods.fml.common.FMLCommonHandler;
+import java.util.Collection;
+import java.util.UUID;
 
 public final class SpongeGame implements Game {
+
     private static final String apiVersion = Game.class.getPackage().getImplementationVersion();
     private static final String implementationVersion = SpongeGame.class.getPackage().getImplementationVersion();
     private final Logger logger = LogManager.getLogger("sponge");

@@ -23,11 +23,12 @@
  */
 package org.spongepowered.mod;
 
-import java.util.Map;
-
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
+import java.util.Map;
+
 public class SpongeCoremod implements IFMLLoadingPlugin {
+
     @Override
     public String[] getASMTransformerClass() {
         return new String[0];
