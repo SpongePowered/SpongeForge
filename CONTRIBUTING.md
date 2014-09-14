@@ -4,6 +4,8 @@ We will always have a need for developers to help us improve SpongeAPI. There is
 
 Overall, our guidelines strongly follow those of [Google's Java Style Guidelines](https://google-styleguide.googlecode.com/svn/trunk/javaguide.html) with a few modifications.
 
+You can also download our formatting xml files. Links for both are in our [contributing doc] (https://docs.google.com/document/d/1afZMMsU9yODX6d6WZAiKnabMbkuDXa_3ulsuDKZcfxg/edit).
+
 ## Modifications & Comments
 * Line endings
   * Use Unix line endings when committing (\n)
