@@ -79,7 +79,7 @@ In order to build Sponge you simply need to run the `gradle` command. You can fi
 
 ## Contributing
 Are you a talented programmer looking to contribute some code? We'd love the help!
-* Open a pull request with your changes, following our [guidelines](Contributing.md).
+* Open a pull request with your changes, following our [guidelines](CONTRIBUTING.md).
 * Please follow the above guidelines for your pull request(s) to be accepted.
 
 [Eclipse]: http://www.eclipse.org/
