@@ -27,7 +27,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import cpw.mods.fml.common.event.*;
+
 import org.objectweb.asm.Type;
 import org.spongepowered.api.event.state.*;
 import org.spongepowered.api.plugin.Plugin;
@@ -73,9 +76,18 @@ public class SpongeMod extends DummyModContainer {
         return Collections.unmodifiableCollection(plugins.values());
     }
 
+    @Nullable
     public PluginContainer getPlugin(String s) {
         Object proxy = Loader.instance().getIndexedModList().get(s);
         return plugins.get(proxy);
+    }
+    
+    @Nullable
+    public PluginContainer getPluginByID(String id) {
+        for (PluginContainer pc : plugins.values())
+            if (pc.getID().equals(id))
+                return pc;
+        return null;
     }
     
     @Override
