@@ -31,10 +31,19 @@ import org.spongepowered.mod.SpongeMod;
 
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 public class SpongePluginManager implements PluginManager {
     @Override
+    @Nullable
     public PluginContainer getPlugin(String s) {
         return SpongeMod.instance.getPlugin(s);
+    }
+
+    @Override
+    @Nullable
+    public PluginContainer getPluginByID(String id) {
+        return SpongeMod.instance.getPlugin(id);
     }
 
     @Override
