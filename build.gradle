@@ -51,7 +51,7 @@ minecraft {
 
 // Project dependencies
 dependencies {
-    compile project(':SpongeAPI')
+    compile project('SpongeAPI')
     testCompile 'junit:junit:4.11'
 }
 
