@@ -28,7 +28,6 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandSender;
 
 public class CommandVersion implements Command {
-
     private Game game;
 
     public CommandVersion(Game game){
@@ -42,7 +41,7 @@ public class CommandVersion implements Command {
 
     @Override
     public String getCommandUsage(CommandSender sender) {
-        return "return the current version of this server";
+        return "Displays version information about the server";
     }
 
     @Override

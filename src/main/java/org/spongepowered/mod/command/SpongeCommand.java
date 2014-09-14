@@ -23,37 +23,29 @@
  */
 package org.spongepowered.mod.command;
 
-import net.minecraft.command.CommandException;
-import net.minecraft.command.CommandHandler;
-import org.spongepowered.mod.SpongeGame;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import org.spongepowered.api.command.Command;
 
-import java.util.HashMap;
-import java.util.Map;
+public class SpongeCommand extends CommandBase{
+    Command command;
 
-public class CommandManager implements org.spongepowered.api.command.CommandManager {
-
-    SpongeGame game;
-
-    public CommandManager(SpongeGame game){
-        this.game = game;
-    }
-
-    private Map<String, org.spongepowered.api.command.Command> commands = new HashMap<String, org.spongepowered.api.command.Command>();
-
-    @Override
-    public void registerCommand(org.spongepowered.api.command.Command command) {
-        if (commands.containsKey(command.getCommandName()) || game.getServer().getCommandManager().getCommands().containsKey(command.getCommandName()))
-            throw new CommandException("Command is already used!");
-        commands.put(command.getCommandName(), command);
-
-        CommandHandler ch = (CommandHandler) game.getServer().getCommandManager();
-        ch.registerCommand(new org.spongepowered.mod.command.Command(command));
+    public SpongeCommand(Command command){
+        this.command = command;
     }
 
     @Override
-    public Map<String, org.spongepowered.api.command.Command> getCommands() {
-        return commands;
+    public String getCommandName() {
+        return command.getCommandName();
     }
 
+    @Override
+    public String getCommandUsage(ICommandSender sender) {
+        return command.getCommandUsage(new SpongeCommandSender(sender));
+    }
 
+    @Override
+    public void processCommand(ICommandSender sender, String[] args) {
+        command.processCommand(new SpongeCommandSender(sender), args);
+    }
 }

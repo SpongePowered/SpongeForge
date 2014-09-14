@@ -34,6 +34,7 @@ import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.world.World;
+import org.spongepowered.mod.command.SpongeCommandManager;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
@@ -46,23 +47,15 @@ public final class SpongeGame implements Game {
     private final Logger logger = LogManager.getLogger("sponge");
     private final SpongePluginManager pluginManager;
     private final SpongeEventManager eventManager;
-    private final org.spongepowered.mod.command.CommandManager commandManager;
-
-    private MinecraftServer server = null;
+    private final SpongeCommandManager CommandManager;
+    private final MinecraftServer server;
 
     public SpongeGame() {
+        this.server = MinecraftServer.getServer();
+        this.CommandManager = new SpongeCommandManager(this, server);
         this.pluginManager = new SpongePluginManager();
         this.eventManager = new SpongeEventManager();
-        this.commandManager = new org.spongepowered.mod.command.CommandManager(this);
-    }
 
-    public void setServer(MinecraftServer server){
-        //todo I don't like this aproch can we not initilize the server on initalization?
-        this.server = server;
-    }
-
-    public MinecraftServer getServer(){
-        return server;
     }
 
     @Override
@@ -121,6 +114,6 @@ public final class SpongeGame implements Game {
 
     @Override
     public CommandManager getCommandManager() {
-        return commandManager;
+        return CommandManager;
     }
 }

@@ -23,29 +23,24 @@
  */
 package org.spongepowered.mod.command;
 
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.util.ChatComponentText;
+import org.spongepowered.api.command.CommandSender;
 
-public class Command extends CommandBase{
+public class SpongeCommandSender implements CommandSender {
+    private ICommandSender sender;
 
-    org.spongepowered.api.command.Command command;
-
-    public Command(org.spongepowered.api.command.Command command){
-        this.command = command;
+    public SpongeCommandSender(ICommandSender sender){
+        this.sender = sender;
     }
 
     @Override
-    public String getCommandName() {
-        return command.getCommandName();
+    public String getName() {
+        return sender.getCommandSenderName();
     }
 
     @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return command.getCommandUsage(new CommandSender(sender));
-    }
-
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) {
-        command.processCommand(new CommandSender(sender), args);
+    public void sendRawText(String message) {
+        sender.addChatMessage(new ChatComponentText(message));
     }
 }
