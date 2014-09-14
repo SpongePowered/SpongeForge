@@ -49,7 +49,7 @@ public final class SpongeGame implements Game {
 
     public SpongeGame() {
         this.pluginManager = new SpongePluginManager();
-        this.eventManager = new SpongeEventManager();
+        this.eventManager = new SpongeEventManager(this);
     }
 
     @Override

@@ -21,38 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
+package org.spongepowered.mod.asm;
 
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+public interface EventListener<T> {
 
-import java.util.Map;
-
-public class SpongeCoremod implements IFMLLoadingPlugin {
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[] {
-                "org.spongepowered.mod.asm.transformers.EventTransformer"
-        };
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return "org.spongepowered.mod.SpongeMod";
-    }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
-    }
-
+    public void invoke(T event);
+    
 }
