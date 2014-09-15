@@ -39,13 +39,13 @@ public class WorldTransformer extends Transformer {
     public boolean transform(String s, String s2, ClassNode classNode) {
         if (s.equalsIgnoreCase(classname)) {
             classNode.interfaces.add(interfacename);
-            classNode.methods.add(createGetNameMethode());
+            classNode.methods.add(createGetNameMethod());
             return true;
         }
         return false;
     }
 
-    public MethodNode createGetNameMethode(){
+    public MethodNode createGetNameMethod(){
         MethodNode methodNode = new MethodNode(ACC_PUBLIC, "getName", "()Ljava/lang/String;", null, null);
         methodNode.visitCode();
         Label l0 = new Label();

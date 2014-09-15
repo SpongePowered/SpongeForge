@@ -16,8 +16,9 @@ public abstract class Transformer implements IClassTransformer,Opcodes {
 
     @Override
     public byte[] transform(String s, String s2, byte[] bytes) {
-        if (bytes == null)
+        if (bytes == null) {
             return bytes;
+        }
         try {
             ClassReader cr = new ClassReader(bytes);
             ClassNode classNode = new ClassNode();
