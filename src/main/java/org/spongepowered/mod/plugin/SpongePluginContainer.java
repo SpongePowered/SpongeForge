@@ -46,6 +46,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     private final String className;
     private final ModCandidate container;
     private final File source;
+    private File resourceFolder;
     private Object plugin;
 
     private LoadController controller;
@@ -114,6 +115,21 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     @Override
     public Object getInstance() {
         return plugin;
+    }
+
+    @Override
+    public final File getResourceFolder(final boolean createIfAbsent) {
+        if (resourceFolder == null) {
+            // Resource folder is named after plugin's ID, located in config
+            // folder
+            resourceFolder = new File(source.getParentFile().getParent() + File.separator + "config", getID());
+        }
+
+        if (createIfAbsent && !resourceFolder.exists()) {
+            resourceFolder.mkdirs();
+        }
+
+        return resourceFolder;
     }
 
     // DUMMY proxy class for FML to track
