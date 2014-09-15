@@ -1,7 +1,8 @@
 /**
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2014 SpongePowered <http://spongepowered.org/>
+ * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,23 +24,21 @@
  */
 package org.spongepowered.mod;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
-import org.objectweb.asm.Type;
-import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.mod.plugin.SpongePluginContainer;
-
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
-
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainerFactory;
 import cpw.mods.fml.common.ModMetadata;
+import org.objectweb.asm.Type;
+import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.mod.plugin.SpongePluginContainer;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class SpongeMod extends DummyModContainer {
     public static SpongeMod instance;

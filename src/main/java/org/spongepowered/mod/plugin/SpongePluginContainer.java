@@ -1,7 +1,8 @@
 /**
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2014 SpongePowered <http://spongepowered.org/>
+ * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,22 +24,20 @@
  */
 package org.spongepowered.mod.plugin;
 
-import java.io.File;
-import java.util.Map;
-
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.mod.SpongeMod;
-
 import com.google.common.base.Throwables;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-
 import cpw.mods.fml.common.FMLModContainer;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.MetadataCollection;
 import cpw.mods.fml.common.ModClassLoader;
 import cpw.mods.fml.common.discovery.ModCandidate;
 import cpw.mods.fml.common.event.FMLConstructionEvent;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.mod.SpongeMod;
+
+import java.io.File;
+import java.util.Map;
 
 public class SpongePluginContainer extends FMLModContainer implements PluginContainer {
 
@@ -114,6 +113,11 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     @Override
     public Object getInstance() {
         return plugin;
+    }
+
+    @Override
+    public File getResourceFolder(boolean createIfAbsent) {
+        return null;
     }
 
     // DUMMY proxy class for FML to track
