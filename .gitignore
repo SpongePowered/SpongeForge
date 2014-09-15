@@ -62,6 +62,7 @@ Thumbs.db
 .idea
 .project
 .settings
+.checkstyle
 run
 eclipse
 nbproject
