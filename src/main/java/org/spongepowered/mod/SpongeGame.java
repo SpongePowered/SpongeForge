@@ -29,8 +29,10 @@ import net.minecraft.util.ChatComponentText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.command.CommandManager;
+import org.spongepowered.api.entity.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.world.World;
@@ -42,6 +44,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 public final class SpongeGame implements Game {
+
     private static final String apiVersion = Game.class.getPackage().getImplementationVersion();
     private static final String implementationVersion = SpongeGame.class.getPackage().getImplementationVersion();
     private final Logger logger = LogManager.getLogger("sponge");
@@ -54,8 +57,7 @@ public final class SpongeGame implements Game {
         this.server = MinecraftServer.getServer();
         this.CommandManager = new SpongeCommandManager(this, server);
         this.pluginManager = new SpongePluginManager();
-        this.eventManager = new SpongeEventManager();
-
+        this.eventManager = new SpongeEventManager(this);
     }
 
     @Override
@@ -115,5 +117,24 @@ public final class SpongeGame implements Game {
     @Override
     public CommandManager getCommandManager() {
         return CommandManager;
+    }
+
+    public GameRegistry getRegistry() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<Player> getOnlinePlayers() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getMaxPlayers() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Player getPlayer(UUID uniqueId) {
+        throw new UnsupportedOperationException();
     }
 }

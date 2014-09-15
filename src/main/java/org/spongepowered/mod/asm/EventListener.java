@@ -21,30 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.plugin;
+package org.spongepowered.mod.asm;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.mod.SpongeMod;
+public interface EventListener<T> {
 
-import java.util.Collection;
-
-public class SpongePluginManager implements PluginManager {
-
-    @Override
-    public PluginContainer getPlugin(String s) {
-        return SpongeMod.instance.getPlugin(s);
-    }
-
-    @Override
-    public Logger getLogger(PluginContainer pluginContainer) {
-        return LogManager.getLogger(pluginContainer.getName());
-    }
-
-    @Override
-    public Collection<PluginContainer> getPlugins() {
-        return SpongeMod.instance.getPlugins();
-    }
+    public void invoke(T event);
+    
 }

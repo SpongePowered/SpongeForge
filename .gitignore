@@ -62,6 +62,8 @@ Thumbs.db
 .idea
 .project
 .settings
+.checkstyle
+run
 eclipse
 nbproject
 atlassian-ide-plugin.xml

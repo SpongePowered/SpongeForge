@@ -25,34 +25,12 @@ package org.spongepowered.mod;
 
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainerFactory;
 import cpw.mods.fml.common.ModMetadata;
-import cpw.mods.fml.common.event.FMLConstructionEvent;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
-import cpw.mods.fml.common.event.FMLServerStartedEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.event.FMLServerStoppedEvent;
-import cpw.mods.fml.common.event.FMLServerStoppingEvent;
-import cpw.mods.fml.common.event.FMLStateEvent;
 import org.objectweb.asm.Type;
-import org.spongepowered.api.event.state.SpongeConstructionEvent;
-import org.spongepowered.api.event.state.SpongeInitializationEvent;
-import org.spongepowered.api.event.state.SpongeLoadCompleteEvent;
-import org.spongepowered.api.event.state.SpongePostInitializationEvent;
-import org.spongepowered.api.event.state.SpongePreInitializationEvent;
-import org.spongepowered.api.event.state.SpongeServerAboutToStartEvent;
-import org.spongepowered.api.event.state.SpongeServerStartedEvent;
-import org.spongepowered.api.event.state.SpongeServerStartingEvent;
-import org.spongepowered.api.event.state.SpongeServerStoppedEvent;
-import org.spongepowered.api.event.state.SpongeServerStoppingEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
@@ -61,6 +39,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+
 public class SpongeMod extends DummyModContainer {
     public static SpongeMod instance;
     private final SpongeGame game;
@@ -68,22 +47,23 @@ public class SpongeMod extends DummyModContainer {
     private Map<Object, PluginContainer> plugins = Maps.newHashMap();
     private EventBus eventBus;
     private LoadController controller;
+
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be instantiated before FML scans the system
     // For mods (or plugins)
     public SpongeMod() {
         super(new ModMetadata());
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongePluginContainer.class);
-        
+
         this.getMetadata().name = "SpongeAPIMod";
         this.getMetadata().modId = "SpongeAPIMod";
         SpongeMod.instance = this;
         game = new SpongeGame();
     }
-
+    
     public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object proxyInstance) {
         plugins.put(proxyInstance, spongePluginContainer);
-        game.getEventManager().register(spongePluginContainer);
+        game.getEventManager().register(spongePluginContainer.getInstance());
     }
 
     public Collection<PluginContainer> getPlugins() {
@@ -94,38 +74,17 @@ public class SpongeMod extends DummyModContainer {
         Object proxy = Loader.instance().getIndexedModList().get(s);
         return plugins.get(proxy);
     }
-    
+
+    public SpongeGame getGame() {
+        return game;
+    }
+
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
+        bus.register(game.getEventManager());
         this.eventBus = bus;
         this.controller = controller;
         return true;
-    }
-
-    // We're not an FML mod, so we need to directly subscribe to the bus
-    @Subscribe
-    public void onEvent(FMLStateEvent event) {
-        if (event instanceof FMLConstructionEvent) {
-            game.getEventManager().call(new SpongeConstructionEvent(game));
-        } else if (event instanceof FMLLoadCompleteEvent) {
-            game.getEventManager().call(new SpongeLoadCompleteEvent(game));
-        } else if (event instanceof FMLPreInitializationEvent) {
-            game.getEventManager().call(new SpongePreInitializationEvent(game));
-        } else if (event instanceof FMLInitializationEvent) {
-            game.getEventManager().call(new SpongeInitializationEvent(game));
-        } else if (event instanceof FMLPostInitializationEvent) {
-            game.getEventManager().call(new SpongePostInitializationEvent(game));
-        } else if (event instanceof FMLServerAboutToStartEvent) {
-            game.getEventManager().call(new SpongeServerAboutToStartEvent(game));
-        } else if (event instanceof FMLServerStartingEvent) {
-            game.getEventManager().call(new SpongeServerStartingEvent(game));
-        } else if (event instanceof FMLServerStartedEvent) {
-            game.getEventManager().call(new SpongeServerStartedEvent(game));
-        } else if (event instanceof FMLServerStoppingEvent) {
-            game.getEventManager().call(new SpongeServerStoppingEvent(game));
-        } else if (event instanceof FMLServerStoppedEvent) {
-            game.getEventManager().call(new SpongeServerStoppedEvent(game));
-        }
     }
 }

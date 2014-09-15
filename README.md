@@ -1,52 +1,97 @@
-# Sponge [![Build Status](https://api.travis-ci.org/SpongePowered/Sponge.png)](https://travis-ci.org/SpongePowered/Sponge/)
+Sponge [![Build Status](https://travis-ci.org/SpongePowered/Sponge.png?branch=master)](https://travis-ci.org/SpongePowered/Sponge)
+=============
+**Currently not stable and under heavily development!**  
+A Forge implementation of the Sponge API. It is licensed under the [MIT License]. 
 
-Sponge is an implementation of the SpongeAPI for Minecraft Forge.
+* [Homepage]
+* [Source]
+* [Issues]
+* [SpongeAPI Wiki]
+* [Sponge Wiki]
+* [Community Chat]: #sponge on irc.esper.net
+* [Development Chat]: #spongedev on irc.esper.net
 
-**NOTE: THIS PROJECT IS CURRENTLY A WORK IN PROGRESS. WE DO NOT RECOMMEND USING IT AT THIS TIME.**
+## Prerequisites
+* [Java] 6
 
-Compiling
----------
+## Clone
+The following steps will ensure your project is cloned properly.  
+1. `git clone git@github.com:SpongePowered/Sponge.git`  
+2. `cd Sponge`  
+3. `git submodule update --init --recursive`  
+4. `cp scripts/pre-commit .git/hooks`
 
-First, be sure to initialize the Git submodules:
+## Setup
+__Note:__ If you do not have [Gradle] installed then use ./gradlew for Unix systems or Git Bash and gradlew.bat for Windows systems in place of any 'gradle' command.
 
-    git submodule update --init --recursive
+__For [Eclipse]__  
+  1. Run `gradle setupDecompWorkspace --refresh-dependencies`  
+  2. Make sure you have the Gradle plugin installed (Help > Eclipse Marketplace > Gradle Integration Plugin)  
+  3. Import Sponge as a Gradle project (File > Import)
+  4. Select the root folder for Sponge and click **Build Model**
+  5. Check Sponge when it finishes building and click **Finish**
 
-Then use the provided Gradle runtime to compile.
+__For [IntelliJ]__  
+  1. Run `gradle setupDecompWorkspace --refresh-dependencies`  
+  2. Make sure you have the Gradle plugin enabled (File > Settings > Plugins).  
+  3. Click File > Import Module and select the **build.gradle** file for Sponge.
 
-    ./gradlew build
+## Running
+__Note:__ The following is aimed to help you setup run configurations for Eclipse and IntelliJ, if you do not want to be able to run Sponge directly from your IDE then you can skip this.  
 
-Note: This project currently needs a very recent build of Forge. Please see `build.gradle` for the current version/branch requirements.
+__For [Eclipse]__  
+  1. Go to **Run > Run Configurations**.  
+  2. Right-click **Java Application** and select **New**.  
+  3. Set the current project.  
+  4. Set the name as `Sponge (Client)` and apply the information for Client below.  
+  5. Repeat step 1 through 4, then set the name as `Sponge (Server)` and apply the information for Server below.  
+  6. When launching the server for the first time, it will shutdown by itself. You will need to modify the server.properties to set onlinemode=false and modify the eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server)
 
-Contributing
-------------
+__For [IntelliJ]__  
+  1. Go to **Run > Edit Configurations**.  
+  2. Click the green + button and select **Application**.  
+  3. Set the name as `Sponge (Client)` and apply the information for Client below.  
+  4. Repeat step 2 and set the name as `Sponge (Server)` and apply the information for Server below.  
+  5. When launching the server for the first time, it will shutdown by itself. You will need to modify the server.properties to set onlinemode=false and modify the eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
 
-Before doing any major code changes, you probably want to have access to the minecraft source for reference:
+__Client__
 
-    ./gradlew setupDecompWorkspace
+|     Property      | Value                                     |
+|:-----------------:|:------------------------------------------|
+|    Main class     | GradleStart                               |
+|    VM options     | -Djava.library.path="../../build/natives" -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
+| Working directory | ./run/client (Included in project)        |
+| Module classpath  | Sponge (IntelliJ Only)                    |
 
-Make sure your code compiles, passes tests and checkstyle, and has the correct license headers before committing:
+__Server__
 
-    ./gradlew build
-    ./gradlew
+|     Property      | Value                              |
+|:-----------------:|:-----------------------------------|
+|    Main class     | GradleStartServer                  |
+|    VM Options     | -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
+| Working directory | ./run/server (Included in project) |
+| Module classpath  | Sponge (IntelliJ Only)             |
 
-A pre-commit hook is available that automatically checks and applies the license headers. To use it, copy it to .git/hooks
 
-    cp scripts/pre-commit .git/hooks
+## Building
+__Note:__ If you do not have [Gradle] installed then use ./gradlew for Unix systems or Git Bash and gradlew.bat for Windows systems in place of any 'gradle' command.
 
-Sponge is available under the MIT license. The license can be found in LICENSE.txt.
+In order to build Sponge you simply need to run the `gradle` command. You can find the compiled JAR file in `./build/libs` labeled similarly to 'sponge-x.x.x-SNAPSHOT.jar'.
 
-Contributions must be licensed under the MIT license.
+## Contributing
+Are you a talented programmer looking to contribute some code? We'd love the help!
+* Open a pull request with your changes, following our [guidelines](CONTRIBUTING.md).
+* Please follow the above guidelines for your pull request(s) to be accepted.
 
-Pull request guidelines
------------------
-
-Only one commit per PR.  
-Keep all related changes in a single PR.  
-Be descriptive, explain the reasoning behind your changes.
-
-Links
------
-
-* [Visit our website](http://www.spongepowered.org/)
-* [Chat with us (general talk)](https://webchat.esper.net/?channels=sponge)
-* [Chat with us (dev talk)](https://webchat.esper.net/?channels=spongedev)
+[Eclipse]: http://www.eclipse.org/
+[Gradle]: http://www.gradle.org/
+[Homepage]: http://spongepowered.org/
+[IntelliJ]: http://www.jetbrains.com/idea/
+[Issues]: https://github.com/SpongePowered/Sponge/issues/
+[SpongeAPI Wiki]: https://github.com/SpongePowered/SpongeAPI/wiki/
+[Sponge Wiki]: https://github.com/SpongePowered/Sponge/wiki/
+[Java]: http://java.oracle.com/
+[Source]: https://github.com/SpongePowered/Sponge/
+[MIT License]: http://www.tldrlegal.com/license/mit-license
+[Community Chat]: https://webchat.esper.net/?channels=sponge
+[Development Chat]: https://webchat.esper.net/?channels=spongedev
