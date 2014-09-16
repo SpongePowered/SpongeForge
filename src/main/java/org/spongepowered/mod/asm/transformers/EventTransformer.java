@@ -43,6 +43,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.state.InitializationEvent;
+import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
 import org.spongepowered.api.event.voxel.VoxelEvent;
 
@@ -53,6 +54,7 @@ public class EventTransformer implements IClassTransformer {
     private final static Map<String, Class<?>> events = new HashMap<String, Class<?>>();
     
     static {
+        events.put("cpw.mods.fml.common.event.FMLPreInitializationEvent", PreInitializationEvent.class);
         events.put("cpw.mods.fml.common.event.FMLInitializationEvent", InitializationEvent.class);
         events.put("cpw.mods.fml.common.event.FMLServerStartingEvent", ServerStartingEvent.class);
         

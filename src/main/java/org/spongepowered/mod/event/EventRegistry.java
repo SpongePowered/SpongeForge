@@ -49,7 +49,7 @@ public class EventRegistry {
         // FML events
         register(FMLInitializationEvent.class, InitializationEvent.class);
         register(FMLServerStartingEvent.class, ServerStartingEvent.class);
-        //register(FMLPreInitializationEvent.class, PreInitializationEvent.class);
+        register(FMLPreInitializationEvent.class, PreInitializationEvent.class);
         // Forge events
         register(BlockEvent.BreakEvent.class, VoxelEvent.class);
     }
