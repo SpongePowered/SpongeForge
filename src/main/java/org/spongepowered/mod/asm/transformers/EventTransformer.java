@@ -27,11 +27,13 @@ package org.spongepowered.mod.asm.transformers;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -48,6 +50,7 @@ import org.spongepowered.api.event.state.ServerStartingEvent;
 import org.spongepowered.api.event.voxel.VoxelEvent;
 
 import cpw.mods.fml.relauncher.FMLRelaunchLog;
+import org.spongepowered.mod.asm.util.ASMHelper;
 
 public class EventTransformer implements IClassTransformer {
     
@@ -88,6 +91,14 @@ public class EventTransformer implements IClassTransformer {
             
             if (Event.class.isAssignableFrom(interf)) {
                 classNode.methods.add(createGetGameMethod());
+            }
+
+            // TODO: This is a temporary thing to make PreInit work. The different things needed to make different events work should be abstracted.
+            if(PreInitializationEvent.class.isAssignableFrom(interf)) {
+                ASMHelper.generateSelfForwardingMethod(classNode, "getConfigurationDirectory", "getModConfigurationDirectory",
+                                                       Type.getType(File.class));
+                ASMHelper.generateSelfForwardingMethod(classNode, "getPluginLog", "getModLog",
+                                                       Type.getType(Logger.class));
             }
             
             ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS | COMPUTE_FRAMES);
