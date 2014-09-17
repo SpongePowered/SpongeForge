@@ -27,10 +27,12 @@ package org.spongepowered.mod.asm.util;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -48,7 +50,7 @@ public class ASMHelper {
         MethodNode method = new MethodNode(Opcodes.ASM5, Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC, name, "()Z", null, null);
         InsnList code = method.instructions;
 
-        code.add(new InsnNode(retval ? Opcodes.ICONST_1 : Opcodes.ICONST_0));
+        code.add(pushIntConstant(retval ? 1 : 0));
         code.add(new InsnNode(Opcodes.IRETURN));
 
         clazz.methods.add(method);
@@ -65,12 +67,7 @@ public class ASMHelper {
         MethodNode method = new MethodNode(Opcodes.ASM5, Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC, name, "()I", null, null);
         InsnList code = method.instructions;
 
-        // Probably doesn't make a huge difference, but use BIPUSH if the value is small enough.
-        if (retval >= Byte.MIN_VALUE && retval <= Byte.MAX_VALUE) {
-            code.add(new IntInsnNode(Opcodes.BIPUSH, retval));
-        } else {
-            code.add(new IntInsnNode(Opcodes.SIPUSH, retval));
-        }
+        code.add(pushIntConstant(retval));
         code.add(new InsnNode(Opcodes.IRETURN));
 
         clazz.methods.add(method);
@@ -257,5 +254,27 @@ public class ASMHelper {
         code.add(new VarInsnNode(argtype.getOpcode(Opcodes.ILOAD), 1));
         code.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, argtype.getInternalName(), forwardname, "()" + rettype.getDescriptor(), false));
         code.add(new InsnNode(rettype.getOpcode(Opcodes.IRETURN)));
+    }
+    
+    private final static int[] intConstants = new int[] {Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5};
+    
+    /**
+     * Gets an instruction that pushes a integer onto the stack.  The instruction uses
+     * the smallest push possible (ICONST_*, BIPUSH, SIPUSH or Integer constant).
+     * 
+     * @param c the integer to push onto the stack
+     */
+    public static AbstractInsnNode pushIntConstant(int c) {
+        if (c == -1) {
+            return new InsnNode(Opcodes.ICONST_M1);
+        } else if (c >= 0 && c <= 5) {
+            return new InsnNode(intConstants[c]);
+        } else if (c >= Byte.MIN_VALUE && c <= Byte.MAX_VALUE) {
+            return new IntInsnNode(Opcodes.BIPUSH, c);
+        } else if (c >= Short.MIN_VALUE && c <= Short.MAX_VALUE) {
+            return new IntInsnNode(Opcodes.SIPUSH, c);
+        } else {
+            return new LdcInsnNode(c);
+        }
     }
 }
