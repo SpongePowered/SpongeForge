@@ -31,7 +31,7 @@ apply plugin: 'checkstyle'
 group = 'org.spongepowered'
 archivesBaseName = 'sponge'
 // Version -> Minecraft-MinecraftForge-Ours(If any?)
-version = '1.7.10-10.13.1.1213-SNAPSHOT'
+version = '1.7.10-10.13.1.1217-SNAPSHOT'
 
 // Define variables
 ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
@@ -46,12 +46,12 @@ repositories { mavenLocal() }
 
 // MinecraftForge version
 minecraft {
-    version = "1.7.10-10.13.1.1214-new"
+    version = "1.7.10-10.13.1.1217"
 }
 
 // Project dependencies
 dependencies {
-    compile project(':SpongeAPI')
+    compile project('SpongeAPI')
     testCompile 'junit:junit:4.11'
 }
 

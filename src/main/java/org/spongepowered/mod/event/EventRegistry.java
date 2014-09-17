@@ -1,7 +1,8 @@
 /**
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2014 SpongePowered <http://spongepowered.org/>
+ * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,9 +24,11 @@
  */
 package org.spongepowered.mod.event;
 
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.event.world.BlockEvent;
 
 import org.spongepowered.api.event.state.InitializationEvent;
+import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
 import org.spongepowered.api.event.voxel.VoxelEvent;
 
@@ -46,7 +49,7 @@ public class EventRegistry {
         // FML events
         register(FMLInitializationEvent.class, InitializationEvent.class);
         register(FMLServerStartingEvent.class, ServerStartingEvent.class);
-        
+        register(FMLPreInitializationEvent.class, PreInitializationEvent.class);
         // Forge events
         register(BlockEvent.BreakEvent.class, VoxelEvent.class);
     }

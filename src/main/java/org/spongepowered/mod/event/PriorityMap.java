@@ -22,30 +22,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.plugin;
+package org.spongepowered.mod.event;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.mod.SpongeMod;
+import static cpw.mods.fml.common.eventhandler.EventPriority.*;
 
-import java.util.Collection;
+import org.spongepowered.api.event.Order;
 
-public class SpongePluginManager implements PluginManager {
+import cpw.mods.fml.common.eventhandler.EventPriority;
 
-    @Override
-    public PluginContainer getPlugin(String s) {
-        return SpongeMod.instance.getPlugin(s);
+public class PriorityMap {
+    
+    private final static EventPriority[] eventPriorities;
+    private final static Order[] orders;
+    
+    static {
+        // TODO - needs higher resolution
+        eventPriorities = new EventPriority[] {HIGHEST, HIGHEST, HIGH, HIGH, NORMAL, LOW, LOW, LOWEST, LOWEST};
+        orders = Order.values();
+    }
+    
+    private PriorityMap() {
+    }
+    
+    public static EventPriority getEventPriority(Order order) {
+        return eventPriorities[order.ordinal()];
     }
 
-    @Override
-    public Logger getLogger(PluginContainer pluginContainer) {
-        return LogManager.getLogger(pluginContainer.getName());
+    public static Order getOrder(EventPriority priority) {
+        return orders[priority.ordinal()];
     }
 
-    @Override
-    public Collection<PluginContainer> getPlugins() {
-        return SpongeMod.instance.getPlugins();
-    }
 }

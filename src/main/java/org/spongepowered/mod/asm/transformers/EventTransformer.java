@@ -1,7 +1,8 @@
 /**
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2014 SpongePowered <http://spongepowered.org/>
+ * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,11 +27,13 @@ package org.spongepowered.mod.asm.transformers;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -42,16 +45,19 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.state.InitializationEvent;
+import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
 import org.spongepowered.api.event.voxel.VoxelEvent;
 
 import cpw.mods.fml.relauncher.FMLRelaunchLog;
+import org.spongepowered.mod.asm.util.ASMHelper;
 
 public class EventTransformer implements IClassTransformer {
     
     private final static Map<String, Class<?>> events = new HashMap<String, Class<?>>();
     
     static {
+        events.put("cpw.mods.fml.common.event.FMLPreInitializationEvent", PreInitializationEvent.class);
         events.put("cpw.mods.fml.common.event.FMLInitializationEvent", InitializationEvent.class);
         events.put("cpw.mods.fml.common.event.FMLServerStartingEvent", ServerStartingEvent.class);
         
@@ -85,6 +91,14 @@ public class EventTransformer implements IClassTransformer {
             
             if (Event.class.isAssignableFrom(interf)) {
                 classNode.methods.add(createGetGameMethod());
+            }
+
+            // TODO: This is a temporary thing to make PreInit work. The different things needed to make different events work should be abstracted.
+            if(PreInitializationEvent.class.isAssignableFrom(interf)) {
+                ASMHelper.generateSelfForwardingMethod(classNode, "getConfigurationDirectory", "getModConfigurationDirectory",
+                                                       Type.getType(File.class));
+                ASMHelper.generateSelfForwardingMethod(classNode, "getPluginLog", "getModLog",
+                                                       Type.getType(Logger.class));
             }
             
             ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS | COMPUTE_FRAMES);

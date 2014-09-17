@@ -22,30 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.plugin;
+package org.spongepowered.mod.asm.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.mod.SpongeMod;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 
-import java.util.Collection;
-
-public class SpongePluginManager implements PluginManager {
-
-    @Override
-    public PluginContainer getPlugin(String s) {
-        return SpongeMod.instance.getPlugin(s);
+public class ASMUtils {
+    
+    private ASMUtils() {
+    }
+    
+    private final static int[] intConstants = new int[] {Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5};
+    
+    public static AbstractInsnNode getPushIntConstant(int c) {
+        if (c == -1) {
+            return new InsnNode(Opcodes.ICONST_M1);
+        } else if (c >= 0 && c <= 5) {
+            return new InsnNode(intConstants[c]);
+        } else if (c >= Byte.MIN_VALUE && c <= Byte.MAX_VALUE) {
+            return new IntInsnNode(Opcodes.BIPUSH, c);
+        } else if (c >= Short.MIN_VALUE && c <= Short.MAX_VALUE) {
+            return new IntInsnNode(Opcodes.SIPUSH, c);
+        } else {
+            return new LdcInsnNode(c);
+        }
     }
 
-    @Override
-    public Logger getLogger(PluginContainer pluginContainer) {
-        return LogManager.getLogger(pluginContainer.getName());
-    }
-
-    @Override
-    public Collection<PluginContainer> getPlugins() {
-        return SpongeMod.instance.getPlugins();
-    }
 }

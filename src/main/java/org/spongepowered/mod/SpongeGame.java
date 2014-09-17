@@ -1,7 +1,8 @@
 /**
  * This file is part of Sponge, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2014 SpongePowered <http://spongepowered.org/>
+ * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -60,7 +61,6 @@ public final class SpongeGame implements Game {
         this.eventManager = new SpongeEventManager(this);
     }
 
-    @Override
     public Logger getLogger() {
         return logger;
     }

@@ -22,30 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.plugin;
+package org.spongepowered.mod.event;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.api.event.Order;
+import org.spongepowered.mod.asm.EventListener;
 
-import java.util.Collection;
-
-public class SpongePluginManager implements PluginManager {
-
-    @Override
-    public PluginContainer getPlugin(String s) {
-        return SpongeMod.instance.getPlugin(s);
+public class PriorityEventListener<T> implements EventListener<T>, Comparable<PriorityEventListener<T>> {
+    
+    private final EventListener<T> listener;
+    private final Order order;
+    
+    public PriorityEventListener(Order order, EventListener<T> listener) {
+        this.listener = listener;
+        this.order = order;
     }
 
     @Override
-    public Logger getLogger(PluginContainer pluginContainer) {
-        return LogManager.getLogger(pluginContainer.getName());
+    public void invoke(T event) {
+        listener.invoke(event);
     }
 
     @Override
-    public Collection<PluginContainer> getPlugins() {
-        return SpongeMod.instance.getPlugins();
+    public int compareTo(PriorityEventListener<T> o) {
+        return order.compareTo(o.order);
     }
+
 }

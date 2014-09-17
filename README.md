@@ -87,7 +87,7 @@ Are you a talented programmer looking to contribute some code? We'd love the hel
 [Gradle]: http://www.gradle.org/
 [Homepage]: http://spongepowered.org/
 [IntelliJ]: http://www.jetbrains.com/idea/
-[Issues]: https://github.com/SpongePowered/Sponge/issues/
+[Issues]: http://issues.spongepowered.org/
 [SpongeAPI Wiki]: https://github.com/SpongePowered/SpongeAPI/wiki/
 [Sponge Wiki]: https://github.com/SpongePowered/Sponge/wiki/
 [Java]: http://java.oracle.com/
