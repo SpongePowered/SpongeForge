@@ -25,15 +25,18 @@
 package org.spongepowered.mod;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.configuration.Configuration;
 import org.spongepowered.api.entity.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.world.World;
+import org.spongepowered.mod.configuration.ServerConfig;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
@@ -70,6 +73,11 @@ public final class SpongeGame implements Game {
     @Override
     public PluginManager getPluginManager() {
         return pluginManager;
+    }
+
+    @Override
+    public Configuration getGlobalConfig() {
+        return ServerConfig.getConfig();
     }
 
     @Override

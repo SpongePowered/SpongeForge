@@ -27,8 +27,10 @@ package org.spongepowered.mod.plugin;
 import java.io.File;
 import java.util.Map;
 
+import org.spongepowered.api.configuration.Configuration;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.configuration.PluginConfig;
 
 import com.google.common.base.Throwables;
 import com.google.common.eventbus.EventBus;
@@ -117,7 +119,24 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
         return plugin;
     }
 
+    @Override
+    public File getResourceFolder(boolean createIfAbsent) {
+        // TODO Auto-generated method stub.
+        return null;
+    }
+
+    @Override
+    public Configuration getConfiguration() {
+        return getConfiguration("config");
+    }
+
+    @Override
+    public Configuration getConfiguration(String name) {
+        return new PluginConfig(this, name);
+    }
+
     // DUMMY proxy class for FML to track
     public static class ProxyMod {
     }
+
 }
