@@ -1,0 +1,6 @@
+{
+    "package": "org.spongepowered.mixin.impl",
+    "mixins": [
+        "MixinWorld"
+    ]
+}

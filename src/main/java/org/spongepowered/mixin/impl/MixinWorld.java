@@ -22,46 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
+package org.spongepowered.mixin.impl;
 
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.World;
 
-import java.util.Map;
+import org.spongepowered.mixin.interfaces.IWorld;
+import org.spongepowered.mod.mixin.Mixin;
+import org.spongepowered.mod.mixin.Shadow;
 
-import net.minecraft.launchwrapper.Launch;
 
-public class SpongeCoremod implements IFMLLoadingPlugin {
-
-    public SpongeCoremod() {
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.mod.asm.transformers.");
-    }
-
+@Mixin(World.class)
+public abstract class MixinWorld implements IWorld {
+    
+    @Shadow private int ambientTickCountdowns;
+    
+    @Shadow abstract int computeLightValue(int p_98179_1_, int p_98179_2_, int p_98179_3_, EnumSkyBlock p_98179_4_);
+    
     @Override
-    public String[] getASMTransformerClass() {
-        return new String[] {
-                "org.spongepowered.mod.asm.transformers.MixinTransformer",
-                "org.spongepowered.mod.asm.transformers.EventTransformer",
-                "org.spongepowered.mod.asm.transformers.BaseEventTransformer"
-        };
+    public int getAmbientTickCountdown() {
+        return this.ambientTickCountdowns;
     }
-
+    
     @Override
-    public String getModContainerClass() {
-        return "org.spongepowered.mod.SpongeMod";
+    public int exampleMethodToComputeLightValue(int x, int y, int z, EnumSkyBlock block) {
+        return this.computeLightValue(x, y, z, block);
     }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
-    }
-
 }
