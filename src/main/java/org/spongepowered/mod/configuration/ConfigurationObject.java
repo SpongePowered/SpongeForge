@@ -163,4 +163,7 @@ public class ConfigurationObject extends ConfigurationElement<Object> implements
         throw new UnsupportedOperationException();
     }
 
+    protected Map<String, ConfigElement<? extends Object>> getObjectMap() {
+        return this.object;
+    }
 }

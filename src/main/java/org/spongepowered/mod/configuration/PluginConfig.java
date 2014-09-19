@@ -24,16 +24,26 @@
  */
 package org.spongepowered.mod.configuration;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
+import org.spongepowered.api.configuration.ConfigArray;
+import org.spongepowered.api.configuration.ConfigElement;
+import org.spongepowered.api.configuration.ConfigObject;
+import org.spongepowered.api.configuration.ConfigPrimitive;
 import org.spongepowered.api.configuration.Configuration;
 import org.spongepowered.api.plugin.PluginContainer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class PluginConfig extends ConfigurationObject implements Configuration {
 
@@ -56,7 +66,8 @@ public class PluginConfig extends ConfigurationObject implements Configuration {
                 this.load();
             }
         } catch (IOException ex) {
-            LogManager.getLogger().warn("IOException while trying to load " + this.file.getPath(), ex);
+            LogManager.getLogger().warn("IOException while trying to load " 
+                    + this.file.getPath(), ex);
         }
     }
 
@@ -81,28 +92,77 @@ public class PluginConfig extends ConfigurationObject implements Configuration {
 
     @Override
     public void save() throws IOException {
-        Config config = ConfigFactory.empty();
-        readConfig(config, this);
-        FileUtils.write(file, config.root().render()); // maybe?
+        Config config = Serializer.deserialize(this);
+        FileUtils.write(getFile(), config.root().render());
     }
 
     @Override
     public void load() throws IOException {
-        Config config = ConfigFactory.parseFile(file);
-        writeConfig(this, config);
+        Config config = ConfigFactory.parseFile(getFile());
+        Serializer.serialize(config.root(), this);
     }
 
     @Override
     public void clear() {
-        throw new UnsupportedOperationException();
+        this.delete();
     }
 
-    private void writeConfig(Configuration config, Config target) {
-        throw new UnsupportedOperationException();
-    }
+    public static class Serializer {
 
-    private void readConfig(Config config, Configuration target) {
-        throw new UnsupportedOperationException();
-    }
+        public static void serialize(com.typesafe.config.ConfigObject origin, Configuration target) {
+            Map<String, Object> map = origin.unwrapped();
+            mapToObject(map, target);
+        }
 
+        @SuppressWarnings("unchecked")
+        private static void mapToObject(Map<String, Object> origin, ConfigObject target) {
+            for (Entry<String, Object> entry : origin.entrySet()) {
+                if (entry.getValue() instanceof Map) {
+                    // object
+                    mapToObject((Map<String, Object>) entry.getValue(), target.getObject(entry.getKey()));
+                } else if (entry.getValue() instanceof List) {
+                    // array
+                    listToArray((List<Object>)entry.getValue(), target.getArray(entry.getKey(), Object.class));
+                } else {
+                    // primitive
+                    target.getPrimitive(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+
+        private static void listToArray(List<Object> origin, ConfigArray<Object> target) {
+            for (Object obj : origin) {
+                target.add(obj);
+            }
+        }
+
+        public static Config deserialize(Configuration origin) {
+            Map<String, Object> object = Maps.newHashMap();
+            objectToMap(origin, object);
+            return ConfigValueFactory.fromMap(object, origin.getComment()).toConfig();
+        }
+
+        @SuppressWarnings("unchecked")
+        private static void objectToMap(ConfigObject origin, Map<String, Object> target) {
+            for (Entry<String, ConfigElement<?>> elem : origin) {
+                if (elem.getValue() instanceof ConfigPrimitive) {
+                    target.put(elem.getKey(), elem.getValue());
+                } else if (elem.getValue() instanceof ConfigArray) {
+                    List<Object> list = Lists.newArrayList();
+                    arrayToList((ConfigArray<Object>)elem.getValue(), list);
+                    target.put(elem.getKey(), list);
+                } else if (elem.getValue() instanceof ConfigObject) {
+                    Map<String, Object> map = Maps.newHashMap();
+                    objectToMap((ConfigObject) elem.getValue(), map);
+                    target.put(elem.getKey(), map);
+                }
+            }
+        }
+
+        private static void arrayToList(ConfigArray<Object> origin, List<Object> target) {
+            for (Object obj : origin) {
+                target.add(obj);
+            }
+        }
+    }
 }
