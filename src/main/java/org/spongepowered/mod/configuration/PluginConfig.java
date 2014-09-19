@@ -37,7 +37,6 @@ import org.spongepowered.api.configuration.ConfigElement;
 import org.spongepowered.api.configuration.ConfigObject;
 import org.spongepowered.api.configuration.ConfigPrimitive;
 import org.spongepowered.api.configuration.Configuration;
-import org.spongepowered.api.plugin.PluginContainer;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,8 +50,8 @@ public class PluginConfig extends ConfigurationObject implements Configuration {
     private String name;
     private File file;
 
-    public PluginConfig(PluginContainer plugin, String name) {
-        this(makeFile(plugin, name));
+    public PluginConfig(File dir, String name) {
+        this(makeFile(dir, name));
         this.name = name;
     }
 
@@ -71,8 +70,11 @@ public class PluginConfig extends ConfigurationObject implements Configuration {
         }
     }
 
-    private static File makeFile(PluginContainer plugin, String name) {
-        return new File(plugin.getResourceFolder(true), name + EXT);
+    private static File makeFile(File dir, String name) {
+        if (dir.isFile()) {
+            throw new RuntimeException(dir.getPath() + "is a file.");
+        }
+        return new File(dir, name + EXT);
     }
 
     @Override
