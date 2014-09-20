@@ -24,23 +24,26 @@
  */
 package org.spongepowered.mod.event;
 
-import static cpw.mods.fml.common.eventhandler.EventPriority.*;
+import static cpw.mods.fml.common.eventhandler.EventPriority.HIGH;
+import static cpw.mods.fml.common.eventhandler.EventPriority.HIGHEST;
+import static cpw.mods.fml.common.eventhandler.EventPriority.LOW;
+import static cpw.mods.fml.common.eventhandler.EventPriority.LOWEST;
+import static cpw.mods.fml.common.eventhandler.EventPriority.NORMAL;
 
 import org.spongepowered.api.event.Order;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
 
 public class PriorityMap {
-    
-    private final static EventPriority[] eventPriorities;
-    private final static Order[] orders;
-    
+
+    private static final EventPriority[] eventPriorities;
+    private static final Order[] orders;
+
     static {
-        // TODO - needs higher resolution
         eventPriorities = new EventPriority[] {HIGHEST, HIGHEST, HIGH, HIGH, NORMAL, LOW, LOW, LOWEST, LOWEST};
         orders = Order.values();
     }
-    
+
     private PriorityMap() {
     }
     
@@ -51,5 +54,4 @@ public class PriorityMap {
     public static Order getOrder(EventPriority priority) {
         return orders[priority.ordinal()];
     }
-
 }

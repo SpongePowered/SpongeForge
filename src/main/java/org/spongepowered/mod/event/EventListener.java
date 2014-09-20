@@ -22,10 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.asm;
+package org.spongepowered.mod.event;
 
 public interface EventListener<T> {
 
     public void invoke(T event);
-    
+
 }

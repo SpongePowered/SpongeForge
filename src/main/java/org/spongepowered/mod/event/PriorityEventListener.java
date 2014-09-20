@@ -25,16 +25,24 @@
 package org.spongepowered.mod.event;
 
 import org.spongepowered.api.event.Order;
-import org.spongepowered.mod.asm.EventListener;
 
 public class PriorityEventListener<T> implements EventListener<T>, Comparable<PriorityEventListener<T>> {
-    
+
     private final EventListener<T> listener;
     private final Order order;
+    private EventListenerHolder<T> holder;
     
     public PriorityEventListener(Order order, EventListener<T> listener) {
         this.listener = listener;
         this.order = order;
+    }
+
+    public EventListenerHolder<T> getHolder() {
+        return holder;
+    }
+
+    public void setHolder(EventListenerHolder<T> holder) {
+        this.holder = holder;
     }
 
     @Override
