@@ -27,9 +27,8 @@ package org.spongepowered.mod.configuration;
 import org.spongepowered.api.configuration.ConfigArray;
 import org.spongepowered.api.configuration.ConfigElement;
 
-import scala.actors.threadpool.Arrays;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -62,7 +61,6 @@ public class ConfigurationArray<T> extends ConfigurationElement<T[]> implements 
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void addAll(T... objects) {
         list.addAll(Arrays.asList(objects));
     }
