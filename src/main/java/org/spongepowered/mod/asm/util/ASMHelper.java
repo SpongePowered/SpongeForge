@@ -25,6 +25,9 @@
 
 package org.spongepowered.mod.asm.util;
 
+import java.lang.reflect.Method;
+import java.util.Iterator;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -35,6 +38,7 @@ import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 public class ASMHelper {
@@ -200,6 +204,25 @@ public class ASMHelper {
 
         populateForwardingMethod(method, forwardname, methodType.getReturnType(), methodType.getArgumentTypes()[0], thistype);
     }
+    
+    /**
+     * Generates an exception throwing method of the following form
+     * "T name(X x, Y y, ...) { throw new Exception(message); }".
+     * 
+     * @param clazz Class to generate new method on
+     * @param name Name of method to generate
+     * @param rettype Type the method returns
+     * @param argstypes Types of the arguments for the method
+     * @param exptype Type of the Exception
+     * @param message The message of the Exception
+     */
+    public static void generateThrowExceptionMethod(ClassNode clazz, String name, Type rettype, Type[] argtypes, Type exptype, String message) {
+        MethodNode method = new MethodNode(Opcodes.ASM5, Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC, name, getMethodDesc(rettype, argtypes), null, null);
+        
+        populateThrowExceptionMethod(method, exptype, message);
+        
+        addMethod(clazz, method, true);
+    }
 
     /**
      * Populate a forwarding method of the form
@@ -256,6 +279,24 @@ public class ASMHelper {
         code.add(new InsnNode(rettype.getOpcode(Opcodes.IRETURN)));
     }
     
+    /**
+     * Populates a method that throws an Exception
+     * "void name() { throw new exception };
+     * 
+     * @param method Method to generate code for
+     * @param exptype Type of the exception
+     * @param message Message to pass to the constructor of the exception
+     */
+    public static void populateThrowExceptionMethod(MethodNode method, Type exptype, String message) {
+        InsnList code = method.instructions;
+        
+        code.add(new TypeInsnNode(Opcodes.NEW, exptype.getInternalName()));
+        code.add(new InsnNode(Opcodes.DUP));
+        code.add(new LdcInsnNode(message));
+        code.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, exptype.getInternalName(), "<init>", "(Ljava/lang/String;)V", false));
+        code.add(new InsnNode(Opcodes.ATHROW));
+    }
+    
     private final static int[] intConstants = new int[] {Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5};
     
     /**
@@ -277,4 +318,68 @@ public class ASMHelper {
             return new LdcInsnNode(c);
         }
     }
+    
+    /**
+     * Gets the method descriptor given the return type and the argument types
+     * 
+     * @param rettype the return type
+     * @param argtypes the arg types
+     * @return
+     */
+    public static String getMethodDesc(Type rettype, Type[] argtypes) {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append('(');
+        for (Type arg : argtypes) {
+            sb.append(arg.getDescriptor());
+        }
+        sb.append(')');
+        sb.append(rettype.getDescriptor());
+        return sb.toString();
+    }
+    
+    /**
+     * Gets the method descriptor for a Method
+     * 
+     * @param method The method
+     */
+    public static String getMethodDesc(Method method) {
+        Type rettype = Type.getType(method.getReturnType());
+        
+        Class<?>[] parameters = method.getParameterTypes();
+        Type[] argtypes = new Type[parameters.length];
+        for (int i = 0; i < argtypes.length; i++) {
+            argtypes[i] = Type.getType(parameters[i]);
+        }
+        return getMethodDesc(rettype, argtypes);
+    }
+    
+    /**
+     * Adds a method to a class with causing duplication
+     * 
+     * @param clazz Class to add the method to
+     * @param method Method to add
+     * @param replace True if duplicates should be replaced
+     * @return true if the method was added to the class
+     */
+    public static boolean addMethod(ClassNode clazz, MethodNode method, boolean replace) {
+        String desc = method.desc;
+        Iterator<MethodNode> i = clazz.methods.iterator();
+        while (i.hasNext()) {
+            MethodNode m = i.next();
+            System.out.println("Checking " + desc + " matched " + m.desc);
+            if (desc.equals(m.desc)) {
+                if (replace) {
+                    i.remove();
+                    System.out.println("Removing");
+                    break;
+                } else {
+                    return false;
+                }
+            }
+        }
+        clazz.methods.add(method);
+        return true;
+    }
+
 }

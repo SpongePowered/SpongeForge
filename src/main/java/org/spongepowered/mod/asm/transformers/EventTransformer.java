@@ -28,6 +28,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,14 +44,15 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.util.CheckClassAdapter;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.state.InitializationEvent;
 import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
 import org.spongepowered.api.event.voxel.VoxelEvent;
+import org.spongepowered.mod.asm.util.ASMHelper;
 
 import cpw.mods.fml.relauncher.FMLRelaunchLog;
-import org.spongepowered.mod.asm.util.ASMHelper;
 
 public class EventTransformer implements IClassTransformer {
     
@@ -99,6 +101,10 @@ public class EventTransformer implements IClassTransformer {
                                                        Type.getType(File.class));
                 ASMHelper.generateSelfForwardingMethod(classNode, "getPluginLog", "getModLog",
                                                        Type.getType(Logger.class));
+                ASMHelper.generateThrowExceptionMethod(classNode, "getSuggestedConfigurationDirectory", Type.getType(File.class), 
+                                                       new Type[0], Type.getType(UnsupportedOperationException.class), 
+                                                       "This method is not implemented");
+                
             }
             
             ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS | COMPUTE_FRAMES);
