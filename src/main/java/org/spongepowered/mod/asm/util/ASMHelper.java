@@ -25,6 +25,8 @@
 
 package org.spongepowered.mod.asm.util;
 
+import java.util.Iterator;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -276,5 +278,24 @@ public class ASMHelper {
         } else {
             return new LdcInsnNode(c);
         }
+    }
+    
+    /** 
+     * Finds a method given the method descriptor
+     * 
+     * @param clazz the class to scan
+     * @param name the method name
+     * @param desc the method descriptor
+     * @param 
+     */
+    public static MethodNode findMethod(ClassNode clazz, String name, String desc) {
+        Iterator<MethodNode> i = clazz.methods.iterator();
+        while (i.hasNext()) {
+            MethodNode m = i.next();
+            if (m.name.equals(name) && m.desc.equals(desc)) {
+                return m;
+            }
+        }
+        return null;
     }
 }
