@@ -22,40 +22,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
+package org.spongepowered.mod.global;
 
-import java.util.Map;
-import org.spongepowered.mod.global.ModVariables;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-
-import java.util.Map;
-
-public class SpongeCoremod implements IFMLLoadingPlugin {
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[] {
-                ModVariables.EVENT_TRANSFORMER
-        };
+/**
+ * <p>Sponge Global Mod Variables</p>
+ */
+public class ModVariables {
+    
+    /**
+     * <p>Sponge API Mod</p>
+     */
+    public static final String NAME = "SpongeAPIMod";
+    
+    /**
+     * <p>Sponge Mod Path</p>
+     */
+    public static final String PATH = "org.spongepowered.mod.SpongeMod";
+    
+    /**
+     * <p>Sponge Proxy Mod Path</p>
+     */
+    public static final String PROXY = "org.spongepowered.mod.plugin.SpongePluginContainer$ProxyMod";
+    
+    /**
+     * <p>Event Transformer Path</p>
+     */
+    public static final String EVENT_TRANSFORMER = "org.spongepowered.mod.asm.transformers.EventTransformer";
+    
+    /**
+     * <p>Event Priority Path</p>
+     */
+    public static final String EVENT_PRIORITY = "cpw.mods.fml.common.eventhandler.EventPriority";
+    
+    
+    /**
+     * <p>Yeah... We don't touch this... and we like it that way, yeah? :P</p>
+     */
+    private ModVariables() {
+        
     }
-
-    @Override
-    public String getModContainerClass() {
-        return ModVariables.PATH;
-    }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
-    }
-
 }

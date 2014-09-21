@@ -31,6 +31,7 @@ import java.util.Map;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.mod.global.ModVariables;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 
 import com.google.common.collect.Maps;
@@ -41,6 +42,7 @@ import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainerFactory;
 import cpw.mods.fml.common.ModMetadata;
+import cpw.mods.fml.common.event.FMLStateEvent;
 
 public class SpongeMod extends DummyModContainer {
     public static SpongeMod instance;
@@ -56,9 +58,8 @@ public class SpongeMod extends DummyModContainer {
         super(new ModMetadata());
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongePluginContainer.class);
-
-        this.getMetadata().name = "SpongeAPIMod";
-        this.getMetadata().modId = "SpongeAPIMod";
+        this.getMetadata().name = ModVariables.NAME;
+        this.getMetadata().modId = ModVariables.NAME;
         SpongeMod.instance = this;
         game = new SpongeGame();
     }

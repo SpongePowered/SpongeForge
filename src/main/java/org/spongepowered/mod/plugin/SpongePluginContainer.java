@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.global.ModVariables;
 
 import com.google.common.base.Throwables;
 import com.google.common.eventbus.EventBus;
@@ -54,7 +55,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     
     public SpongePluginContainer(String className, ModCandidate container, Map<String, Object> modDescriptor) {
         // I suggest that you should be instantiating a proxy object, not the real plugin here.
-        super("org.spongepowered.mod.plugin.SpongePluginContainer$ProxyMod", container, modDescriptor);
+        super(ModVariables.PROXY, container, modDescriptor);
         this.fmlDescriptor = modDescriptor;
         this.className = className;
         this.container = container;
