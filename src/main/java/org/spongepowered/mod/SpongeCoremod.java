@@ -33,7 +33,8 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
-                "org.spongepowered.mod.asm.transformers.EventTransformer"
+                "org.spongepowered.mod.asm.transformers.EventTransformer",
+                "org.spongepowered.mod.asm.transformers.BaseEventTransformer"
         };
     }
 
