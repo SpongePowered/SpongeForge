@@ -67,7 +67,7 @@ public class EventTransformer implements IClassTransformer {
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
         
-        if (bytes == null || name.startsWith("net.minecraft.") || name.indexOf('.') == -1) {
+        if (bytes == null || name.startsWith("net.minecraft.") || name.equals("org.spongepowered.api.event.BaseEvent") || name.indexOf('.') == -1) {
             return bytes;
         }
 
@@ -110,7 +110,7 @@ public class EventTransformer implements IClassTransformer {
         }
     }
     
-    private MethodNode createGetGameMethod() {
+    static protected MethodNode createGetGameMethod() {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "getGame", "()Lorg/spongepowered/api/Game;", null, null);
         methodNode.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, "org/spongepowered/mod/SpongeMod", "instance", "Lorg/spongepowered/mod/SpongeMod;"));
         methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "org/spongepowered/mod/SpongeMod", "getGame", "()Lorg/spongepowered/mod/SpongeGame;", false));
