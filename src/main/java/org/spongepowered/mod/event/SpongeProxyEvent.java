@@ -26,34 +26,68 @@ package org.spongepowered.mod.event;
 
 import cpw.mods.fml.common.eventhandler.Event;
 
+/**
+ * Represents an cancelable {@link SpongeProxyEvent}
+ *
+ */
 public class SpongeProxyEvent extends Event {
 
     private final org.spongepowered.api.event.Event event;
 
+    /**
+     * Initializes the {@link SpongeProxyEvent} with parent {@link org.spongepowered.api.event.Event}
+     * 
+     * @param event Parent {@link org.spongepowered.api.event.Event}
+     */
     public SpongeProxyEvent(org.spongepowered.api.event.Event event) {
         this.event = event;
     }
 
+    /**
+     * Checks if the parent {@link org.spongepowered.api.event.Event} is cancelable
+     * 
+     * @return {@code true} if cancelable, {@code false} if not
+     */
     @Override
     public boolean isCancelable() {
         return event.isCancellable();
     }
 
+    /**
+     * Checks if parent {@link org.spongepowered.api.event.Event} is already canceled
+     * 
+     * @return {@code true} if canceled, {@code false} if not
+     */
     @Override
     public boolean isCanceled() {
         return event.isCancelled();
     }
 
+    /**
+     * Sets the parent {@link org.spongepowered.api.event.Event} canceled
+     * 
+     * @param cancel {@code true} to cancel
+     */
     @Override
     public void setCanceled(boolean cancel) {
         event.setCancelled(cancel);
     }
 
+    /**
+     * Checks, if parent {@link org.spongepowered.api.event.Event} has a result
+     * 
+     * @return {@code true} if there is a result to get, {@code false} if not
+     */
     @Override
     public boolean hasResult() {
         return event.getResult() != org.spongepowered.api.event.Result.NO_RESULT;
     }
 
+    /**
+     * Returns the {@link cpw.mods.fml.common.eventhandler.Event.Result} of parent {@link org.spongepowered.api.event.Event}
+     * 
+     * @return The parents {@link org.spongepowered.api.event.Event} {@link cpw.mods.fml.common.eventhandler.Event.Result}
+     */
     @Override
     public Result getResult() {
         final org.spongepowered.api.event.Result result = event.getResult();
@@ -68,6 +102,11 @@ public class SpongeProxyEvent extends Event {
         }
     }
 
+    /**
+     * Sets the parent event {@link cpw.mods.fml.common.eventhandler.Event.Result}
+     * 
+     * @param value New result value as {@link cpw.mods.fml.common.eventhandler.Event.Result}
+     */
     @Override
     public void setResult(Result value) {
         switch (value) {
