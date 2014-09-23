@@ -34,12 +34,10 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.spongepowered.api.Game;
 import org.spongepowered.mod.asm.util.ASMHelper;
 
 public class BaseEventTransformer implements IClassTransformer {
@@ -56,14 +54,18 @@ public class BaseEventTransformer implements IClassTransformer {
             ClassNode classNode = new ClassNode();
             cr.accept(classNode, 0);
             
-            MethodNode method = ASMHelper.findMethod(classNode, "getGame", "()" + Type.getType(Game.class).getDescriptor());
+            // Add forwarding methods
+            ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createGetGameMethod());
+            ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createGetSimpleNameMethod());
+            ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createIsCancellableMethod());
+            ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createIsCancelledMethod());
+            ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createSetCancelledMethod());
             
-            classNode.methods.remove(method);
-            classNode.methods.add(EventTransformer.createGetGameMethod());
-            
+            // Change super-class
             classNode.superName = "cpw/mods/fml/common/eventhandler/Event";
             
-            method = ASMHelper.findMethod(classNode, "<init>", "()V");
+            // Replace super() call in constructor so that it points to the new super-class
+            MethodNode method = ASMHelper.findMethod(classNode, "<init>", "()V");
             
             ListIterator<AbstractInsnNode> instructions = method.instructions.iterator();
             

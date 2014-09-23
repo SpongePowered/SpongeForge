@@ -25,8 +25,14 @@
 
 package org.spongepowered.mod.asm.util;
 
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
+
+import java.io.PrintWriter;
 import java.util.Iterator;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -38,6 +44,7 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.util.CheckClassAdapter;
 
 public class ASMHelper {
 
@@ -297,5 +304,41 @@ public class ASMHelper {
             }
         }
         return null;
+    }
+    
+    /**
+     * Adds a method to a class, overwriting any matching method.
+     * 
+     * @param clazz the class to scan
+     * @param method the method to add
+     */
+    public static void addAndReplaceMethod(ClassNode clazz, MethodNode method) {
+        MethodNode m = findMethod(clazz, method.name, method.desc);
+        if (m != null) {
+            clazz.methods.remove(m);
+        }
+        clazz.methods.add(method);
+    }
+    
+    /**
+     * Dumps the output of CheckClassAdapter.verify to System.out
+     * 
+     * @param clazz the classNode to verify
+     */
+    public static void dumpClass(ClassNode classNode) {
+        ClassWriter cw = new ClassWriter(COMPUTE_MAXS | COMPUTE_FRAMES);
+        classNode.accept(cw);
+        dumpClass(cw.toByteArray());
+    }
+    
+    /**
+     * Dumps the output of CheckClassAdapter.verify to System.out
+     * 
+     * @param bytes the bytecode of the class to check
+     * @param bytes
+     */
+    public static void dumpClass(byte[] bytes) {
+        ClassReader cr = new ClassReader(bytes);
+        CheckClassAdapter.verify(cr, true, new PrintWriter(System.out));
     }
 }
