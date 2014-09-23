@@ -60,7 +60,7 @@ import cpw.mods.fml.common.eventhandler.Event;
 @Cancelable
 public class EventTransformer implements IClassTransformer {
     
-    private final static Map<String, Class<?>> events = new HashMap<String, Class<?>>();
+    private static final Map<String, Class<?>> events = new HashMap<String, Class<?>>();
     
     static {
         events.put("cpw.mods.fml.common.event.FMLPreInitializationEvent", PreInitializationEvent.class);
@@ -73,12 +73,12 @@ public class EventTransformer implements IClassTransformer {
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
         
-        if (bytes == null || 
-                transformedName.startsWith("net.minecraft.") || 
-                transformedName.equals("org.spongepowered.api.event.BaseEvent") || 
-                transformedName.equals("cpw.mods.fml.common.event.FMLEvent") || 
-                transformedName.equals("cpw.mods.fml.common.eventhandler.Event") || 
-                transformedName.indexOf('.') == -1) {
+        if (bytes == null 
+                || transformedName.startsWith("net.minecraft.")
+                || transformedName.equals("org.spongepowered.api.event.BaseEvent")
+                || transformedName.equals("cpw.mods.fml.common.event.FMLEvent")
+                || transformedName.equals("cpw.mods.fml.common.eventhandler.Event") 
+                || transformedName.indexOf('.') == -1) {
             return bytes;
         }
 
@@ -122,7 +122,7 @@ public class EventTransformer implements IClassTransformer {
             }
 
             // TODO: This is a temporary thing to make PreInit work. The different things needed to make different events work should be abstracted.
-            if(interf != null && PreInitializationEvent.class.isAssignableFrom(interf)) {
+            if (interf != null && PreInitializationEvent.class.isAssignableFrom(interf)) {
                 ASMHelper.generateSelfForwardingMethod(classNode, "getConfigurationDirectory", "getModConfigurationDirectory",
                                                        Type.getType(File.class));
                 ASMHelper.generateSelfForwardingMethod(classNode, "getPluginLog", "getModLog",
@@ -139,17 +139,19 @@ public class EventTransformer implements IClassTransformer {
         }
     }
     
-    static protected MethodNode createGetGameMethod() {
+    protected static MethodNode createGetGameMethod() {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "getGame", "()Lorg/spongepowered/api/Game;", null, null);
-        methodNode.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, "org/spongepowered/mod/SpongeMod", "instance", "Lorg/spongepowered/mod/SpongeMod;"));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "org/spongepowered/mod/SpongeMod", "getGame", "()Lorg/spongepowered/mod/SpongeGame;", false));
+        methodNode.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, "org/spongepowered/mod/SpongeMod", "instance", 
+                "Lorg/spongepowered/mod/SpongeMod;"));
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "org/spongepowered/mod/SpongeMod", "getGame", 
+                "()Lorg/spongepowered/mod/SpongeGame;", false));
         methodNode.instructions.add(new InsnNode(Opcodes.ARETURN));
         methodNode.maxLocals = 1;
         methodNode.maxStack = 1;
         return methodNode;
     }
     
-    static protected MethodNode createGetSimpleNameMethod() {
+    protected static MethodNode createGetSimpleNameMethod() {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "getSimpleName", "()Ljava/lang/String;", null, null);
         methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false));
@@ -160,17 +162,18 @@ public class EventTransformer implements IClassTransformer {
         return methodNode;
     }
     
-    static protected MethodNode createIsCancellableMethod() {
+    protected static MethodNode createIsCancellableMethod() {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "isCancellable", "()Z", null, null);
         methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "cpw/mods/fml/common/eventhandler/Event", "isCancelable", "()Z", false));
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "cpw/mods/fml/common/eventhandler/Event", "isCancelable", 
+                "()Z", false));
         methodNode.instructions.add(new InsnNode(Opcodes.IRETURN));
         methodNode.maxLocals = 1;
         methodNode.maxStack = 1;
         return methodNode;
     }
     
-    static protected MethodNode createIsCancelledMethod() {
+    protected static MethodNode createIsCancelledMethod() {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "isCancelled", "()Z", null, null);
         methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "cpw/mods/fml/common/eventhandler/Event", "isCanceled", "()Z", false));
@@ -180,11 +183,12 @@ public class EventTransformer implements IClassTransformer {
         return methodNode;
     }
     
-    static protected MethodNode createSetCancelledMethod() {
+    protected static MethodNode createSetCancelledMethod() {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "setCancelled", "(Z)V", null, null);
         methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         methodNode.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "cpw/mods/fml/common/eventhandler/Event", "setCanceled", "(Z)V", false));
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "cpw/mods/fml/common/eventhandler/Event", "setCanceled", 
+                "(Z)V", false));
         methodNode.instructions.add(new InsnNode(Opcodes.RETURN));
         methodNode.maxLocals = 1;
         methodNode.maxStack = 1;

@@ -54,15 +54,15 @@ public class EventRegistry {
         register(BlockEvent.BreakEvent.class, VoxelEvent.class);
     }
     
-    static private void register(Class<?> otherEvent, Class<?> spongeEvent) {
+    private static void register(Class<?> otherEvent, Class<?> spongeEvent) {
         eventMap.put(otherEvent, spongeEvent);
     }
     
-    static public Class<?> getImplementingClass(Class<?> apiClass) {
+    public static Class<?> getImplementingClass(Class<?> apiClass) {
         return eventMap.inverse().get(apiClass);
     }
     
-    static public Class<?> getAPIClass(Class<?> implementingClass) {
+    public static Class<?> getAPIClass(Class<?> implementingClass) {
         return eventMap.get(implementingClass);
     }
 

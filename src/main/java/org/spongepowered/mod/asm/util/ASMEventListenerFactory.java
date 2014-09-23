@@ -37,9 +37,9 @@ import org.objectweb.asm.util.CheckClassAdapter;
 
 public class ASMEventListenerFactory {
     
-    private final static ASMFactoryClassLoader loader = new ASMFactoryClassLoader();
-    private final static Map<HashTriple, Class<?>> cache = new ConcurrentHashMap<HashTriple, Class<?>>();
-    private final static Object classCreationLock = new Object();
+    private static final ASMFactoryClassLoader loader = new ASMFactoryClassLoader();
+    private static final Map<HashTriple, Class<?>> cache = new ConcurrentHashMap<HashTriple, Class<?>>();
+    private static final Object classCreationLock = new Object();
     
     private static int classId = 0;
     
@@ -87,11 +87,17 @@ public class ASMEventListenerFactory {
             }
             return (T) clazz.getConstructor(Object.class).newInstance(target);
         } catch (InstantiationException e) {
+            ;
         } catch (IllegalAccessException e) {
+            ;
         } catch (IllegalArgumentException e) {
+            ;
         } catch (InvocationTargetException e) {
+            ;
         } catch (NoSuchMethodException e) {
+            ;
         } catch (SecurityException e) {
+            ;
         }
         return null;
     }

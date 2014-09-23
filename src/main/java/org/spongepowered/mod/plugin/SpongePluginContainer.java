@@ -84,13 +84,6 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
         super.setEnabledState(enabled);
         this.enabled = enabled;
     }
-    
-    @Override
-    public boolean registerBus(EventBus bus, LoadController controller) {
-        if (enabled) {
-        }
-        return super.registerBus(bus, controller);
-    }
 
     @Override
     @Subscribe

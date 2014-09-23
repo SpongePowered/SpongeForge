@@ -269,7 +269,8 @@ public class ASMHelper {
         code.add(new InsnNode(rettype.getOpcode(Opcodes.IRETURN)));
     }
     
-    private final static int[] intConstants = new int[] {Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5};
+    private static final int[] intConstants = new int[] 
+            {Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5};
     
     /**
      * Gets an instruction that pushes a integer onto the stack.  The instruction uses
