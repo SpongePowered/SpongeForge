@@ -29,14 +29,18 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
 import java.util.Iterator;
+import java.util.List;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
@@ -340,5 +344,123 @@ public class ASMHelper {
     public static void dumpClass(byte[] bytes) {
         ClassReader cr = new ClassReader(bytes);
         CheckClassAdapter.verify(cr, true, new PrintWriter(System.out));
+    }
+    
+    /**
+     * Get a runtime-visible annotation of the specified class from the supplied field node
+     * 
+     * @param field Source field
+     * @param annotationClass Type of annotation to search for
+     * @return the annotation, or null if not present
+     */
+    public static AnnotationNode getVisibleAnnotation(FieldNode field, Class<? extends Annotation> annotationClass) {
+        return ASMHelper.getAnnotation(field.visibleAnnotations, Type.getDescriptor(annotationClass));
+    }
+
+    /**
+     * Get an invisible annotation of the specified class from the supplied field node
+     * 
+     * @param field Source field
+     * @param annotationClass Type of annotation to search for
+     * @return the annotation, or null if not present
+     */
+    public static AnnotationNode getInvisibleAnnotation(FieldNode field, Class<? extends Annotation> annotationClass) {
+        return ASMHelper.getAnnotation(field.invisibleAnnotations, Type.getDescriptor(annotationClass));
+    }
+    
+    /**
+     * Get a runtime-visible annotation of the specified class from the supplied method node
+     * 
+     * @param method Source method
+     * @param annotationClass Type of annotation to search for
+     * @return the annotation, or null if not present
+     */
+    public static AnnotationNode getVisibleAnnotation(MethodNode method, Class<? extends Annotation> annotationClass) {
+        return ASMHelper.getAnnotation(method.visibleAnnotations, Type.getDescriptor(annotationClass));
+    }
+    
+    /**
+     * Get an invisible annotation of the specified class from the supplied method node
+     * 
+     * @param method Source method
+     * @param annotationClass Type of annotation to search for
+     * @return the annotation, or null if not present
+     */
+    public static AnnotationNode getInvisibleAnnotation(MethodNode method, Class<? extends Annotation> annotationClass) {
+        return ASMHelper.getAnnotation(method.invisibleAnnotations, Type.getDescriptor(annotationClass));
+    }
+
+    /**
+     * Get a runtime-visible annotation of the specified class from the supplied class node
+     * 
+     * @param classNode Source classNode
+     * @param annotationClass Type of annotation to search for
+     * @return the annotation, or null if not present
+     */
+    public static AnnotationNode getVisibleAnnotation(ClassNode classNode, Class<? extends Annotation> annotationClass) {
+        return ASMHelper.getAnnotation(classNode.visibleAnnotations, Type.getDescriptor(annotationClass));
+    }
+    
+    /**
+     * Get an invisible annotation of the specified class from the supplied class node
+     * 
+     * @param classNode Source classNode
+     * @param annotationClass Type of annotation to search for
+     * @return the annotation, or null if not present
+     */
+    public static AnnotationNode getInvisibleAnnotation(ClassNode classNode, Class<? extends Annotation> annotationClass) {
+        return ASMHelper.getAnnotation(classNode.invisibleAnnotations, Type.getDescriptor(annotationClass));
+    }
+    
+    /**
+     * Search for and return an annotation node matching the specified type within the supplied
+     * collection of annotation nodes
+     * 
+     * @param annotations Haystack
+     * @param annotationType Needle
+     * @return matching annotation node or null if the annotation doesn't exist
+     */
+    public static AnnotationNode getAnnotation(List<AnnotationNode> annotations, String annotationType) {
+        if (annotations == null) return null;
+        
+        for (AnnotationNode annotation : annotations) {
+            if (annotationType.equals(annotation.desc)) {
+                return annotation;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Duck type the "value" entry (if any) of the specified annotation node
+     * 
+     * @param annotation Annotation node to query
+     * @return duck-typed annotation value, null if missing, or inevitable ClassCastException if your duck is actually a rooster 
+     */
+    public static <T> T getAnnotationValue(AnnotationNode annotation) {
+        return ASMHelper.getAnnotationValue(annotation, "value");
+    }
+
+    /**
+     * Get the value of an annotation node and do pseudo-duck-typing via Java's crappy generics
+     * 
+     * @param annotation Annotation node to query
+     * @param key Key to search for
+     * @return duck-typed annotation value, null if missing, or inevitable ClassCastException if your duck is actually a rooster 
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T getAnnotationValue(AnnotationNode annotation, String key) {
+        boolean getNextValue = false;
+        
+        // Keys and value are stored in successive pairs, search for the key and if found return the following entry
+        for (Object value : annotation.values) {
+            if (getNextValue)
+                return (T)value;
+            if (value.equals(key))
+                getNextValue = true; 
+        }
+        
+        return null;
     }
 }
