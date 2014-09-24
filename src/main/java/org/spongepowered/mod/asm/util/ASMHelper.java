@@ -422,7 +422,9 @@ public class ASMHelper {
      * @return matching annotation node or null if the annotation doesn't exist
      */
     public static AnnotationNode getAnnotation(List<AnnotationNode> annotations, String annotationType) {
-        if (annotations == null) return null;
+        if (annotations == null) {
+            return null;
+        }
         
         for (AnnotationNode annotation : annotations) {
             if (annotationType.equals(annotation.desc)) {
@@ -456,10 +458,12 @@ public class ASMHelper {
         
         // Keys and value are stored in successive pairs, search for the key and if found return the following entry
         for (Object value : annotation.values) {
-            if (getNextValue)
-                return (T)value;
-            if (value.equals(key))
-                getNextValue = true; 
+            if (getNextValue) {
+                return (T) value;
+            }
+            if (value.equals(key)) {
+                getNextValue = true;
+            }
         }
         
         return null;
