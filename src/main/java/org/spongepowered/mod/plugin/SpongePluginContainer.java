@@ -101,8 +101,8 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
             controller.errorOccurred(this, e);
             Throwables.propagateIfPossible(e);
         }
-        
-        SpongeMod.instance.registerPluginContainer(this, getID(), getInstance());
+
+        SpongeMod.getInstance().registerPluginContainer(this, getID(), getInstance());
     }
 
     @Override

@@ -36,7 +36,7 @@ public class SpongePluginManager implements PluginManager {
 
     @Override
     public PluginContainer getPlugin(String s) {
-        return SpongeMod.instance.getPlugin(s);
+        return SpongeMod.getInstance().getPlugin(s);
     }
 
     @Override
@@ -46,6 +46,6 @@ public class SpongePluginManager implements PluginManager {
 
     @Override
     public Collection<PluginContainer> getPlugins() {
-        return SpongeMod.instance.getPlugins();
+        return SpongeMod.getInstance().getPlugins();
     }
 }
