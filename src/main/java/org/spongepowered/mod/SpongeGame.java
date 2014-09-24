@@ -44,13 +44,16 @@ public final class SpongeGame implements Game {
 
     private static final String apiVersion = Game.class.getPackage().getImplementationVersion();
     private static final String implementationVersion = SpongeGame.class.getPackage().getImplementationVersion();
+    private static SpongeGame INSTANCE = new SpongeGame();
     private final Logger logger = LogManager.getLogger("sponge");
     private final SpongePluginManager pluginManager;
-    private final SpongeEventManager eventManager;
 
     public SpongeGame() {
         this.pluginManager = new SpongePluginManager();
-        this.eventManager = new SpongeEventManager(this);
+    }
+
+    public static SpongeGame getInstance() {
+        return INSTANCE;
     }
 
     public Logger getLogger() {
@@ -74,7 +77,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public EventManager getEventManager() {
-        return eventManager;
+        return SpongeEventManager.getInstance();
     }
 
     @Override
