@@ -238,7 +238,8 @@ public class MixinTransformer extends TreeTransformer {
             } else if (!mixinMethod.name.startsWith("<")) {
                 // Nope
                 if (MixinTransformer.hasFlag(mixinMethod, Opcodes.ACC_STATIC) && !MixinTransformer.hasFlag(mixinMethod, Opcodes.ACC_PRIVATE)) {
-                    throw new InvalidMixinException(String.format("Mixin classes cannot contain visible static methods or fields, found %s", mixinMethod.name));
+                    throw new InvalidMixinException(
+                            String.format("Mixin classes cannot contain visible static methods or fields, found %s", mixinMethod.name));
                 }
 
                 MethodNode target = this.findTargetMethod(targetClass, mixinMethod);

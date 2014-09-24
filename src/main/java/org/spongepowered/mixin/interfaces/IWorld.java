@@ -27,6 +27,9 @@ package org.spongepowered.mixin.interfaces;
 import net.minecraft.world.EnumSkyBlock;
 
 
+/**
+ * An example mixin interface, this interface describes the contract of the mixin and will be patched onto the mixin's target class at runtime. 
+ */
 public interface IWorld {
 
     /**
@@ -34,5 +37,14 @@ public interface IWorld {
      */
     public abstract int getAmbientTickCountdown();
     
+    /**
+     * Even more tenuous example
+     * 
+     * @param x 
+     * @param y
+     * @param z
+     * @param block
+     * @return
+     */
     public abstract int exampleMethodToComputeLightValue(int x, int y, int z, EnumSkyBlock block);
 }

@@ -80,7 +80,7 @@ class MixinInfo implements Comparable<MixinInfo> {
     /**
      * Intrinsic order (for sorting mixins with identical priority)
      */
-    private transient final int order = MixinInfo.mixinOrder++;
+    private final transient int order = MixinInfo.mixinOrder++;
     
     /**
      * Mixin bytes (read once, generate tree on demand)
@@ -246,7 +246,7 @@ class MixinInfo implements Comparable<MixinInfo> {
         final List<IClassTransformer> transformers = Launch.classLoader.getTransformers();
 
         for (final IClassTransformer transformer : transformers) {
-            if (transformer != this) {
+            if (!(transformer instanceof MixinTransformer)) {
                 basicClass = transformer.transform(name, name, basicClass);
             }
         }

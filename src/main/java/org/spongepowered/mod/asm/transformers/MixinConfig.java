@@ -41,7 +41,7 @@ class MixinConfig {
     /**
      * Map of mixin target classes to mixin infos
      */
-    private transient final Map<String, List<MixinInfo>> mixinMapping = new HashMap<String, List<MixinInfo>>();
+    private final transient Map<String, List<MixinInfo>> mixinMapping = new HashMap<String, List<MixinInfo>>();
     
     /**
      * Package containing all mixins. This package will be monitored by the transformer so that we can explode if some dummy tries to reference a
