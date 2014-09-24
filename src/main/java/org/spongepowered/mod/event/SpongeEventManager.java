@@ -49,8 +49,7 @@ import cpw.mods.fml.common.event.FMLEvent;
 
 public class SpongeEventManager implements EventManager {
 
-    private final SpongeGame game;
-
+    private static SpongeEventManager INSTANCE = new SpongeEventManager();
     private final Map<Object, List<PriorityEventListener<cpw.mods.fml.common.eventhandler.Event>>> forgePluginHandlerMap =
             new HashMap<Object, List<PriorityEventListener<cpw.mods.fml.common.eventhandler.Event>>>();
     private final SpongeEventBus eventBus = new SpongeEventBus();
@@ -59,8 +58,12 @@ public class SpongeEventManager implements EventManager {
     private final Map<Class<? extends FMLEvent>, List<PriorityEventListener<FMLEvent>>> fmlEventHandlerMap = 
             new HashMap<Class<? extends FMLEvent>, List<PriorityEventListener<FMLEvent>>>();
 
-    public SpongeEventManager(SpongeGame game) {
-        this.game = game;
+    public SpongeEventManager() {
+    }
+
+
+    public static SpongeEventManager getInstance() {
+        return INSTANCE;
     }
 
     @SuppressWarnings("unchecked")
@@ -93,9 +96,9 @@ public class SpongeEventManager implements EventManager {
             }
             
             if (implementingEvent == null) {
-                game.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
+                SpongeGame.getInstance().getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
             } else if (BaseEvent.class.equals(implementingEvent)) {
-                game.getLogger().warn("Handlers may not listen for BaseEvent directly, registration failed");
+                SpongeGame.getInstance().getLogger().warn("Handlers may not listen for BaseEvent directly, registration failed");
             } else if (cpw.mods.fml.common.eventhandler.Event.class.isAssignableFrom(implementingEvent)) {
                 // Forge events
                 EventListener<cpw.mods.fml.common.eventhandler.Event> listener = 
@@ -155,14 +158,14 @@ public class SpongeEventManager implements EventManager {
         if (spongeEvent instanceof cpw.mods.fml.common.eventhandler.Event) {
             MinecraftForge.EVENT_BUS.post((cpw.mods.fml.common.eventhandler.Event) spongeEvent);
         } else {
-            game.getLogger().info("Event not a sub-classes of forge Event or BaseEvent");
+            SpongeGame.getInstance().getLogger().info("Event not a sub-classes of forge Event or BaseEvent");
             return false;
         }
         return true;
     }
 
     public SpongeGame getGame() {
-        return game;
+        return SpongeGame.getInstance();
     }
 
     @Subscribe

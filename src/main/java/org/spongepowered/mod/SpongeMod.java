@@ -31,6 +31,7 @@ import java.util.Map;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 
 import com.google.common.collect.Maps;
@@ -43,8 +44,7 @@ import cpw.mods.fml.common.ModContainerFactory;
 import cpw.mods.fml.common.ModMetadata;
 
 public class SpongeMod extends DummyModContainer {
-    public static SpongeMod instance;
-    private final SpongeGame game;
+    public static SpongeMod INSTANCE;
 
     private Map<Object, PluginContainer> plugins = Maps.newHashMap();
     private EventBus eventBus;
@@ -59,13 +59,16 @@ public class SpongeMod extends DummyModContainer {
 
         this.getMetadata().name = "SpongeAPIMod";
         this.getMetadata().modId = "SpongeAPIMod";
-        SpongeMod.instance = this;
-        game = new SpongeGame();
+        SpongeMod.INSTANCE = this;
     }
-    
+
+    public static SpongeMod getInstance() {
+        return INSTANCE;
+    }
+
     public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object proxyInstance) {
         plugins.put(proxyInstance, spongePluginContainer);
-        game.getEventManager().register(spongePluginContainer.getInstance());
+        SpongeGame.getInstance().getEventManager().register(spongePluginContainer.getInstance());
     }
 
     public Collection<PluginContainer> getPlugins() {
@@ -78,13 +81,13 @@ public class SpongeMod extends DummyModContainer {
     }
 
     public SpongeGame getGame() {
-        return game;
+        return SpongeGame.getInstance();
     }
 
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
-        bus.register(game.getEventManager());
+        bus.register(SpongeEventManager.getInstance());
         this.eventBus = bus;
         this.controller = controller;
         return true;

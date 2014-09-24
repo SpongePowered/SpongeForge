@@ -181,7 +181,7 @@ public class ASMEventListenerHolderFactory {
         private final ClassLoader loader;
 
         public ClassLoaderAccess() {
-            loader = SpongeMod.instance.getClass().getClassLoader();
+            loader = SpongeMod.getInstance().getClass().getClassLoader();
             Method m = null;
             try {
                 Class<?> clazz = loader.getClass();
