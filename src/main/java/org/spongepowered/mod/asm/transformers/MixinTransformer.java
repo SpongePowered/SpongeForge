@@ -42,6 +42,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.mod.asm.util.ASMHelper;
 import org.spongepowered.mod.mixin.InvalidMixinException;
+import org.spongepowered.mod.mixin.Overwrite;
 import org.spongepowered.mod.mixin.Shadow;
 
 /**
@@ -227,6 +228,7 @@ public class MixinTransformer extends TreeTransformer {
             this.transformMethod(mixinMethod, mixinClass.name, targetClass.name);
 
             boolean isShadow = ASMHelper.getVisibleAnnotation(mixinMethod, Shadow.class) != null;
+            boolean isOverwrite = ASMHelper.getVisibleAnnotation(mixinMethod, Overwrite.class) != null;
             boolean isAbstract = MixinTransformer.hasFlag(mixinMethod, Opcodes.ACC_ABSTRACT);
             
             if (isShadow || isAbstract) {
@@ -236,8 +238,9 @@ public class MixinTransformer extends TreeTransformer {
                     throw new InvalidMixinException(String.format("Shadow method %s was not located in the target class", mixinMethod.name));
                 }
             } else if (!mixinMethod.name.startsWith("<")) {
-                // Nope
-                if (MixinTransformer.hasFlag(mixinMethod, Opcodes.ACC_STATIC) && !MixinTransformer.hasFlag(mixinMethod, Opcodes.ACC_PRIVATE)) {
+                if (MixinTransformer.hasFlag(mixinMethod, Opcodes.ACC_STATIC)
+                        && !MixinTransformer.hasFlag(mixinMethod, Opcodes.ACC_PRIVATE)
+                        && !isOverwrite) {
                     throw new InvalidMixinException(
                             String.format("Mixin classes cannot contain visible static methods or fields, found %s", mixinMethod.name));
                 }
@@ -245,6 +248,8 @@ public class MixinTransformer extends TreeTransformer {
                 MethodNode target = this.findTargetMethod(targetClass, mixinMethod);
                 if (target != null) {
                     targetClass.methods.remove(target);
+                } else if (isOverwrite) {
+                    throw new InvalidMixinException(String.format("Overwrite target %s was not located in the target class", mixinMethod.name));
                 }
                 targetClass.methods.add(mixinMethod);
             } else if ("<clinit>".equals(mixinMethod.name)) {
