@@ -24,11 +24,15 @@
  */
 package org.spongepowered.mixin.impl;
 
+import net.minecraft.block.Block;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.mixin.interfaces.IWorld;
 import org.spongepowered.mod.mixin.Mixin;
+import org.spongepowered.mod.mixin.Overwrite;
 import org.spongepowered.mod.mixin.Shadow;
 
 
@@ -53,10 +57,25 @@ public abstract class MixinWorld implements IWorld {
     @Shadow private int ambientTickCountdown;
     
     /**
+     * A regular field, this will be merged into the target class and so will its initialiser. Note that the initialiser will run because the field
+     * is static. Non-static field initialisers <b>will be ignored</b> so if you add non-static fields be sure to initialise them somewhere else!
+     */
+    private static final Logger logger = LogManager.getLogger("sponge");
+    
+    /**
      * A shadow method, describing a method in the World class which we would like to invoke. The parameter names are not important, only the types
      * so we can change them to prevent checkstyle from bitching
      */
     @Shadow abstract int computeLightValue(int x, int y, int z, EnumSkyBlock block);
+    
+    /**
+     * Another shadow method 
+     */
+    @Shadow abstract void notifyBlocksOfNeighborChange(int x, int y, int z, Block block);
+    
+    // ===============================================================================================================================================
+    // Methods below implement the IWorld interface which is applied to the target class at load time
+    // ===============================================================================================================================================
     
     /* (non-Javadoc)
      * @see org.spongepowered.mixin.interfaces.IWorld#getAmbientTickCountdown()
@@ -75,4 +94,53 @@ public abstract class MixinWorld implements IWorld {
         // invoke the shadow method, at runtime this will invoke the "real" method in the target class
         return this.computeLightValue(x, y, z, block);
     }
+    
+    // ===============================================================================================================================================
+    // Methods below actually overwrite methods in the target class
+    // ===============================================================================================================================================
+    
+    /**
+     * <b>Overwrites</b> the <em>NotifyBlockChange</em> method in the target class
+     * 
+     * @param x
+     * @param y
+     * @param z
+     * @param block
+     */
+    @Overwrite
+    public void notifyBlockChange(int x, int y, int z, Block block) {
+        // Uncomment this for spam! (and to check that this is working) notice that we can happily refer to the static field in this class since the
+        // mixin transformer will update references to injected fields at load time. Thus qualifiers for private fields should always use the mixin
+        // class itself.
+        
+        // MixinWorld.logger.info("Spam! Block was changed at {}, {}, {} in {}", x, y, z, this);
+        
+        // This method is called in the original notifyBlockChange method 
+        this.notifyBlocksOfNeighborChange(x, y, z, block);
+    }
+    
+    // ===============================================================================================================================================
+    // Methods below show things which are NOT ALLOWED in a mixin. Uncomment any of them to experience full derp mode.
+    // ===============================================================================================================================================
+    
+//    /**
+//     * This <b>Non-static</b> field has an initialiser. Note that since instance initialisers are not (currently) injected, primitive types will get
+//     * their default value (eg. zero in this case) and reference types will be <em>null</em>!
+//     */
+//    private int someValue = 3;
+//    
+//    /**
+//     * Public, package-private, or protected static members <b>cannot<b> be injected into a target class, there is no point in doing so since there
+//     * is no feasible way to invoke the injected method anyway. If you need to inject static methods, make them private.
+//     */
+//    public static void illegalPublicStaticMethod()
+//    {
+//        // derp
+//    }
+//    
+//    /**
+//     * Attempting to {@link Shadow} or {@link Overwrite} a method which doesn't exist is a detectable error condition. The same applies to shadow
+//     * fields.
+//     */
+//    @Shadow public abstract void methodWhichDoesntExist(); 
 }
