@@ -41,6 +41,7 @@ import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.mod.asm.util.ASMHelper;
+import org.spongepowered.mod.mixin.Ignore;
 import org.spongepowered.mod.mixin.InvalidMixinException;
 import org.spongepowered.mod.mixin.Overwrite;
 import org.spongepowered.mod.mixin.Shadow;
@@ -224,6 +225,13 @@ public class MixinTransformer extends TreeTransformer {
      */
     private void applyMixinMethods(ClassNode targetClass, ClassNode mixinClass) {
         for (MethodNode mixinMethod : mixinClass.methods) {
+            boolean isIgnore = ASMHelper.getVisibleAnnotation(mixinMethod, Ignore.class) != null;
+
+            if (isIgnore){
+                System.out.println("Ignored methode " + mixinMethod.name);
+                continue;
+            }
+
             // Reparent all mixin methods into the target class
             this.transformMethod(mixinMethod, mixinClass.name, targetClass.name);
 
