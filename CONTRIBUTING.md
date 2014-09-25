@@ -47,7 +47,7 @@ You can also download our formatting xml files. Links for both are in our [contr
 ## The Gist
 While we urge that you read Google's Java conventions particularly, the two are fairly long documents. To get you started quickly, here is an example of properly formatted code...
 
-```
+```java
 package com.example.java;
 /* imports */
 public class Example {
