@@ -51,6 +51,7 @@ While we urge that you read Google's Java conventions particularly, the two are 
 package com.example.java;
 /* imports */
 public class Example {
+
    private static final Logger log = Logger.getLogger(ExampleClass.class);
    private static final Random random = new Random();
    private final String id = "test";
@@ -75,5 +76,6 @@ public class Example {
            return fallback;
        }
    }
+   
 }
 ```
