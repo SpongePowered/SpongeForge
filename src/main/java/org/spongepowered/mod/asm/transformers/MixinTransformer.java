@@ -33,17 +33,11 @@ import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 import org.spongepowered.mod.asm.util.ASMHelper;
-import org.spongepowered.mod.mixin.Ignore;
 import org.spongepowered.mod.mixin.InvalidMixinException;
 import org.spongepowered.mod.mixin.Overwrite;
+import org.spongepowered.mod.mixin.Rename;
 import org.spongepowered.mod.mixin.Shadow;
 
 /**
@@ -137,12 +131,28 @@ public class MixinTransformer extends TreeTransformer {
 
         try {
             this.verifyClasses(targetClass, mixinClass);
+            this.renameMethods(mixinClass);
             this.applyMixinInterfaces(targetClass, mixinClass);
             this.applyMixinAttributes(targetClass, mixinClass);
             this.applyMixinFields(targetClass, mixinClass);
             this.applyMixinMethods(targetClass, mixinClass);
         } catch (Exception ex) {
             throw new InvalidMixinException("Unexpecteded error whilst applying the mixin class", ex);
+        }
+    }
+
+
+    /**
+     * Checks for methods that need to be renamed
+     *
+     * @param mixinClass
+     */
+    private void renameMethods(ClassNode mixinClass) {
+        for (MethodNode method : mixinClass.methods){
+            AnnotationNode node = ASMHelper.getVisibleAnnotation(method, Rename.class);
+            if (node != null){
+                ASMHelper.renameMethod(mixinClass, method, (String) ASMHelper.getAnnotationValue(node, "value"));
+            }
         }
     }
 
@@ -225,13 +235,6 @@ public class MixinTransformer extends TreeTransformer {
      */
     private void applyMixinMethods(ClassNode targetClass, ClassNode mixinClass) {
         for (MethodNode mixinMethod : mixinClass.methods) {
-            boolean isIgnore = ASMHelper.getVisibleAnnotation(mixinMethod, Ignore.class) != null;
-
-            if (isIgnore){
-                System.out.println("Ignored methode " + mixinMethod.name);
-                continue;
-            }
-
             // Reparent all mixin methods into the target class
             this.transformMethod(mixinMethod, mixinClass.name, targetClass.name);
 

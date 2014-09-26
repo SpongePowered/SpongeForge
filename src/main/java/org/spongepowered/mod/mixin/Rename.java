@@ -5,7 +5,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+/**
+ * Used to rename a method.
+ * Usefully for methods that have the same name.
+ */
+
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Ignore {
+public @interface Rename {
+   public String value();
 }
