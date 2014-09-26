@@ -468,4 +468,26 @@ public class ASMHelper {
         
         return null;
     }
+
+    /**
+     * Renames the methodnode in the current classnode.
+     * Note: only rename methods that are used in the current class.
+     *
+     * @param classNode
+     * @param methodNode
+     * @param newname
+     */
+
+    public static void renameMethod(ClassNode classNode, MethodNode methodNode, String newname){
+        for (MethodNode method : classNode.methods) {
+            for (AbstractInsnNode node : method.instructions.toArray()) {
+                if (node instanceof MethodInsnNode) {
+                    MethodInsnNode wrongmethod = (MethodInsnNode) node;
+                    if (wrongmethod.name.equals(methodNode.name))
+                        wrongmethod.name = newname;
+                }
+            }
+        }
+        methodNode.name = newname;
+    }
 }
