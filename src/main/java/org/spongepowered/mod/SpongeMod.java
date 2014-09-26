@@ -28,13 +28,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import com.google.common.eventbus.Subscribe;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.world.World;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 
 import com.google.common.collect.Maps;
