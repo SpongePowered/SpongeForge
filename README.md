@@ -34,7 +34,7 @@ __For [Eclipse]__
 __For [IntelliJ]__  
   1. Run `gradle setupDecompWorkspace --refresh-dependencies`  
   2. Make sure you have the Gradle plugin enabled (File > Settings > Plugins).  
-  3. Click File > Import Module and select the **build.gradle** file for Sponge.
+  3. Run `gradle idea`, click `yes` if intellj asks to reload the project
 
 ## Running
 __Note:__ The following is aimed to help you setup run configurations for Eclipse and IntelliJ, if you do not want to be able to run Sponge directly from your IDE then you can skip this.  
