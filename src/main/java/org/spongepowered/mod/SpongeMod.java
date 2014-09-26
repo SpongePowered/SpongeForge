@@ -93,12 +93,4 @@ public class SpongeMod extends DummyModContainer {
         this.controller = controller;
         return true;
     }
-
-    @Subscribe
-    public void serverready(FMLServerStartingEvent event){
-        for (World e : getGame().getWorlds()){
-            System.out.print(e.getBlock(0, 0, 0).getID());
-        }
-
-    }
 }
