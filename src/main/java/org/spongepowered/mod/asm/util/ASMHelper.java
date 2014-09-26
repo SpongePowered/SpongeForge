@@ -483,7 +483,6 @@ public class ASMHelper {
             for (AbstractInsnNode node : method.instructions.toArray()) {
                 if (node instanceof MethodInsnNode) {
                     MethodInsnNode wrongmethod = (MethodInsnNode) node;
-                    System.out.println(methodNode.name + " " + wrongmethod.name + " " + newname);
                     if (wrongmethod.name.equals(methodNode.name))
                         wrongmethod.name = newname;
                 }
