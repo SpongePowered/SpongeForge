@@ -25,7 +25,6 @@
 package org.spongepowered.mod;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,9 +39,7 @@ import org.spongepowered.mod.collection.WorldCollection;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.UUID;
 
 public final class SpongeGame implements Game {
