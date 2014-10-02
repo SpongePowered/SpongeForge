@@ -30,7 +30,6 @@ import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.event.state.InitializationEvent;
 import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
-import org.spongepowered.api.event.voxel.VoxelEvent;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
