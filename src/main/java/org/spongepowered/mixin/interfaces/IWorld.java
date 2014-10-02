@@ -47,4 +47,14 @@ public interface IWorld {
      * @return
      */
     public abstract int exampleMethodToComputeLightValue(int x, int y, int z, EnumSkyBlock block);
+    
+    /**
+     * Contrived example to deliberately create a name clash with World
+     * 
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
+    public abstract Object getBlock(int x, int y, int z);
 }

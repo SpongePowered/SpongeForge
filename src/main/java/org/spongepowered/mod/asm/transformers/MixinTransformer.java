@@ -30,7 +30,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -105,7 +104,7 @@ public class MixinTransformer extends TreeTransformer {
         
         for (MixinInfo mixin : mixins) {
             this.logger.info("Applying mixin {} to {}", mixin.getClassName(), transformedName);
-            this.applyMixin(targetClass, mixin);
+            this.applyMixin(targetClass, mixin.getData());
         }
         
         // Extension point
@@ -128,18 +127,16 @@ public class MixinTransformer extends TreeTransformer {
      * Apply the mixin described by mixin to the supplied classNode
      * 
      * @param targetClass
-     * @param mixin
+     * @param mixinInfo
      */
-    protected void applyMixin(ClassNode targetClass, MixinInfo mixin) {
-        // Tree for mixin itself
-        ClassNode mixinClass = mixin.getClassNode(ClassReader.EXPAND_FRAMES);
+    protected void applyMixin(ClassNode targetClass, MixinData mixin) {
 
         try {
-            this.verifyClasses(targetClass, mixinClass);
-            this.applyMixinInterfaces(targetClass, mixinClass);
-            this.applyMixinAttributes(targetClass, mixinClass);
-            this.applyMixinFields(targetClass, mixinClass);
-            this.applyMixinMethods(targetClass, mixinClass);
+            this.verifyClasses(targetClass, mixin);
+            this.applyMixinInterfaces(targetClass, mixin);
+            this.applyMixinAttributes(targetClass, mixin);
+            this.applyMixinFields(targetClass, mixin);
+            this.applyMixinMethods(targetClass, mixin);
         } catch (Exception ex) {
             throw new InvalidMixinException("Unexpecteded error whilst applying the mixin class", ex);
         }
@@ -149,10 +146,11 @@ public class MixinTransformer extends TreeTransformer {
      * Perform pre-flight checks on the mixin and target classes
      * 
      * @param targetClass
-     * @param mixinClass
+     * @param mixin
      */
-    protected void verifyClasses(ClassNode targetClass, ClassNode mixinClass) {
-        if (targetClass.superName == null || mixinClass.superName == null || !targetClass.superName.equals(mixinClass.superName)) {
+    protected void verifyClasses(ClassNode targetClass, MixinData mixin) {
+        String superName = mixin.getClassNode().superName;
+        if (targetClass.superName == null || superName == null || !targetClass.superName.equals(superName)) {
             throw new InvalidMixinException("Mixin classes must have the same superclass as their target class");
         }
     }
@@ -161,10 +159,10 @@ public class MixinTransformer extends TreeTransformer {
      * Mixin interfaces implemented by the mixin class onto the target class
      * 
      * @param targetClass
-     * @param mixinClass
+     * @param mixin
      */
-    private void applyMixinInterfaces(ClassNode targetClass, ClassNode mixinClass) {
-        for (String interfaceName : mixinClass.interfaces) {
+    private void applyMixinInterfaces(ClassNode targetClass, MixinData mixin) {
+        for (String interfaceName : mixin.getClassNode().interfaces) {
             if (!targetClass.interfaces.contains(interfaceName)) {
                 targetClass.interfaces.add(interfaceName);
             }
@@ -175,11 +173,11 @@ public class MixinTransformer extends TreeTransformer {
      * Mixin misc attributes from mixin class onto the target class
      * 
      * @param targetClass
-     * @param mixinClass
+     * @param mixin
      */
-    private void applyMixinAttributes(ClassNode targetClass, ClassNode mixinClass) {
+    private void applyMixinAttributes(ClassNode targetClass, MixinData mixin) {
         if (this.config.shouldSetSourceFile()) {
-            targetClass.sourceFile = mixinClass.sourceFile;
+            targetClass.sourceFile = mixin.getClassNode().sourceFile;
         }
     }
 
@@ -188,10 +186,10 @@ public class MixinTransformer extends TreeTransformer {
      * fields so that transformMethod can rename field references in the method body
      * 
      * @param targetClass
-     * @param mixinClass
+     * @param mixin
      */
-    private void applyMixinFields(ClassNode targetClass, ClassNode mixinClass) {
-        for (FieldNode field : mixinClass.fields) {
+    private void applyMixinFields(ClassNode targetClass, MixinData mixin) {
+        for (FieldNode field : mixin.getClassNode().fields) {
             // Public static fields will fall foul of early static binding in java, including them in a mixin is an error condition
             if (MixinTransformer.hasFlag(field, Opcodes.ACC_STATIC) && !MixinTransformer.hasFlag(field, Opcodes.ACC_PRIVATE)) {
                 throw new InvalidMixinException(String.format("Mixin classes cannot contain visible static methods or fields, found %s", field.name));
@@ -220,12 +218,12 @@ public class MixinTransformer extends TreeTransformer {
      * Mixin methods from the mixin class into the target class
      * 
      * @param targetClass
-     * @param mixinClass
+     * @param mixin
      */
-    private void applyMixinMethods(ClassNode targetClass, ClassNode mixinClass) {
-        for (MethodNode mixinMethod : mixinClass.methods) {
+    private void applyMixinMethods(ClassNode targetClass, MixinData mixin) {
+        for (MethodNode mixinMethod : mixin.getClassNode().methods) {
             // Reparent all mixin methods into the target class
-            this.transformMethod(mixinMethod, mixinClass.name, targetClass.name);
+            this.transformMethod(mixinMethod, mixin.getClassNode().name, targetClass.name);
 
             boolean isShadow = ASMHelper.getVisibleAnnotation(mixinMethod, Shadow.class) != null;
             boolean isOverwrite = ASMHelper.getVisibleAnnotation(mixinMethod, Overwrite.class) != null;

@@ -184,6 +184,16 @@ class MixinInfo implements Comparable<MixinInfo> {
     }
     
     /**
+     * Get a new mixin data container for this info
+     * 
+     * @return
+     */
+    public MixinData getData()
+    {
+        return new MixinData(this);
+    }
+    
+    /**
      * Get the target classes for this mixin
      * 
      * @return

@@ -60,6 +60,7 @@ public abstract class MixinWorld implements IWorld {
      * A regular field, this will be merged into the target class and so will its initialiser. Note that the initialiser will run because the field
      * is static. Non-static field initialisers <b>will be ignored</b> so if you add non-static fields be sure to initialise them somewhere else!
      */
+    @SuppressWarnings("unused")
     private static final Logger logger = LogManager.getLogger("sponge");
     
     /**
@@ -72,6 +73,23 @@ public abstract class MixinWorld implements IWorld {
      * Another shadow method 
      */
     @Shadow abstract void notifyBlocksOfNeighborChange(int x, int y, int z, Block block);
+    
+    // ===============================================================================================================================================
+    // Methods below demonstrate how to deal with name overlaps when a shadow method is named the same as an interface method
+    // ===============================================================================================================================================
+    
+    /**
+     * This shadow method demonstrates use of the "prefix" option in the {@link Shadow} annotation. Since it is not possible to have two methods in a
+     * a class which differ only on return type, this can create problems when a shadow method overlaps with a method in an interface being
+     * implemented by a mixin. Luckily, the JVM itself actually supports such overlaps, and thus we can work around the problem by renaming the
+     * overlapping methods at runtime. Using the "prefix" option allows this behaviour to be leveraged. For more details see {@link Shadow#prefix}.
+     * 
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
+    @Shadow(prefix = "shadow$") abstract Block shadow$getBlock(int x, int y, int z);  
     
     // ===============================================================================================================================================
     // Methods below implement the IWorld interface which is applied to the target class at load time
@@ -93,6 +111,19 @@ public abstract class MixinWorld implements IWorld {
     public int exampleMethodToComputeLightValue(int x, int y, int z, EnumSkyBlock block) {
         // invoke the shadow method, at runtime this will invoke the "real" method in the target class
         return this.computeLightValue(x, y, z, block);
+    }
+    
+    /**
+     * This method implements getBlock from the {@link IWorld} interface. However since the method signature overlaps with the "getBlock" method
+     * above, it is necessary to use the {@link Shadow#prefix} functionality in the {@link Shadow} annotation to prevent a name clash at compile
+     * time.
+     * 
+     * @see org.spongepowered.mixin.interfaces.IWorld#getBlock(int, int, int)
+     */
+    @Override
+    public Object getBlock(int x, int y, int z) {
+        // Invoke the original "getBlock" method in World and return its value
+        return this.shadow$getBlock(x, y, z);
     }
     
     // ===============================================================================================================================================
