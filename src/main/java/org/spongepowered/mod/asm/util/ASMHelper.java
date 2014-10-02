@@ -456,6 +456,10 @@ public class ASMHelper {
     public static <T> T getAnnotationValue(AnnotationNode annotation, String key) {
         boolean getNextValue = false;
         
+        if (annotation.values == null) {
+            return null;
+        }
+        
         // Keys and value are stored in successive pairs, search for the key and if found return the following entry
         for (Object value : annotation.values) {
             if (getNextValue) {
