@@ -188,8 +188,7 @@ class MixinInfo implements Comparable<MixinInfo> {
      * 
      * @return
      */
-    public MixinData getData()
-    {
+    public MixinData getData() {
         return new MixinData(this);
     }
     

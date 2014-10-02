@@ -132,6 +132,7 @@ public class MixinData {
             try {
                 value = (String)Shadow.class.getDeclaredMethod(key).getDefaultValue();
             } catch (NoSuchMethodException ex) {
+                // Don't care
             }
         }
         return value;
