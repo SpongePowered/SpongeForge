@@ -22,46 +22,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
+package org.spongepowered.mod.mixin;
 
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.Map;
+/**
+ * Decorator for mixin classes
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.CLASS)
+public @interface Mixin {
 
-import net.minecraft.launchwrapper.Launch;
+    /**
+     * Target class(es) for this mixin
+     */
+    public Class<?>[] value();
 
-public class SpongeCoremod implements IFMLLoadingPlugin {
-
-    public SpongeCoremod() {
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.mod.asm.transformers.");
-    }
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[] {
-                "org.spongepowered.mod.asm.transformers.MixinTransformer",
-                "org.spongepowered.mod.asm.transformers.EventTransformer",
-                "org.spongepowered.mod.asm.transformers.BaseEventTransformer"
-        };
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return "org.spongepowered.mod.SpongeMod";
-    }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
-    }
-
+    /**
+     * Priority for the mixin, relative to other mixins targetting the same classes
+     */
+    public int priority() default 1000;
 }

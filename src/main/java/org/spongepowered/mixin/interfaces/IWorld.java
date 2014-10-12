@@ -22,46 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
+package org.spongepowered.mixin.interfaces;
 
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import net.minecraft.world.EnumSkyBlock;
 
-import java.util.Map;
 
-import net.minecraft.launchwrapper.Launch;
+/**
+ * An example mixin interface, this interface describes the contract of the mixin and will be patched onto the mixin's target class at runtime. 
+ */
+public interface IWorld {
 
-public class SpongeCoremod implements IFMLLoadingPlugin {
-
-    public SpongeCoremod() {
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.mod.asm.transformers.");
-    }
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[] {
-                "org.spongepowered.mod.asm.transformers.MixinTransformer",
-                "org.spongepowered.mod.asm.transformers.EventTransformer",
-                "org.spongepowered.mod.asm.transformers.BaseEventTransformer"
-        };
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return "org.spongepowered.mod.SpongeMod";
-    }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
-    }
-
+    /**
+     * Stupid example
+     */
+    public abstract int getAmbientTickCountdown();
+    
+    /**
+     * Even more tenuous example
+     * 
+     * @param x 
+     * @param y
+     * @param z
+     * @param block
+     * @return
+     */
+    public abstract int exampleMethodToComputeLightValue(int x, int y, int z, EnumSkyBlock block);
+    
+    /**
+     * Contrived example to deliberately create a name clash with World
+     * 
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
+    public abstract Object getBlock(int x, int y, int z);
 }

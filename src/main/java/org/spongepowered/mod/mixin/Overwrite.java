@@ -22,46 +22,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
+package org.spongepowered.mod.mixin;
 
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.Map;
-
-import net.minecraft.launchwrapper.Launch;
-
-public class SpongeCoremod implements IFMLLoadingPlugin {
-
-    public SpongeCoremod() {
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.mod.asm.transformers.");
-    }
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[] {
-                "org.spongepowered.mod.asm.transformers.MixinTransformer",
-                "org.spongepowered.mod.asm.transformers.EventTransformer",
-                "org.spongepowered.mod.asm.transformers.BaseEventTransformer"
-        };
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return "org.spongepowered.mod.SpongeMod";
-    }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
-    }
+/**
+ * Used to indicate a Mixin class member which should overwrite a method in the target class
+ */
+@Target({ ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Overwrite {
 
 }
