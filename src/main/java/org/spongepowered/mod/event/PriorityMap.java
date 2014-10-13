@@ -24,15 +24,15 @@
  */
 package org.spongepowered.mod.event;
 
-import static cpw.mods.fml.common.eventhandler.EventPriority.HIGH;
-import static cpw.mods.fml.common.eventhandler.EventPriority.HIGHEST;
-import static cpw.mods.fml.common.eventhandler.EventPriority.LOW;
-import static cpw.mods.fml.common.eventhandler.EventPriority.LOWEST;
-import static cpw.mods.fml.common.eventhandler.EventPriority.NORMAL;
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST;
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOWEST;
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.NORMAL;
 
 import org.spongepowered.api.event.Order;
 
-import cpw.mods.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 
 public class PriorityMap {
 

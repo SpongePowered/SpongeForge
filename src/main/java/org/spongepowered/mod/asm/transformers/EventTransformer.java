@@ -53,9 +53,9 @@ import org.spongepowered.api.event.state.ServerStartingEvent;
 import org.spongepowered.api.event.voxel.VoxelEvent;
 import org.spongepowered.mod.asm.util.ASMHelper;
 
-import cpw.mods.fml.common.event.FMLEvent;
-import cpw.mods.fml.common.eventhandler.Cancelable;
-import cpw.mods.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.event.FMLEvent;
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class EventTransformer implements IClassTransformer {
@@ -63,11 +63,11 @@ public class EventTransformer implements IClassTransformer {
     private static final Map<String, Class<?>> events = new HashMap<String, Class<?>>();
     
     static {
-        events.put("cpw.mods.fml.common.event.FMLPreInitializationEvent", PreInitializationEvent.class);
-        events.put("cpw.mods.fml.common.event.FMLInitializationEvent", InitializationEvent.class);
-        events.put("cpw.mods.fml.common.event.FMLServerStartingEvent", ServerStartingEvent.class);
+        events.put("net.minecraftforge.fml.common.event.FMLPreInitializationEvent", PreInitializationEvent.class);
+        events.put("net.minecraftforge.fml.common.event.FMLInitializationEvent", InitializationEvent.class);
+        events.put("net.minecraftforge.fml.common.event.FMLServerStartingEvent", ServerStartingEvent.class);
         
-        events.put("net.minecraftforge.event.world.BlockEvent$BreakEvent", VoxelEvent.class);
+        //events.put("net.minecraftforge.event.world.BlockEvent$BreakEvent", VoxelEvent.class);//TODO re-add this once forge is avaliable for 1.8
     }
     
     @Override
@@ -76,8 +76,8 @@ public class EventTransformer implements IClassTransformer {
         if (bytes == null 
                 || transformedName.startsWith("net.minecraft.")
                 || transformedName.equals("org.spongepowered.api.event.BaseEvent")
-                || transformedName.equals("cpw.mods.fml.common.event.FMLEvent")
-                || transformedName.equals("cpw.mods.fml.common.eventhandler.Event") 
+                || transformedName.equals("net.minecraftforge.fml.common.event.FMLEvent")
+                || transformedName.equals("net.minecraftforge.fml.common.eventhandler.Event") 
                 || transformedName.indexOf('.') == -1) {
             return bytes;
         }
@@ -114,7 +114,7 @@ public class EventTransformer implements IClassTransformer {
                     if (classNode.visibleAnnotations == null) {
                         classNode.visibleAnnotations = new ArrayList<AnnotationNode>();
                     }
-                    classNode.visibleAnnotations.add(new AnnotationNode("Lcpw/mods/fml/common/eventhandler/Cancelable;"));
+                    classNode.visibleAnnotations.add(new AnnotationNode("Lnet/minecraftforge/fml/common/eventhandler/Cancelable;"));
                     classNode.methods.add(createIsCancelledMethod());
                     classNode.methods.add(createSetCancelledMethod());
                 }
@@ -165,7 +165,7 @@ public class EventTransformer implements IClassTransformer {
     protected static MethodNode createIsCancellableMethod() {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "isCancellable", "()Z", null, null);
         methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "cpw/mods/fml/common/eventhandler/Event", "isCancelable", 
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "isCancelable", 
                 "()Z", false));
         methodNode.instructions.add(new InsnNode(Opcodes.IRETURN));
         methodNode.maxLocals = 1;
@@ -176,7 +176,7 @@ public class EventTransformer implements IClassTransformer {
     protected static MethodNode createIsCancelledMethod() {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "isCancelled", "()Z", null, null);
         methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "cpw/mods/fml/common/eventhandler/Event", "isCanceled", "()Z", false));
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "isCanceled", "()Z", false));
         methodNode.instructions.add(new InsnNode(Opcodes.IRETURN));
         methodNode.maxLocals = 1;
         methodNode.maxStack = 1;
@@ -187,7 +187,7 @@ public class EventTransformer implements IClassTransformer {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "setCancelled", "(Z)V", null, null);
         methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         methodNode.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "cpw/mods/fml/common/eventhandler/Event", "setCanceled", 
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "setCanceled", 
                 "(Z)V", false));
         methodNode.instructions.add(new InsnNode(Opcodes.RETURN));
         methodNode.maxLocals = 1;

@@ -28,20 +28,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import net.minecraftforge.common.MinecraftForge;
+import com.google.common.collect.Maps;
 
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.event.SpongeEventHandler;
 import org.spongepowered.mod.asm.util.ASMEventListenerHolderFactory;
 
-import cpw.mods.fml.common.eventhandler.Event;
-import cpw.mods.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 
 public class SpongeEventBus {
     
     private final Map<Class<?>, Map<EventPriority, EventListenerHolder<Event>>> eventAndPriorityToEventListenerHolderMap;
     
     public SpongeEventBus() {
-        this.eventAndPriorityToEventListenerHolderMap = new HashMap<Class<?>, Map<EventPriority, EventListenerHolder<Event>>>();
+        this.eventAndPriorityToEventListenerHolderMap = Maps.newHashMap();
     }
     
     public void add(Class<?> implementingEvent, SpongeEventHandler annotation, PriorityEventListener<Event> listener) {
@@ -61,7 +62,7 @@ public class SpongeEventBus {
                 }
                 holder.remove(listener);
                 if (holder.isEmpty()) {
-                    MinecraftForge.EVENT_BUS.unregister(holder);
+                    FMLCommonHandler.instance().bus().unregister(holder);
                     holderIterator.remove();
                 }
             }
@@ -86,7 +87,7 @@ public class SpongeEventBus {
         if (eventListenerHolder == null) {
             eventListenerHolder = ASMEventListenerHolderFactory.getNewEventListenerHolder(implementingEvent, priority, !annotation.ignoreCancelled());
             priorityHolderMap.put(priority, eventListenerHolder);
-            MinecraftForge.EVENT_BUS.register(eventListenerHolder);
+            FMLCommonHandler.instance().bus().register(eventListenerHolder);
         }
         
         return eventListenerHolder;

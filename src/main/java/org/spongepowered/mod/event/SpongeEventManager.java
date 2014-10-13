@@ -33,7 +33,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.minecraftforge.common.MinecraftForge;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import org.spongepowered.api.event.BaseEvent;
 import org.spongepowered.api.event.Event;
@@ -45,19 +47,19 @@ import org.spongepowered.mod.asm.util.ASMEventListenerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.reflect.TypeToken;
 
-import cpw.mods.fml.common.event.FMLEvent;
+import net.minecraftforge.fml.common.event.FMLEvent;
 
 public class SpongeEventManager implements EventManager {
 
     private final SpongeGame game;
 
-    private final Map<Object, List<PriorityEventListener<cpw.mods.fml.common.eventhandler.Event>>> forgePluginHandlerMap =
-            new HashMap<Object, List<PriorityEventListener<cpw.mods.fml.common.eventhandler.Event>>>();
+    private final Map<Object, List<PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event>>> forgePluginHandlerMap =
+            Maps.newHashMap();
     private final SpongeEventBus eventBus = new SpongeEventBus();
 
-    private final Map<Object, List<EventListener<FMLEvent>>> fmlPluginHandlerMap = new HashMap<Object, List<EventListener<FMLEvent>>>();
-    private final Map<Class<? extends FMLEvent>, List<PriorityEventListener<FMLEvent>>> fmlEventHandlerMap = 
-            new HashMap<Class<? extends FMLEvent>, List<PriorityEventListener<FMLEvent>>>();
+    private final Map<Object, List<EventListener<FMLEvent>>> fmlPluginHandlerMap = Maps.newHashMap();
+    private final Map<Class<? extends FMLEvent>, List<PriorityEventListener<FMLEvent>>> fmlEventHandlerMap =
+            Maps.newHashMap();
 
     public SpongeEventManager(SpongeGame game) {
         this.game = game;
@@ -70,9 +72,9 @@ public class SpongeEventManager implements EventManager {
             return;
         }
 
-        List<PriorityEventListener<cpw.mods.fml.common.eventhandler.Event>> localForgeListeners = 
-                new ArrayList<PriorityEventListener<cpw.mods.fml.common.eventhandler.Event>>();
-        List<EventListener<FMLEvent>> localFMLListeners = new ArrayList<EventListener<FMLEvent>>();
+        List<PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event>> localForgeListeners =
+                Lists.newArrayList();
+        List<EventListener<FMLEvent>> localFMLListeners = Lists.newArrayList();
 
         Map<Method, SpongeEventHandler> annotationMap = getAnnotationMap(o);
         
@@ -96,13 +98,13 @@ public class SpongeEventManager implements EventManager {
                 game.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
             } else if (BaseEvent.class.equals(implementingEvent)) {
                 game.getLogger().warn("Handlers may not listen for BaseEvent directly, registration failed");
-            } else if (cpw.mods.fml.common.eventhandler.Event.class.isAssignableFrom(implementingEvent)) {
+            } else if (net.minecraftforge.fml.common.eventhandler.Event.class.isAssignableFrom(implementingEvent)) {
                 // Forge events
-                EventListener<cpw.mods.fml.common.eventhandler.Event> listener = 
+                EventListener<net.minecraftforge.fml.common.eventhandler.Event> listener = 
                         ASMEventListenerFactory.getListener(EventListener.class, o, entry.getKey());
 
-                PriorityEventListener<cpw.mods.fml.common.eventhandler.Event> priorityListener = 
-                        new PriorityEventListener<cpw.mods.fml.common.eventhandler.Event>(entry.getValue().order(), listener);
+                PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event> priorityListener = 
+                        new PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event>(entry.getValue().order(), listener);
 
                 eventBus.add(implementingEvent, entry.getValue(), priorityListener);
                 localForgeListeners.add(priorityListener);
@@ -119,7 +121,7 @@ public class SpongeEventManager implements EventManager {
 
                 List<PriorityEventListener<FMLEvent>> listenerList = fmlEventHandlerMap.get(implementingEvent);
                 if (listenerList == null) {
-                    listenerList = new ArrayList<PriorityEventListener<FMLEvent>>();
+                    listenerList = Lists.newArrayList();
                     fmlEventHandlerMap.put((Class<? extends FMLEvent>) implementingEvent, listenerList);
                 }
                 listenerList.add(priorityListener);
@@ -133,11 +135,11 @@ public class SpongeEventManager implements EventManager {
 
     @Override
     public void unregister(Object o) {
-        List<PriorityEventListener<cpw.mods.fml.common.eventhandler.Event>> pluginForgeListeners = forgePluginHandlerMap.remove(o);
+        List<PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event>> pluginForgeListeners = forgePluginHandlerMap.remove(o);
         if (pluginForgeListeners == null) {
             return;
         }
-        for (PriorityEventListener<cpw.mods.fml.common.eventhandler.Event> listener : pluginForgeListeners) {
+        for (PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event> listener : pluginForgeListeners) {
             eventBus.remove(listener);
         }
 
@@ -152,8 +154,8 @@ public class SpongeEventManager implements EventManager {
 
     @Override
     public boolean call(Event spongeEvent) {
-        if (spongeEvent instanceof cpw.mods.fml.common.eventhandler.Event) {
-            MinecraftForge.EVENT_BUS.post((cpw.mods.fml.common.eventhandler.Event) spongeEvent);
+        if (spongeEvent instanceof net.minecraftforge.fml.common.eventhandler.Event) {
+            FMLCommonHandler.instance().bus().post((net.minecraftforge.fml.common.eventhandler.Event) spongeEvent);
         } else {
             game.getLogger().info("Event not a sub-classes of forge Event or BaseEvent");
             return false;

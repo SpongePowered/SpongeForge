@@ -36,11 +36,11 @@ import org.spongepowered.mod.plugin.SpongePluginContainer;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 
-import cpw.mods.fml.common.DummyModContainer;
-import cpw.mods.fml.common.LoadController;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainerFactory;
-import cpw.mods.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainerFactory;
+import net.minecraftforge.fml.common.ModMetadata;
 
 public class SpongeMod extends DummyModContainer {
     public static SpongeMod instance;

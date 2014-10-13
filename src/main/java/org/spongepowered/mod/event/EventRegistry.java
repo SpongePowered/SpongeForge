@@ -24,8 +24,7 @@
  */
 package org.spongepowered.mod.event;
 
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 import org.spongepowered.api.event.state.InitializationEvent;
 import org.spongepowered.api.event.state.PreInitializationEvent;
@@ -35,8 +34,8 @@ import org.spongepowered.api.event.voxel.VoxelEvent;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 public class EventRegistry {
     
@@ -51,7 +50,7 @@ public class EventRegistry {
         register(FMLServerStartingEvent.class, ServerStartingEvent.class);
         register(FMLPreInitializationEvent.class, PreInitializationEvent.class);
         // Forge events
-        register(BlockEvent.BreakEvent.class, VoxelEvent.class);
+        //register(BlockEvent.BreakEvent.class, VoxelEvent.class);//TODO re-add this once forge is out for 1.8
     }
     
     private static void register(Class<?> otherEvent, Class<?> spongeEvent) {

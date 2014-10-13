@@ -62,7 +62,7 @@ public class BaseEventTransformer implements IClassTransformer {
             ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createSetCancelledMethod());
             
             // Change super-class
-            classNode.superName = "cpw/mods/fml/common/eventhandler/Event";
+            classNode.superName = "net/minecraftforge/fml/common/eventhandler/Event";
             
             // Replace super() call in constructor so that it points to the new super-class
             MethodNode method = ASMHelper.findMethod(classNode, "<init>", "()V");

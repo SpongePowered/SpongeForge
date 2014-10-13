@@ -45,8 +45,8 @@ import org.objectweb.asm.util.CheckClassAdapter;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.EventListenerHolder;
 
-import cpw.mods.fml.common.eventhandler.Event;
-import cpw.mods.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 
 public class ASMEventListenerHolderFactory {
 
@@ -113,8 +113,8 @@ public class ASMEventListenerHolderFactory {
         {
             mv = cw.visitMethod(ACC_PUBLIC, "invoke", invokeMethodDesc, null, null);
             {
-                av0 = mv.visitAnnotation("Lcpw/mods/fml/common/eventhandler/SubscribeEvent;", true);
-                av0.visitEnum("priority", "Lcpw/mods/fml/common/eventhandler/EventPriority;", eventPriorityName);
+                av0 = mv.visitAnnotation("Lnet/minecraftforge/fml/common/eventhandler/SubscribeEvent;", true);
+                av0.visitEnum("priority", "Lnet/minecraftforge/fml/common/eventhandler/EventPriority;", eventPriorityName);
                 av0.visit("receiveCanceled", (Boolean) canceled);
                 av0.visitEnd();
             }
