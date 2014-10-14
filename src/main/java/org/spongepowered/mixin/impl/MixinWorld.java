@@ -44,7 +44,7 @@ import org.spongepowered.mod.mixin.Shadow;
  * <p>In order to provide support for referring to fields and methods in the target class which are not accessible, "shadow" methods and fields
  * may be created in order to allow mixin code to reference them. These shadow methods and fields must be annotated with the {@link Shadow}
  * annotation in order for the obfuscator to locate and appropriately transform them when doing a production build. In general, shadow methods will
- * be declared as <i>abstract</i> but this is not a requirement.<p>
+ * be declared as <i>abstract</i> but this is not a requirement.</p>
  * 
  * <p>See below for examples.</p>
  */
