@@ -25,15 +25,19 @@
 package org.spongepowered.mod;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.entity.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.world.World;
+import org.spongepowered.mod.command.SpongeCommandManager;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
@@ -47,8 +51,12 @@ public final class SpongeGame implements Game {
     private final Logger logger = LogManager.getLogger("sponge");
     private final SpongePluginManager pluginManager;
     private final SpongeEventManager eventManager;
+    private final SpongeCommandManager CommandManager;
+    private final MinecraftServer server;
 
     public SpongeGame() {
+        this.server = MinecraftServer.getServer();
+        this.CommandManager = new SpongeCommandManager(this, server);
         this.pluginManager = new SpongePluginManager();
         this.eventManager = new SpongeEventManager(this);
     }
@@ -94,7 +102,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public void broadcastMessage(String message) {
-
+        server.addChatMessage(new ChatComponentText(message));
     }
 
     @Override
@@ -108,6 +116,10 @@ public final class SpongeGame implements Game {
     }
 
     @Override
+    public CommandManager getCommandManager() {
+        return CommandManager;
+    }
+
     public GameRegistry getRegistry() {
         throw new UnsupportedOperationException();
     }
