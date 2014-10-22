@@ -37,7 +37,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-import org.spongepowered.api.event.BaseEvent;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.SpongeEventHandler;
@@ -88,16 +87,14 @@ public class SpongeEventManager implements EventManager {
             Class<?> eventType = parameters[0];
             Class<?> implementingEvent;
 
-            if (BaseEvent.class.isAssignableFrom(eventType)) {
+            implementingEvent = EventRegistry.getImplementingClass(eventType);
+            // TODO: Is there actually anything wrong with this?
+            if(implementingEvent == null) {
                 implementingEvent = eventType;
-            } else {
-                implementingEvent = EventRegistry.getImplementingClass(eventType);
             }
             
             if (implementingEvent == null) {
                 game.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
-            } else if (BaseEvent.class.equals(implementingEvent)) {
-                game.getLogger().warn("Handlers may not listen for BaseEvent directly, registration failed");
             } else if (net.minecraftforge.fml.common.eventhandler.Event.class.isAssignableFrom(implementingEvent)) {
                 // Forge events
                 EventListener<net.minecraftforge.fml.common.eventhandler.Event> listener = 

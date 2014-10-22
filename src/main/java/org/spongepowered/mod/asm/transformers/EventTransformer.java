@@ -50,7 +50,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.spongepowered.api.event.state.InitializationEvent;
 import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
-import org.spongepowered.api.event.voxel.VoxelEvent;
 import org.spongepowered.mod.asm.util.ASMHelper;
 
 import net.minecraftforge.fml.common.event.FMLEvent;
@@ -66,8 +65,6 @@ public class EventTransformer implements IClassTransformer {
         events.put("net.minecraftforge.fml.common.event.FMLPreInitializationEvent", PreInitializationEvent.class);
         events.put("net.minecraftforge.fml.common.event.FMLInitializationEvent", InitializationEvent.class);
         events.put("net.minecraftforge.fml.common.event.FMLServerStartingEvent", ServerStartingEvent.class);
-        
-        //events.put("net.minecraftforge.event.world.BlockEvent$BreakEvent", VoxelEvent.class);//TODO re-add this once forge is avaliable for 1.8
     }
     
     @Override

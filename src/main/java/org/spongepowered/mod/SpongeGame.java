@@ -33,6 +33,7 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.entity.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.util.scheduler.Scheduler;
 import org.spongepowered.api.world.World;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
@@ -109,6 +110,11 @@ public final class SpongeGame implements Game {
 
     @Override
     public GameRegistry getRegistry() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Scheduler getScheduler() {
         throw new UnsupportedOperationException();
     }
 
