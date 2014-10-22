@@ -31,7 +31,7 @@ apply plugin: 'checkstyle'
 group = 'org.spongepowered'
 archivesBaseName = 'sponge'
 // Version -> Minecraft-MinecraftForge-Ours(If any?)
-version = '1.8-FML8.0.2.1009-SNAPSHOT'
+version = '1.8-FML8.0.5.1012-SNAPSHOT'
 
 // Define variables
 ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
@@ -46,7 +46,7 @@ repositories { mavenLocal() }
 
 // MinecraftForge version
 minecraft {
-    version = "1.8-8.0.2.1009-1.8"
+    version = "1.8-8.0.5.1012-1.8"
 }
 
 // Project dependencies
