@@ -25,6 +25,8 @@
 package org.spongepowered.mixin.impl;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 
@@ -67,12 +69,12 @@ public abstract class MixinWorld implements IWorld {
      * A shadow method, describing a method in the World class which we would like to invoke. The parameter names are not important, only the types
      * so we can change them to prevent checkstyle from bitching
      */
-    @Shadow abstract int computeLightValue(int x, int y, int z, EnumSkyBlock block);
+    @Shadow abstract int func_175638_a(BlockPos pos, EnumSkyBlock block);
     
     /**
      * Another shadow method 
      */
-    @Shadow abstract void notifyBlocksOfNeighborChange(int x, int y, int z, Block block);
+    @Shadow abstract void notifyNeighborsOfStateChange(BlockPos pos, Block block);
     
     // ===============================================================================================================================================
     // Methods below demonstrate how to deal with name overlaps when a shadow method is named the same as an interface method
@@ -84,12 +86,10 @@ public abstract class MixinWorld implements IWorld {
      * implemented by a mixin. Luckily, the JVM itself actually supports such overlaps, and thus we can work around the problem by renaming the
      * overlapping methods at runtime. Using the "prefix" option allows this behaviour to be leveraged. For more details see {@link Shadow#prefix}.
      * 
-     * @param x
-     * @param y
-     * @param z
+     * @param pos
      * @return
      */
-    @Shadow(prefix = "shadow$") abstract Block shadow$getBlock(int x, int y, int z);  
+    @Shadow(prefix = "shadow$") abstract IBlockState shadow$getBlockState(BlockPos pos);
     
     // ===============================================================================================================================================
     // Methods below implement the IWorld interface which is applied to the target class at load time
@@ -110,7 +110,7 @@ public abstract class MixinWorld implements IWorld {
     @Override
     public int exampleMethodToComputeLightValue(int x, int y, int z, EnumSkyBlock block) {
         // invoke the shadow method, at runtime this will invoke the "real" method in the target class
-        return this.computeLightValue(x, y, z, block);
+        return this.func_175638_a(new BlockPos(x, y, z), block);
     }
     
     /**
@@ -123,7 +123,7 @@ public abstract class MixinWorld implements IWorld {
     @Override
     public Object getBlock(int x, int y, int z) {
         // Invoke the original "getBlock" method in World and return its value
-        return this.shadow$getBlock(x, y, z);
+        return this.shadow$getBlockState(new BlockPos(x, y, z)).getBlock();
     }
     
     // ===============================================================================================================================================
@@ -133,13 +133,11 @@ public abstract class MixinWorld implements IWorld {
     /**
      * <b>Overwrites</b> the <em>NotifyBlockChange</em> method in the target class
      * 
-     * @param x
-     * @param y
-     * @param z
+     * @param pos
      * @param block
      */
     @Overwrite
-    public void notifyBlockChange(int x, int y, int z, Block block) {
+    public void func_175722_b(BlockPos pos, Block block) {
         // Uncomment this for spam! (and to check that this is working) notice that we can happily refer to the static field in this class since the
         // mixin transformer will update references to injected fields at load time. Thus qualifiers for private fields should always use the mixin
         // class itself.
@@ -147,7 +145,7 @@ public abstract class MixinWorld implements IWorld {
         // MixinWorld.logger.info("Spam! Block was changed at {}, {}, {} in {}", x, y, z, this);
         
         // This method is called in the original notifyBlockChange method 
-        this.notifyBlocksOfNeighborChange(x, y, z, block);
+        this.notifyNeighborsOfStateChange(pos, block);
     }
     
     // ===============================================================================================================================================
