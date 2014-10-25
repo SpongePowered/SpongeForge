@@ -35,7 +35,6 @@ import java.util.Set;
 
 import net.minecraftforge.common.MinecraftForge;
 
-import org.spongepowered.api.event.BaseEvent;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.SpongeEventHandler;
@@ -84,18 +83,14 @@ public class SpongeEventManager implements EventManager {
             }
 
             Class<?> eventType = parameters[0];
-            Class<?> implementingEvent;
+            Class<?> implementingEvent = EventRegistry.getImplementingClass(eventType);
 
-            if (BaseEvent.class.isAssignableFrom(eventType)) {
+            if (implementingEvent == null) {
                 implementingEvent = eventType;
-            } else {
-                implementingEvent = EventRegistry.getImplementingClass(eventType);
             }
-            
+
             if (implementingEvent == null) {
                 game.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
-            } else if (BaseEvent.class.equals(implementingEvent)) {
-                game.getLogger().warn("Handlers may not listen for BaseEvent directly, registration failed");
             } else if (cpw.mods.fml.common.eventhandler.Event.class.isAssignableFrom(implementingEvent)) {
                 // Forge events
                 EventListener<cpw.mods.fml.common.eventhandler.Event> listener = 

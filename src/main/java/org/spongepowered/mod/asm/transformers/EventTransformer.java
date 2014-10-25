@@ -50,7 +50,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 import org.spongepowered.api.event.state.InitializationEvent;
 import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
-import org.spongepowered.api.event.voxel.VoxelEvent;
 import org.spongepowered.mod.asm.util.ASMHelper;
 
 import cpw.mods.fml.common.event.FMLEvent;
@@ -66,8 +65,7 @@ public class EventTransformer implements IClassTransformer {
         events.put("cpw.mods.fml.common.event.FMLPreInitializationEvent", PreInitializationEvent.class);
         events.put("cpw.mods.fml.common.event.FMLInitializationEvent", InitializationEvent.class);
         events.put("cpw.mods.fml.common.event.FMLServerStartingEvent", ServerStartingEvent.class);
-        
-        events.put("net.minecraftforge.event.world.BlockEvent$BreakEvent", VoxelEvent.class);
+
     }
     
     @Override
@@ -75,7 +73,6 @@ public class EventTransformer implements IClassTransformer {
         
         if (bytes == null 
                 || transformedName.startsWith("net.minecraft.")
-                || transformedName.equals("org.spongepowered.api.event.BaseEvent")
                 || transformedName.equals("cpw.mods.fml.common.event.FMLEvent")
                 || transformedName.equals("cpw.mods.fml.common.eventhandler.Event") 
                 || transformedName.indexOf('.') == -1) {

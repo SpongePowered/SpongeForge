@@ -25,12 +25,10 @@
 package org.spongepowered.mod.event;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.event.world.BlockEvent;
 
 import org.spongepowered.api.event.state.InitializationEvent;
 import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
-import org.spongepowered.api.event.voxel.VoxelEvent;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -51,7 +49,6 @@ public class EventRegistry {
         register(FMLServerStartingEvent.class, ServerStartingEvent.class);
         register(FMLPreInitializationEvent.class, PreInitializationEvent.class);
         // Forge events
-        register(BlockEvent.BreakEvent.class, VoxelEvent.class);
     }
     
     private static void register(Class<?> otherEvent, Class<?> spongeEvent) {
