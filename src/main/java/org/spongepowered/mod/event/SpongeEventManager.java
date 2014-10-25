@@ -88,7 +88,7 @@ public class SpongeEventManager implements EventManager {
             if (implementingEvent == null) {
                 implementingEvent = eventType;
             }
-            
+
             if (implementingEvent == null) {
                 game.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
             } else if (cpw.mods.fml.common.eventhandler.Event.class.isAssignableFrom(implementingEvent)) {

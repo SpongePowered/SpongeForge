@@ -75,7 +75,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     }
 
     @Override
-    public String getID() {
+    public String getId() {
         return getModId();
     }
     
@@ -102,7 +102,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
             Throwables.propagateIfPossible(e);
         }
         
-        SpongeMod.instance.registerPluginContainer(this, getID(), getInstance());
+        SpongeMod.instance.registerPluginContainer(this, getId(), getInstance());
     }
 
     @Override
