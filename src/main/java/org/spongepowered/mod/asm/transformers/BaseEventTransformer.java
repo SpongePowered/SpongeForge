@@ -28,6 +28,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
 import java.util.ListIterator;
+import java.util.Objects;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 
@@ -38,6 +39,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.mod.asm.util.ASMHelper;
 
 public class BaseEventTransformer implements IClassTransformer {
@@ -45,7 +47,7 @@ public class BaseEventTransformer implements IClassTransformer {
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
 
-        if (bytes == null || name == null || !name.equals("org.spongepowered.api.event.BaseEvent")) {
+        if (bytes == null || name == null) {
             return bytes;
         }
         
@@ -53,7 +55,15 @@ public class BaseEventTransformer implements IClassTransformer {
             ClassReader cr = new ClassReader(bytes);
             ClassNode classNode = new ClassNode();
             cr.accept(classNode, 0);
-            
+
+            String parentName = classNode.superName.replace('/', '.');
+
+            Class<?> parent = this.getClass().getClassLoader().loadClass(parentName);
+
+            if (((!Object.class.equals(parent.getSuperclass()))) || (!Event.class.isAssignableFrom(parent))) {
+                return bytes;
+            }
+
             // Add forwarding methods
             ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createGetGameMethod());
             ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createGetSimpleNameMethod());
