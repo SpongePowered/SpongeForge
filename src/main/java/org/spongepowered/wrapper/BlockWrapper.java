@@ -25,6 +25,7 @@
 package org.spongepowered.wrapper;
 
 import com.google.common.base.Optional;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.EnumSkyBlock;
 import org.spongepowered.api.block.Block;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -44,11 +45,13 @@ public class BlockWrapper implements Block {
     private BlockType blockType;
 
     public BlockWrapper(World world, int x, int y, int z) {
-        if (world instanceof net.minecraft.world.World) {
+        // This is a NOT check, be careful of that
+        if (!(world instanceof net.minecraft.world.World)) {
             System.err.println("World passed to BlockWrapper wasn't a mixin for net.minecraft.world.World! Serious issue!");
             handle = (net.minecraft.world.World) world;
             throw new RuntimeException("An unrecoverable error occured!");
         }
+        handle = (net.minecraft.world.World) world;
         extent = world;
         this.x = x;
         this.y = y;
@@ -94,8 +97,7 @@ public class BlockWrapper implements Block {
 
     @Override
     public void replaceWith(BlockType type) {
-        handle.setBlock(x, y, z, net.minecraft.block.Block.getBlockFromName(type.getId()));
-        this.blockType = (BlockType) handle.getBlock(x, y, z); // TODO: This feels wrong and will probably break.
+        handle.setBlock(x, y, z, net.minecraft.block.Block.getBlockFromName(type.getId()), 0, 3);
     }
 
     @Override
@@ -106,7 +108,7 @@ public class BlockWrapper implements Block {
 
     @Override
     public BlockType getType() {
-        return null;
+        return (BlockType) handle.getBlock(x, y, z);
     }
 
     @Override

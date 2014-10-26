@@ -27,12 +27,10 @@ package org.spongepowered.mod;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
@@ -86,7 +84,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public Collection<World> getWorlds() {
-        List<World> worlds = new ArrayList<World>(DimensionManager.getWorlds().length);
+        List<World> worlds = new ArrayList<World>();
         for (WorldServer worldServer : DimensionManager.getWorlds()) {
             worlds.add((World) worldServer);
         }
@@ -101,9 +99,9 @@ public final class SpongeGame implements Game {
 
     @Override
     public World getWorld(String worldName) {
-        for (WorldServer worldServer : DimensionManager.getWorlds()) {
-            if (worldServer.getWorldInfo().getWorldName().equals(worldName)) {
-                return (World) worldServer;
+        for (World world : getWorlds()) {
+            if (world.getName().equals(worldName)) {
+                return world;
             }
         }
         return null;
