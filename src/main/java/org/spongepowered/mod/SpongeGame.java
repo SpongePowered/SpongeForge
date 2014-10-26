@@ -27,6 +27,7 @@ package org.spongepowered.mod;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.network.play.client.C01PacketChatMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
@@ -110,7 +111,7 @@ public final class SpongeGame implements Game {
     @Override
     @SideOnly(Side.SERVER)
     public void broadcastMessage(String message) {
-        MinecraftServer.getServer().addChatMessage(new ChatComponentText(message));
+        MinecraftServer.getServer().getConfigurationManager().sendChatMsg(new ChatComponentText(message));
     }
 
     @Override
