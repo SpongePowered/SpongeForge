@@ -28,7 +28,6 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
 import java.util.ListIterator;
-import java.util.Objects;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 

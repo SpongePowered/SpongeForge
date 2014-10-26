@@ -25,7 +25,6 @@
 package org.spongepowered.wrapper;
 
 import com.google.common.base.Optional;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.EnumSkyBlock;
 import org.spongepowered.api.block.Block;
 import org.spongepowered.api.block.BlockSnapshot;
