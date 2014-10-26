@@ -33,6 +33,6 @@ import org.spongepowered.mod.mixin.Shadow;
 public abstract class MixinBlockType implements BlockType {
     @Override
     public String getId() {
-        return Block.blockRegistry.getNameForObject(this);
+        return (String)Block.blockRegistry.getNameForObject(this);
     }
 }

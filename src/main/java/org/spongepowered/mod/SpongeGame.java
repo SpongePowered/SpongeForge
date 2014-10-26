@@ -24,14 +24,12 @@
  */
 package org.spongepowered.mod;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.network.play.client.C01PacketChatMessage;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
@@ -86,11 +84,12 @@ public final class SpongeGame implements Game {
 
     @Override
     public Collection<World> getWorlds() {
-        List<World> worlds = new ArrayList<World>();
+        throw new UnsupportedOperationException();
+        /*List<World> worlds = new ArrayList<World>();
         for (WorldServer worldServer : DimensionManager.getWorlds()) {
             worlds.add((World) worldServer);
         }
-        return worlds;
+        return worlds;*/
     }
 
     @Override

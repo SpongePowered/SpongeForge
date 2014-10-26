@@ -25,6 +25,9 @@
 package org.spongepowered.wrapper;
 
 import com.google.common.base.Optional;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
 import org.spongepowered.api.block.Block;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -40,8 +43,8 @@ import org.spongepowered.api.world.extent.Extent;
 public class BlockWrapper implements Block {
     private net.minecraft.world.World handle;
     private World extent;
-    private int x, y, z;
     private BlockType blockType;
+    private BlockPos pos;
 
     public BlockWrapper(World world, int x, int y, int z) {
         // This is a NOT check, be careful of that
@@ -52,10 +55,8 @@ public class BlockWrapper implements Block {
         }
         handle = (net.minecraft.world.World) world;
         extent = world;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.blockType = (BlockType) handle.getBlock(x, y, z);
+        pos = new BlockPos(x, y, z);
+        this.blockType = (BlockType) handle.getBlockState(new BlockPos(x, y, z)).getBlock();
     }
 
     @Override
@@ -63,56 +64,59 @@ public class BlockWrapper implements Block {
         return extent;
     }
 
+    // TODO: Can we mixin Vector3i with BlockPos?
     @Override
     public Vector3i getPosition() {
-        return Vectors.create3i(x, y, z);
+        return Vectors.create3i(pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Override
     public Location getLocation() {
-        return new Location(extent, Vectors.create3d(x, y, z));
+        return new Location(extent, Vectors.create3d(pos.getX(), pos.getY(), pos.getZ()));
     }
 
     @Override
     public int getX() {
-        return x;
+        return pos.getX();
     }
 
     @Override
     public int getY() {
-        return y;
+        return pos.getY();
     }
 
     @Override
     public int getZ() {
-        return z;
+        return pos.getZ();
     }
 
     @Override
     public void replaceData(byte data) {
         // 0 is no notify flag. For now not going to notify nearby blocks of update.
-        handle.setBlockMetadataWithNotify(x, y, z, data, 0);
+        handle.setBlockState(pos, ((net.minecraft.block.Block) blockType).getStateFromMeta(data), 0);
     }
 
     @Override
     public void replaceWith(BlockType type) {
-        handle.setBlock(x, y, z, net.minecraft.block.Block.getBlockFromName(type.getId()), 0, 3);
+        handle.setBlockState(pos, ((net.minecraft.block.Block) blockType).getDefaultState(), 3);
+        blockType = type;
     }
 
     @Override
     public void replaceWith(BlockSnapshot snapshot) {
-        replaceData(snapshot.getDataValue());
         replaceWith(snapshot.getType());
+        replaceData(snapshot.getDataValue());
     }
 
     @Override
     public BlockType getType() {
-        return (BlockType) handle.getBlock(x, y, z);
+        return blockType;
     }
 
     @Override
     public byte getDataValue() {
-        return (byte) handle.getBlockMetadata(x, y, z);
+        IBlockState state = handle.getBlockState(pos);
+        return (byte) state.getBlock().getMetaFromState(state);
     }
 
     @Override
@@ -137,56 +141,67 @@ public class BlockWrapper implements Block {
 
     @Override
     public byte getLuminance() {
-        return (byte) handle.getBlockLightValue(x, y, z);
+        return (byte) handle.getLight(pos);
     }
 
     @Override
     public byte getLuminanceFromSky() {
-        return (byte) handle.getSkyBlockTypeBrightness(EnumSkyBlock.Sky, x, y, z);
+        return (byte) handle.getLightFor(EnumSkyBlock.SKY, pos);
     }
 
     @Override
     public byte getLuminanceFromGround() {
-        return (byte) handle.getSkyBlockTypeBrightness(EnumSkyBlock.Block, x, y, z);
+        return (byte) handle.getLightFor(EnumSkyBlock.BLOCK, pos);
     }
 
     @Override
     public boolean isPowered() {
-        return handle.getBlockPowerInput(x, y, z) > 0;
+        return handle.getStrongPower(pos) > 0;
     }
 
     @Override
     public boolean isIndirectlyPowered() {
-        return handle.isBlockIndirectlyGettingPowered(x, y, z);
+        return handle.isBlockPowered(pos);
     }
 
     @Override
     public boolean isFacePowered(Direction direction) {
-        return handle.getIndirectPowerLevelTo(x, y, z, getNotchDirection(direction)) > 0;
+        return handle.getStrongPower(pos, getNotchDirection(direction)) > 0;
     }
 
     @Override
     public boolean isFaceIndirectlyPowered(Direction direction) {
-        return handle.getIndirectPowerLevelTo(x, y, z, getNotchDirection(direction)) > 0;
+        return handle.getRedstonePower(pos, getNotchDirection(direction)) > 0;
+    }
+
+    @Override
+    public void interact() {
+
+    }
+
+    @Override
+    public void interactWith(ItemStack itemStack) {
+
     }
 
     //TODO: Move this to Direction
-    private static int getNotchDirection(Direction dir) {
+    private static EnumFacing getNotchDirection(Direction dir) {
         switch (dir) {
             case DOWN:
-                return 0;
+                return EnumFacing.DOWN;
             case UP:
-                return 1;
+                return EnumFacing.UP;
             case NORTH:
-                return 2;
+                return EnumFacing.NORTH;
             case SOUTH:
-                return 3;
+                return EnumFacing.SOUTH;
             case WEST:
-                return 4;
+                return EnumFacing.WEST;
             case EAST:
-                return 5;
+                return EnumFacing.EAST;
             default:
-                return 7;
+                // TODO: EnumFacing doesn't have an 'invalid/default' value.
+                return EnumFacing.DOWN;
         }
     }
 
