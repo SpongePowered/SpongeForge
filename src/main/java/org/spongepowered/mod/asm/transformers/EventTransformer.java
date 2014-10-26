@@ -72,7 +72,6 @@ public class EventTransformer implements IClassTransformer {
         
         if (bytes == null 
                 || transformedName.startsWith("net.minecraft.")
-                || transformedName.equals("org.spongepowered.api.event.BaseEvent")
                 || transformedName.equals("net.minecraftforge.fml.common.event.FMLEvent")
                 || transformedName.equals("net.minecraftforge.fml.common.eventhandler.Event") 
                 || transformedName.indexOf('.') == -1) {

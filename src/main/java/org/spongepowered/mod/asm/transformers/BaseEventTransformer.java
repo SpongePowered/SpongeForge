@@ -65,7 +65,7 @@ public class BaseEventTransformer implements IClassTransformer {
             if ((!Object.class.equals(parent.getSuperclass())) || (!Event.class.isAssignableFrom(parent))) {
                 return bytes;
             }
-            
+
             // Add forwarding methods
             ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createGetGameMethod());
             ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createGetSimpleNameMethod());

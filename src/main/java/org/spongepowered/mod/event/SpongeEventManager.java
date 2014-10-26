@@ -85,14 +85,12 @@ public class SpongeEventManager implements EventManager {
             }
 
             Class<?> eventType = parameters[0];
-            Class<?> implementingEvent;
+            Class<?> implementingEvent = EventRegistry.getImplementingClass(eventType);
 
-            implementingEvent = EventRegistry.getImplementingClass(eventType);
-            // TODO: Is there actually anything wrong with this?
-            if(implementingEvent == null) {
+            if (implementingEvent == null) {
                 implementingEvent = eventType;
             }
-            
+
             if (implementingEvent == null) {
                 game.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
             } else if (net.minecraftforge.fml.common.eventhandler.Event.class.isAssignableFrom(implementingEvent)) {

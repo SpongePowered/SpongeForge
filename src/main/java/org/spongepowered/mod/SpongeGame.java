@@ -24,7 +24,14 @@
  */
 package org.spongepowered.mod;
 
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.network.play.client.C01PacketChatMessage;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
@@ -38,8 +45,7 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
-import java.util.Collection;
-import java.util.UUID;
+import java.util.*;
 
 public final class SpongeGame implements Game {
 
@@ -80,22 +86,33 @@ public final class SpongeGame implements Game {
 
     @Override
     public Collection<World> getWorlds() {
-        return null;
+        List<World> worlds = new ArrayList<World>();
+        for (WorldServer worldServer : DimensionManager.getWorlds()) {
+            worlds.add((World) worldServer);
+        }
+        return worlds;
     }
 
     @Override
     public World getWorld(UUID uniqueId) {
+        // TODO: This needs to map to world id's somehow
         return null;
     }
 
     @Override
     public World getWorld(String worldName) {
+        for (World world : getWorlds()) {
+            if (world.getName().equals(worldName)) {
+                return world;
+            }
+        }
         return null;
     }
 
     @Override
+    @SideOnly(Side.SERVER)
     public void broadcastMessage(String message) {
-
+        MinecraftServer.getServer().getConfigurationManager().sendChatMsg(new ChatComponentText(message));
     }
 
     @Override
