@@ -153,7 +153,7 @@ task sourceJar(type: Jar, dependsOn: sourceMainJava) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
     from project("SpongeAPI").tasks.javadoc.destinationDir
-    classifier = "javadocs"
+    classifier = "javadoc"
     dependsOn "SpongeAPI:javadoc"
 }
 
