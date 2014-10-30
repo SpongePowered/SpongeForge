@@ -18,6 +18,9 @@ buildscript {
     }
 }
 
+// for mulriproect fun
+evaluationDependsOn('SpongeAPI')
+
 // Default tasks
 defaultTasks 'build', 'licenseFormat'
 
@@ -49,10 +52,15 @@ minecraft {
     version = "1.7.10-10.13.1.1217"
 }
 
+configurations {
+    deployerJars // maven deployment
+}
+
 // Project dependencies
 dependencies {
     compile project('SpongeAPI')
     testCompile 'junit:junit:4.11'
+    deployerJars 'org.apache.maven.wagon:wagon-ftp:2.7'
 }
 
 // Filter, process, and include resources
@@ -74,20 +82,6 @@ processResources {
                 'url': url,
                 'authorList': organization
     }
-}
-
-jar {
-    // Jar shading and packaging configuration
-    from { project("SpongeAPI").sourceSets.main.output.files }
-    
-    // JAR manifest configuration
-    manifest.mainAttributes(
-        "Built-By": System.properties['user.name'],
-        "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
-        "Implementation-Title": name,
-        "Implementation-Version": version + "+" + ciSystem + "-b" + buildNumber + ".git-" + commit,
-        "Implementation-Vendor": url,
-        "FMLCorePlugin": "org.spongepowered.mod.SpongeCoremod")
 }
 
 // License header formatting
@@ -121,4 +115,97 @@ tasks.withType(JavaCompile) {
     options.compilerArgs += [ '-Xlint:all', '-Xlint:-path' ]
     options.deprecation = true
     options.encoding = 'utf8'
+}
+
+def manifestEntries = [
+    "Built-By": System.properties['user.name'],
+    "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
+    "Implementation-Title": name,
+    "Implementation-Version": version + "+" + ciSystem + "-b" + buildNumber + ".git-" + commit,
+    "Implementation-Vendor": url,
+    "FMLCorePlugin": "org.spongepowered.mod.SpongeCoremod"
+    ]
+
+jar {
+    // Jar shading and packaging configuration
+    from { project("SpongeAPI").sourceSets.main.output }
+    
+    // JAR manifest configuration
+    manifest.mainAttributes(manifestEntries)
+    
+    // classifier
+    classifier = 'release'
+}
+
+task deobfJar(type: Jar) {
+    from { project("SpongeAPI").sourceSets.main.output }
+    from sourceSets.main.output
+}
+
+task sourceJar(type: Jar, dependsOn: sourceMainJava) {
+    from "build/sources/java"
+    from "build/resources/main/java"
+    from project("SpongeAPI").sourceSets.main.java
+    from project("SpongeAPI").sourceSets.main.resources
+    classifier = "sources"
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    from project("SpongeAPI").tasks.javadoc.destinationDir
+    classifier = "javadocs"
+    dependsOn "SpongeAPI:javadoc"
+}
+
+artifacts {
+    archives deobfJar
+    archives sourceJar
+    archives javadocJar
+}
+
+uploadArchives {
+    dependsOn reobf
+    repositories {
+        mavenDeployer {
+            configuration = configurations.deployerJars
+
+            if (project.hasProperty("chRepo"))
+            {
+                repository(url: project.chRepo) {
+                    authentication(userName: project.chUsername, password: project.chPassword)
+                }
+            }
+
+            pom {
+                groupId = project.group
+                version = project.version
+                artifactId = project.archivesBaseName
+                project {
+                    name project.archivesBaseName
+                    packaging 'jar'
+                    description 'Sponge'
+                    url 'http://www.spongepowered.org/'
+
+                    scm {
+                        url 'https://github.com/SpongePowered/SpongeAPI'
+                        connection 'scm:git:git://github.com/SpongePowered/Sponge.git'
+                        developerConnection 'scm:git:git@github.com:SpongePowered/Sponge.git'
+                    }
+
+                    issueManagement {
+                        system 'youtrack'
+                        url 'https://issues.spongepowered.org/'
+                    }
+
+                    licenses {
+                        license {
+                            name 'MIT liscence'
+                            url 'http://opensource.org/licenses/MIT'
+                            distribution 'repo'
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
