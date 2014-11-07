@@ -30,7 +30,7 @@ import java.util.Map;
 
 import net.minecraftforge.common.MinecraftForge;
 
-import org.spongepowered.api.event.SpongeEventHandler;
+import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.mod.asm.util.ASMEventListenerHolderFactory;
 
 import cpw.mods.fml.common.eventhandler.Event;
@@ -44,7 +44,7 @@ public class SpongeEventBus {
         this.eventAndPriorityToEventListenerHolderMap = new HashMap<Class<?>, Map<EventPriority, EventListenerHolder<Event>>>();
     }
     
-    public void add(Class<?> implementingEvent, SpongeEventHandler annotation, PriorityEventListener<Event> listener) {
+    public void add(Class<?> implementingEvent, Subscribe annotation, PriorityEventListener<Event> listener) {
         EventListenerHolder<Event> holder = getEventHolder(implementingEvent, annotation);
         holder.add(listener);
     }
@@ -71,7 +71,7 @@ public class SpongeEventBus {
         }
     }
     
-    private EventListenerHolder<Event> getEventHolder(Class<?> implementingEvent, SpongeEventHandler annotation) {
+    private EventListenerHolder<Event> getEventHolder(Class<?> implementingEvent, Subscribe annotation) {
         
         Map<EventPriority, EventListenerHolder<Event>> priorityHolderMap = eventAndPriorityToEventListenerHolderMap.get(implementingEvent);
         

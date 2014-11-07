@@ -37,11 +37,10 @@ import net.minecraftforge.common.MinecraftForge;
 
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.EventManager;
-import org.spongepowered.api.event.SpongeEventHandler;
+import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.mod.SpongeGame;
 import org.spongepowered.mod.asm.util.ASMEventListenerFactory;
 
-import com.google.common.eventbus.Subscribe;
 import com.google.common.reflect.TypeToken;
 
 import cpw.mods.fml.common.event.FMLEvent;
@@ -73,9 +72,9 @@ public class SpongeEventManager implements EventManager {
                 new ArrayList<PriorityEventListener<cpw.mods.fml.common.eventhandler.Event>>();
         List<EventListener<FMLEvent>> localFMLListeners = new ArrayList<EventListener<FMLEvent>>();
 
-        Map<Method, SpongeEventHandler> annotationMap = getAnnotationMap(o);
+        Map<Method, Subscribe> annotationMap = getAnnotationMap(o);
         
-        for (Entry<Method, SpongeEventHandler> entry : annotationMap.entrySet()) {
+        for (Entry<Method, Subscribe> entry : annotationMap.entrySet()) {
             Class<?>[] parameters = entry.getKey().getParameterTypes();
 
             if (parameters.length != 1) {
@@ -160,7 +159,7 @@ public class SpongeEventManager implements EventManager {
         return game;
     }
 
-    @Subscribe
+    @com.google.common.eventbus.Subscribe
     public void onFMLEvent(FMLEvent event) {
         // FML events are rare, so do not use the high speed event system
         //
@@ -181,8 +180,8 @@ public class SpongeEventManager implements EventManager {
 
 
 
-    private Map<Method, SpongeEventHandler> getAnnotationMap(Object o) {
-        Map<Method, SpongeEventHandler> map = new HashMap<Method, SpongeEventHandler>();
+    private Map<Method, Subscribe> getAnnotationMap(Object o) {
+        Map<Method, Subscribe> map = new HashMap<Method, Subscribe>();
 
         Set<? extends Class<?>> superClasses = TypeToken.of(o.getClass()).getTypes().rawTypes();
 
@@ -191,8 +190,8 @@ public class SpongeEventManager implements EventManager {
                 try {
                     Method localMethod = clazz.getDeclaredMethod(method.getName(), method.getParameterTypes());
 
-                    if (localMethod.isAnnotationPresent(SpongeEventHandler.class)) {
-                        SpongeEventHandler annotation = localMethod.getAnnotation(SpongeEventHandler.class);
+                    if (localMethod.isAnnotationPresent(Subscribe.class)) {
+                        Subscribe annotation = localMethod.getAnnotation(Subscribe.class);
                         map.put(method, annotation);
                         break;
                     }
