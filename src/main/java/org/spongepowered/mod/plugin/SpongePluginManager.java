@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.plugin;
 
+import com.google.common.base.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -35,8 +36,8 @@ import java.util.Collection;
 public class SpongePluginManager implements PluginManager {
 
     @Override
-    public PluginContainer getPlugin(String s) {
-        return SpongeMod.instance.getPlugin(s);
+    public Optional<PluginContainer> getPlugin(String s) {
+        return Optional.fromNullable(SpongeMod.instance.getPlugin(s));
     }
 
     @Override

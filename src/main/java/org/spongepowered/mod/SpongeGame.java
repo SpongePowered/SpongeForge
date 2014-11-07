@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod;
 
+import com.google.common.base.Optional;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -40,6 +41,8 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.entity.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.service.scheduler.Scheduler;
+import org.spongepowered.api.title.Title;
 import org.spongepowered.api.world.World;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
@@ -115,6 +118,16 @@ public final class SpongeGame implements Game {
     }
 
     @Override
+    public Title createTitle() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Title updateTitle() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getAPIVersion() {
         return apiVersion != null ? apiVersion : "UNKNOWN";
     }
@@ -130,6 +143,11 @@ public final class SpongeGame implements Game {
     }
 
     @Override
+    public Scheduler getScheduler() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Collection<Player> getOnlinePlayers() {
         throw new UnsupportedOperationException();
     }
@@ -140,7 +158,12 @@ public final class SpongeGame implements Game {
     }
 
     @Override
-    public Player getPlayer(UUID uniqueId) {
+    public Optional<Player> getPlayer(UUID uniqueId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<Player> getPlayer(String name) {
         throw new UnsupportedOperationException();
     }
 }

@@ -25,10 +25,9 @@
 package org.spongepowered.wrapper;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.world.EnumSkyBlock;
-import org.spongepowered.api.block.Block;
-import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.*;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.math.Vector3i;
 import org.spongepowered.api.math.Vectors;
@@ -36,6 +35,8 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.extent.Extent;
+
+import java.util.Collection;
 
 public class BlockWrapper implements Block {
     private net.minecraft.world.World handle;
@@ -89,14 +90,18 @@ public class BlockWrapper implements Block {
     }
 
     @Override
-    public void replaceData(byte data) {
-        // 0 is no notify flag. For now not going to notify nearby blocks of update.
-        handle.setBlockMetadataWithNotify(x, y, z, data, 0);
+    public void replaceWith(BlockState state) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void replaceWith(BlockType type) {
         handle.setBlock(x, y, z, net.minecraft.block.Block.getBlockFromName(type.getId()), 0, 3);
+    }
+
+    private void replaceData(byte data) {
+        // 0 is no notify flag. For now not going to notify nearby blocks of update.
+        handle.setBlockMetadataWithNotify(x, y, z, data, 0);
     }
 
     @Override
@@ -106,8 +111,48 @@ public class BlockWrapper implements Block {
     }
 
     @Override
+    public void interact() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void interactWith(ItemStack itemStack) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public BlockType getType() {
         return (BlockType) handle.getBlock(x, y, z);
+    }
+
+    @Override
+    public ImmutableMap<BlockProperty<?>, ? extends Comparable<?>> getProperties() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<String> getPropertyNames() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<BlockProperty<?>> getPropertyByName(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<? extends Comparable<?>> getPropertyValue(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BlockState withProperty(BlockProperty<?> property, Comparable<?> value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BlockState cycleProperty(BlockProperty<?> property) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -117,11 +162,6 @@ public class BlockWrapper implements Block {
 
     @Override
     public BlockSnapshot getSnapshot() {
-        return null;
-    }
-
-    @Override
-    public <T> Optional<T> getComponent(Class<T> clazz) {
         return null;
     }
 
@@ -168,6 +208,16 @@ public class BlockWrapper implements Block {
     @Override
     public boolean isFaceIndirectlyPowered(Direction direction) {
         return handle.getIndirectPowerLevelTo(x, y, z, getNotchDirection(direction)) > 0;
+    }
+
+    @Override
+    public Collection<Direction> getPoweredFaces() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<Direction> getIndirectlyPoweredFaces() {
+        throw new UnsupportedOperationException();
     }
 
     //TODO: Move this to Direction
