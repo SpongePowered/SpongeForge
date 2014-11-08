@@ -3,6 +3,11 @@
     "mixins": [
         "MixinRealWorld",
         "MixinBlockState",
-        "MixinBlockType"
+        "MixinBlockType",
+        "MixinPropertyHelper",
+        "MixinPropertyHelper$MixinPropertyBool",
+        "MixinPropertyHelper$MixinPropertyEnum",
+        "MixinPropertyHelper$MixinPropertyInteger",
+        "MixinPropertyHelper$MixinPropertyDirection",
     ]
 }
