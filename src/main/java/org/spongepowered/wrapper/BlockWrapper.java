@@ -120,7 +120,12 @@ public class BlockWrapper implements Block {
     @Override
     public void replaceWith(BlockState state) {
         // 0 is no notify flag. For now not going to notify nearby blocks of update.
-        handle.setBlockState(pos, (IBlockState) state, 0);
+        if(state instanceof IBlockState) {
+            handle.setBlockState(pos, (IBlockState) state, 0);
+        } else {
+            // TODO: Need to figure out what is sensible for other BlockState implementing classes.
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
@@ -131,7 +136,7 @@ public class BlockWrapper implements Block {
 
     @Override
     public void replaceWith(BlockSnapshot snapshot) {
-        replaceWith(snapshot);
+        replaceWith((BlockState)snapshot);
     }
 
     @Override
