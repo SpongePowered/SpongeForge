@@ -24,12 +24,12 @@
  */
 package org.spongepowered.mod;
 
+import com.google.common.base.Optional;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
@@ -38,12 +38,14 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.entity.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.api.util.scheduler.Scheduler;
+import org.spongepowered.api.service.scheduler.Scheduler;
+import org.spongepowered.api.title.Title;
 import org.spongepowered.api.world.World;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.UUID;
 
 public final class SpongeGame implements Game {
 
@@ -115,6 +117,16 @@ public final class SpongeGame implements Game {
     }
 
     @Override
+    public Title createTitle() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Title updateTitle() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getAPIVersion() {
         return apiVersion != null ? apiVersion : "UNKNOWN";
     }
@@ -145,7 +157,12 @@ public final class SpongeGame implements Game {
     }
 
     @Override
-    public Player getPlayer(UUID uniqueId) {
+    public Optional<Player> getPlayer(UUID uniqueId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<Player> getPlayer(String name) {
         throw new UnsupportedOperationException();
     }
 }

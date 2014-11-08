@@ -24,29 +24,24 @@
  */
 package org.spongepowered.mod.event;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.reflect.TypeToken;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.event.FMLEvent;
+import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.mod.SpongeGame;
+import org.spongepowered.mod.asm.util.ASMEventListenerFactory;
+
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-
-import org.spongepowered.api.event.Event;
-import org.spongepowered.api.event.EventManager;
-import org.spongepowered.api.event.SpongeEventHandler;
-import org.spongepowered.mod.SpongeGame;
-import org.spongepowered.mod.asm.util.ASMEventListenerFactory;
-
-import com.google.common.eventbus.Subscribe;
-import com.google.common.reflect.TypeToken;
-
-import net.minecraftforge.fml.common.event.FMLEvent;
 
 public class SpongeEventManager implements EventManager {
 
@@ -75,9 +70,9 @@ public class SpongeEventManager implements EventManager {
                 Lists.newArrayList();
         List<EventListener<FMLEvent>> localFMLListeners = Lists.newArrayList();
 
-        Map<Method, SpongeEventHandler> annotationMap = getAnnotationMap(o);
-        
-        for (Entry<Method, SpongeEventHandler> entry : annotationMap.entrySet()) {
+        Map<Method, Subscribe> annotationMap = getAnnotationMap(o);
+
+        for (Entry<Method, Subscribe> entry : annotationMap.entrySet()) {
             Class<?>[] parameters = entry.getKey().getParameterTypes();
 
             if (parameters.length != 1) {
@@ -95,10 +90,10 @@ public class SpongeEventManager implements EventManager {
                 game.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
             } else if (net.minecraftforge.fml.common.eventhandler.Event.class.isAssignableFrom(implementingEvent)) {
                 // Forge events
-                EventListener<net.minecraftforge.fml.common.eventhandler.Event> listener = 
+                EventListener<net.minecraftforge.fml.common.eventhandler.Event> listener =
                         ASMEventListenerFactory.getListener(EventListener.class, o, entry.getKey());
 
-                PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event> priorityListener = 
+                PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event> priorityListener =
                         new PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event>(entry.getValue().order(), listener);
 
                 eventBus.add(implementingEvent, entry.getValue(), priorityListener);
@@ -108,7 +103,7 @@ public class SpongeEventManager implements EventManager {
                 //
                 // FMLEvens are handled using a hash-map lookup to a listener list
 
-                EventListener<FMLEvent> listener = 
+                EventListener<FMLEvent> listener =
                         (EventListener<FMLEvent>) ASMEventListenerFactory.getListener(EventListener.class, o, entry.getKey());
                 PriorityEventListener<FMLEvent> priorityListener = new PriorityEventListener<FMLEvent>(entry.getValue().order(), listener);
 
@@ -121,7 +116,7 @@ public class SpongeEventManager implements EventManager {
                 }
                 listenerList.add(priorityListener);
                 Collections.sort(listenerList);
-                
+
             }
         }
         fmlPluginHandlerMap.put(o, localFMLListeners);
@@ -162,7 +157,7 @@ public class SpongeEventManager implements EventManager {
         return game;
     }
 
-    @Subscribe
+    @com.google.common.eventbus.Subscribe
     public void onFMLEvent(FMLEvent event) {
         // FML events are rare, so do not use the high speed event system
         //
@@ -182,9 +177,8 @@ public class SpongeEventManager implements EventManager {
     }
 
 
-
-    private Map<Method, SpongeEventHandler> getAnnotationMap(Object o) {
-        Map<Method, SpongeEventHandler> map = new HashMap<Method, SpongeEventHandler>();
+    private Map<Method, Subscribe> getAnnotationMap(Object o) {
+        Map<Method, Subscribe> map = new HashMap<Method, Subscribe>();
 
         Set<? extends Class<?>> superClasses = TypeToken.of(o.getClass()).getTypes().rawTypes();
 
@@ -193,8 +187,8 @@ public class SpongeEventManager implements EventManager {
                 try {
                     Method localMethod = clazz.getDeclaredMethod(method.getName(), method.getParameterTypes());
 
-                    if (localMethod.isAnnotationPresent(SpongeEventHandler.class)) {
-                        SpongeEventHandler annotation = localMethod.getAnnotation(SpongeEventHandler.class);
+                    if (localMethod.isAnnotationPresent(Subscribe.class)) {
+                        Subscribe annotation = localMethod.getAnnotation(Subscribe.class);
                         map.put(method, annotation);
                         break;
                     }

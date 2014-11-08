@@ -32,11 +32,8 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_6;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -45,15 +42,16 @@ import org.objectweb.asm.util.CheckClassAdapter;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.EventListenerHolder;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ASMEventListenerHolderFactory {
 
-    private static volatile ClassLoaderAccess loaderAccess = null;
     private static final Map<HashTriple, Class<?>> cache = new ConcurrentHashMap<HashTriple, Class<?>>();
     private static final Object classCreationLock = new Object();
-
+    private static volatile ClassLoaderAccess loaderAccess = null;
     private static int classId = 0;
 
     @SuppressWarnings("unchecked")
@@ -98,8 +96,8 @@ public class ASMEventListenerHolderFactory {
 
         cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, classNameInternal, null, "org/spongepowered/mod/event/EventListenerHolder", null);
 
-        cw.visitInnerClass("net/minecraftforge/event/world/BlockEvent$BreakEvent", "net/minecraftforge/event/world/BlockEvent", "BreakEvent", 
-                ACC_PUBLIC + ACC_STATIC);
+        cw.visitInnerClass("net/minecraftforge/event/world/BlockEvent$BreakEvent", "net/minecraftforge/event/world/BlockEvent", "BreakEvent",
+                           ACC_PUBLIC + ACC_STATIC);
 
         {
             mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
@@ -132,6 +130,15 @@ public class ASMEventListenerHolderFactory {
             loaderAccess = new ClassLoaderAccess();
         }
         return loaderAccess.defineClass(className, cwRaw.toByteArray());
+    }
+
+    private static String getClassName(Class<?> eventClass, EventPriority priority, boolean canceled) {
+        int id = classId++;
+        String prefix = ASMEventListenerHolderFactory.class.getName();
+        String eventClassName = eventClass.getSimpleName();
+        String priorityString = priority.name();
+        String canceledString = canceled ? "Cancel" : "NoCancel";
+        return prefix + "_" + id + "_" + eventClassName + "_" + priorityString + "_" + canceledString;
     }
 
     private static class HashTriple {
@@ -167,16 +174,8 @@ public class ASMEventListenerHolderFactory {
         }
     }
 
-    private static String getClassName(Class<?> eventClass, EventPriority priority, boolean canceled) {
-        int id = classId++;
-        String prefix = ASMEventListenerHolderFactory.class.getName();
-        String eventClassName = eventClass.getSimpleName();
-        String priorityString = priority.name();
-        String canceledString = canceled ? "Cancel" : "NoCancel";
-        return prefix + "_" + id + "_" + eventClassName + "_" + priorityString + "_" + canceledString;
-    }
-
     private static class ClassLoaderAccess {
+
         private final Method defineClassMethod;
         private final ClassLoader loader;
 

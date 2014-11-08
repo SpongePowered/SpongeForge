@@ -24,32 +24,30 @@
  */
 package org.spongepowered.mod.event;
 
+import com.google.common.collect.Maps;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.mod.asm.util.ASMEventListenerHolderFactory;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.spongepowered.api.event.SpongeEventHandler;
-import org.spongepowered.mod.asm.util.ASMEventListenerHolderFactory;
-
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-
 public class SpongeEventBus {
-    
+
     private final Map<Class<?>, Map<EventPriority, EventListenerHolder<Event>>> eventAndPriorityToEventListenerHolderMap;
-    
+
     public SpongeEventBus() {
         this.eventAndPriorityToEventListenerHolderMap = Maps.newHashMap();
     }
-    
-    public void add(Class<?> implementingEvent, SpongeEventHandler annotation, PriorityEventListener<Event> listener) {
+
+    public void add(Class<?> implementingEvent, Subscribe annotation, PriorityEventListener<Event> listener) {
         EventListenerHolder<Event> holder = getEventHolder(implementingEvent, annotation);
         holder.add(listener);
     }
-    
+
     public void remove(PriorityEventListener<Event> listener) {
         Iterator<Map<EventPriority, EventListenerHolder<Event>>> mapIterator = eventAndPriorityToEventListenerHolderMap.values().iterator();
         while (mapIterator.hasNext()) {
@@ -71,11 +69,11 @@ public class SpongeEventBus {
             }
         }
     }
-    
-    private EventListenerHolder<Event> getEventHolder(Class<?> implementingEvent, SpongeEventHandler annotation) {
-        
+
+    private EventListenerHolder<Event> getEventHolder(Class<?> implementingEvent, Subscribe annotation) {
+
         Map<EventPriority, EventListenerHolder<Event>> priorityHolderMap = eventAndPriorityToEventListenerHolderMap.get(implementingEvent);
-        
+
         if (priorityHolderMap == null) {
             priorityHolderMap = new HashMap<EventPriority, EventListenerHolder<Event>>();
             eventAndPriorityToEventListenerHolderMap.put(implementingEvent, priorityHolderMap);
@@ -83,13 +81,13 @@ public class SpongeEventBus {
 
         EventPriority priority = PriorityMap.getEventPriority(annotation.order());
         EventListenerHolder<Event> eventListenerHolder = priorityHolderMap.get(priority);
-        
+
         if (eventListenerHolder == null) {
             eventListenerHolder = ASMEventListenerHolderFactory.getNewEventListenerHolder(implementingEvent, priority, !annotation.ignoreCancelled());
             priorityHolderMap.put(priority, eventListenerHolder);
             FMLCommonHandler.instance().bus().register(eventListenerHolder);
         }
-        
+
         return eventListenerHolder;
     }
 

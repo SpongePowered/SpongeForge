@@ -34,10 +34,14 @@ import org.spongepowered.wrapper.BlockWrapper;
 
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinRealWorld implements World {
-    @Shadow protected WorldInfo worldInfo;
-    @Shadow public WorldProvider provider;
 
-    @Shadow(prefix = "shadow$") public abstract net.minecraft.block.Block shadow$getBlock(int x, int y, int z);
+    @Shadow
+    public WorldProvider provider;
+    @Shadow
+    protected WorldInfo worldInfo;
+
+    @Shadow(prefix = "shadow$")
+    public abstract net.minecraft.block.Block shadow$getBlock(int x, int y, int z);
 
     @Override
     public String getName() {

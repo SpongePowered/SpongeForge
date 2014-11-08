@@ -27,10 +27,7 @@ package org.spongepowered.mod.asm.transformers;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
-import java.util.ListIterator;
-
 import net.minecraft.launchwrapper.IClassTransformer;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -41,6 +38,8 @@ import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.mod.asm.util.ASMHelper;
 
+import java.util.ListIterator;
+
 public class BaseEventTransformer implements IClassTransformer {
 
     @Override
@@ -49,7 +48,7 @@ public class BaseEventTransformer implements IClassTransformer {
         if (bytes == null || name == null) {
             return bytes;
         }
-        
+
         try {
             ClassReader cr = new ClassReader(bytes);
             ClassNode classNode = new ClassNode();
@@ -72,15 +71,15 @@ public class BaseEventTransformer implements IClassTransformer {
             ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createIsCancellableMethod());
             ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createIsCancelledMethod());
             ASMHelper.addAndReplaceMethod(classNode, EventTransformer.createSetCancelledMethod());
-            
+
             // Change super-class
             classNode.superName = "net/minecraftforge/fml/common/eventhandler/Event";
-            
+
             // Replace super() call in constructor so that it points to the new super-class
             MethodNode method = ASMHelper.findMethod(classNode, "<init>", "()V");
-            
+
             ListIterator<AbstractInsnNode> instructions = method.instructions.iterator();
-            
+
             while (instructions.hasNext()) {
                 AbstractInsnNode insn = instructions.next();
                 if (insn.getOpcode() == Opcodes.INVOKESPECIAL) {

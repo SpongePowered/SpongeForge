@@ -28,11 +28,6 @@ package org.spongepowered.mod.asm.util;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
-import java.io.PrintWriter;
-import java.lang.annotation.Annotation;
-import java.util.Iterator;
-import java.util.List;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -50,7 +45,15 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 
+import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+import java.util.Iterator;
+import java.util.List;
+
 public class ASMHelper {
+
+    private static final int[] intConstants = new int[]
+            {Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5};
 
     /**
      * Generate a new method "boolean name()", which returns a constant value.
@@ -268,14 +271,11 @@ public class ASMHelper {
         code.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, argtype.getInternalName(), forwardname, "()" + rettype.getDescriptor(), false));
         code.add(new InsnNode(rettype.getOpcode(Opcodes.IRETURN)));
     }
-    
-    private static final int[] intConstants = new int[] 
-            {Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5};
-    
+
     /**
      * Gets an instruction that pushes a integer onto the stack.  The instruction uses
      * the smallest push possible (ICONST_*, BIPUSH, SIPUSH or Integer constant).
-     * 
+     *
      * @param c the integer to push onto the stack
      */
     public static AbstractInsnNode pushIntConstant(int c) {
@@ -291,14 +291,13 @@ public class ASMHelper {
             return new LdcInsnNode(c);
         }
     }
-    
-    /** 
+
+    /**
      * Finds a method given the method descriptor
-     * 
+     *
      * @param clazz the class to scan
      * @param name the method name
      * @param desc the method descriptor
-     * @param 
      */
     public static MethodNode findMethod(ClassNode clazz, String name, String desc) {
         Iterator<MethodNode> i = clazz.methods.iterator();
@@ -310,10 +309,10 @@ public class ASMHelper {
         }
         return null;
     }
-    
+
     /**
      * Adds a method to a class, overwriting any matching method.
-     * 
+     *
      * @param clazz the class to scan
      * @param method the method to add
      */
@@ -324,32 +323,31 @@ public class ASMHelper {
         }
         clazz.methods.add(method);
     }
-    
+
     /**
      * Dumps the output of CheckClassAdapter.verify to System.out
-     * 
-     * @param clazz the classNode to verify
+     *
+     * @param classNode the classNode to verify
      */
     public static void dumpClass(ClassNode classNode) {
         ClassWriter cw = new ClassWriter(COMPUTE_MAXS | COMPUTE_FRAMES);
         classNode.accept(cw);
         dumpClass(cw.toByteArray());
     }
-    
+
     /**
      * Dumps the output of CheckClassAdapter.verify to System.out
-     * 
+     *
      * @param bytes the bytecode of the class to check
-     * @param bytes
      */
     public static void dumpClass(byte[] bytes) {
         ClassReader cr = new ClassReader(bytes);
         CheckClassAdapter.verify(cr, true, new PrintWriter(System.out));
     }
-    
+
     /**
      * Get a runtime-visible annotation of the specified class from the supplied field node
-     * 
+     *
      * @param field Source field
      * @param annotationClass Type of annotation to search for
      * @return the annotation, or null if not present
@@ -360,7 +358,7 @@ public class ASMHelper {
 
     /**
      * Get an invisible annotation of the specified class from the supplied field node
-     * 
+     *
      * @param field Source field
      * @param annotationClass Type of annotation to search for
      * @return the annotation, or null if not present
@@ -368,10 +366,10 @@ public class ASMHelper {
     public static AnnotationNode getInvisibleAnnotation(FieldNode field, Class<? extends Annotation> annotationClass) {
         return ASMHelper.getAnnotation(field.invisibleAnnotations, Type.getDescriptor(annotationClass));
     }
-    
+
     /**
      * Get a runtime-visible annotation of the specified class from the supplied method node
-     * 
+     *
      * @param method Source method
      * @param annotationClass Type of annotation to search for
      * @return the annotation, or null if not present
@@ -379,10 +377,10 @@ public class ASMHelper {
     public static AnnotationNode getVisibleAnnotation(MethodNode method, Class<? extends Annotation> annotationClass) {
         return ASMHelper.getAnnotation(method.visibleAnnotations, Type.getDescriptor(annotationClass));
     }
-    
+
     /**
      * Get an invisible annotation of the specified class from the supplied method node
-     * 
+     *
      * @param method Source method
      * @param annotationClass Type of annotation to search for
      * @return the annotation, or null if not present
@@ -393,7 +391,7 @@ public class ASMHelper {
 
     /**
      * Get a runtime-visible annotation of the specified class from the supplied class node
-     * 
+     *
      * @param classNode Source classNode
      * @param annotationClass Type of annotation to search for
      * @return the annotation, or null if not present
@@ -401,10 +399,10 @@ public class ASMHelper {
     public static AnnotationNode getVisibleAnnotation(ClassNode classNode, Class<? extends Annotation> annotationClass) {
         return ASMHelper.getAnnotation(classNode.visibleAnnotations, Type.getDescriptor(annotationClass));
     }
-    
+
     /**
      * Get an invisible annotation of the specified class from the supplied class node
-     * 
+     *
      * @param classNode Source classNode
      * @param annotationClass Type of annotation to search for
      * @return the annotation, or null if not present
@@ -412,11 +410,11 @@ public class ASMHelper {
     public static AnnotationNode getInvisibleAnnotation(ClassNode classNode, Class<? extends Annotation> annotationClass) {
         return ASMHelper.getAnnotation(classNode.invisibleAnnotations, Type.getDescriptor(annotationClass));
     }
-    
+
     /**
      * Search for and return an annotation node matching the specified type within the supplied
      * collection of annotation nodes
-     * 
+     *
      * @param annotations Haystack
      * @param annotationType Needle
      * @return matching annotation node or null if the annotation doesn't exist
@@ -425,19 +423,19 @@ public class ASMHelper {
         if (annotations == null) {
             return null;
         }
-        
+
         for (AnnotationNode annotation : annotations) {
             if (annotationType.equals(annotation.desc)) {
                 return annotation;
             }
         }
-        
+
         return null;
     }
 
     /**
      * Duck type the "value" entry (if any) of the specified annotation node
-     * 
+     *
      * @param annotation Annotation node to query
      * @return duck-typed annotation value, null if missing, or inevitable ClassCastException if your duck is actually a rooster 
      */
@@ -447,7 +445,7 @@ public class ASMHelper {
 
     /**
      * Get the value of an annotation node and do pseudo-duck-typing via Java's crappy generics
-     * 
+     *
      * @param annotation Annotation node to query
      * @param key Key to search for
      * @return duck-typed annotation value, null if missing, or inevitable ClassCastException if your duck is actually a rooster 
@@ -455,11 +453,11 @@ public class ASMHelper {
     @SuppressWarnings("unchecked")
     public static <T> T getAnnotationValue(AnnotationNode annotation, String key) {
         boolean getNextValue = false;
-        
+
         if (annotation.values == null) {
             return null;
         }
-        
+
         // Keys and value are stored in successive pairs, search for the key and if found return the following entry
         for (Object value : annotation.values) {
             if (getNextValue) {
@@ -469,7 +467,7 @@ public class ASMHelper {
                 getNextValue = true;
             }
         }
-        
+
         return null;
     }
 }

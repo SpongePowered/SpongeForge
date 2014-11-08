@@ -30,9 +30,8 @@ import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOWEST;
 import static net.minecraftforge.fml.common.eventhandler.EventPriority.NORMAL;
 
-import org.spongepowered.api.event.Order;
-
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import org.spongepowered.api.event.Order;
 
 public class PriorityMap {
 
@@ -40,13 +39,13 @@ public class PriorityMap {
     private static final Order[] orders;
 
     static {
-        eventPriorities = new EventPriority[] {HIGHEST, HIGHEST, HIGH, HIGH, NORMAL, LOW, LOW, LOWEST, LOWEST};
+        eventPriorities = new EventPriority[]{HIGHEST, HIGHEST, HIGH, HIGH, NORMAL, LOW, LOW, LOWEST, LOWEST};
         orders = Order.values();
     }
 
     private PriorityMap() {
     }
-    
+
     public static EventPriority getEventPriority(Order order) {
         return eventPriorities[order.ordinal()];
     }

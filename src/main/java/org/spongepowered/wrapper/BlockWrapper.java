@@ -25,12 +25,15 @@
 package org.spongepowered.wrapper;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
 import org.spongepowered.api.block.Block;
+import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.math.Vector3i;
@@ -39,6 +42,8 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.extent.Extent;
+
+import java.util.Collection;
 
 public class BlockWrapper implements Block {
     private net.minecraft.world.World handle;
@@ -57,6 +62,27 @@ public class BlockWrapper implements Block {
         extent = world;
         pos = new BlockPos(x, y, z);
         this.blockType = (BlockType) handle.getBlockState(new BlockPos(x, y, z)).getBlock();
+    }
+
+    //TODO: Move this to Direction
+    private static EnumFacing getNotchDirection(Direction dir) {
+        switch (dir) {
+            case DOWN:
+                return EnumFacing.DOWN;
+            case UP:
+                return EnumFacing.UP;
+            case NORTH:
+                return EnumFacing.NORTH;
+            case SOUTH:
+                return EnumFacing.SOUTH;
+            case WEST:
+                return EnumFacing.WEST;
+            case EAST:
+                return EnumFacing.EAST;
+            default:
+                // TODO: EnumFacing doesn't have an 'invalid/default' value.
+                return EnumFacing.DOWN;
+        }
     }
 
     @Override
@@ -91,9 +117,8 @@ public class BlockWrapper implements Block {
     }
 
     @Override
-    public void replaceData(byte data) {
-        // 0 is no notify flag. For now not going to notify nearby blocks of update.
-        handle.setBlockState(pos, ((net.minecraft.block.Block) blockType).getStateFromMeta(data), 0);
+    public void replaceWith(BlockState state) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -104,13 +129,27 @@ public class BlockWrapper implements Block {
 
     @Override
     public void replaceWith(BlockSnapshot snapshot) {
-        replaceWith(snapshot.getType());
-        replaceData(snapshot.getDataValue());
+        replaceWith(snapshot);
+    }
+
+    @Override
+    public void interact() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void interactWith(ItemStack itemStack) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public BlockType getType() {
         return blockType;
+    }
+
+    @Override
+    public ImmutableMap<BlockProperty<?>, ? extends Comparable<?>> getProperties() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -120,12 +159,32 @@ public class BlockWrapper implements Block {
     }
 
     @Override
-    public BlockSnapshot getSnapshot() {
-        return null;
+    public Collection<String> getPropertyNames() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> Optional<T> getComponent(Class<T> clazz) {
+    public Optional<BlockProperty<?>> getPropertyByName(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<? extends Comparable<?>> getPropertyValue(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BlockState withProperty(BlockProperty<?> property, Comparable<?> value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BlockState cycleProperty(BlockProperty<?> property) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BlockSnapshot getSnapshot() {
         return null;
     }
 
@@ -175,34 +234,13 @@ public class BlockWrapper implements Block {
     }
 
     @Override
-    public void interact() {
-
+    public Collection<Direction> getPoweredFaces() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public void interactWith(ItemStack itemStack) {
-
-    }
-
-    //TODO: Move this to Direction
-    private static EnumFacing getNotchDirection(Direction dir) {
-        switch (dir) {
-            case DOWN:
-                return EnumFacing.DOWN;
-            case UP:
-                return EnumFacing.UP;
-            case NORTH:
-                return EnumFacing.NORTH;
-            case SOUTH:
-                return EnumFacing.SOUTH;
-            case WEST:
-                return EnumFacing.WEST;
-            case EAST:
-                return EnumFacing.EAST;
-            default:
-                // TODO: EnumFacing doesn't have an 'invalid/default' value.
-                return EnumFacing.DOWN;
-        }
+    public Collection<Direction> getIndirectlyPoweredFaces() {
+        throw new UnsupportedOperationException();
     }
 
     public net.minecraft.world.World getHandle() {

@@ -36,21 +36,21 @@ public interface IWorld {
      * Stupid example
      */
     public abstract int getAmbientTickCountdown();
-    
+
     /**
      * Even more tenuous example
-     * 
-     * @param x 
+     *
+     * @param x
      * @param y
      * @param z
      * @param block
      * @return
      */
     public abstract int exampleMethodToComputeLightValue(int x, int y, int z, EnumSkyBlock block);
-    
+
     /**
      * Contrived example to deliberately create a name clash with World
-     * 
+     *
      * @param x
      * @param y
      * @param z

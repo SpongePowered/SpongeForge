@@ -31,7 +31,7 @@ public class PriorityEventListener<T> implements EventListener<T>, Comparable<Pr
     private final EventListener<T> listener;
     private final Order order;
     private EventListenerHolder<T> holder;
-    
+
     public PriorityEventListener(Order order, EventListener<T> listener) {
         this.listener = listener;
         this.order = order;

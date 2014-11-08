@@ -27,14 +27,10 @@ package org.spongepowered.mod.asm.transformers;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import net.minecraft.launchwrapper.IClassTransformer;
-
+import net.minecraftforge.fml.common.event.FMLEvent;
+import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -52,29 +48,87 @@ import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
 import org.spongepowered.mod.asm.util.ASMHelper;
 
-import net.minecraftforge.fml.common.event.FMLEvent;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @Cancelable
 public class EventTransformer implements IClassTransformer {
-    
+
     private static final Map<String, Class<?>> events = new HashMap<String, Class<?>>();
-    
+
     static {
         events.put("net.minecraftforge.fml.common.event.FMLPreInitializationEvent", PreInitializationEvent.class);
         events.put("net.minecraftforge.fml.common.event.FMLInitializationEvent", InitializationEvent.class);
         events.put("net.minecraftforge.fml.common.event.FMLServerStartingEvent", ServerStartingEvent.class);
     }
-    
+
+    protected static MethodNode createGetGameMethod() {
+        MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "getGame", "()Lorg/spongepowered/api/Game;", null, null);
+        methodNode.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, "org/spongepowered/mod/SpongeMod", "instance",
+                                                      "Lorg/spongepowered/mod/SpongeMod;"));
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "org/spongepowered/mod/SpongeMod", "getGame",
+                                                       "()Lorg/spongepowered/mod/SpongeGame;", false));
+        methodNode.instructions.add(new InsnNode(Opcodes.ARETURN));
+        methodNode.maxLocals = 1;
+        methodNode.maxStack = 1;
+        return methodNode;
+    }
+
+    protected static MethodNode createGetSimpleNameMethod() {
+        MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "getSimpleName", "()Ljava/lang/String;", null, null);
+        methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false));
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Class", "getSimpleName", "()Ljava/lang/String;", false));
+        methodNode.instructions.add(new InsnNode(Opcodes.ARETURN));
+        methodNode.maxLocals = 1;
+        methodNode.maxStack = 1;
+        return methodNode;
+    }
+
+    protected static MethodNode createIsCancellableMethod() {
+        MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "isCancellable", "()Z", null, null);
+        methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "isCancelable",
+                                                       "()Z", false));
+        methodNode.instructions.add(new InsnNode(Opcodes.IRETURN));
+        methodNode.maxLocals = 1;
+        methodNode.maxStack = 1;
+        return methodNode;
+    }
+
+    protected static MethodNode createIsCancelledMethod() {
+        MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "isCancelled", "()Z", null, null);
+        methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions
+                .add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "isCanceled", "()Z", false));
+        methodNode.instructions.add(new InsnNode(Opcodes.IRETURN));
+        methodNode.maxLocals = 1;
+        methodNode.maxStack = 1;
+        return methodNode;
+    }
+
+    protected static MethodNode createSetCancelledMethod() {
+        MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "setCancelled", "(Z)V", null, null);
+        methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        methodNode.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
+        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "setCanceled",
+                                                       "(Z)V", false));
+        methodNode.instructions.add(new InsnNode(Opcodes.RETURN));
+        methodNode.maxLocals = 1;
+        methodNode.maxStack = 1;
+        return methodNode;
+    }
+
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
-        
-        if (bytes == null 
-                || transformedName.startsWith("net.minecraft.")
-                || transformedName.equals("net.minecraftforge.fml.common.event.FMLEvent")
-                || transformedName.equals("net.minecraftforge.fml.common.eventhandler.Event") 
-                || transformedName.indexOf('.') == -1) {
+
+        if (bytes == null
+            || transformedName.startsWith("net.minecraft.")
+            || transformedName.equals("net.minecraftforge.fml.common.event.FMLEvent")
+            || transformedName.equals("net.minecraftforge.fml.common.eventhandler.Event")
+            || transformedName.indexOf('.') == -1) {
             return bytes;
         }
 
@@ -82,17 +136,17 @@ public class EventTransformer implements IClassTransformer {
             ClassReader cr = new ClassReader(bytes);
             ClassNode classNode = new ClassNode();
             cr.accept(classNode, 0);
-            
+
             String parentName = classNode.superName.replace('/', '.');
-            
+
             Class<?> parent = this.getClass().getClassLoader().loadClass(parentName);
-            
+
             // Only process FMLEvents and Forge Events sub-classes
-            
+
             if ((!Event.class.isAssignableFrom(parent)) && (!FMLEvent.class.isAssignableFrom(parent))) {
                 return bytes;
             }
-            
+
             Class<?> interf = events.get(transformedName);
             if (interf != null && interf.isInterface()) {
                 String interfaceName = Type.getInternalName(interf);
@@ -103,7 +157,7 @@ public class EventTransformer implements IClassTransformer {
             // Method forwarding for all events
             classNode.methods.add(createGetGameMethod());
             classNode.methods.add(createGetSimpleNameMethod());
-            
+
             if (Event.class.isAssignableFrom(parent)) {
                 // Forge Event method forwarding
                 if (classNode.interfaces.contains("org/spongepowered/api/event/Cancellable")) {
@@ -124,70 +178,14 @@ public class EventTransformer implements IClassTransformer {
                 ASMHelper.generateSelfForwardingMethod(classNode, "getPluginLog", "getModLog",
                                                        Type.getType(Logger.class));
             }
-            
+
             ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS | COMPUTE_FRAMES);
-                    
+
             classNode.accept(cw);
             return cw.toByteArray();
         } catch (Throwable t) {
             t.printStackTrace();
             return bytes;
         }
-    }
-    
-    protected static MethodNode createGetGameMethod() {
-        MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "getGame", "()Lorg/spongepowered/api/Game;", null, null);
-        methodNode.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, "org/spongepowered/mod/SpongeMod", "instance", 
-                "Lorg/spongepowered/mod/SpongeMod;"));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "org/spongepowered/mod/SpongeMod", "getGame", 
-                "()Lorg/spongepowered/mod/SpongeGame;", false));
-        methodNode.instructions.add(new InsnNode(Opcodes.ARETURN));
-        methodNode.maxLocals = 1;
-        methodNode.maxStack = 1;
-        return methodNode;
-    }
-    
-    protected static MethodNode createGetSimpleNameMethod() {
-        MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "getSimpleName", "()Ljava/lang/String;", null, null);
-        methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Class", "getSimpleName", "()Ljava/lang/String;", false));
-        methodNode.instructions.add(new InsnNode(Opcodes.ARETURN));
-        methodNode.maxLocals = 1;
-        methodNode.maxStack = 1;
-        return methodNode;
-    }
-    
-    protected static MethodNode createIsCancellableMethod() {
-        MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "isCancellable", "()Z", null, null);
-        methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "isCancelable", 
-                "()Z", false));
-        methodNode.instructions.add(new InsnNode(Opcodes.IRETURN));
-        methodNode.maxLocals = 1;
-        methodNode.maxStack = 1;
-        return methodNode;
-    }
-    
-    protected static MethodNode createIsCancelledMethod() {
-        MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "isCancelled", "()Z", null, null);
-        methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "isCanceled", "()Z", false));
-        methodNode.instructions.add(new InsnNode(Opcodes.IRETURN));
-        methodNode.maxLocals = 1;
-        methodNode.maxStack = 1;
-        return methodNode;
-    }
-    
-    protected static MethodNode createSetCancelledMethod() {
-        MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "setCancelled", "(Z)V", null, null);
-        methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        methodNode.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
-        methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "setCanceled", 
-                "(Z)V", false));
-        methodNode.instructions.add(new InsnNode(Opcodes.RETURN));
-        methodNode.maxLocals = 1;
-        methodNode.maxStack = 1;
-        return methodNode;
     }
 }
