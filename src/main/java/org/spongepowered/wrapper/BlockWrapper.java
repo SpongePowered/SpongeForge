@@ -26,6 +26,7 @@ package org.spongepowered.wrapper;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -118,7 +119,8 @@ public class BlockWrapper implements Block {
 
     @Override
     public void replaceWith(BlockState state) {
-        throw new UnsupportedOperationException();
+        // 0 is no notify flag. For now not going to notify nearby blocks of update.
+        handle.setBlockState(pos, (IBlockState) state, 0);
     }
 
     @Override
@@ -159,8 +161,10 @@ public class BlockWrapper implements Block {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Collection<String> getPropertyNames() {
-        throw new UnsupportedOperationException();
+        IBlockState state = handle.getBlockState(pos);
+        return state.getPropertyNames();
     }
 
     @Override
@@ -169,8 +173,18 @@ public class BlockWrapper implements Block {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<? extends Comparable<?>> getPropertyValue(String name) {
-        throw new UnsupportedOperationException();
+        IBlockState state = handle.getBlockState(pos);
+
+        ImmutableMap<IProperty, Comparable<?>> properties = state.getProperties();
+        for (IProperty property : properties.keySet()) {
+            if (property.getName().equals(name)) {
+                return Optional.fromNullable(properties.get(property));
+            }
+        }
+
+        return Optional.absent();
     }
 
     @Override
