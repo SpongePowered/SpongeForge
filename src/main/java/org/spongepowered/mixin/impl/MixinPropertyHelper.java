@@ -100,12 +100,4 @@ public abstract class MixinPropertyHelper implements BlockProperty {
             super("dummyPropertyInteger", Object.class);
         }
     }
-
-    @Mixin(PropertyDirection.class)
-    public static abstract class MixinPropertyDirection extends PropertyEnum implements DirectionProperty {
-
-        private MixinPropertyDirection() {
-            super("dummyPropertyDirection", Object.class, new ArrayList());
-        }
-    }
 }

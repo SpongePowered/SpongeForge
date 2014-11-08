@@ -8,6 +8,6 @@
         "MixinPropertyHelper$MixinPropertyBool",
         "MixinPropertyHelper$MixinPropertyEnum",
         "MixinPropertyHelper$MixinPropertyInteger",
-        "MixinPropertyHelper$MixinPropertyDirection",
+        "MixinPropertyDirection",
     ]
 }
