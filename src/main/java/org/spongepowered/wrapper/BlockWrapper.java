@@ -56,7 +56,6 @@ public class BlockWrapper implements Block {
         // This is a NOT check, be careful of that
         if (!(world instanceof net.minecraft.world.World)) {
             System.err.println("World passed to BlockWrapper wasn't a mixin for net.minecraft.world.World! Serious issue!");
-            handle = (net.minecraft.world.World) world;
             throw new RuntimeException("An unrecoverable error occured!");
         }
         handle = (net.minecraft.world.World) world;
