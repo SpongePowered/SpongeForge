@@ -120,7 +120,7 @@ public class BlockWrapper implements Block {
     @Override
     public void replaceWith(BlockState state) {
         // 0 is no notify flag. For now not going to notify nearby blocks of update.
-        if(state instanceof IBlockState) {
+        if (state instanceof IBlockState) {
             handle.setBlockState(pos, (IBlockState) state, 0);
         } else {
             // TODO: Need to figure out what is sensible for other BlockState implementing classes.
@@ -155,8 +155,11 @@ public class BlockWrapper implements Block {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public ImmutableMap<BlockProperty<?>, ? extends Comparable<?>> getProperties() {
-        throw new UnsupportedOperationException();
+        IBlockState state = handle.getBlockState(pos);
+
+        return state.getProperties();
     }
 
     @Override
@@ -173,8 +176,19 @@ public class BlockWrapper implements Block {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<BlockProperty<?>> getPropertyByName(String name) {
-        throw new UnsupportedOperationException();
+        IBlockState state = handle.getBlockState(pos);
+
+        ImmutableMap<IProperty, Comparable<?>> properties = state.getProperties();
+        for (IProperty property : properties.keySet()) {
+            if (property.getName().equals(name)) {
+                // The extra specification here is because Java auto-detects <? extends BlockProperty<?>>
+                return Optional.<BlockProperty<?>>fromNullable((BlockProperty<?>) property);
+            }
+        }
+
+        return Optional.absent();
     }
 
     @Override
@@ -194,12 +208,16 @@ public class BlockWrapper implements Block {
 
     @Override
     public BlockState withProperty(BlockProperty<?> property, Comparable<?> value) {
-        throw new UnsupportedOperationException();
+        IBlockState state = handle.getBlockState(pos);
+
+        return (BlockState) state.withProperty((IProperty) property, value);
     }
 
     @Override
     public BlockState cycleProperty(BlockProperty<?> property) {
-        throw new UnsupportedOperationException();
+        IBlockState state = handle.getBlockState(pos);
+
+        return (BlockState) state.cycleProperty((IProperty) property);
     }
 
     @Override
