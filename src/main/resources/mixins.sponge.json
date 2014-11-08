@@ -2,6 +2,7 @@
     "package": "org.spongepowered.mixin.impl",
     "mixins": [
         "MixinRealWorld",
+        "MixinBlockState",
         "MixinBlockType"
     ]
 }
