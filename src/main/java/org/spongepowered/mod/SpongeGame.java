@@ -166,4 +166,9 @@ public final class SpongeGame implements Game {
     public Optional<Player> getPlayer(String name) {
         throw new UnsupportedOperationException();
     }
+    
+    @Override
+    public Player getPlayer(String username) {
+        throw new UnsupportedOperationException();
+    }
 }
