@@ -22,45 +22,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
 
-import net.minecraft.launchwrapper.Launch;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+package org.spongepowered.mixin.impl;
 
-import java.util.Map;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLStateEvent;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.event.Result;
+import org.spongepowered.api.event.state.PostInitializationEvent;
+import org.spongepowered.mod.mixin.Mixin;
 
-public class SpongeCoremod implements IFMLLoadingPlugin {
+@Mixin(FMLPostInitializationEvent.class)
+public abstract class MixinEventPostInit extends FMLStateEvent implements PostInitializationEvent {
 
-    public SpongeCoremod() {
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.mod.asm.transformers.");
+    @Override
+    public boolean isCancellable() {
+        return false;
     }
 
     @Override
-    public String[] getASMTransformerClass() {
-        return new String[]{
-                "org.spongepowered.mod.asm.transformers.MixinTransformer"
-                //"org.spongepowered.mod.asm.transformers.EventTransformer",
-                //"org.spongepowered.mod.asm.transformers.BaseEventTransformer"
-        };
+    public Result getResult() {
+        return Result.NO_RESULT;
     }
 
     @Override
-    public String getModContainerClass() {
-        return "org.spongepowered.mod.SpongeMod";
+    public void setResult(Result result) {
+
     }
 
     @Override
-    public String getSetupClass() {
+    public Game getGame() {
         return null;
     }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return "org.spongepowered.mod.asm.transformers.SpongeAccessTransformer";
-    }
-
 }

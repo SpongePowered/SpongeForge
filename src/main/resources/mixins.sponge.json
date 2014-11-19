@@ -9,5 +9,14 @@
         "MixinPropertyHelper$MixinPropertyEnum",
         "MixinPropertyHelper$MixinPropertyInteger",
         "MixinPropertyDirection",
+        "MixinEventPreInit",
+        "MixinEventInit",
+        "MixinEventPostInit",
+        "MixinEventLoadComplete",
+        "MixinEventServerAboutToStart",
+        "MixinEventServerStarting",
+        "MixinEventServerStarted",
+        "MixinEventServerStopping",
+        "MixinEventServerStopped"
     ]
 }
