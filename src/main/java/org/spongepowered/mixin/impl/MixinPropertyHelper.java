@@ -25,6 +25,7 @@
 package org.spongepowered.mixin.impl;
 
 import com.google.common.base.Optional;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyHelper;
@@ -37,21 +38,12 @@ import java.util.Collection;
 
 @Mixin(PropertyHelper.class)
 @SuppressWarnings("rawtypes")
-public abstract class MixinPropertyHelper implements BlockProperty {
-
-    @Shadow(prefix = "shadow$")
-    public abstract String shadow$getName();
-
-    @Shadow
-    public abstract Collection getAllowedValues();
-
-    @Shadow
-    public abstract String getName(Comparable value);
-
-    @Override
-    public String getName() {
-        return shadow$getName();
-    }
+public abstract class MixinPropertyHelper implements BlockProperty, IProperty {
+    // TODO: mixin, methods with same name and return type in mcp names
+    //@Override
+    //public String getName() {
+    //    return null;
+    //}
 
     @Override
     public Collection getValidValues() {

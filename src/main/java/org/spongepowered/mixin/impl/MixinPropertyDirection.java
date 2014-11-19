@@ -45,21 +45,11 @@ public abstract class MixinPropertyDirection extends PropertyEnum implements Blo
         super("dummyPropertyDirection", Object.class, new ArrayList());
     }
 
-    @Shadow(prefix = "shadow$")
-    public abstract String shadow$getName();
-
-    @Shadow
-    @SuppressWarnings("rawtypes")
-    public abstract Collection getAllowedValues();
-
-    @Shadow
-    @SuppressWarnings("rawtypes")
-    public abstract String getName(Comparable value);
-
-    @Override
-    public String getName() {
-        return shadow$getName();
-    }
+    // TODO: mixin, methods with same name and return type in mcp names
+    //@Override
+    //public String getName() {
+    //    return null;
+    //}
 
     @Override
     @SuppressWarnings("unchecked")
