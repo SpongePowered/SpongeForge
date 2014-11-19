@@ -26,7 +26,6 @@ package org.spongepowered.mixin.impl;
 
 import com.google.common.base.Optional;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyHelper;
 import net.minecraft.block.properties.PropertyInteger;
@@ -34,7 +33,6 @@ import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.mod.mixin.Mixin;
 import org.spongepowered.mod.mixin.Shadow;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 @Mixin(PropertyHelper.class)
@@ -78,7 +76,7 @@ public abstract class MixinPropertyHelper implements BlockProperty {
 
     // These don't need any special methods, as those are done in the PropertyHelper mixin.
     @Mixin(PropertyBool.class)
-    public static abstract class MixinPropertyBool extends PropertyHelper implements BooleanProperty {
+    public abstract static class MixinPropertyBool extends PropertyHelper implements BooleanProperty {
 
         private MixinPropertyBool() {
             super("dummyPropertyBool", Object.class);
@@ -86,7 +84,7 @@ public abstract class MixinPropertyHelper implements BlockProperty {
     }
 
     @Mixin(PropertyEnum.class)
-    public static abstract class MixinPropertyEnum extends PropertyHelper implements EnumProperty {
+    public abstract static class MixinPropertyEnum extends PropertyHelper implements EnumProperty {
 
         private MixinPropertyEnum() {
             super("dummyPropertyEnum", Object.class);
@@ -94,7 +92,7 @@ public abstract class MixinPropertyHelper implements BlockProperty {
     }
 
     @Mixin(PropertyInteger.class)
-    public static abstract class MixinPropertyInteger extends PropertyHelper implements IntegerProperty {
+    public abstract static class MixinPropertyInteger extends PropertyHelper implements IntegerProperty {
 
         private MixinPropertyInteger() {
             super("dummyPropertyInteger", Object.class);
