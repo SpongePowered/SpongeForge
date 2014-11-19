@@ -46,7 +46,6 @@ public class BlockWrapper implements Block {
 
     private net.minecraft.world.World handle;
     private World extent;
-    private BlockType blockType;
 
     private BlockPos pos;
 
@@ -59,7 +58,6 @@ public class BlockWrapper implements Block {
         handle = (net.minecraft.world.World) world;
         extent = world;
         pos = new BlockPos(x, y, z);
-        this.blockType = (BlockType) handle.getBlockState(pos).getBlock();
     }
 
     //TODO: Move this to Direction
@@ -127,8 +125,7 @@ public class BlockWrapper implements Block {
 
     @Override
     public void replaceWith(BlockType type) {
-        handle.setBlockState(pos, ((net.minecraft.block.Block) blockType).getDefaultState(), 3);
-        blockType = type;
+        handle.setBlockState(pos, ((net.minecraft.block.Block) type).getDefaultState(), 3);
     }
 
     @Override
@@ -149,7 +146,7 @@ public class BlockWrapper implements Block {
 
     @Override
     public BlockType getType() {
-        return blockType;
+        return (BlockType) handle.getBlockState(pos).getBlock();
     }
 
     @Override
