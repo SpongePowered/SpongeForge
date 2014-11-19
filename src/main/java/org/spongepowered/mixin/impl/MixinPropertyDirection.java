@@ -40,6 +40,7 @@ import java.util.Collection;
 @Mixin(PropertyDirection.class)
 public abstract class MixinPropertyDirection extends PropertyEnum implements BlockProperty.DirectionProperty {
 
+    @SuppressWarnings("rawtypes")
     private MixinPropertyDirection() {
         super("dummyPropertyDirection", Object.class, new ArrayList());
     }
@@ -48,9 +49,11 @@ public abstract class MixinPropertyDirection extends PropertyEnum implements Blo
     public abstract String shadow$getName();
 
     @Shadow
+    @SuppressWarnings("rawtypes")
     public abstract Collection getAllowedValues();
 
     @Shadow
+    @SuppressWarnings("rawtypes")
     public abstract String getName(Comparable value);
 
     @Override

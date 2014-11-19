@@ -89,6 +89,7 @@ public abstract class MixinBlockState extends BlockStateBase implements org.spon
     }
 
     @Override
+    @Deprecated
     public byte getDataValue() {
         return (byte) getBlock().getMetaFromState(this);
     }

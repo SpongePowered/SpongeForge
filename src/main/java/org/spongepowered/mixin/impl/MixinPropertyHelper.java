@@ -36,6 +36,7 @@ import org.spongepowered.mod.mixin.Shadow;
 import java.util.Collection;
 
 @Mixin(PropertyHelper.class)
+@SuppressWarnings("rawtypes")
 public abstract class MixinPropertyHelper implements BlockProperty {
 
     @Shadow(prefix = "shadow$")

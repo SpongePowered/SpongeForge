@@ -106,6 +106,7 @@ license {
     ext.year = project.inceptionYear
     exclude "**/*.info"
     exclude "**/*.json"
+    exclude "**/*_at.cfg"
     exclude "assets/**"
     header new File(project("SpongeAPI").getProjectDir(), "HEADER.txt")
     sourceSets = project.sourceSets
