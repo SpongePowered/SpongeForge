@@ -38,6 +38,8 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.entity.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.service.ServiceManager;
+import org.spongepowered.api.service.command.CommandDispatcher;
 import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.title.Title;
 import org.spongepowered.api.world.World;
@@ -47,7 +49,7 @@ import org.spongepowered.mod.plugin.SpongePluginManager;
 import java.util.Collection;
 import java.util.UUID;
 
-public final class SpongeGame implements Game {
+public final class SpongeGame extends Game {
 
     private static final String apiVersion = Game.class.getPackage().getImplementationVersion();
     private static final String implementationVersion = SpongeGame.class.getPackage().getImplementationVersion();
@@ -142,8 +144,18 @@ public final class SpongeGame implements Game {
     }
 
     @Override
+    public ServiceManager getServiceManager() {
+        return null;
+    }
+
+    @Override
     public Scheduler getScheduler() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CommandDispatcher getCommandDispatcher() {
+        return null;
     }
 
     @Override

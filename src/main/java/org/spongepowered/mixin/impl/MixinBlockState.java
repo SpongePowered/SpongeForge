@@ -92,9 +92,4 @@ public abstract class MixinBlockState extends BlockStateBase implements org.spon
     public byte getDataValue() {
         return (byte) getBlock().getMetaFromState(this);
     }
-
-    @Override
-    public BlockSnapshot getSnapshot() {
-        throw new UnsupportedOperationException();
-    }
 }

@@ -24,15 +24,11 @@
  */
 package org.spongepowered.wrapper;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
 import org.spongepowered.api.block.Block;
-import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -47,9 +43,11 @@ import org.spongepowered.api.world.extent.Extent;
 import java.util.Collection;
 
 public class BlockWrapper implements Block {
+
     private net.minecraft.world.World handle;
     private World extent;
     private BlockType blockType;
+
     private BlockPos pos;
 
     public BlockWrapper(World world, int x, int y, int z) {
@@ -61,7 +59,7 @@ public class BlockWrapper implements Block {
         handle = (net.minecraft.world.World) world;
         extent = world;
         pos = new BlockPos(x, y, z);
-        this.blockType = (BlockType) handle.getBlockState(new BlockPos(x, y, z)).getBlock();
+        this.blockType = (BlockType) handle.getBlockState(pos).getBlock();
     }
 
     //TODO: Move this to Direction
@@ -135,7 +133,8 @@ public class BlockWrapper implements Block {
 
     @Override
     public void replaceWith(BlockSnapshot snapshot) {
-        replaceWith((BlockState)snapshot);
+        replaceWith(snapshot.getState());
+        // TODO: However we end up storing NBT/TE data in BlockSnapshot, restore that too.
     }
 
     @Override
@@ -154,74 +153,23 @@ public class BlockWrapper implements Block {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public ImmutableMap<BlockProperty<?>, ? extends Comparable<?>> getProperties() {
-        IBlockState state = handle.getBlockState(pos);
-
-        return state.getProperties();
-    }
-
-    @Override
-    public byte getDataValue() {
-        IBlockState state = handle.getBlockState(pos);
-        return (byte) state.getBlock().getMetaFromState(state);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Collection<String> getPropertyNames() {
-        IBlockState state = handle.getBlockState(pos);
-        return state.getPropertyNames();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Optional<BlockProperty<?>> getPropertyByName(String name) {
-        IBlockState state = handle.getBlockState(pos);
-
-        ImmutableMap<IProperty, Comparable<?>> properties = state.getProperties();
-        for (IProperty property : properties.keySet()) {
-            if (property.getName().equals(name)) {
-                // The extra specification here is because Java auto-detects <? extends BlockProperty<?>>
-                return Optional.<BlockProperty<?>>fromNullable((BlockProperty<?>) property);
-            }
-        }
-
-        return Optional.absent();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Optional<? extends Comparable<?>> getPropertyValue(String name) {
-        IBlockState state = handle.getBlockState(pos);
-
-        ImmutableMap<IProperty, Comparable<?>> properties = state.getProperties();
-        for (IProperty property : properties.keySet()) {
-            if (property.getName().equals(name)) {
-                return Optional.fromNullable(properties.get(property));
-            }
-        }
-
-        return Optional.absent();
-    }
-
-    @Override
-    public BlockState withProperty(BlockProperty<?> property, Comparable<?> value) {
-        IBlockState state = handle.getBlockState(pos);
-
-        return (BlockState) state.withProperty((IProperty) property, value);
-    }
-
-    @Override
-    public BlockState cycleProperty(BlockProperty<?> property) {
-        IBlockState state = handle.getBlockState(pos);
-
-        return (BlockState) state.cycleProperty((IProperty) property);
+    public BlockState getState() {
+        return (BlockState) handle.getBlockState(pos);
     }
 
     @Override
     public BlockSnapshot getSnapshot() {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getDigTime() {
+        return 0;
+    }
+
+    @Override
+    public int getDigTimeWith(ItemStack itemStack) {
+        return 0;
     }
 
     @Override
