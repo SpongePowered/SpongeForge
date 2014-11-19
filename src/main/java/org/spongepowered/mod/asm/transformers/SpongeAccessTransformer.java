@@ -22,45 +22,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
 
-import net.minecraft.launchwrapper.Launch;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+package org.spongepowered.mod.asm.transformers;
 
-import java.util.Map;
+import net.minecraftforge.fml.common.asm.transformers.AccessTransformer;
 
-public class SpongeCoremod implements IFMLLoadingPlugin {
+import java.io.IOException;
 
-    public SpongeCoremod() {
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.mod.asm.transformers.");
+public class SpongeAccessTransformer extends AccessTransformer {
+
+    public SpongeAccessTransformer() throws IOException {
+        super("sponge_at.cfg");
     }
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[]{
-                "org.spongepowered.mod.asm.transformers.MixinTransformer",
-                "org.spongepowered.mod.asm.transformers.EventTransformer",
-                "org.spongepowered.mod.asm.transformers.BaseEventTransformer"
-        };
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return "org.spongepowered.mod.SpongeMod";
-    }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return "org.spongepowered.mod.asm.transformers.SpongeAccessTransformer";
-    }
-
 }
