@@ -29,7 +29,11 @@ import com.google.common.base.Optional;
 import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
+
+import java.lang.reflect.Field;
 
 public class SpongeGameRegistry implements GameRegistry {
 
@@ -52,5 +56,27 @@ public class SpongeGameRegistry implements GameRegistry {
         }
 
         throw new IllegalArgumentException("Object is not BlockType or ItemType.");
+    }
+
+    // Note: This is probably fairly slow, but only needs to be run rarely.
+    public void setBlockTypes() {
+        for(Field f : BlockTypes.class.getDeclaredFields()) {
+            try {
+                f.set(null, getBlock(f.getName().toLowerCase()));
+            } catch(Exception e) {
+                // Ignoring error
+            }
+        }
+    }
+
+    // Note: This is probably fairly slow, but only needs to be run rarely.
+    public void setItemTypes() {
+        for(Field f : ItemTypes.class.getDeclaredFields()) {
+            try {
+                f.set(null, getItem(f.getName().toLowerCase()));
+            } catch(Exception e) {
+                // Ignoring error
+            }
+        }
     }
 }

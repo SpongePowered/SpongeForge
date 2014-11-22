@@ -26,15 +26,19 @@ package org.spongepowered.mod;
 
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.objectweb.asm.Type;
+import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -87,5 +91,13 @@ public class SpongeMod extends DummyModContainer {
         this.eventBus = bus;
         this.controller = controller;
         return true;
+    }
+
+    @Subscribe
+    public void onInitialization(FMLInitializationEvent e) {
+        SpongeGameRegistry registry = (SpongeGameRegistry)game.getRegistry();
+
+        registry.setBlockTypes();
+        registry.setItemTypes();
     }
 }
