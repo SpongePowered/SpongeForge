@@ -46,6 +46,7 @@ import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.World;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -57,10 +58,12 @@ public final class SpongeGame implements Game {
     private final Logger logger = LogManager.getLogger("sponge");
     private final SpongePluginManager pluginManager;
     private final SpongeEventManager eventManager;
+    private final SpongeGameRegistry gameRegistry;
 
     public SpongeGame() {
         this.pluginManager = new SpongePluginManager();
         this.eventManager = new SpongeEventManager(this);
+        this.gameRegistry = new SpongeGameRegistry();
     }
 
     public Logger getLogger() {
@@ -141,7 +144,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public GameRegistry getRegistry() {
-        throw new UnsupportedOperationException();
+        return gameRegistry;
     }
 
     @Override
