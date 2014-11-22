@@ -41,7 +41,8 @@ import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.command.CommandDispatcher;
 import org.spongepowered.api.service.scheduler.Scheduler;
-import org.spongepowered.api.title.Title;
+import org.spongepowered.api.text.message.Message;
+import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.World;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
@@ -49,7 +50,7 @@ import org.spongepowered.mod.plugin.SpongePluginManager;
 import java.util.Collection;
 import java.util.UUID;
 
-public final class SpongeGame extends Game {
+public final class SpongeGame implements Game {
 
     private static final String apiVersion = Game.class.getPackage().getImplementationVersion();
     private static final String implementationVersion = SpongeGame.class.getPackage().getImplementationVersion();
@@ -114,8 +115,8 @@ public final class SpongeGame extends Game {
 
     @Override
     @SideOnly(Side.SERVER)
-    public void broadcastMessage(String message) {
-        MinecraftServer.getServer().getConfigurationManager().sendChatMsg(new ChatComponentText(message));
+    public void broadcastMessage(Message<?> message) {
+        MinecraftServer.getServer().getConfigurationManager().sendChatMsg(new ChatComponentText((String) message.getContent()));//TODO implement this properly
     }
 
     @Override
