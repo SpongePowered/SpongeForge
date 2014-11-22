@@ -24,22 +24,19 @@
  */
 package org.spongepowered.mod.plugin;
 
-import java.io.File;
-import java.util.Map;
-
+import com.google.common.base.Throwables;
+import com.google.common.eventbus.Subscribe;
+import net.minecraftforge.fml.common.FMLModContainer;
+import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.MetadataCollection;
+import net.minecraftforge.fml.common.ModClassLoader;
+import net.minecraftforge.fml.common.discovery.ModCandidate;
+import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.mod.SpongeMod;
 
-import com.google.common.base.Throwables;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-
-import cpw.mods.fml.common.FMLModContainer;
-import cpw.mods.fml.common.LoadController;
-import cpw.mods.fml.common.MetadataCollection;
-import cpw.mods.fml.common.ModClassLoader;
-import cpw.mods.fml.common.discovery.ModCandidate;
-import cpw.mods.fml.common.event.FMLConstructionEvent;
+import java.io.File;
+import java.util.Map;
 
 public class SpongePluginContainer extends FMLModContainer implements PluginContainer {
 
@@ -51,7 +48,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
 
     private LoadController controller;
     private boolean enabled = true;
-    
+
     public SpongePluginContainer(String className, ModCandidate container, Map<String, Object> modDescriptor) {
         // I suggest that you should be instantiating a proxy object, not the real plugin here.
         super("org.spongepowered.mod.plugin.SpongePluginContainer$ProxyMod", container, modDescriptor);
@@ -59,7 +56,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
         this.className = className;
         this.container = container;
         this.source = container.getModContainer();
-        
+
         // Allow connections from clients without this plugin
         this.fmlDescriptor.put("acceptableRemoteVersions", "*");
     }
@@ -78,7 +75,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     public String getId() {
         return getModId();
     }
-    
+
     @Override
     public void setEnabledState(boolean enabled) {
         super.setEnabledState(enabled);
@@ -93,7 +90,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
         try {
             ModClassLoader modClassLoader = event.getModClassLoader();
             modClassLoader.clearNegativeCacheFor(container.getClassList());
-            
+
             Class<?> clazz = Class.forName(className, true, modClassLoader);
 
             plugin = clazz.newInstance();
@@ -101,7 +98,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
             controller.errorOccurred(this, e);
             Throwables.propagateIfPossible(e);
         }
-        
+
         SpongeMod.instance.registerPluginContainer(this, getId(), getInstance());
     }
 
@@ -112,5 +109,6 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
 
     // DUMMY proxy class for FML to track
     public static class ProxyMod {
+
     }
 }

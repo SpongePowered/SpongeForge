@@ -24,25 +24,22 @@
  */
 package org.spongepowered.mod.event;
 
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import org.spongepowered.api.event.state.InitializationEvent;
 import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-
 public class EventRegistry {
-    
+
     private static BiMap<Class<?>, Class<?>> eventMap = HashBiMap.create();
-    
+
     private EventRegistry() {
     }
-    
+
     static {
         // FML events
         register(FMLInitializationEvent.class, InitializationEvent.class);
@@ -50,15 +47,15 @@ public class EventRegistry {
         register(FMLPreInitializationEvent.class, PreInitializationEvent.class);
         // Forge events
     }
-    
+
     private static void register(Class<?> otherEvent, Class<?> spongeEvent) {
         eventMap.put(otherEvent, spongeEvent);
     }
-    
+
     public static Class<?> getImplementingClass(Class<?> apiClass) {
         return eventMap.inverse().get(apiClass);
     }
-    
+
     public static Class<?> getAPIClass(Class<?> implementingClass) {
         return eventMap.get(implementingClass);
     }

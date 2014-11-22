@@ -25,7 +25,6 @@
 package org.spongepowered.mod.asm.transformers;
 
 import net.minecraft.launchwrapper.IClassTransformer;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -45,7 +44,7 @@ public abstract class TreeTransformer implements IClassTransformer {
     protected final ClassNode readClass(byte[] basicClass) {
         return this.readClass(basicClass, true);
     }
-    
+
     /**
      * @param basicClass
      * @return tree

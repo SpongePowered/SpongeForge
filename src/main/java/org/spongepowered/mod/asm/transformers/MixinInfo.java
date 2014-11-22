@@ -24,14 +24,8 @@
  */
 package org.spongepowered.mod.asm.transformers;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
@@ -42,46 +36,44 @@ import org.spongepowered.mod.asm.util.ASMHelper;
 import org.spongepowered.mod.mixin.InvalidMixinException;
 import org.spongepowered.mod.mixin.Mixin;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Runtime information bundle about a mixin
  */
 class MixinInfo implements Comparable<MixinInfo> {
-    
+
     /**
      * Global order of mixin infos, used to determine ordering between mixins with equivalent priority
      */
     static int mixinOrder = 0;
-    
-    /**
-     * Logger
-     */
-    private final transient Logger logger = LogManager.getLogger("sponge");
-
-    /**
-     * Name of the mixin class itself, dotted notation
-     */
-    private final String className;
-
-    /**
-     * Name of the mixin class, internal notation
-     */
-    private final transient String classRef;
-    
-    /**
-     * Mixin priority, read from the {@link Mixin} annotation on the mixin class
-     */
-    private final int priority;
-    
-    /**
-     * Mixin targets, read from the {@link Mixin} annotation on the mixin class
-     */
-    private final List<String> targetClasses; 
-
     /**
      * Intrinsic order (for sorting mixins with identical priority)
      */
     private final transient int order = MixinInfo.mixinOrder++;
-    
+    /**
+     * Logger
+     */
+    private final transient Logger logger = LogManager.getLogger("sponge");
+    /**
+     * Name of the mixin class itself, dotted notation
+     */
+    private final String className;
+    /**
+     * Name of the mixin class, internal notation
+     */
+    private final transient String classRef;
+    /**
+     * Mixin priority, read from the {@link Mixin} annotation on the mixin class
+     */
+    private final int priority;
+    /**
+     * Mixin targets, read from the {@link Mixin} annotation on the mixin class
+     */
+    private final List<String> targetClasses;
     /**
      * Mixin bytes (read once, generate tree on demand)
      */
@@ -89,17 +81,17 @@ class MixinInfo implements Comparable<MixinInfo> {
 
     /**
      * Internal ctor, called by {@link MixinConfig}
-     * 
+     *
      * @param mixinName
      * @param runTransformers
      */
     MixinInfo(String mixinName, boolean runTransformers) {
         this.className = mixinName;
         this.classRef = mixinName.replace('.', '/');
-        
+
         // Read the class bytes and transform
         this.mixinBytes = this.loadMixinClass(this.className, runTransformers);
-        
+
         ClassNode classNode = this.getClassNode(0);
         this.targetClasses = this.readTargetClasses(classNode);
         this.priority = this.readPriority(classNode);
@@ -107,7 +99,7 @@ class MixinInfo implements Comparable<MixinInfo> {
 
     /**
      * Read the target class names from the {@link Mixin} annotation
-     * 
+     *
      * @param classNode
      * @return
      */
@@ -116,20 +108,20 @@ class MixinInfo implements Comparable<MixinInfo> {
         if (mixin == null) {
             throw new InvalidMixinException(String.format("The mixin '%s' is missing an @Mixin annotation", this.className));
         }
-        
+
         List<Type> targetClasses = ASMHelper.getAnnotationValue(mixin);
         List<String> targetClassNames = new ArrayList<String>();
         for (Type targetClass : targetClasses) {
             targetClassNames.add(targetClass.getClassName());
             System.err.println(targetClass.getClassName());
         }
-        
+
         return targetClassNames;
     }
 
     /**
      * Read the priority from the {@link Mixin} annotation
-     * 
+     *
      * @param classNode
      * @return
      */
@@ -138,23 +130,23 @@ class MixinInfo implements Comparable<MixinInfo> {
         if (mixin == null) {
             throw new InvalidMixinException(String.format("The mixin '%s' is missing an @Mixin annotation", this.className));
         }
-        
+
         Integer priority = ASMHelper.getAnnotationValue(mixin, "priority");
         return priority == null ? 1000 : priority.intValue();
     }
 
     /**
      * Get the name of the mixin class
-     * 
+     *
      * @return
      */
     public String getClassName() {
         return this.className;
     }
-    
+
     /**
      * Get the ref (internal name) of the mixin class
-     * 
+     *
      * @return
      */
     public String getClassRef() {
@@ -163,7 +155,7 @@ class MixinInfo implements Comparable<MixinInfo> {
 
     /**
      * Get the class bytecode
-     * 
+     *
      * @return
      */
     public byte[] getClassBytes() {
@@ -172,7 +164,7 @@ class MixinInfo implements Comparable<MixinInfo> {
 
     /**
      * Get a new tree for the class bytecode
-     * 
+     *
      * @param flags
      * @return
      */
@@ -182,28 +174,28 @@ class MixinInfo implements Comparable<MixinInfo> {
         classReader.accept(classNode, flags);
         return classNode;
     }
-    
+
     /**
      * Get a new mixin data container for this info
-     * 
+     *
      * @return
      */
     public MixinData getData() {
         return new MixinData(this);
     }
-    
+
     /**
      * Get the target classes for this mixin
-     * 
+     *
      * @return
      */
     public List<String> getTargetClasses() {
         return Collections.unmodifiableList(this.targetClasses);
     }
-    
+
     /**
      * Get the mixin priority
-     * 
+     *
      * @return
      */
     public int getPriority() {
@@ -246,7 +238,7 @@ class MixinInfo implements Comparable<MixinInfo> {
     /**
      * Since we obtain the mixin class bytes with getClassBytes(), we need to
      * apply the transformers ourself
-     * 
+     *
      * @param name
      * @param basicClass
      * @return

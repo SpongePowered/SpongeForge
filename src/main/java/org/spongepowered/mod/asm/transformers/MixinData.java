@@ -24,10 +24,6 @@
  */
 package org.spongepowered.mod.asm.transformers;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -37,18 +33,22 @@ import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.mod.asm.util.ASMHelper;
 import org.spongepowered.mod.mixin.Shadow;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 
 /**
  * Data for applying a mixin. Keeps a copy of the mixin tree and also handles any pre-transformations required by the mixin class itself such as
  * method renaming and any other pre-processing of the mixin bytecode.
  */
 public class MixinData {
-    
+
     /**
      * Tree
      */
     private final ClassNode classNode;
-    
+
     /**
      * Methods we need to rename
      */
@@ -56,7 +56,7 @@ public class MixinData {
 
     /**
      * ctor
-     * 
+     *
      * @param info
      */
     MixinData(MixinInfo info) {
@@ -65,8 +65,28 @@ public class MixinData {
     }
 
     /**
+     * Gets an annotation value or returns the default if the annotation value is not present
+     *
+     * @param annotation
+     * @param key
+     * @param annotationClass
+     * @return
+     */
+    private static String getAnnotationValue(AnnotationNode annotation, String key, Class<?> annotationClass) {
+        String value = ASMHelper.getAnnotationValue(annotation, key);
+        if (value == null) {
+            try {
+                value = (String) Shadow.class.getDeclaredMethod(key).getDefaultValue();
+            } catch (NoSuchMethodException ex) {
+                // Don't care
+            }
+        }
+        return value;
+    }
+
+    /**
      * Get the mixin tree
-     * 
+     *
      * @return
      */
     public ClassNode getClassNode() {
@@ -90,7 +110,7 @@ public class MixinData {
             if (shadowAnnotation == null) {
                 continue;
             }
-            
+
             String prefix = MixinData.getAnnotationValue(shadowAnnotation, "prefix", Shadow.class);
             if (mixinMethod.name.startsWith(prefix)) {
                 String newName = mixinMethod.name.substring(prefix.length());
@@ -105,10 +125,10 @@ public class MixinData {
      */
     private void transformMethods() {
         for (MethodNode mixinMethod : this.classNode.methods) {
-            for (Iterator<AbstractInsnNode> iter = mixinMethod.instructions.iterator(); iter.hasNext();) {
+            for (Iterator<AbstractInsnNode> iter = mixinMethod.instructions.iterator(); iter.hasNext(); ) {
                 AbstractInsnNode insn = iter.next();
                 if (insn instanceof MethodInsnNode) {
-                    MethodInsnNode methodNode = (MethodInsnNode)insn;
+                    MethodInsnNode methodNode = (MethodInsnNode) insn;
                     String newName = this.renamedMethods.get(methodNode.name + methodNode.desc);
                     if (newName != null) {
                         methodNode.name = newName;
@@ -116,25 +136,5 @@ public class MixinData {
                 }
             }
         }
-    }
-
-    /**
-     * Gets an annotation value or returns the default if the annotation value is not present
-     * 
-     * @param annotation
-     * @param key
-     * @param annotationClass
-     * @return
-     */
-    private static String getAnnotationValue(AnnotationNode annotation, String key, Class<?> annotationClass) {
-        String value = ASMHelper.getAnnotationValue(annotation, key);
-        if (value == null) {
-            try {
-                value = (String)Shadow.class.getDeclaredMethod(key).getDefaultValue();
-            } catch (NoSuchMethodException ex) {
-                // Don't care
-            }
-        }
-        return value;
     }
 }

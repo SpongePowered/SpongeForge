@@ -26,7 +26,7 @@ evaluationDependsOn('SpongeAPI')
 defaultTasks 'build', 'licenseFormat'
 
 // Apply plugin
-apply plugin: 'forge'
+apply plugin: 'fml'
 apply plugin: 'license'
 apply plugin: 'maven'
 apply plugin: 'checkstyle'
@@ -36,7 +36,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 group = 'org.spongepowered'
 archivesBaseName = 'sponge'
 // Version -> Minecraft-MinecraftForge-Ours(If any?)
-version = '1.7.10-10.13.1.1217-SNAPSHOT'
+version = '1.8-FML8.0.5.1012-SNAPSHOT'
 
 // Define variables
 ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
@@ -51,7 +51,7 @@ repositories { mavenLocal() }
 
 // MinecraftForge version
 minecraft {
-    version = "1.7.10-10.13.1.1217"
+    version = "1.8-8.0.5.1012-1.8"
 }
 
 configurations {
@@ -106,6 +106,7 @@ license {
     ext.year = project.inceptionYear
     exclude "**/*.info"
     exclude "**/*.json"
+    exclude "**/*_at.cfg"
     exclude "assets/**"
     header new File(project("SpongeAPI").getProjectDir(), "HEADER.txt")
     sourceSets = project.sourceSets

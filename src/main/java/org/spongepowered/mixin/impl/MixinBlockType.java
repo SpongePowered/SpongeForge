@@ -25,14 +25,33 @@
 package org.spongepowered.mixin.impl;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.mod.mixin.Mixin;
 import org.spongepowered.mod.mixin.Shadow;
 
 @Mixin(Block.class)
 public abstract class MixinBlockType implements BlockType {
+    @Shadow(prefix = "shadow$")
+    public abstract IBlockState shadow$getDefaultState();
+
+    @Shadow
+    public abstract IBlockState getStateFromMeta(int meta);
+
     @Override
     public String getId() {
-        return Block.blockRegistry.getNameForObject(this);
+        return (String) Block.blockRegistry.getNameForObject(this);
+    }
+
+    @Override
+    public BlockState getDefaultState() {
+        return (BlockState)shadow$getDefaultState();
+    }
+
+    @Override
+    @Deprecated
+    public BlockState getStateFromDataValue(byte data) {
+        return (BlockState)getStateFromMeta(data);
     }
 }

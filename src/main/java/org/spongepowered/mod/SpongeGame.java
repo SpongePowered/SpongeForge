@@ -25,14 +25,11 @@
 package org.spongepowered.mod;
 
 import com.google.common.base.Optional;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.network.play.client.C01PacketChatMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
@@ -41,15 +38,18 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.entity.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.service.ServiceManager;
+import org.spongepowered.api.service.command.CommandDispatcher;
 import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.title.Title;
 import org.spongepowered.api.world.World;
 import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.UUID;
 
-public final class SpongeGame implements Game {
+public final class SpongeGame extends Game {
 
     private static final String apiVersion = Game.class.getPackage().getImplementationVersion();
     private static final String implementationVersion = SpongeGame.class.getPackage().getImplementationVersion();
@@ -88,11 +88,12 @@ public final class SpongeGame implements Game {
 
     @Override
     public Collection<World> getWorlds() {
-        List<World> worlds = new ArrayList<World>();
+        throw new UnsupportedOperationException();
+        /*List<World> worlds = new ArrayList<World>();
         for (WorldServer worldServer : DimensionManager.getWorlds()) {
             worlds.add((World) worldServer);
         }
-        return worlds;
+        return worlds;*/
     }
 
     @Override
@@ -143,8 +144,18 @@ public final class SpongeGame implements Game {
     }
 
     @Override
+    public ServiceManager getServiceManager() {
+        return null;
+    }
+
+    @Override
     public Scheduler getScheduler() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CommandDispatcher getCommandDispatcher() {
+        return null;
     }
 
     @Override

@@ -24,25 +24,24 @@
  */
 package org.spongepowered.mod;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
+import com.google.common.collect.Maps;
+import com.google.common.eventbus.EventBus;
+import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainerFactory;
+import net.minecraftforge.fml.common.ModMetadata;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 
-import com.google.common.collect.Maps;
-import com.google.common.eventbus.EventBus;
-
-import cpw.mods.fml.common.DummyModContainer;
-import cpw.mods.fml.common.LoadController;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainerFactory;
-import cpw.mods.fml.common.ModMetadata;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class SpongeMod extends DummyModContainer {
+
     public static SpongeMod instance;
     private final SpongeGame game;
 
@@ -62,7 +61,7 @@ public class SpongeMod extends DummyModContainer {
         SpongeMod.instance = this;
         game = new SpongeGame();
     }
-    
+
     public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object proxyInstance) {
         plugins.put(proxyInstance, spongePluginContainer);
         game.getEventManager().register(spongePluginContainer.getInstance());

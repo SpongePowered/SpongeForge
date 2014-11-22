@@ -22,37 +22,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.event;
 
-import org.spongepowered.api.event.Order;
+package org.spongepowered.mixin.impl;
 
-public class PriorityEventListener<T> implements EventListener<T>, Comparable<PriorityEventListener<T>> {
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
+import net.minecraftforge.fml.common.event.FMLStateEvent;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.event.Result;
+import org.spongepowered.api.event.state.ServerStoppingEvent;
+import org.spongepowered.mod.mixin.Mixin;
 
-    private final EventListener<T> listener;
-    private final Order order;
-    private EventListenerHolder<T> holder;
+@Mixin(FMLServerStoppingEvent.class)
+public abstract class MixinEventServerStopping extends FMLStateEvent implements ServerStoppingEvent {
 
-    public PriorityEventListener(Order order, EventListener<T> listener) {
-        this.listener = listener;
-        this.order = order;
-    }
-
-    public EventListenerHolder<T> getHolder() {
-        return holder;
-    }
-
-    public void setHolder(EventListenerHolder<T> holder) {
-        this.holder = holder;
+    @Override
+    public boolean isCancellable() {
+        return false;
     }
 
     @Override
-    public void invoke(T event) {
-        listener.invoke(event);
+    public Result getResult() {
+        return Result.NO_RESULT;
     }
 
     @Override
-    public int compareTo(PriorityEventListener<T> o) {
-        return order.compareTo(o.order);
+    public void setResult(Result result) {
+
     }
 
+    @Override
+    public Game getGame() {
+        return null;
+    }
 }

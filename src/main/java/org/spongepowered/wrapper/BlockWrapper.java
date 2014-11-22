@@ -24,10 +24,14 @@
  */
 package org.spongepowered.wrapper;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
-import org.spongepowered.api.block.*;
+import org.spongepowered.api.block.Block;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.math.Vector3i;
 import org.spongepowered.api.math.Vectors;
@@ -39,24 +43,42 @@ import org.spongepowered.api.world.extent.Extent;
 import java.util.Collection;
 
 public class BlockWrapper implements Block {
+
     private net.minecraft.world.World handle;
     private World extent;
-    private int x, y, z;
-    private BlockType blockType;
+
+    private BlockPos pos;
 
     public BlockWrapper(World world, int x, int y, int z) {
         // This is a NOT check, be careful of that
         if (!(world instanceof net.minecraft.world.World)) {
             System.err.println("World passed to BlockWrapper wasn't a mixin for net.minecraft.world.World! Serious issue!");
-            handle = (net.minecraft.world.World) world;
             throw new RuntimeException("An unrecoverable error occured!");
         }
         handle = (net.minecraft.world.World) world;
         extent = world;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.blockType = (BlockType) handle.getBlock(x, y, z);
+        pos = new BlockPos(x, y, z);
+    }
+
+    //TODO: Move this to Direction
+    private static EnumFacing getNotchDirection(Direction dir) {
+        switch (dir) {
+            case DOWN:
+                return EnumFacing.DOWN;
+            case UP:
+                return EnumFacing.UP;
+            case NORTH:
+                return EnumFacing.NORTH;
+            case SOUTH:
+                return EnumFacing.SOUTH;
+            case WEST:
+                return EnumFacing.WEST;
+            case EAST:
+                return EnumFacing.EAST;
+            default:
+                // TODO: EnumFacing doesn't have an 'invalid/default' value.
+                return EnumFacing.DOWN;
+        }
     }
 
     @Override
@@ -64,50 +86,52 @@ public class BlockWrapper implements Block {
         return extent;
     }
 
+    // TODO: Can we mixin Vector3i with BlockPos?
     @Override
     public Vector3i getPosition() {
-        return Vectors.create3i(x, y, z);
+        return Vectors.create3i(pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Override
     public Location getLocation() {
-        return new Location(extent, Vectors.create3d(x, y, z));
+        return new Location(extent, Vectors.create3d(pos.getX(), pos.getY(), pos.getZ()));
     }
 
     @Override
     public int getX() {
-        return x;
+        return pos.getX();
     }
 
     @Override
     public int getY() {
-        return y;
+        return pos.getY();
     }
 
     @Override
     public int getZ() {
-        return z;
+        return pos.getZ();
     }
 
     @Override
     public void replaceWith(BlockState state) {
-        throw new UnsupportedOperationException();
+        // 0 is no notify flag. For now not going to notify nearby blocks of update.
+        if (state instanceof IBlockState) {
+            handle.setBlockState(pos, (IBlockState) state, 0);
+        } else {
+            // TODO: Need to figure out what is sensible for other BlockState implementing classes.
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
     public void replaceWith(BlockType type) {
-        handle.setBlock(x, y, z, net.minecraft.block.Block.getBlockFromName(type.getId()), 0, 3);
-    }
-
-    private void replaceData(byte data) {
-        // 0 is no notify flag. For now not going to notify nearby blocks of update.
-        handle.setBlockMetadataWithNotify(x, y, z, data, 0);
+        handle.setBlockState(pos, ((net.minecraft.block.Block) type).getDefaultState(), 3);
     }
 
     @Override
     public void replaceWith(BlockSnapshot snapshot) {
-        replaceData(snapshot.getDataValue());
-        replaceWith(snapshot.getType());
+        replaceWith(snapshot.getState());
+        // TODO: However we end up storing NBT/TE data in BlockSnapshot, restore that too.
     }
 
     @Override
@@ -122,47 +146,27 @@ public class BlockWrapper implements Block {
 
     @Override
     public BlockType getType() {
-        return (BlockType) handle.getBlock(x, y, z);
+        return (BlockType) handle.getBlockState(pos).getBlock();
     }
 
     @Override
-    public ImmutableMap<BlockProperty<?>, ? extends Comparable<?>> getProperties() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<String> getPropertyNames() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Optional<BlockProperty<?>> getPropertyByName(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Optional<? extends Comparable<?>> getPropertyValue(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public BlockState withProperty(BlockProperty<?> property, Comparable<?> value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public BlockState cycleProperty(BlockProperty<?> property) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public byte getDataValue() {
-        return (byte) handle.getBlockMetadata(x, y, z);
+    public BlockState getState() {
+        return (BlockState) handle.getBlockState(pos);
     }
 
     @Override
     public BlockSnapshot getSnapshot() {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getDigTime() {
+        return 0;
+    }
+
+    @Override
+    public int getDigTimeWith(ItemStack itemStack) {
+        return 0;
     }
 
     @Override
@@ -177,37 +181,37 @@ public class BlockWrapper implements Block {
 
     @Override
     public byte getLuminance() {
-        return (byte) handle.getBlockLightValue(x, y, z);
+        return (byte) handle.getLight(pos);
     }
 
     @Override
     public byte getLuminanceFromSky() {
-        return (byte) handle.getSkyBlockTypeBrightness(EnumSkyBlock.Sky, x, y, z);
+        return (byte) handle.getLightFor(EnumSkyBlock.SKY, pos);
     }
 
     @Override
     public byte getLuminanceFromGround() {
-        return (byte) handle.getSkyBlockTypeBrightness(EnumSkyBlock.Block, x, y, z);
+        return (byte) handle.getLightFor(EnumSkyBlock.BLOCK, pos);
     }
 
     @Override
     public boolean isPowered() {
-        return handle.getBlockPowerInput(x, y, z) > 0;
+        return handle.getStrongPower(pos) > 0;
     }
 
     @Override
     public boolean isIndirectlyPowered() {
-        return handle.isBlockIndirectlyGettingPowered(x, y, z);
+        return handle.isBlockPowered(pos);
     }
 
     @Override
     public boolean isFacePowered(Direction direction) {
-        return handle.getIndirectPowerLevelTo(x, y, z, getNotchDirection(direction)) > 0;
+        return handle.getStrongPower(pos, getNotchDirection(direction)) > 0;
     }
 
     @Override
     public boolean isFaceIndirectlyPowered(Direction direction) {
-        return handle.getIndirectPowerLevelTo(x, y, z, getNotchDirection(direction)) > 0;
+        return handle.getRedstonePower(pos, getNotchDirection(direction)) > 0;
     }
 
     @Override
@@ -218,26 +222,6 @@ public class BlockWrapper implements Block {
     @Override
     public Collection<Direction> getIndirectlyPoweredFaces() {
         throw new UnsupportedOperationException();
-    }
-
-    //TODO: Move this to Direction
-    private static int getNotchDirection(Direction dir) {
-        switch (dir) {
-            case DOWN:
-                return 0;
-            case UP:
-                return 1;
-            case NORTH:
-                return 2;
-            case SOUTH:
-                return 3;
-            case WEST:
-                return 4;
-            case EAST:
-                return 5;
-            default:
-                return 7;
-        }
     }
 
     public net.minecraft.world.World getHandle() {

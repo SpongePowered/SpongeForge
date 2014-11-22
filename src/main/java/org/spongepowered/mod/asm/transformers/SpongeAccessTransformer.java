@@ -22,37 +22,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.event;
 
-import org.spongepowered.api.event.Order;
+package org.spongepowered.mod.asm.transformers;
 
-public class PriorityEventListener<T> implements EventListener<T>, Comparable<PriorityEventListener<T>> {
+import net.minecraftforge.fml.common.asm.transformers.AccessTransformer;
 
-    private final EventListener<T> listener;
-    private final Order order;
-    private EventListenerHolder<T> holder;
+import java.io.IOException;
 
-    public PriorityEventListener(Order order, EventListener<T> listener) {
-        this.listener = listener;
-        this.order = order;
+public class SpongeAccessTransformer extends AccessTransformer {
+
+    public SpongeAccessTransformer() throws IOException {
+        super("sponge_at.cfg");
     }
-
-    public EventListenerHolder<T> getHolder() {
-        return holder;
-    }
-
-    public void setHolder(EventListenerHolder<T> holder) {
-        this.holder = holder;
-    }
-
-    @Override
-    public void invoke(T event) {
-        listener.invoke(event);
-    }
-
-    @Override
-    public int compareTo(PriorityEventListener<T> o) {
-        return order.compareTo(o.order);
-    }
-
 }

@@ -24,11 +24,10 @@
  */
 package org.spongepowered.mod;
 
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import java.util.Map;
-
-import net.minecraft.launchwrapper.Launch;
 
 public class SpongeCoremod implements IFMLLoadingPlugin {
 
@@ -38,10 +37,10 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
     @Override
     public String[] getASMTransformerClass() {
-        return new String[] {
-                "org.spongepowered.mod.asm.transformers.MixinTransformer",
-                "org.spongepowered.mod.asm.transformers.EventTransformer",
-                "org.spongepowered.mod.asm.transformers.BaseEventTransformer"
+        return new String[]{
+                "org.spongepowered.mod.asm.transformers.MixinTransformer"
+                //"org.spongepowered.mod.asm.transformers.EventTransformer",
+                //"org.spongepowered.mod.asm.transformers.BaseEventTransformer"
         };
     }
 
@@ -61,7 +60,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
     @Override
     public String getAccessTransformerClass() {
-        return null;
+        return "org.spongepowered.mod.asm.transformers.SpongeAccessTransformer";
     }
 
 }
