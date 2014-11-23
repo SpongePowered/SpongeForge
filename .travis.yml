@@ -3,7 +3,8 @@ notifications:
   email: false
 install: true
 script:
-  - gradle
+  - gradle setupCIWorkspace
+  - gradle build
   - git diff --exit-code
 matrix:
   include:
