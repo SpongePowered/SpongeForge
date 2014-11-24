@@ -47,7 +47,6 @@ public abstract class MixinEventPreInit extends FMLStateEvent implements PreInit
     public abstract org.apache.logging.log4j.Logger getModLog();
 
     @Shadow
-    @Override
     public abstract File getSuggestedConfigurationFile();
 
     @Shadow
@@ -59,9 +58,13 @@ public abstract class MixinEventPreInit extends FMLStateEvent implements PreInit
         return new SLF4JLogger((org.apache.logging.log4j.spi.AbstractLogger)logger, logger.getName());
     }
 
+    @Override
+    public File getRecommendedConfigurationFile() {
+        return new File(getModConfigurationDirectory(), modContainer.getModId() + ".conf");
+    }
 
     @Override
-    public File getSuggestedConfigurationDirectory() {
+    public File getRecommendedConfigurationDirectory() {
         return new File(getModConfigurationDirectory(), modContainer.getModId());
     }
 

@@ -123,16 +123,6 @@ public final class SpongeGame implements Game {
     }
 
     @Override
-    public Title createTitle() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Title updateTitle() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getAPIVersion() {
         return apiVersion != null ? apiVersion : "UNKNOWN";
     }
