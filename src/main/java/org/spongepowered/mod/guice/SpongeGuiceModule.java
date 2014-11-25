@@ -23,25 +23,54 @@
  * THE SOFTWARE.
  */
 
-package org.spongepowered.mod;
+package org.spongepowered.mod.guice;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Key;
+import com.google.inject.Provider;
 import com.google.inject.Scopes;
+import com.google.inject.name.Names;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.mod.SpongeGame;
 import org.spongepowered.mod.event.SpongeEventManager;
+import org.spongepowered.mod.plugin.SpongePluginContainer;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
+
+import javax.inject.Inject;
 
 public class SpongeGuiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        PluginScope pluginScope = new PluginScope();
+
+        bindScope(PluginScoped.class, pluginScope);
+        bind(PluginScope.class).toInstance(pluginScope);
+
         bind(Game.class).to(SpongeGame.class).in(Scopes.SINGLETON);
         bind(PluginManager.class).to(SpongePluginManager.class).in(Scopes.SINGLETON);
         bind(EventManager.class).to(SpongeEventManager.class).in(Scopes.SINGLETON);
         bind(GameRegistry.class).to(SpongeGameRegistry.class).in(Scopes.SINGLETON);
+
+        bind(PluginContainer.class).toProvider(PluginContainerProvider.class).in(PluginScoped.class);
+    }
+
+    private static class PluginContainerProvider implements Provider<PluginContainer> {
+        private final PluginScope scope;
+
+        @Inject
+        private PluginContainerProvider(PluginScope sc) {
+            scope = sc;
+        }
+
+        @Override
+        public PluginContainer get() {
+            return scope.getInstance(Key.get(PluginContainer.class));
+        }
     }
 }

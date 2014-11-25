@@ -34,9 +34,12 @@ import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.guice.PluginScope;
 
 import java.io.File;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 public class SpongePluginContainer extends FMLModContainer implements PluginContainer {
 
@@ -45,6 +48,9 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     private final ModCandidate container;
     private final File source;
     private Object plugin;
+
+    @Inject
+    private PluginScope scope;
 
     private LoadController controller;
     private boolean enabled = true;
@@ -59,6 +65,8 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
 
         // Allow connections from clients without this plugin
         this.fmlDescriptor.put("acceptableRemoteVersions", "*");
+
+        SpongeMod.instance.getInjector().injectMembers(this);
     }
 
     @Override
@@ -85,6 +93,8 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     @Override
     @Subscribe
     public void constructMod(FMLConstructionEvent event) {
+        scope.setScope(this);
+
         super.constructMod(event);
 
         try {
