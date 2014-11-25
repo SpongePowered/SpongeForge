@@ -27,14 +27,18 @@ package org.spongepowered.mod;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
-import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
@@ -47,11 +51,14 @@ import java.util.Map;
 public class SpongeMod extends DummyModContainer {
 
     public static SpongeMod instance;
-    private final SpongeGame game;
+
+    private final Game game;
 
     private Map<Object, PluginContainer> plugins = Maps.newHashMap();
     private EventBus eventBus;
     private LoadController controller;
+    private Injector spongeInjector = Guice.createInjector(new SpongeGuiceModule());
+    private Logger logger;
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be instantiated before FML scans the system
     // For mods (or plugins)
@@ -63,7 +70,7 @@ public class SpongeMod extends DummyModContainer {
         this.getMetadata().name = "SpongeAPIMod";
         this.getMetadata().modId = "SpongeAPIMod";
         SpongeMod.instance = this;
-        game = new SpongeGame();
+        game = spongeInjector.getInstance(Game.class);
     }
 
     public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object proxyInstance) {
@@ -80,8 +87,16 @@ public class SpongeMod extends DummyModContainer {
         return plugins.get(proxy);
     }
 
-    public SpongeGame getGame() {
+    public Game getGame() {
         return game;
+    }
+
+    public Injector getInjector() {
+        return spongeInjector;
+    }
+
+    public Logger getLogger() {
+        return logger;
     }
 
     @Override
@@ -91,6 +106,11 @@ public class SpongeMod extends DummyModContainer {
         this.eventBus = bus;
         this.controller = controller;
         return true;
+    }
+
+    @Subscribe
+    public void onPreInit(FMLPreInitializationEvent e) {
+        logger = e.getModLog();
     }
 
     @Subscribe

@@ -30,8 +30,6 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Platform;
@@ -42,32 +40,26 @@ import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.command.CommandDispatcher;
 import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.text.message.Message;
-import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.World;
-import org.spongepowered.mod.event.SpongeEventManager;
-import org.spongepowered.mod.plugin.SpongePluginManager;
-import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import java.util.Collection;
 import java.util.UUID;
+
+import javax.inject.Inject;
 
 public final class SpongeGame implements Game {
 
     private static final String apiVersion = Game.class.getPackage().getImplementationVersion();
     private static final String implementationVersion = SpongeGame.class.getPackage().getImplementationVersion();
-    private final Logger logger = LogManager.getLogger("sponge");
-    private final SpongePluginManager pluginManager;
-    private final SpongeEventManager eventManager;
-    private final SpongeGameRegistry gameRegistry;
+    private final PluginManager pluginManager;
+    private final EventManager eventManager;
+    private final GameRegistry gameRegistry;
 
-    public SpongeGame() {
-        this.pluginManager = new SpongePluginManager();
-        this.eventManager = new SpongeEventManager(this);
-        this.gameRegistry = new SpongeGameRegistry();
-    }
-
-    public Logger getLogger() {
-        return logger;
+    @Inject
+    public SpongeGame(PluginManager plugin, EventManager event, GameRegistry registry) {
+        pluginManager = plugin;
+        eventManager = event;
+        gameRegistry = registry;
     }
 
     @Override

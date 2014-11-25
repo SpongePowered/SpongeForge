@@ -93,7 +93,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
 
             Class<?> clazz = Class.forName(className, true, modClassLoader);
 
-            plugin = clazz.newInstance();
+            plugin = SpongeMod.instance.getInjector().getInstance(clazz);
         } catch (Throwable e) {
             controller.errorOccurred(this, e);
             Throwables.propagateIfPossible(e);

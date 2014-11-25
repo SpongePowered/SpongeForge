@@ -32,7 +32,7 @@ import net.minecraftforge.fml.common.event.FMLEvent;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Subscribe;
-import org.spongepowered.mod.SpongeGame;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.asm.util.ASMEventListenerFactory;
 
 import java.lang.reflect.Method;
@@ -45,8 +45,6 @@ import java.util.Set;
 
 public class SpongeEventManager implements EventManager {
 
-    private final SpongeGame game;
-
     private final Map<Object, List<PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event>>> forgePluginHandlerMap =
             Maps.newHashMap();
     private final SpongeEventBus eventBus = new SpongeEventBus();
@@ -54,10 +52,6 @@ public class SpongeEventManager implements EventManager {
     private final Map<Object, List<EventListener<FMLEvent>>> fmlPluginHandlerMap = Maps.newHashMap();
     private final Map<Class<? extends FMLEvent>, List<PriorityEventListener<FMLEvent>>> fmlEventHandlerMap =
             Maps.newHashMap();
-
-    public SpongeEventManager(SpongeGame game) {
-        this.game = game;
-    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -87,7 +81,7 @@ public class SpongeEventManager implements EventManager {
             }
 
             if (implementingEvent == null) {
-                game.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
+                SpongeMod.instance.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
             } else if (net.minecraftforge.fml.common.eventhandler.Event.class.isAssignableFrom(implementingEvent)) {
                 // Forge events
                 EventListener<net.minecraftforge.fml.common.eventhandler.Event> listener =
@@ -147,14 +141,10 @@ public class SpongeEventManager implements EventManager {
         if (spongeEvent instanceof net.minecraftforge.fml.common.eventhandler.Event) {
             FMLCommonHandler.instance().bus().post((net.minecraftforge.fml.common.eventhandler.Event) spongeEvent);
         } else {
-            game.getLogger().info("Event not a sub-classes of forge Event or BaseEvent");
+            SpongeMod.instance.getLogger().info("Event not a sub-classes of forge Event or BaseEvent");
             return false;
         }
         return true;
-    }
-
-    public SpongeGame getGame() {
-        return game;
     }
 
     @com.google.common.eventbus.Subscribe
