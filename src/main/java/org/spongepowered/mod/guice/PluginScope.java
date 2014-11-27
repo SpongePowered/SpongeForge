@@ -40,7 +40,7 @@ public class PluginScope implements Scope {
 
     public void setScope(PluginContainer scope) {
         current_scope = scope;
-        if(!scopes.containsKey(current_scope)) {
+        if(current_scope != null && !scopes.containsKey(current_scope)) {
             Map<Key<?>, Object> initial_scope = Maps.newHashMap();
             initial_scope.put(Key.get(PluginContainer.class), current_scope);
             scopes.put(current_scope, initial_scope);

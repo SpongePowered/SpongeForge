@@ -36,7 +36,6 @@ import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.asm.util.ASMEventListenerFactory;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,10 +48,6 @@ public class SpongeEventManager implements EventManager {
             Maps.newHashMap();
     private final SpongeEventBus eventBus = new SpongeEventBus();
 
-    private final Map<Object, List<EventListener<FMLEvent>>> fmlPluginHandlerMap = Maps.newHashMap();
-    private final Map<Class<? extends FMLEvent>, List<PriorityEventListener<FMLEvent>>> fmlEventHandlerMap =
-            Maps.newHashMap();
-
     @SuppressWarnings("unchecked")
     @Override
     public void register(Object o) {
@@ -62,7 +57,6 @@ public class SpongeEventManager implements EventManager {
 
         List<PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event>> localForgeListeners =
                 Lists.newArrayList();
-        List<EventListener<FMLEvent>> localFMLListeners = Lists.newArrayList();
 
         Map<Method, Subscribe> annotationMap = getAnnotationMap(o);
 
@@ -81,7 +75,7 @@ public class SpongeEventManager implements EventManager {
             }
 
             if (implementingEvent == null) {
-                SpongeMod.instance.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
+                SpongeMod.instance.getLogger().error("Null event type, registration failed");
             } else if (net.minecraftforge.fml.common.eventhandler.Event.class.isAssignableFrom(implementingEvent)) {
                 // Forge events
                 EventListener<net.minecraftforge.fml.common.eventhandler.Event> listener =
@@ -92,28 +86,11 @@ public class SpongeEventManager implements EventManager {
 
                 eventBus.add(implementingEvent, entry.getValue(), priorityListener);
                 localForgeListeners.add(priorityListener);
-            } else if (FMLEvent.class.isAssignableFrom(implementingEvent)) {
-                // FMLEvents
-                //
-                // FMLEvens are handled using a hash-map lookup to a listener list
-
-                EventListener<FMLEvent> listener =
-                        (EventListener<FMLEvent>) ASMEventListenerFactory.getListener(EventListener.class, o, entry.getKey());
-                PriorityEventListener<FMLEvent> priorityListener = new PriorityEventListener<FMLEvent>(entry.getValue().order(), listener);
-
-                localFMLListeners.add(listener);
-
-                List<PriorityEventListener<FMLEvent>> listenerList = fmlEventHandlerMap.get(implementingEvent);
-                if (listenerList == null) {
-                    listenerList = Lists.newArrayList();
-                    fmlEventHandlerMap.put((Class<? extends FMLEvent>) implementingEvent, listenerList);
-                }
-                listenerList.add(priorityListener);
-                Collections.sort(listenerList);
-
+            } else if (!FMLEvent.class.isAssignableFrom(implementingEvent)) {
+                // ^ Events extending FMLEvent need to be handled on a per-plugin basis. Current code for that is in SpongePluginHandler.
+                SpongeMod.instance.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
             }
         }
-        fmlPluginHandlerMap.put(o, localFMLListeners);
         forgePluginHandlerMap.put(o, localForgeListeners);
     }
 
@@ -125,14 +102,6 @@ public class SpongeEventManager implements EventManager {
         }
         for (PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event> listener : pluginForgeListeners) {
             eventBus.remove(listener);
-        }
-
-        List<EventListener<FMLEvent>> pluginFMLListeners = fmlPluginHandlerMap.remove(o);
-        if (pluginFMLListeners == null) {
-            throw new IllegalStateException("Forge and FML maps out of alignment");
-        }
-        for (List<PriorityEventListener<FMLEvent>> eventListeners : fmlEventHandlerMap.values()) {
-            eventListeners.removeAll(pluginFMLListeners);
         }
     }
 
@@ -146,26 +115,6 @@ public class SpongeEventManager implements EventManager {
         }
         return true;
     }
-
-    @com.google.common.eventbus.Subscribe
-    public void onFMLEvent(FMLEvent event) {
-        // FML events are rare, so do not use the high speed event system
-        //
-        // This event manager subscribes to the FML bus and forwards all events onward
-
-        List<PriorityEventListener<FMLEvent>> listeners = fmlEventHandlerMap.get(event.getClass());
-        if (listeners == null) {
-            return;
-        }
-        for (EventListener<FMLEvent> listener : listeners) {
-            try {
-                listener.invoke(event);
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-        }
-    }
-
 
     private Map<Method, Subscribe> getAnnotationMap(Object o) {
         Map<Method, Subscribe> map = new HashMap<Method, Subscribe>();

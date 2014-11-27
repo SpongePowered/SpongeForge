@@ -25,6 +25,8 @@
 package org.spongepowered.mod.plugin;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import net.minecraftforge.fml.common.FMLModContainer;
 import net.minecraftforge.fml.common.LoadController;
@@ -32,14 +34,18 @@ import net.minecraftforge.fml.common.MetadataCollection;
 import net.minecraftforge.fml.common.ModClassLoader;
 import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
+import net.minecraftforge.fml.common.event.FMLEvent;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.event.EventRegistry;
 import org.spongepowered.mod.guice.PluginScope;
 
-import java.io.File;
-import java.util.Map;
-
 import javax.inject.Inject;
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 public class SpongePluginContainer extends FMLModContainer implements PluginContainer {
 
@@ -54,6 +60,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
 
     private LoadController controller;
     private boolean enabled = true;
+    private Multimap<Class<? extends Event>, Method> stateEventHandlers = ArrayListMultimap.create();
 
     public SpongePluginContainer(String className, ModCandidate container, Map<String, Object> modDescriptor) {
         // I suggest that you should be instantiating a proxy object, not the real plugin here.
@@ -103,6 +110,8 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
 
             Class<?> clazz = Class.forName(className, true, modClassLoader);
 
+            findEventHandlers(clazz);
+
             plugin = SpongeMod.instance.getInjector().getInstance(clazz);
         } catch (Throwable e) {
             controller.errorOccurred(this, e);
@@ -110,11 +119,49 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
         }
 
         SpongeMod.instance.registerPluginContainer(this, getId(), getInstance());
+
+        scope.setScope(null);
+    }
+
+    @Subscribe
+    @Override
+    @SuppressWarnings("unchecked")
+    public void handleModStateEvent(FMLEvent event) {
+        scope.setScope(this);
+
+        Class<? extends FMLEvent> eventClass = event.getClass();
+        Class<? extends Event> spongeEvent = (Class<? extends Event>) EventRegistry.getAPIClass(eventClass);
+        if (stateEventHandlers.containsKey(spongeEvent)) {
+            try {
+                for (Method m : stateEventHandlers.get(spongeEvent)) {
+                    m.invoke(plugin, event);
+                }
+            } catch (Throwable t) {
+                controller.errorOccurred(this, t);
+            }
+        }
+
+        scope.setScope(null);
     }
 
     @Override
     public Object getInstance() {
         return plugin;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void findEventHandlers(Class<?> clazz) {
+        for (Method m : clazz.getDeclaredMethods()) {
+            for (Annotation a : m.getAnnotations()) {
+                if (a.annotationType().equals(org.spongepowered.api.event.Subscribe.class)) {
+                    Class<?>[] paramTypes = m.getParameterTypes();
+                    if (paramTypes.length == 1 && Event.class.isAssignableFrom(paramTypes[0])) {
+                        m.setAccessible(true);
+                        stateEventHandlers.put((Class<? extends Event>) paramTypes[0], m);
+                    }
+                }
+            }
+        }
     }
 
     // DUMMY proxy class for FML to track
