@@ -30,6 +30,9 @@ import com.google.inject.Key;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
+import net.minecraftforge.fml.common.Loader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.event.EventManager;
@@ -37,11 +40,11 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.mod.SpongeGame;
 import org.spongepowered.mod.event.SpongeEventManager;
-import org.spongepowered.mod.plugin.SpongePluginContainer;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import javax.inject.Inject;
+import java.io.File;
 
 public class SpongeGuiceModule extends AbstractModule {
 
@@ -56,8 +59,64 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(PluginManager.class).to(SpongePluginManager.class).in(Scopes.SINGLETON);
         bind(EventManager.class).to(SpongeEventManager.class).in(Scopes.SINGLETON);
         bind(GameRegistry.class).to(SpongeGameRegistry.class).in(Scopes.SINGLETON);
+        bind(File.class).annotatedWith(Names.named("GeneralConfigDir")).toProvider(GeneralConfigDirProvider.class).in(Scopes.SINGLETON);
 
         bind(PluginContainer.class).toProvider(PluginContainerProvider.class).in(PluginScoped.class);
+        bind(Logger.class).toProvider(PluginLogProvider.class).in(PluginScoped.class);
+        bind(File.class).annotatedWith(Names.named("PluginConfigFile")).toProvider(PluginConfigFileProvider.class).in(PluginScoped.class);
+        bind(File.class).annotatedWith(Names.named("PluginConfigDir")).toProvider(PluginConfigDirProvider.class).in(PluginScoped.class);
+    }
+
+    private static class PluginLogProvider implements Provider<Logger> {
+        private final PluginScope scope;
+
+        @Inject
+        private PluginLogProvider(PluginScope sc) {
+            scope = sc;
+        }
+
+        @Override
+        public Logger get() {
+            PluginContainer current = scope.getCurrentScope();
+            return LoggerFactory.getLogger(current.getId());
+        }
+    }
+
+    private static class GeneralConfigDirProvider implements Provider<File> {
+        @Override
+        public File get() {
+            return Loader.instance().getConfigDir();
+        }
+    }
+
+    private static class PluginConfigFileProvider implements Provider<File> {
+        private final PluginScope scope;
+
+        @Inject
+        private PluginConfigFileProvider(PluginScope sc) {
+            scope = sc;
+        }
+
+        @Override
+        public File get() {
+            PluginContainer current = scope.getCurrentScope();
+            return new File(Loader.instance().getConfigDir(), current.getId() + ".conf");
+        }
+    }
+
+    private static class PluginConfigDirProvider implements Provider<File> {
+        private final PluginScope scope;
+
+        @Inject
+        private PluginConfigDirProvider(PluginScope sc) {
+            scope = sc;
+        }
+
+        @Override
+        public File get() {
+            PluginContainer current = scope.getCurrentScope();
+            return new File(Loader.instance().getConfigDir(), current.getId() + "/");
+        }
     }
 
     private static class PluginContainerProvider implements Provider<PluginContainer> {

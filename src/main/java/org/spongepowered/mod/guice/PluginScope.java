@@ -36,33 +36,37 @@ import java.util.Map;
 
 public class PluginScope implements Scope {
     Map<PluginContainer, Map<Key<?>, Object>> scopes = Maps.newHashMap();
-    PluginContainer current_scope;
+    PluginContainer currentScope;
 
     public void setScope(PluginContainer scope) {
-        current_scope = scope;
-        if(current_scope != null && !scopes.containsKey(current_scope)) {
+        currentScope = scope;
+        if(currentScope != null && !scopes.containsKey(currentScope)) {
             Map<Key<?>, Object> initial_scope = Maps.newHashMap();
-            initial_scope.put(Key.get(PluginContainer.class), current_scope);
-            scopes.put(current_scope, initial_scope);
+            initial_scope.put(Key.get(PluginContainer.class), currentScope);
+            scopes.put(currentScope, initial_scope);
         }
     }
 
+    public PluginContainer getCurrentScope() {
+        return currentScope;
+    }
+
     public <T> void setInstance(Key<T> key, T instance) {
-        if(current_scope == null) {
+        if(currentScope == null) {
             throw new OutOfScopeException("No current plugin scope defined");
         }
 
-        Map<Key<?>, Object> scope = scopes.get(current_scope);
+        Map<Key<?>, Object> scope = scopes.get(currentScope);
         scope.put(key, instance);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getInstance(Key<T> key) {
-        if(current_scope == null) {
+        if(currentScope == null) {
             throw new OutOfScopeException("No current plugin scope defined");
         }
 
-        Map<Key<?>, Object> scope = scopes.get(current_scope);
+        Map<Key<?>, Object> scope = scopes.get(currentScope);
         return (T)scope.get(key);
     }
 
@@ -88,11 +92,11 @@ public class PluginScope implements Scope {
         @Override
         @SuppressWarnings("unchecked")
         public T get() {
-            if(current_scope == null) {
+            if(currentScope == null) {
                 throw new OutOfScopeException("No current plugin scope defined");
             }
 
-            Map<Key<?>, Object> scope = scopes.get(current_scope);
+            Map<Key<?>, Object> scope = scopes.get(currentScope);
 
             if(scope.containsKey(key)) {
                 return (T)scope.get(key);

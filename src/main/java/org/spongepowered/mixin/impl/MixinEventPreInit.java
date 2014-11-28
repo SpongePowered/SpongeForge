@@ -65,7 +65,7 @@ public abstract class MixinEventPreInit extends FMLStateEvent implements PreInit
 
     @Override
     public File getRecommendedConfigurationDirectory() {
-        return new File(getModConfigurationDirectory(), modContainer.getModId());
+        return new File(getModConfigurationDirectory(), modContainer.getModId() + "/");
     }
 
     @Override
