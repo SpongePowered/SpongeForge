@@ -15,11 +15,11 @@ buildscript {
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
         classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.1.1'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.0'
     }
 }
 
-// for mulriproect fun
+// for multiproject fun
 evaluationDependsOn('SpongeAPI')
 
 // Default tasks
@@ -51,7 +51,7 @@ repositories { mavenLocal() }
 
 // MinecraftForge version
 minecraft {
-    version = "1.8-11.14.0.1239-1.8"
+    version = "1.8-11.14.0.1246-1.8"
 }
 
 configurations {
