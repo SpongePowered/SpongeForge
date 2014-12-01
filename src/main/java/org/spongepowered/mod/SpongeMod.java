@@ -29,7 +29,11 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import net.minecraftforge.fml.common.*;
+import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainerFactory;
+import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
@@ -112,7 +116,7 @@ public class SpongeMod extends DummyModContainer {
 
     @Subscribe
     public void onInitialization(FMLInitializationEvent e) {
-        SpongeGameRegistry registry = (SpongeGameRegistry)game.getRegistry();
+        SpongeGameRegistry registry = (SpongeGameRegistry) game.getRegistry();
 
         registry.setBlockTypes();
         registry.setItemTypes();

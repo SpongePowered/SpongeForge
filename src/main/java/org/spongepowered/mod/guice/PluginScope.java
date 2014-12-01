@@ -35,12 +35,13 @@ import org.spongepowered.api.plugin.PluginContainer;
 import java.util.Map;
 
 public class PluginScope implements Scope {
+
     Map<PluginContainer, Map<Key<?>, Object>> scopes = Maps.newHashMap();
     PluginContainer currentScope;
 
     public void setScope(PluginContainer scope) {
         currentScope = scope;
-        if(currentScope != null && !scopes.containsKey(currentScope)) {
+        if (currentScope != null && !scopes.containsKey(currentScope)) {
             Map<Key<?>, Object> initial_scope = Maps.newHashMap();
             initial_scope.put(Key.get(PluginContainer.class), currentScope);
             scopes.put(currentScope, initial_scope);
@@ -52,7 +53,7 @@ public class PluginScope implements Scope {
     }
 
     public <T> void setInstance(Key<T> key, T instance) {
-        if(currentScope == null) {
+        if (currentScope == null) {
             throw new OutOfScopeException("No current plugin scope defined");
         }
 
@@ -62,12 +63,12 @@ public class PluginScope implements Scope {
 
     @SuppressWarnings("unchecked")
     public <T> T getInstance(Key<T> key) {
-        if(currentScope == null) {
+        if (currentScope == null) {
             throw new OutOfScopeException("No current plugin scope defined");
         }
 
         Map<Key<?>, Object> scope = scopes.get(currentScope);
-        return (T)scope.get(key);
+        return (T) scope.get(key);
     }
 
     @Override
@@ -81,6 +82,7 @@ public class PluginScope implements Scope {
     }
 
     private class PluginScopedProvider<T> implements Provider<T> {
+
         private Provider<T> unscoped;
         private Key<T> key;
 
@@ -92,14 +94,14 @@ public class PluginScope implements Scope {
         @Override
         @SuppressWarnings("unchecked")
         public T get() {
-            if(currentScope == null) {
+            if (currentScope == null) {
                 throw new OutOfScopeException("No current plugin scope defined");
             }
 
             Map<Key<?>, Object> scope = scopes.get(currentScope);
 
-            if(scope.containsKey(key)) {
-                return (T)scope.get(key);
+            if (scope.containsKey(key)) {
+                return (T) scope.get(key);
             } else {
                 T instance = unscoped.get();
                 scope.put(key, instance);

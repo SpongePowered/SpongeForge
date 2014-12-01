@@ -24,6 +24,9 @@
  */
 package org.spongepowered.mod.asm.transformers;
 
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
+
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -36,9 +39,6 @@ import org.spongepowered.api.util.event.Event;
 import org.spongepowered.mod.asm.util.ASMHelper;
 
 import java.util.ListIterator;
-
-import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
 public class BaseEventTransformer implements IClassTransformer {
 

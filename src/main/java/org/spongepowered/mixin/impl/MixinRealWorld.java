@@ -45,6 +45,7 @@ import java.util.UUID;
 
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinRealWorld implements World {
+
     @Shadow
     public WorldProvider provider;
 
@@ -79,7 +80,7 @@ public abstract class MixinRealWorld implements World {
     @Override
     public BlockLoc getBlock(Vector3d position) {
         // TODO: MC's BlockPos does some sort of special rounding on double positions -- do we want to do that too?
-        return new BlockWrapper(this, (int)position.getX(), (int)position.getY(), (int)position.getZ());
+        return new BlockWrapper(this, (int) position.getX(), (int) position.getY(), (int) position.getZ());
     }
 
     @Override

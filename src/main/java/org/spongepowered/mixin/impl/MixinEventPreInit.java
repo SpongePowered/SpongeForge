@@ -55,7 +55,7 @@ public abstract class MixinEventPreInit extends FMLStateEvent implements PreInit
     @Override
     public Logger getPluginLog() {
         org.apache.logging.log4j.Logger logger = getModLog();
-        return new SLF4JLogger((org.apache.logging.log4j.spi.AbstractLogger)logger, logger.getName());
+        return new SLF4JLogger((org.apache.logging.log4j.spi.AbstractLogger) logger, logger.getName());
     }
 
     @Override

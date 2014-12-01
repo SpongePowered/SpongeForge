@@ -49,9 +49,9 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<String> getId(Object obj) {
-        if(obj instanceof BlockType) {
+        if (obj instanceof BlockType) {
             return Optional.fromNullable((String) GameData.getBlockRegistry().getNameForObject(obj));
-        } else if(obj instanceof ItemType) {
+        } else if (obj instanceof ItemType) {
             return Optional.fromNullable((String) GameData.getItemRegistry().getNameForObject(obj));
         }
 
@@ -60,10 +60,10 @@ public class SpongeGameRegistry implements GameRegistry {
 
     // Note: This is probably fairly slow, but only needs to be run rarely.
     public void setBlockTypes() {
-        for(Field f : BlockTypes.class.getDeclaredFields()) {
+        for (Field f : BlockTypes.class.getDeclaredFields()) {
             try {
                 f.set(null, getBlock(f.getName().toLowerCase()));
-            } catch(Exception e) {
+            } catch (Exception e) {
                 // Ignoring error
             }
         }
@@ -71,10 +71,10 @@ public class SpongeGameRegistry implements GameRegistry {
 
     // Note: This is probably fairly slow, but only needs to be run rarely.
     public void setItemTypes() {
-        for(Field f : ItemTypes.class.getDeclaredFields()) {
+        for (Field f : ItemTypes.class.getDeclaredFields()) {
             try {
                 f.set(null, getItem(f.getName().toLowerCase()));
-            } catch(Exception e) {
+            } catch (Exception e) {
                 // Ignoring error
             }
         }

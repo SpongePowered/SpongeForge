@@ -1,22 +1,22 @@
 {
-    "package": "org.spongepowered.mixin.impl",
-    "mixins": [
-        "MixinRealWorld",
-        "MixinBlockState",
-        "MixinBlockType",
-        "MixinPropertyHelper",
-        "MixinPropertyHelper$MixinPropertyBool",
-        "MixinPropertyHelper$MixinPropertyEnum",
-        "MixinPropertyHelper$MixinPropertyInteger",
-        "MixinPropertyDirection",
-        "MixinEventPreInit",
-        "MixinEventInit",
-        "MixinEventPostInit",
-        "MixinEventLoadComplete",
-        "MixinEventServerAboutToStart",
-        "MixinEventServerStarting",
-        "MixinEventServerStarted",
-        "MixinEventServerStopping",
-        "MixinEventServerStopped"
-    ]
+  "package": "org.spongepowered.mixin.impl",
+  "mixins": [
+    "MixinRealWorld",
+    "MixinBlockState",
+    "MixinBlockType",
+    "MixinPropertyHelper",
+    "MixinPropertyHelper$MixinPropertyBool",
+    "MixinPropertyHelper$MixinPropertyEnum",
+    "MixinPropertyHelper$MixinPropertyInteger",
+    "MixinPropertyDirection",
+    "MixinEventPreInit",
+    "MixinEventInit",
+    "MixinEventPostInit",
+    "MixinEventLoadComplete",
+    "MixinEventServerAboutToStart",
+    "MixinEventServerStarting",
+    "MixinEventServerStarted",
+    "MixinEventServerStopping",
+    "MixinEventServerStopped"
+  ]
 }

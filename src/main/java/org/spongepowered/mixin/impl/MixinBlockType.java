@@ -33,6 +33,7 @@ import org.spongepowered.mod.mixin.Shadow;
 
 @Mixin(Block.class)
 public abstract class MixinBlockType implements BlockType {
+
     @Shadow(prefix = "shadow$")
     public abstract IBlockState shadow$getDefaultState();
 
@@ -46,12 +47,12 @@ public abstract class MixinBlockType implements BlockType {
 
     @Override
     public BlockState getDefaultState() {
-        return (BlockState)shadow$getDefaultState();
+        return (BlockState) shadow$getDefaultState();
     }
 
     @Override
     @Deprecated
     public BlockState getStateFromDataValue(byte data) {
-        return (BlockState)getStateFromMeta(data);
+        return (BlockState) getStateFromMeta(data);
     }
 }

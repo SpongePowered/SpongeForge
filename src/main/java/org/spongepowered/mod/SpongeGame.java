@@ -42,9 +42,10 @@ import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.world.World;
 
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.UUID;
+
+import javax.inject.Inject;
 
 public final class SpongeGame implements Game {
 
@@ -110,7 +111,8 @@ public final class SpongeGame implements Game {
     @Override
     @SideOnly(Side.SERVER)
     public void broadcastMessage(Message<?> message) {
-        MinecraftServer.getServer().getConfigurationManager().sendChatMsg(new ChatComponentText((String) message.getContent()));//TODO implement this properly
+        MinecraftServer.getServer().getConfigurationManager()
+                .sendChatMsg(new ChatComponentText((String) message.getContent()));//TODO implement this properly
     }
 
     @Override

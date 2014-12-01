@@ -32,7 +32,6 @@ import net.minecraft.util.EnumFacing;
 import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -41,11 +41,12 @@ import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.EventRegistry;
 import org.spongepowered.mod.guice.PluginScope;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 public class SpongePluginContainer extends FMLModContainer implements PluginContainer {
 

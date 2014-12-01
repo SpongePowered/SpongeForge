@@ -43,8 +43,9 @@ import org.spongepowered.mod.event.SpongeEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 
-import javax.inject.Inject;
 import java.io.File;
+
+import javax.inject.Inject;
 
 public class SpongeGuiceModule extends AbstractModule {
 
@@ -68,6 +69,7 @@ public class SpongeGuiceModule extends AbstractModule {
     }
 
     private static class PluginLogProvider implements Provider<Logger> {
+
         private final PluginScope scope;
 
         @Inject
@@ -83,6 +85,7 @@ public class SpongeGuiceModule extends AbstractModule {
     }
 
     private static class GeneralConfigDirProvider implements Provider<File> {
+
         @Override
         public File get() {
             return Loader.instance().getConfigDir();
@@ -90,6 +93,7 @@ public class SpongeGuiceModule extends AbstractModule {
     }
 
     private static class PluginConfigFileProvider implements Provider<File> {
+
         private final PluginScope scope;
 
         @Inject
@@ -105,6 +109,7 @@ public class SpongeGuiceModule extends AbstractModule {
     }
 
     private static class PluginConfigDirProvider implements Provider<File> {
+
         private final PluginScope scope;
 
         @Inject
@@ -120,6 +125,7 @@ public class SpongeGuiceModule extends AbstractModule {
     }
 
     private static class PluginContainerProvider implements Provider<PluginContainer> {
+
         private final PluginScope scope;
 
         @Inject

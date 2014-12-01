@@ -32,7 +32,6 @@ import net.minecraft.block.properties.PropertyHelper;
 import net.minecraft.block.properties.PropertyInteger;
 import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
 
 import java.util.Collection;
 
