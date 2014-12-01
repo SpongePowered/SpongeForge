@@ -24,14 +24,10 @@
  */
 package org.spongepowered.mod.event;
 
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOWEST;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.NORMAL;
-
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import org.spongepowered.api.event.Order;
+import org.spongepowered.api.util.event.Order;
+
+import static net.minecraftforge.fml.common.eventhandler.EventPriority.*;
 
 public class PriorityMap {
 

@@ -27,7 +27,7 @@ package org.spongepowered.mixin.impl;
 import com.google.common.base.Optional;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.storage.WorldInfo;
-import org.spongepowered.api.block.Block;
+import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.math.Vector2i;
@@ -77,12 +77,13 @@ public abstract class MixinRealWorld implements World {
     }
 
     @Override
-    public Block getBlock(Vector3d position) {
+    public BlockLoc getBlock(Vector3d position) {
+        // TODO: MC's BlockPos does some sort of special rounding on double positions -- do we want to do that too?
         return new BlockWrapper(this, (int)position.getX(), (int)position.getY(), (int)position.getZ());
     }
 
     @Override
-    public Block getBlock(int x, int y, int z) {
+    public BlockLoc getBlock(int x, int y, int z) {
         return new BlockWrapper(this, x, y, z);
     }
 

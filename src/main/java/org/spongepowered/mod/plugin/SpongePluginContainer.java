@@ -35,8 +35,8 @@ import net.minecraftforge.fml.common.ModClassLoader;
 import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLEvent;
-import org.spongepowered.api.event.Event;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.util.event.Event;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.EventRegistry;
 import org.spongepowered.mod.guice.PluginScope;
@@ -153,7 +153,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     private void findEventHandlers(Class<?> clazz) {
         for (Method m : clazz.getDeclaredMethods()) {
             for (Annotation a : m.getAnnotations()) {
-                if (a.annotationType().equals(org.spongepowered.api.event.Subscribe.class)) {
+                if (a.annotationType().equals(org.spongepowered.api.util.event.Subscribe.class)) {
                     Class<?>[] paramTypes = m.getParameterTypes();
                     if (paramTypes.length == 1 && Event.class.isAssignableFrom(paramTypes[0])) {
                         m.setAccessible(true);

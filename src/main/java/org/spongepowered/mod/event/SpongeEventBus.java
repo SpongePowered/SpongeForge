@@ -28,7 +28,7 @@ import com.google.common.collect.Maps;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.api.util.event.Subscribe;
 import org.spongepowered.mod.asm.util.ASMEventListenerHolderFactory;
 
 import java.util.HashMap;

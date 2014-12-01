@@ -33,19 +33,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Platform;
-import org.spongepowered.api.entity.Player;
-import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
-import org.spongepowered.api.service.command.CommandDispatcher;
+import org.spongepowered.api.service.command.CommandService;
+import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.world.World;
 
+import javax.inject.Inject;
 import java.util.Collection;
 import java.util.UUID;
-
-import javax.inject.Inject;
 
 public final class SpongeGame implements Game {
 
@@ -140,7 +139,7 @@ public final class SpongeGame implements Game {
     }
 
     @Override
-    public CommandDispatcher getCommandDispatcher() {
+    public CommandService getCommandDispatcher() {
         return null;
     }
 

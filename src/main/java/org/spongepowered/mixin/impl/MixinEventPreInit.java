@@ -31,7 +31,6 @@ import net.minecraftforge.fml.common.event.FMLStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.impl.SLF4JLogger;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.event.Result;
 import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.mod.mixin.Mixin;
 import org.spongepowered.mod.mixin.Shadow;
@@ -40,6 +39,7 @@ import java.io.File;
 
 @Mixin(FMLPreInitializationEvent.class)
 public abstract class MixinEventPreInit extends FMLStateEvent implements PreInitializationEvent {
+
     @Shadow
     private ModContainer modContainer;
 
@@ -76,20 +76,5 @@ public abstract class MixinEventPreInit extends FMLStateEvent implements PreInit
     @Override
     public Game getGame() {
         return null;
-    }
-
-    @Override
-    public boolean isCancellable() {
-        return false;
-    }
-
-    @Override
-    public Result getResult() {
-        return Result.NO_RESULT;
-    }
-
-    @Override
-    public void setResult(Result result) {
-
     }
 }

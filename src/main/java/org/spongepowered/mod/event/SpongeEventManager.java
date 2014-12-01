@@ -29,9 +29,9 @@ import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLEvent;
-import org.spongepowered.api.event.Event;
-import org.spongepowered.api.event.EventManager;
-import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.api.service.event.EventManager;
+import org.spongepowered.api.util.event.Event;
+import org.spongepowered.api.util.event.Subscribe;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.asm.util.ASMEventListenerFactory;
 
@@ -50,7 +50,7 @@ public class SpongeEventManager implements EventManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void register(Object o) {
+    public void register(Object plugin, Object o) {
         if (forgePluginHandlerMap.containsKey(o)) {
             return;
         }
@@ -106,7 +106,7 @@ public class SpongeEventManager implements EventManager {
     }
 
     @Override
-    public boolean call(Event spongeEvent) {
+    public boolean post(Event spongeEvent) {
         if (spongeEvent instanceof net.minecraftforge.fml.common.eventhandler.Event) {
             FMLCommonHandler.instance().bus().post((net.minecraftforge.fml.common.eventhandler.Event) spongeEvent);
         } else {

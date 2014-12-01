@@ -28,27 +28,11 @@ package org.spongepowered.mixin.impl;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.event.Result;
 import org.spongepowered.api.event.state.InitializationEvent;
 import org.spongepowered.mod.mixin.Mixin;
 
 @Mixin(FMLInitializationEvent.class)
 public abstract class MixinEventInit extends FMLStateEvent implements InitializationEvent {
-
-    @Override
-    public boolean isCancellable() {
-        return false;
-    }
-
-    @Override
-    public Result getResult() {
-        return Result.NO_RESULT;
-    }
-
-    @Override
-    public void setResult(Result result) {
-
-    }
 
     @Override
     public Game getGame() {

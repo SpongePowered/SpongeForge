@@ -24,11 +24,12 @@
  */
 package org.spongepowered.wrapper;
 
+import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
-import org.spongepowered.api.block.Block;
+import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -42,7 +43,7 @@ import org.spongepowered.api.world.extent.Extent;
 
 import java.util.Collection;
 
-public class BlockWrapper implements Block {
+public class BlockWrapper implements BlockLoc {
 
     private net.minecraft.world.World handle;
     private World extent;
@@ -226,5 +227,10 @@ public class BlockWrapper implements Block {
 
     public net.minecraft.world.World getHandle() {
         return handle;
+    }
+
+    @Override
+    public <T> Optional<T> getData(Class<T> dataClass) {
+        return Optional.absent();
     }
 }
