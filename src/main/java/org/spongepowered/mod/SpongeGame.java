@@ -27,6 +27,8 @@ package org.spongepowered.mod;
 import com.google.common.base.Optional;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -43,7 +45,9 @@ import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -89,12 +93,11 @@ public final class SpongeGame implements Game {
 
     @Override
     public Collection<World> getWorlds() {
-        throw new UnsupportedOperationException();
-        /*List<World> worlds = new ArrayList<World>();
+        List<World> worlds = new ArrayList<World>();
         for (WorldServer worldServer : DimensionManager.getWorlds()) {
             worlds.add((World) worldServer);
         }
-        return worlds;*/
+        return worlds;
     }
 
     @Override
