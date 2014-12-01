@@ -31,10 +31,12 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyHelper;
 import net.minecraft.block.properties.PropertyInteger;
 import org.spongepowered.api.block.BlockProperty;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.mixin.Mixin;
 
 import java.util.Collection;
 
+@NonnullByDefault
 @Mixin(PropertyHelper.class)
 @SuppressWarnings("rawtypes")
 public abstract class MixinPropertyHelper implements BlockProperty, IProperty {

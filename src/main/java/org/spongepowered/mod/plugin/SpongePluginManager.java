@@ -29,10 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.Collection;
 
+@NonnullByDefault
 public class SpongePluginManager implements PluginManager {
 
     @Override

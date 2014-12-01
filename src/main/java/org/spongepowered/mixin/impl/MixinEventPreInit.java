@@ -32,11 +32,14 @@ import org.slf4j.Logger;
 import org.slf4j.impl.SLF4JLogger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.event.state.PreInitializationEvent;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.mixin.Mixin;
 import org.spongepowered.mod.mixin.Shadow;
 
 import java.io.File;
 
+@NonnullByDefault
 @Mixin(FMLPreInitializationEvent.class)
 public abstract class MixinEventPreInit extends FMLStateEvent implements PreInitializationEvent {
 
@@ -75,6 +78,6 @@ public abstract class MixinEventPreInit extends FMLStateEvent implements PreInit
 
     @Override
     public Game getGame() {
-        return null;
+        return SpongeMod.instance.getGame();
     }
 }

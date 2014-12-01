@@ -28,9 +28,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.mixin.Mixin;
 import org.spongepowered.mod.mixin.Shadow;
 
+@NonnullByDefault
 @Mixin(Block.class)
 public abstract class MixinBlockType implements BlockType {
 
@@ -42,7 +44,7 @@ public abstract class MixinBlockType implements BlockType {
 
     @Override
     public String getId() {
-        return (String) Block.blockRegistry.getNameForObject(this);
+        return Block.blockRegistry.getNameForObject(this).toString();
     }
 
     @Override

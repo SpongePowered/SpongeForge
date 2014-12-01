@@ -40,16 +40,21 @@ import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.text.message.Message;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 
 import java.util.Collection;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+@NonnullByDefault
 public final class SpongeGame implements Game {
 
+    @Nullable
     private static final String apiVersion = Game.class.getPackage().getImplementationVersion();
+    @Nullable
     private static final String implementationVersion = SpongeGame.class.getPackage().getImplementationVersion();
     private final PluginManager pluginManager;
     private final EventManager eventManager;
@@ -95,7 +100,7 @@ public final class SpongeGame implements Game {
     @Override
     public World getWorld(UUID uniqueId) {
         // TODO: This needs to map to world id's somehow
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -132,7 +137,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public ServiceManager getServiceManager() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -142,7 +147,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public CommandService getCommandDispatcher() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

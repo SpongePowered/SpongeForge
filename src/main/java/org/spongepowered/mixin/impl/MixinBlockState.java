@@ -32,8 +32,10 @@ import net.minecraft.block.state.BlockStateBase;
 import net.minecraft.block.state.IBlockState;
 import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.mixin.Mixin;
 
+@NonnullByDefault
 @Mixin(BlockState.StateImplementation.class)
 public abstract class MixinBlockState extends BlockStateBase implements org.spongepowered.api.block.BlockState {
 

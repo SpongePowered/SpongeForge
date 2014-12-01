@@ -36,6 +36,7 @@ import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLEvent;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.event.Event;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.EventRegistry;
@@ -48,6 +49,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+@NonnullByDefault
 public class SpongePluginContainer extends FMLModContainer implements PluginContainer {
 
     private final Map<String, Object> fmlDescriptor;

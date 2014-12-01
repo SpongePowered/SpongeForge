@@ -32,9 +32,13 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.lang.reflect.Field;
 
+import javax.annotation.Nullable;
+
+@NonnullByDefault
 public class SpongeGameRegistry implements GameRegistry {
 
     @Override
@@ -50,9 +54,23 @@ public class SpongeGameRegistry implements GameRegistry {
     @Override
     public Optional<String> getId(Object obj) {
         if (obj instanceof BlockType) {
-            return Optional.fromNullable((String) GameData.getBlockRegistry().getNameForObject(obj));
+            @Nullable
+            Object key = GameData.getBlockRegistry().getNameForObject(obj);
+
+            if(key == null) {
+                return Optional.absent();
+            } else {
+                return Optional.fromNullable(key.toString());
+            }
         } else if (obj instanceof ItemType) {
-            return Optional.fromNullable((String) GameData.getItemRegistry().getNameForObject(obj));
+            @Nullable
+            Object key = GameData.getItemRegistry().getNameForObject(obj);
+
+            if(key == null) {
+                return Optional.absent();
+            } else {
+                return Optional.fromNullable(key.toString());
+            }
         }
 
         throw new IllegalArgumentException("Object is not BlockType or ItemType.");

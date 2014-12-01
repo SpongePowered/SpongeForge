@@ -31,11 +31,13 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.util.EnumFacing;
 import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.mixin.Mixin;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+@NonnullByDefault
 @Mixin(PropertyDirection.class)
 public abstract class MixinPropertyDirection extends PropertyEnum implements BlockProperty.DirectionProperty {
 

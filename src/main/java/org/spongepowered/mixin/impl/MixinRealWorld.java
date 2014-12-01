@@ -32,6 +32,7 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.math.Vector2i;
 import org.spongepowered.api.math.Vector3d;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.biome.Biome;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
+@NonnullByDefault
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinRealWorld implements World {
 
@@ -54,7 +56,7 @@ public abstract class MixinRealWorld implements World {
 
     @Override
     public UUID getUniqueID() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -74,7 +76,7 @@ public abstract class MixinRealWorld implements World {
 
     @Override
     public Chunk loadChunk(Vector2i position) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -90,7 +92,7 @@ public abstract class MixinRealWorld implements World {
 
     @Override
     public Biome getBiome(Vector3d position) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

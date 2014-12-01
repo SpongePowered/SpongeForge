@@ -29,13 +29,16 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.event.state.PostInitializationEvent;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.mixin.Mixin;
 
+@NonnullByDefault
 @Mixin(FMLPostInitializationEvent.class)
 public abstract class MixinEventPostInit extends FMLStateEvent implements PostInitializationEvent {
 
     @Override
     public Game getGame() {
-        return null;
+        return SpongeMod.instance.getGame();
     }
 }

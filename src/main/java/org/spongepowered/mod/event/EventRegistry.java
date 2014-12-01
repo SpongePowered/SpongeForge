@@ -27,11 +27,23 @@ package org.spongepowered.mod.event;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import org.spongepowered.api.event.state.InitializationEvent;
+import org.spongepowered.api.event.state.LoadCompleteEvent;
+import org.spongepowered.api.event.state.PostInitializationEvent;
 import org.spongepowered.api.event.state.PreInitializationEvent;
+import org.spongepowered.api.event.state.ServerAboutToStartEvent;
+import org.spongepowered.api.event.state.ServerStartedEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
+import org.spongepowered.api.event.state.ServerStoppedEvent;
+import org.spongepowered.api.event.state.ServerStoppingEvent;
 
 public class EventRegistry {
 
@@ -42,9 +54,16 @@ public class EventRegistry {
 
     static {
         // FML events
-        register(FMLInitializationEvent.class, InitializationEvent.class);
-        register(FMLServerStartingEvent.class, ServerStartingEvent.class);
         register(FMLPreInitializationEvent.class, PreInitializationEvent.class);
+        register(FMLInitializationEvent.class, InitializationEvent.class);
+        register(FMLPostInitializationEvent.class, PostInitializationEvent.class);
+        register(FMLLoadCompleteEvent.class, LoadCompleteEvent.class);
+
+        register(FMLServerAboutToStartEvent.class, ServerAboutToStartEvent.class);
+        register(FMLServerStartingEvent.class, ServerStartingEvent.class);
+        register(FMLServerStartedEvent.class, ServerStartedEvent.class);
+        register(FMLServerStoppingEvent.class, ServerStoppingEvent.class);
+        register(FMLServerStoppedEvent.class, ServerStoppedEvent.class);
         // Forge events
     }
 
