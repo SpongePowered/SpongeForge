@@ -26,15 +26,21 @@
 package org.spongepowered.mod.registry;
 
 import com.google.common.base.Optional;
+
 import net.minecraftforge.fml.common.registry.GameData;
+
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.effect.Particle;
+import org.spongepowered.api.effect.Particles;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.effect.SpongeParticle;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -92,6 +98,30 @@ public class SpongeGameRegistry implements GameRegistry {
         for (Field f : ItemTypes.class.getDeclaredFields()) {
             try {
                 f.set(null, getItem(f.getName().toLowerCase()));
+            } catch (Exception e) {
+                // Ignoring error
+            }
+        }
+    }
+    
+    // Note: This is fairly slow.
+    public void setParticles() {
+        Field listF = null;
+        try {
+            listF = Particles.class.getField("particleList");
+            listF.setAccessible(true);
+        } catch (Exception e) {
+            // Ignoring exception
+        }
+        
+        for (Field f : Particles.class.getDeclaredFields()) {
+            Particle particle = new SpongeParticle(f.getName().toLowerCase());
+            try {
+                f.set(null, particle);
+                @SuppressWarnings("unchecked")
+                List<Particle> list = (List<Particle>) listF.get(null);
+                list.add(particle);
+                listF.set(null, list);
             } catch (Exception e) {
                 // Ignoring error
             }
