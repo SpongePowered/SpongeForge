@@ -26,15 +26,23 @@
 package org.spongepowered.mod.registry;
 
 import com.google.common.base.Optional;
+
 import net.minecraftforge.fml.common.registry.GameData;
+
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.effect.Particle;
+import org.spongepowered.api.effect.Particles;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.effect.SpongeParticle;
+import org.spongepowered.mod.effect.SpongeParticleFactory;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -95,6 +103,32 @@ public class SpongeGameRegistry implements GameRegistry {
             } catch (Exception e) {
                 // Ignoring error
             }
+        }
+    }
+    
+    // Note: This is fairly slow.
+    public void setParticles() {
+        List<Particle> particles = new ArrayList<Particle>();
+        
+        for (Field f : Particles.class.getDeclaredFields()) {
+            if (f.getName().equals("factory")) {
+                // Don't set factory here
+                continue;
+            }
+            
+            Particle particle = new SpongeParticle(f.getName().toLowerCase());
+            particles.add(particle);
+            try {
+                f.set(null, particle);
+            } catch (Exception e) {
+                // Ignoring error
+            }
+        }
+        
+        try {
+            Particles.class.getField("factory").set(null, new SpongeParticleFactory(particles));
+        } catch (Exception e) {
+            // Ignoring error
         }
     }
 }
