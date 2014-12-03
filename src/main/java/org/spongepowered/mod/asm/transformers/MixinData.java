@@ -121,6 +121,8 @@ public class MixinData {
      * Read and process any {@link Implements} annotations on the mixin
      */
     private void readImplementations() {
+        this.interfaces.addAll(this.classNode.interfaces);
+        
         AnnotationNode implementsAnnotation = ASMHelper.getInvisibleAnnotation(this.classNode, Implements.class);
         if (implementsAnnotation == null) {
             return;
