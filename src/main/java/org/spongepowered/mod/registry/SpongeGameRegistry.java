@@ -38,8 +38,10 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.effect.SpongeParticle;
+import org.spongepowered.mod.effect.SpongeParticleFactory;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -106,25 +108,27 @@ public class SpongeGameRegistry implements GameRegistry {
     
     // Note: This is fairly slow.
     public void setParticles() {
-        Field listF = null;
-        try {
-            listF = Particles.class.getField("particleList");
-            listF.setAccessible(true);
-        } catch (Exception e) {
-            // Ignoring exception
-        }
+        List<Particle> particles = new ArrayList<Particle>();
         
         for (Field f : Particles.class.getDeclaredFields()) {
+            if (f.getName().equals("factory")) {
+                // Don't set factory here
+                continue;
+            }
+            
             Particle particle = new SpongeParticle(f.getName().toLowerCase());
+            particles.add(particle);
             try {
                 f.set(null, particle);
-                @SuppressWarnings("unchecked")
-                List<Particle> list = (List<Particle>) listF.get(null);
-                list.add(particle);
-                listF.set(null, list);
             } catch (Exception e) {
                 // Ignoring error
             }
+        }
+        
+        try {
+            Particles.class.getField("factory").set(null, new SpongeParticleFactory(particles));
+        } catch (Exception e) {
+            // Ignoring error
         }
     }
 }
