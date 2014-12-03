@@ -171,7 +171,7 @@ public class MixinTransformer extends TreeTransformer {
      * Apply the mixin described by mixin to the supplied classNode
      * 
      * @param targetClass
-     * @param mixinInfo
+     * @param mixin
      */
     protected void applyMixin(ClassNode targetClass, MixinData mixin) {
 
