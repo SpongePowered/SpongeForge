@@ -80,7 +80,7 @@ public class SpongeGameRegistry implements GameRegistry {
     public void setBlockTypes() {
         for (Field f : BlockTypes.class.getDeclaredFields()) {
             try {
-                f.set(null, getBlock(f.getName().toLowerCase()));
+                f.set(null, (BlockType) GameData.getBlockRegistry().getObject(f.getName().toLowerCase()));
             } catch (Exception e) {
                 // Ignoring error
             }
@@ -91,7 +91,7 @@ public class SpongeGameRegistry implements GameRegistry {
     public void setItemTypes() {
         for (Field f : ItemTypes.class.getDeclaredFields()) {
             try {
-                f.set(null, getItem(f.getName().toLowerCase()));
+                f.set(null, (ItemType) GameData.getItemRegistry().getObject(f.getName().toLowerCase()));
             } catch (Exception e) {
                 // Ignoring error
             }
