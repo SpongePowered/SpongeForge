@@ -49,6 +49,12 @@ public class SpongeParticle implements Particle {
      * @return Vanilla particle enum if available
      */
     public Optional<EnumParticleTypes> getVanillaParticleType() {
-        return Optional.of(EnumParticleTypes.valueOf(name));
+        try {
+            return Optional.of(EnumParticleTypes.valueOf(name));
+        } catch (IllegalArgumentException e) {
+            // Given name doesn't refer to any vanilla particle type
+        }
+        
+        return Optional.absent();
     }
 }
