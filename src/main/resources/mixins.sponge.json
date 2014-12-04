@@ -4,6 +4,8 @@
     "MixinWorld",
     "MixinBlockState",
     "MixinBlockType",
+    "MixinItemType",
+    "MixinMinecraftServer",
     "MixinPropertyHelper",
     "MixinPropertyHelper$MixinPropertyBool",
     "MixinPropertyHelper$MixinPropertyEnum",

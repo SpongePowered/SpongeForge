@@ -22,28 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package org.spongepowered.mixin.impl;
 
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.event.state.PreInitializationEvent;
+import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.mixin.Mixin;
 import org.spongepowered.mod.mixin.Shadow;
 
+import net.minecraft.item.Item;
+
 @NonnullByDefault
-@Mixin(FMLPreInitializationEvent.class)
-public abstract class MixinEventPreInit extends FMLStateEvent implements PreInitializationEvent {
+@Mixin(Item.class)
+public abstract class MixinItemType implements ItemType {
 
     @Shadow
-    private ModContainer modContainer;
+    public abstract int getItemStackLimit();
 
     @Override
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
+    public String getId() {
+        return Item.itemRegistry.getNameForObject(this).toString();
+    }
+
+    @Override
+    public int getMaxStackQuantity() {
+        return getItemStackLimit();
     }
 }

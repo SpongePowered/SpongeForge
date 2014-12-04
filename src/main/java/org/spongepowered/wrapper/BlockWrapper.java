@@ -24,6 +24,8 @@
  */
 package org.spongepowered.wrapper;
 
+import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
@@ -34,8 +36,6 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.math.Vector3i;
-import org.spongepowered.api.math.Vectors;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -90,12 +90,12 @@ public class BlockWrapper implements BlockLoc {
     // TODO: Can we mixin Vector3i with BlockPos?
     @Override
     public Vector3i getPosition() {
-        return Vectors.create3i(pos.getX(), pos.getY(), pos.getZ());
+        return new Vector3i(pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Override
     public Location getLocation() {
-        return new Location(extent, Vectors.create3d(pos.getX(), pos.getY(), pos.getZ()));
+        return new Location(extent, new Vector3d(pos.getX(), pos.getY(), pos.getZ()));
     }
 
     @Override

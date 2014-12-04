@@ -24,14 +24,14 @@
  */
 package org.spongepowered.mixin.impl;
 
+import com.flowpowered.math.vector.Vector2i;
+import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.storage.WorldInfo;
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.math.Vector2i;
-import org.spongepowered.api.math.Vector3d;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
