@@ -32,7 +32,7 @@ import org.spongepowered.mod.mixin.Implements;
 /**
  * An example mixin interface which contains a method whose signature conflicts with a method in the target class
  */
-public interface IEntityPlayerConflict extends IWorld {
+public interface IEntityPlayerConflict {
 
     /**
      * In {@link EntityLivingBase}, this same method exists but returns a float. Whilst java bytecode would actually allow both methods to exist, the
@@ -40,7 +40,13 @@ public interface IEntityPlayerConflict extends IWorld {
      * {@link MixinEntityPlayerExample}
      */
     public abstract double getHealth();
-    
+
+    /**
+     * This method conflicts with a method in the target class and has precisely the same signature, this is to demonstrate how we deal with a method
+     * which would ordinarily fall foul of reobfuscation and thus break our (non-obfuscated) interface in a production environment
+     */
+    public abstract boolean isUsingItem();
+
     /**
      * Additional method which doesn't conflict
      */
