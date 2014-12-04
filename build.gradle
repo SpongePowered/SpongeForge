@@ -47,7 +47,13 @@ ext.commit = project.hasProperty("commit") ? commit : 'unknown'
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
-repositories { mavenLocal() }
+repositories {
+    mavenCentral()
+    maven {
+        name = 'sonatype-nexus'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+}
 
 // MinecraftForge version
 minecraft {
