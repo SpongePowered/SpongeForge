@@ -41,6 +41,9 @@ import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
+import org.spongepowered.mixin.interfaces.IMinecraftServerConflict;
+import org.spongepowered.mod.mixin.Implements;
+import org.spongepowered.mod.mixin.Interface;
 import org.spongepowered.mod.mixin.Mixin;
 import org.spongepowered.mod.mixin.Shadow;
 
@@ -49,10 +52,17 @@ import com.google.common.collect.ImmutableList;
 
 @NonnullByDefault
 @Mixin(MinecraftServer.class)
+@Implements(@Interface(iface = IMinecraftServerConflict.class, prefix = "server$"))
 public abstract class MixinMinecraftServer implements Server {
 
     @Shadow 
     public abstract ServerConfigurationManager getConfigurationManager();
+
+    @Shadow 
+    public abstract String getServerHostname();
+
+    @Shadow 
+    public abstract int getPort();
 
     @Override
     public Collection<World> getWorlds() {
@@ -87,7 +97,7 @@ public abstract class MixinMinecraftServer implements Server {
 
     @Override
     public Optional<InetSocketAddress> getBoundAddress() {
-        throw new UnsupportedOperationException();
+        return Optional.fromNullable(new InetSocketAddress(getServerHostname(), getPort()));
     }
 
     @Override
@@ -109,5 +119,10 @@ public abstract class MixinMinecraftServer implements Server {
     @Override
     public Message.Text getMOTD() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getMaxPlayers() {
+        return getConfigurationManager().getMaxPlayers();
     }
 }
