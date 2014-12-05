@@ -41,7 +41,6 @@ import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
-import org.spongepowered.mixin.interfaces.IMinecraftServerConflict;
 import org.spongepowered.mod.mixin.Implements;
 import org.spongepowered.mod.mixin.Interface;
 import org.spongepowered.mod.mixin.Mixin;
@@ -52,7 +51,7 @@ import com.google.common.collect.ImmutableList;
 
 @NonnullByDefault
 @Mixin(MinecraftServer.class)
-@Implements(@Interface(iface = IMinecraftServerConflict.class, prefix = "server$"))
+@Implements(@Interface(iface = Server.class, prefix = "server$"))
 public abstract class MixinMinecraftServer implements Server {
 
     @Shadow 
