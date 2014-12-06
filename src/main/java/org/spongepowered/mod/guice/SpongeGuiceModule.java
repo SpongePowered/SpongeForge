@@ -29,7 +29,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
-import com.google.inject.name.Names;
 import net.minecraftforge.fml.common.Loader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,7 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.api.service.config.Config;
+import org.spongepowered.api.service.config.DefaultConfig;
 import org.spongepowered.api.service.config.ConfigDir;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.util.config.ConfigFile;
@@ -57,7 +56,7 @@ public class SpongeGuiceModule extends AbstractModule {
     protected void configure() {
         PluginScope pluginScope = new PluginScope();
 
-        Config pluginConfig = new ConfigFileAnnotation(true);
+        DefaultConfig pluginConfig = new ConfigFileAnnotation(true);
         ConfigDir sharedDir = new ConfigDirAnnotation(true);
         ConfigDir pluginDir = new ConfigDirAnnotation(false);
 
@@ -78,7 +77,7 @@ public class SpongeGuiceModule extends AbstractModule {
     }
 
     // This is strange, but required for Guice and annotations with values.
-    private static class ConfigFileAnnotation implements Config {
+    private static class ConfigFileAnnotation implements DefaultConfig {
 
         boolean shared;
 
@@ -93,7 +92,7 @@ public class SpongeGuiceModule extends AbstractModule {
 
         @Override
         public Class<? extends Annotation> annotationType() {
-            return Config.class;
+            return DefaultConfig.class;
         }
 
         // See Javadocs for java.lang.annotation.Annotation for specification of equals, hashCode, toString
@@ -102,11 +101,11 @@ public class SpongeGuiceModule extends AbstractModule {
             if (this == o) {
                 return true;
             }
-            if (o == null || !(o instanceof Config)) {
+            if (o == null || !(o instanceof DefaultConfig)) {
                 return false;
             }
 
-            Config that = (Config) o;
+            DefaultConfig that = (DefaultConfig) o;
 
             return sharedRoot() == that.sharedRoot();
         }
@@ -149,11 +148,11 @@ public class SpongeGuiceModule extends AbstractModule {
             if (this == o) {
                 return true;
             }
-            if (o == null || !(o instanceof Config)) {
+            if (o == null || !(o instanceof ConfigDir)) {
                 return false;
             }
 
-            Config that = (Config) o;
+            ConfigDir that = (ConfigDir) o;
 
             return sharedRoot() == that.sharedRoot();
         }
