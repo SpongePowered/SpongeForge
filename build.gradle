@@ -57,7 +57,7 @@ repositories {
 
 // MinecraftForge version
 minecraft {
-    version = "1.8-11.14.0.1246-1.8"
+    version = "1.8-11.14.0.1252-1.8"
 }
 
 configurations {
