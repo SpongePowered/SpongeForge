@@ -26,6 +26,8 @@
 package org.spongepowered.mod.registry;
 
 import com.google.common.base.Optional;
+
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
@@ -55,10 +57,10 @@ public class SpongeGameRegistry implements GameRegistry {
     @SuppressWarnings("unchecked")
     @Override
     public List<BlockType> getBlocks() {
-        Iterator<String> iter = GameData.getBlockRegistry().getKeys().iterator();
+        Iterator<ResourceLocation> iter = GameData.getBlockRegistry().getKeys().iterator();
         List<BlockType> blockList = new ArrayList<BlockType>();
         while (iter.hasNext()) {
-            blockList.add(getBlock(iter.next()).get());
+            blockList.add(getBlock(iter.next().toString()).get());
         }
         return blockList;
     }
@@ -66,10 +68,10 @@ public class SpongeGameRegistry implements GameRegistry {
     @SuppressWarnings("unchecked")
     @Override
     public List<ItemType> getItems() {
-        Iterator<String> iter = GameData.getItemRegistry().getKeys().iterator();
+        Iterator<ResourceLocation> iter = GameData.getItemRegistry().getKeys().iterator();
         List<ItemType> itemList = new ArrayList<ItemType>();
         while (iter.hasNext()) {
-            itemList.add(getItem(iter.next()).get());
+            itemList.add(getItem(iter.next().toString()).get());
         }
         return itemList;
     }

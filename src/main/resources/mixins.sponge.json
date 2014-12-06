@@ -5,6 +5,7 @@
     "MixinBlockState",
     "MixinBlockType",
     "MixinItemType",
+    "MixinItemBlock",
     "MixinMinecraftServer",
     "MixinPropertyHelper",
     "MixinPropertyHelper$MixinPropertyBool",
