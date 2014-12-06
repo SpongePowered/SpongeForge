@@ -22,28 +22,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package org.spongepowered.mixin.impl;
 
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.event.state.PreInitializationEvent;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.item.ItemBlock;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.mixin.Mixin;
 import org.spongepowered.mod.mixin.Shadow;
 
 @NonnullByDefault
-@Mixin(FMLPreInitializationEvent.class)
-public abstract class MixinEventPreInit extends FMLStateEvent implements PreInitializationEvent {
+@Mixin(net.minecraft.item.ItemBlock.class)
+public abstract class MixinItemBlock extends Item implements ItemBlock {
 
-    @Shadow
-    private ModContainer modContainer;
+    @Shadow(prefix = "shadow$")
+    public abstract Block shadow$getBlock();
 
     @Override
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
+    public BlockType getBlock() {
+        return (BlockType) shadow$getBlock();
     }
 }

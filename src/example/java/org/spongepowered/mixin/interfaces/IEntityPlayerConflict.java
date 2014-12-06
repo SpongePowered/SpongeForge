@@ -22,28 +22,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package org.spongepowered.mixin.interfaces;
 
-package org.spongepowered.mixin.impl;
+import net.minecraft.entity.EntityLivingBase;
 
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.event.state.PreInitializationEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
+import org.spongepowered.mod.mixin.Implements;
 
-@NonnullByDefault
-@Mixin(FMLPreInitializationEvent.class)
-public abstract class MixinEventPreInit extends FMLStateEvent implements PreInitializationEvent {
 
-    @Shadow
-    private ModContainer modContainer;
+/**
+ * An example mixin interface which contains a method whose signature conflicts with a method in the target class
+ */
+public interface IEntityPlayerConflict {
 
-    @Override
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
-    }
+    /**
+     * In {@link EntityLivingBase}, this same method exists but returns a float. Whilst java bytecode would actually allow both methods to exist, the
+     * java compiler doesn't support this. This conflict is deliberately here to demostrate the use of the {@link Implements} annotation in
+     * {@link MixinEntityPlayerExample}
+     */
+    public abstract double getHealth();
+
+    /**
+     * This method conflicts with a method in the target class and has precisely the same signature, this is to demonstrate how we deal with a method
+     * which would ordinarily fall foul of reobfuscation and thus break our (non-obfuscated) interface in a production environment
+     */
+    public abstract boolean isUsingItem();
+
+    /**
+     * Additional method which doesn't conflict
+     */
+    public abstract int thisMethodDoesNotConflict();
+    
+    /**
+     * Additional method with no conflicts
+     */
+    public abstract int norDoesThisOne();
 }

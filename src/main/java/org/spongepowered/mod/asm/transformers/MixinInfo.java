@@ -24,8 +24,14 @@
  */
 package org.spongepowered.mod.asm.transformers;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
@@ -36,44 +42,51 @@ import org.spongepowered.mod.asm.util.ASMHelper;
 import org.spongepowered.mod.mixin.InvalidMixinException;
 import org.spongepowered.mod.mixin.Mixin;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Runtime information bundle about a mixin
  */
 class MixinInfo implements Comparable<MixinInfo> {
-
+    
     /**
      * Global order of mixin infos, used to determine ordering between mixins with equivalent priority
      */
     static int mixinOrder = 0;
-    /**
-     * Intrinsic order (for sorting mixins with identical priority)
-     */
-    private final transient int order = MixinInfo.mixinOrder++;
+    
     /**
      * Logger
      */
     private final transient Logger logger = LogManager.getLogger("sponge");
+    
+    /**
+     * Parent configuration which declares this mixin 
+     */
+    private final transient MixinConfig parent;
+
     /**
      * Name of the mixin class itself, dotted notation
      */
     private final String className;
+
     /**
      * Name of the mixin class, internal notation
      */
     private final transient String classRef;
+    
     /**
      * Mixin priority, read from the {@link Mixin} annotation on the mixin class
      */
     private final int priority;
+    
     /**
      * Mixin targets, read from the {@link Mixin} annotation on the mixin class
      */
-    private final List<String> targetClasses;
+    private final List<String> targetClasses; 
+
+    /**
+     * Intrinsic order (for sorting mixins with identical priority)
+     */
+    private final transient int order = MixinInfo.mixinOrder++;
+    
     /**
      * Mixin bytes (read once, generate tree on demand)
      */
@@ -81,17 +94,19 @@ class MixinInfo implements Comparable<MixinInfo> {
 
     /**
      * Internal ctor, called by {@link MixinConfig}
-     *
+     * 
+     * @param parent
      * @param mixinName
      * @param runTransformers
      */
-    MixinInfo(String mixinName, boolean runTransformers) {
-        this.className = mixinName;
-        this.classRef = mixinName.replace('.', '/');
-
+    MixinInfo(MixinConfig parent, String mixinName, boolean runTransformers) {
+        this.parent = parent;
+        this.className = parent.getMixinPackage() + mixinName;
+        this.classRef = this.className.replace('.', '/');
+        
         // Read the class bytes and transform
         this.mixinBytes = this.loadMixinClass(this.className, runTransformers);
-
+        
         ClassNode classNode = this.getClassNode(0);
         this.targetClasses = this.readTargetClasses(classNode);
         this.priority = this.readPriority(classNode);
@@ -99,7 +114,7 @@ class MixinInfo implements Comparable<MixinInfo> {
 
     /**
      * Read the target class names from the {@link Mixin} annotation
-     *
+     * 
      * @param classNode
      * @return
      */
@@ -108,20 +123,19 @@ class MixinInfo implements Comparable<MixinInfo> {
         if (mixin == null) {
             throw new InvalidMixinException(String.format("The mixin '%s' is missing an @Mixin annotation", this.className));
         }
-
+        
         List<Type> targetClasses = ASMHelper.getAnnotationValue(mixin);
         List<String> targetClassNames = new ArrayList<String>();
         for (Type targetClass : targetClasses) {
             targetClassNames.add(targetClass.getClassName());
-            System.err.println(targetClass.getClassName());
         }
-
+        
         return targetClassNames;
     }
 
     /**
      * Read the priority from the {@link Mixin} annotation
-     *
+     * 
      * @param classNode
      * @return
      */
@@ -130,24 +144,27 @@ class MixinInfo implements Comparable<MixinInfo> {
         if (mixin == null) {
             throw new InvalidMixinException(String.format("The mixin '%s' is missing an @Mixin annotation", this.className));
         }
-
+        
         Integer priority = ASMHelper.getAnnotationValue(mixin, "priority");
         return priority == null ? 1000 : priority.intValue();
+    }
+    
+    /**
+     * Get the parent config which declares this mixin
+     */
+    public MixinConfig getParent() {
+        return this.parent;
     }
 
     /**
      * Get the name of the mixin class
-     *
-     * @return
      */
     public String getClassName() {
         return this.className;
     }
-
+    
     /**
      * Get the ref (internal name) of the mixin class
-     *
-     * @return
      */
     public String getClassRef() {
         return this.classRef;
@@ -155,8 +172,6 @@ class MixinInfo implements Comparable<MixinInfo> {
 
     /**
      * Get the class bytecode
-     *
-     * @return
      */
     public byte[] getClassBytes() {
         return this.mixinBytes;
@@ -164,9 +179,6 @@ class MixinInfo implements Comparable<MixinInfo> {
 
     /**
      * Get a new tree for the class bytecode
-     *
-     * @param flags
-     * @return
      */
     public ClassNode getClassNode(int flags) {
         ClassNode classNode = new ClassNode();
@@ -174,29 +186,25 @@ class MixinInfo implements Comparable<MixinInfo> {
         classReader.accept(classNode, flags);
         return classNode;
     }
-
+    
     /**
      * Get a new mixin data container for this info
-     *
+     * 
      * @return
      */
     public MixinData getData() {
         return new MixinData(this);
     }
-
+    
     /**
      * Get the target classes for this mixin
-     *
-     * @return
      */
     public List<String> getTargetClasses() {
         return Collections.unmodifiableList(this.targetClasses);
     }
-
+    
     /**
      * Get the mixin priority
-     *
-     * @return
      */
     public int getPriority() {
         return this.priority;
@@ -211,12 +219,12 @@ class MixinInfo implements Comparable<MixinInfo> {
         byte[] mixinBytes = null;
 
         try {
-            if ((mixinBytes = this.getClassBytes(mixinClassName)) == null) {
+            if ((mixinBytes = MixinInfo.getClassBytes(mixinClassName)) == null) {
                 throw new InvalidMixinException(String.format("The specified mixin '%s' was not found", mixinClassName));
             }
 
             if (runTransformers) {
-                mixinBytes = this.applyTransformers(mixinClassName, mixinBytes);
+                mixinBytes = MixinInfo.applyTransformers(mixinClassName, mixinBytes);
             }
         } catch (IOException ex) {
             this.logger.warn("Failed to load mixin %s, the specified mixin will not be applied", mixinClassName);
@@ -231,19 +239,19 @@ class MixinInfo implements Comparable<MixinInfo> {
      * @return
      * @throws IOException
      */
-    private byte[] getClassBytes(String mixinClassName) throws IOException {
+    static byte[] getClassBytes(String mixinClassName) throws IOException {
         return Launch.classLoader.getClassBytes(mixinClassName);
     }
 
     /**
      * Since we obtain the mixin class bytes with getClassBytes(), we need to
      * apply the transformers ourself
-     *
+     * 
      * @param name
      * @param basicClass
      * @return
      */
-    private byte[] applyTransformers(String name, byte[] basicClass) {
+    static byte[] applyTransformers(String name, byte[] basicClass) {
         final List<IClassTransformer> transformers = Launch.classLoader.getTransformers();
 
         for (final IClassTransformer transformer : transformers) {

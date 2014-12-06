@@ -22,28 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package org.spongepowered.mod.mixin;
 
-package org.spongepowered.mixin.impl;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.event.state.PreInitializationEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
+/**
+ * I'm probably going to the special hell for this
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.CLASS)
+public @interface Interface {
+    
+    /**
+     * Interface that the parent {@link Implements} indicates the mixin implements. The interface will be hot-patched onto the target class as part
+     * of the mixin application.
+     */
+    public Class<?> iface();
+    
+    /**
+     * [Required] prefix for implementing interface methods. Works similarly to {@link Shadow} prefixes, but <b>must</b> end with a dollar sign ($)
+     */
+    public String prefix();
 
-@NonnullByDefault
-@Mixin(FMLPreInitializationEvent.class)
-public abstract class MixinEventPreInit extends FMLStateEvent implements PreInitializationEvent {
-
-    @Shadow
-    private ModContainer modContainer;
-
-    @Override
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
-    }
 }

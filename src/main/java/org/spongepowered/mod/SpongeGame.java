@@ -36,6 +36,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
@@ -93,42 +94,6 @@ public final class SpongeGame implements Game {
     }
 
     @Override
-    public Collection<World> getWorlds() {
-        List<World> worlds = new ArrayList<World>();
-        for (WorldServer worldServer : DimensionManager.getWorlds()) {
-            worlds.add((World) worldServer);
-        }
-        return worlds;
-    }
-
-    @Override
-    public World getWorld(UUID uniqueId) {
-        // TODO: This needs to map to world id's somehow
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public World getWorld(String worldName) {
-        for (World world : getWorlds()) {
-            if (world.getName().equals(worldName)) {
-                return world;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void broadcastMessage(Message<?> message) {
-        @Nullable
-        MinecraftServer server = getServer();
-
-        if (server != null) {
-            // TODO: Revisit this when text API is actually implemented.
-            server.getConfigurationManager().sendChatMsg(new ChatComponentText((String) message.getContent()));
-        }
-    }
-
-    @Override
     public String getAPIVersion() {
         return apiVersion != null ? apiVersion : "UNKNOWN";
     }
@@ -159,56 +124,7 @@ public final class SpongeGame implements Game {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Collection<Player> getOnlinePlayers() {
-        @Nullable
-        MinecraftServer server = getServer();
-
-        if (server != null) {
-            return ImmutableList.copyOf((List<Player>)server.getConfigurationManager().playerEntityList);
-        } else {
-            throw new IllegalStateException("There is no running server.");
-        }
-    }
-
-    @Override
-    public int getMaxPlayers() {
-        @Nullable
-        MinecraftServer server = getServer();
-
-        if (server != null) {
-            return server.getMaxPlayers();
-        } else {
-            throw new IllegalStateException("There is no running server.");
-        }
-    }
-
-    @Override
-    public Optional<Player> getPlayer(UUID uniqueId) {
-        @Nullable
-        MinecraftServer server = getServer();
-
-        if (server != null) {
-            return Optional.fromNullable((Player) server.getConfigurationManager().func_177451_a(uniqueId));
-        } else {
-            return Optional.absent();
-        }
-    }
-
-    @Override
-    public Optional<Player> getPlayer(String name) {
-        @Nullable
-        MinecraftServer server = getServer();
-
-        if (server != null) {
-            return Optional.fromNullable((Player) server.getConfigurationManager().getPlayerByUsername(name));
-        } else {
-            return Optional.absent();
-        }
-    }
-
-    @Nullable
-    public MinecraftServer getServer() {
-        return FMLCommonHandler.instance().getMinecraftServerInstance();
+    public Optional<Server> getServer() {
+        return Optional.fromNullable((Server)FMLCommonHandler.instance().getMinecraftServerInstance());
     }
 }

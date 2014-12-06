@@ -22,28 +22,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package org.spongepowered.mod.mixin;
 
-package org.spongepowered.mixin.impl;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.event.state.PreInitializationEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
-
-@NonnullByDefault
-@Mixin(FMLPreInitializationEvent.class)
-public abstract class MixinEventPreInit extends FMLStateEvent implements PreInitializationEvent {
-
-    @Shadow
-    private ModContainer modContainer;
-
-    @Override
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
-    }
+/**
+ * Pseudo-implements decorator for Mixins with conflicting methods in a superclass to soft-implement an interface
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.CLASS)
+public @interface Implements {
+    
+    /**
+     * Interfaces implemented, see javadoc in {@link Interface}
+     */
+    public Interface[] value();
 }
