@@ -38,8 +38,6 @@ import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
-import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
 import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
@@ -52,6 +50,7 @@ import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.entity.SpongeEntityType;
+import org.spongepowered.mod.entity.SpongeSkeletonType;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -228,6 +227,21 @@ public class SpongeGameRegistry implements GameRegistry {
                 f.set(null, entityTypeMappings.get(f.getName()));
                 entityClassToTypeMappings.put(((SpongeEntityType)entityType).entityClass, (SpongeEntityType)entityType);
                 entityIdToTypeMappings.put(((SpongeEntityType)entityType).modId, ((SpongeEntityType)entityType));
+            } catch (Exception e) {
+                //e.printStackTrace();
+            }
+        }
+
+        // skeleton types
+        SpongeSkeletonType normalSkeletonType = new SpongeSkeletonType(0, "NORMAL");
+        SpongeSkeletonType witherSkeletonType = new SpongeSkeletonType(0, "WITHER");
+        for (Field f : EntityTypes.class.getDeclaredFields()) {
+            try {
+                if (f.getName().equals("NORMAL")) {
+                    f.set(null, normalSkeletonType);
+                } else if (f.getName().equals("WITHER")) {
+                    f.set(null,  witherSkeletonType);
+                }
             } catch (Exception e) {
                 //e.printStackTrace();
             }
