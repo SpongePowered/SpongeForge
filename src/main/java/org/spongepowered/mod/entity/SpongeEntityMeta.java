@@ -24,12 +24,44 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.entity.living.meta.SkeletonType;
+import com.google.common.base.Objects;
 
-public class SpongeSkeletonType extends SpongeEntityMeta implements SkeletonType {
+public class SpongeEntityMeta  {
 
-    public SpongeSkeletonType(int type, String name) {
-        super(type, name);
+    public final int type;
+    public final String name;
+
+    public SpongeEntityMeta(int type, String name) {
+        this.type = type;
+        this.name = name;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        SpongeEntityMeta other = (SpongeEntityMeta)obj;
+        if (type != other.type) {
+            return false;
+        } else if (name != other.name) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+            .add("type", type)
+            .add("name", name)
+            .toString();
+    }
 }

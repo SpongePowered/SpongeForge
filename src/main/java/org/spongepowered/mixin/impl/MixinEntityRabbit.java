@@ -24,42 +24,41 @@
  */
 package org.spongepowered.mixin.impl;
 
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityRabbit;
 import net.minecraft.world.World;
 
-import org.spongepowered.api.entity.living.meta.SkeletonType;
-import org.spongepowered.api.entity.living.monster.Skeleton;
+import org.spongepowered.api.entity.living.animal.Rabbit;
+import org.spongepowered.api.entity.living.meta.RabbitType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
-import org.spongepowered.mod.entity.SpongeEntityMeta;
 import org.spongepowered.mod.mixin.Implements;
 import org.spongepowered.mod.mixin.Interface;
 import org.spongepowered.mod.mixin.Mixin;
+import org.spongepowered.mod.mixin.Shadow;
+import org.spongepowered.mod.entity.SpongeEntityMeta;
 
 @NonnullByDefault
-@Mixin(EntitySkeleton.class)
-@Implements(@Interface(iface = Skeleton.class, prefix = "skeleton$"))
-public abstract class MixinEntitySkeleton extends EntityMob {
+@Mixin(EntityRabbit.class)
+@Implements(@Interface(iface = Rabbit.class, prefix = "rabbit$"))
+public abstract class MixinEntityRabbit extends EntityAnimal {
 
-    public MixinEntitySkeleton(World worldIn) {
+    @Shadow
+    public abstract int func_175531_cl(); // getRabbitType
+
+    @Shadow
+    public abstract void func_175529_r(int type); // setRabbitType
+
+    public MixinEntityRabbit(World worldIn) {
         super(worldIn);
     }
 
-    public SkeletonType skeleton$getSkeletonType() {
-        return SpongeEntityConstants.SKELETON_TYPES.get(this.dataWatcher.getWatchableObjectByte(13));
+    public RabbitType getRabbitType() {
+        return SpongeEntityConstants.RABBIT_IDMAP.get(this.func_175531_cl());
     }
 
-    public void skeleton$setSkeletonType(SkeletonType skeletonType) {
-        int type = ((SpongeEntityMeta)skeletonType).type;
-        this.dataWatcher.updateObject(13, Byte.valueOf((byte)type));
-        this.isImmuneToFire = type == 1;
-
-        if (type == 1) {
-            this.setSize(0.72F, 2.535F);
-        } else {
-            this.setSize(0.6F, 1.95F);
-        }
+    public void setRabbitType(RabbitType type) {
+        this.func_175529_r(((SpongeEntityMeta)type).type);
     }
 
 }

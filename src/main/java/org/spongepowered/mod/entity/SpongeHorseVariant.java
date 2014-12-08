@@ -24,12 +24,12 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.entity.living.meta.SkeletonType;
+import org.spongepowered.api.entity.living.meta.HorseVariant;
 
-public class SpongeSkeletonType extends SpongeEntityMeta implements SkeletonType {
+public class SpongeHorseVariant extends SpongeEntityMeta implements HorseVariant {
 
-    public SpongeSkeletonType(int type, String name) {
-        super(type, name);
+    public SpongeHorseVariant(int variant, String name) {
+        super(variant, name);
     }
 
 }

@@ -24,11 +24,11 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.entity.living.meta.SkeletonType;
+import org.spongepowered.api.entity.living.meta.OcelotType;
 
-public class SpongeSkeletonType extends SpongeEntityMeta implements SkeletonType {
+public class SpongeOcelotType extends SpongeEntityMeta implements OcelotType {
 
-    public SpongeSkeletonType(int type, String name) {
+    public SpongeOcelotType(int type, String name) {
         super(type, name);
     }
 

@@ -44,13 +44,20 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.living.meta.HorseColor;
+import org.spongepowered.api.entity.living.meta.HorseColors;
+import org.spongepowered.api.entity.living.meta.HorseStyles;
+import org.spongepowered.api.entity.living.meta.HorseVariants;
+import org.spongepowered.api.entity.living.meta.OcelotTypes;
+import org.spongepowered.api.entity.living.meta.RabbitTypes;
+import org.spongepowered.api.entity.living.meta.SkeletonTypes;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityType;
-import org.spongepowered.mod.entity.SpongeSkeletonType;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -233,17 +240,53 @@ public class SpongeGameRegistry implements GameRegistry {
         }
 
         // skeleton types
-        SpongeSkeletonType normalSkeletonType = new SpongeSkeletonType(0, "NORMAL");
-        SpongeSkeletonType witherSkeletonType = new SpongeSkeletonType(0, "WITHER");
-        for (Field f : EntityTypes.class.getDeclaredFields()) {
+        for (Field f : SkeletonTypes.class.getDeclaredFields()) {
             try {
-                if (f.getName().equals("NORMAL")) {
-                    f.set(null, normalSkeletonType);
-                } else if (f.getName().equals("WITHER")) {
-                    f.set(null,  witherSkeletonType);
-                }
+                f.set(null, SpongeEntityConstants.SKELETON_TYPES.get(f.getName()));
             } catch (Exception e) {
-                //e.printStackTrace();
+                e.printStackTrace();
+            }
+        }
+
+        // horse colors
+        for (Field f : HorseColors.class.getDeclaredFields()) {
+            try {
+                f.set(null, SpongeEntityConstants.HORSE_COLORS.get(f.getName()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // horse variants
+        for (Field f : HorseVariants.class.getDeclaredFields()) {
+            try {
+                f.set(null, SpongeEntityConstants.HORSE_VARIANTS.get(f.getName()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (Field f : HorseStyles.class.getDeclaredFields()) {
+            try {
+                f.set(null, SpongeEntityConstants.HORSE_STYLES.get(f.getName()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (Field f : OcelotTypes.class.getDeclaredFields()) {
+            try {
+                f.set(null, SpongeEntityConstants.OCELOT_TYPES.get(f.getName()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (Field f : RabbitTypes.class.getDeclaredFields()) {
+            try {
+                f.set(null, SpongeEntityConstants.RABBIT_TYPES.get(f.getName()));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

@@ -24,11 +24,11 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.entity.living.meta.SkeletonType;
+import org.spongepowered.api.entity.living.meta.RabbitType;
 
-public class SpongeSkeletonType extends SpongeEntityMeta implements SkeletonType {
+public class SpongeRabbitType extends SpongeEntityMeta implements RabbitType {
 
-    public SpongeSkeletonType(int type, String name) {
+    public SpongeRabbitType(int type, String name) {
         super(type, name);
     }
 

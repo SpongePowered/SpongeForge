@@ -24,42 +24,37 @@
  */
 package org.spongepowered.mixin.impl;
 
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.world.World;
 
-import org.spongepowered.api.entity.living.meta.SkeletonType;
-import org.spongepowered.api.entity.living.monster.Skeleton;
+import org.spongepowered.api.entity.living.animal.Pig;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.entity.SpongeEntityConstants;
-import org.spongepowered.mod.entity.SpongeEntityMeta;
 import org.spongepowered.mod.mixin.Implements;
 import org.spongepowered.mod.mixin.Interface;
 import org.spongepowered.mod.mixin.Mixin;
+import org.spongepowered.mod.mixin.Shadow;
 
 @NonnullByDefault
-@Mixin(EntitySkeleton.class)
-@Implements(@Interface(iface = Skeleton.class, prefix = "skeleton$"))
-public abstract class MixinEntitySkeleton extends EntityMob {
+@Mixin(EntityPig.class)
+@Implements(@Interface(iface = Pig.class, prefix = "pig$"))
+public abstract class MixinEntityPig extends EntityAnimal {
 
-    public MixinEntitySkeleton(World worldIn) {
+    @Shadow
+    public abstract boolean getSaddled();
+
+    @Shadow
+    public abstract void setSaddled(boolean saddled);
+
+    public MixinEntityPig(World worldIn) {
         super(worldIn);
     }
 
-    public SkeletonType skeleton$getSkeletonType() {
-        return SpongeEntityConstants.SKELETON_TYPES.get(this.dataWatcher.getWatchableObjectByte(13));
+    public boolean pig$isSaddled() {
+        return this.getSaddled();
     }
 
-    public void skeleton$setSkeletonType(SkeletonType skeletonType) {
-        int type = ((SpongeEntityMeta)skeletonType).type;
-        this.dataWatcher.updateObject(13, Byte.valueOf((byte)type));
-        this.isImmuneToFire = type == 1;
-
-        if (type == 1) {
-            this.setSize(0.72F, 2.535F);
-        } else {
-            this.setSize(0.6F, 1.95F);
-        }
+    public void pig$setSaddled(boolean saddled) {
+        this.setSaddled(saddled);
     }
-
 }

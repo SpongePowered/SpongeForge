@@ -29,6 +29,8 @@ import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
 
 import org.spongepowered.api.entity.EntityType;
 
+import com.google.common.base.Objects;
+
 public class SpongeEntityType implements EntityType {
 
     public final int entityTypeId;
@@ -88,5 +90,15 @@ public class SpongeEntityType implements EntityType {
     @Override
     public int hashCode() {
         return this.entityTypeId;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+            .add("id", this.entityTypeId)
+            .add("name", this.entityTypeId)
+            .add("modid", this.modId)
+            .add("class", this.entityClass)
+            .toString();
     }
 }
