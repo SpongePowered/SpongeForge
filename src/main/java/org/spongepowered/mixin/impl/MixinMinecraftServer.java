@@ -63,6 +63,9 @@ public abstract class MixinMinecraftServer implements Server {
     @Shadow 
     public abstract int getPort();
 
+    @Shadow
+    private int tickCounter;
+
     @Override
     public Collection<World> getWorlds() {
         List<World> worlds = new ArrayList<World>();
@@ -123,5 +126,10 @@ public abstract class MixinMinecraftServer implements Server {
     @Override
     public int getMaxPlayers() {
         return getConfigurationManager().getMaxPlayers();
+    }
+
+    @Override
+    public int getRunningTimeTicks() {
+        return this.tickCounter;
     }
 }

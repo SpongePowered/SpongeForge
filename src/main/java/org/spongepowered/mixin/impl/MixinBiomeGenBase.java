@@ -24,37 +24,14 @@
  */
 package org.spongepowered.mixin.impl;
 
-import net.minecraft.entity.monster.EntityBlaze;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
 
-import org.spongepowered.api.entity.living.monster.Blaze;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.mixin.Implements;
-import org.spongepowered.mod.mixin.Interface;
+import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
 
 @NonnullByDefault
-@Mixin(EntityBlaze.class)
-@Implements(@Interface(iface = Blaze.class, prefix = "blaze$"))
-public abstract class MixinEntityBlaze extends EntityMob {
+@Mixin(BiomeGenBase.class)
+public abstract class MixinBiomeGenBase implements BiomeType {
 
-    @Shadow
-    public abstract void func_70844_e(boolean onFire); // setOnFire
-
-    @Shadow
-    public abstract boolean isBurning();
-
-    public MixinEntityBlaze(World worldIn) {
-        super(worldIn);
-    }
-
-    public boolean blaze$isOnFire() {
-        return isBurning();
-    }
-
-    public void blaze$setOnFire(boolean onFire) {
-        this.func_70844_e(onFire);
-    }
 }

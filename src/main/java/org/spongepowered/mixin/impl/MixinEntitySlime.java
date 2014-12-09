@@ -41,6 +41,9 @@ import org.spongepowered.mod.mixin.Shadow;
 public abstract class MixinEntitySlime extends EntityLiving {
 
     @Shadow
+    public abstract int getSlimeSize();
+
+    @Shadow
     protected abstract void setSlimeSize(int p_70799_1_);
 
     public MixinEntitySlime(World worldIn) {
@@ -48,7 +51,7 @@ public abstract class MixinEntitySlime extends EntityLiving {
     }
 
     public int slime$getSize() {
-        return this.dataWatcher.getWatchableObjectByte(16);
+        return this.getSlimeSize();
     }
 
     public void slime$setSize(int size) {

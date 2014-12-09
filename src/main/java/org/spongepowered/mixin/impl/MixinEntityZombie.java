@@ -33,21 +33,28 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.mixin.Implements;
 import org.spongepowered.mod.mixin.Interface;
 import org.spongepowered.mod.mixin.Mixin;
+import org.spongepowered.mod.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityZombie.class)
 @Implements(@Interface(iface = Zombie.class, prefix = "zombie$"))
 public abstract class MixinEntityZombie extends EntityMob {
 
+    @Shadow
+    public abstract boolean isVillager();
+
+    @Shadow
+    public abstract void setVillager(boolean villagerZombie);
+
     public MixinEntityZombie(World worldIn) {
         super(worldIn);
     }
 
    public boolean zombie$isVillagerZombie() {
-       return this.getDataWatcher().getWatchableObjectByte(13) == 1;
+       return this.isVillager();
    }
 
    public void zombie$setVillagerZombie(boolean villagerZombie) {
-       this.getDataWatcher().updateObject(13, Byte.valueOf((byte)(villagerZombie ? 1 : 0)));
+       this.setVillager(villagerZombie);
    }
 }

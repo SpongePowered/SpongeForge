@@ -33,27 +33,28 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.mixin.Implements;
 import org.spongepowered.mod.mixin.Interface;
 import org.spongepowered.mod.mixin.Mixin;
+import org.spongepowered.mod.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityGuardian.class)
 @Implements(@Interface(iface = Guardian.class, prefix = "guardian$"))
 public abstract class MixinEntityGuardian extends EntityMob {
 
+    @Shadow
+    public abstract boolean isElder();
+
+    @Shadow
+    public abstract void func_175467_a(boolean elder); // setElder
+
     public MixinEntityGuardian(World worldIn) {
         super(worldIn);
     }
 
     public boolean guardian$isElder() {
-        return (this.dataWatcher.getWatchableObjectInt(16) & 4) != 0;
+        return this.isElder();
     }
 
     public void guardian$setElder(boolean elder) {
-        int j = this.dataWatcher.getWatchableObjectInt(16);
-
-        if (elder) {
-            this.dataWatcher.updateObject(16, Integer.valueOf(j | 4));
-        } else {
-            this.dataWatcher.updateObject(16, Integer.valueOf(j & ~4));
-        }
+        this.func_175467_a(elder);
     }
 }

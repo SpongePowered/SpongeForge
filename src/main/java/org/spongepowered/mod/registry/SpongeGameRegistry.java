@@ -38,6 +38,7 @@ import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
@@ -56,6 +57,8 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.biome.BiomeType;
+import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityType;
 
@@ -69,6 +72,7 @@ import java.util.Map;
 @NonnullByDefault
 public class SpongeGameRegistry implements GameRegistry {
 
+    private Map<String, BiomeType> biomeTypeMappings = Maps.newHashMap();
     private Map<String, SpongeEntityType> entityTypeMappings = Maps.newHashMap();
     public Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
     public Map<Class<? extends Entity>, SpongeEntityType> entityClassToTypeMappings = Maps.newHashMap();
@@ -92,6 +96,28 @@ public class SpongeGameRegistry implements GameRegistry {
             id = "minecraft:" + id;
         }
         return Optional.fromNullable((EntityType)this.entityIdToTypeMappings.get(id));
+    }
+
+    @Override
+    public Optional<BiomeType> getBiome(String id) {
+        for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
+            if (biome != null && biome.biomeName.equalsIgnoreCase(id)) {
+                System.out.println("FOUND BIOME MATCH " +  biome.biomeName);
+                return Optional.of((BiomeType)biome);
+            }
+        }
+        return Optional.absent();
+    }
+
+    @Override
+    public List<BiomeType> getBiomes() {
+        List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
+        for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
+            if (biome != null) {
+                biomeTypes.add((BiomeType)biome);
+            }
+        }
+        return biomeTypes;
     }
 
     @Override
@@ -155,7 +181,7 @@ public class SpongeGameRegistry implements GameRegistry {
             try {
                 f.set(null, getPotion(f.getName().toLowerCase()).get());
             } catch (Exception e) {
-                //e.printStackTrace();
+                e.printStackTrace();
             }
         }
     }
@@ -235,7 +261,7 @@ public class SpongeGameRegistry implements GameRegistry {
                 entityClassToTypeMappings.put(((SpongeEntityType)entityType).entityClass, (SpongeEntityType)entityType);
                 entityIdToTypeMappings.put(((SpongeEntityType)entityType).modId, ((SpongeEntityType)entityType));
             } catch (Exception e) {
-                //e.printStackTrace();
+                // Ignore errors
             }
         }
 
@@ -291,11 +317,85 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
+    public void setBiomeTypes() {
+        biomeTypeMappings.put("OCEAN", (BiomeType)BiomeGenBase.ocean);
+        biomeTypeMappings.put("PLAINS", (BiomeType)BiomeGenBase.plains);
+        biomeTypeMappings.put("DESERT", (BiomeType)BiomeGenBase.desert);
+        biomeTypeMappings.put("EXTREME_HILLS", (BiomeType)BiomeGenBase.extremeHills);
+        biomeTypeMappings.put("FOREST", (BiomeType)BiomeGenBase.forest);
+        biomeTypeMappings.put("TAIGA", (BiomeType)BiomeGenBase.taiga);
+        biomeTypeMappings.put("SWAMPLAND", (BiomeType)BiomeGenBase.swampland);
+        biomeTypeMappings.put("RIVER", (BiomeType)BiomeGenBase.river);
+        biomeTypeMappings.put("HELL", (BiomeType)BiomeGenBase.hell);
+        biomeTypeMappings.put("SKY", (BiomeType)BiomeGenBase.sky);
+        biomeTypeMappings.put("FROZEN_OCEAN", (BiomeType)BiomeGenBase.frozenOcean);
+        biomeTypeMappings.put("FROZEN_RIVER", (BiomeType)BiomeGenBase.frozenRiver);
+        biomeTypeMappings.put("ICE_PLAINS", (BiomeType)BiomeGenBase.icePlains);
+        biomeTypeMappings.put("ICE_MOUNTAINS", (BiomeType)BiomeGenBase.iceMountains);
+        biomeTypeMappings.put("MUSHROOM_ISLAND", (BiomeType)BiomeGenBase.mushroomIsland);
+        biomeTypeMappings.put("MUSHROOM_ISLAND_SHORE", (BiomeType)BiomeGenBase.mushroomIslandShore);
+        biomeTypeMappings.put("BEACH", (BiomeType)BiomeGenBase.beach);
+        biomeTypeMappings.put("DESERT_HILLS", (BiomeType)BiomeGenBase.desertHills);
+        biomeTypeMappings.put("FOREST_HILLS", (BiomeType)BiomeGenBase.forestHills);
+        biomeTypeMappings.put("TAIGA_HILLS", (BiomeType)BiomeGenBase.taigaHills);
+        biomeTypeMappings.put("EXTREME_HILLS_EDGE", (BiomeType)BiomeGenBase.extremeHillsEdge);
+        biomeTypeMappings.put("JUNGLE", (BiomeType)BiomeGenBase.jungle);
+        biomeTypeMappings.put("JUNGLE_HILLS", (BiomeType)BiomeGenBase.jungleHills);
+        biomeTypeMappings.put("JUNGLE_EDGE", (BiomeType)BiomeGenBase.jungleEdge);
+        biomeTypeMappings.put("DEEP_OCEAN", (BiomeType)BiomeGenBase.deepOcean);
+        biomeTypeMappings.put("STONE_BEACH", (BiomeType)BiomeGenBase.stoneBeach);
+        biomeTypeMappings.put("COLD_BEACH", (BiomeType)BiomeGenBase.coldBeach);
+        biomeTypeMappings.put("BIRCH_FOREST", (BiomeType)BiomeGenBase.birchForest);
+        biomeTypeMappings.put("BIRCH_FOREST_HILLS", (BiomeType)BiomeGenBase.birchForestHills);
+        biomeTypeMappings.put("ROOFED_FOREST", (BiomeType)BiomeGenBase.roofedForest);
+        biomeTypeMappings.put("COLD_TAIGA", (BiomeType)BiomeGenBase.coldTaiga);
+        biomeTypeMappings.put("COLD_TAIGA_HILLS", (BiomeType)BiomeGenBase.coldTaigaHills);
+        biomeTypeMappings.put("MEGA_TAIGA", (BiomeType)BiomeGenBase.megaTaiga);
+        biomeTypeMappings.put("MEGA_TAIGA_HILLS", (BiomeType)BiomeGenBase.megaTaigaHills);
+        biomeTypeMappings.put("EXTREME_HILLS_PLUS", (BiomeType)BiomeGenBase.extremeHillsPlus);
+        biomeTypeMappings.put("SAVANNA", (BiomeType)BiomeGenBase.savanna);
+        biomeTypeMappings.put("SAVANNA_PLATEAU", (BiomeType)BiomeGenBase.savannaPlateau);
+        biomeTypeMappings.put("MESA", (BiomeType)BiomeGenBase.mesa);
+        biomeTypeMappings.put("MESA_PLATEAU_FOREST", (BiomeType)BiomeGenBase.mesaPlateau_F);
+        biomeTypeMappings.put("MESA_PLATEAU", (BiomeType)BiomeGenBase.mesaPlateau);
+        biomeTypeMappings.put("SUNFLOWER_PLAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.plains.biomeID + 128]);
+        biomeTypeMappings.put("DESERT_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.desert.biomeID + 128]);
+        biomeTypeMappings.put("FLOWER_FOREST", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.forest.biomeID + 128]);
+        biomeTypeMappings.put("TAIGA_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.taiga.biomeID + 128]);
+        biomeTypeMappings.put("SWAMPLAND_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.swampland.biomeID + 128]);
+        biomeTypeMappings.put("ICE_PLAINS_SPIKES", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.icePlains.biomeID + 128]);
+        biomeTypeMappings.put("JUNGLE_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.jungle.biomeID + 128]);
+        biomeTypeMappings.put("JUNGLE_EDGE_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.jungleEdge.biomeID + 128]);
+        biomeTypeMappings.put("COLD_TAIGA_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.coldTaiga.biomeID + 128]);
+        biomeTypeMappings.put("SAVANNA_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.savanna.biomeID + 128]);
+        biomeTypeMappings.put("SAVANNA_PLATEAU_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.savannaPlateau.biomeID + 128]);
+        biomeTypeMappings.put("MESA_BRYCE", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.mesa.biomeID + 128]);
+        biomeTypeMappings.put("MESA_PLATEAU_FOREST_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.mesaPlateau_F.biomeID + 128]);
+        biomeTypeMappings.put("MESA_PLATEAU_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.mesaPlateau.biomeID + 128]);
+        biomeTypeMappings.put("BIRCH_FOREST_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.birchForest.biomeID + 128]);
+        biomeTypeMappings.put("BIRCH_FOREST_HILLS_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.birchForestHills.biomeID + 128]);
+        biomeTypeMappings.put("ROOFED_FOREST_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.roofedForest.biomeID + 128]);
+        biomeTypeMappings.put("MEGA_SPRUCE_TAIGA", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.megaTaiga.biomeID + 128]);
+        biomeTypeMappings.put("EXTREME_HILLS_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.extremeHills.biomeID + 128]);
+        biomeTypeMappings.put("EXTREME_HILLS_PLUS_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.extremeHillsPlus.biomeID + 128]);
+        biomeTypeMappings.put("MEGA_SPRUCE_TAIGA_HILLS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.megaTaigaHills.biomeID + 128]);
+
+        for (Field f : BiomeTypes.class.getDeclaredFields()) {
+            try {
+                f.set(null, biomeTypeMappings.get(f.getName()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void init()
     {
+        setBiomeTypes();
         setBlockTypes();
         setItemTypes();
         setPotionTypes();
         setEntityTypes();
     }
+
 }

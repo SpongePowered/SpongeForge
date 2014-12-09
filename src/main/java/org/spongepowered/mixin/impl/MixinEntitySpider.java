@@ -33,18 +33,22 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.mixin.Implements;
 import org.spongepowered.mod.mixin.Interface;
 import org.spongepowered.mod.mixin.Mixin;
+import org.spongepowered.mod.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntitySpider.class)
 @Implements(@Interface(iface = Spider.class, prefix = "spider$"))
 public abstract class MixinEntitySpider extends EntityMob {
 
+    @Shadow
+    public abstract boolean isBesideClimbableBlock();
+
     public MixinEntitySpider(World worldIn) {
         super(worldIn);
     }
 
     public boolean spider$isClimbing() {
-        return (this.dataWatcher.getWatchableObjectByte(16) & 1) != 0;
+        return this.isBesideClimbableBlock();
     }
 
 }
