@@ -115,6 +115,7 @@ public class SpongeEventManager implements EventManager {
     @Override
     public boolean post(Event spongeEvent) {
         if (spongeEvent instanceof net.minecraftforge.fml.common.eventhandler.Event) {
+            // TODO: We need to figure out if this event needs to go on FML or Forge busses
             FMLCommonHandler.instance().bus().post((net.minecraftforge.fml.common.eventhandler.Event) spongeEvent);
         } else {
             SpongeMod.instance.getLogger().info("Event not a sub-classes of forge Event or BaseEvent");

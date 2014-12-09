@@ -25,6 +25,7 @@
 package org.spongepowered.mod.event;
 
 import com.google.common.collect.Maps;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -61,6 +62,7 @@ public class SpongeEventBus {
                 holder.remove(listener);
                 if (holder.isEmpty()) {
                     FMLCommonHandler.instance().bus().unregister(holder);
+                    MinecraftForge.EVENT_BUS.unregister(holder);
                     holderIterator.remove();
                 }
             }
@@ -86,6 +88,7 @@ public class SpongeEventBus {
             eventListenerHolder = ASMEventListenerHolderFactory.getNewEventListenerHolder(implementingEvent, priority, !annotation.ignoreCancelled());
             priorityHolderMap.put(priority, eventListenerHolder);
             FMLCommonHandler.instance().bus().register(eventListenerHolder);
+            MinecraftForge.EVENT_BUS.register(eventListenerHolder);
         }
 
         return eventListenerHolder;
