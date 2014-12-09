@@ -41,9 +41,6 @@ import org.spongepowered.mod.mixin.Shadow;
 public abstract class MixinEntityGuardian extends EntityMob {
 
     @Shadow
-    public abstract boolean isElder();
-
-    @Shadow
     public abstract void func_175467_a(boolean elder); // setElder
 
     public MixinEntityGuardian(World worldIn) {
@@ -51,7 +48,7 @@ public abstract class MixinEntityGuardian extends EntityMob {
     }
 
     public boolean guardian$isElder() {
-        return this.isElder();
+        return (this.dataWatcher.getWatchableObjectInt(16) & 4) != 0;
     }
 
     public void guardian$setElder(boolean elder) {

@@ -35,6 +35,8 @@ import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.player.Player;
@@ -53,10 +55,12 @@ public abstract class MixinMinecraftServer implements Server {
     @Shadow 
     public abstract ServerConfigurationManager getConfigurationManager();
 
-    @Shadow 
+    @Shadow
+    @SideOnly(Side.SERVER)
     public abstract String getServerHostname();
 
     @Shadow 
+    @SideOnly(Side.SERVER)
     public abstract int getPort();
 
     @Shadow

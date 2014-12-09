@@ -43,9 +43,6 @@ public abstract class MixinEntitySheep extends EntityAnimal {
     @Shadow
     public abstract boolean getSheared();
 
-    @Shadow
-    public abstract void setSheared(boolean sheared);
-
     public MixinEntitySheep(World worldIn) {
         super(worldIn);
     }
@@ -55,7 +52,13 @@ public abstract class MixinEntitySheep extends EntityAnimal {
     }
 
     public void sheep$setSheared(boolean sheared) {
-        this.setSheared(sheared);
+        byte b0 = this.dataWatcher.getWatchableObjectByte(16);
+
+        if (sheared) {
+            this.dataWatcher.updateObject(16, Byte.valueOf((byte)(b0 | 16)));
+        } else {
+            this.dataWatcher.updateObject(16, Byte.valueOf((byte)(b0 & -17)));
+        }
     }
 
 }

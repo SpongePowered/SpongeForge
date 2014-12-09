@@ -43,9 +43,6 @@ public abstract class MixinEntityWitch extends EntityMob {
     @Shadow
     public abstract boolean getAggressive();
 
-    @Shadow
-    public abstract void setAggressive(boolean aggressive);
-
     public MixinEntityWitch(World worldIn) {
         super(worldIn);
     }
@@ -55,7 +52,7 @@ public abstract class MixinEntityWitch extends EntityMob {
     }
 
     public void witch$setAggressive(boolean aggressive) {
-        this.setAggressive(aggressive);
+        this.getDataWatcher().updateObject(21, Byte.valueOf((byte)(aggressive ? 1 : 0)));
     }
 
 }

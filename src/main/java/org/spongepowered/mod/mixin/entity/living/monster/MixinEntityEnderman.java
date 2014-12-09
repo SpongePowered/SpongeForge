@@ -36,7 +36,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.mixin.Implements;
 import org.spongepowered.mod.mixin.Interface;
 import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
 
 import com.google.common.base.Optional;
 
@@ -44,12 +43,6 @@ import com.google.common.base.Optional;
 @Mixin(EntityEnderman.class)
 @Implements(@Interface(iface = Enderman.class, prefix = "enderman$"))
 public abstract class MixinEntityEnderman extends EntityMob {
-
-    @Shadow
-    public abstract boolean isScreaming();
-
-    @Shadow
-    public abstract void setScreaming(boolean screaming);
 
     public MixinEntityEnderman(World worldIn) {
         super(worldIn);
@@ -64,10 +57,10 @@ public abstract class MixinEntityEnderman extends EntityMob {
     }
 
     public boolean enderman$isScreaming() {
-        return this.isScreaming();
+        return this.dataWatcher.getWatchableObjectByte(18) > 0;
     }
 
     public void enderman$setScreaming(boolean screaming) {
-        this.setScreaming(screaming);
+        this.dataWatcher.updateObject(18, Byte.valueOf((byte)(screaming ? 1 : 0)));
     }
 }

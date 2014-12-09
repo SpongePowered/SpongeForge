@@ -45,7 +45,6 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.api.entity.living.meta.HorseColor;
 import org.spongepowered.api.entity.living.meta.HorseColors;
 import org.spongepowered.api.entity.living.meta.HorseStyles;
 import org.spongepowered.api.entity.living.meta.HorseVariants;

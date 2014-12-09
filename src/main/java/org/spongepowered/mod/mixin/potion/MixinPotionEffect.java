@@ -37,11 +37,11 @@ import org.spongepowered.mod.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(net.minecraft.potion.PotionEffect.class)
-@Implements(@Interface(iface = PotionEffectType.class, prefix = "potionEffect$"))
+@Implements(@Interface(iface = PotionEffect.class, prefix = "potionEffect$"))
 public abstract class MixinPotionEffect implements PotionEffect {
 
     @Shadow 
-    public abstract int getPotionId();
+    public abstract int getPotionID();
 
     @Shadow 
     private int duration;
@@ -57,7 +57,7 @@ public abstract class MixinPotionEffect implements PotionEffect {
 
     @Override
     public PotionEffectType getType() {
-        return (PotionEffectType) Potion.potionTypes[getPotionId()];
+        return (PotionEffectType) Potion.potionTypes[getPotionID()];
     }
 
     @Override

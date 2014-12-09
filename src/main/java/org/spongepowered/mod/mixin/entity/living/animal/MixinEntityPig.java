@@ -33,28 +33,25 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.mixin.Implements;
 import org.spongepowered.mod.mixin.Interface;
 import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityPig.class)
 @Implements(@Interface(iface = Pig.class, prefix = "pig$"))
 public abstract class MixinEntityPig extends EntityAnimal {
 
-    @Shadow
-    public abstract boolean getSaddled();
-
-    @Shadow
-    public abstract void setSaddled(boolean saddled);
-
     public MixinEntityPig(World worldIn) {
         super(worldIn);
     }
 
     public boolean pig$isSaddled() {
-        return this.getSaddled();
+        return (this.dataWatcher.getWatchableObjectByte(16) & 1) != 0;
     }
 
     public void pig$setSaddled(boolean saddled) {
-        this.setSaddled(saddled);
+        if (saddled) {
+            this.dataWatcher.updateObject(16, Byte.valueOf((byte)1));
+        } else {
+            this.dataWatcher.updateObject(16, Byte.valueOf((byte)0));
+        }
     }
 }
