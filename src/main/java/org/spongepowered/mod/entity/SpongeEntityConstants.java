@@ -83,7 +83,7 @@ public class SpongeEntityConstants {
     // horse variants
     public static final SpongeHorseVariant HORSE = new SpongeHorseVariant(0, "HORSE");
     public static final SpongeHorseVariant DONKEY = new SpongeHorseVariant(1, "DONKEY");
-    public static final SpongeHorseVariant MULE = new SpongeHorseVariant(2, "HORSE");
+    public static final SpongeHorseVariant MULE = new SpongeHorseVariant(2, "MULE");
     public static final SpongeHorseVariant UNDEAD_HORSE = new SpongeHorseVariant(3, "UNDEAD_HORSE");
     public static final SpongeHorseVariant SKELETON_HORSE = new SpongeHorseVariant(4, "SKELETON_HORSE");
 
