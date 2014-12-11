@@ -43,14 +43,26 @@ import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.effect.Particle;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.hanging.art.Art;
+import org.spongepowered.api.entity.living.meta.DyeColor;
+import org.spongepowered.api.entity.living.meta.HorseColor;
 import org.spongepowered.api.entity.living.meta.HorseColors;
+import org.spongepowered.api.entity.living.meta.HorseStyle;
 import org.spongepowered.api.entity.living.meta.HorseStyles;
+import org.spongepowered.api.entity.living.meta.HorseVariant;
 import org.spongepowered.api.entity.living.meta.HorseVariants;
+import org.spongepowered.api.entity.living.meta.OcelotType;
 import org.spongepowered.api.entity.living.meta.OcelotTypes;
+import org.spongepowered.api.entity.living.meta.RabbitType;
 import org.spongepowered.api.entity.living.meta.RabbitTypes;
+import org.spongepowered.api.entity.living.meta.SkeletonType;
 import org.spongepowered.api.entity.living.meta.SkeletonTypes;
+import org.spongepowered.api.entity.living.villager.Career;
+import org.spongepowered.api.entity.living.villager.Profession;
+import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.potion.PotionEffectType;
@@ -58,11 +70,13 @@ import org.spongepowered.api.potion.PotionEffectTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
+import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityType;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +153,30 @@ public class SpongeGameRegistry implements GameRegistry {
         return itemList;
     }
 
-    public List<PotionEffectType> getPotions() {
+    @Override
+    public Optional<Particle> getParticle(String id) {
+
+        //TODO Implement getParticle once particles are implemented.
+        return Optional.absent();
+    }
+
+    public List<String> getDefaultGameRules() {
+
+        List<String> gameruleList = new ArrayList<String>();
+
+        for(Field f : DefaultGameRules.class.getFields()) {
+            try {
+                gameruleList.add((String)f.get(null));
+            } catch(Exception e) {
+                //Ignoring error
+            }
+        }
+
+        return gameruleList;
+    }
+
+    @Override
+    public List<PotionEffectType> getPotionEffects() {
         List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
         for (Potion potion : Potion.potionTypes)
         {

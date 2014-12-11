@@ -56,4 +56,9 @@ public class SpongePluginManager implements PluginManager {
     public Optional<PluginContainer> fromInstance(Object instance) {
         return Optional.absent();
     }
+
+    @Override
+    public boolean isLoaded(String s) {
+        return SpongeMod.instance.getPlugin(s) != null;
+    }
 }
