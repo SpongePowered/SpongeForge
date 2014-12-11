@@ -65,6 +65,8 @@ import org.spongepowered.api.entity.living.villager.Profession;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.ItemStackBuilder;
+import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -104,11 +106,47 @@ public class SpongeGameRegistry implements GameRegistry {
         return Optional.fromNullable((PotionEffectType)Potion.getPotionFromResourceLocation(id));
     }
 
+    @Override
+    public ItemStackBuilder getItemBuilder() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public TradeOfferBuilder getTradeOfferBuilder() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public List<PotionEffectType> getPotionEffects() {
+        List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
+        for (Potion potion : Potion.potionTypes)
+        {
+            if (potion != null)
+            {
+                PotionEffectType potionEffectType = (PotionEffectType)potion;
+                potionList.add(potionEffectType);
+            }
+        }
+        return potionList;
+    }
+
+    @Override
     public Optional<EntityType> getEntity(String id) {
         if (!id.contains(":")) {
             id = "minecraft:" + id;
         }
         return Optional.fromNullable((EntityType)this.entityIdToTypeMappings.get(id));
+    }
+
+    @Override
+    public List<EntityType> getEntities() {
+
+        //TODO implement.
+        return null;
     }
 
     @Override
@@ -160,10 +198,16 @@ public class SpongeGameRegistry implements GameRegistry {
         return Optional.absent();
     }
 
+    public List<Particle> getParticles() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
     public List<String> getDefaultGameRules() {
 
         List<String> gameruleList = new ArrayList<String>();
-
         for(Field f : DefaultGameRules.class.getFields()) {
             try {
                 gameruleList.add((String)f.get(null));
@@ -171,22 +215,161 @@ public class SpongeGameRegistry implements GameRegistry {
                 //Ignoring error
             }
         }
-
         return gameruleList;
     }
 
     @Override
-    public List<PotionEffectType> getPotionEffects() {
-        List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
-        for (Potion potion : Potion.potionTypes)
-        {
-            if (potion != null)
-            {
-                PotionEffectType potionEffectType = (PotionEffectType)potion;
-                potionList.add(potionEffectType);
-            }
-        }
-        return potionList;
+    public Optional<Art> getArt(String id) {
+
+        //TODO implement.
+        return Optional.absent();
+    }
+
+    @Override
+    public List<Art> getArts() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public Optional<DyeColor> getDye(String id) {
+
+        //TODO implement.
+        return Optional.absent();
+    }
+
+    @Override
+    public List<DyeColor> getDyes() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public Optional<HorseColor> getHorseColor(String id) {
+
+        //TODO implement.
+        return Optional.absent();
+    }
+
+    @Override
+    public List<HorseColor> getHorseColors() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public Optional<HorseStyle> getHorseStyle(String id) {
+
+        //TODO implement.
+        return Optional.absent();
+    }
+
+    @Override
+    public List<HorseStyle> getHorseStyles() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public Optional<HorseVariant> getHorseVariant(String id) {
+
+        //TODO implement.
+        return Optional.absent();
+    }
+
+    @Override
+    public List<HorseVariant> getHorseVariants() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public Optional<OcelotType> getOcelotType(String id) {
+
+        //TODO implement.
+        return Optional.absent();
+    }
+
+    @Override
+    public List<OcelotType> getOcelotTypes() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public Optional<RabbitType> getRabbitType(String id) {
+
+        //TODO implement.
+        return Optional.absent();
+    }
+
+    @Override
+    public List<RabbitType> getRabbitTypes() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public Optional<SkeletonType> getSkeletonType(String id) {
+
+        //TODO implement.
+        return Optional.absent();
+    }
+
+    @Override
+    public List<SkeletonType> getSkeletonTypes() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public Optional<Career> getCareer(String id) {
+
+        //TODO implement.
+        return Optional.absent();
+    }
+
+    @Override
+    public List<Career> getCareers() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public List<Career> getCareers(Profession profession) {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public Optional<Profession> getProfession(String id) {
+
+        //TODO implement.
+        return Optional.absent();
+    }
+
+    @Override
+    public List<Profession> getProfessions() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public List<GameMode> getGameModes() {
+
+        //TODO implement.
+        return null;
     }
 
     // Note: This is probably fairly slow, but only needs to be run rarely.
