@@ -26,11 +26,12 @@ package org.spongepowered.mod.mixin.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(Block.class)

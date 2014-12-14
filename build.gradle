@@ -20,6 +20,7 @@ buildscript {
 }
 
 // for multiproject fun
+evaluationDependsOn('Mixin')
 evaluationDependsOn('SpongeAPI')
 
 // Default tasks
@@ -69,6 +70,7 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.7'
     compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9'
     compile 'com.google.inject:guice:4.0-beta5'
+    compile project('Mixin')
     compile project('SpongeAPI')
     testCompile 'junit:junit:4.11'
     deployerJars 'org.apache.maven.wagon:wagon-ftp:2.7'
@@ -151,16 +153,18 @@ def manifestEntries = [
 
 jar {
     // Jar shading and packaging configuration
+    from { project("Mixin").sourceSets.main.output }
     from { project("SpongeAPI").sourceSets.main.output }
-    
+
     // JAR manifest configuration
     manifest.mainAttributes(manifestEntries)
-    
+
     // classifier
     classifier = 'release'
 }
 
 task deobfJar(type: Jar) {
+    from { project("Mixin").sourceSets.main.output }
     from { project("SpongeAPI").sourceSets.main.output }
     from sourceSets.main.output
 }
@@ -168,6 +172,8 @@ task deobfJar(type: Jar) {
 task sourceJar(type: Jar, dependsOn: sourceMainJava) {
     from "build/sources/java"
     from "build/resources/main/java"
+    from project("Mixin").sourceSets.main.java
+    from project("Mixin").sourceSets.main.resources
     from project("SpongeAPI").sourceSets.main.java
     from project("SpongeAPI").sourceSets.main.resources
     classifier = "sources"
@@ -175,8 +181,10 @@ task sourceJar(type: Jar, dependsOn: sourceMainJava) {
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
+    from project("Mixin").tasks.javadoc.destinationDir
     from project("SpongeAPI").tasks.javadoc.destinationDir
     classifier = "javadoc"
+    dependsOn "Mixin:javadoc"
     dependsOn "SpongeAPI:javadoc"
 }
 

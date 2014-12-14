@@ -31,11 +31,11 @@ import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.animal.Rabbit;
 import org.spongepowered.api.entity.living.meta.RabbitType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
-import org.spongepowered.mod.mixin.Implements;
-import org.spongepowered.mod.mixin.Interface;
-import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
 
 @NonnullByDefault

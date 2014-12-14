@@ -198,6 +198,7 @@ public class SpongeGameRegistry implements GameRegistry {
         return Optional.absent();
     }
 
+    @Override
     public List<Particle> getParticles() {
 
         //TODO implement.

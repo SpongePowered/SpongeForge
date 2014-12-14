@@ -43,6 +43,10 @@ import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -92,7 +96,7 @@ public abstract class MixinMinecraftServer implements Server {
     }
 
     @Override
-    public void broadcastMessage(Message<?> message) {
+    public void broadcastMessage(Message message) {
         // TODO: Revisit this when text API is actually implemented.
         getConfigurationManager().sendChatMsg(new ChatComponentText((String) message.getContent()));
     }

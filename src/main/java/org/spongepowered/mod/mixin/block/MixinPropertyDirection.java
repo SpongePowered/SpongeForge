@@ -26,13 +26,15 @@ package org.spongepowered.mod.mixin.block;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
+
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.util.EnumFacing;
+
 import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.ArrayList;
 import java.util.Collection;

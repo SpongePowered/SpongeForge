@@ -27,8 +27,10 @@ package org.spongepowered.mod.mixin.world;
 import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
+
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.storage.WorldInfo;
+
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
@@ -36,8 +38,8 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.biome.Biome;
-import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
 import java.util.ArrayList;

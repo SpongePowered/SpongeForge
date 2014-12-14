@@ -24,41 +24,24 @@
  */
 package org.spongepowered.mod;
 
+import java.util.Map;
+
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import org.spongepowered.asm.mixin.MixinEnvironment;
 
 public class SpongeCoremod implements IFMLLoadingPlugin {
 
     public SpongeCoremod() {
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.mod.asm.transformers.");
-        
-        this.initMixins();
-    }
-
-    private void initMixins() {
-        List<String> mixinConfigs = this.getMixinConfigs();
-        mixinConfigs.add("mixins.sponge.json");
-        // mixinConfigs.add("mixins.spongeexamples.json"); // Uncomment if you want to test the examples
-    }
-
-    private List<String> getMixinConfigs() {
-        @SuppressWarnings("unchecked")
-        List<String> mixinConfigs = (List<String>) Launch.blackboard.get("mixin.configs");
-        if (mixinConfigs == null) {
-            mixinConfigs = new ArrayList<String>();
-            Launch.blackboard.put("mixin.configs", mixinConfigs);
-        }
-        return mixinConfigs;
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.asm.mixin.");
+        MixinEnvironment.getCurrentEnvironment().addConfiguration("mixins.sponge.json");
     }
 
     @Override
     public String[] getASMTransformerClass() {
         return new String[]{
-                "org.spongepowered.mod.asm.transformers.MixinTransformer"
+                MixinEnvironment.MIXIN_TRANSFORMER_CLASS,
                 //"org.spongepowered.mod.asm.transformers.EventTransformer",
                 //"org.spongepowered.mod.asm.transformers.BaseEventTransformer"
         };

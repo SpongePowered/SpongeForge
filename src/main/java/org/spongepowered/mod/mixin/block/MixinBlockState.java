@@ -26,14 +26,16 @@ package org.spongepowered.mod.mixin.block;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.BlockStateBase;
 import net.minecraft.block.state.IBlockState;
+
 import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(BlockState.StateImplementation.class)

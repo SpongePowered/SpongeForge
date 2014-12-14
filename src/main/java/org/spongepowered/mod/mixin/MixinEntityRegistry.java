@@ -37,6 +37,9 @@ import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
 
 import org.apache.logging.log4j.Level;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.entity.SpongeEntityRegistry;
 import org.spongepowered.mod.entity.SpongeEntityType;

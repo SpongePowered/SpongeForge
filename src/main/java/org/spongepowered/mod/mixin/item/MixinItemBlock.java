@@ -30,8 +30,8 @@ import net.minecraft.item.Item;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.item.ItemBlock;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Shadow;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(net.minecraft.item.ItemBlock.class)

@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.item.inventory;
 
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mixin;
 
 @SuppressWarnings("serial")
 @NonnullByDefault

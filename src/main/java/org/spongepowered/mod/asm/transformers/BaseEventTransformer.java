@@ -26,8 +26,8 @@ package org.spongepowered.mod.asm.transformers;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
-
 import net.minecraft.launchwrapper.IClassTransformer;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -36,7 +36,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.api.util.event.Event;
-import org.spongepowered.mod.asm.util.ASMHelper;
+import org.spongepowered.asm.util.ASMHelper;
 
 import java.util.ListIterator;
 
