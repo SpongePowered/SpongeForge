@@ -3,4 +3,4 @@
 	url = git://github.com/SpongePowered/SpongeAPI.git
 [submodule "Mixin"]
 	path = Mixin
-	url = git@github.com:SpongePowered/Mixin.git
+	url = git://github.com/SpongePowered/Mixin.git
