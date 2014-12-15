@@ -112,44 +112,43 @@ public class SpongeMessageText extends SpongeMessage implements Message.Text {
 
         @Override
         public MessageBuilder.Text style(TextStyle... styles) {
-            for (TextStyle style : styles) {
-                for (TextStyle.Base baseStyle : SpongeGameRegistry.textStyleMappings.values()) {
-                    TextStyleComponent component = style.applied(baseStyle);
+            TextStyle style = TextStyles.ZERO.and(styles);
+            for (TextStyle.Base baseStyle : SpongeGameRegistry.textStyleMappings.values()) {
+                TextStyleComponent component = style.applied(baseStyle);
 
-                    if (component != TextStyleComponent.UNAPPLIED) {
-                        if (baseStyle == TextStyles.BOLD) {
-                            if (component == TextStyleComponent.APPLIED) {
-                                this.handle.getChatStyle().setBold(true);
-                            } else {
-                                this.handle.getChatStyle().setBold(false);
-                            }
-                        } else if (baseStyle == TextStyles.ITALIC) {
-                            if (component == TextStyleComponent.APPLIED) {
-                                this.handle.getChatStyle().setItalic(true);
-                            } else {
-                                this.handle.getChatStyle().setItalic(false);
-                            }
-                        } else if (baseStyle == TextStyles.OBFUSCATED) {
-                            if (component == TextStyleComponent.APPLIED) {
-                                this.handle.getChatStyle().setObfuscated(true);
-                            } else {
-                                this.handle.getChatStyle().setObfuscated(false);
-                            }
-                        } else if (baseStyle == TextStyles.STRIKETHROUGH) {
-                            if (component == TextStyleComponent.APPLIED) {
-                                this.handle.getChatStyle().setStrikethrough(true);
-                            } else {
-                                this.handle.getChatStyle().setStrikethrough(false);
-                            }
-                        } else if (baseStyle == TextStyles.UNDERLINE) {
-                            if (component == TextStyleComponent.APPLIED) {
-                                this.handle.getChatStyle().setUnderlined(true);
-                            } else {
-                                this.handle.getChatStyle().setUnderlined(false);
-                            }
-                        } else if (baseStyle == TextStyles.RESET) {
-                            // TODO
+                if (component != TextStyleComponent.UNAPPLIED) {
+                    if (baseStyle == TextStyles.BOLD) {
+                        if (component == TextStyleComponent.APPLIED) {
+                            this.handle.getChatStyle().setBold(true);
+                        } else {
+                            this.handle.getChatStyle().setBold(false);
                         }
+                    } else if (baseStyle == TextStyles.ITALIC) {
+                        if (component == TextStyleComponent.APPLIED) {
+                            this.handle.getChatStyle().setItalic(true);
+                        } else {
+                            this.handle.getChatStyle().setItalic(false);
+                        }
+                    } else if (baseStyle == TextStyles.OBFUSCATED) {
+                        if (component == TextStyleComponent.APPLIED) {
+                            this.handle.getChatStyle().setObfuscated(true);
+                        } else {
+                            this.handle.getChatStyle().setObfuscated(false);
+                        }
+                    } else if (baseStyle == TextStyles.STRIKETHROUGH) {
+                        if (component == TextStyleComponent.APPLIED) {
+                            this.handle.getChatStyle().setStrikethrough(true);
+                        } else {
+                            this.handle.getChatStyle().setStrikethrough(false);
+                        }
+                    } else if (baseStyle == TextStyles.UNDERLINE) {
+                        if (component == TextStyleComponent.APPLIED) {
+                            this.handle.getChatStyle().setUnderlined(true);
+                        } else {
+                            this.handle.getChatStyle().setUnderlined(false);
+                        }
+                    } else if (baseStyle == TextStyles.RESET) {
+                        // TODO
                     }
                 }
             }
