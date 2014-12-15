@@ -24,8 +24,8 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 
 import net.minecraft.util.ChatComponentStyle;
@@ -64,11 +64,11 @@ public abstract class SpongeMessage implements Message {
     }
 
     @Override
-    public Iterator<Message> iterator() {
-        List<Message> messageList = new ArrayList<Message>();
-        messageList.add(this);
-        messageList.addAll(children);
-        return messageList.iterator();
+    public Iterable<Message> withChildren() {
+        Deque<Message> withChildren = new ArrayDeque<Message>();
+        withChildren.add(this);
+        withChildren.addAll(children);
+        return withChildren;
     }
 
     @Override
@@ -104,6 +104,20 @@ public abstract class SpongeMessage implements Message {
     @Override
     public String getContent() {
         return content;
+    }
+
+    @Override
+    @Deprecated
+    public String toLegacy() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    @Deprecated
+    public String toLegacy(char code) {
+        // TODO
+        return null;
     }
 
     public ChatComponentStyle getHandle() {

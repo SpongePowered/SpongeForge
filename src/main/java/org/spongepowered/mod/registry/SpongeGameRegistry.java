@@ -71,6 +71,8 @@ import org.spongepowered.api.item.inventory.ItemStackBuilder;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
+import org.spongepowered.api.text.chat.ChatType;
+import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyle;
@@ -81,6 +83,7 @@ import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityType;
+import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 
 import java.awt.Color;
@@ -105,6 +108,12 @@ public class SpongeGameRegistry implements GameRegistry {
                                                                                 .put("ITALIC", new TextStyle.Base("ITALIC", 'o'))
                                                                                 .put("RESET", new TextStyle.Base("RESET", 'r'))
                                                                                 .build();
+    private static final ImmutableMap<String, ChatType> chatTypeMappings = new ImmutableMap.Builder<String, ChatType>()
+                                                                           .put("CHAT", new SpongeChatType("CHAT", (byte) 0))
+                                                                           .put("SYSTEM", new SpongeChatType("SYSTEM", (byte) 1))
+                                                                           .put("ACTION_BAR", new SpongeChatType("ACTION_BAR", (byte) 2))
+                                                                           .build();
+
     private Map<String, SpongeEntityType> entityTypeMappings = Maps.newHashMap();
     public Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
     public Map<Class<? extends Entity>, SpongeEntityType> entityClassToTypeMappings = Maps.newHashMap();
@@ -623,10 +632,6 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
-    public TextColor getColor(String name) {
-        return textColorMappings.get(name.toUpperCase());
-    }
-
     private void setTextColors() {
         textColorMappings.put("AQUA", new SpongeTextColor(Color.decode("0x00FFFF"), EnumChatFormatting.AQUA));
         textColorMappings.put("BLACK", new SpongeTextColor(Color.BLACK, EnumChatFormatting.BLACK));
@@ -680,6 +685,13 @@ public class SpongeGameRegistry implements GameRegistry {
             }
         }
 
+        for (Field f : ChatTypes.class.getDeclaredFields()) {
+            try {
+                f.set(null, chatTypeMappings.get(f.getName()));
+            } catch (Exception e) {
+                // e.printStackTrace();
+            }
+        }
     }
 
     public void init() {

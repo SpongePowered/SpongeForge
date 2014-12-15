@@ -24,9 +24,9 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Iterator;
-import java.util.List;
 
 import net.minecraft.util.IChatComponent;
 
@@ -40,9 +40,9 @@ import org.spongepowered.api.text.message.MessageBuilder;
 
 import com.google.common.base.Optional;
 
-public abstract class SpongeMessageBuilder<T extends Message> implements MessageBuilder<T> {
+public abstract class SpongeMessageBuilder<T extends Message> implements MessageBuilder {
 
-    protected List<Message> children;
+    protected Deque<Message> children;
     protected T content;
     protected TextColor color;
     protected TextStyle style;
@@ -52,23 +52,16 @@ public abstract class SpongeMessageBuilder<T extends Message> implements Message
     protected IChatComponent handle;
 
     public SpongeMessageBuilder() {
-        children = new ArrayList<Message>();
+        children = new ArrayDeque<Message>();
     }
 
     public SpongeMessageBuilder(T content) {
         this.content = content;
-        children = new ArrayList<Message>();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public MessageBuilder<T> content(Object content) {
-        this.content = (T) content;
-        return this;
+        children = new ArrayDeque<Message>();
     }
 
     @Override
-    public MessageBuilder<T> append(Message... children) {
+    public MessageBuilder append(Message... children) {
         for (Message message : children) {
             this.children.add(message);
         }
@@ -76,7 +69,7 @@ public abstract class SpongeMessageBuilder<T extends Message> implements Message
     }
 
     @Override
-    public MessageBuilder<T> append(Iterable<Message> children) {
+    public MessageBuilder append(Iterable<Message> children) {
         Iterator<Message> iter = children.iterator();
         while (iter.hasNext()) {
             Message message = iter.next();
@@ -88,13 +81,13 @@ public abstract class SpongeMessageBuilder<T extends Message> implements Message
     }
 
     @Override
-    public MessageBuilder<T> color(TextColor color) {
+    public MessageBuilder color(TextColor color) {
         this.color = color;
         return this;
     }
 
     @Override
-    public MessageBuilder<T> style(TextStyle... styles) {
+    public MessageBuilder style(TextStyle... styles) {
         for (TextStyle textStyle : styles) {
             this.style.and(textStyle);
         }
@@ -102,19 +95,19 @@ public abstract class SpongeMessageBuilder<T extends Message> implements Message
     }
 
     @Override
-    public MessageBuilder<T> onClick(ClickAction<?> action) {
+    public MessageBuilder onClick(ClickAction<?> action) {
         this.clickAction = Optional.<ClickAction<?>>fromNullable(action);
         return this;
     }
 
     @Override
-    public MessageBuilder<T> onHover(HoverAction<?> action) {
+    public MessageBuilder onHover(HoverAction<?> action) {
         this.hoverAction = Optional.<HoverAction<?>>fromNullable(action);
         return this;
     }
 
     @Override
-    public MessageBuilder<T> onShiftClick(ShiftClickAction<?> action) {
+    public MessageBuilder onShiftClick(ShiftClickAction<?> action) {
         this.shiftClickAction = Optional.<ShiftClickAction<?>>fromNullable(action);
         return this;
     }

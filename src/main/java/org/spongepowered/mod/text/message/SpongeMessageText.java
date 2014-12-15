@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Iterator;
 
 import net.minecraft.util.ChatComponentText;
@@ -59,13 +59,13 @@ public class SpongeMessageText extends SpongeMessage implements Message.Text {
         protected ChatComponentText handle;
 
         public SpongeTextBuilder() {
-            children = new ArrayList<Message>();
+            children = new ArrayDeque<Message>();
             handle = new ChatComponentText("");
         }
 
         public SpongeTextBuilder(String text) {
             this.content = text;
-            children = new ArrayList<Message>();
+            children = new ArrayDeque<Message>();
             handle = new ChatComponentText(content);
         }
 
@@ -87,9 +87,7 @@ public class SpongeMessageText extends SpongeMessage implements Message.Text {
 
         @Override
         public MessageBuilder.Text append(Iterable<Message> children) {
-            Iterator<Message> iter = children.iterator();
-            while (iter.hasNext()) {
-                Message message = iter.next();
+            for (Message message : children) {
                 this.children.add(message);
                 this.handle.appendSibling(((SpongeMessageText)message).handle);
             }
@@ -161,5 +159,4 @@ public class SpongeMessageText extends SpongeMessage implements Message.Text {
             return new SpongeMessageText(this);
         }
     }
-
 }

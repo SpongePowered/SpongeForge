@@ -28,7 +28,7 @@ import java.util.Locale;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.PlayerCapabilities;
+import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.world.World;
 
 import org.spongepowered.api.entity.player.Player;
@@ -41,6 +41,8 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.text.chat.SpongeChatType;
+import org.spongepowered.mod.text.message.SpongeMessage;
 import org.spongepowered.mod.text.message.SpongeMessageText;
 
 import com.mojang.authlib.GameProfile;
@@ -52,6 +54,8 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer {
 
     @Shadow
     private String translator;
+    @Shadow
+    public NetHandlerPlayServer playerNetServerHandler;
 
     public MixinEntityPlayerMP(World worldIn, GameProfile gameprofile) {
         super(worldIn, gameprofile);
@@ -96,7 +100,9 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer {
      * @param messages The message(s) to send
      */
     public void playermp$sendMessage(ChatType type, Message... messages) {
-        throw new UnsupportedOperationException();
+        for (Message message : messages) {
+            playerNetServerHandler.sendPacket(new net.minecraft.network.play.server.S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
+        }
     }
 
     /**
@@ -106,7 +112,9 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer {
      * @param messages The message(s) to send
      */
     public void playermp$sendMessage(ChatType type, Iterable<Message> messages) {
-        throw new UnsupportedOperationException();
+        for (Message message : messages) {
+            playerNetServerHandler.sendPacket(new net.minecraft.network.play.server.S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
+        }
     }
 
     /**
