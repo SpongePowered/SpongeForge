@@ -672,7 +672,9 @@ public class SpongeGameRegistry implements GameRegistry {
 
         for (Field f : TextStyles.class.getDeclaredFields()) {
             try {
-                f.set(null, textStyleMappings.get(f.getName()));
+                if (!f.getName().equals("NONE") && !f.getName().equals("ZERO")) { // ignore these as they are already implemented in API
+                    f.set(null, textStyleMappings.get(f.getName()));
+                }
             } catch (Exception e) {
                 // e.printStackTrace();
             }

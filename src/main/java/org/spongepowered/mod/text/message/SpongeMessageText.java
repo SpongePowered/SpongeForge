@@ -118,35 +118,15 @@ public class SpongeMessageText extends SpongeMessage implements Message.Text {
 
                 if (component != TextStyleComponent.UNAPPLIED) {
                     if (baseStyle == TextStyles.BOLD) {
-                        if (component == TextStyleComponent.APPLIED) {
-                            this.handle.getChatStyle().setBold(true);
-                        } else {
-                            this.handle.getChatStyle().setBold(false);
-                        }
+                        this.handle.getChatStyle().setBold((component == TextStyleComponent.APPLIED));
                     } else if (baseStyle == TextStyles.ITALIC) {
-                        if (component == TextStyleComponent.APPLIED) {
-                            this.handle.getChatStyle().setItalic(true);
-                        } else {
-                            this.handle.getChatStyle().setItalic(false);
-                        }
+                        this.handle.getChatStyle().setItalic((component == TextStyleComponent.APPLIED));
                     } else if (baseStyle == TextStyles.OBFUSCATED) {
-                        if (component == TextStyleComponent.APPLIED) {
-                            this.handle.getChatStyle().setObfuscated(true);
-                        } else {
-                            this.handle.getChatStyle().setObfuscated(false);
-                        }
+                        this.handle.getChatStyle().setObfuscated((component == TextStyleComponent.APPLIED));
                     } else if (baseStyle == TextStyles.STRIKETHROUGH) {
-                        if (component == TextStyleComponent.APPLIED) {
-                            this.handle.getChatStyle().setStrikethrough(true);
-                        } else {
-                            this.handle.getChatStyle().setStrikethrough(false);
-                        }
+                        this.handle.getChatStyle().setStrikethrough((component == TextStyleComponent.APPLIED));
                     } else if (baseStyle == TextStyles.UNDERLINE) {
-                        if (component == TextStyleComponent.APPLIED) {
-                            this.handle.getChatStyle().setUnderlined(true);
-                        } else {
-                            this.handle.getChatStyle().setUnderlined(false);
-                        }
+                        this.handle.getChatStyle().setUnderlined((component == TextStyleComponent.APPLIED));
                     } else if (baseStyle == TextStyles.RESET) {
                         // TODO
                     }
