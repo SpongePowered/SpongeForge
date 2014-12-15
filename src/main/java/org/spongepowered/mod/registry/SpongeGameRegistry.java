@@ -26,6 +26,7 @@
 package org.spongepowered.mod.registry;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
@@ -37,6 +38,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.common.registry.GameData;
@@ -69,16 +71,21 @@ import org.spongepowered.api.item.inventory.ItemStackBuilder;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
+import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyle;
+import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityType;
+import org.spongepowered.mod.text.format.SpongeTextColor;
 
+import java.awt.Color;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +95,16 @@ import java.util.Map;
 public class SpongeGameRegistry implements GameRegistry {
 
     private Map<String, BiomeType> biomeTypeMappings = Maps.newHashMap();
+    public static Map<String, SpongeTextColor> textColorMappings = Maps.newHashMap();
+    public static Map<TextColor, EnumChatFormatting> textColorToEnumMappings = Maps.newHashMap();
+    public static final ImmutableMap<String, TextStyle.Base> textStyleMappings = new ImmutableMap.Builder<String, TextStyle.Base>()
+                                                                                .put("OBFUSCATED", new TextStyle.Base("OBFUSCATED", 'k'))
+                                                                                .put("BOLD", new TextStyle.Base("BOLD", 'l'))
+                                                                                .put("STRIKETHROUGH", new TextStyle.Base("STRIKETHROUGH", 'm'))
+                                                                                .put("UNDERLINE", new TextStyle.Base("UNDERLINE", 'n'))
+                                                                                .put("ITALIC", new TextStyle.Base("ITALIC", 'o'))
+                                                                                .put("RESET", new TextStyle.Base("RESET", 'r'))
+                                                                                .build();
     private Map<String, SpongeEntityType> entityTypeMappings = Maps.newHashMap();
     public Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
     public Map<Class<? extends Entity>, SpongeEntityType> entityClassToTypeMappings = Maps.newHashMap();
@@ -123,10 +140,8 @@ public class SpongeGameRegistry implements GameRegistry {
     @Override
     public List<PotionEffectType> getPotionEffects() {
         List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
-        for (Potion potion : Potion.potionTypes)
-        {
-            if (potion != null)
-            {
+        for (Potion potion : Potion.potionTypes) {
+            if (potion != null) {
                 PotionEffectType potionEffectType = (PotionEffectType)potion;
                 potionList.add(potionEffectType);
             }
@@ -153,7 +168,6 @@ public class SpongeGameRegistry implements GameRegistry {
     public Optional<BiomeType> getBiome(String id) {
         for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
             if (biome != null && biome.biomeName.equalsIgnoreCase(id)) {
-                System.out.println("FOUND BIOME MATCH " +  biome.biomeName);
                 return Optional.of((BiomeType)biome);
             }
         }
@@ -374,7 +388,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     // Note: This is probably fairly slow, but only needs to be run rarely.
-    public void setBlockTypes() {
+    private void setBlockTypes() {
         for (Field f : BlockTypes.class.getDeclaredFields()) {
             try {
                 f.set(null, getBlock(f.getName().toLowerCase()).get());
@@ -385,7 +399,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     // Note: This is probably fairly slow, but only needs to be run rarely.
-    public void setItemTypes() {
+    private void setItemTypes() {
         for (Field f : ItemTypes.class.getDeclaredFields()) {
             try {
                 f.set(null, getItem(f.getName().toLowerCase()).get());
@@ -396,7 +410,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     // Note: This is probably fairly slow, but only needs to be run rarely.
-    public void setPotionTypes() {
+    private void setPotionTypes() {
         for (Field f : PotionEffectTypes.class.getDeclaredFields()) {
             try {
                 f.set(null, getPotion(f.getName().toLowerCase()).get());
@@ -406,7 +420,7 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
-    public void setEntityTypes() {
+    private void setEntityTypes() {
         // internal mapping of our EntityTypes to actual MC names
         entityTypeMappings.put("DROPPED_ITEM", new SpongeEntityType(1, "Item", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Item")));
         entityTypeMappings.put("EXPERIENCE_ORB", new SpongeEntityType(2, "XPOrb", (Class<? extends Entity>)EntityList.stringToClassMapping.get("XPOrb")));
@@ -537,7 +551,7 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
-    public void setBiomeTypes() {
+    private void setBiomeTypes() {
         biomeTypeMappings.put("OCEAN", (BiomeType)BiomeGenBase.ocean);
         biomeTypeMappings.put("PLAINS", (BiomeType)BiomeGenBase.plains);
         biomeTypeMappings.put("DESERT", (BiomeType)BiomeGenBase.desert);
@@ -609,13 +623,70 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
-    public void init()
-    {
+    public TextColor getColor(String name) {
+        return textColorMappings.get(name.toUpperCase());
+    }
+
+    private void setTextColors() {
+        textColorMappings.put("AQUA", new SpongeTextColor(Color.decode("0x00FFFF"), EnumChatFormatting.AQUA));
+        textColorMappings.put("BLACK", new SpongeTextColor(Color.BLACK, EnumChatFormatting.BLACK));
+        textColorMappings.put("BLUE", new SpongeTextColor(Color.decode("0x5555FF"), EnumChatFormatting.BLUE));
+        textColorMappings.put("DARK_AQUA", new SpongeTextColor(Color.decode("0x00AAAA"), EnumChatFormatting.DARK_AQUA));
+        textColorMappings.put("DARK_BLUE", new SpongeTextColor(Color.decode("0x0000AA"), EnumChatFormatting.DARK_BLUE));
+        textColorMappings.put("DARK_GRAY", new SpongeTextColor(Color.decode("0x555555"), EnumChatFormatting.DARK_GRAY));
+        textColorMappings.put("DARK_GREEN", new SpongeTextColor(Color.decode("0x00AA00"), EnumChatFormatting.DARK_GREEN));
+        textColorMappings.put("DARK_PURPLE", new SpongeTextColor(Color.decode("0xAA00AA"), EnumChatFormatting.DARK_PURPLE));
+        textColorMappings.put("DARK_RED", new SpongeTextColor(Color.decode("0xAA0000"), EnumChatFormatting.DARK_RED));
+        textColorMappings.put("GOLD", new SpongeTextColor(Color.decode("0xFFAA00"), EnumChatFormatting.GOLD));
+        textColorMappings.put("GRAY", new SpongeTextColor(Color.decode("0xAAAAAA"), EnumChatFormatting.GRAY));
+        textColorMappings.put("GREEN", new SpongeTextColor(Color.decode("0x55FF55"), EnumChatFormatting.GREEN));
+        textColorMappings.put("LIGHT_PURPLE", new SpongeTextColor(Color.decode("0xFF55FF"), EnumChatFormatting.LIGHT_PURPLE));
+        textColorMappings.put("RED", new SpongeTextColor(Color.decode("0xFF5555"), EnumChatFormatting.RED));
+        textColorMappings.put("RESET", new SpongeTextColor(Color.WHITE, EnumChatFormatting.RESET));
+        textColorMappings.put("YELLOW", new SpongeTextColor(Color.decode("0xFFFF55"), EnumChatFormatting.YELLOW));
+
+        textColorToEnumMappings.put(textColorMappings.get("AQUA"), EnumChatFormatting.AQUA);
+        textColorToEnumMappings.put(textColorMappings.get("BLACK"), EnumChatFormatting.BLACK);
+        textColorToEnumMappings.put(textColorMappings.get("BLUE"), EnumChatFormatting.BLUE);
+        textColorToEnumMappings.put(textColorMappings.get("DARK_AQUA"), EnumChatFormatting.DARK_AQUA);
+        textColorToEnumMappings.put(textColorMappings.get("DARK_BLUE"), EnumChatFormatting.DARK_BLUE);
+        textColorToEnumMappings.put(textColorMappings.get("DARK_GRAY"), EnumChatFormatting.DARK_GRAY);
+        textColorToEnumMappings.put(textColorMappings.get("DARK_GREEN"), EnumChatFormatting.DARK_GREEN);
+        textColorToEnumMappings.put(textColorMappings.get("DARK_PURPLE"), EnumChatFormatting.DARK_PURPLE);
+        textColorToEnumMappings.put(textColorMappings.get("DARK_RED"), EnumChatFormatting.DARK_RED);
+        textColorToEnumMappings.put(textColorMappings.get("GOLD"), EnumChatFormatting.GOLD);
+        textColorToEnumMappings.put(textColorMappings.get("GRAY"), EnumChatFormatting.GRAY);
+        textColorToEnumMappings.put(textColorMappings.get("GREEN"), EnumChatFormatting.GREEN);
+        textColorToEnumMappings.put(textColorMappings.get("LIGHT_PURPLE"), EnumChatFormatting.LIGHT_PURPLE);
+        textColorToEnumMappings.put(textColorMappings.get("RED"), EnumChatFormatting.RED);
+        textColorToEnumMappings.put(textColorMappings.get("RESET"), EnumChatFormatting.RESET);
+        textColorToEnumMappings.put(textColorMappings.get("YELLOW"), EnumChatFormatting.YELLOW);
+
+        for (Field f : TextColors.class.getDeclaredFields()) {
+            try {
+                f.set(null, textColorMappings.get(f.getName()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (Field f : TextStyles.class.getDeclaredFields()) {
+            try {
+                f.set(null, textStyleMappings.get(f.getName()));
+            } catch (Exception e) {
+                // e.printStackTrace();
+            }
+        }
+
+    }
+
+    public void init() {
         setBiomeTypes();
         setBlockTypes();
         setItemTypes();
         setPotionTypes();
         setEntityTypes();
+        setTextColors();
     }
 
 }
