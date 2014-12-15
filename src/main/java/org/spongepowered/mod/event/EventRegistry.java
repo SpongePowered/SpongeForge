@@ -35,6 +35,8 @@ import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
+
+import org.spongepowered.api.event.player.PlayerInteractEvent;
 import org.spongepowered.api.event.state.InitializationEvent;
 import org.spongepowered.api.event.state.LoadCompleteEvent;
 import org.spongepowered.api.event.state.PostInitializationEvent;
@@ -65,6 +67,7 @@ public class EventRegistry {
         register(FMLServerStoppingEvent.class, ServerStoppingEvent.class);
         register(FMLServerStoppedEvent.class, ServerStoppedEvent.class);
         // Forge events
+        register(net.minecraftforge.event.entity.player.PlayerInteractEvent.class, PlayerInteractEvent.class);
     }
 
     private static void register(Class<?> otherEvent, Class<?> spongeEvent) {
