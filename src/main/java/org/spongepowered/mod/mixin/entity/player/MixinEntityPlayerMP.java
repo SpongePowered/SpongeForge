@@ -29,6 +29,7 @@ import java.util.Locale;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.world.World;
 
 import org.spongepowered.api.entity.player.Player;
@@ -101,7 +102,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer {
      */
     public void playermp$sendMessage(ChatType type, Message... messages) {
         for (Message message : messages) {
-            playerNetServerHandler.sendPacket(new net.minecraft.network.play.server.S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
+            playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
@@ -113,7 +114,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer {
      */
     public void playermp$sendMessage(ChatType type, Iterable<Message> messages) {
         for (Message message : messages) {
-            playerNetServerHandler.sendPacket(new net.minecraft.network.play.server.S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
+            playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
