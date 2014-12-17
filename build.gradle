@@ -122,6 +122,9 @@ license {
     sourceSets = project.sourceSets
     ignoreFailures false
     strictCheck true
+    mapping {
+        java = 'SLASHSTAR_STYLE'
+    }
 }
 
 checkstyle {
