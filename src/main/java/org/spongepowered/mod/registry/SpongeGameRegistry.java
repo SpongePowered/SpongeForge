@@ -77,6 +77,8 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.text.message.Messages;
+import org.spongepowered.api.text.message.SpongeMessageFactory;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
@@ -694,6 +696,14 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
+    private void setMessageFactory() {
+        try {
+            Messages.class.getDeclaredField("factory").set(null, new SpongeMessageFactory());
+        } catch (Exception e) {
+            // e.printStackTrace();
+        }
+    }
+
     public void init() {
         setBiomeTypes();
         setBlockTypes();
@@ -701,6 +711,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setPotionTypes();
         setEntityTypes();
         setTextColors();
+        setMessageFactory();
     }
 
 }
