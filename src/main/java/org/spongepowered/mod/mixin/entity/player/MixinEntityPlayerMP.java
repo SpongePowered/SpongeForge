@@ -30,6 +30,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.server.S02PacketChat;
+import net.minecraft.network.play.server.S45PacketTitle;
 import net.minecraft.world.World;
 
 import org.spongepowered.api.entity.player.Player;
@@ -47,6 +48,7 @@ import org.spongepowered.mod.text.message.SpongeMessage;
 import org.spongepowered.mod.text.message.SpongeMessageText;
 
 import com.mojang.authlib.GameProfile;
+import org.spongepowered.mod.text.title.SpongeTitle;
 
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
@@ -124,7 +126,11 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer {
      * @param title The {@link Title} to send to the player
      */
     public void playermp$sendTitle(Title title) {
-        throw new UnsupportedOperationException();
+        SpongeTitle spongeTitle = (SpongeTitle)title;
+
+        for(S45PacketTitle packet : spongeTitle.getPackets()) {
+            playerNetServerHandler.sendPacket(packet);
+        }
     }
 
     /**
