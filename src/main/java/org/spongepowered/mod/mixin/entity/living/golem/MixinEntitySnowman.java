@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.entity.living.golem;
 
-import net.minecraft.entity.monster.EntityIronGolem;
+import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.monster.EntitySnowman;
 import net.minecraft.world.World;
 
@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(EntitySnowman.class)
 @Implements(@Interface(iface = SnowGolem.class, prefix = "sp$"))
-public abstract class MixinEntitySnowman extends EntityIronGolem {
+public abstract class MixinEntitySnowman extends EntityGolem {
 
     public MixinEntitySnowman(World worldIn) {
         super(worldIn);

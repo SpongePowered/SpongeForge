@@ -56,6 +56,7 @@ public class SpongeMod extends DummyModContainer {
     private final Game game;
 
     private Map<Object, PluginContainer> plugins = Maps.newHashMap();
+    private Map<String, PluginContainer> pluginIdMap = Maps.newHashMap();
     private EventBus eventBus;
     private LoadController controller;
     private Injector spongeInjector = Guice.createInjector(new SpongeGuiceModule());
@@ -74,8 +75,9 @@ public class SpongeMod extends DummyModContainer {
         game = spongeInjector.getInstance(Game.class);
     }
 
-    public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object proxyInstance) {
-        plugins.put(proxyInstance, spongePluginContainer);
+    public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object instance) {
+        plugins.put(instance, spongePluginContainer);
+        pluginIdMap.put(pluginId.toLowerCase(), spongePluginContainer);
         game.getEventManager().register(spongePluginContainer.getInstance(), spongePluginContainer.getInstance());
     }
 
@@ -84,8 +86,11 @@ public class SpongeMod extends DummyModContainer {
     }
 
     public PluginContainer getPlugin(String s) {
-        Object proxy = Loader.instance().getIndexedModList().get(s);
-        return plugins.get(proxy);
+        return pluginIdMap.get(s.toLowerCase());
+    }
+
+    public PluginContainer getPluginContainer(Object instance) {
+        return plugins.get(instance);
     }
 
     public Game getGame() {
