@@ -25,7 +25,6 @@
 
 package org.spongepowered.mod.mixin.event.player;
 
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.Game;

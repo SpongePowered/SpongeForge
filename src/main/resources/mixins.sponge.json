@@ -3,6 +3,7 @@
   "mixins": [
     "MixinEntityRegistry",
     "MixinMinecraftServer",
+    "MixinServerCommandManager",
     "block.MixinBlockState",
     "block.MixinBlockType",
     "block.MixinPropertyHelper",

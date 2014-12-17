@@ -31,14 +31,16 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.network.play.server.S45PacketTitle;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.chat.ChatType;
+import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.text.title.Title;
-import org.spongepowered.api.text.translation.locale.Locales;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
@@ -52,8 +54,8 @@ import org.spongepowered.mod.text.title.SpongeTitle;
 
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
-@Implements(@Interface(iface = Player.class, prefix = "playermp$"))
-public abstract class MixinEntityPlayerMP extends EntityPlayer {
+@Implements(@Interface(iface = Player.class, prefix = "sp$"))
+public abstract class MixinEntityPlayerMP extends EntityPlayer implements CommandSource {
 
     @Shadow
     private String translator;
@@ -64,68 +66,54 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer {
         super(worldIn, gameprofile);
     }
 
-    public Message playermp$getDisplayName() {
+    public Message sp$getDisplayName() {
         return new SpongeMessageText.SpongeTextBuilder(getName()).build();
     }
 
-    /**
-     * Returns whether the {@link Player} can fly via the fly key.
-     *
-     * @return {@code True} if the {@link Player} is allowed to fly
-     */
-    public boolean playermp$getAllowFlight() {
+    public boolean sp$getAllowFlight() {
         return this.capabilities.allowFlying;
     }
 
-    /**
-     * Sets if the {@link Player} can fly via the fly key.
-     *
-     * @param allowFlight {@code True} if the player is allowed to fly
-     */
-    public void playermp$setAllowFlight(boolean allowFlight) {
+    public void sp$setAllowFlight(boolean allowFlight) {
         this.capabilities.allowFlying = allowFlight;
     }
 
-    /**
-     * Gets the locale used by the player.
-     *
-     * @return The player's locale
-     * @see Locales
-     */
-    public Locale playermp$getLocale() {
+    public Locale sp$getLocale() {
         return new Locale(this.translator);
     }
 
-    /**
-     * Sends the message(s) with the specified {@link ChatType} on the client.
-     *
-     * @param type The chat type to send the messages to
-     * @param messages The message(s) to send
-     */
-    public void playermp$sendMessage(ChatType type, Message... messages) {
+    public void sp$sendMessage(String... messages) {
+        sp$sendMessage(ChatTypes.CHAT, messages);
+    }
+
+    public void sp$sendMessage(Message... messages) {
+        sp$sendMessage(ChatTypes.CHAT, messages);
+    }
+
+    public void sp$sendMessage(Iterable<Message> messages) {
+        sp$sendMessage(ChatTypes.CHAT, messages);
+    }
+
+    public void sp$sendMessage(ChatType type, String... messages) {
+        for (String string : messages) {
+            ChatComponentText component = new ChatComponentText(string);
+            playerNetServerHandler.sendPacket(new S02PacketChat(component, ((SpongeChatType)type).getId()));
+        }
+    }
+
+    public void sp$sendMessage(ChatType type, Message... messages) {
         for (Message message : messages) {
             playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
-    /**
-     * Sends the message(s) with the specified {@link ChatType} on the client.
-     *
-     * @param type The chat type to send the messages to
-     * @param messages The message(s) to send
-     */
-    public void playermp$sendMessage(ChatType type, Iterable<Message> messages) {
+    public void sp$sendMessage(ChatType type, Iterable<Message> messages) {
         for (Message message : messages) {
             playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
-    /**
-     * Sends a {@link Title} to this player.
-     *
-     * @param title The {@link Title} to send to the player
-     */
-    public void playermp$sendTitle(Title title) {
+    public void sp$sendTitle(Title title) {
         SpongeTitle spongeTitle = (SpongeTitle)title;
 
         for(S45PacketTitle packet : spongeTitle.getPackets()) {
@@ -133,18 +121,11 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer {
         }
     }
 
-    /**
-     * Removes the currently displayed {@link Title} from the player and resets
-     * all settings back to default values.
-     */
-    public void playermp$resetTitle() {
+    public void sp$resetTitle() {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Removes the currently displayed {@link Title} from the player's screen.
-     */
-    public void playermp$clearTitle() {
+    public void sp$clearTitle() {
         throw new UnsupportedOperationException();
     }
 }

@@ -55,6 +55,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     private final Map<String, Object> fmlDescriptor;
     private final String className;
     private final ModCandidate container;
+    @SuppressWarnings("unused")
     private final File source;
     private Object plugin;
 
@@ -62,6 +63,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     private PluginScope scope;
 
     private LoadController controller;
+    @SuppressWarnings("unused")
     private boolean enabled = true;
     private Multimap<Class<? extends Event>, Method> stateEventHandlers = ArrayListMultimap.create();
 

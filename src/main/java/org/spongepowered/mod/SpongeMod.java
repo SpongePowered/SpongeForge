@@ -31,7 +31,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -57,7 +56,9 @@ public class SpongeMod extends DummyModContainer {
 
     private Map<Object, PluginContainer> plugins = Maps.newHashMap();
     private Map<String, PluginContainer> pluginIdMap = Maps.newHashMap();
+    @SuppressWarnings("unused")
     private EventBus eventBus;
+    @SuppressWarnings("unused")
     private LoadController controller;
     private Injector spongeInjector = Guice.createInjector(new SpongeGuiceModule());
     private Logger logger;

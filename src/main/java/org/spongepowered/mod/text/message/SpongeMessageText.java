@@ -25,7 +25,6 @@
 package org.spongepowered.mod.text.message;
 
 import java.util.ArrayDeque;
-import java.util.Iterator;
 
 import net.minecraft.util.ChatComponentText;
 
