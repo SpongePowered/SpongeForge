@@ -65,10 +65,12 @@ import org.spongepowered.api.entity.living.meta.SkeletonTypes;
 import org.spongepowered.api.entity.living.villager.Career;
 import org.spongepowered.api.entity.living.villager.Profession;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
+import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStackBuilder;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
+import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
 import org.spongepowered.api.text.chat.ChatType;
@@ -395,6 +397,27 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<GameMode> getGameModes() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public PotionEffectBuilder getPotionEffectBuilder() {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public Optional<Enchantment> getEnchantment(String id) {
+
+        //TODO implement.
+        return null;
+    }
+
+    @Override
+    public List<Enchantment> getEnchantments() {
 
         //TODO implement.
         return null;
