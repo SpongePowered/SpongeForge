@@ -29,9 +29,11 @@ import net.minecraft.block.state.IBlockState;
 
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.util.TranslationHelper;
 
 @NonnullByDefault
 @Mixin(Block.class)
@@ -39,6 +41,12 @@ public abstract class MixinBlockType implements BlockType {
 
     @Shadow(prefix = "shadow$")
     public abstract IBlockState shadow$getDefaultState();
+
+    @Shadow(prefix = "sp$")
+    public abstract String sp$getLocalizedName();
+
+    @Shadow(prefix = "sp$")
+    public abstract String sp$getUnlocalizedName();
 
     @Shadow
     public abstract IBlockState getStateFromMeta(int meta);
@@ -51,6 +59,11 @@ public abstract class MixinBlockType implements BlockType {
     @Override
     public BlockState getDefaultState() {
         return (BlockState) shadow$getDefaultState();
+    }
+
+    @Override
+    public Translation getTranslation() {
+        return TranslationHelper.createStaticTranslation(sp$getUnlocalizedName(), sp$getLocalizedName());
     }
 
     @Override

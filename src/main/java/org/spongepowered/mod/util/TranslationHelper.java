@@ -22,43 +22,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.item;
+package org.spongepowered.mod.util;
 
-import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.text.translation.Translation;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.util.TranslationHelper;
 
-import net.minecraft.item.Item;
-import net.minecraft.util.StatCollector;
+public class TranslationHelper {
 
-@NonnullByDefault
-@Mixin(Item.class)
-public abstract class MixinItemType implements ItemType {
+    /**
+     * Creates a static translation with the given id and name.
+     *
+     * @param id id of the translation
+     * @param name name of the translation
+     * @return The created translation
+     */
+    public static Translation createStaticTranslation(final String id, final String name) {
+        return new Translation() {
+            @Override
+            public String getId() {
+                return id;
+            }
 
-    @Shadow
-    public abstract int getItemStackLimit();
+            @Override
+            public String get() {
+                return name;
+            }
 
-    @Shadow(prefix = "sp$")
-    public abstract String sp$getUnlocalizedName();
-
-    @Override
-    public String getId() {
-        return Item.itemRegistry.getNameForObject(this).toString();
+            @Override
+            public String get(Object... args) {
+                return name;
+            }
+        };
     }
 
-    @Override
-    public Translation getTranslation() {
-        String id = sp$getUnlocalizedName();
-        String name = ("" + StatCollector.translateToLocal(id + ".name")).trim();
-
-        return TranslationHelper.createStaticTranslation(id, name);
-    }
-
-    @Override
-    public int getMaxStackQuantity() {
-        return getItemStackLimit();
-    }
 }
