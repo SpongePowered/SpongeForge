@@ -37,7 +37,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 group = 'org.spongepowered'
 archivesBaseName = 'sponge'
 // Version -> Minecraft-MinecraftForge-Ours(If any?)
-version = '1.8-11.14.0.1268-SNAPSHOT'
+version = '1.8-11.14.0.1273-SNAPSHOT'
 
 // Define variables
 ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
@@ -58,7 +58,7 @@ repositories {
 
 // MinecraftForge version
 minecraft {
-    version = "1.8-11.14.0.1268-1.8"
+    version = "1.8-11.14.0.1273-1.8"
 }
 
 configurations {
