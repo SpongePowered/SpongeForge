@@ -42,11 +42,11 @@ public abstract class MixinBlockType implements BlockType {
     @Shadow(prefix = "shadow$")
     public abstract IBlockState shadow$getDefaultState();
 
-    @Shadow(prefix = "sp$")
-    public abstract String sp$getLocalizedName();
+    @Shadow(prefix = "shadow$")
+    public abstract String shadow$getLocalizedName();
 
-    @Shadow(prefix = "sp$")
-    public abstract String sp$getUnlocalizedName();
+    @Shadow(prefix = "shadow$")
+    public abstract String shadow$getUnlocalizedName();
 
     @Shadow
     public abstract IBlockState getStateFromMeta(int meta);
@@ -63,7 +63,7 @@ public abstract class MixinBlockType implements BlockType {
 
     @Override
     public Translation getTranslation() {
-        return TranslationHelper.createStaticTranslation(sp$getUnlocalizedName(), sp$getLocalizedName());
+        return TranslationHelper.createStaticTranslation(shadow$getUnlocalizedName(), shadow$getLocalizedName());
     }
 
     @Override

@@ -54,7 +54,7 @@ import org.spongepowered.mod.text.title.SpongeTitle;
 
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
-@Implements(@Interface(iface = Player.class, prefix = "sp$"))
+@Implements(@Interface(iface = Player.class, prefix = "playermp$"))
 public abstract class MixinEntityPlayerMP extends EntityPlayer implements CommandSource {
 
     @Shadow
@@ -66,54 +66,54 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         super(worldIn, gameprofile);
     }
 
-    public Message sp$getDisplayName() {
+    public Message playermp$getDisplayName() {
         return new SpongeMessageText.SpongeTextBuilder(getName()).build();
     }
 
-    public boolean sp$getAllowFlight() {
+    public boolean playermp$getAllowFlight() {
         return this.capabilities.allowFlying;
     }
 
-    public void sp$setAllowFlight(boolean allowFlight) {
+    public void playermp$setAllowFlight(boolean allowFlight) {
         this.capabilities.allowFlying = allowFlight;
     }
 
-    public Locale sp$getLocale() {
+    public Locale playermp$getLocale() {
         return new Locale(this.translator);
     }
 
-    public void sp$sendMessage(String... messages) {
-        sp$sendMessage(ChatTypes.CHAT, messages);
+    public void playermp$sendMessage(String... messages) {
+        playermp$sendMessage(ChatTypes.CHAT, messages);
     }
 
-    public void sp$sendMessage(Message... messages) {
-        sp$sendMessage(ChatTypes.CHAT, messages);
+    public void playermp$sendMessage(Message... messages) {
+        playermp$sendMessage(ChatTypes.CHAT, messages);
     }
 
-    public void sp$sendMessage(Iterable<Message> messages) {
-        sp$sendMessage(ChatTypes.CHAT, messages);
+    public void playermp$sendMessage(Iterable<Message> messages) {
+        playermp$sendMessage(ChatTypes.CHAT, messages);
     }
 
-    public void sp$sendMessage(ChatType type, String... messages) {
+    public void playermp$sendMessage(ChatType type, String... messages) {
         for (String string : messages) {
             ChatComponentText component = new ChatComponentText(string);
             playerNetServerHandler.sendPacket(new S02PacketChat(component, ((SpongeChatType)type).getId()));
         }
     }
 
-    public void sp$sendMessage(ChatType type, Message... messages) {
+    public void playermp$sendMessage(ChatType type, Message... messages) {
         for (Message message : messages) {
             playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
-    public void sp$sendMessage(ChatType type, Iterable<Message> messages) {
+    public void playermp$sendMessage(ChatType type, Iterable<Message> messages) {
         for (Message message : messages) {
             playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
-    public void sp$sendTitle(Title title) {
+    public void playermp$sendTitle(Title title) {
         SpongeTitle spongeTitle = (SpongeTitle)title;
 
         for(S45PacketTitle packet : spongeTitle.getPackets()) {
@@ -121,11 +121,11 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         }
     }
 
-    public void sp$resetTitle() {
+    public void playermp$resetTitle() {
         throw new UnsupportedOperationException();
     }
 
-    public void sp$clearTitle() {
+    public void playermp$clearTitle() {
         throw new UnsupportedOperationException();
     }
 }

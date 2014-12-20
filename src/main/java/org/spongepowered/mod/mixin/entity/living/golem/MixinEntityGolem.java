@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(EntityGolem.class)
-@Implements(@Interface(iface = Golem.class, prefix = "sp$"))
+@Implements(@Interface(iface = Golem.class, prefix = "golem$"))
 public class MixinEntityGolem extends EntityCreature {
 
     public MixinEntityGolem(World worldIn) {

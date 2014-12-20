@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(EntitySnowman.class)
-@Implements(@Interface(iface = SnowGolem.class, prefix = "sp$"))
+@Implements(@Interface(iface = SnowGolem.class, prefix = "snowman$"))
 public abstract class MixinEntitySnowman extends EntityGolem {
 
     public MixinEntitySnowman(World worldIn) {
