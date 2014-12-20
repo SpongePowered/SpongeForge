@@ -35,8 +35,9 @@ import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.event.EventManager;
-import org.spongepowered.api.service.scheduler.Scheduler;
+import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.service.scheduler.AsyncScheduler;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -53,12 +54,18 @@ public final class SpongeGame implements Game {
     private final GameRegistry gameRegistry;
     private final SimpleCommandService dispatcher;
 
+    // TODO -- move issue into the ServicesManager (?)
+    private final AsynchronousScheduler asynchronousScheduler;
+
     @Inject
     public SpongeGame(PluginManager plugin, EventManager event, GameRegistry registry) {
         pluginManager = plugin;
         eventManager = event;
         gameRegistry = registry;
         dispatcher = new SimpleCommandService(pluginManager);
+
+        // TODO move into the Services Manager (?)
+        asynchronousScheduler = AsyncScheduler.getInstance();
     }
 
     @Override
@@ -102,8 +109,8 @@ public final class SpongeGame implements Game {
     }
 
     @Override
-    public Scheduler getScheduler() {
-        throw new UnsupportedOperationException();
+    public AsynchronousScheduler getScheduler() {
+        return asynchronousScheduler;
     }
 
     @Override
