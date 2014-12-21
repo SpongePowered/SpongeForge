@@ -63,7 +63,7 @@
     "event.state.MixinEventServerStopped",
     "item.MixinItemType",
     "item.MixinItemBlock",
-	"item.MixinEnchantment",
+    "item.MixinEnchantment",
     "item.inventory.MixinItemStack",
     "potion.MixinPotion",
     "potion.MixinPotionEffect",
