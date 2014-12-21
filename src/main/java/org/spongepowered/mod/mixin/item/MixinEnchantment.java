@@ -57,9 +57,6 @@ public abstract class MixinEnchantment implements Enchantment {
     public abstract int getMaxEnchantability(int level);
 
     @Shadow
-    public abstract boolean canApplyAtEnchantingTable(net.minecraft.item.ItemStack stack);
-
-    @Shadow
     public abstract boolean canApplyTogether(net.minecraft.enchantment.Enchantment ench);
 
     @Shadow
@@ -106,7 +103,7 @@ public abstract class MixinEnchantment implements Enchantment {
 
     @Override
     public boolean canBeAppliedByTable(ItemStack stack) {
-        return canApplyAtEnchantingTable((net.minecraft.item.ItemStack) stack);
+        return canBeAppliedToStack(stack);
     }
 
     @Override
