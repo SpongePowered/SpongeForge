@@ -94,6 +94,7 @@ public class SpongeMessageText extends SpongeMessage implements Message.Text {
             return this;
         }
 
+        @Override
         public MessageBuilder.Text content(String content) {
             this.content = content;
             handle = new ChatComponentText(content);

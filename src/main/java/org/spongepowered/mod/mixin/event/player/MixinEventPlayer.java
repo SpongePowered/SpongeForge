@@ -45,6 +45,7 @@ public abstract class MixinEventPlayer extends LivingEvent implements PlayerEven
         super(entity);
     }
 
+    @Override
     public Player getPlayer() {
         return (Player)entityPlayer;
     }

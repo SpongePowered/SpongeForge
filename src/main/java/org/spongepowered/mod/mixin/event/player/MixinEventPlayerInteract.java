@@ -59,6 +59,7 @@ public abstract class MixinEventPlayerInteract extends PlayerEvent implements Pl
         return (BlockLoc)new BlockWrapper((org.spongepowered.api.world.World)world, pos.getX(), pos.getY(), pos.getZ());
     }
 
+    @Override
     public EntityInteractionType getInteractionType() {
         if (action == Action.LEFT_CLICK_BLOCK) {
             return EntityInteractionType.LEFT_CLICK;
