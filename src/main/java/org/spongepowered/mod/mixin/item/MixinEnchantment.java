@@ -36,13 +36,11 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.google.common.collect.Maps;
-
 @NonnullByDefault
 @Mixin(net.minecraft.enchantment.Enchantment.class)
 public abstract class MixinEnchantment implements Enchantment {
 
-    @Shadow private static final Map<ResourceLocation, net.minecraft.enchantment.Enchantment> field_180307_E = Maps.newHashMap();
+    @Shadow private static Map<ResourceLocation, net.minecraft.enchantment.Enchantment> field_180307_E;
 
     @Shadow
     public abstract int getMinLevel();
@@ -67,13 +65,12 @@ public abstract class MixinEnchantment implements Enchantment {
 
     @Override
     public String getId() {
-        for(Entry<ResourceLocation, net.minecraft.enchantment.Enchantment> entry : field_180307_E.entrySet())
-        {
+        for (Entry<ResourceLocation, net.minecraft.enchantment.Enchantment> entry : field_180307_E.entrySet()) {
             if (entry.getValue().equals(this)) {
                 return entry.getKey().toString();
             }
         }
-        return null;
+        return ""; //Should never be reached
     }
 
     @Override
