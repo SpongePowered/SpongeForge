@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mixin.impl;
+package org.spongepowered.mod.mixin;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -32,10 +32,10 @@ import net.minecraft.world.World;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.mixin.interfaces.IWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.exampleinterfaces.IWorld;
 
 
 /**
@@ -121,7 +121,7 @@ public abstract class MixinWorldExample implements IWorld {
      * above, it is necessary to use the {@link Shadow#prefix} functionality in the {@link Shadow} annotation to prevent a name clash at compile
      * time.
      *
-     * @see org.spongepowered.mixin.interfaces.IWorld#getBlock(int, int, int)
+     * @see org.spongepowered.exampleinterfaces.IWorld#getBlock(int, int, int)
      */
     @Override
     public Object getBlock(int x, int y, int z) {

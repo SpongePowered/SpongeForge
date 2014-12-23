@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mixin.interfaces;
+package org.spongepowered.exampleinterfaces;
 
 import net.minecraft.world.EnumSkyBlock;
 
