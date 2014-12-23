@@ -30,11 +30,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 import org.spongepowered.mixin.interfaces.IEntityPlayerConflict;
-import org.spongepowered.mod.mixin.Implements;
-import org.spongepowered.mod.mixin.Interface;
-import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Overwrite;
-import org.spongepowered.mod.mixin.Shadow;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 
 /**
  * Mixin demonstrating how "soft implementation" works
