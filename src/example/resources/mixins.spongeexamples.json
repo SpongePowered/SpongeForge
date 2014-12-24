@@ -2,6 +2,7 @@
   "package": "org.spongepowered.mod.mixin",
   "mixins": [
     "MixinWorldExample",
-    "MixinEntityPlayerExample"
+    "MixinEntityPlayerExample",
+    "MixinWorldProviderExample"
   ]
 }

@@ -95,7 +95,7 @@ public abstract class MixinEntityPlayerExample extends EntityLivingBase { // imp
      * This method does something custom, we want to inject a call to this method into isUsingItem
      */
     private void doSomethingCustom() {
-        System.err.println("I like big butts and I can not lie");
+//        System.err.println("I like big butts and I can not lie");
     }
     
     /**
