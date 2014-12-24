@@ -97,19 +97,19 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     public void playermp$sendMessage(ChatType type, String... messages) {
         for (String string : messages) {
             ChatComponentText component = new ChatComponentText(string);
-            playerNetServerHandler.sendPacket(new S02PacketChat(component, ((SpongeChatType)type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(component, ((SpongeChatType)type).getId()));
         }
     }
 
     public void playermp$sendMessage(ChatType type, Message... messages) {
         for (Message message : messages) {
-            playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
     public void playermp$sendMessage(ChatType type, Iterable<Message> messages) {
         for (Message message : messages) {
-            playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
@@ -117,7 +117,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         SpongeTitle spongeTitle = (SpongeTitle)title;
 
         for(S45PacketTitle packet : spongeTitle.getPackets()) {
-            playerNetServerHandler.sendPacket(packet);
+            this.playerNetServerHandler.sendPacket(packet);
         }
     }
 

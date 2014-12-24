@@ -67,43 +67,43 @@ public abstract class SpongeMessage implements Message {
     public Iterable<Message> withChildren() {
         Deque<Message> withChildren = new ArrayDeque<Message>();
         withChildren.add(this);
-        withChildren.addAll(children);
+        withChildren.addAll(this.children);
         return withChildren;
     }
 
     @Override
     public TextColor getColor() {
-        return color;
+        return this.color;
     }
 
     @Override
     public TextStyle getStyle() {
-        return style;
+        return this.style;
     }
 
     @Override
     public List<Message> getChildren() {
-        return children;
+        return this.children;
     }
 
     @Override
     public Optional<ClickAction<?>> getClickAction() {
-        return clickAction;
+        return this.clickAction;
     }
 
     @Override
     public Optional<HoverAction<?>> getHoverAction() {
-        return hoverAction;
+        return this.hoverAction;
     }
 
     @Override
     public Optional<ShiftClickAction<?>> getShiftClickAction() {
-        return shiftClickAction;
+        return this.shiftClickAction;
     }
 
     @Override
     public String getContent() {
-        return content;
+        return this.content;
     }
 
     @Override
@@ -121,6 +121,6 @@ public abstract class SpongeMessage implements Message {
     }
 
     public ChatComponentStyle getHandle() {
-        return handle;
+        return this.handle;
     }
 }

@@ -63,7 +63,7 @@ public abstract class MixinWorld implements World {
 
     @Override
     public String getName() {
-        return worldInfo.getWorldName() + "_" + provider.getDimensionName().toLowerCase().replace(' ', '_');
+        return this.worldInfo.getWorldName() + "_" + this.provider.getDimensionName().toLowerCase().replace(' ', '_');
     }
 
     @Override

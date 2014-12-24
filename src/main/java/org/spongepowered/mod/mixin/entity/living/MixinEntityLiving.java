@@ -76,14 +76,14 @@ public abstract class MixinEntityLiving extends EntityLivingBase {
 
     public void living$damage(double amount) {
         DamageSource source = DamageSource.generic;
-        if (thisEntity instanceof Human) {
-            source = net.minecraft.util.DamageSource.causePlayerDamage((EntityPlayerMP)thisEntity);
+        if (this.thisEntity instanceof Human) {
+            source = net.minecraft.util.DamageSource.causePlayerDamage((EntityPlayerMP)this.thisEntity);
         } else {
-            source = net.minecraft.util.DamageSource.causeMobDamage((EntityLivingBase)thisEntity);
+            source = net.minecraft.util.DamageSource.causeMobDamage((EntityLivingBase)this.thisEntity);
         }
 
-        if (thisEntity instanceof net.minecraft.entity.boss.EntityDragon) {
-            ((EntityDragon)thisEntity).attackEntityFrom(source, (float) amount);
+        if (this.thisEntity instanceof net.minecraft.entity.boss.EntityDragon) {
+            ((EntityDragon)this.thisEntity).attackEntityFrom(source, (float) amount);
         } else {
             attackEntityFrom(source, (float) amount);
         }
@@ -96,8 +96,8 @@ public abstract class MixinEntityLiving extends EntityLivingBase {
     public void living$setHealth(double health) {
         setHealth((float) health);
 
-        if (thisEntity instanceof EntityPlayerMP && health == 0) {
-            ((EntityPlayerMP) thisEntity).onDeath(DamageSource.generic);
+        if (this.thisEntity instanceof EntityPlayerMP && health == 0) {
+            ((EntityPlayerMP) this.thisEntity).onDeath(DamageSource.generic);
         }
     }
 
@@ -170,7 +170,7 @@ public abstract class MixinEntityLiving extends EntityLivingBase {
     }
 
     public Vector3f living$getEyeLocation() {
-        Vector3d vec = thisEntity.getLocation().getPosition();
+        Vector3d vec = this.thisEntity.getLocation().getPosition();
         return new Vector3f(vec.getX(), vec.getY() + getEyeHeight(), vec.getZ());
     }
 
@@ -207,7 +207,7 @@ public abstract class MixinEntityLiving extends EntityLivingBase {
     }
 
     public int living$getMaxInvulnerabilityTicks() {
-        return maxHurtResistantTime;
+        return this.maxHurtResistantTime;
     }
 
     public void living$setMaxInvulnerabilityTicks(int ticks) {

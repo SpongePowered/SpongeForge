@@ -50,7 +50,7 @@ public class SpongeEventBus {
     }
 
     public void remove(PriorityEventListener<Event> listener) {
-        Iterator<Map<EventPriority, EventListenerHolder<Event>>> mapIterator = eventAndPriorityToEventListenerHolderMap.values().iterator();
+        Iterator<Map<EventPriority, EventListenerHolder<Event>>> mapIterator = this.eventAndPriorityToEventListenerHolderMap.values().iterator();
         while (mapIterator.hasNext()) {
             Map<EventPriority, EventListenerHolder<Event>> map = mapIterator.next();
             Iterator<EventListenerHolder<Event>> holderIterator = map.values().iterator();
@@ -74,11 +74,11 @@ public class SpongeEventBus {
 
     private EventListenerHolder<Event> getEventHolder(Class<?> implementingEvent, Subscribe annotation) {
 
-        Map<EventPriority, EventListenerHolder<Event>> priorityHolderMap = eventAndPriorityToEventListenerHolderMap.get(implementingEvent);
+        Map<EventPriority, EventListenerHolder<Event>> priorityHolderMap = this.eventAndPriorityToEventListenerHolderMap.get(implementingEvent);
 
         if (priorityHolderMap == null) {
             priorityHolderMap = new HashMap<EventPriority, EventListenerHolder<Event>>();
-            eventAndPriorityToEventListenerHolderMap.put(implementingEvent, priorityHolderMap);
+            this.eventAndPriorityToEventListenerHolderMap.put(implementingEvent, priorityHolderMap);
         }
 
         EventPriority priority = PriorityMap.getEventPriority(annotation.order());

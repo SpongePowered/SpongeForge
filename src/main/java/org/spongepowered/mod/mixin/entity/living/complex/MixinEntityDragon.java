@@ -64,7 +64,7 @@ public abstract class MixinEntityDragon extends EntityLiving {
     public Set<EnderDragonPart> dragon$getParts() {
         Builder<EnderDragonPart> builder = ImmutableSet.builder();
 
-        for (EntityDragonPart part : dragonPartArray) {
+        for (EntityDragonPart part : this.dragonPartArray) {
             builder.add((EnderDragonPart) part);
         }
 
@@ -72,7 +72,7 @@ public abstract class MixinEntityDragon extends EntityLiving {
     }
 
     public Optional<EnderCrystal> dragon$getHealingCrystal() {
-        return Optional.fromNullable((EnderCrystal)healingEnderCrystal);
+        return Optional.fromNullable((EnderCrystal)this.healingEnderCrystal);
     }
 
     public void dragon$setHealingCrystal(@Nullable EnderCrystal crystal) {

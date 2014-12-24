@@ -37,10 +37,10 @@ public class SpongeChatType implements ChatType {
     }
 
     public byte getId() {
-        return id;
+        return this.id;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 }

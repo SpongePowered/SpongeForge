@@ -47,58 +47,58 @@ public class SpongeTitleBuilder implements TitleBuilder {
     }
 
     public SpongeTitleBuilder(Title title) {
-        isReset = title.isReset();
-        isClear = title.isClear() && !isReset;
+        this.isReset = title.isReset();
+        this.isClear = title.isClear() && !this.isReset;
 
-        titleMessage = title.getTitle();
-        subtitleMessage = title.getSubtitle();
+        this.titleMessage = title.getTitle();
+        this.subtitleMessage = title.getSubtitle();
 
-        fadeIn = title.getFadeIn();
-        stay = title.getStay();
-        fadeOut = title.getFadeOut();
+        this.fadeIn = title.getFadeIn();
+        this.stay = title.getStay();
+        this.fadeOut = title.getFadeOut();
     }
 
     @Override
     public TitleBuilder title(Message message) {
-        titleMessage = Optional.of(message);
+        this.titleMessage = Optional.of(message);
         return this;
     }
 
     @Override
     public TitleBuilder subtitle(Message message) {
-        subtitleMessage = Optional.of(message);
+        this.subtitleMessage = Optional.of(message);
         return this;
     }
 
     @Override
     public TitleBuilder fadeIn(int ticks) {
-        fadeIn = Optional.of(ticks);
+        this.fadeIn = Optional.of(ticks);
         return this;
     }
 
     @Override
     public TitleBuilder stay(int ticks) {
-        stay = Optional.of(ticks);
+        this.stay = Optional.of(ticks);
         return this;
     }
 
     @Override
     public TitleBuilder fadeOut(int ticks) {
-        fadeOut = Optional.of(ticks);
+        this.fadeOut = Optional.of(ticks);
         return this;
     }
 
     @Override
     public TitleBuilder clear() {
-        isClear = true;
+        this.isClear = true;
         doClear();
         return this;
     }
 
     @Override
     public TitleBuilder reset() {
-        isClear = false;
-        isReset = true;
+        this.isClear = false;
+        this.isReset = true;
         doClear();
         doReset();
         return this;
@@ -106,24 +106,24 @@ public class SpongeTitleBuilder implements TitleBuilder {
 
     @Override
     public Title build() {
-        if(fadeIn.isPresent() || stay.isPresent() || fadeOut.isPresent()) {
-            if(!(fadeIn.isPresent() && stay.isPresent() && fadeOut.isPresent())) {
+        if(this.fadeIn.isPresent() || this.stay.isPresent() || this.fadeOut.isPresent()) {
+            if(!(this.fadeIn.isPresent() && this.stay.isPresent() && this.fadeOut.isPresent())) {
                 // We don't actually know the client's current settings and cannot update only one of the three.
                 throw new IllegalStateException("fadeIn, stay, and fadeOut must all be specified if one is");
             }
         }
 
-        return new SpongeTitle(isClear, isReset, titleMessage, subtitleMessage, fadeIn, stay, fadeOut);
+        return new SpongeTitle(this.isClear, this.isReset, this.titleMessage, this.subtitleMessage, this.fadeIn, this.stay, this.fadeOut);
     }
 
     private void doClear() {
-        titleMessage = Optional.absent();
-        subtitleMessage = Optional.absent();
+        this.titleMessage = Optional.absent();
+        this.subtitleMessage = Optional.absent();
     }
 
     private void doReset() {
-        fadeIn = Optional.absent();
-        stay = Optional.absent();
-        fadeOut = Optional.absent();
+        this.fadeIn = Optional.absent();
+        this.stay = Optional.absent();
+        this.fadeOut = Optional.absent();
     }
 }

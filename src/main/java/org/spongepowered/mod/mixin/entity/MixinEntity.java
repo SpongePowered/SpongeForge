@@ -91,12 +91,12 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
 
     @Override
     public World getWorld() {
-        return (World)worldObj;
+        return (World)this.worldObj;
     }
 
     @Override
     public Location getLocation() {
-        return new Location((Extent)worldObj, new Vector3d(posX, posY, posZ));
+        return new Location((Extent)this.worldObj, new Vector3d(this.posX, this.posY, this.posZ));
     }
 
     @Override
@@ -118,7 +118,7 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
             net.minecraft.entity.Entity nextPassenger = null;
             if (passenger.riddenByEntity != null) {
                 nextPassenger = passenger.riddenByEntity;
-                riddenByEntity.mountEntity(null);
+                this.riddenByEntity.mountEntity(null);
             }
             passengers.add(passenger);
             passenger = nextPassenger;
@@ -157,7 +157,7 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
 
     @Override
     public Vector2f getRotation() {
-        return new Vector2f(rotationYaw, rotationPitch);
+        return new Vector2f(this.rotationYaw, this.rotationPitch);
     }
 
     @Override
@@ -167,21 +167,21 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
 
     @Override
     public Optional<Entity> getPassenger() {
-        return Optional.fromNullable((Entity)riddenByEntity);
+        return Optional.fromNullable((Entity)this.riddenByEntity);
     }
 
     @Override
     public Optional<Entity> getVehicle() {
-        return Optional.fromNullable((Entity)ridingEntity);
+        return Optional.fromNullable((Entity)this.ridingEntity);
     }
 
     @Override
     public Entity getBaseVehicle() {
-        if (ridingEntity == null) {
+        if (this.ridingEntity == null) {
           return (Entity)this;
         }
 
-        net.minecraft.entity.Entity baseVehicle = ridingEntity;
+        net.minecraft.entity.Entity baseVehicle = this.ridingEntity;
         while (baseVehicle.ridingEntity != null) {
             baseVehicle = baseVehicle.ridingEntity;
         }
@@ -191,7 +191,7 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
     @Override
     public boolean setPassenger(@Nullable Entity entity) {
         net.minecraft.entity.Entity passenger = (net.minecraft.entity.Entity)entity;
-        if (riddenByEntity == null) { // no existing passenger
+        if (this.riddenByEntity == null) { // no existing passenger
             if (passenger == null) {
                 return true;
             }
@@ -199,7 +199,7 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
             Entity thisEntity = (Entity)this;
             passenger.mountEntity((net.minecraft.entity.Entity)thisEntity);
         } else { // passenger already exists
-            riddenByEntity.mountEntity(null); // eject current passenger
+            this.riddenByEntity.mountEntity(null); // eject current passenger
 
             if (passenger != null) {
                 Entity thisEntity = (Entity)this;
@@ -218,12 +218,12 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
 
     @Override
     public float getBase() {
-        return width;
+        return this.width;
     }
 
     @Override
     public float getHeight() {
-        return height;
+        return this.height;
     }
 
     @Override
@@ -234,12 +234,12 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
 
     @Override
     public boolean isOnGround() {
-        return onGround;
+        return this.onGround;
     }
 
     @Override
     public boolean isRemoved() {
-        return isDead;
+        return this.isDead;
     }
 
     @Override
@@ -250,22 +250,22 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
 
     @Override
     public void remove() {
-        isDead = true;
+        this.isDead = true;
     }
 
     @Override
     public int getFireTicks() {
-        return fire;
+        return this.fire;
     }
 
     @Override
     public void setFireTicks(int ticks) {
-        fire = ticks;
+        this.fire = ticks;
     }
 
     @Override
     public int getFireDelay() {
-        return fireResistance;
+        return this.fireResistance;
     }
 
     // for sponge internal use only
@@ -316,12 +316,12 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
 
     @Override
     public boolean isTeleporting() {
-        return teleporting;
+        return this.teleporting;
     }
 
     @Override
     public net.minecraft.entity.Entity getTeleportVehicle() {
-        return teleportVehicle;
+        return this.teleportVehicle;
     }
 
     @Override

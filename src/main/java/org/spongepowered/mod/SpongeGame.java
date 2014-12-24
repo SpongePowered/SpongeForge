@@ -55,10 +55,10 @@ public final class SpongeGame implements Game {
 
     @Inject
     public SpongeGame(PluginManager plugin, EventManager event, GameRegistry registry) {
-        pluginManager = plugin;
-        eventManager = event;
-        gameRegistry = registry;
-        dispatcher = new SimpleCommandService(pluginManager);
+        this.pluginManager = plugin;
+        this.eventManager = event;
+        this.gameRegistry = registry;
+        this.dispatcher = new SimpleCommandService(this.pluginManager);
     }
 
     @Override
@@ -73,12 +73,12 @@ public final class SpongeGame implements Game {
 
     @Override
     public PluginManager getPluginManager() {
-        return pluginManager;
+        return this.pluginManager;
     }
 
     @Override
     public EventManager getEventManager() {
-        return eventManager;
+        return this.eventManager;
     }
 
     @Override
@@ -93,7 +93,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public GameRegistry getRegistry() {
-        return gameRegistry;
+        return this.gameRegistry;
     }
 
     @Override
@@ -108,7 +108,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public CommandService getCommandDispatcher() {
-        return dispatcher;
+        return this.dispatcher;
     }
 
     @Override

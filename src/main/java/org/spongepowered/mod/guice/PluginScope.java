@@ -40,34 +40,34 @@ public class PluginScope implements Scope {
     PluginContainer currentScope;
 
     public void setScope(PluginContainer scope) {
-        currentScope = scope;
-        if (currentScope != null && !scopes.containsKey(currentScope)) {
+        this.currentScope = scope;
+        if (this.currentScope != null && !this.scopes.containsKey(this.currentScope)) {
             Map<Key<?>, Object> initial_scope = Maps.newHashMap();
-            initial_scope.put(Key.get(PluginContainer.class), currentScope);
-            scopes.put(currentScope, initial_scope);
+            initial_scope.put(Key.get(PluginContainer.class), this.currentScope);
+            this.scopes.put(this.currentScope, initial_scope);
         }
     }
 
     public PluginContainer getCurrentScope() {
-        return currentScope;
+        return this.currentScope;
     }
 
     public <T> void setInstance(Key<T> key, T instance) {
-        if (currentScope == null) {
+        if (this.currentScope == null) {
             throw new OutOfScopeException("No current plugin scope defined");
         }
 
-        Map<Key<?>, Object> scope = scopes.get(currentScope);
+        Map<Key<?>, Object> scope = this.scopes.get(this.currentScope);
         scope.put(key, instance);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getInstance(Key<T> key) {
-        if (currentScope == null) {
+        if (this.currentScope == null) {
             throw new OutOfScopeException("No current plugin scope defined");
         }
 
-        Map<Key<?>, Object> scope = scopes.get(currentScope);
+        Map<Key<?>, Object> scope = this.scopes.get(this.currentScope);
         return (T) scope.get(key);
     }
 
@@ -88,30 +88,30 @@ public class PluginScope implements Scope {
 
         public PluginScopedProvider(Key<T> key, Provider<T> base) {
             this.key = key;
-            unscoped = base;
+            this.unscoped = base;
         }
 
         @Override
         @SuppressWarnings("unchecked")
         public T get() {
-            if (currentScope == null) {
+            if (PluginScope.this.currentScope == null) {
                 throw new OutOfScopeException("No current plugin scope defined");
             }
 
-            Map<Key<?>, Object> scope = scopes.get(currentScope);
+            Map<Key<?>, Object> scope = PluginScope.this.scopes.get(PluginScope.this.currentScope);
 
-            if (scope.containsKey(key)) {
-                return (T) scope.get(key);
+            if (scope.containsKey(this.key)) {
+                return (T) scope.get(this.key);
             } else {
-                T instance = unscoped.get();
-                scope.put(key, instance);
+                T instance = this.unscoped.get();
+                scope.put(this.key, instance);
                 return instance;
             }
         }
 
         @Override
         public String toString() {
-            return "PluginScopedProvider " + unscoped.toString();
+            return "PluginScopedProvider " + this.unscoped.toString();
         }
     }
 }

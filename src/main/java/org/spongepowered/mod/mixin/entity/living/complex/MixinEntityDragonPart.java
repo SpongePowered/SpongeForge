@@ -50,7 +50,7 @@ public abstract class MixinEntityDragonPart extends Entity {
     }
 
     public EnderDragon dragonpart$getParent() {
-        return (EnderDragon)entityDragonObj;
+        return (EnderDragon)this.entityDragonObj;
     }
 
 }

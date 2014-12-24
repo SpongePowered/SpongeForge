@@ -60,37 +60,37 @@ public class SpongeTitle implements Title {
 
     @Override
     public Optional<Message> getTitle() {
-        return titleMessage;
+        return this.titleMessage;
     }
 
     @Override
     public Optional<Message> getSubtitle() {
-        return subtitleMessage;
+        return this.subtitleMessage;
     }
 
     @Override
     public Optional<Integer> getFadeIn() {
-        return fadeIn;
+        return this.fadeIn;
     }
 
     @Override
     public Optional<Integer> getStay() {
-        return stay;
+        return this.stay;
     }
 
     @Override
     public Optional<Integer> getFadeOut() {
-        return fadeOut;
+        return this.fadeOut;
     }
 
     @Override
     public boolean isClear() {
-        return isClear || isReset;
+        return this.isClear || this.isReset;
     }
 
     @Override
     public boolean isReset() {
-        return isReset;
+        return this.isReset;
     }
 
     @Override
@@ -101,23 +101,23 @@ public class SpongeTitle implements Title {
     public List<S45PacketTitle> getPackets() {
         List<S45PacketTitle> packets = Lists.newArrayList();
 
-        if(isReset) {
+        if(this.isReset) {
             packets.add(new S45PacketTitle(S45PacketTitle.Type.RESET, null));
-        } else if(isClear) {
+        } else if(this.isClear) {
             packets.add(new S45PacketTitle(S45PacketTitle.Type.CLEAR, null));
         }
 
-        if(fadeIn.isPresent() && stay.isPresent() && fadeOut.isPresent()) {
-            packets.add(new S45PacketTitle(fadeIn.get(), stay.get(), fadeOut.get()));
+        if(this.fadeIn.isPresent() && this.stay.isPresent() && this.fadeOut.isPresent()) {
+            packets.add(new S45PacketTitle(this.fadeIn.get(), this.stay.get(), this.fadeOut.get()));
         }
 
-        if(titleMessage.isPresent()) {
-            SpongeMessage message = (SpongeMessage)titleMessage.get();
+        if(this.titleMessage.isPresent()) {
+            SpongeMessage message = (SpongeMessage)this.titleMessage.get();
             packets.add(new S45PacketTitle(S45PacketTitle.Type.TITLE, message.getHandle()));
         }
 
-        if(subtitleMessage.isPresent()) {
-            SpongeMessage message = (SpongeMessage)subtitleMessage.get();
+        if(this.subtitleMessage.isPresent()) {
+            SpongeMessage message = (SpongeMessage)this.subtitleMessage.get();
             packets.add(new S45PacketTitle(S45PacketTitle.Type.SUBTITLE, message.getHandle()));
         }
 

@@ -34,7 +34,7 @@ public abstract class EventListenerHolder<T> {
     }
 
     public boolean isEmpty() {
-        return listeners.length == 0;
+        return this.listeners.length == 0;
     }
 
     public void add(PriorityEventListener<T> listener) {
@@ -44,19 +44,19 @@ public abstract class EventListenerHolder<T> {
         listener.setHolder(this);
 
         @SuppressWarnings({"unchecked"})
-        PriorityEventListener<T>[] newListeners = new PriorityEventListener[listeners.length + 1];
+        PriorityEventListener<T>[] newListeners = new PriorityEventListener[this.listeners.length + 1];
         int i;
-        for (i = 0; i < listeners.length; i++) {
-            if (listener.compareTo(listeners[i]) <= 0) {
+        for (i = 0; i < this.listeners.length; i++) {
+            if (listener.compareTo(this.listeners[i]) <= 0) {
                 break;
             }
-            newListeners[i] = listeners[i];
+            newListeners[i] = this.listeners[i];
         }
         newListeners[i++] = listener;
         for (; i < newListeners.length; i++) {
-            newListeners[i] = listeners[i - 1];
+            newListeners[i] = this.listeners[i - 1];
         }
-        listeners = newListeners;
+        this.listeners = newListeners;
     }
 
     public void remove(PriorityEventListener<T> listener) {
@@ -64,26 +64,26 @@ public abstract class EventListenerHolder<T> {
             throw new IllegalArgumentException("EventListenerHolder does not contain event");
         }
         @SuppressWarnings({"unchecked"})
-        PriorityEventListener<T>[] newListeners = new PriorityEventListener[listeners.length - 1];
+        PriorityEventListener<T>[] newListeners = new PriorityEventListener[this.listeners.length - 1];
         int i = 0;
         int j = 0;
-        while (i < listeners.length) {
-            if (listeners[i] == listener) {
+        while (i < this.listeners.length) {
+            if (this.listeners[i] == listener) {
                 i++;
                 break;
             }
-            newListeners[j++] = listeners[i++];
+            newListeners[j++] = this.listeners[i++];
         }
-        while (i < listeners.length) {
-            newListeners[j++] = listeners[i++];
+        while (i < this.listeners.length) {
+            newListeners[j++] = this.listeners[i++];
         }
         listener.setHolder(null);
-        listeners = newListeners;
+        this.listeners = newListeners;
     }
 
     public void invoke(T event) {
-        for (int i = 0; i < listeners.length; i++) {
-            listeners[i].invoke(event);
+        for (int i = 0; i < this.listeners.length; i++) {
+            this.listeners[i].invoke(event);
         }
     }
 

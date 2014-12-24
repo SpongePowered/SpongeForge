@@ -82,7 +82,7 @@ public abstract class MixinItemStack implements ItemStack {
 
     @Override
     public int getQuantity() {
-        return stackSize;
+        return this.stackSize;
     }
 
     @Override
@@ -90,7 +90,7 @@ public abstract class MixinItemStack implements ItemStack {
         if (quantity > this.getMaxStackQuantity()) {
             throw new IllegalArgumentException("Quantity (" + quantity + ") exceeded the maximum stack size (" + this.getMaxStackQuantity() + ")");
         } else {
-            stackSize = quantity;
+            this.stackSize = quantity;
         }
     }
 

@@ -58,14 +58,14 @@ public class SpongeMessageText extends SpongeMessage implements Message.Text {
         protected ChatComponentText handle;
 
         public SpongeTextBuilder() {
-            children = new ArrayDeque<Message>();
-            handle = new ChatComponentText("");
+            this.children = new ArrayDeque<Message>();
+            this.handle = new ChatComponentText("");
         }
 
         public SpongeTextBuilder(String text) {
             this.content = text;
-            children = new ArrayDeque<Message>();
-            handle = new ChatComponentText(content);
+            this.children = new ArrayDeque<Message>();
+            this.handle = new ChatComponentText(this.content);
         }
 
         public MessageBuilder.Text append(Message message) {
@@ -97,7 +97,7 @@ public class SpongeMessageText extends SpongeMessage implements Message.Text {
         @Override
         public MessageBuilder.Text content(String content) {
             this.content = content;
-            handle = new ChatComponentText(content);
+            this.handle = new ChatComponentText(content);
             return this;
         }
 

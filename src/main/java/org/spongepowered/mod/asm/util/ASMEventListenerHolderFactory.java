@@ -157,7 +157,7 @@ public class ASMEventListenerHolderFactory {
 
         @Override
         public int hashCode() {
-            return hashCode;
+            return this.hashCode;
         }
 
         @Override
@@ -166,10 +166,10 @@ public class ASMEventListenerHolderFactory {
                 return false;
             } else {
                 HashTriple t = (HashTriple) o;
-                if (t.hashCode != hashCode) {
+                if (t.hashCode != this.hashCode) {
                     return false;
                 }
-                return t.eventClass.equals(eventClass) && t.priority.equals(priority) && t.canceled.equals(canceled);
+                return t.eventClass.equals(this.eventClass) && t.priority.equals(this.priority) && t.canceled.equals(this.canceled);
             }
         }
     }
@@ -180,10 +180,10 @@ public class ASMEventListenerHolderFactory {
         private final ClassLoader loader;
 
         public ClassLoaderAccess() {
-            loader = SpongeMod.instance.getClass().getClassLoader();
+            this.loader = SpongeMod.instance.getClass().getClassLoader();
             Method m = null;
             try {
-                Class<?> clazz = loader.getClass();
+                Class<?> clazz = this.loader.getClass();
                 while (clazz != null) {
                     try {
                         m = clazz.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
@@ -197,12 +197,12 @@ public class ASMEventListenerHolderFactory {
             } catch (SecurityException e) {
                 e.printStackTrace();
             }
-            defineClassMethod = m;
+            this.defineClassMethod = m;
         }
 
         public Class<?> defineClass(String className, byte[] b) {
             try {
-                return (Class<?>) defineClassMethod.invoke(this.loader, className, b, 0, b.length);
+                return (Class<?>) this.defineClassMethod.invoke(this.loader, className, b, 0, b.length);
             } catch (IllegalAccessException e) {
                 ;
             } catch (IllegalArgumentException e) {
