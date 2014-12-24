@@ -35,7 +35,7 @@ import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.event.EventManager;
-import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
+import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.service.scheduler.AsyncScheduler;
 
@@ -55,7 +55,7 @@ public final class SpongeGame implements Game {
     private final SimpleCommandService dispatcher;
 
     // TODO -- move issue into the ServicesManager (?)
-    private final AsynchronousScheduler asynchronousScheduler;
+    private final Scheduler scheduler;
 
     @Inject
     public SpongeGame(PluginManager plugin, EventManager event, GameRegistry registry) {
@@ -65,7 +65,7 @@ public final class SpongeGame implements Game {
         dispatcher = new SimpleCommandService(pluginManager);
 
         // TODO move into the Services Manager (?)
-        asynchronousScheduler = AsyncScheduler.getInstance();
+        scheduler = AsyncScheduler.getInstance();
     }
 
     @Override
@@ -109,8 +109,8 @@ public final class SpongeGame implements Game {
     }
 
     @Override
-    public AsynchronousScheduler getScheduler() {
-        return asynchronousScheduler;
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
     @Override

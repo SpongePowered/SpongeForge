@@ -27,7 +27,7 @@ package org.spongepowered.mod.service.scheduler;
 
 import com.google.common.base.Optional;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
+import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.service.scheduler.Task;
 
 import java.util.*;
@@ -63,13 +63,13 @@ import java.util.*;
  between invocations of the Task).
  */
 
-public class AsyncScheduler implements AsynchronousScheduler {
+public class AsyncScheduler implements Scheduler {
 
 
     // The intent is the implementation of the Task Scheduler is a single instance
     // in the context of the Sponge Core Mod.  There isn't a strong motivation to
     // have multiple instances of the "Scheduler".
-    private static volatile AsynchronousScheduler instance = null;
+    private static volatile Scheduler instance = null;
 
     // The scheduler itself runs in it's own thread.  That thread is the
     // Thread Body "tbody", and is initialized when this class is instantiated.
@@ -111,11 +111,11 @@ public class AsyncScheduler implements AsynchronousScheduler {
      *
      * @return instance of the TaskScheduler Singleton
      */
-    public static AsynchronousScheduler getInstance() {
+    public static Scheduler getInstance() {
         if (instance == null) {
             synchronized (AsyncScheduler.class) {
                 if (instance == null) {
-                    instance = (AsynchronousScheduler) new AsyncScheduler();
+                    instance = (Scheduler) new AsyncScheduler();
                 }
             }
         }
@@ -185,12 +185,25 @@ public class AsyncScheduler implements AsynchronousScheduler {
                             System.out.println("StateMachine RUN - Timeout: " + timeout);
                             taskList.wait(timeout);
                         } catch (IllegalMonitorStateException ex) {
-                            System.out.println("Some other error: " + ex.toString());
+                            System.out.println("Illegal Monitor State Exception: " + ex.toString());
                         } catch (InterruptedException ex) {
-                            System.out.println("Interrupted in wait!");
+                            System.out.println("Interrupt Exception!");
                         }
 
 
+                        /**
+                         * For each task, inspect the state.
+                         *
+                         * For the state of CANCELED, remove it and look at the next task, if any.
+                         *
+                         * For the state of WAITING, the task has not begun, so check the
+                         * offset time before starting that task for the first time.
+                         *
+                         * Else if the task is already RUNNING, use the period (the time delay until
+                         * the next moment to run the task).
+                         *
+                         *
+                         */
 
                         for (Iterator<ScheduledTask> itr = taskList.iterator(); itr.hasNext(); ) {
                             ScheduledTask task = itr.next();
@@ -200,6 +213,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
                                 continue;
                             }
 
+                            // We don't know how long to "wait" until letting the task run, yet.
                             long threshold = Long.MAX_VALUE;
 
                             if (task.state == ScheduledTask.ScheduledTaskState.WAITING) {
@@ -210,6 +224,13 @@ public class AsyncScheduler implements AsynchronousScheduler {
                             }
 
                             long now = System.currentTimeMillis();
+
+                            // So, if the current time minus the timestamp of the task is greater than
+                            // the delay to wait before starting the task, then start the task.
+
+                            // Repeating tasks get a reset-timestamp each time they are set RUNNING
+                            // If the task has a period of 0 (zero) this task will not repeat, and is removed
+                            // after we start it.
 
                             if ( threshold  < (now - task.timestamp)) {
                                 if (startTask(task)) {
@@ -226,6 +247,15 @@ public class AsyncScheduler implements AsynchronousScheduler {
                                 }
                             }
                         }
+
+                        // After processing all the tasks, we need to make sure we have set
+                        // the threshhold for waiting (waite/notify) correctly.
+                        // First, if the size of the taskList is zero, there are no tasks,
+                        // so we wait virtually forever until a new task is added.
+
+                        // Else, scan through the remaining tasks (WAITING OR RUNNING) and reset
+                        // the threshhold timeout to be the minimum.
+
 
                         if (taskList.size() == 0) {
                             timeout = Long.MAX_VALUE;
@@ -248,24 +278,95 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 }
 
                 case PAUSE: {
+                    // Do what we need to do as we enter the PAUSE state.
+                    //
+                    // TODO
+                    //
+                    // We're in PAUSE.  There is no way to leave PAUSE unless
+                    // external control of the State Machine permits.
+                    //
+                    // An exception could be that we want to leave PAUSE
+                    // when a special kind of event or special kind of Task is
+                    // set to run.
+
+                    synchronized (taskList) {
+                        try {
+                            System.out.println("StateMachine RUN - Timeout: " + timeout);
+
+                            // In PAUSE we just wait one second
+
+                            taskList.wait(1000);
+
+                        } catch (IllegalMonitorStateException ex) {
+                            System.out.println("Illegal Monitor State Exception: " + ex.toString());
+                        } catch (InterruptedException ex) {
+                            System.out.println("Interrupt Exception!");
+                        }
+                    }
 
                     break;
                 }
                 case RESUME: {
+                    // Do what we need to do before re-entering the RUN state
+                    //
+                    // While the machine is Paused the timestamps did not change
+                    // so, tasks that were almost ready to run will now be ready
+                    // to run as soon as we leave this state.  The impact is
+                    // if the machine was Paused long enough, then the rush of
+                    // new tasks will be executed in the RUN state.
+                    //
+                    // The contract with the Plugin is that we run Tasks on a certain
+                    // offset and period (delay and interval) but only when the
+                    // machine is running.
+                    //
+                    // This machine ignores the edge-case where a Task is almost
+                    // ready to run, and the machine is Paused.   When the machine
+                    // resumes, the task that was held Paused by the machine will
+                    // run as soon as the machine re-enters RUN.
+                    //
+                    // The way around that behavior would be to reset a new offset and
+                    // period for one cycle based on the remaining time until the task would
+                    // have been run and then use that data for the timing of the Task
+                    // as soon as the machine is Resumed.  Then reset the offset/period
+                    // again as normal.  The case is complicated since we can be re-Paused
+                    // at anytime.  So, it's easier to just run the Tasks when we Resume
+                    // if their timestamps are old enough (  threshhold < now - timestamp )
+                    //
+                    // now set the State Machine to re enter the RUS state
 
                     sm = MachineState.RUN;
                     break;
                 }
+
                 case STOP: {
+                    // Do what we need to do before invalidating the machine (and exiting)
+                    //
+                    // TODO
+                    //
+                    // now set the State Machine to INVALID
+
+                    sm = MachineState.INVALID;
                     break;
                 }
 
                 case RESTART: {
+                    // Do what we need to do before re-initializing the State Machine.
+                    //
+                    // TODO
+                    //
+                    // now set the State Machine to re-INITialize.
 
                     sm = MachineState.INIT;
                     break;
                 }
                 case INVALID: {
+                    // We're truly done with the machine.  There is no going back.
+                    // Finish up whatever needs to be done and then exit the Thread that owns
+                    // this state machine
+                    // TODO - anything?
+
+                    // Now let the loop exit, and thus the thread to finish.
+
                     break;
                 }
             }
