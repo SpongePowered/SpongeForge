@@ -236,13 +236,11 @@ public class BlockWrapper implements BlockLoc {
 
     @Override
     public boolean isPassable() {
-        // TODO
-        return false;
+        return this.handle.getBlockState(this.pos).getBlock().isPassable(this.handle, this.pos);
     }
 
     @Override
     public boolean isFaceFlammable(Direction direction) {
-        // TODO
-        return false;
+        return this.handle.getBlockState(this.pos).getBlock().isFlammable(this.handle, this.pos, getNotchDirection(direction));
     }
 }

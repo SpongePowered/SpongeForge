@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.block;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockState;
@@ -36,6 +37,11 @@ import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(BlockState.StateImplementation.class)
@@ -46,13 +52,26 @@ public abstract class MixinBlockState extends BlockStateBase implements org.spon
         return (BlockType) getBlock();
     }
 
-    // TODO: This method requires mixin support for methods with the same name and signature.
-    //@Override
-    //public abstract ImmutableMap<BlockProperty<?>, ? extends Comparable<?>> getProperties();
+    @Shadow
+    @SuppressWarnings("rawtypes")
+    private final ImmutableMap properties = null;
 
-    // TODO: This method requires mixin support for methods with the same name and signature.
-    //@Override
-    //public abstract Collection<String> getPropertyNames();
+    @Override
+    @SuppressWarnings("unchecked")
+    public ImmutableMap<BlockProperty<?>, ? extends Comparable<?>> getProperties() {
+        return this.properties;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Collection<String> getPropertyNames() {
+        ImmutableMap<IProperty, Comparable<?>> properties = ((IBlockState) this).getProperties();
+        List<String> names = Lists.newArrayListWithCapacity(properties.size());
+        for (IProperty property : properties.keySet()) {
+            names.add(property.getName());
+        }
+        return Collections.unmodifiableCollection(names);
+    }
 
     @Override
     @SuppressWarnings("unchecked")
