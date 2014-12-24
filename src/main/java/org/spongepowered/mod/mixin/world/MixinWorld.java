@@ -24,8 +24,8 @@
  */
 package org.spongepowered.mod.mixin.world;
 
-import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
 
 import net.minecraft.world.WorldProvider;
@@ -67,18 +67,13 @@ public abstract class MixinWorld implements World {
     }
 
     @Override
-    public Optional<Chunk> getChunk(Vector2i position) {
+    public Optional<Chunk> getChunk(Vector3i position) {
         return Optional.absent();
     }
 
     @Override
-    public Optional<Chunk> loadChunk(Vector2i position, boolean shouldGenerate) {
+    public Optional<Chunk> loadChunk(Vector3i position, boolean shouldGenerate) {
         return Optional.absent();
-    }
-
-    @Override
-    public Chunk loadChunk(Vector2i position) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

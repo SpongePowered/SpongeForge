@@ -233,4 +233,16 @@ public class BlockWrapper implements BlockLoc {
     public <T> Optional<T> getData(Class<T> dataClass) {
         return Optional.absent();
     }
+
+    @Override
+    public boolean isPassable() {
+        // TODO
+        return false;
+    }
+
+    @Override
+    public boolean isFaceFlammable(Direction direction) {
+        // TODO
+        return false;
+    }
 }
