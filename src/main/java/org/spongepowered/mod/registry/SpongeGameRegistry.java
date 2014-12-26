@@ -883,6 +883,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setTextColors();
         setMessageFactory();
         setTitleFactory();
+        setParticles();
     }
 
 }
