@@ -51,7 +51,7 @@ public final class SpongeParticleHelper {
      * 
      * @param effect The particle effect
      * @param position The position
-     * @return The particles
+     * @return The packets
      */
     public static List<Packet> toPackets(SpongeParticleEffect effect, Vector3f position) {
         SpongeParticleType type = effect.getType();
@@ -77,6 +77,31 @@ public final class SpongeParticleHelper {
 
         // Depends on behavior
         // Note: If the count > 0 -> speed = 0f else if count = 0 -> speed = 1f
+
+        if (effect instanceof SpongeParticleEffect.Materialized) {
+            ItemStack item = ((SpongeParticleEffect.Materialized) effect).getItem();
+            ItemType itemType = item.getItem();
+
+            int id = 0;
+            int data = 0;
+
+            if (internal == EnumParticleTypes.ITEM_CRACK) {
+                id = Item.itemRegistry.getIDForObject(itemType);
+                data = item.getDamage();
+            } else if (internal == EnumParticleTypes.BLOCK_CRACK || internal == EnumParticleTypes.BLOCK_DUST) {
+                // Only block types are allowed
+                if (itemType instanceof ItemBlock) {
+                    id = Block.blockRegistry.getIDForObject(((ItemBlock) itemType).getBlock());
+                    data = item.getDamage();
+                }
+            }
+
+            if (id == 0) {
+                return Collections.emptyList();
+            }
+
+            extra = new int[] { id, data };
+        }
 
         if (effect instanceof SpongeParticleEffect.Resized) {
             float size = ((SpongeParticleEffect.Resized) effect).getSize();
@@ -118,32 +143,7 @@ public final class SpongeParticleHelper {
             }
      
             f0 = note / 24f;
-        } else if (effect instanceof SpongeParticleEffect.Materialized) {
-            ItemStack item = ((SpongeParticleEffect.Materialized) effect).getItem();
-            ItemType itemType = item.getItem();
-
-            int id = 0;
-            int data = 0;
-
-            if (internal == EnumParticleTypes.ITEM_CRACK) {
-                id = Item.itemRegistry.getIDForObject(itemType);
-                data = item.getDamage();
-            } else if (internal == EnumParticleTypes.BLOCK_CRACK || internal == EnumParticleTypes.BLOCK_DUST) {
-                // Only block types are allowed
-                if (itemType instanceof ItemBlock) {
-                    id = Block.blockRegistry.getIDForObject(((ItemBlock) itemType).getBlock());
-                    data = item.getDamage();
-                }
-            }
-
-            if (id == 0) {
-                return Collections.emptyList();
-            }
-
-            extra = new int[] { id, data };
-        }
-
-        if (type.hasMotion()) {
+        } else if (type.hasMotion()) {
             Vector3f motion = effect.getMotion();
 
             float mx = motion.getX();

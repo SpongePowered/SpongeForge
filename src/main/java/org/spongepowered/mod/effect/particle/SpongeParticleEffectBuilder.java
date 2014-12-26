@@ -62,7 +62,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     @Override
-    public SpongeParticleEffectBuilder withCount(int count) throws IllegalStateException {
+    public SpongeParticleEffectBuilder withCount(int count) {
         Preconditions.checkState(count > 0, "The count has to be greater then zero!");
         this.count = count;
         return this;

@@ -958,6 +958,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setRotations();
         setMessageFactory();
         setTitleFactory();
+        setParticles();
     }
 
 }
