@@ -48,21 +48,21 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     @Override
-    public SpongeParticleEffectBuilder withMotion(Vector3f motion) {
+    public SpongeParticleEffectBuilder motion(Vector3f motion) {
         Preconditions.checkNotNull(motion, "The motion vector cannot be null! Use Vector3f.ZERO instead!");
         this.motion = motion;
         return this;
     }
 
     @Override
-    public SpongeParticleEffectBuilder withOffset(Vector3f offset) {
+    public SpongeParticleEffectBuilder offset(Vector3f offset) {
         Preconditions.checkNotNull(offset, "The offset vector cannot be null! Use Vector3f.ZERO instead!");
         this.offset = offset;
         return this;
     }
 
     @Override
-    public SpongeParticleEffectBuilder withCount(int count) {
+    public SpongeParticleEffectBuilder count(int count) {
         Preconditions.checkState(count > 0, "The count has to be greater then zero!");
         this.count = count;
         return this;
@@ -82,25 +82,25 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public BuilderColorable withColor(Color color) {
+        public BuilderColorable color(Color color) {
             Preconditions.checkNotNull(color, "The color cannot be null!");
             this.color = color;
             return this;
         }
 
         @Override
-        public BuilderColorable withMotion(Vector3f motion) {
-            return (BuilderColorable) super.withMotion(motion);
+        public BuilderColorable motion(Vector3f motion) {
+            return (BuilderColorable) super.motion(motion);
         }
 
         @Override
-        public BuilderColorable withOffset(Vector3f motion) {
-            return (BuilderColorable) super.withOffset(motion);
+        public BuilderColorable offset(Vector3f motion) {
+            return (BuilderColorable) super.offset(motion);
         }
 
         @Override
-        public BuilderColorable withCount(int count) {
-            return (BuilderColorable) super.withCount(count);
+        public BuilderColorable count(int count) {
+            return (BuilderColorable) super.count(count);
         }
 
         @Override
@@ -119,25 +119,25 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public BuilderResizable withSize(float size) {
+        public BuilderResizable size(float size) {
             Preconditions.checkState(size >= 0f, "The size has to be greater or equal to zero!");
             this.size = size;
             return this;
         }
 
         @Override
-        public BuilderResizable withMotion(Vector3f motion) {
-            return (BuilderResizable) super.withMotion(motion);
+        public BuilderResizable motion(Vector3f motion) {
+            return (BuilderResizable) super.motion(motion);
         }
 
         @Override
-        public BuilderResizable withOffset(Vector3f motion) {
-            return (BuilderResizable) super.withOffset(motion);
+        public BuilderResizable offset(Vector3f offset) {
+            return (BuilderResizable) super.offset(offset);
         }
 
         @Override
-        public BuilderResizable withCount(int count) {
-            return (BuilderResizable) super.withCount(count);
+        public BuilderResizable count(int count) {
+            return (BuilderResizable) super.count(count);
         }
 
         @Override
@@ -156,25 +156,25 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public BuilderNote withNote(float note) {
+        public BuilderNote note(float note) {
             Preconditions.checkState(note >= 0f && note <= 24f, "The note has to scale between 0 and 24!");
             this.note = note;
             return this;
         }
 
         @Override
-        public BuilderNote withMotion(Vector3f motion) {
-            return (BuilderNote) super.withMotion(motion);
+        public BuilderNote motion(Vector3f motion) {
+            return (BuilderNote) super.motion(motion);
         }
 
         @Override
-        public BuilderNote withOffset(Vector3f motion) {
-            return (BuilderNote) super.withOffset(motion);
+        public BuilderNote offset(Vector3f offset) {
+            return (BuilderNote) super.offset(offset);
         }
 
         @Override
-        public BuilderNote withCount(int count) {
-            return (BuilderNote) super.withCount(count);
+        public BuilderNote count(int count) {
+            return (BuilderNote) super.count(count);
         }
 
         @Override
@@ -193,32 +193,32 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public BuilderMaterial withItem(ItemStack item) {
+        public BuilderMaterial item(ItemStack item) {
             Preconditions.checkNotNull(item, "The item stack cannot be null!");
             this.item = item;
             return this;
         }
 
         @Override
-        public Material withItemType(ItemType item) {
+        public Material itemType(ItemType item) {
             Preconditions.checkNotNull(item, "The item type cannot be null!");
             this.item = ItemStack.class.cast(new net.minecraft.item.ItemStack((Item) item));
             return null;
         }
 
         @Override
-        public BuilderMaterial withMotion(Vector3f motion) {
-            return (BuilderMaterial) super.withMotion(motion);
+        public BuilderMaterial motion(Vector3f motion) {
+            return (BuilderMaterial) super.motion(motion);
         }
 
         @Override
-        public BuilderMaterial withOffset(Vector3f motion) {
-            return (BuilderMaterial) super.withOffset(motion);
+        public BuilderMaterial offset(Vector3f offset) {
+            return (BuilderMaterial) super.offset(offset);
         }
 
         @Override
-        public BuilderMaterial withCount(int count) {
-            return (BuilderMaterial) super.withCount(count);
+        public BuilderMaterial count(int count) {
+            return (BuilderMaterial) super.count(count);
         }
 
         @Override
