@@ -61,10 +61,10 @@ public abstract class MixinEntityHanging extends Entity implements Hanging {
     private final static EnumBiMap<Direction, EnumFacing> directionMap = EnumBiMap.create(Direction.class, EnumFacing.class);
     
     static {
-        directioMap.put(Direction.NORTH, EnumFacing.NORTH);
-        directioMap.put(Direction.EAST, EnumFacing.EAST);
-        directioMap.put(Direction.SOUTH, EnumFacing.SOUTH);
-        directioMap.put(Direction.WEST, EnumFacing.WEST);
+        directionMap.put(Direction.NORTH, EnumFacing.NORTH);
+        directionMap.put(Direction.EAST, EnumFacing.EAST);
+        directionMap.put(Direction.SOUTH, EnumFacing.SOUTH);
+        directionMap.put(Direction.WEST, EnumFacing.WEST);
     }
     
     /**
@@ -92,13 +92,13 @@ public abstract class MixinEntityHanging extends Entity implements Hanging {
     @Override
     public Direction getHangingDirection()
     {
-        return directioMap.inverse().get(field_174860_b);
+        return directionMap.inverse().get(field_174860_b);
     }
 
     @Override
     public void setHangingDirection(Direction direction, boolean forced)
     {
         ignorePhysics = forced;
-        field_174860_b = directioMap.get(direction) == null ? EnumFacing.NORTH : directioMap.get(direction);
+        field_174860_b = directionMap.get(direction) == null ? EnumFacing.NORTH : directionMap.get(direction);
     }
 }
