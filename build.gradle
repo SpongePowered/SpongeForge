@@ -73,6 +73,9 @@ dependencies {
     compile project('Mixin')
     compile project('SpongeAPI')
     testCompile 'junit:junit:4.11'
+
+    checkstyle 'com.puppycrawl.tools:checkstyle:6.1.1'
+
     deployerJars 'org.apache.maven.wagon:wagon-ftp:2.7'
 }
 shadowJar  {
