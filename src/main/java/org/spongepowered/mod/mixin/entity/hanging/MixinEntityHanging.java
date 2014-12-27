@@ -58,7 +58,7 @@ public abstract class MixinEntityHanging extends Entity implements Hanging {
     private boolean ignorePhysics = false;
     
     //TODO Change when this is properly implemented.
-    private final static EnumBiMap<Direction, EnumFacing> directioMap = EnumBiMap.create(Direction.class, EnumFacing.class);
+    private final static EnumBiMap<Direction, EnumFacing> directionMap = EnumBiMap.create(Direction.class, EnumFacing.class);
     
     static {
         directioMap.put(Direction.NORTH, EnumFacing.NORTH);
