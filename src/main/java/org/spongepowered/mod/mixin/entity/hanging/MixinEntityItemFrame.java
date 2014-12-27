@@ -1,0 +1,79 @@
+/*
+ * This file is part of Sponge, licensed under the MIT License (MIT).
+ *
+ * Copyright (c) SpongePowered.org <http://www.spongepowered.org>
+ * Copyright (c) contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package org.spongepowered.mod.mixin.entity.hanging;
+
+import javax.annotation.Nullable;
+
+import net.minecraft.entity.EntityHanging;
+import net.minecraft.world.World;
+
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.util.rotation.Rotation;
+import org.spongepowered.api.util.rotation.Rotations;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+
+import com.google.common.base.Optional;
+
+@NonnullByDefault
+@Mixin(net.minecraft.entity.item.EntityItemFrame.class)
+@Implements(@Interface(iface = org.spongepowered.api.entity.hanging.ItemFrame.class, prefix = "itemFrame$"))
+public abstract class MixinEntityItemFrame extends EntityHanging {
+
+    @Shadow
+    public abstract net.minecraft.item.ItemStack getDisplayedItem();
+
+    @Shadow
+    public abstract void setDisplayedItem(net.minecraft.item.ItemStack p_82334_1_);
+
+    @Shadow
+    public abstract int getRotation();
+
+    @Shadow
+    public abstract void setItemRotation(int p_82336_1_);
+
+    public MixinEntityItemFrame(World worldIn) {
+        super(worldIn);
+    }
+
+    public Optional<ItemStack> itemFrame$getItem() {
+        return Optional.fromNullable((ItemStack) this.getDataWatcher().getWatchableObjectItemStack(8));
+    }
+
+    public void itemFrame$setItem(@Nullable ItemStack item) {
+        setDisplayedItem((net.minecraft.item.ItemStack) item);
+    }
+
+    public Rotation itemFrame$getItemRotation() {
+        return Rotations.getRotationForDegree(getRotation() * 45).get();
+    }
+
+    public void itemFrame$setRotation(Rotation itemRotation) {
+        setItemRotation(itemRotation.getAngle()/45);
+    }
+}
