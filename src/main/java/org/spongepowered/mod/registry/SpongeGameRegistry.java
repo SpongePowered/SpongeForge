@@ -28,6 +28,7 @@ package org.spongepowered.mod.registry;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +38,13 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.effect.EntityWeatherEffect;
+import net.minecraft.entity.item.EntityPainting.EnumArt;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.common.registry.GameData;
@@ -53,6 +56,7 @@ import org.spongepowered.api.effect.Particle;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
+import org.spongepowered.api.entity.hanging.art.Arts;
 import org.spongepowered.api.entity.living.meta.DyeColor;
 import org.spongepowered.api.entity.living.meta.HorseColor;
 import org.spongepowered.api.entity.living.meta.HorseColors;
@@ -88,6 +92,7 @@ import org.spongepowered.api.text.message.Messages;
 import org.spongepowered.api.text.message.SpongeMessageFactory;
 import org.spongepowered.api.text.title.SpongeTitleFactory;
 import org.spongepowered.api.text.title.Titles;
+import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Environment;
 import org.spongepowered.api.world.biome.BiomeType;
@@ -99,6 +104,8 @@ import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableBiMap.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -123,10 +130,23 @@ public class SpongeGameRegistry implements GameRegistry {
                                                                            .put("ACTION_BAR", new SpongeChatType("ACTION_BAR", (byte) 2))
                                                                            .build();
 
+    private Map<String, Art> artMappings = Maps.newHashMap();
     private Map<String, SpongeEntityType> entityTypeMappings = Maps.newHashMap();
     public Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
     public Map<Class<? extends Entity>, SpongeEntityType> entityClassToTypeMappings = Maps.newHashMap();
     public Map<String, Enchantment> enchantmentMappings = Maps.newHashMap();
+    
+    public static final ImmutableBiMap<Direction, EnumFacing> directionMap;
+    static {
+        Builder<Direction, EnumFacing> directionMapBuilder = ImmutableBiMap.builder();
+        directionMapBuilder.put(Direction.NORTH, EnumFacing.NORTH);
+        directionMapBuilder.put(Direction.EAST, EnumFacing.EAST);
+        directionMapBuilder.put(Direction.SOUTH, EnumFacing.SOUTH);
+        directionMapBuilder.put(Direction.WEST, EnumFacing.WEST);
+        directionMapBuilder.put(Direction.UP, EnumFacing.UP);
+        directionMapBuilder.put(Direction.DOWN, EnumFacing.DOWN);
+        directionMap = directionMapBuilder.build();
+    }
 
     @Override
     public Optional<BlockType> getBlock(String id) {
@@ -254,16 +274,12 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<Art> getArt(String id) {
-
-        //TODO implement.
-        return Optional.absent();
+        return Optional.fromNullable(this.artMappings.get(id));
     }
 
     @Override
     public List<Art> getArts() {
-
-        //TODO implement.
-        return null;
+        return (List) Arrays.asList(EnumArt.values());
     }
 
     @Override
@@ -509,6 +525,18 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
+    private void setArts() {
+        for(Field f : Arts.class.getDeclaredFields()) {
+            try {
+                Art art = (Art) (Object) EnumArt.valueOf(f.getName());
+                f.set(null, art);
+                this.artMappings.put(art.getName(), art);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     private void setEntityTypes() {
         // internal mapping of our EntityTypes to actual MC names
         this.entityTypeMappings.put("DROPPED_ITEM", new SpongeEntityType(1, "Item", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Item")));
@@ -790,13 +818,13 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
-
     public void init() {
         setBiomeTypes();
         setBlockTypes();
         setItemTypes();
         setEnchantments();
         setPotionTypes();
+        setArts();
         setEntityTypes();
         setTextColors();
         setMessageFactory();
