@@ -94,12 +94,15 @@ import org.spongepowered.api.text.title.SpongeTitleFactory;
 import org.spongepowered.api.text.title.Titles;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.util.rotation.Rotation;
+import org.spongepowered.api.util.rotation.Rotations;
 import org.spongepowered.api.world.Environment;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityType;
+import org.spongepowered.mod.rotation.SpongeRotation;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 
@@ -128,6 +131,16 @@ public class SpongeGameRegistry implements GameRegistry {
                                                                            .put("CHAT", new SpongeChatType("CHAT", (byte) 0))
                                                                            .put("SYSTEM", new SpongeChatType("SYSTEM", (byte) 1))
                                                                            .put("ACTION_BAR", new SpongeChatType("ACTION_BAR", (byte) 2))
+                                                                           .build();
+    private static final ImmutableMap<String, Rotation> rotationMappings =  new ImmutableMap.Builder<String, Rotation>()
+                                                                           .put("TOP", new SpongeRotation(0))
+                                                                           .put("TOP_RIGHT", new SpongeRotation(45))
+                                                                           .put("RIGHT", new SpongeRotation(90))
+                                                                           .put("BOTTOM_RIGHT", new SpongeRotation(135))
+                                                                           .put("BOTTOM", new SpongeRotation(180))
+                                                                           .put("BOTTOM_LEFT", new SpongeRotation(225))
+                                                                           .put("LEFT", new SpongeRotation(270))
+                                                                           .put("TOP_LEFT", new SpongeRotation(315))
                                                                            .build();
 
     private Map<String, Art> artMappings = Maps.newHashMap();
@@ -802,6 +815,16 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
+    private void setRotations() {
+        for (Field f : Rotations.class.getDeclaredFields()) {
+            try {
+                f.set(null, rotationMappings.get(f.getName()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void setMessageFactory() {
         try {
             Messages.class.getDeclaredField("factory").set(null, new SpongeMessageFactory());
@@ -827,6 +850,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setArts();
         setEntityTypes();
         setTextColors();
+        setRotations();
         setMessageFactory();
         setTitleFactory();
     }
