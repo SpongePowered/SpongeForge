@@ -62,8 +62,10 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     @Override
-    public SpongeParticleEffectBuilder count(int count) {
-        Preconditions.checkState(count > 0, "The count has to be greater then zero!");
+    public SpongeParticleEffectBuilder count(int count) throws IllegalArgumentException {
+    	if (count < 1) {
+    		throw new IllegalArgumentException("The count has to be greater then zero!");
+    	}
         this.count = count;
         return this;
     }
@@ -104,7 +106,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public SpongeParticleEffect.Colored build() throws IllegalStateException {
+        public SpongeParticleEffect.Colored build() {
             return new SpongeParticleEffect.Colored(this.type, this.motion, this.offset, this.color, this.count);
         }
 
@@ -141,7 +143,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public SpongeParticleEffect.Resized build() throws IllegalStateException {
+        public SpongeParticleEffect.Resized build() {
             return new SpongeParticleEffect.Resized(this.type, this.motion, this.offset, this.size, this.count);
         }
 
@@ -178,7 +180,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public SpongeParticleEffect.Note build() throws IllegalStateException {
+        public SpongeParticleEffect.Note build() {
             return new SpongeParticleEffect.Note(this.type, this.motion, this.offset, this.note, this.count);
         }
 
@@ -222,7 +224,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         }
 
         @Override
-        public SpongeParticleEffect.Materialized build() throws IllegalStateException {
+        public SpongeParticleEffect.Materialized build() {
             return new SpongeParticleEffect.Materialized(this.type, this.motion, this.offset, this.item, this.count);
         }
 
