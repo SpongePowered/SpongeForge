@@ -36,6 +36,6 @@ public class SpongeRotation implements Rotation {
 
     @Override
     public int getAngle() {
-        return angle;
+        return this.angle;
     }
 }

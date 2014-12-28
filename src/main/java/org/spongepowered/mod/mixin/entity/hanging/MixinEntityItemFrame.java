@@ -59,19 +59,23 @@ public abstract class MixinEntityItemFrame extends EntityHanging implements Item
         super(worldIn);
     }
 
-    public Optional<ItemStack> itemFrame$getItem() {
+    @Override
+    public Optional<ItemStack> getItem() {
         return Optional.fromNullable((ItemStack) getDisplayedItem());
     }
 
-    public void itemFrame$setItem(@Nullable ItemStack item) {
+    @Override
+    public void setItem(@Nullable ItemStack item) {
         setDisplayedItem((net.minecraft.item.ItemStack) item);
     }
 
-    public Rotation itemFrame$getItemRotation() {
+    @Override
+    public Rotation getItemRotation() {
         return Rotations.getRotationForDegree(shadow$getRotation() * 45).get();
     }
 
-    public void itemFrame$setRotation(Rotation itemRotation) {
+    @Override
+    public void setRotation(Rotation itemRotation) {
         setItemRotation(itemRotation.getAngle()/45);
     }
 }

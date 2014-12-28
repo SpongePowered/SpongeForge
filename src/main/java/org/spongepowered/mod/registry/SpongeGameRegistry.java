@@ -52,7 +52,8 @@ import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.effect.Particle;
+import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
+import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
@@ -211,9 +212,11 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<EntityType> getEntities() {
-
-        //TODO implement.
-        return null;
+        List<EntityType> entityList = new ArrayList<EntityType>();
+        for (EntityType entityType : this.entityTypeMappings.values()) {
+            entityList.add(entityType);
+        }
+        return entityList;
     }
 
     @Override
@@ -258,16 +261,22 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
-    public Optional<Particle> getParticle(String id) {
+    public Optional<ParticleType> getParticleType(String id) {
 
         //TODO Implement getParticle once particles are implemented.
         return Optional.absent();
     }
 
     @Override
-    public List<Particle> getParticles() {
+    public List<ParticleType> getParticleTypes() {
 
         //TODO implement.
+        return null;
+    }
+
+    @Override
+    public ParticleEffectBuilder getParticleEffectBuilder(ParticleType particle) {
+        // TODO
         return null;
     }
 
@@ -311,86 +320,86 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<HorseColor> getHorseColor(String id) {
-
-        //TODO implement.
-        return Optional.absent();
+        return Optional.fromNullable(SpongeEntityConstants.HORSE_COLORS.get(id));
     }
 
     @Override
     public List<HorseColor> getHorseColors() {
-
-        //TODO implement.
-        return null;
+        List<HorseColor> horseColors = new ArrayList<HorseColor>(SpongeEntityConstants.HORSE_COLORS.size());
+        for (HorseColor horseColor : SpongeEntityConstants.HORSE_COLORS.values()) {
+            horseColors.add(horseColor);
+        }
+        return horseColors;
     }
 
     @Override
     public Optional<HorseStyle> getHorseStyle(String id) {
-
-        //TODO implement.
-        return Optional.absent();
+        return Optional.fromNullable(SpongeEntityConstants.HORSE_STYLES.get(id));
     }
 
     @Override
     public List<HorseStyle> getHorseStyles() {
-
-        //TODO implement.
-        return null;
+        List<HorseStyle> horseStyles = new ArrayList<HorseStyle>(SpongeEntityConstants.HORSE_STYLES.size());
+        for (HorseStyle horseStyle : SpongeEntityConstants.HORSE_STYLES.values()) {
+            horseStyles.add(horseStyle);
+        }
+        return horseStyles;
     }
 
     @Override
     public Optional<HorseVariant> getHorseVariant(String id) {
-
-        //TODO implement.
-        return Optional.absent();
+        return Optional.fromNullable(SpongeEntityConstants.HORSE_VARIANTS.get(id));
     }
 
     @Override
     public List<HorseVariant> getHorseVariants() {
-
-        //TODO implement.
-        return null;
+        List<HorseVariant> horseVariants = new ArrayList<HorseVariant>(SpongeEntityConstants.HORSE_VARIANTS.size());
+        for (HorseVariant horseVariant : SpongeEntityConstants.HORSE_VARIANTS.values()) {
+            horseVariants.add(horseVariant);
+        }
+        return horseVariants;
     }
 
     @Override
     public Optional<OcelotType> getOcelotType(String id) {
-
-        //TODO implement.
-        return Optional.absent();
+        return Optional.fromNullable(SpongeEntityConstants.OCELOT_TYPES.get(id));
     }
 
     @Override
     public List<OcelotType> getOcelotTypes() {
-
-        //TODO implement.
-        return null;
+        List<OcelotType> ocelotTypes = new ArrayList<OcelotType>(SpongeEntityConstants.OCELOT_TYPES.size());
+        for (OcelotType type : SpongeEntityConstants.OCELOT_TYPES.values()) {
+            ocelotTypes.add(type);
+        }
+        return ocelotTypes;
     }
 
     @Override
     public Optional<RabbitType> getRabbitType(String id) {
-
-        //TODO implement.
-        return Optional.absent();
+        return Optional.fromNullable(SpongeEntityConstants.RABBIT_TYPES.get(id));
     }
 
     @Override
     public List<RabbitType> getRabbitTypes() {
-
-        //TODO implement.
-        return null;
+        List<RabbitType> rabbitTypes = new ArrayList<RabbitType>(SpongeEntityConstants.RABBIT_TYPES.size());
+        for (RabbitType type : SpongeEntityConstants.RABBIT_TYPES.values()) {
+            rabbitTypes.add(type);
+        }
+        return rabbitTypes;
     }
 
     @Override
     public Optional<SkeletonType> getSkeletonType(String id) {
-
-        //TODO implement.
-        return Optional.absent();
+        return Optional.fromNullable(SpongeEntityConstants.SKELETON_TYPES.get(id));
     }
 
     @Override
     public List<SkeletonType> getSkeletonTypes() {
-
-        //TODO implement.
-        return null;
+        List<SkeletonType> skeletonTypes = new ArrayList<SkeletonType>(SpongeEntityConstants.SKELETON_TYPES.size());
+        for (SkeletonType type : SpongeEntityConstants.SKELETON_TYPES.values()) {
+           skeletonTypes.add(type);
+        }
+        return skeletonTypes;
     }
 
     @Override
