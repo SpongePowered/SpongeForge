@@ -13,6 +13,7 @@
     "block.MixinPropertyDirection",
     "entity.MixinEntity",
     "entity.MixinEntityEnderCrystal",
+    "entity.explosive.MixinTNTPrimed",
     "entity.hanging.MixinEntityHanging",
     "entity.hanging.MixinEntityPainting",
     "entity.hanging.MixinEntityItemFrame",
