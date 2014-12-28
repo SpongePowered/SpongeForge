@@ -12,6 +12,7 @@
     "block.MixinPropertyHelper$MixinPropertyInteger",
     "block.MixinPropertyDirection",
     "entity.MixinEntity",
+    "entity.MixinEntityXPOrb",
     "entity.MixinEntityEnderCrystal",
     "entity.hanging.MixinEntityHanging",
     "entity.hanging.MixinEntityPainting",
