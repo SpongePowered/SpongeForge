@@ -24,15 +24,18 @@
  */
 package org.spongepowered.mod.mixin.world;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
 
+import net.minecraft.item.Item;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.storage.WorldInfo;
 
 import org.spongepowered.api.block.BlockLoc;
+import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -48,6 +51,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.effect.SpongeParticleType;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
 import com.flowpowered.math.vector.Vector3d;
@@ -60,17 +64,18 @@ public abstract class MixinWorld implements World {
 
     private boolean keepSpawnLoaded;
 
-    @Shadow
-    public WorldProvider provider;
+    @Shadow public WorldProvider provider;
 
-    @Shadow
-    protected WorldInfo worldInfo;
+    @Shadow protected WorldInfo worldInfo;
 
-    @Shadow
-    public Random rand;
+    @Shadow public Random rand;
 
     @Shadow(prefix = "shadow$")
     public abstract net.minecraft.world.border.WorldBorder shadow$getWorldBorder();
+
+    @Shadow
+    private void spawnParticle(int id, boolean forceShown, double posX, double posY, double posZ, double data1, double data2, double data3, int... stateIds) {
+    }
 
     @Override
     public UUID getUniqueID() {
@@ -192,6 +197,28 @@ public abstract class MixinWorld implements World {
         }
     }
 
+    private void spawnParticles(ParticleEffect particleEffect, Vector3d position, boolean forced) {
+        SpongeParticleType type = (SpongeParticleType) particleEffect.getType();
+        int stateId = 0;
+        if (particleEffect instanceof ParticleEffect.Colorable) {
+            Color color = ((ParticleEffect.Colorable) particleEffect).getColor();
+            spawnParticle(type.getMinecraftType().func_179348_c(), type.getMinecraftType().func_179344_e() || forced, position.getX(), position.getY(), position.getZ(), color.getRed(), color.getGreen(), color.getBlue());
+        } else if (particleEffect instanceof ParticleEffect.Resizable) {
+            spawnParticle(type.getMinecraftType().func_179348_c(), type.getMinecraftType().func_179344_e() || forced, position.getX(), position.getY(), position.getZ(), ((ParticleEffect.Resizable) particleEffect).getSize(), 0.0D, 0.0D);
+        } else if (particleEffect instanceof ParticleEffect.Note) {
+            spawnParticle(type.getMinecraftType().func_179348_c(), type.getMinecraftType().func_179344_e() || forced, position.getX(), position.getY(), position.getZ(), ((ParticleEffect.Note) particleEffect).getNote(), 0.0D, 0.0D);
+        } else if (particleEffect instanceof ParticleEffect.Material) {
+            stateId = Item.getIdFromItem((Item) ((ParticleEffect.Material) particleEffect).getItem().getItem());
+        }
+        if (particleEffect.getCount() == 1) {
+            spawnParticle(type.getMinecraftType().func_179348_c(), type.getMinecraftType().func_179344_e() || forced, position.getX(), position.getY(), position.getZ(), particleEffect.getMotion().getX(), particleEffect.getMotion().getY(), particleEffect.getMotion().getZ(), stateId);
+        } else {
+            for (int i = 0; i < particleEffect.getCount(); i++) {
+                spawnParticle(type.getMinecraftType().func_179348_c(), type.getMinecraftType().func_179344_e() || forced, position.getX(), position.getY(), position.getZ(), particleEffect.getMotion().getX() * this.rand.nextGaussian(), particleEffect.getMotion().getY() * this.rand.nextGaussian(), particleEffect.getMotion().getZ() * this.rand.nextGaussian(), stateId);
+            }
+        }
+    }
+
     @Override
     public Dimension getDimension() {
         return (Dimension)this.provider;
@@ -205,5 +232,16 @@ public abstract class MixinWorld implements World {
     @Override
     public void setKeepSpawnLoaded(boolean keepLoaded) {
         this.keepSpawnLoaded = keepLoaded;
+    }
+
+    @Override
+    public void spawnParticles(ParticleEffect particleEffect, Vector3d position) {
+        spawnParticles(particleEffect, position, false);
+    }
+
+    @Override
+    public void spawnParticles(ParticleEffect particleEffect, Vector3d position, int radius) {
+        // TODO Radius is very hard to implement properly
+        spawnParticles(particleEffect, position, radius > 16 ? true : false);
     }
 }
