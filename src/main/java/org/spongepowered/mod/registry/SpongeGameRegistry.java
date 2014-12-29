@@ -72,7 +72,9 @@ import org.spongepowered.api.entity.living.meta.RabbitTypes;
 import org.spongepowered.api.entity.living.meta.SkeletonType;
 import org.spongepowered.api.entity.living.meta.SkeletonTypes;
 import org.spongepowered.api.entity.living.villager.Career;
+import org.spongepowered.api.entity.living.villager.Careers;
 import org.spongepowered.api.entity.living.villager.Profession;
+import org.spongepowered.api.entity.living.villager.Professions;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
@@ -101,8 +103,11 @@ import org.spongepowered.api.world.Environment;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
+import org.spongepowered.mod.entity.SpongeCareer;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
+import org.spongepowered.mod.entity.SpongeEntityMeta;
 import org.spongepowered.mod.entity.SpongeEntityType;
+import org.spongepowered.mod.entity.SpongeProfession;
 import org.spongepowered.mod.rotation.SpongeRotation;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
@@ -110,6 +115,7 @@ import org.spongepowered.mod.text.format.SpongeTextColor;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableBiMap.Builder;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -149,6 +155,9 @@ public class SpongeGameRegistry implements GameRegistry {
     public Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
     public Map<Class<? extends Entity>, SpongeEntityType> entityClassToTypeMappings = Maps.newHashMap();
     public Map<String, Enchantment> enchantmentMappings = Maps.newHashMap();
+    private Map<String, Career> careerMappings = Maps.newHashMap();
+    private Map<String, Profession> professionMappings = Maps.newHashMap();
+    private Map<Integer, List<Career>> professionToCareerMappings = Maps.newHashMap();
     
     public static final ImmutableBiMap<Direction, EnumFacing> directionMap;
     static {
@@ -404,37 +413,27 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<Career> getCareer(String id) {
-
-        //TODO implement.
-        return Optional.absent();
+        return Optional.fromNullable(this.careerMappings.get(id));
     }
 
     @Override
     public List<Career> getCareers() {
-
-        //TODO implement.
-        return null;
+        return ImmutableList.copyOf(this.careerMappings.values());
     }
 
     @Override
     public List<Career> getCareers(Profession profession) {
-
-        //TODO implement.
-        return null;
+        return this.professionToCareerMappings.get(((SpongeEntityMeta) profession).type);
     }
 
     @Override
     public Optional<Profession> getProfession(String id) {
-
-        //TODO implement.
-        return Optional.absent();
+        return Optional.fromNullable(this.professionMappings.get(id));
     }
 
     @Override
     public List<Profession> getProfessions() {
-
-        //TODO implement.
-        return null;
+        return ImmutableList.copyOf(this.professionMappings.values());
     }
 
     @Override
@@ -762,6 +761,55 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
+    private void setCareersAndProfessions() {
+        try {
+            Professions.class.getDeclaredField("FARMER").set(null, new SpongeProfession(0, "farmer"));
+            Careers.class.getDeclaredField("FARMER").set(null, new SpongeCareer(0, "farmer", Professions.FARMER));
+            Careers.class.getDeclaredField("FISHERMAN").set(null, new SpongeCareer(1, "fisherman", Professions.FARMER));
+            Careers.class.getDeclaredField("SHEPHERD").set(null, new SpongeCareer(2, "shepherd", Professions.FARMER));
+            Careers.class.getDeclaredField("FLETCHER").set(null, new SpongeCareer(3, "fletcher", Professions.FARMER));
+            
+            Professions.class.getDeclaredField("LIBRARIAN").set(null, new SpongeProfession(1, "librarian"));
+            Careers.class.getDeclaredField("LIBRARIAN").set(null, new SpongeCareer(0, "librarian", Professions.LIBRARIAN));
+            
+            Professions.class.getDeclaredField("PRIEST").set(null, new SpongeProfession(2, "priest"));
+            Careers.class.getDeclaredField("CLERIC").set(null, new SpongeCareer(0, "cleric", Professions.PRIEST));
+            
+            Professions.class.getDeclaredField("BLACKSMITH").set(null, new SpongeProfession(3, "blacksmith"));
+            Careers.class.getDeclaredField("ARMORER").set(null, new SpongeCareer(0, "armor", Professions.BLACKSMITH));
+            Careers.class.getDeclaredField("WEAPON_SMITH").set(null, new SpongeCareer(1, "weapon", Professions.BLACKSMITH));
+            Careers.class.getDeclaredField("TOOL_SMITH").set(null, new SpongeCareer(2, "tool", Professions.BLACKSMITH));
+            
+            Professions.class.getDeclaredField("BUTCHER").set(null, new SpongeProfession(4, "butcher"));
+            Careers.class.getDeclaredField("BUTCHER").set(null, new SpongeCareer(0, "butcher", Professions.BUTCHER));
+            Careers.class.getDeclaredField("LEATHERWORKER").set(null, new SpongeCareer(1, "leatherworker", Professions.BUTCHER));
+            
+            this.professionMappings.put(Professions.FARMER.getName(), Professions.FARMER);
+            this.professionMappings.put(Professions.LIBRARIAN.getName(), Professions.LIBRARIAN);
+            this.professionMappings.put(Professions.PRIEST.getName(), Professions.PRIEST);
+            this.professionMappings.put(Professions.BLACKSMITH.getName(), Professions.BLACKSMITH);
+            this.professionMappings.put(Professions.BUTCHER.getName(), Professions.BUTCHER);
+            this.careerMappings.put(Careers.FARMER.getName(), Careers.FARMER);
+            this.careerMappings.put(Careers.FISHERMAN.getName(), Careers.FISHERMAN);
+            this.careerMappings.put(Careers.SHEPHERD .getName(), Careers.SHEPHERD );
+            this.careerMappings.put(Careers.FLETCHER .getName(), Careers.FLETCHER );
+            this.careerMappings.put(Careers.LIBRARIAN.getName(), Careers.LIBRARIAN);
+            this.careerMappings.put(Careers.CLERIC.getName(), Careers.CLERIC);
+            this.careerMappings.put(Careers.ARMORER.getName(), Careers.ARMORER);
+            this.careerMappings.put(Careers.WEAPON_SMITH.getName(), Careers.WEAPON_SMITH);
+            this.careerMappings.put(Careers.TOOL_SMITH.getName(), Careers.TOOL_SMITH);
+            this.careerMappings.put(Careers.BUTCHER.getName(), Careers.BUTCHER);
+            this.careerMappings.put(Careers.LEATHERWORKER.getName(), Careers.LEATHERWORKER);
+            this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.FARMER).type, Arrays.asList(Careers.FARMER, Careers.FISHERMAN, Careers.SHEPHERD, Careers.FLETCHER));
+            this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.LIBRARIAN).type, Arrays.asList(Careers.LIBRARIAN));
+            this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.PRIEST).type, Arrays.asList(Careers.CLERIC));
+            this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.BLACKSMITH).type, Arrays.asList(Careers.ARMORER, Careers.WEAPON_SMITH, Careers.TOOL_SMITH));
+            this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.BUTCHER).type, Arrays.asList(Careers.BUTCHER, Careers.LEATHERWORKER));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     private void setTextColors() {
         textColorMappings.put("AQUA", new SpongeTextColor(Color.decode("0x00FFFF"), EnumChatFormatting.AQUA));
         textColorMappings.put("BLACK", new SpongeTextColor(Color.BLACK, EnumChatFormatting.BLACK));
@@ -858,6 +906,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setPotionTypes();
         setArts();
         setEntityTypes();
+        setCareersAndProfessions();
         setTextColors();
         setRotations();
         setMessageFactory();
