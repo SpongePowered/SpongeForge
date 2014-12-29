@@ -27,7 +27,9 @@ package org.spongepowered.mod.mixin.world;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import net.minecraft.network.Packet;
 import net.minecraft.server.MinecraftServer;
@@ -126,9 +128,9 @@ public abstract class MixinWorld implements World {
 
     @Override
     public void spawnParticles(ParticleEffect particleEffect, Vector3d position, int radius) {
-        Preconditions.checkNotNull(particleEffect, "The particle effect cannot be null!");
-        Preconditions.checkNotNull(position, "The position cannot be null");
-        Preconditions.checkState(radius > 0, "The radius has to be greater then zero!");
+        checkNotNull(particleEffect, "The particle effect cannot be null!");
+        checkNotNull(position, "The position cannot be null");
+        checkState(radius > 0, "The radius has to be greater then zero!");
 
         List<Packet> packets = SpongeParticleHelper.toPackets((SpongeParticleEffect) particleEffect, position);
 

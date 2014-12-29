@@ -33,7 +33,9 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 import com.flowpowered.math.vector.Vector3f;
-import com.google.common.base.Preconditions;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     protected final SpongeParticleType type;
@@ -49,23 +51,21 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
 
     @Override
     public SpongeParticleEffectBuilder motion(Vector3f motion) {
-        Preconditions.checkNotNull(motion, "The motion vector cannot be null! Use Vector3f.ZERO instead!");
+        checkNotNull(motion, "The motion vector cannot be null! Use Vector3f.ZERO instead!");
         this.motion = motion;
         return this;
     }
 
     @Override
     public SpongeParticleEffectBuilder offset(Vector3f offset) {
-        Preconditions.checkNotNull(offset, "The offset vector cannot be null! Use Vector3f.ZERO instead!");
+        checkNotNull(offset, "The offset vector cannot be null! Use Vector3f.ZERO instead!");
         this.offset = offset;
         return this;
     }
 
     @Override
     public SpongeParticleEffectBuilder count(int count) throws IllegalArgumentException {
-    	if (count < 1) {
-    		throw new IllegalArgumentException("The count has to be greater then zero!");
-    	}
+        checkState(count > 0, "The count has to be greater then zero!");
         this.count = count;
         return this;
     }
@@ -85,7 +85,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
 
         @Override
         public BuilderColorable color(Color color) {
-            Preconditions.checkNotNull(color, "The color cannot be null!");
+            checkNotNull(color, "The color cannot be null!");
             this.color = color;
             return this;
         }
@@ -122,7 +122,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
 
         @Override
         public BuilderResizable size(float size) {
-            Preconditions.checkState(size >= 0f, "The size has to be greater or equal to zero!");
+            checkState(size >= 0f, "The size has to be greater or equal to zero!");
             this.size = size;
             return this;
         }
@@ -159,7 +159,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
 
         @Override
         public BuilderNote note(float note) {
-            Preconditions.checkState(note >= 0f && note <= 24f, "The note has to scale between 0 and 24!");
+            checkState(note >= 0f && note <= 24f, "The note has to scale between 0 and 24!");
             this.note = note;
             return this;
         }
@@ -196,14 +196,14 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
 
         @Override
         public BuilderMaterial item(ItemStack item) {
-            Preconditions.checkNotNull(item, "The item stack cannot be null!");
+            checkNotNull(item, "The item stack cannot be null!");
             this.item = item;
             return this;
         }
 
         @Override
         public Material itemType(ItemType item) {
-            Preconditions.checkNotNull(item, "The item type cannot be null!");
+            checkNotNull(item, "The item type cannot be null!");
             this.item = ItemStack.class.cast(new net.minecraft.item.ItemStack((Item) item));
             return null;
         }

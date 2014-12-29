@@ -53,12 +53,13 @@ import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.message.SpongeMessage;
 import org.spongepowered.mod.text.message.SpongeMessageText;
+import org.spongepowered.mod.text.title.SpongeTitle;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.google.common.base.Preconditions;
 import com.mojang.authlib.GameProfile;
 
-import org.spongepowered.mod.text.title.SpongeTitle;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
@@ -142,9 +143,9 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public void playermp$spawnParticles(ParticleEffect particleEffect, Vector3d position, int radius) {
-        Preconditions.checkNotNull(particleEffect, "The particle effect cannot be null!");
-        Preconditions.checkNotNull(position, "The position cannot be null");
-        Preconditions.checkState(radius > 0, "The radius has to be greater then zero!");
+        checkNotNull(particleEffect, "The particle effect cannot be null!");
+        checkNotNull(position, "The position cannot be null");
+        checkState(radius > 0, "The radius has to be greater then zero!");
 
         List<Packet> packets = SpongeParticleHelper.toPackets((SpongeParticleEffect) particleEffect, position);
 
