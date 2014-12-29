@@ -81,6 +81,7 @@
     "potion.MixinPotionEffect",
     "world.MixinWorld",
     "world.MixinWorldBorder",
+    "world.MixinWorldProvider",
     "world.biome.MixinBiomeGenBase"
   ]
 }

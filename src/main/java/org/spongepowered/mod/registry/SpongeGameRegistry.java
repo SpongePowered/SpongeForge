@@ -47,6 +47,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.registry.GameData;
 
 import org.spongepowered.api.GameRegistry;
@@ -100,6 +101,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.rotation.Rotation;
 import org.spongepowered.api.util.rotation.Rotations;
 import org.spongepowered.api.world.Environment;
+import org.spongepowered.api.world.Environments;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
@@ -158,6 +160,7 @@ public class SpongeGameRegistry implements GameRegistry {
     private Map<String, Career> careerMappings = Maps.newHashMap();
     private Map<String, Profession> professionMappings = Maps.newHashMap();
     private Map<Integer, List<Career>> professionToCareerMappings = Maps.newHashMap();
+    private Map<String, Environment> environmentMappings = Maps.newHashMap();
     
     public static final ImmutableBiMap<Direction, EnumFacing> directionMap;
     static {
@@ -434,20 +437,17 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<Environment> getEnvironment(String name) {
-        // TODO Auto-generated method stub
-        return null;
+        return Optional.fromNullable(this.environmentMappings.get(name));
     }
 
     @Override
     public Optional<Environment> getEnvironment(int dimensionId) {
-        // TODO
-        return null;
+        return Optional.fromNullable((Environment) DimensionManager.getProvider(dimensionId));
     }
 
     @Override
     public List<Environment> getEnvironments() {
-        // TODO
-        return null;
+        return ImmutableList.copyOf(this.environmentMappings.values());
     }
 
     // Note: This is probably fairly slow, but only needs to be run rarely.
@@ -781,7 +781,20 @@ public class SpongeGameRegistry implements GameRegistry {
             e.printStackTrace();
         }
     }
-    
+
+    private void setEnvironments() {
+        this.environmentMappings.put("overworld", (Environment) DimensionManager.createProviderFor(0));
+        this.environmentMappings.put("nether", (Environment) DimensionManager.createProviderFor(-1));
+        this.environmentMappings.put("end", (Environment) DimensionManager.createProviderFor(1));
+        for(Field f : Environments.class.getDeclaredFields()) {
+            try {
+                f.set(null, this.environmentMappings.get(f.getName().toLowerCase()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void setTextColors() {
         textColorMappings.put("AQUA", new SpongeTextColor(Color.decode("0x00FFFF"), EnumChatFormatting.AQUA));
         textColorMappings.put("BLACK", new SpongeTextColor(Color.BLACK, EnumChatFormatting.BLACK));
@@ -879,6 +892,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setArts();
         setEntityTypes();
         setCareersAndProfessions();
+        setEnvironments();
         setTextColors();
         setRotations();
         setMessageFactory();
