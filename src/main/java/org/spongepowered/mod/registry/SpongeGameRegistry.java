@@ -151,7 +151,7 @@ public class SpongeGameRegistry implements GameRegistry {
                                                                            .build();
 
     private Map<String, Art> artMappings = Maps.newHashMap();
-    private Map<String, SpongeEntityType> entityTypeMappings = Maps.newHashMap();
+    private Map<String, EntityType> entityTypeMappings = Maps.newHashMap();
     public Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
     public Map<Class<? extends Entity>, SpongeEntityType> entityClassToTypeMappings = Maps.newHashMap();
     public Map<String, Enchantment> enchantmentMappings = Maps.newHashMap();
@@ -221,11 +221,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<EntityType> getEntities() {
-        List<EntityType> entityList = new ArrayList<EntityType>();
-        for (EntityType entityType : this.entityTypeMappings.values()) {
-            entityList.add(entityType);
-        }
-        return entityList;
+        return ImmutableList.copyOf(this.entityTypeMappings.values());
     }
 
     @Override
@@ -334,11 +330,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<HorseColor> getHorseColors() {
-        List<HorseColor> horseColors = new ArrayList<HorseColor>(SpongeEntityConstants.HORSE_COLORS.size());
-        for (HorseColor horseColor : SpongeEntityConstants.HORSE_COLORS.values()) {
-            horseColors.add(horseColor);
-        }
-        return horseColors;
+        return ImmutableList.copyOf(SpongeEntityConstants.HORSE_COLORS.values());
     }
 
     @Override
@@ -348,11 +340,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<HorseStyle> getHorseStyles() {
-        List<HorseStyle> horseStyles = new ArrayList<HorseStyle>(SpongeEntityConstants.HORSE_STYLES.size());
-        for (HorseStyle horseStyle : SpongeEntityConstants.HORSE_STYLES.values()) {
-            horseStyles.add(horseStyle);
-        }
-        return horseStyles;
+        return ImmutableList.copyOf(SpongeEntityConstants.HORSE_STYLES.values());
     }
 
     @Override
@@ -362,11 +350,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<HorseVariant> getHorseVariants() {
-        List<HorseVariant> horseVariants = new ArrayList<HorseVariant>(SpongeEntityConstants.HORSE_VARIANTS.size());
-        for (HorseVariant horseVariant : SpongeEntityConstants.HORSE_VARIANTS.values()) {
-            horseVariants.add(horseVariant);
-        }
-        return horseVariants;
+        return ImmutableList.copyOf(SpongeEntityConstants.HORSE_VARIANTS.values());
     }
 
     @Override
@@ -376,11 +360,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<OcelotType> getOcelotTypes() {
-        List<OcelotType> ocelotTypes = new ArrayList<OcelotType>(SpongeEntityConstants.OCELOT_TYPES.size());
-        for (OcelotType type : SpongeEntityConstants.OCELOT_TYPES.values()) {
-            ocelotTypes.add(type);
-        }
-        return ocelotTypes;
+        return ImmutableList.copyOf(SpongeEntityConstants.OCELOT_TYPES.values());
     }
 
     @Override
@@ -390,11 +370,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<RabbitType> getRabbitTypes() {
-        List<RabbitType> rabbitTypes = new ArrayList<RabbitType>(SpongeEntityConstants.RABBIT_TYPES.size());
-        for (RabbitType type : SpongeEntityConstants.RABBIT_TYPES.values()) {
-            rabbitTypes.add(type);
-        }
-        return rabbitTypes;
+        return ImmutableList.copyOf(SpongeEntityConstants.RABBIT_TYPES.values());
     }
 
     @Override
@@ -404,11 +380,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<SkeletonType> getSkeletonTypes() {
-        List<SkeletonType> skeletonTypes = new ArrayList<SkeletonType>(SpongeEntityConstants.SKELETON_TYPES.size());
-        for (SkeletonType type : SpongeEntityConstants.SKELETON_TYPES.values()) {
-           skeletonTypes.add(type);
-        }
-        return skeletonTypes;
+        return ImmutableList.copyOf(SpongeEntityConstants.SKELETON_TYPES.values());
     }
 
     @Override
@@ -457,7 +429,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<Enchantment> getEnchantments() {
-        return new ArrayList<Enchantment>(this.enchantmentMappings.values());
+        return ImmutableList.copyOf(this.enchantmentMappings.values());
     }
 
     @Override

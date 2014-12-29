@@ -186,26 +186,3 @@ public abstract class MixinEntityPlayerExample extends EntityLivingBase { // imp
     
 */
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
