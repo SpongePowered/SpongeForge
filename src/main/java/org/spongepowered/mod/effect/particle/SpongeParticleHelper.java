@@ -39,6 +39,7 @@ import org.spongepowered.api.item.ItemBlock;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3f;
 import com.google.common.collect.Lists;
 
@@ -53,7 +54,7 @@ public final class SpongeParticleHelper {
      * @param position The position
      * @return The packets
      */
-    public static List<Packet> toPackets(SpongeParticleEffect effect, Vector3f position) {
+    public static List<Packet> toPackets(SpongeParticleEffect effect, Vector3d position) {
         SpongeParticleType type = effect.getType();
         EnumParticleTypes internal = type.getInternalType();
 
@@ -62,9 +63,9 @@ public final class SpongeParticleHelper {
         int count = effect.getCount();
         int[] extra = new int[0];
 
-        float px = position.getX();
-        float py = position.getY();
-        float pz = position.getZ();
+        float px = (float) position.getX();
+        float py = (float) position.getY();
+        float pz = (float) position.getZ();
 
         float ox = offset.getX();
         float oy = offset.getY();
