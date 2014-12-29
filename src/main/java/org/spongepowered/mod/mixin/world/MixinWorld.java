@@ -37,6 +37,7 @@ import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.WorldBorder;
 import org.spongepowered.api.world.biome.Biome;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -55,6 +56,9 @@ public abstract class MixinWorld implements World {
 
     @Shadow
     protected WorldInfo worldInfo;
+
+    @Shadow(prefix = "shadow$")
+    public abstract net.minecraft.world.border.WorldBorder shadow$getWorldBorder();
 
     @Override
     public UUID getUniqueID() {
@@ -100,5 +104,10 @@ public abstract class MixinWorld implements World {
     @Override
     public Optional<Entity> createEntity(EntityType type, Vector3d position) {
         return Optional.absent();
+    }
+
+    @Override
+    public WorldBorder getWorldBorder() {
+        return (WorldBorder) shadow$getWorldBorder();
     }
 }
