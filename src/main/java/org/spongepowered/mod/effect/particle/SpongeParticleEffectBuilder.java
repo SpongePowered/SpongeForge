@@ -35,7 +35,7 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import com.flowpowered.math.vector.Vector3f;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     protected final SpongeParticleType type;
@@ -65,7 +65,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
 
     @Override
     public SpongeParticleEffectBuilder count(int count) throws IllegalArgumentException {
-        checkState(count > 0, "The count has to be greater then zero!");
+        checkArgument(count > 0, "The count has to be greater then zero!");
         this.count = count;
         return this;
     }
@@ -122,7 +122,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
 
         @Override
         public BuilderResizable size(float size) {
-            checkState(size >= 0f, "The size has to be greater or equal to zero!");
+            checkArgument(size >= 0f, "The size has to be greater or equal to zero!");
             this.size = size;
             return this;
         }
@@ -159,7 +159,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
 
         @Override
         public BuilderNote note(float note) {
-            checkState(note >= 0f && note <= 24f, "The note has to scale between 0 and 24!");
+            checkArgument(note >= 0f && note <= 24f, "The note has to scale between 0 and 24!");
             this.note = note;
             return this;
         }

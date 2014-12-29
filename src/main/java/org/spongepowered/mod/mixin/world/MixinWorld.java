@@ -29,7 +29,7 @@ import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import net.minecraft.network.Packet;
 import net.minecraft.server.MinecraftServer;
@@ -130,7 +130,7 @@ public abstract class MixinWorld implements World {
     public void spawnParticles(ParticleEffect particleEffect, Vector3d position, int radius) {
         checkNotNull(particleEffect, "The particle effect cannot be null!");
         checkNotNull(position, "The position cannot be null");
-        checkState(radius > 0, "The radius has to be greater then zero!");
+        checkArgument(radius > 0, "The radius has to be greater then zero!");
 
         List<Packet> packets = SpongeParticleHelper.toPackets((SpongeParticleEffect) particleEffect, position);
 
