@@ -45,7 +45,7 @@ public abstract class MixinEntityFallingBlock extends Entity implements FallingB
     public int fallHurtMax;
 
     @Shadow
-    public IBlockState field_175132_d; // Block to drop
+    public IBlockState field_175132_d; // fallTile
 
     @Shadow
     public boolean shouldDropItem;
