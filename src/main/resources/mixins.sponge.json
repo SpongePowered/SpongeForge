@@ -14,6 +14,7 @@
     "entity.MixinEntity",
     "entity.MixinEntityEnderCrystal",
     "entity.MixinEntityXPOrb",
+    "entity.MixinEntityFallingBlock",
     "entity.explosive.MixinEntityTNTPrimed",
     "entity.hanging.MixinEntityHanging",
     "entity.hanging.MixinEntityPainting",
