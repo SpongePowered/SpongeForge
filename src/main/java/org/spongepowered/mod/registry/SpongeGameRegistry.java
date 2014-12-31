@@ -25,11 +25,6 @@
 
 package org.spongepowered.mod.registry;
 
-import Particle;
-import Particles;
-import SpongeParticle;
-import SpongeParticleFactory;
-
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -879,6 +874,7 @@ public class SpongeGameRegistry implements GameRegistry {
     
     // Note: This is fairly slow.
     public void setParticleTypes() {
+        //TODO: Fix that
         List<ParticleType> particles = new ArrayList<ParticleType>();
         
         for (Field f : ParticleTypes.class.getDeclaredFields()) {
@@ -887,19 +883,13 @@ public class SpongeGameRegistry implements GameRegistry {
                 continue;
             }
             
-            ParticleType particle = new SpongeParticleType(f.getName().toLowerCase());
+            ParticleType particle = new SpongeParticleType(f.getName().toLowerCase(), false);
             particles.add(particle);
             try {
                 f.set(null, particle);
             } catch (Exception e) {
                 // Ignoring error
             }
-        }
-        
-        try {
-            ParticleTypes.class.getField("factory").set(null, new SpongeParticleFactory(particles));
-        } catch (Exception e) {
-            // Ignoring error
         }
     }
 
