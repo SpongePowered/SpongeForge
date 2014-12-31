@@ -96,6 +96,10 @@ import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.message.Messages;
 import org.spongepowered.api.text.message.SpongeMessageFactory;
+import org.spongepowered.api.text.selector.SelectorTypes;
+import org.spongepowered.api.text.selector.Selectors;
+import org.spongepowered.api.text.selector.SpongeSelectorFactory;
+import org.spongepowered.api.text.selector.SpongeSelectorTypeFactory;
 import org.spongepowered.api.text.title.SpongeTitleFactory;
 import org.spongepowered.api.text.title.Titles;
 import org.spongepowered.api.util.Direction;
@@ -117,6 +121,7 @@ import org.spongepowered.mod.entity.SpongeProfession;
 import org.spongepowered.mod.rotation.SpongeRotation;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
+import org.spongepowered.mod.text.selector.SpongeSelectorType;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
 
@@ -880,6 +885,19 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
+    private void setSelectors() {
+        try {
+            SelectorTypes.class.getDeclaredField("ALL_PLAYERS").set(null, new SpongeSelectorType("a"));
+            SelectorTypes.class.getDeclaredField("ALL_ENTITIES").set(null, new SpongeSelectorType("e"));
+            SelectorTypes.class.getDeclaredField("NEAREST_PLAYER").set(null, new SpongeSelectorType("p"));
+            SelectorTypes.class.getDeclaredField("RANDOM_PLAYER").set(null, new SpongeSelectorType("r"));
+            SelectorTypes.class.getDeclaredField("factory").set(null, new SpongeSelectorTypeFactory());
+            Selectors.class.getDeclaredField("factory").set(null, new SpongeSelectorFactory());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void setTitleFactory() {
         try {
             Titles.class.getDeclaredField("factory").set(null, new SpongeTitleFactory());
@@ -907,6 +925,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setRotations();
         setWeathers();
         setMessageFactory();
+        setSelectors();
         setTitleFactory();
     }
 
