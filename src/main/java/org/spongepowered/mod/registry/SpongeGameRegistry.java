@@ -25,6 +25,11 @@
 
 package org.spongepowered.mod.registry;
 
+import Particle;
+import Particles;
+import SpongeParticle;
+import SpongeParticleFactory;
+
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -54,6 +59,7 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.effect.particle.ParticleType;
+import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
@@ -103,6 +109,7 @@ import org.spongepowered.api.world.Environment;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
+import org.spongepowered.mod.effect.particle.SpongeParticleType;
 import org.spongepowered.mod.entity.SpongeCareer;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
@@ -867,6 +874,32 @@ public class SpongeGameRegistry implements GameRegistry {
             Titles.class.getDeclaredField("factory").set(null, new SpongeTitleFactory());
         } catch (Exception e) {
             // e.printStackTrace();
+        }
+    }
+    
+    // Note: This is fairly slow.
+    public void setParticleTypes() {
+        List<ParticleType> particles = new ArrayList<ParticleType>();
+        
+        for (Field f : ParticleTypes.class.getDeclaredFields()) {
+            if (f.getName().equals("factory")) {
+                // Don't set factory here
+                continue;
+            }
+            
+            ParticleType particle = new SpongeParticleType(f.getName().toLowerCase());
+            particles.add(particle);
+            try {
+                f.set(null, particle);
+            } catch (Exception e) {
+                // Ignoring error
+            }
+        }
+        
+        try {
+            ParticleTypes.class.getField("factory").set(null, new SpongeParticleFactory(particles));
+        } catch (Exception e) {
+            // Ignoring error
         }
     }
 
