@@ -37,6 +37,7 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
+import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldBorder;
 import org.spongepowered.api.world.biome.Biome;
@@ -56,6 +57,8 @@ import com.google.common.base.Optional;
 @NonnullByDefault
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinWorld implements World {
+
+    private boolean keepSpawnLoaded;
 
     @Shadow
     public WorldProvider provider;
@@ -187,5 +190,20 @@ public abstract class MixinWorld implements World {
             this.worldInfo.setRaining(true);
             this.worldInfo.setThundering(true);
         }
+    }
+
+    @Override
+    public Dimension getDimension() {
+        return (Dimension)this.provider;
+    }
+
+    @Override
+    public boolean doesKeepSpawnLoaded() {
+        return this.keepSpawnLoaded;
+    }
+
+    @Override
+    public void setKeepSpawnLoaded(boolean keepLoaded) {
+        this.keepSpawnLoaded = keepLoaded;
     }
 }

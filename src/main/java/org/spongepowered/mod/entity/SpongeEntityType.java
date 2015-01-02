@@ -104,7 +104,7 @@ public class SpongeEntityType implements EntityType {
             .add("id", this.entityTypeId)
             .add("name", this.entityTypeId)
             .add("modid", this.modId)
-            .add("class", this.entityClass)
+            .add("class", this.entityClass.getName())
             .toString();
     }
 

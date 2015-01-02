@@ -36,6 +36,7 @@ import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
@@ -65,6 +66,7 @@ public class SpongeMod extends DummyModContainer {
     private LoadController controller;
     private Injector spongeInjector = Guice.createInjector(new SpongeGuiceModule());
     private Logger logger;
+    private SpongeGameRegistry registry;
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be instantiated before FML scans the system
     // For mods (or plugins)
@@ -77,6 +79,7 @@ public class SpongeMod extends DummyModContainer {
         this.getMetadata().modId = "SpongeAPIMod";
         SpongeMod.instance = this;
         this.game = this.spongeInjector.getInstance(Game.class);
+        this.registry = (SpongeGameRegistry) this.game.getRegistry();
     }
 
     public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object instance) {
@@ -126,8 +129,11 @@ public class SpongeMod extends DummyModContainer {
 
     @Subscribe
     public void onInitialization(FMLInitializationEvent e) {
-        SpongeGameRegistry registry = (SpongeGameRegistry) this.game.getRegistry();
+        this.registry.init();
+    }
 
-        registry.init();
+    @Subscribe
+    public void onInitialization(FMLPostInitializationEvent e) {
+        this.registry.postInit();
     }
 }

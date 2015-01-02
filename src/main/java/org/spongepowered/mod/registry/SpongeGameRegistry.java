@@ -46,6 +46,9 @@ import net.minecraft.potion.Potion;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldProviderEnd;
+import net.minecraft.world.WorldProviderHell;
+import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.common.registry.GameData;
 
@@ -99,7 +102,9 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.rotation.Rotation;
 import org.spongepowered.api.util.rotation.Rotations;
-import org.spongepowered.api.world.Environment;
+import org.spongepowered.api.world.Dimension;
+import org.spongepowered.api.world.DimensionType;
+import org.spongepowered.api.world.DimensionTypes;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
@@ -113,6 +118,7 @@ import org.spongepowered.mod.rotation.SpongeRotation;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 import org.spongepowered.mod.weather.SpongeWeather;
+import org.spongepowered.mod.world.SpongeDimensionType;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
@@ -160,7 +166,13 @@ public class SpongeGameRegistry implements GameRegistry {
     private Map<String, Career> careerMappings = Maps.newHashMap();
     private Map<String, Profession> professionMappings = Maps.newHashMap();
     private Map<Integer, List<Career>> professionToCareerMappings = Maps.newHashMap();
-    
+    private Map<String, DimensionType> dimensionTypeMappings = Maps.newHashMap();
+    public Map<Class<? extends Dimension>, DimensionType> dimensionClassMappings = Maps.newHashMap();
+    private List<BlockType> blockList = new ArrayList<BlockType>();
+    private List<ItemType> itemList = new ArrayList<ItemType>();
+    private List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
+    private List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
+
     public static final ImmutableBiMap<Direction, EnumFacing> directionMap;
     static {
         Builder<Direction, EnumFacing> directionMapBuilder = ImmutableBiMap.builder();
@@ -203,14 +215,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<PotionEffectType> getPotionEffects() {
-        List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
-        for (Potion potion : Potion.potionTypes) {
-            if (potion != null) {
-                PotionEffectType potionEffectType = (PotionEffectType)potion;
-                potionList.add(potionEffectType);
-            }
-        }
-        return potionList;
+        return ImmutableList.copyOf(this.potionList);
     }
 
     @Override
@@ -238,33 +243,17 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<BiomeType> getBiomes() {
-        List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
-        for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
-            if (biome != null) {
-                biomeTypes.add((BiomeType)biome);
-            }
-        }
-        return biomeTypes;
+        return ImmutableList.copyOf(this.biomeTypes);
     }
 
     @Override
     public List<BlockType> getBlocks() {
-        Iterator<ResourceLocation> iter = GameData.getBlockRegistry().getKeys().iterator();
-        List<BlockType> blockList = new ArrayList<BlockType>();
-        while (iter.hasNext()) {
-            blockList.add(getBlock(iter.next().toString()).get());
-        }
-        return blockList;
+        return ImmutableList.copyOf(this.blockList);
     }
 
     @Override
     public List<ItemType> getItems() {
-        Iterator<ResourceLocation> iter = GameData.getItemRegistry().getKeys().iterator();
-        List<ItemType> itemList = new ArrayList<ItemType>();
-        while (iter.hasNext()) {
-            itemList.add(getItem(iter.next().toString()).get());
-        }
-        return itemList;
+        return ImmutableList.copyOf(this.itemList);
     }
 
     @Override
@@ -435,25 +424,26 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
-    public Optional<Environment> getEnvironment(String name) {
-        // TODO Auto-generated method stub
-        return null;
+    public Optional<DimensionType> getDimensionType(String name) {
+        return Optional.fromNullable(this.dimensionTypeMappings.get(name));
     }
 
     @Override
-    public Optional<Environment> getEnvironment(int dimensionId) {
-        // TODO
-        return null;
+    public List<DimensionType> getDimensionTypes() {
+        return ImmutableList.copyOf(this.dimensionTypeMappings.values());
     }
 
-    @Override
-    public List<Environment> getEnvironments() {
-        // TODO
-        return null;
+    public void registerEnvironment(DimensionType env) {
+        this.dimensionTypeMappings.put(env.getName(), env);
+        this.dimensionClassMappings.put(env.getDimensionClass(), env);
     }
 
-    // Note: This is probably fairly slow, but only needs to be run rarely.
     private void setBlockTypes() {
+        Iterator<ResourceLocation> iter = GameData.getBlockRegistry().getKeys().iterator();
+        while (iter.hasNext()) {
+            this.blockList.add(getBlock(iter.next().toString()).get());
+        }
+
         for (Field f : BlockTypes.class.getDeclaredFields()) {
             try {
                 f.set(null, getBlock(f.getName().toLowerCase()).get());
@@ -463,8 +453,12 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
-    // Note: This is probably fairly slow, but only needs to be run rarely.
     private void setItemTypes() {
+        Iterator<ResourceLocation> iter = GameData.getItemRegistry().getKeys().iterator();
+        while (iter.hasNext()) {
+            this.itemList.add(getItem(iter.next().toString()).get());
+        }
+
         for (Field f : ItemTypes.class.getDeclaredFields()) {
             try {
                 f.set(null, getItem(f.getName().toLowerCase()).get());
@@ -511,6 +505,12 @@ public class SpongeGameRegistry implements GameRegistry {
     
     // Note: This is probably fairly slow, but only needs to be run rarely.
     private void setPotionTypes() {
+        for (Potion potion : Potion.potionTypes) {
+            if (potion != null) {
+                PotionEffectType potionEffectType = (PotionEffectType)potion;
+                this.potionList.add(potionEffectType);
+            }
+        }
         for (Field f : PotionEffectTypes.class.getDeclaredFields()) {
             try {
                 f.set(null, getPotion(f.getName().toLowerCase()).get());
@@ -664,6 +664,12 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     private void setBiomeTypes() {
+        for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
+            if (biome != null) {
+                this.biomeTypes.add((BiomeType)biome);
+            }
+        }
+
         this.biomeTypeMappings.put("OCEAN", (BiomeType)BiomeGenBase.ocean);
         this.biomeTypeMappings.put("PLAINS", (BiomeType)BiomeGenBase.plains);
         this.biomeTypeMappings.put("DESERT", (BiomeType)BiomeGenBase.desert);
@@ -882,14 +888,20 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
+    private void setDimensionTypes() {
+        try {
+            DimensionTypes.class.getDeclaredField("NETHER").set(null, new SpongeDimensionType("NETHER", true, WorldProviderHell.class));
+            DimensionTypes.class.getDeclaredField("OVERWORLD").set(null, new SpongeDimensionType("OVERWORLD", true, WorldProviderSurface.class));
+            DimensionTypes.class.getDeclaredField("END").set(null, new SpongeDimensionType("END", false, WorldProviderEnd.class));
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
     public void init() {
-        setBiomeTypes();
-        setBlockTypes();
-        setItemTypes();
+        setDimensionTypes();
         setEnchantments();
-        setPotionTypes();
         setArts();
-        setEntityTypes();
         setCareersAndProfessions();
         setTextColors();
         setRotations();
@@ -898,4 +910,11 @@ public class SpongeGameRegistry implements GameRegistry {
         setTitleFactory();
     }
 
+    public void postInit() {
+        setBlockTypes();
+        setItemTypes();
+        setPotionTypes();
+        setEntityTypes();
+        setBiomeTypes();
+    }
 }

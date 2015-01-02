@@ -1,7 +1,6 @@
 {
   "package": "org.spongepowered.mod.mixin",
   "mixins": [
-    "MixinEntityRegistry",
     "MixinMinecraftServer",
     "MixinServerCommandManager",
     "block.MixinBlockState",
@@ -74,6 +73,8 @@
     "event.state.MixinEventServerStarted",
     "event.state.MixinEventServerStopping",
     "event.state.MixinEventServerStopped",
+    "fml.MixinEntityRegistry",
+    "forge.MixinDimensionManager",
     "inventory.MixinContainer",
     "item.MixinItemType",
     "item.MixinItemBlock",
@@ -84,6 +85,7 @@
     "potion.MixinPotionEffect",
     "world.MixinWorld",
     "world.MixinWorldBorder",
+    "world.MixinWorldProvider",
     "world.biome.MixinBiomeGenBase"
   ]
 }
