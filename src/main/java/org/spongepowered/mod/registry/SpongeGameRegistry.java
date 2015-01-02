@@ -25,13 +25,12 @@
 
 package org.spongepowered.mod.registry;
 
-import java.awt.Color;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableBiMap.Builder;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -114,18 +113,22 @@ import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
 import org.spongepowered.mod.entity.SpongeEntityType;
 import org.spongepowered.mod.entity.SpongeProfession;
+import org.spongepowered.mod.item.SpongeItemStackBuilder;
+import org.spongepowered.mod.item.merchant.SpongeTradeOfferBuilder;
+import org.spongepowered.mod.potion.SpongePotionBuilder;
 import org.spongepowered.mod.rotation.SpongeRotation;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableBiMap.Builder;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import java.awt.Color;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unchecked")
 @NonnullByDefault
@@ -201,16 +204,12 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public ItemStackBuilder getItemBuilder() {
-
-        //TODO implement.
-        return null;
+        return new SpongeItemStackBuilder();
     }
 
     @Override
     public TradeOfferBuilder getTradeOfferBuilder() {
-
-        //TODO implement.
-        return null;
+        return new SpongeTradeOfferBuilder();
     }
 
     @Override
@@ -408,9 +407,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public PotionEffectBuilder getPotionEffectBuilder() {
-
-        //TODO implement.
-        return null;
+        return new SpongePotionBuilder();
     }
 
     @Override
