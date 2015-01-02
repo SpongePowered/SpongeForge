@@ -103,6 +103,7 @@ import org.spongepowered.api.world.Environment;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
+import org.spongepowered.api.world.weather.Weathers;
 import org.spongepowered.mod.entity.SpongeCareer;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
@@ -111,6 +112,7 @@ import org.spongepowered.mod.entity.SpongeProfession;
 import org.spongepowered.mod.rotation.SpongeRotation;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
+import org.spongepowered.mod.weather.SpongeWeather;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
@@ -853,6 +855,16 @@ public class SpongeGameRegistry implements GameRegistry {
             }
         }
     }
+    
+    private void setWeathers() {
+        for (Field f : Weathers.class.getDeclaredFields()) {
+            try {
+                f.set(null, new SpongeWeather());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private void setMessageFactory() {
         try {
@@ -881,6 +893,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setCareersAndProfessions();
         setTextColors();
         setRotations();
+        setWeathers();
         setMessageFactory();
         setTitleFactory();
     }

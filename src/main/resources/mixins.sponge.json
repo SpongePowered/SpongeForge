@@ -58,6 +58,8 @@
     "entity.living.monster.MixinEntityZombie",
     "entity.living.villager.MixinEntityVillager",
     "entity.player.MixinEntityPlayerMP",
+    "entity.weather.MixinEntityLightningBolt",
+    "entity.weather.MixinEntityWeatherEffect",
     "event.player.MixinEventPlayer",
     "event.player.MixinEventPlayerFML",
     "event.player.MixinEventPlayerInteract",
