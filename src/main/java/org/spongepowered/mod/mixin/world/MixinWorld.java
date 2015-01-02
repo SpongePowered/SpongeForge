@@ -24,9 +24,10 @@
  */
 package org.spongepowered.mod.mixin.world;
 
-import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3i;
-import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Random;
+import java.util.UUID;
 
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.storage.WorldInfo;
@@ -39,23 +40,28 @@ import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldBorder;
 import org.spongepowered.api.world.biome.Biome;
+import org.spongepowered.api.world.weather.Weather;
+import org.spongepowered.api.world.weather.Weathers;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.UUID;
+import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3i;
+import com.google.common.base.Optional;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinWorld implements World {
 
-    @Shadow
-    public WorldProvider provider;
+    @Shadow public WorldProvider provider;
 
-    @Shadow
-    protected WorldInfo worldInfo;
+    @Shadow protected WorldInfo worldInfo;
+    
+    @Shadow public Random rand;
 
     @Shadow(prefix = "shadow$")
     public abstract net.minecraft.world.border.WorldBorder shadow$getWorldBorder();
@@ -82,7 +88,8 @@ public abstract class MixinWorld implements World {
 
     @Override
     public BlockLoc getBlock(Vector3d position) {
-        // TODO: MC's BlockPos does some sort of special rounding on double positions -- do we want to do that too?
+        // TODO: MC's BlockPos does some sort of special rounding on double
+        // positions -- do we want to do that too?
         return new BlockWrapper(this, (int) position.getX(), (int) position.getY(), (int) position.getZ());
     }
 
@@ -110,4 +117,73 @@ public abstract class MixinWorld implements World {
     public WorldBorder getWorldBorder() {
         return (WorldBorder) shadow$getWorldBorder();
     }
+
+    @Override
+    public Weather getWeather() {
+        if (this.worldInfo.isThundering()) {
+            return Weathers.THUNDER_STORM;
+        } else if (this.worldInfo.isRaining()) {
+            return Weathers.RAIN;
+        } else {
+            return Weathers.CLEAR;
+        }
+    }
+
+    @Override
+    public long getRemainingDuration() {
+        Weather weather = getWeather();
+        if (weather.equals(Weathers.CLEAR)) {
+            if (this.worldInfo.func_176133_A() > 0) {
+                return this.worldInfo.func_176133_A();
+            } else {
+                return Math.min(this.worldInfo.getThunderTime(), this.worldInfo.getRainTime());
+            }
+        } else if (weather.equals(Weathers.THUNDER_STORM)) {
+            return this.worldInfo.getThunderTime();
+        } else if (weather.equals(Weathers.RAIN)) {
+            return this.worldInfo.getRainTime();
+        }
+        return 0;
+    }
+
+    long weatherStartTime;
+
+    @Inject(method = "updateWeatherBody()V", at = { @At(value = "INVOKE", target = "setThundering(Z)V"), @At(value = "INVOKE", target = "setRaining(Z)V") })
+    private void onUpdateWeatherBody(CallbackInfo ci) {
+        this.weatherStartTime = this.worldInfo.getWorldTotalTime();
+    }
+
+    @Override
+    public long getRunningDuration() {
+        return this.worldInfo.getWorldTotalTime() - this.weatherStartTime;
+    }
+
+    @Override
+    public void forecast(Weather weather) {
+        this.forecast(weather, (300 + this.rand.nextInt(600)) * 20);
+    }
+
+    @Override
+    public void forecast(Weather weather, long duration) {
+        if (weather.equals(Weathers.CLEAR)) {
+            this.worldInfo.func_176142_i((int) duration);
+            this.worldInfo.setRainTime(0);
+            this.worldInfo.setThunderTime(0);
+            this.worldInfo.setRaining(false);
+            this.worldInfo.setThundering(false);
+        } else if (weather.equals(Weathers.RAIN)) {
+            this.worldInfo.func_176142_i(0);
+            this.worldInfo.setRainTime((int) duration);
+            this.worldInfo.setThunderTime((int) duration);
+            this.worldInfo.setRaining(true);
+            this.worldInfo.setThundering(false);
+        } else if (weather.equals(Weathers.THUNDER_STORM)) {
+            this.worldInfo.func_176142_i(0);
+            this.worldInfo.setRainTime((int) duration);
+            this.worldInfo.setThunderTime((int) duration);
+            this.worldInfo.setRaining(true);
+            this.worldInfo.setThundering(true);
+        }
+    }
+
 }
