@@ -45,10 +45,44 @@ public abstract class MixinEntityCreeper extends EntityMob {
     private int explosionRadius;
 
     @Shadow
+    private int timeSinceIgnited;
+
+    @Shadow
+    private int fuseTime = 30;
+
+    @Shadow
     public abstract boolean getPowered();
+
+    @Shadow
+    public abstract void func_146077_cc(); // explode()
+
+    @Shadow
+    public abstract void func_146079_cb(); // Forces Creeper into ignited state
 
     public MixinEntityCreeper(World worldIn) {
         super(worldIn);
+    }
+
+    public void creeper$detonate() {
+        this.func_146077_cc();
+    }
+
+    public void creeper$ignite() {
+        this.func_146079_cb();
+    }
+
+    public void creeper$ignite(int fuseTicks) {
+        this.timeSinceIgnited = 0;
+        this.fuseTime = fuseTicks;
+        this.func_146079_cb();
+    }
+
+    public int creeper$getFuseDuration() {
+        return this.fuseTime - this.timeSinceIgnited;
+    }
+
+    public void creeper$setFuseDuration(int fuseTicks) {
+        this.timeSinceIgnited = this.fuseTime - fuseTicks;
     }
 
     public boolean creeper$isPowered() {
