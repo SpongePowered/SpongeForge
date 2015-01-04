@@ -104,6 +104,8 @@ import org.spongepowered.api.entity.living.villager.Careers;
 import org.spongepowered.api.entity.living.villager.Profession;
 import org.spongepowered.api.entity.living.villager.Professions;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
+import org.spongepowered.api.entity.player.gamemode.GameModes;
+
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemType;
@@ -1077,7 +1079,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
     
     private void setGameModes() {
-        for (Field f: GameMode.class.getDeclaredFields()) {
+        for (Field f: GameModes.class.getDeclaredFields()) {
             try {
                 f.set(null, gameModeMappings.get(f.getName()));
             } catch (Exception e) {
