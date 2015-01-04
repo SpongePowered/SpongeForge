@@ -52,23 +52,23 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
         super(worldIn);
     }
 
-    float human$getHunger() {
+    public float human$getHunger() {
         return foodStats.getFoodLevel();
     }
 
-    void human$setHunger(float hunger) {
+    public void human$setHunger(float hunger) {
         foodStats.setFoodLevel((int)hunger);
     }
 
-    float human$getSaturation() {
+    public float human$getSaturation() {
         return foodStats.getSaturationLevel();
     }
 
-    void human$setSaturation(float saturation) {
+    public void human$setSaturation(float saturation) {
         foodStats.setFoodSaturationLevel(saturation);
     }
 
-    boolean human$isViewingInventory() {
+    public boolean human$isViewingInventory() {
         return this.openContainer == this.inventoryContainer;
     }
 
