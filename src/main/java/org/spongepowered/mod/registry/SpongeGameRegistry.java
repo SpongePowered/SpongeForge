@@ -120,6 +120,9 @@ import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
 import org.spongepowered.mod.entity.SpongeEntityType;
 import org.spongepowered.mod.entity.SpongeProfession;
+import org.spongepowered.mod.item.SpongeItemStackBuilder;
+import org.spongepowered.mod.item.merchant.SpongeTradeOfferBuilder;
+import org.spongepowered.mod.potion.SpongePotionBuilder;
 import org.spongepowered.mod.rotation.SpongeRotation;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
@@ -208,16 +211,12 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public ItemStackBuilder getItemBuilder() {
-
-        //TODO implement.
-        return null;
+        return new SpongeItemStackBuilder();
     }
 
     @Override
     public TradeOfferBuilder getTradeOfferBuilder() {
-
-        //TODO implement.
-        return null;
+        return new SpongeTradeOfferBuilder();
     }
 
     @Override
@@ -415,9 +414,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public PotionEffectBuilder getPotionEffectBuilder() {
-
-        //TODO implement.
-        return null;
+        return new SpongePotionBuilder();
     }
 
     @Override
