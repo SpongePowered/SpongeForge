@@ -25,25 +25,11 @@
 package org.spongepowered.mod.entity;
 
 import org.spongepowered.api.entity.living.meta.OcelotType;
-import org.spongepowered.api.service.persistence.DataSource;
-import org.spongepowered.api.service.persistence.data.DataContainer;
 
 public class SpongeOcelotType extends SpongeEntityMeta implements OcelotType {
 
     public SpongeOcelotType(int type, String name) {
         super(type, name);
     }
-
-	@Override
-	public DataContainer toContainer() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void serialize(DataSource source) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

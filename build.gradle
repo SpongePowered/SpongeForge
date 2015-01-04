@@ -24,7 +24,7 @@ evaluationDependsOn('Mixin')
 evaluationDependsOn('SpongeAPI')
 
 // Default tasks
-defaultTasks 'build', 'licenseFormat'
+defaultTasks 'build'
 
 // Apply plugin
 apply plugin: 'forge'
@@ -141,16 +141,9 @@ checkstyle {
 }
 tasks.reobf.dependsOn "check"
 
-if (!minecraft.mappingsSet && minecraft.version.startsWith("1.8")) {
-    // Default mappings, normally if mappings are not specified then the plugin will set this
-    // default value internally, unfortunately this happens too late for the compile step below
-    // which needs the correct value to pass to the annotation processor.
-    minecraft.mappings = "snapshot_20141001"
-}
-
 // Source compiler configuration
 tasks.withType(JavaCompile) {
-    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path', "-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=mixins.srg" ]
+    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path' ]
     options.deprecation = true
     options.encoding = 'utf8'
 }
@@ -174,15 +167,6 @@ jar {
 
     // classifier
     classifier = 'release'
-}
-
-javadoc {
-    source = [
-        project("Mixin").sourceSets.main.java,
-        project("SpongeAPI").sourceSets.main.java,
-        sourceSets.main.java,
-        "src/example/java"
-        ]
 }
 
 task deobfJar(type: Jar) {
