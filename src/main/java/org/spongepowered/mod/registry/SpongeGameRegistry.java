@@ -206,7 +206,7 @@ public class SpongeGameRegistry implements GameRegistry {
             .put("SURVIVAL", new SpongeGameMode())
             .put("CREATIVE", new SpongeGameMode())
             .put("ADVENTURE", new SpongeGameMode())
-            .put("SEPCTATOR", new SpongeGameMode())
+            .put("SPECTATOR", new SpongeGameMode())
             .build();
 
     private final Map<String, Art> artMappings = Maps.newHashMap();
