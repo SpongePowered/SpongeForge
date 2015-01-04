@@ -88,6 +88,8 @@ import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
+import org.spongepowered.api.text.action.SpongeTextActionFactory;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.format.TextColor;
@@ -877,6 +879,14 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
 
+    private void setTextActionFactory() {
+        try {
+            TextActions.class.getDeclaredField("factory").set(null, new SpongeTextActionFactory());
+        } catch (Exception e) {
+            // e.printStackTrace();
+        }
+    }
+
     private void setMessageFactory() {
         try {
             Messages.class.getDeclaredField("factory").set(null, new SpongeMessageFactory());
@@ -924,6 +934,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setTextColors();
         setRotations();
         setWeathers();
+        setTextActionFactory();
         setMessageFactory();
         setSelectors();
         setTitleFactory();
