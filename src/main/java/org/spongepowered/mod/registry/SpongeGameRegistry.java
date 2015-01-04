@@ -146,11 +146,13 @@ import org.spongepowered.mod.block.meta.SpongeNotePitch;
 import org.spongepowered.mod.block.meta.SpongeSkullType;
 import org.spongepowered.mod.effect.particle.SpongeParticleEffectBuilder;
 import org.spongepowered.mod.effect.particle.SpongeParticleType;
+import org.spongepowered.mod.SpongeGame;
 import org.spongepowered.mod.entity.SpongeCareer;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
 import org.spongepowered.mod.entity.SpongeEntityType;
 import org.spongepowered.mod.entity.SpongeProfession;
+import org.spongepowered.mod.entity.player.gamemode.SpongeGameMode;
 import org.spongepowered.mod.item.SpongeItemStackBuilder;
 import org.spongepowered.mod.item.merchant.SpongeTradeOfferBuilder;
 import org.spongepowered.mod.potion.SpongePotionBuilder;
@@ -200,6 +202,13 @@ public class SpongeGameRegistry implements GameRegistry {
                                                                             .put(Direction.UP, EnumFacing.UP)
                                                                             .put(Direction.DOWN, EnumFacing.DOWN)
                                                                             .build();
+    private static final ImmutableMap<String, GameMode> gameModeMappings =  new ImmutableMap.Builder<String, GameMode>()
+            .put("SURVIVAL", new SpongeGameMode())
+            .put("CREATIVE", new SpongeGameMode())
+            .put("ADVENTURE", new SpongeGameMode())
+            .put("SEPCTATOR", new SpongeGameMode())
+            .build();
+
     private final Map<String, Art> artMappings = Maps.newHashMap();
     private final Map<String, EntityType> entityTypeMappings = Maps.newHashMap();
     public final Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
@@ -217,7 +226,35 @@ public class SpongeGameRegistry implements GameRegistry {
     private final List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
     private final List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
     private final Map<String, SkullType> skullTypeMappings = Maps.newHashMap();
-    private final Map<String, NotePitch> notePitchMappings = Maps.newHashMap();
+    
+    private Map<String, Art> artMappings = Maps.newHashMap();
+    private Map<String, EntityType> entityTypeMappings = Maps.newHashMap();
+    public Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
+    public Map<Class<? extends Entity>, SpongeEntityType> entityClassToTypeMappings = Maps.newHashMap();
+    public Map<String, Enchantment> enchantmentMappings = Maps.newHashMap();
+    private Map<String, Career> careerMappings = Maps.newHashMap();
+    private Map<String, Profession> professionMappings = Maps.newHashMap();
+    private Map<Integer, List<Career>> professionToCareerMappings = Maps.newHashMap();
+    private Map<String, DimensionType> dimensionTypeMappings = Maps.newHashMap();
+    public Map<Class<? extends Dimension>, DimensionType> dimensionClassMappings = Maps.newHashMap();
+    private List<BlockType> blockList = new ArrayList<BlockType>();
+    private List<ItemType> itemList = new ArrayList<ItemType>();
+    private List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
+    private List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
+
+    public static final ImmutableBiMap<Direction, EnumFacing> directionMap;
+    static {
+        Builder<Direction, EnumFacing> directionMapBuilder = ImmutableBiMap.builder();
+        directionMapBuilder.put(Direction.NORTH, EnumFacing.NORTH);
+        directionMapBuilder.put(Direction.EAST, EnumFacing.EAST);
+        directionMapBuilder.put(Direction.SOUTH, EnumFacing.SOUTH);
+        directionMapBuilder.put(Direction.WEST, EnumFacing.WEST);
+        directionMapBuilder.put(Direction.UP, EnumFacing.UP);
+        directionMapBuilder.put(Direction.DOWN, EnumFacing.DOWN);
+        directionMap = directionMapBuilder.build();
+    }
+>>>>>>> Implement GameMode
+>>>>>>> Implement GameMode
 
     @Override
     public Optional<BlockType> getBlock(String id) {
@@ -449,9 +486,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<GameMode> getGameModes() {
-
-        //TODO implement.
-        return null;
+        return ImmutableList.copyOf(this.gameModeMappings.values());
     }
 
     @Override
@@ -1031,7 +1066,6 @@ public class SpongeGameRegistry implements GameRegistry {
     
     private void setSkullTypes() {
         RegistryHelper.mapFields(SkullTypes.class, new Function<String, SkullType>() {
-
             @Override
             public SkullType apply(String input) {
                 SkullType skullType = new SpongeSkullType((byte) SpongeGameRegistry.this.skullTypeMappings.size(), input);
@@ -1042,6 +1076,16 @@ public class SpongeGameRegistry implements GameRegistry {
         });
     }
     
+    private void setGameModes() {
+        for (Field f: GameMode.class.getDeclaredFields()) {
+            try {
+                f.set(null, gameModeMappings.get(f.getName()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void init() {
         setDimensionTypes();
         setEnchantments();
@@ -1057,6 +1101,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setParticles();
         setSkullTypes();
         setNotePitches();
+        setGameModes();
     }
 
     public void postInit() {
