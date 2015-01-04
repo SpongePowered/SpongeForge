@@ -25,11 +25,25 @@
 package org.spongepowered.mod.entity;
 
 import org.spongepowered.api.entity.living.meta.RabbitType;
+import org.spongepowered.api.service.persistence.DataSource;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 
 public class SpongeRabbitType extends SpongeEntityMeta implements RabbitType {
 
     public SpongeRabbitType(int type, String name) {
         super(type, name);
     }
+
+	@Override
+	public DataContainer toContainer() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void serialize(DataSource source) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

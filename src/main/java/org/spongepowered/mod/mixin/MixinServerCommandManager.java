@@ -36,7 +36,6 @@ import org.spongepowered.mod.SpongeMod;
 
 import net.minecraft.command.CommandHandler;
 import net.minecraft.command.ICommandSender;
-
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.server.MinecraftServer;
 
