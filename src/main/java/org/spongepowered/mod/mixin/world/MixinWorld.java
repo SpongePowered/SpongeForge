@@ -154,7 +154,10 @@ public abstract class MixinWorld implements World {
 
     long weatherStartTime;
 
-    @Inject(method = "updateWeatherBody()V", at = { @At(value = "INVOKE", target = "setThundering(Z)V"), @At(value = "INVOKE", target = "setRaining(Z)V") })
+    @Inject(method = "updateWeatherBody()V", remap = false, at = {
+        @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setThundering(Z)V"),
+        @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setRaining(Z)V")
+    })
     private void onUpdateWeatherBody(CallbackInfo ci) {
         this.weatherStartTime = this.worldInfo.getWorldTotalTime();
     }

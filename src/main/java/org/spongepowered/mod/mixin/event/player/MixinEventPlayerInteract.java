@@ -40,7 +40,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
 @NonnullByDefault
-@Mixin(net.minecraftforge.event.entity.player.PlayerInteractEvent.class)
+@Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
 public abstract class MixinEventPlayerInteract extends PlayerEvent implements PlayerInteractEvent {
 
     @Shadow

@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
-@Mixin(net.minecraftforge.event.entity.player.PlayerEvent.class)
+@Mixin(value = net.minecraftforge.event.entity.player.PlayerEvent.class, remap = false)
 public abstract class MixinEventPlayer extends LivingEvent implements PlayerEvent {
 
     @Shadow

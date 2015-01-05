@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 
 @NonnullByDefault
-@Mixin(FMLPreInitializationEvent.class)
+@Mixin(value = FMLPreInitializationEvent.class, remap = false)
 public abstract class MixinEventPreInit extends FMLStateEvent implements PreInitializationEvent {
 
     @Shadow

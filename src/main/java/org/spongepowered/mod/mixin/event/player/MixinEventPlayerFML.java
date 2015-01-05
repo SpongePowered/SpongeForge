@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 
 @NonnullByDefault
-@Mixin(net.minecraftforge.fml.common.gameevent.PlayerEvent.class)
+@Mixin(value = net.minecraftforge.fml.common.gameevent.PlayerEvent.class, remap = false)
 public abstract class MixinEventPlayerFML extends Event implements PlayerEvent {
 
     @Shadow

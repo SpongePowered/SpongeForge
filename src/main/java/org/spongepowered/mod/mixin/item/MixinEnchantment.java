@@ -60,7 +60,7 @@ public abstract class MixinEnchantment implements Enchantment {
     @Shadow
     public abstract boolean canApply(net.minecraft.item.ItemStack stack);
 
-    @Shadow
+    @Shadow(remap = false) // forge method
     public abstract boolean isAllowedOnBooks();
 
     @Override
