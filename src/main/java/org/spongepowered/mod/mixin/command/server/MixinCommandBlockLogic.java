@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 
 @NonnullByDefault
-@Mixin(net.minecraft.command.server.CommandBlockLogic.class)
+@Mixin(value=net.minecraft.command.server.CommandBlockLogic.class,remap=false)
 public abstract class MixinCommandBlockLogic implements ICommandSender, CommandSource {
 
 	@Shadow public abstract void addChatMessage(IChatComponent icc);
