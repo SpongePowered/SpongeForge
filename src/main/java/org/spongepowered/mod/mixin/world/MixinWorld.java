@@ -40,7 +40,7 @@ import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldBorder;
-import org.spongepowered.api.world.biome.Biome;
+import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
 import org.spongepowered.asm.mixin.Mixin;
@@ -104,8 +104,7 @@ public abstract class MixinWorld implements World {
         return new BlockWrapper(this, x, y, z);
     }
 
-    @Override
-    public Biome getBiome(Vector3d position) {
+    public BiomeType getBiome(Vector3d position) {
         throw new UnsupportedOperationException();
     }
 
