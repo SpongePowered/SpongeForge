@@ -72,7 +72,7 @@ public abstract class MixinEntityHorse extends EntityAnimal {
     }
 
     public HorseStyle getStyle() {
-        return SpongeEntityConstants.HORSE_STYLES.get(getHorseVariant() & 0xFF);
+        return SpongeEntityConstants.HORSE_STYLE_IDMAP.get(getHorseVariant() & 0xFF);
     }
 
     public void setStyle(HorseStyle style) {
@@ -80,7 +80,7 @@ public abstract class MixinEntityHorse extends EntityAnimal {
     }
 
     public HorseColor getColor() {
-        return SpongeEntityConstants.HORSE_COLORS.get(getHorseVariant() & 0xFF);
+        return SpongeEntityConstants.HORSE_COLOR_IDMAP.get(getHorseVariant() & 0xFF);
     }
 
     public void setColor(HorseColor color) {
@@ -88,7 +88,7 @@ public abstract class MixinEntityHorse extends EntityAnimal {
     }
 
     public HorseVariant getVariant() {
-       return SpongeEntityConstants.HORSE_VARIANTS.get(getHorseType());
+       return SpongeEntityConstants.HORSE_VARIANT_IDMAP.get(getHorseType());
     }
 
     public void setVariant(HorseVariant variant) {
