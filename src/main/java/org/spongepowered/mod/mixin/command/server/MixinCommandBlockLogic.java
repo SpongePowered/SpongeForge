@@ -34,32 +34,32 @@ import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
-@Mixin(value=net.minecraft.command.server.CommandBlockLogic.class,remap=false)
+@Mixin(value = net.minecraft.command.server.CommandBlockLogic.class, remap = false)
 public abstract class MixinCommandBlockLogic implements ICommandSender, CommandSource {
-	
-	@Override
-	public void sendMessage(String... messages) {
-		for(String text:messages){
-			this.addChatMessage(new ChatComponentText(text));
-		}
-	}
-	
-	@Override
-	public void sendMessage(Message... messages) {
-		List<String> s=new ArrayList<String>();
-		for(Message message:messages){
-			if(message instanceof Message.Text)
-				s.add((String)message.getContent());
-		}
-		this.sendMessage(s.toArray(new String[s.size()]));
-	}
-	
-	@Override
-	public void sendMessage(Iterable<Message> messages) {
-		List<Message> s=new ArrayList<Message>();
-		for(Message message:messages){
-			s.add(message);
-		}
-		this.sendMessage(s.toArray(new Message[s.size()]));
-	}
+
+    @Override
+    public void sendMessage(String... messages) {
+        for (String text : messages) {
+            this.addChatMessage(new ChatComponentText(text));
+        }
+    }
+
+    @Override
+    public void sendMessage(Message... messages) {
+        List<String> s = new ArrayList<String>();
+        for (Message message : messages) {
+            if (message instanceof Message.Text)
+                s.add((String) message.getContent());
+        }
+        this.sendMessage(s.toArray(new String[s.size()]));
+    }
+
+    @Override
+    public void sendMessage(Iterable<Message> messages) {
+        List<Message> s = new ArrayList<Message>();
+        for (Message message : messages) {
+            s.add(message);
+        }
+        this.sendMessage(s.toArray(new Message[s.size()]));
+    }
 }
