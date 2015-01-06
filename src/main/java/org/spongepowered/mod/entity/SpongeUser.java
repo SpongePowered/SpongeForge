@@ -52,17 +52,15 @@ public abstract class SpongeUser extends EntityPlayer implements User {
         return getGameProfile().getName();
     }
 
+    @Override
     public boolean hasJoinedBefore() {
         return this.getData().isPresent();
     }
 
     @Override
     public Date getFirstPlayed() {
-        @Nullable NBTTagCompound data = getData().isPresent() ? getData().get() : null;
-        long time = 0L;
-        if (data != null && data.hasKey("firstPlayed")) {
-            time = data.getLong("firstPlayed");
-        }
+        Optional<NBTTagCompound> data = getData();
+        long time = (data.isPresent() && data.get().hasKey("firstPlayed")) ? data.get().getLong("firstPlayed") : 0L;
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(time);
         return cal.getTime();
@@ -70,11 +68,8 @@ public abstract class SpongeUser extends EntityPlayer implements User {
 
     @Override
     public Date getLastPlayed() {
-        @Nullable NBTTagCompound data = getData().isPresent() ? getData().get() : null;
-        long time = 0L;
-        if (data != null && data.hasKey("lastPlayed")) {
-            time = data.getLong("lastPlayed");
-        }
+        Optional<NBTTagCompound> data = getData();
+        long time = (data != null && data.get().hasKey("lastPlayed")) ? data.get().getLong("lastPlayed") : 0L;
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(time);
         return cal.getTime();
@@ -92,6 +87,7 @@ public abstract class SpongeUser extends EntityPlayer implements User {
         return server.getConfigurationManager().getWhitelistedPlayers().func_152705_a(getGameProfile());
     }
 
+    @Override
     public boolean isOnline() {
         return getPlayer().isPresent();
     }
