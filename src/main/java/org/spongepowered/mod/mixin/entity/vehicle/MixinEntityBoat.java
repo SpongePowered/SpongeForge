@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.entity.living;
+package org.spongepowered.mod.mixin.entity.vehicle;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
