@@ -26,6 +26,8 @@
 package org.spongepowered.mod.service.scheduler;
 
 import com.google.common.base.Optional;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.service.scheduler.Task;
@@ -40,30 +42,17 @@ import java.util.*;
 
  For the feature/schedulers branch, initial checkin for updates
  to the API, the core game (where necessary) and added new
- interfaces for two kinds of schedulers:
-
- 1. AsynchronousScheduler based on "wall-clock" timer
- (elapsed milliseconds on system). (initial version)
- 2. SynchronousScheduler based on Server Tick events (incomplete)
+ interfaces for one kind of scheduler - a synchronous scheduler.
 
  Synchronous is related to a clock, and by default the relationship
  of being "synchronous" is to be in step with the Minecraft server tick event.
  So, to be "asynchronous" means to not run on the time base of the Server Tick,
  but rather run on a time base that is relative, eg., the wall-clock.
 
- At this time, the basis of a Synchronous clock vis-a-vis the Minecraft
- Server Tick is still out of reach until some new mechanism is coded to
- emit the event of a new Tick.  Currently, there is a tickCounter, but
- what is needed is essentially a TickEvent in order to make the Synchronous
- Scheduler efficient and in step with the game Tick.
 
- Regardless, the AsynchronousScheduler allows for ad-hoc tasks to be
- scheduled as one-time-shot, or repeated tasks given a certain offset
- (delay from whence the Task is captured) and period (the interval
- between invocations of the Task).
  */
 
-public class AsyncScheduler implements Scheduler {
+public class SyncScheduler implements Scheduler {
 
 
     // The intent is the implementation of the Task Scheduler is a single instance
@@ -82,8 +71,8 @@ public class AsyncScheduler implements Scheduler {
     private List<ScheduledTask> taskList = null;
 
     private boolean ready = false;
-
     private volatile long timeout = Long.MAX_VALUE;
+    private volatile long counter = 0;
 
     /**
      * <p>Unlike the State of a ScheduledTask, the @MachineState of the Scheduler is private and not an
@@ -113,16 +102,23 @@ public class AsyncScheduler implements Scheduler {
      */
     public static Scheduler getInstance() {
         if (instance == null) {
-            synchronized (AsyncScheduler.class) {
+            synchronized (SyncScheduler.class) {
                 if (instance == null) {
-                    instance = (Scheduler) new AsyncScheduler();
+                    instance = (Scheduler) new SyncScheduler();
                 }
             }
         }
         return instance;
     }
 
-    private AsyncScheduler() {
+
+
+    @SubscribeEvent
+    public void onTick(TickEvent event) {
+        counter++;
+    }
+
+    private SyncScheduler() {
         /**
          * <p>We establish the TaskScheduler when the TaskScheduler is created.  This will
          * happen once.  We simply initialize the first state in the TaskScheduler state
@@ -149,19 +145,19 @@ public class AsyncScheduler implements Scheduler {
             switch (sm) {
 
                 case INIT: {
-                    System.out.println("INIT State Machine");
+
                     sm = MachineState.START;
                     break;
                 }
 
                 case START: {
-                    System.out.println("START State Machine");
+
                     sm = MachineState.RUN;
                     break;
                 }
                 case RUN: {
 
-                    //System.out.println("RUN State Machine");
+
                     // This is the Running state of the State Machine.
                     // In this state, all tasks that are known by the TaskScheduler will be executed
                     // per the parameters of each task and the constraints of the Task Scheduler.
@@ -177,12 +173,31 @@ public class AsyncScheduler implements Scheduler {
                     // to be aware of new Tasks to enqueue to the list of pending Tasks.
 
 
-
-
                     synchronized (taskList) {
 
+
+                        // So, a lot of hay is made over the fact that in current Java implementation,
+                        // containers are (can be made so) thread-safe. Plus,  the thoughts that
+                        // wait/notify is antique compared to these new thread-aware containers have
+                        // been suggested several times.
+
+                        // The decision to use wait/notify is not so much to protect the list
+                        // from corruption, but to reduce the CPU footprint of the Scheduler.
+
+                        // "Waiting" is yielding and so by simply yielding, we're not consuming
+                        // time busy-waiting, we're letting the JVM wake up the thread when there is
+                        // work to do.  The goal is to have a Scheduler whereby the ratio of time spent
+                        // in overhead (running the scheduler) is a mere small fraction of all the time spent
+                        // actually running tasks from plugins.
+
+                        // As far as the timeout used, the timeout is dynamically set during the operation
+                        // of the State Machine so that a good guess for how long to time out is used.
+
+                        // We rely also on the fact the wait will be interrupted when the notify is called\
+                        // (when a task is added)
+
                         try {
-                            System.out.println("StateMachine RUN - Timeout: " + timeout);
+                            //System.out.println("StateMachine RUN - Timeout: " + timeout);
                             taskList.wait(timeout);
                         } catch (IllegalMonitorStateException ex) {
                             System.out.println("Illegal Monitor State Exception: " + ex.toString());
@@ -205,8 +220,9 @@ public class AsyncScheduler implements Scheduler {
                          *
                          */
 
-                        for (Iterator<ScheduledTask> itr = taskList.iterator(); itr.hasNext(); ) {
-                            ScheduledTask task = itr.next();
+                        for (ScheduledTask task : taskList) {
+                            // for (Iterator<ScheduledTask> itr = taskList.iterator(); itr.hasNext(); ) {
+                            //     ScheduledTask task = itr.next();
 
                             if (task.state == ScheduledTask.ScheduledTaskState.CANCELED) {
                                 taskList.remove(task);
@@ -218,12 +234,11 @@ public class AsyncScheduler implements Scheduler {
 
                             if (task.state == ScheduledTask.ScheduledTaskState.WAITING) {
                                 threshold = task.offset;
-                            }
-                            else  if (task.state == ScheduledTask.ScheduledTaskState.RUNNING) {
+                            } else if (task.state == ScheduledTask.ScheduledTaskState.RUNNING) {
                                 threshold = task.period;
                             }
 
-                            long now = System.currentTimeMillis();
+                            long now = counter; // System.currentTimeMillis();
 
                             // So, if the current time minus the timestamp of the task is greater than
                             // the delay to wait before starting the task, then start the task.
@@ -232,7 +247,11 @@ public class AsyncScheduler implements Scheduler {
                             // If the task has a period of 0 (zero) this task will not repeat, and is removed
                             // after we start it.
 
-                            if ( threshold  < (now - task.timestamp)) {
+                            if (threshold < (now - task.timestamp)) {
+
+                                // startTask is just a utility function within the Scheduler that
+                                // starts the task.
+
                                 if (startTask(task)) {
                                     task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
                                     // if task is one time shot, remove it from the list
@@ -241,7 +260,7 @@ public class AsyncScheduler implements Scheduler {
                                         continue;
                                     } else {
                                         // if the task is not a one time shot then keep it and change the timestamp to now.
-                                        task.timestamp = System.currentTimeMillis();
+                                        task.timestamp = counter; // System.currentTimeMillis();
                                     }
 
                                 }
@@ -259,15 +278,14 @@ public class AsyncScheduler implements Scheduler {
 
                         if (taskList.size() == 0) {
                             timeout = Long.MAX_VALUE;
-                        }
-                        else {
-                            for (Iterator<ScheduledTask> itr = taskList.iterator(); itr.hasNext(); ) {
-                                ScheduledTask task = itr.next();
-                                if (task.state == ScheduledTask.ScheduledTaskState.WAITING) {
-                                    timeout = (task.offset < timeout) ? task.offset : timeout;
-                                }
-                                else if (task.state == ScheduledTask.ScheduledTaskState.RUNNING) {
-                                    timeout = (task.period < timeout) ? task.period : timeout;
+                        } else {
+                            for (ScheduledTask taskAdjustee : taskList) {
+                                // for (Iterator<ScheduledTask> itr = taskList.iterator(); itr.hasNext(); ) {
+                                //    ScheduledTask task = itr.next();
+                                if (taskAdjustee.state == ScheduledTask.ScheduledTaskState.WAITING) {
+                                    timeout = (taskAdjustee.offset < timeout) ? taskAdjustee.offset : timeout;
+                                } else if (taskAdjustee.state == ScheduledTask.ScheduledTaskState.RUNNING) {
+                                    timeout = (taskAdjustee.period < timeout) ? taskAdjustee.period : timeout;
                                 }
 
                             }
@@ -291,12 +309,8 @@ public class AsyncScheduler implements Scheduler {
 
                     synchronized (taskList) {
                         try {
-                            System.out.println("StateMachine RUN - Timeout: " + timeout);
-
-                            // In PAUSE we just wait one second
-
-                            taskList.wait(1000);
-
+                            //System.out.println("StateMachine RUN - Timeout: " + timeout);
+                            taskList.wait(timeout);
                         } catch (IllegalMonitorStateException ex) {
                             System.out.println("Illegal Monitor State Exception: " + ex.toString());
                         } catch (InterruptedException ex) {
@@ -380,44 +394,45 @@ public class AsyncScheduler implements Scheduler {
          * The intent of this method is to run a single task (non-repeating) and has zero
          * offset (doesn't wait a delay before starting), and a zero period (no repetition)
          */
-        Optional<Task> result;
+        Optional<Task> result = Optional.absent();
         final long NODELAY = 0;
         final long NOPERIOD = 0;
 
-        ScheduledTask repeatingtask = taskValidationStep(plugin, task, NODELAY, NOPERIOD);
+        ScheduledTask nonRepeatingtask = taskValidationStep(plugin, task, NODELAY, NOPERIOD);
 
-        if (repeatingtask == null) {
-            result = Optional.absent();
-            return result;
+        if (nonRepeatingtask == null) {
+            // TODO - Log error ?
+
         }
         else {
             synchronized(taskList) {
-                taskList.add(repeatingtask);
+                taskList.add(nonRepeatingtask);
                 taskList.notify();
             }
+            result = Optional.of  ( (Task) nonRepeatingtask );
         }
 
-
-        return Optional.of  ( (Task) repeatingtask );
-
+        return result;
     }
 
     @Override
     public Optional<Task> runTaskAfter(Object plugin, Runnable task, long delay) {
-        Optional<Task> result;
+        Optional<Task> result = Optional.absent();
         final long NOPERIOD = 0;
 
-        ScheduledTask repeatingtask = taskValidationStep(plugin, task, delay, NOPERIOD);
+        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, task, delay, NOPERIOD);
 
-        if (repeatingtask == null) {
-            result = Optional.absent();
+        if (nonRepeatingTask == null) {
+            // TODO - Log error ?
         }
         else {
-            result = Optional.of  ( (Task) repeatingtask );
+
             synchronized(taskList) {
-                taskList.add(repeatingtask);
+                nonRepeatingTask.setTimestamp(counter);
+                taskList.add(nonRepeatingTask);
                 taskList.notify();
             }
+            result = Optional.of  ( (Task) nonRepeatingTask );
         }
 
         return result;
@@ -425,20 +440,22 @@ public class AsyncScheduler implements Scheduler {
 
     @Override
     public Optional<Task> runRepeatingTask(Object plugin, Runnable task, long interval) {
-        Optional<Task> result;
+        Optional<Task> result = Optional.absent();;
         final long NODELAY = 0;
 
-        ScheduledTask repeatingtask = taskValidationStep(plugin, task, NODELAY, interval);
+        ScheduledTask repeatingTask = taskValidationStep(plugin, task, NODELAY, interval);
 
-        if (repeatingtask == null) {
-            result = Optional.absent();
+        if (repeatingTask == null) {
+            // TODO - Log error ?
         }
         else {
-            result = Optional.of  ( (Task) repeatingtask );
+
             synchronized(taskList) {
-                taskList.add(repeatingtask);
+                repeatingTask.setTimestamp(counter);
+                taskList.add(repeatingTask);
                 taskList.notify();
             }
+            result = Optional.of  ( (Task) repeatingTask );
         }
 
         return result;
@@ -446,22 +463,21 @@ public class AsyncScheduler implements Scheduler {
 
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable task, long interval, long delay) {
-        Optional<Task> result;
+        Optional<Task> result = Optional.absent();;
 
-        ScheduledTask repeatingtask = taskValidationStep(plugin, task, delay, interval);
+        ScheduledTask repeatingTask = taskValidationStep(plugin, task, delay, interval);
 
-        if (repeatingtask == null) {
-            result = Optional.absent();
+        if (repeatingTask == null) {
+            // TODO - Log error ?
         }
         else {
-            result = Optional.of  ( (Task) repeatingtask );
             synchronized(taskList) {
-                taskList.add(repeatingtask);
+                repeatingTask.setTimestamp(counter);
+                taskList.add(repeatingTask);
                 taskList.notify();
             }
+            result = Optional.of  ( (Task) repeatingTask );
         }
-
-
 
         return result;
     }
@@ -561,13 +577,10 @@ public class AsyncScheduler implements Scheduler {
         // for the tasks that are present, dispose them safely.
         // leave the condition of the list empty./
         if (taskList == null) {
-            for (int i = 0; i < taskList.size(); ++i) {
-                ScheduledTask tsk = taskList.get(i);
-                if (tsk != null) {
-                    // dispose of task t
-                    // tsk.dispose();
-                    taskList.remove(i);
-                    tsk = null;
+            for (ScheduledTask task : taskList) {
+                if (task != null) {
+                    // dispose of task
+                    taskList.remove(task);
                 }
             }
             taskList = new ArrayList<ScheduledTask>();
@@ -575,21 +588,28 @@ public class AsyncScheduler implements Scheduler {
     }
     private  boolean startTask(ScheduledTask task) {
         boolean bRes = true;
+
         if (task != null) {
-
             Runnable runnableThreadBodyOfTask = task.threadbody;
-            try {
-                runnableThreadBodyOfTask.run();
-            } catch (Exception ex) {
-                // TODO log what kind of failure this is?
-                // TODO log here or throw?
-//                this.logger.warn("The TaskScheduler tried to run the Task, but the Runnable could not be started: ", ex);
+            if (((Thread) runnableThreadBodyOfTask).isAlive()) {
+                // we're still running?!
+                // do not restart the Runnable thread body if so.
                 bRes = false;
+            } else {
+                try {
+                    runnableThreadBodyOfTask.run();
+                } catch (Exception ex) {
+                    // TODO log what kind of failure this is?
+                    // TODO log here or throw?
+                    // this.logger.warn("The TaskScheduler tried to run the Task, but the Runnable could not be started: ", ex);
+                    bRes = false;
 
+                }
             }
-        } else {
+        }
+        else {
             // TODO Log the warning message that the task was null (or whatever else is failed).
-           // this.logger.warn(String.format("The TaskScheduler tried to run the Task, but it was null. Nothing happened."));
+            // this.logger.warn(String.format("The TaskScheduler tried to run the Task, but it was null. Nothing happened."));
             bRes = false;
         }
 

@@ -58,7 +58,7 @@ public class ScheduledTask implements Task {
         period = t;
         owner = null;
         threadbody = null;
-        timestamp = System.currentTimeMillis();
+        // => set in the Scheduler not by the Task. // timestamp = System.currentTimeMillis();
         state = ScheduledTaskState.WAITING;
         id = UUID.randomUUID();
     }
@@ -135,4 +135,5 @@ public class ScheduledTask implements Task {
     public UUID getUniqueId() {
         return id;
     }
+
 }
