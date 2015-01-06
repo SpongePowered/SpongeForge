@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.entity.player;
 
 import java.util.Locale;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.server.S02PacketChat;
@@ -45,6 +44,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.entity.SpongeUser;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.message.SpongeMessage;
 import org.spongepowered.mod.text.message.SpongeMessageText;
@@ -55,7 +55,7 @@ import org.spongepowered.mod.text.title.SpongeTitle;
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
 @Implements(@Interface(iface = Player.class, prefix = "playermp$"))
-public abstract class MixinEntityPlayerMP extends EntityPlayer implements CommandSource {
+public abstract class MixinEntityPlayerMP extends SpongeUser implements CommandSource {
 
     @Shadow
     private String translator;
