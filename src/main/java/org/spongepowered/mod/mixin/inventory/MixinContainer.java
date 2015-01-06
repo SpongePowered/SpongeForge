@@ -22,31 +22,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.event.player;
+package org.spongepowered.mod.mixin.inventory;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import java.util.List;
 
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.player.PlayerEvent;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ICrafting;
+
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import com.google.common.collect.Lists;
+
 @NonnullByDefault
-@Mixin(net.minecraftforge.event.entity.player.PlayerEvent.class)
-public abstract class MixinEventPlayer extends LivingEvent implements PlayerEvent {
+@Mixin(Container.class)
+public abstract class MixinContainer {
 
+    @SuppressWarnings("rawtypes")
     @Shadow
-    public EntityPlayer entityPlayer;
+    protected List crafters = Lists.newArrayList();
+    @SuppressWarnings("rawtypes")
+    @Shadow
+    public abstract List getInventory();
 
-    public MixinEventPlayer(EntityLivingBase entity) {
-        super(entity);
-    }
-
-    @Override
-    public Player getPlayer() {
-        return (Player)this.entityPlayer;
+    @SuppressWarnings("unchecked")
+    @Overwrite
+    public void addCraftingToCrafters(ICrafting p_75132_1_)
+    {
+        Container container = (Container)(Object)this;
+        if (this.crafters.contains(p_75132_1_))
+        {
+            // Sponge start - As we do not create a new player object on respawn, we need to update the client with changes if listener already exists
+            //throw new IllegalArgumentException("Listener already listening");
+            p_75132_1_.sendContainerAndContentsToPlayer(container, this.getInventory());
+            container.detectAndSendChanges();
+            // Sponge end
+        }
+        else
+        {
+            this.crafters.add(p_75132_1_);
+            p_75132_1_.sendContainerAndContentsToPlayer(container, this.getInventory());
+            container.detectAndSendChanges();
+        }
     }
 }

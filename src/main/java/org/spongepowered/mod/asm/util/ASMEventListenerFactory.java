@@ -235,7 +235,7 @@ public class ASMEventListenerFactory {
 
         @Override
         public int hashCode() {
-            return hashCode;
+            return this.hashCode;
         }
 
         @Override
@@ -244,10 +244,10 @@ public class ASMEventListenerFactory {
                 return false;
             } else {
                 HashTriple t = (HashTriple) o;
-                if (t.hashCode != hashCode) {
+                if (t.hashCode != this.hashCode) {
                     return false;
                 }
-                return t.input.equals(input) && t.output.equals(output) && t.interf.equals(interf);
+                return t.input.equals(this.input) && t.output.equals(this.output) && t.interf.equals(this.interf);
             }
         }
     }

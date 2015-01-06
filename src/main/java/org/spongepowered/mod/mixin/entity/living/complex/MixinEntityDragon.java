@@ -49,7 +49,7 @@ import com.google.common.collect.ImmutableSet.Builder;
 
 @NonnullByDefault
 @Mixin(EntityDragon.class)
-@Implements(@Interface(iface = EnderDragon.class, prefix = "sp$"))
+@Implements(@Interface(iface = EnderDragon.class, prefix = "dragon$"))
 public abstract class MixinEntityDragon extends EntityLiving {
 
     @Shadow
@@ -61,21 +61,21 @@ public abstract class MixinEntityDragon extends EntityLiving {
         super(worldIn);
     }
 
-    public Set<EnderDragonPart> sp$getParts() {
+    public Set<EnderDragonPart> dragon$getParts() {
         Builder<EnderDragonPart> builder = ImmutableSet.builder();
 
-        for (EntityDragonPart part : dragonPartArray) {
+        for (EntityDragonPart part : this.dragonPartArray) {
             builder.add((EnderDragonPart) part);
         }
 
         return builder.build();
     }
 
-    public Optional<EnderCrystal> sp$getHealingCrystal() {
-        return Optional.fromNullable((EnderCrystal)healingEnderCrystal);
+    public Optional<EnderCrystal> dragon$getHealingCrystal() {
+        return Optional.fromNullable((EnderCrystal)this.healingEnderCrystal);
     }
 
-    public void sp$setHealingCrystal(@Nullable EnderCrystal crystal) {
+    public void dragon$setHealingCrystal(@Nullable EnderCrystal crystal) {
         this.healingEnderCrystal = (EntityEnderCrystal) crystal;
     }
 

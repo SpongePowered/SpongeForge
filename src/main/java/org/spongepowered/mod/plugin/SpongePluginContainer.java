@@ -83,7 +83,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
 
     @Override
     public String getModId() {
-        return (String) fmlDescriptor.get("id");
+        return (String) this.fmlDescriptor.get("id");
     }
 
     @Override
@@ -105,53 +105,53 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     @Override
     @Subscribe
     public void constructMod(FMLConstructionEvent event) {
-        scope.setScope(this);
+        this.scope.setScope(this);
 
         super.constructMod(event);
 
         try {
             ModClassLoader modClassLoader = event.getModClassLoader();
-            modClassLoader.clearNegativeCacheFor(container.getClassList());
+            modClassLoader.clearNegativeCacheFor(this.container.getClassList());
 
-            Class<?> clazz = Class.forName(className, true, modClassLoader);
+            Class<?> clazz = Class.forName(this.className, true, modClassLoader);
 
             findEventHandlers(clazz);
 
-            plugin = SpongeMod.instance.getInjector().getInstance(clazz);
+            this.plugin = SpongeMod.instance.getInjector().getInstance(clazz);
         } catch (Throwable e) {
-            controller.errorOccurred(this, e);
+            this.controller.errorOccurred(this, e);
             Throwables.propagateIfPossible(e);
         }
 
         SpongeMod.instance.registerPluginContainer(this, getId(), getInstance());
 
-        scope.setScope(null);
+        this.scope.setScope(null);
     }
 
     @Subscribe
     @Override
     @SuppressWarnings("unchecked")
     public void handleModStateEvent(FMLEvent event) {
-        scope.setScope(this);
+        this.scope.setScope(this);
 
         Class<? extends FMLEvent> eventClass = event.getClass();
         Class<? extends Event> spongeEvent = (Class<? extends Event>) EventRegistry.getAPIClass(eventClass);
-        if (stateEventHandlers.containsKey(spongeEvent)) {
+        if (this.stateEventHandlers.containsKey(spongeEvent)) {
             try {
-                for (Method m : stateEventHandlers.get(spongeEvent)) {
-                    m.invoke(plugin, event);
+                for (Method m : this.stateEventHandlers.get(spongeEvent)) {
+                    m.invoke(this.plugin, event);
                 }
             } catch (Throwable t) {
-                controller.errorOccurred(this, t);
+                this.controller.errorOccurred(this, t);
             }
         }
 
-        scope.setScope(null);
+        this.scope.setScope(null);
     }
 
     @Override
     public Object getInstance() {
-        return plugin;
+        return this.plugin;
     }
 
     @SuppressWarnings("unchecked")
@@ -162,7 +162,7 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
                     Class<?>[] paramTypes = m.getParameterTypes();
                     if (paramTypes.length == 1 && Event.class.isAssignableFrom(paramTypes[0])) {
                         m.setAccessible(true);
-                        stateEventHandlers.put((Class<? extends Event>) paramTypes[0], m);
+                        this.stateEventHandlers.put((Class<? extends Event>) paramTypes[0], m);
                     }
                 }
             }

@@ -82,12 +82,12 @@ public class SpongeGuiceModule extends AbstractModule {
         boolean shared;
 
         ConfigFileAnnotation(boolean isShared) {
-            shared = isShared;
+            this.shared = isShared;
         }
 
         @Override
         public boolean sharedRoot() {
-            return shared;
+            return this.shared;
         }
 
         @Override
@@ -118,7 +118,7 @@ public class SpongeGuiceModule extends AbstractModule {
         @Override
         public String toString() {
             return "@org.spongepowered.api.service.config.Config(" +
-                   "sharedRoot=" + shared +
+                   "sharedRoot=" + this.shared +
                    ')';
         }
     }
@@ -129,12 +129,12 @@ public class SpongeGuiceModule extends AbstractModule {
         boolean shared;
 
         ConfigDirAnnotation(boolean isShared) {
-            shared = isShared;
+            this.shared = isShared;
         }
 
         @Override
         public boolean sharedRoot() {
-            return shared;
+            return this.shared;
         }
 
         @Override
@@ -165,7 +165,7 @@ public class SpongeGuiceModule extends AbstractModule {
         @Override
         public String toString() {
             return "@org.spongepowered.api.service.config.ConfigDir(" +
-                   "sharedRoot=" + shared +
+                   "sharedRoot=" + this.shared +
                    ')';
         }
     }
@@ -176,12 +176,12 @@ public class SpongeGuiceModule extends AbstractModule {
 
         @Inject
         private PluginLogProvider(PluginScope sc) {
-            scope = sc;
+            this.scope = sc;
         }
 
         @Override
         public Logger get() {
-            PluginContainer current = scope.getCurrentScope();
+            PluginContainer current = this.scope.getCurrentScope();
             return LoggerFactory.getLogger(current.getId());
         }
     }
@@ -200,12 +200,12 @@ public class SpongeGuiceModule extends AbstractModule {
 
         @Inject
         private PluginConfigFileProvider(PluginScope sc) {
-            scope = sc;
+            this.scope = sc;
         }
 
         @Override
         public File get() {
-            PluginContainer current = scope.getCurrentScope();
+            PluginContainer current = this.scope.getCurrentScope();
             return new File(Loader.instance().getConfigDir(), current.getId() + ".conf");
         }
     }
@@ -216,12 +216,12 @@ public class SpongeGuiceModule extends AbstractModule {
 
         @Inject
         private PluginHoconConfigProvider(PluginScope sc) {
-            scope = sc;
+            this.scope = sc;
         }
 
         @Override
         public ConfigFile get() {
-            PluginContainer current = scope.getCurrentScope();
+            PluginContainer current = this.scope.getCurrentScope();
             return ConfigFile.parseFile(new File(Loader.instance().getConfigDir(), current.getId() + ".conf"));
         }
     }
@@ -232,12 +232,12 @@ public class SpongeGuiceModule extends AbstractModule {
 
         @Inject
         private PluginConfigDirProvider(PluginScope sc) {
-            scope = sc;
+            this.scope = sc;
         }
 
         @Override
         public File get() {
-            PluginContainer current = scope.getCurrentScope();
+            PluginContainer current = this.scope.getCurrentScope();
             return new File(Loader.instance().getConfigDir(), current.getId() + "/");
         }
     }
@@ -248,12 +248,12 @@ public class SpongeGuiceModule extends AbstractModule {
 
         @Inject
         private PluginContainerProvider(PluginScope sc) {
-            scope = sc;
+            this.scope = sc;
         }
 
         @Override
         public PluginContainer get() {
-            return scope.getInstance(Key.get(PluginContainer.class));
+            return this.scope.getInstance(Key.get(PluginContainer.class));
         }
     }
 }

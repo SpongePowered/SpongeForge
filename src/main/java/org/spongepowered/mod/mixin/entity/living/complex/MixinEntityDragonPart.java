@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityDragonPart.class)
-@Implements(@Interface(iface = EnderDragonPart.class, prefix = "sp$"))
+@Implements(@Interface(iface = EnderDragonPart.class, prefix = "dragonpart$"))
 public abstract class MixinEntityDragonPart extends Entity {
 
     @Shadow
@@ -49,8 +49,8 @@ public abstract class MixinEntityDragonPart extends Entity {
         super(worldIn);
     }
 
-    public EnderDragon sp$getParent() {
-        return (EnderDragon)entityDragonObj;
+    public EnderDragon dragonpart$getParent() {
+        return (EnderDragon)this.entityDragonObj;
     }
 
 }

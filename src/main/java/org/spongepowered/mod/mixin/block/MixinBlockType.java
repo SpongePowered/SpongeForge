@@ -25,6 +25,8 @@
 package org.spongepowered.mod.mixin.block;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFalling;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 
 import org.spongepowered.api.block.BlockState;
@@ -42,11 +44,20 @@ public abstract class MixinBlockType implements BlockType {
     @Shadow(prefix = "shadow$")
     public abstract IBlockState shadow$getDefaultState();
 
-    @Shadow(prefix = "sp$")
-    public abstract String sp$getLocalizedName();
+    @Shadow(prefix = "shadow$")
+    public abstract String shadow$getLocalizedName();
 
-    @Shadow(prefix = "sp$")
-    public abstract String sp$getUnlocalizedName();
+    @Shadow(prefix = "shadow$")
+    public abstract String shadow$getUnlocalizedName();
+
+    @Shadow
+    public abstract boolean isSolidFullCube();
+
+    @Shadow
+    public abstract boolean getEnableStats();
+
+    @Shadow
+    public abstract int getLightValue();
 
     @Shadow
     public abstract IBlockState getStateFromMeta(int meta);
@@ -63,7 +74,7 @@ public abstract class MixinBlockType implements BlockType {
 
     @Override
     public Translation getTranslation() {
-        return TranslationHelper.createStaticTranslation(sp$getUnlocalizedName(), sp$getLocalizedName());
+        return TranslationHelper.createStaticTranslation(shadow$getUnlocalizedName(), shadow$getLocalizedName());
     }
 
     @Override
@@ -71,4 +82,30 @@ public abstract class MixinBlockType implements BlockType {
     public BlockState getStateFromDataValue(byte data) {
         return (BlockState) getStateFromMeta(data);
     }
+
+    @Override
+    public boolean isLiquid() {
+        return BlockLiquid.class.isAssignableFrom(this.getClass());
+    }
+
+    @Override
+    public boolean isSolidCube() {
+        return isSolidFullCube();
+    }
+
+    @Override
+    public boolean isAffectedByGravity() {
+        return BlockFalling.class.isAssignableFrom(this.getClass());
+    }
+
+    @Override
+    public boolean areStatisticsEnabled() {
+        return getEnableStats();
+    }
+
+    @Override
+    public float getEmittedLight() {
+        return 15F / getLightValue();
+    }
+
 }

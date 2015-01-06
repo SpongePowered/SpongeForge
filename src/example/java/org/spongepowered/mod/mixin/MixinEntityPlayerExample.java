@@ -22,19 +22,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mixin.impl;
+package org.spongepowered.mod.mixin;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import org.spongepowered.mixin.interfaces.IEntityPlayerConflict;
-import org.spongepowered.mod.mixin.Implements;
-import org.spongepowered.mod.mixin.Interface;
-import org.spongepowered.mod.mixin.Mixin;
-import org.spongepowered.mod.mixin.Overwrite;
-import org.spongepowered.mod.mixin.Shadow;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.exampleinterfaces.IEntityPlayerConflict;
 
 /**
  * Mixin demonstrating how "soft implementation" works

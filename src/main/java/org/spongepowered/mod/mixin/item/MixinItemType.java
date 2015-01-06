@@ -41,8 +41,11 @@ public abstract class MixinItemType implements ItemType {
     @Shadow
     public abstract int getItemStackLimit();
 
-    @Shadow(prefix = "sp$")
-    public abstract String sp$getUnlocalizedName();
+    @Shadow(prefix = "shadow$")
+    public abstract String shadow$getUnlocalizedName();
+
+    @Shadow
+    private int maxDamage;
 
     @Override
     public String getId() {
@@ -51,7 +54,7 @@ public abstract class MixinItemType implements ItemType {
 
     @Override
     public Translation getTranslation() {
-        String id = sp$getUnlocalizedName();
+        String id = shadow$getUnlocalizedName();
         String name = ("" + StatCollector.translateToLocal(id + ".name")).trim();
 
         return TranslationHelper.createStaticTranslation(id, name);
@@ -60,5 +63,10 @@ public abstract class MixinItemType implements ItemType {
     @Override
     public int getMaxStackQuantity() {
         return getItemStackLimit();
+    }
+
+    @Override
+    public int getMaxDamage() {
+        return this.maxDamage;
     }
 }

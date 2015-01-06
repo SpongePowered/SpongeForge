@@ -68,8 +68,8 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
         EntityRegistration er = EntityRegistry.instance().new EntityRegistration(mc, entityClass, entityName, id, trackingRange, updateFrequency, sendsVelocityUpdates);
         try
         {
-            entityClassRegistrations.put(entityClass, er);
-            entityNames.put(entityName, mc);
+            this.entityClassRegistrations.put(entityClass, er);
+            this.entityNames.put(entityName, mc);
             if (!EntityList.classToStringMapping.containsKey(entityClass))
             {
                 String entityModName = String.format("%s.%s", mc.getModId(), entityName);
@@ -87,7 +87,7 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
             FMLLog.log(Level.WARN, e, "The mod %s tried to register the entity (name,class) (%s,%s) one or both of which are already registered", mc.getModId(), entityName, entityClass.getName());
             return;
         }
-        entityRegistrations.put(mc, er);
+        this.entityRegistrations.put(mc, er);
         registerCustomEntity(entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
     }
 
@@ -111,8 +111,8 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
         }
         //entityName = modId + "-" + entityName;
         SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass);
-        gameRegistry.entityClassToTypeMappings.put(entityClass, entityType);
-        gameRegistry.entityIdToTypeMappings.put(entityType.getId(), entityType);
+        this.gameRegistry.entityClassToTypeMappings.put(entityClass, entityType);
+        this.gameRegistry.entityIdToTypeMappings.put(entityType.getId(), entityType);
     }
 
 }

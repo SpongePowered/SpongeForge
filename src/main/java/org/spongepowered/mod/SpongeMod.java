@@ -30,6 +30,11 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import net.minecraftforge.fml.common.*;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.ModContainerFactory;
+import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +42,7 @@ import org.objectweb.asm.Type;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
@@ -70,43 +76,43 @@ public class SpongeMod extends DummyModContainer {
         this.getMetadata().name = "SpongeAPIMod";
         this.getMetadata().modId = "SpongeAPIMod";
         SpongeMod.instance = this;
-        game = spongeInjector.getInstance(Game.class);
+        this.game = this.spongeInjector.getInstance(Game.class);
     }
 
     public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object instance) {
-        plugins.put(instance, spongePluginContainer);
-        pluginIdMap.put(pluginId.toLowerCase(), spongePluginContainer);
-        game.getEventManager().register(spongePluginContainer.getInstance(), spongePluginContainer.getInstance());
+        this.plugins.put(instance, spongePluginContainer);
+        this.pluginIdMap.put(pluginId.toLowerCase(), spongePluginContainer);
+        this.game.getEventManager().register(spongePluginContainer.getInstance(), spongePluginContainer.getInstance());
     }
 
     public Collection<PluginContainer> getPlugins() {
-        return Collections.unmodifiableCollection(plugins.values());
+        return Collections.unmodifiableCollection(this.plugins.values());
     }
 
     public PluginContainer getPlugin(String s) {
-        return pluginIdMap.get(s.toLowerCase());
+        return this.pluginIdMap.get(s.toLowerCase());
     }
 
     public PluginContainer getPluginContainer(Object instance) {
-        return plugins.get(instance);
+        return this.plugins.get(instance);
     }
 
     public Game getGame() {
-        return game;
+        return this.game;
     }
 
     public Injector getInjector() {
-        return spongeInjector;
+        return this.spongeInjector;
     }
 
     public Logger getLogger() {
-        return logger;
+        return this.logger;
     }
 
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
-        bus.register(game.getEventManager());
+        bus.register(this.game.getEventManager());
         this.eventBus = bus;
         this.controller = controller;
         return true;
@@ -114,13 +120,14 @@ public class SpongeMod extends DummyModContainer {
 
     @Subscribe
     public void onPreInit(FMLPreInitializationEvent e) {
-        logger = e.getModLog();
+        this.logger = e.getModLog();
         FMLCommonHandler.instance().bus().register(game.getScheduler());
+        MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
     }
 
     @Subscribe
     public void onInitialization(FMLInitializationEvent e) {
-        SpongeGameRegistry registry = (SpongeGameRegistry) game.getRegistry();
+        SpongeGameRegistry registry = (SpongeGameRegistry) this.game.getRegistry();
 
         registry.init();
     }

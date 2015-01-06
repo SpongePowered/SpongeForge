@@ -37,7 +37,7 @@ public class SpongeEntityMeta  {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     @Override
@@ -49,9 +49,9 @@ public class SpongeEntityMeta  {
             return false;
         }
         SpongeEntityMeta other = (SpongeEntityMeta)obj;
-        if (type != other.type) {
+        if (this.type != other.type) {
             return false;
-        } else if (name != other.name) {
+        } else if (this.name != other.name) {
             return false;
         }
         return true;
@@ -60,8 +60,8 @@ public class SpongeEntityMeta  {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-            .add("type", type)
-            .add("name", name)
+            .add("type", this.type)
+            .add("name", this.name)
             .toString();
     }
 }

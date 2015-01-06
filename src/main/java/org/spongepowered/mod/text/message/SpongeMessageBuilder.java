@@ -52,12 +52,12 @@ public abstract class SpongeMessageBuilder<T extends Message> implements Message
     protected IChatComponent handle;
 
     public SpongeMessageBuilder() {
-        children = new ArrayDeque<Message>();
+        this.children = new ArrayDeque<Message>();
     }
 
     public SpongeMessageBuilder(T content) {
         this.content = content;
-        children = new ArrayDeque<Message>();
+        this.children = new ArrayDeque<Message>();
     }
 
     @Override

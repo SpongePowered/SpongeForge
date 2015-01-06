@@ -1,5 +1,5 @@
 {
-  "package": "org.spongepowered.mixin.impl",
+  "package": "org.spongepowered.mod.mixin",
   "mixins": [
     "MixinWorldExample",
     "MixinEntityPlayerExample"

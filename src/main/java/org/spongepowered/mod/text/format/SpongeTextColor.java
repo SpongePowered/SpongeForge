@@ -44,21 +44,21 @@ public class SpongeTextColor implements TextColor.Base {
 
     @Override
     public Color getColor() {
-        return color;
+        return this.color;
     }
 
     @Override
     public boolean isReset() {
-        return color == Color.WHITE;
+        return this.color == Color.WHITE;
     }
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public EnumChatFormatting getHandle() {
-        return handle;
+        return this.handle;
     }
 
     @Override

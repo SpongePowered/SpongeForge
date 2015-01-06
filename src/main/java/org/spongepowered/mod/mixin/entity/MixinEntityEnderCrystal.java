@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(EntityEnderCrystal.class)
-@Implements(@Interface(iface = EnderCrystal.class, prefix = "sp$"))
+@Implements(@Interface(iface = EnderCrystal.class, prefix = "endercrystal$"))
 public abstract class MixinEntityEnderCrystal extends Entity {
 
     public MixinEntityEnderCrystal(World worldIn) {

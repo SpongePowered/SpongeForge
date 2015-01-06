@@ -38,7 +38,7 @@ public class PriorityEventListener<T> implements EventListener<T>, Comparable<Pr
     }
 
     public EventListenerHolder<T> getHolder() {
-        return holder;
+        return this.holder;
     }
 
     public void setHolder(EventListenerHolder<T> holder) {
@@ -47,12 +47,12 @@ public class PriorityEventListener<T> implements EventListener<T>, Comparable<Pr
 
     @Override
     public void invoke(T event) {
-        listener.invoke(event);
+        this.listener.invoke(event);
     }
 
     @Override
     public int compareTo(PriorityEventListener<T> o) {
-        return order.compareTo(o.order);
+        return this.order.compareTo(o.order);
     }
 
 }

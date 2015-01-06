@@ -22,38 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mixin.interfaces;
+package org.spongepowered.exampleinterfaces;
 
-import net.minecraft.entity.EntityLivingBase;
-
-import org.spongepowered.mod.mixin.Implements;
+import net.minecraft.world.EnumSkyBlock;
 
 
 /**
- * An example mixin interface which contains a method whose signature conflicts with a method in the target class
+ * An example mixin interface, this interface describes the contract of the mixin and will be patched onto the mixin's target class at runtime. 
  */
-public interface IEntityPlayerConflict {
+public interface IWorld {
 
     /**
-     * In {@link EntityLivingBase}, this same method exists but returns a float. Whilst java bytecode would actually allow both methods to exist, the
-     * java compiler doesn't support this. This conflict is deliberately here to demostrate the use of the {@link Implements} annotation in
-     * {@link MixinEntityPlayerExample}
+     * Stupid example
      */
-    public abstract double getHealth();
+    public abstract int getAmbientTickCountdown();
 
     /**
-     * This method conflicts with a method in the target class and has precisely the same signature, this is to demonstrate how we deal with a method
-     * which would ordinarily fall foul of reobfuscation and thus break our (non-obfuscated) interface in a production environment
+     * Even more tenuous example
+     *
+     * @param x
+     * @param y
+     * @param z
+     * @param block
+     * @return
      */
-    public abstract boolean isUsingItem();
+    public abstract int exampleMethodToComputeLightValue(int x, int y, int z, EnumSkyBlock block);
 
     /**
-     * Additional method which doesn't conflict
+     * Contrived example to deliberately create a name clash with World
+     *
+     * @param x
+     * @param y
+     * @param z
+     * @return
      */
-    public abstract int thisMethodDoesNotConflict();
-    
-    /**
-     * Additional method with no conflicts
-     */
-    public abstract int norDoesThisOne();
+    public abstract Object getBlock(int x, int y, int z);
 }

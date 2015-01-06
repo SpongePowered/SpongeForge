@@ -94,7 +94,7 @@ public abstract class MixinPotionEffect implements PotionEffect {
 
     @Override
     public boolean getShowParticles() {
-        return showParticles;
+        return this.showParticles;
     }
 
     @Override

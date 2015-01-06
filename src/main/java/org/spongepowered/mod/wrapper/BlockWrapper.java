@@ -56,9 +56,9 @@ public class BlockWrapper implements BlockLoc {
             System.err.println("World passed to BlockWrapper wasn't a mixin for net.minecraft.world.World! Serious issue!");
             throw new RuntimeException("An unrecoverable error occured!");
         }
-        handle = (net.minecraft.world.World) world;
-        extent = world;
-        pos = new BlockPos(x, y, z);
+        this.handle = (net.minecraft.world.World) world;
+        this.extent = world;
+        this.pos = new BlockPos(x, y, z);
     }
 
     //TODO: Move this to Direction
@@ -84,40 +84,40 @@ public class BlockWrapper implements BlockLoc {
 
     @Override
     public Extent getExtent() {
-        return extent;
+        return this.extent;
     }
 
     // TODO: Can we mixin Vector3i with BlockPos?
     @Override
     public Vector3i getPosition() {
-        return new Vector3i(pos.getX(), pos.getY(), pos.getZ());
+        return new Vector3i(this.pos.getX(), this.pos.getY(), this.pos.getZ());
     }
 
     @Override
     public Location getLocation() {
-        return new Location(extent, new Vector3d(pos.getX(), pos.getY(), pos.getZ()));
+        return new Location(this.extent, new Vector3d(this.pos.getX(), this.pos.getY(), this.pos.getZ()));
     }
 
     @Override
     public int getX() {
-        return pos.getX();
+        return this.pos.getX();
     }
 
     @Override
     public int getY() {
-        return pos.getY();
+        return this.pos.getY();
     }
 
     @Override
     public int getZ() {
-        return pos.getZ();
+        return this.pos.getZ();
     }
 
     @Override
     public void replaceWith(BlockState state) {
         // 0 is no notify flag. For now not going to notify nearby blocks of update.
         if (state instanceof IBlockState) {
-            handle.setBlockState(pos, (IBlockState) state, 0);
+            this.handle.setBlockState(this.pos, (IBlockState) state, 0);
         } else {
             // TODO: Need to figure out what is sensible for other BlockState implementing classes.
             throw new UnsupportedOperationException();
@@ -126,7 +126,7 @@ public class BlockWrapper implements BlockLoc {
 
     @Override
     public void replaceWith(BlockType type) {
-        handle.setBlockState(pos, ((net.minecraft.block.Block) type).getDefaultState(), 3);
+        this.handle.setBlockState(this.pos, ((net.minecraft.block.Block) type).getDefaultState(), 3);
     }
 
     @Override
@@ -147,12 +147,12 @@ public class BlockWrapper implements BlockLoc {
 
     @Override
     public BlockType getType() {
-        return (BlockType) handle.getBlockState(pos).getBlock();
+        return (BlockType) this.handle.getBlockState(this.pos).getBlock();
     }
 
     @Override
     public BlockState getState() {
-        return (BlockState) handle.getBlockState(pos);
+        return (BlockState) this.handle.getBlockState(this.pos);
     }
 
     @Override
@@ -182,37 +182,37 @@ public class BlockWrapper implements BlockLoc {
 
     @Override
     public byte getLuminance() {
-        return (byte) handle.getLight(pos);
+        return (byte) this.handle.getLight(this.pos);
     }
 
     @Override
     public byte getLuminanceFromSky() {
-        return (byte) handle.getLightFor(EnumSkyBlock.SKY, pos);
+        return (byte) this.handle.getLightFor(EnumSkyBlock.SKY, this.pos);
     }
 
     @Override
     public byte getLuminanceFromGround() {
-        return (byte) handle.getLightFor(EnumSkyBlock.BLOCK, pos);
+        return (byte) this.handle.getLightFor(EnumSkyBlock.BLOCK, this.pos);
     }
 
     @Override
     public boolean isPowered() {
-        return handle.getStrongPower(pos) > 0;
+        return this.handle.getStrongPower(this.pos) > 0;
     }
 
     @Override
     public boolean isIndirectlyPowered() {
-        return handle.isBlockPowered(pos);
+        return this.handle.isBlockPowered(this.pos);
     }
 
     @Override
     public boolean isFacePowered(Direction direction) {
-        return handle.getStrongPower(pos, getNotchDirection(direction)) > 0;
+        return this.handle.getStrongPower(this.pos, getNotchDirection(direction)) > 0;
     }
 
     @Override
     public boolean isFaceIndirectlyPowered(Direction direction) {
-        return handle.getRedstonePower(pos, getNotchDirection(direction)) > 0;
+        return this.handle.getRedstonePower(this.pos, getNotchDirection(direction)) > 0;
     }
 
     @Override
@@ -226,11 +226,21 @@ public class BlockWrapper implements BlockLoc {
     }
 
     public net.minecraft.world.World getHandle() {
-        return handle;
+        return this.handle;
     }
 
     @Override
     public <T> Optional<T> getData(Class<T> dataClass) {
         return Optional.absent();
+    }
+
+    @Override
+    public boolean isPassable() {
+        return this.handle.getBlockState(this.pos).getBlock().isPassable(this.handle, this.pos);
+    }
+
+    @Override
+    public boolean isFaceFlammable(Direction direction) {
+        return this.handle.getBlockState(this.pos).getBlock().isFlammable(this.handle, this.pos, getNotchDirection(direction));
     }
 }

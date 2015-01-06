@@ -22,39 +22,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mixin.interfaces;
+package org.spongepowered.mod.event;
 
-import net.minecraft.world.EnumSkyBlock;
+import org.spongepowered.mod.entity.ISpongeEntity;
 
+import net.minecraftforge.event.world.ChunkWatchEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-/**
- * An example mixin interface, this interface describes the contract of the mixin and will be patched onto the mixin's target class at runtime. 
- */
-public interface IWorld {
+public class SpongeEventHooks {
 
-    /**
-     * Stupid example
-     */
-    public abstract int getAmbientTickCountdown();
+    @SubscribeEvent
+    public void onChunkWatchEvent(ChunkWatchEvent event) {
+        ISpongeEntity spongeEntity = (ISpongeEntity)event.player;
 
-    /**
-     * Even more tenuous example
-     *
-     * @param x
-     * @param y
-     * @param z
-     * @param block
-     * @return
-     */
-    public abstract int exampleMethodToComputeLightValue(int x, int y, int z, EnumSkyBlock block);
-
-    /**
-     * Contrived example to deliberately create a name clash with World
-     *
-     * @param x
-     * @param y
-     * @param z
-     * @return
-     */
-    public abstract Object getBlock(int x, int y, int z);
+        if (spongeEntity.isTeleporting()) {
+            event.player.mountEntity(spongeEntity.getTeleportVehicle());
+            spongeEntity.setTeleportVehicle(null);
+            spongeEntity.setIsTeleporting(false);
+        }
+    }
 }

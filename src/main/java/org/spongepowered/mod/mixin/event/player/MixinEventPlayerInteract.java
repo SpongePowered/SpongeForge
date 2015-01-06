@@ -56,13 +56,14 @@ public abstract class MixinEventPlayerInteract extends PlayerEvent implements Pl
     }
 
     public BlockLoc getBlock() {
-        return (BlockLoc)new BlockWrapper((org.spongepowered.api.world.World)world, pos.getX(), pos.getY(), pos.getZ());
+        return (BlockLoc)new BlockWrapper((org.spongepowered.api.world.World)this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
     }
 
+    @Override
     public EntityInteractionType getInteractionType() {
-        if (action == Action.LEFT_CLICK_BLOCK) {
+        if (this.action == Action.LEFT_CLICK_BLOCK) {
             return EntityInteractionType.LEFT_CLICK;
-        } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+        } else if (this.action == Action.RIGHT_CLICK_AIR || this.action == Action.RIGHT_CLICK_BLOCK) {
             return EntityInteractionType.RIGHT_CLICK;
         } else {
             return EntityInteractionType.MIDDLE_CLICK;

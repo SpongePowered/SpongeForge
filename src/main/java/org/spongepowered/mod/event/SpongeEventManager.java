@@ -55,7 +55,7 @@ public class SpongeEventManager implements EventManager {
     @SuppressWarnings("unchecked")
     @Override
     public void register(Object plugin, Object o) {
-        if (forgePluginHandlerMap.containsKey(o)) {
+        if (this.forgePluginHandlerMap.containsKey(o)) {
             return;
         }
 
@@ -90,25 +90,25 @@ public class SpongeEventManager implements EventManager {
                 PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event> priorityListener =
                         new PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event>(entry.getValue().order(), listener);
 
-                eventBus.add(implementingEvent, entry.getValue(), priorityListener);
+                this.eventBus.add(implementingEvent, entry.getValue(), priorityListener);
                 localForgeListeners.add(priorityListener);
             } else if (!FMLEvent.class.isAssignableFrom(implementingEvent)) {
                 // ^ Events extending FMLEvent need to be handled on a per-plugin basis. Current code for that is in SpongePluginHandler.
                 SpongeMod.instance.getLogger().warn("Unknown event type " + eventType.getCanonicalName() + ", registration failed");
             }
         }
-        forgePluginHandlerMap.put(o, localForgeListeners);
+        this.forgePluginHandlerMap.put(o, localForgeListeners);
     }
 
     @Override
     public void unregister(Object o) {
         @Nullable
-        List<PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event>> pluginForgeListeners = forgePluginHandlerMap.remove(o);
+        List<PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event>> pluginForgeListeners = this.forgePluginHandlerMap.remove(o);
         if (pluginForgeListeners == null) {
             return;
         }
         for (PriorityEventListener<net.minecraftforge.fml.common.eventhandler.Event> listener : pluginForgeListeners) {
-            eventBus.remove(listener);
+            this.eventBus.remove(listener);
         }
     }
 

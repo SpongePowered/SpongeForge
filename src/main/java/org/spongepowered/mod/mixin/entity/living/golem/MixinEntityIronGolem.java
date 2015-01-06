@@ -36,18 +36,18 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(EntityIronGolem.class)
-@Implements(@Interface(iface = IronGolem.class, prefix = "sp$"))
+@Implements(@Interface(iface = IronGolem.class, prefix = "irongolem$"))
 public abstract class MixinEntityIronGolem extends EntityGolem {
 
     public MixinEntityIronGolem(World worldIn) {
         super(worldIn);
     }
 
-    public boolean sp$isPlayerCreated() {
+    public boolean irongolem$isPlayerCreated() {
         return (this.dataWatcher.getWatchableObjectByte(16) & 1) != 0;
     }
 
-    public void sp$setPlayerCreated(boolean playerCreated) {
+    public void irongolem$setPlayerCreated(boolean playerCreated) {
         byte b0 = this.dataWatcher.getWatchableObjectByte(16);
 
         if (playerCreated) {

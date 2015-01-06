@@ -22,31 +22,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.event.player;
+package org.spongepowered.mod.entity;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraft.entity.Entity;
 
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.player.PlayerEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
-@NonnullByDefault
-@Mixin(net.minecraftforge.event.entity.player.PlayerEvent.class)
-public abstract class MixinEventPlayer extends LivingEvent implements PlayerEvent {
+public interface ISpongeEntity {
 
-    @Shadow
-    public EntityPlayer entityPlayer;
+    boolean isTeleporting();
 
-    public MixinEventPlayer(EntityLivingBase entity) {
-        super(entity);
-    }
+    void setIsTeleporting(boolean teleporting);
 
-    @Override
-    public Player getPlayer() {
-        return (Player)this.entityPlayer;
-    }
+    Entity getTeleportVehicle();
+
+    void setTeleportVehicle(Entity entity);
 }
