@@ -66,8 +66,7 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
         }
     }
 
-    // this code is injected three times, but the first conditional implicitly fails at the second two locations
-    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.riddenByEntity:Z"))
+    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.riddenByEntity:Z", ordinal = 0))
     public void implementCustomDeceleration(CallbackInfo ci){
         if (!(this.riddenByEntity instanceof EntityLivingBase)){
             double decel = this.riddenByEntity == null ? unoccupiedDecelerationSpeed : occupiedDecelerationSpeed;
