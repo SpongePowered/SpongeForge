@@ -48,10 +48,18 @@ public abstract class MixinEntityMinecart extends Entity {
     @Shadow
     public abstract boolean isOnGround();
 
-    private double maxSpeed = 0.4D;
-    private boolean slowWhenEmpty = true;
-    private Vector3d airborneMod = new Vector3d(0.5D, 0.5D, 0.5D);
-    private Vector3d derailedMod = new Vector3d(0.5D, 0.5D, 0.5D);
+    private double maxSpeed;
+    private boolean slowWhenEmpty;
+    private Vector3d airborneMod;
+    private Vector3d derailedMod;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onConstructed(CallbackInfo ci){
+        this.maxSpeed = 0.4D;
+        this.slowWhenEmpty = true;
+        this.airborneMod = new Vector3d(0.5D, 0.5D, 0.5D);
+        this.derailedMod = new Vector3d(0.5D, 0.5D, 0.5D);
+    }
 
     // this method overwrites the vanilla accessor for maximum speed
     @Overwrite
