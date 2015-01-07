@@ -114,16 +114,17 @@ public class ScheduledTask implements Task {
     @Override
     public boolean cancel() {
 
-        boolean bResult = false;
+        boolean bResult = true;
 
-        if (state == ScheduledTask.ScheduledTaskState.WAITING) {
-            state = ScheduledTask.ScheduledTaskState.CANCELED;
+        // When a task is canceled, it is removed from the list
+        // Even if the task is a repeating task, by removing it from the list of tasks
+        // known in the Scheduler, the task will not repeat.
 
-            // TODO -- possibly also release other resources (?) like the Runnable thread body?
-            // etc..
+        state = ScheduledTask.ScheduledTaskState.CANCELED;
 
-            bResult = true;
-        }
+        // TODO -- possibly also release other resources (?) like the Runnable thread body?
+        // etc..
+        // bResult = true;
 
         return bResult;
     }
