@@ -36,7 +36,7 @@ public class ScheduledTask implements Task {
     protected long offset;
     protected long period;
     protected PluginContainer owner;
-    protected Runnable threadbody;
+    protected Runnable runnableBody;
     protected long timestamp;
     protected ScheduledTaskState state;
     protected UUID id;
@@ -57,7 +57,7 @@ public class ScheduledTask implements Task {
         offset = x;
         period = t;
         owner = null;
-        threadbody = null;
+        runnableBody = null;
         state = ScheduledTaskState.WAITING;
         id = UUID.randomUUID();
     }
@@ -94,7 +94,7 @@ public class ScheduledTask implements Task {
 
     // Builder method
     protected ScheduledTask setRunnableBody(Runnable body) {
-        threadbody = body;
+        runnableBody = body;
         return this;
     }
 
@@ -131,7 +131,7 @@ public class ScheduledTask implements Task {
 
     @Override
     public Runnable getRunnable() {
-        return threadbody;
+        return runnableBody;
     }
 
     @Override

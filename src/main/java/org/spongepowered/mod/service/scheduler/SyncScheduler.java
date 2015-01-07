@@ -799,24 +799,17 @@ public class SyncScheduler implements Scheduler {
 
         if (task != null) {
 
-            Runnable runnableThreadBodyOfTask = task.threadbody;
+            Runnable taskRunnableBody = task.runnableBody;
 
-            // We're still running?!
-            // Do not restart the Runnable thread body if so.
-
-            if (((Thread) runnableThreadBodyOfTask).isAlive()) {
-                SpongeMod.instance.getLogger().warn(LogMessages.USER_TASK_RUN_OVERLAP_WARNING);
+            try {
+                taskRunnableBody.run();
+            } catch (Exception ex) {
+                SpongeMod.instance.getLogger().error(LogMessages.USER_TASK_FAILED_TO_RUN_ERROR);
+                SpongeMod.instance.getLogger().error(ex.toString());
                 bRes = false;
-            } else {
-                try {
-                    runnableThreadBodyOfTask.run();
-                } catch (Exception ex) {
-                    SpongeMod.instance.getLogger().error(LogMessages.USER_TASK_FAILED_TO_RUN_ERROR);
-                    SpongeMod.instance.getLogger().error(ex.toString());
-                    bRes = false;
 
-                }
             }
+
         }
         else {
             SpongeMod.instance.getLogger().error(LogMessages.USER_TASK_TO_RUN_WAS_NULL_WARNING);
