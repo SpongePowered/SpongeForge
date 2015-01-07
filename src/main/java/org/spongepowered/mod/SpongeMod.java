@@ -31,10 +31,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.LoadController;
-import net.minecraftforge.fml.common.ModContainerFactory;
-import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -125,6 +122,8 @@ public class SpongeMod extends DummyModContainer {
     public void onPreInit(FMLPreInitializationEvent e) {
         this.logger = e.getModLog();
         MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
+        FMLCommonHandler.instance().bus().register(game.getScheduler());
+
     }
 
     @Subscribe

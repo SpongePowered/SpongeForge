@@ -37,6 +37,7 @@ import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.service.scheduler.SyncScheduler;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -103,7 +104,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public Scheduler getScheduler() {
-        throw new UnsupportedOperationException();
+        return SyncScheduler.getInstance();
     }
 
     @Override
