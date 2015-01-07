@@ -109,6 +109,9 @@ public class ScheduledTask implements Task {
     }
 
     @Override
+    public long getInterval() { return period; }
+
+    @Override
     public boolean cancel() {
 
         boolean bResult = false;
