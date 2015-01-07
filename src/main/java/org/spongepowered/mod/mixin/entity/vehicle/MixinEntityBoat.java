@@ -42,24 +42,32 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityBoat.class)
 public abstract class MixinEntityBoat extends Entity implements Boat {
 
-    private double maxSpeed = 0.4D;
-    private boolean moveOnLand = false;
+    private double maxSpeed;
+    private boolean moveOnLand;
     private double occupiedDecelerationSpeed;
     private double unoccupiedDecelerationSpeed;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onConstructed() {
+        this.maxSpeed = 0.4D;
+        this.moveOnLand = false;
+        this.occupiedDecelerationSpeed = 0f;
+        this.unoccupiedDecelerationSpeed = 0.8f;
+    }
 
     // this method overwrites vanilla boat behavior to allow for a custom max speed
     @Overwrite
     public void updateRiderPosition() {
         if (this.riddenByEntity != null) {
             double d0 = Math.cos(this.rotationYaw * Math.PI / 180.0D) * maxSpeed;
-            double d1 = Math.sin(this.rotationYaw * 3.141592653589793D / 180.0D) * maxSpeed;
+            double d1 = Math.sin(this.rotationYaw * Math.PI / 180.0D) * maxSpeed;
             this.riddenByEntity.setPosition(this.posX + d0, this.posY + getMountedYOffset() + this.riddenByEntity.getYOffset(), this.posZ + d1);
         }
     }
 
     @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "net.minecraft.entity.Entity.moveEntity(DDD)V"))
-    public void implementLandBoats(CallbackInfo ci){
-        if (this.onGround && this.moveOnLand){
+    public void implementLandBoats(CallbackInfo ci) {
+        if (this.onGround && this.moveOnLand) {
             this.motionX /= 0.5D;
             this.motionY /= 0.5D;
             this.motionZ /= 0.5D;
@@ -67,11 +75,15 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
     }
 
     @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.riddenByEntity:Z", ordinal = 0))
-    public void implementCustomDeceleration(CallbackInfo ci){
-        if (!(this.riddenByEntity instanceof EntityLivingBase)){
+    public void implementCustomDeceleration(CallbackInfo ci) {
+        if (!(this.riddenByEntity instanceof EntityLivingBase)) {
             double decel = this.riddenByEntity == null ? unoccupiedDecelerationSpeed : occupiedDecelerationSpeed;
             this.motionX *= decel;
             this.motionZ *= decel;
+            if (this.motionX < 0.00005D)
+                this.motionX = 0;
+            if (this.motionZ < 0.00005D)
+                this.motionZ = 0;
         }
     }
 
