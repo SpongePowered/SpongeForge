@@ -150,7 +150,7 @@ if (!minecraft.mappingsSet && minecraft.version.startsWith("1.8")) {
 
 // Source compiler configuration
 tasks.withType(JavaCompile) {
-    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path', "-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=mixins.srg" ]
+    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path', '-Xlint:-processing', "-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=mixins.srg" ]
     options.deprecation = true
     options.encoding = 'utf8'
 }
