@@ -143,5 +143,4 @@ public class ScheduledTask implements Task {
     public String getName() {
         return null;
     }
-
 }
