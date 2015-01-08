@@ -32,6 +32,7 @@ import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
+import java.io.*;
 import java.util.*;
 
 /**
@@ -127,15 +128,11 @@ public class SyncScheduler implements Scheduler {
      */
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
-        
-       // if (event.phase == TickEvent.Phase.START) {
+       if (event.phase == TickEvent.Phase.START) {
             counter++;
             ProcessTasks();
-       // }
+       }
     }
-
-
-
 
     private void ProcessTasks() {
 
