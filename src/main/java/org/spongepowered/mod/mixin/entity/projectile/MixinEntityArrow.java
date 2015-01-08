@@ -57,6 +57,12 @@ public abstract class MixinEntityArrow extends Entity implements Arrow {
     @Nullable
     public ProjectileSource projectileSource;
 
+    @Shadow
+    public abstract boolean getIsCritical();
+
+    @Shadow
+    public abstract void setIsCritical(boolean critical);
+
     @Override
     public ProjectileSource getShooter() {
         if (this.projectileSource != null && this.projectileSource instanceof ProjectileSource) {
@@ -98,6 +104,16 @@ public abstract class MixinEntityArrow extends Entity implements Arrow {
     @Override
     public int getKnockbackStrength() {
         return this.knockbackStrength;
+    }
+
+    @Override
+    public boolean isCritical() {
+        return this.getIsCritical();
+    }
+
+    @Override
+    public void setCritical(boolean critical) {
+        this.setIsCritical(critical);
     }
 
     public MixinEntityArrow(World worldIn) {
