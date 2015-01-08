@@ -72,6 +72,8 @@ public abstract class MixinEntityArrow extends Entity implements Arrow {
         if (shooter instanceof Entity) {
             // This allows things like Vanilla kill attribution to take place
             this.shootingEntity = (Entity) shooter;
+        } else {
+            this.shootingEntity = null;
         }
         this.projectileSource = shooter;
     }
