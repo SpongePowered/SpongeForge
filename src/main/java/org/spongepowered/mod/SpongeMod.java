@@ -123,7 +123,6 @@ public class SpongeMod extends DummyModContainer {
         this.logger = e.getModLog();
         MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
         FMLCommonHandler.instance().bus().register(game.getScheduler());
-
     }
 
     @Subscribe
