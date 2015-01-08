@@ -122,6 +122,8 @@ public class SpongeMod extends DummyModContainer {
     public void onPreInit(FMLPreInitializationEvent e) {
         this.logger = e.getModLog();
         MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
+
+        // Add the SyncScheduler as a listener for ServerTickEvents
         FMLCommonHandler.instance().bus().register(game.getScheduler());
     }
 
