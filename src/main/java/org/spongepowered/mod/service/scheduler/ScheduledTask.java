@@ -25,6 +25,7 @@
 
 package org.spongepowered.mod.service.scheduler;
 
+import com.google.common.base.Optional;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.scheduler.Task;
 
@@ -40,6 +41,7 @@ public class ScheduledTask implements Task {
     protected long timestamp;
     protected ScheduledTaskState state;
     protected UUID id;
+    private String name;
 
     // Internal Task state. Not for user-service use.
     protected enum ScheduledTaskState {
@@ -60,6 +62,9 @@ public class ScheduledTask implements Task {
         runnableBody = null;
         state = ScheduledTaskState.WAITING;
         id = UUID.randomUUID();
+
+        //TBD
+        name = id.toString();
     }
 
     // Builder method
@@ -104,12 +109,24 @@ public class ScheduledTask implements Task {
     }
 
     @Override
-    public long getDelay() {
-        return offset;
+    public Optional<Long> getDelay() {
+        Optional<Long> result = Optional.absent();
+        if ( offset > 0 ) {
+            result = Optional.of(new Long(offset));
+
+        }
+        return result;
     }
 
     @Override
-    public long getInterval() { return period; }
+    public Optional<Long> getInterval() {
+        Optional<Long> result = Optional.absent();
+        if ( period > 0 ) {
+            result = Optional.of(new Long(period));
+
+        }
+        return result;
+    }
 
     @Override
     public boolean cancel() {
@@ -140,7 +157,11 @@ public class ScheduledTask implements Task {
     }
 
     @Override
-    public String getName() {
-        return null;
+    public Optional<String> getName() {
+        Optional<String> result = Optional.absent();
+        if ( name != null)  {
+            result = Optional.of(name);
+        }
+        return result;
     }
 }
