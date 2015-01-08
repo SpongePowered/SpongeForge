@@ -127,11 +127,11 @@ public class SyncScheduler implements Scheduler {
      */
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
-
-        if (event.phase == TickEvent.Phase.START) {
+        
+       // if (event.phase == TickEvent.Phase.START) {
             counter++;
             ProcessTasks();
-        }
+       // }
     }
 
 
