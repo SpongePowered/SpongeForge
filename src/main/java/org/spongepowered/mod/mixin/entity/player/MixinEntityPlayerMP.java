@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.entity.player;
 
 import java.util.Locale;
 
+import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -122,10 +123,18 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public void playermp$resetTitle() {
-        throw new UnsupportedOperationException();
+        SpongeTitle title = new SpongeTitle(false, true, Optional.<Message>absent(), Optional.<Message>absent(),
+                Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<Integer>absent());
+        for (S45PacketTitle packet : title.getPackets()) {
+            this.playerNetServerHandler.sendPacket(packet);
+        }
     }
 
     public void playermp$clearTitle() {
-        throw new UnsupportedOperationException();
+        SpongeTitle title = new SpongeTitle(true, false, Optional.<Message>absent(), Optional.<Message>absent(),
+                Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<Integer>absent());
+        for (S45PacketTitle packet : title.getPackets()) {
+            this.playerNetServerHandler.sendPacket(packet);
+        }
     }
 }
