@@ -84,6 +84,7 @@ public class SyncScheduler implements Scheduler {
      *
      */
     private SyncScheduler() {
+        taskList = new ArrayList<ScheduledTask>();
     }
 
     /**
@@ -129,9 +130,8 @@ public class SyncScheduler implements Scheduler {
 
         if (event.phase == TickEvent.Phase.START) {
             counter++;
+            ProcessTasks();
         }
-
-        ProcessTasks();
     }
 
 
