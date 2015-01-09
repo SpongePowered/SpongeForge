@@ -25,6 +25,8 @@
 package org.spongepowered.mod.entity;
 
 import org.spongepowered.api.entity.living.meta.SkeletonType;
+import org.spongepowered.api.service.persistence.DataSource;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 
 public class SpongeSkeletonType extends SpongeEntityMeta implements SkeletonType {
 
@@ -32,4 +34,13 @@ public class SpongeSkeletonType extends SpongeEntityMeta implements SkeletonType
         super(type, name);
     }
 
+    @Override
+    public DataContainer toContainer() {
+        return (DataContainer)this;
+    }
+
+    @Override
+    public void serialize(DataSource source) {
+        if(!source.isClosed()) source.serialize(this);
+    }
 }

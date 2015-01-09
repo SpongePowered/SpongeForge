@@ -25,11 +25,23 @@
 package org.spongepowered.mod.entity;
 
 import org.spongepowered.api.entity.living.meta.HorseStyle;
+import org.spongepowered.api.service.persistence.DataSource;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 
 public class SpongeHorseStyle extends SpongeEntityMeta implements HorseStyle {
 
     public SpongeHorseStyle(int style, String name) {
         super(style, name);
+    }
+    
+    @Override
+    public DataContainer toContainer() {
+        return (DataContainer)this;
+    }
+
+    @Override
+    public void serialize(DataSource source) {
+        if(!source.isClosed()) source.serialize(this);
     }
 
 }

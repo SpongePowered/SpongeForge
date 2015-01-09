@@ -24,23 +24,31 @@
  */
 package org.spongepowered.mod.mixin.world;
 
-import java.util.ArrayList;
+import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.passive.EntityOcelot;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.WorldInfo;
 
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldBorder;
-import org.spongepowered.api.world.biome.Biome;
+import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
 import org.spongepowered.asm.mixin.Mixin;
@@ -72,6 +80,26 @@ public abstract class MixinWorld implements World {
     @Shadow(prefix = "shadow$")
     public abstract net.minecraft.world.border.WorldBorder shadow$getWorldBorder();
 
+    @SuppressWarnings("rawtypes")
+    @Shadow
+    public abstract List getLoadedEntityList();
+    
+    @Shadow
+    public abstract net.minecraft.world.chunk.Chunk getChunkFromChunkCoords(int chunkX, int chunkZ);
+    
+    @SuppressWarnings("rawtypes")
+    @Shadow
+    public abstract List getEntitiesWithinAABB(Class clazz,AxisAlignedBB aabb);
+    
+    @Shadow
+    public abstract BiomeGenBase getBiomeGenForCoords(final BlockPos pos);
+    
+    @Shadow
+    public abstract IChunkProvider getChunkProvider();
+    
+    @Shadow
+    public abstract net.minecraft.world.World init();
+    
     @Override
     public UUID getUniqueID() {
         throw new UnsupportedOperationException();
@@ -84,11 +112,14 @@ public abstract class MixinWorld implements World {
 
     @Override
     public Optional<Chunk> getChunk(Vector3i position) {
-        return Optional.absent();
+        return Optional.fromNullable((Chunk)getChunkFromChunkCoords(position.getX(),position.getZ()));
     }
 
     @Override
     public Optional<Chunk> loadChunk(Vector3i position, boolean shouldGenerate) {
+        if(!this.getChunkProvider().chunkExists(position.getX(), position.getY())){
+            return Optional.fromNullable((Chunk)this.getChunkProvider().provideChunk(position.getX(), position.getZ()));
+        }
         return Optional.absent();
     }
 
@@ -104,18 +135,23 @@ public abstract class MixinWorld implements World {
         return new BlockWrapper(this, x, y, z);
     }
 
-    @Override
-    public Biome getBiome(Vector3d position) {
-        throw new UnsupportedOperationException();
+    public BiomeType getBiome(Vector3d position) {
+        return (BiomeType) this.provider.getBiomeGenForCoords(new BlockPos(position.getX(),position.getY(),position.getZ()));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Collection<Entity> getEntities() {
-        return new ArrayList<Entity>();
+        return this.getLoadedEntityList();
     }
 
     @Override
     public Optional<Entity> createEntity(EntityType type, Vector3d position) {
+        for(Field f:EntityTypes.class.getFields()){
+            if(type.getId().toLowerCase().contains(f.getName().toLowerCase())){
+                return Optional.fromNullable((Entity)EntityList.createEntityByName(f.getName().toLowerCase(), this.init()));
+            }
+        }
         return Optional.absent();
     }
 
