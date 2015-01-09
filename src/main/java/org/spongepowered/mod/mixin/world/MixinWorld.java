@@ -147,8 +147,6 @@ public abstract class MixinWorld implements World {
 
     @Override
     public Optional<Entity> createEntity(EntityType type, Vector3d position) {
-        this.getChunkFromChunkCoords((int)position.getX(), (int)position.getZ())
-            .addEntity(new EntityOcelot(this.init()));
         for(Field f:EntityTypes.class.getFields()){
             if(type.getId().toLowerCase().contains(f.getName().toLowerCase())){
                 return Optional.fromNullable((Entity)EntityList.createEntityByName(f.getName().toLowerCase(), this.init()));
