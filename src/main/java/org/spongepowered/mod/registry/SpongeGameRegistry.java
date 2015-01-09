@@ -42,9 +42,12 @@ import net.minecraft.entity.item.EntityPainting.EnumArt;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityFishHook;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldProviderHell;
@@ -57,6 +60,7 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.effect.particle.ParticleType;
+import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
@@ -115,6 +119,8 @@ import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.api.world.weather.Weathers;
+import org.spongepowered.mod.effect.SpongeParticleEffectBuilder;
+import org.spongepowered.mod.effect.SpongeParticleType;
 import org.spongepowered.mod.entity.SpongeCareer;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
@@ -182,6 +188,8 @@ public class SpongeGameRegistry implements GameRegistry {
     private List<ItemType> itemList = new ArrayList<ItemType>();
     private List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
     private List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
+    public Map<String, ParticleType> particleMappings = Maps.newHashMap();
+    
 
     public static final ImmutableBiMap<Direction, EnumFacing> directionMap;
     static {
@@ -264,22 +272,17 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<ParticleType> getParticleType(String id) {
-
-        //TODO Implement getParticle once particles are implemented.
-        return Optional.absent();
+        return Optional.fromNullable(this.particleMappings.get(id));
     }
 
     @Override
     public List<ParticleType> getParticleTypes() {
-
-        //TODO implement.
-        return null;
+        return new ArrayList<ParticleType>(this.particleMappings.values());
     }
 
     @Override
     public ParticleEffectBuilder getParticleEffectBuilder(ParticleType particle) {
-        // TODO
-        return null;
+        return new SpongeParticleEffectBuilder(particle);
     }
 
     @Override
@@ -536,6 +539,32 @@ public class SpongeGameRegistry implements GameRegistry {
         }
     }
     
+    private void setParticles() {
+        for (Field f : ParticleTypes.class.getDeclaredFields()) {
+            try {
+                EnumParticleTypes particleType = EnumParticleTypes.valueOf(f.getName());
+                boolean moveable = true;
+                if (particleType.equals(EnumParticleTypes.BARRIER) || particleType.equals(EnumParticleTypes.EXPLOSION_HUGE) || particleType.equals(EnumParticleTypes.EXPLOSION_LARGE) || particleType.equals(EnumParticleTypes.MOB_APPEARANCE) || particleType.equals(EnumParticleTypes.NOTE)) {
+                    moveable = false;
+                }
+                if (f.getType().equals(ParticleType.Colorable.class)) {
+                    this.particleMappings.put(particleType.func_179346_b(), new SpongeParticleType.Colorable(particleType, moveable, Color.BLACK));
+                } else if (f.getType().equals(ParticleType.Resizable.class)) {
+                    this.particleMappings.put(particleType.func_179346_b(), new SpongeParticleType.Resizable(particleType, moveable, 0.0F));
+                } else if (f.getType().equals(ParticleType.Note.class)) {
+                    this.particleMappings.put(particleType.func_179346_b(), new SpongeParticleType.Note(particleType, moveable, 0.0F));
+                } else if (f.getType().equals(ParticleType.Material.class)) {
+                    this.particleMappings.put(particleType.func_179346_b(), new SpongeParticleType.Material(particleType, moveable, (org.spongepowered.api.item.inventory.ItemStack) new ItemStack(Blocks.air)));
+                } else {
+                    this.particleMappings.put(particleType.func_179346_b(), new SpongeParticleType(particleType, moveable));
+                }
+                f.set(null, this.particleMappings.get(particleType.func_179346_b()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void setEntityTypes() {
         // internal mapping of our EntityTypes to actual MC names
         this.entityTypeMappings.put("DROPPED_ITEM", new SpongeEntityType(1, "Item", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Item")));
@@ -927,6 +956,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setDimensionTypes();
         setEnchantments();
         setArts();
+        setParticles();
         setCareersAndProfessions();
         setTextColors();
         setRotations();
