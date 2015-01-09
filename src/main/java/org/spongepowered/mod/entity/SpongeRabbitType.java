@@ -25,6 +25,8 @@
 package org.spongepowered.mod.entity;
 
 import org.spongepowered.api.entity.living.meta.RabbitType;
+import org.spongepowered.api.service.persistence.DataSource;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 
 public class SpongeRabbitType extends SpongeEntityMeta implements RabbitType {
 
@@ -32,4 +34,13 @@ public class SpongeRabbitType extends SpongeEntityMeta implements RabbitType {
         super(type, name);
     }
 
+    @Override
+    public DataContainer toContainer() {
+        return (DataContainer)this;
+    }
+
+    @Override
+    public void serialize(DataSource source) {
+        if(!source.isClosed()) source.serialize(this);
+    }
 }

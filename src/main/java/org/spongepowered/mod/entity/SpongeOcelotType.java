@@ -25,6 +25,8 @@
 package org.spongepowered.mod.entity;
 
 import org.spongepowered.api.entity.living.meta.OcelotType;
+import org.spongepowered.api.service.persistence.DataSource;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 
 public class SpongeOcelotType extends SpongeEntityMeta implements OcelotType {
 
@@ -32,4 +34,13 @@ public class SpongeOcelotType extends SpongeEntityMeta implements OcelotType {
         super(type, name);
     }
 
+    @Override
+    public DataContainer toContainer() {
+        return (DataContainer)this;
+    }
+
+    @Override
+    public void serialize(DataSource source) {
+        if(!source.isClosed()) source.serialize(this);
+    }
 }

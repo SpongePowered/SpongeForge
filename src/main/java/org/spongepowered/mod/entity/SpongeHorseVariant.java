@@ -25,6 +25,8 @@
 package org.spongepowered.mod.entity;
 
 import org.spongepowered.api.entity.living.meta.HorseVariant;
+import org.spongepowered.api.service.persistence.DataSource;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 
 public class SpongeHorseVariant extends SpongeEntityMeta implements HorseVariant {
 
@@ -32,4 +34,13 @@ public class SpongeHorseVariant extends SpongeEntityMeta implements HorseVariant
         super(variant, name);
     }
 
+    @Override
+    public DataContainer toContainer() {
+        return (DataContainer)this;
+    }
+
+    @Override
+    public void serialize(DataSource source) {
+        if(!source.isClosed()) source.serialize(this);
+    }
 }

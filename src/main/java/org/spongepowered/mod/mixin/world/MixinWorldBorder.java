@@ -167,7 +167,7 @@ public abstract class MixinWorldBorder implements WorldBorder {
     }
 
     public void border$setRadius(double radius, long time) {
-        setTransition(getRadius() * 2, radius * 2, time);
+        setTransition(border$getRadius() * 2, radius * 2, time);
     }
 
     public long border$getTimeRemaining() {
