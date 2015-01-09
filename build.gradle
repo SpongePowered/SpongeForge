@@ -148,9 +148,12 @@ if (!minecraft.mappingsSet && minecraft.version.startsWith("1.8")) {
     minecraft.mappings = "snapshot_20141001"
 }
 
+def mixinSrg = "${tasks.reobf.temporaryDir}" + File.separator + 'mixins.srg'
+reobf.addExtraSrgFile mixinSrg
+
 // Source compiler configuration
 tasks.withType(JavaCompile) {
-    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path', '-Xlint:-processing', "-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=mixins.srg" ]
+    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path', '-Xlint:-processing', "-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=${mixinSrg}" ]
     options.deprecation = true
     options.encoding = 'utf8'
 }
