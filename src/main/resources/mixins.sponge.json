@@ -21,6 +21,7 @@
     "entity.hanging.MixinEntityItemFrame",
     "entity.hanging.MixinEntityLeashKnot",
     "entity.hanging.art.MixinEnumArt",
+    "entity.projectile.MixinEntityArrow",
     "entity.living.MixinEntityLiving",
     "entity.living.MixinEntityAgeable",
     "entity.living.MixinArmorStand",
