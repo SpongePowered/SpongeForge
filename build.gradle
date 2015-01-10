@@ -37,7 +37,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 group = 'org.spongepowered'
 archivesBaseName = 'sponge'
 // Version -> Minecraft-MinecraftForge-Ours(If any?)
-version = '1.8-11.14.0.1281-SNAPSHOT'
+version = '1.8-11.14.0.1282-SNAPSHOT'
 
 // Define variables
 ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
@@ -58,7 +58,7 @@ repositories {
 
 // MinecraftForge version
 minecraft {
-    version = "1.8-11.14.0.1281-1.8"
+    version = "1.8-11.14.0.1282-1.8"
 }
 
 configurations {
@@ -81,10 +81,17 @@ dependencies {
 shadowJar  {
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
+    exclude 'GradleStart**'
     dependencies {
         include(dependency('org.slf4j:slf4j-api'))
         include(dependency('org.apache.logging.log4j:log4j-slf4j-impl'))
         include(dependency('com.google.inject:guice'))
+        include(dependency('javax.inject:javax.inject'))
+        include(dependency('org.slf4j:slf4j-api'))
+        include(dependency('com.flowpowered:flow-math'))
+        include(dependency('aopalliance:aopalliance'))
+        include(project('SpongeAPI'))
+        include(project('Mixin'))
     }
     classifier = ''
 }
@@ -148,6 +155,13 @@ if (!minecraft.mappingsSet && minecraft.version.startsWith("1.8")) {
     minecraft.mappings = "snapshot_20141001"
 }
 
+reobf {
+    reobf(shadowJar.archivePath) {
+        spec -> spec.classpath = configurations.compile
+    }
+}
+reobf.dependsOn shadowJar
+
 def mixinSrg = "${tasks.reobf.temporaryDir}" + File.separator + 'mixins.srg'
 reobf.addExtraSrgFile mixinSrg
 
@@ -164,7 +178,9 @@ def manifestEntries = [
     "Implementation-Title": name,
     "Implementation-Version": version + "+" + ciSystem + "-b" + buildNumber + ".git-" + commit,
     "Implementation-Vendor": url,
-    "FMLCorePlugin": "org.spongepowered.mod.SpongeCoremod"
+    "FMLCorePlugin": "org.spongepowered.mod.SpongeCoremod",
+    "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+    "TweakOrder": "10000"
     ]
 
 jar {

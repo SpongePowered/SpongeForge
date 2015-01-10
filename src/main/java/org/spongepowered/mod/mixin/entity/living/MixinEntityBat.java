@@ -22,48 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
+package org.spongepowered.mod.mixin.entity.living;
 
-import java.util.Map;
+import net.minecraft.entity.passive.EntityAmbientCreature;
+import net.minecraft.entity.passive.EntityBat;
+import net.minecraft.world.World;
+import org.spongepowered.api.entity.living.Bat;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+@NonnullByDefault
+@Mixin(EntityBat.class)
+@Implements(@Interface(iface = Bat.class, prefix = "bat$"))
+public abstract class MixinEntityBat extends EntityAmbientCreature {
 
-import org.spongepowered.asm.launch.MixinBootstrap;
-import org.spongepowered.asm.mixin.MixinEnvironment;
+    @Shadow
+    public abstract boolean getIsBatHanging();
 
-public class SpongeCoremod implements IFMLLoadingPlugin {
+    @Shadow
+    public abstract void setIsBatHanging(boolean hanging);
 
-    public SpongeCoremod() {
-        MixinBootstrap.init();
-        MixinEnvironment.getCurrentEnvironment().addConfiguration("mixins.sponge.json");
+    public MixinEntityBat(World worldIn) {
+        super(worldIn);
     }
 
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[]{
-                MixinBootstrap.TRANSFORMER_CLASS,
-                //"org.spongepowered.mod.asm.transformers.EventTransformer",
-                //"org.spongepowered.mod.asm.transformers.BaseEventTransformer"
-        };
+    public boolean bat$isAwake() {
+        return !getIsBatHanging();
     }
 
-    @Override
-    public String getModContainerClass() {
-        return "org.spongepowered.mod.SpongeMod";
-    }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return "org.spongepowered.mod.asm.transformers.SpongeAccessTransformer";
+    public void bat$setAwake(boolean awake) {
+        setIsBatHanging(!awake);
     }
 
 }
