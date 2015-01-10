@@ -22,6 +22,7 @@
     "entity.hanging.MixinEntityLeashKnot",
     "entity.hanging.art.MixinEnumArt",
     "entity.living.MixinEntityLiving",
+    "entity.living.MixinEntityAgeable",
     "entity.living.MixinArmorStand",
     "entity.living.MixinEntityBat",
     "entity.living.animal.MixinEntityAnimal",
