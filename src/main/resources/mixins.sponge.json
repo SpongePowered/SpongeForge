@@ -23,6 +23,7 @@
     "entity.hanging.art.MixinEnumArt",
     "entity.living.MixinEntityLiving",
     "entity.living.MixinArmorStand",
+    "entity.living.MixinEntityBat",
     "entity.living.animal.MixinEntityAnimal",
     "entity.living.animal.MixinEntityChicken",
     "entity.living.animal.MixinEntityCow",
