@@ -24,6 +24,9 @@
  */
 package org.spongepowered.mod.entity;
 
+import org.spongepowered.api.service.persistence.DataSource;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+
 import com.google.common.base.Objects;
 
 public class SpongeEntityMeta  {
@@ -55,6 +58,15 @@ public class SpongeEntityMeta  {
             return false;
         }
         return true;
+    }
+
+    public DataContainer toContainer() {
+        // TODO
+        return null;
+    }
+
+    public void serialize(DataSource source) {
+        // TODO
     }
 
     @Override
