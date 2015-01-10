@@ -68,6 +68,12 @@ public class SpongeMessageText extends SpongeMessage implements Message.Text {
             this.handle = new ChatComponentText(this.content);
         }
 
+        public SpongeTextBuilder(ChatComponentText component) {
+            this.content = component.getUnformattedText();
+            this.children = new ArrayDeque<Message>();
+            this.handle = component;
+        }
+
         public MessageBuilder.Text append(Message message) {
             this.children.add(message);
             this.handle.appendSibling(((SpongeMessageText)message).handle);
