@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.flowpowered.math.vector.Vector3d;
+import com.google.common.base.Optional;
 import com.mojang.authlib.GameProfile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -131,11 +132,19 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public void playermp$resetTitle() {
-        throw new UnsupportedOperationException();
+        SpongeTitle title = new SpongeTitle(false, true, Optional.<Message>absent(), Optional.<Message>absent(),
+                Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<Integer>absent());
+        for (S45PacketTitle packet : title.getPackets()) {
+            this.playerNetServerHandler.sendPacket(packet);
+        }
     }
 
     public void playermp$clearTitle() {
-        throw new UnsupportedOperationException();
+        SpongeTitle title = new SpongeTitle(true, false, Optional.<Message>absent(), Optional.<Message>absent(),
+                Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<Integer>absent());
+        for (S45PacketTitle packet : title.getPackets()) {
+            this.playerNetServerHandler.sendPacket(packet);
+        }
     }
 
     public void playermp$spawnParticles(ParticleEffect particleEffect, Vector3d position) {
