@@ -24,16 +24,25 @@
  */
 package org.spongepowered.mod.mixin.entity.player;
 
+import java.util.List;
 import java.util.Locale;
+
+import com.flowpowered.math.vector.Vector3d;
+import com.mojang.authlib.GameProfile;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.network.play.server.S45PacketTitle;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 
+import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.chat.ChatTypes;
@@ -45,11 +54,11 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
+import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.message.SpongeMessage;
 import org.spongepowered.mod.text.message.SpongeMessageText;
-
-import com.mojang.authlib.GameProfile;
 import org.spongepowered.mod.text.title.SpongeTitle;
 
 @NonnullByDefault
@@ -127,5 +136,29 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
 
     public void playermp$clearTitle() {
         throw new UnsupportedOperationException();
+    }
+
+    public void playermp$spawnParticles(ParticleEffect particleEffect, Vector3d position) {
+        this.playermp$spawnParticles(particleEffect, position, Integer.MAX_VALUE);
+    }
+
+    public void playermp$spawnParticles(ParticleEffect particleEffect, Vector3d position, int radius) {
+        checkNotNull(particleEffect, "The particle effect cannot be null!");
+        checkNotNull(position, "The position cannot be null");
+        checkArgument(radius > 0, "The radius has to be greater then zero!");
+
+        List<Packet> packets = SpongeParticleHelper.toPackets((SpongeParticleEffect) particleEffect, position);
+
+        if (!packets.isEmpty()) {
+            double dx = this.posX - position.getX();
+            double dy = this.posY - position.getY();
+            double dz = this.posZ - position.getZ();
+
+            if (dx * dx + dy * dy + dz * dz < radius * radius) {
+                for (Packet packet : packets) {
+                    this.playerNetServerHandler.sendPacket(packet);
+                }
+            }
+        }
     }
 }

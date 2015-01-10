@@ -26,13 +26,25 @@ package org.spongepowered.mod.mixin.world;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3i;
+import com.google.common.base.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
+
+import net.minecraft.network.Packet;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.storage.WorldInfo;
 
 import org.spongepowered.api.block.BlockLoc;
+import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -48,11 +60,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
+import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
 import org.spongepowered.mod.wrapper.BlockWrapper;
-
-import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3i;
-import com.google.common.base.Optional;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.World.class)
@@ -122,6 +132,32 @@ public abstract class MixinWorld implements World {
     @Override
     public WorldBorder getWorldBorder() {
         return (WorldBorder) shadow$getWorldBorder();
+    }
+
+    @Override
+    public void spawnParticles(ParticleEffect particleEffect, Vector3d position) {
+        this.spawnParticles(particleEffect, position, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public void spawnParticles(ParticleEffect particleEffect, Vector3d position, int radius) {
+        checkNotNull(particleEffect, "The particle effect cannot be null!");
+        checkNotNull(position, "The position cannot be null");
+        checkArgument(radius > 0, "The radius has to be greater then zero!");
+
+        List<Packet> packets = SpongeParticleHelper.toPackets((SpongeParticleEffect) particleEffect, position);
+
+        if (!packets.isEmpty()) {
+            ServerConfigurationManager manager = MinecraftServer.getServer().getConfigurationManager();
+
+            double x = position.getX();
+            double y = position.getY();
+            double z = position.getZ();
+
+            for (Packet packet : packets) {
+                manager.sendToAllNear(x, y, z, (double) radius, this.provider.getDimensionId(), packet);
+            }
+        }
     }
 
     @Override

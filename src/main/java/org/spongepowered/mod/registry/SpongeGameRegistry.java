@@ -33,6 +33,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableBiMap.Builder;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.boss.EntityDragonPart;
@@ -42,9 +50,11 @@ import net.minecraft.entity.item.EntityPainting.EnumArt;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityFishHook;
+import net.minecraft.init.Blocks;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldProviderHell;
@@ -57,6 +67,7 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.effect.particle.ParticleType;
+import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
@@ -115,6 +126,8 @@ import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.api.world.weather.Weathers;
+import org.spongepowered.mod.effect.particle.SpongeParticleEffectBuilder;
+import org.spongepowered.mod.effect.particle.SpongeParticleType;
 import org.spongepowered.mod.entity.SpongeCareer;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
@@ -129,13 +142,6 @@ import org.spongepowered.mod.text.format.SpongeTextColor;
 import org.spongepowered.mod.text.selector.SpongeSelectorType;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableBiMap.Builder;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 @SuppressWarnings("unchecked")
 @NonnullByDefault
@@ -178,6 +184,8 @@ public class SpongeGameRegistry implements GameRegistry {
     private Map<Integer, List<Career>> professionToCareerMappings = Maps.newHashMap();
     private Map<String, DimensionType> dimensionTypeMappings = Maps.newHashMap();
     public Map<Class<? extends Dimension>, DimensionType> dimensionClassMappings = Maps.newHashMap();
+    private Map<String, SpongeParticleType> particleMappings = Maps.newHashMap();
+    private Map<String, ParticleType> particleByName = Maps.newHashMap();
     private List<BlockType> blockList = new ArrayList<BlockType>();
     private List<ItemType> itemList = new ArrayList<ItemType>();
     private List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
@@ -263,23 +271,30 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
-    public Optional<ParticleType> getParticleType(String id) {
-
-        //TODO Implement getParticle once particles are implemented.
-        return Optional.absent();
+    public Optional<ParticleType> getParticleType(String name) {
+        return Optional.fromNullable((ParticleType) this.particleByName.get(name));
     }
 
     @Override
     public List<ParticleType> getParticleTypes() {
-
-        //TODO implement.
-        return null;
+        return ImmutableList.copyOf(this.particleByName.values());
     }
 
     @Override
     public ParticleEffectBuilder getParticleEffectBuilder(ParticleType particle) {
-        // TODO
-        return null;
+        Preconditions.checkNotNull(particle);
+
+        if (particle instanceof SpongeParticleType.Colorable) {
+            return new SpongeParticleEffectBuilder.BuilderColorable((SpongeParticleType.Colorable) particle);
+        } else if (particle instanceof SpongeParticleType.Resizable) {
+            return new SpongeParticleEffectBuilder.BuilderResizable((SpongeParticleType.Resizable) particle);
+        } else if (particle instanceof SpongeParticleType.Note) {
+            return new SpongeParticleEffectBuilder.BuilderNote((SpongeParticleType.Note) particle);
+        } else if (particle instanceof SpongeParticleType.Material) {
+            return new SpongeParticleEffectBuilder.BuilderMaterial((SpongeParticleType.Material) particle);
+        } else {
+            return new SpongeParticleEffectBuilder((SpongeParticleType) particle);
+        }
     }
 
     @Override
@@ -440,6 +455,65 @@ public class SpongeGameRegistry implements GameRegistry {
     public void registerEnvironment(DimensionType env) {
         this.dimensionTypeMappings.put(env.getName(), env);
         this.dimensionClassMappings.put(env.getDimensionClass(), env);
+    }
+
+    private void setParticles() {
+        this.addParticleType("EXPLOSION_NORMAL", new SpongeParticleType(EnumParticleTypes.EXPLOSION_NORMAL, true));
+        this.addParticleType("EXPLOSION_LARGE", new SpongeParticleType.Resizable(EnumParticleTypes.EXPLOSION_LARGE, 1f));
+        this.addParticleType("EXPLOSION_HUGE", new SpongeParticleType(EnumParticleTypes.EXPLOSION_HUGE, false));
+        this.addParticleType("FIREWORKS_SPARK", new SpongeParticleType(EnumParticleTypes.FIREWORKS_SPARK, true));
+        this.addParticleType("WATER_BUBBLE", new SpongeParticleType(EnumParticleTypes.WATER_BUBBLE, true));
+        this.addParticleType("WATER_SPLASH", new SpongeParticleType(EnumParticleTypes.WATER_SPLASH, true));
+        this.addParticleType("WATER_WAKE", new SpongeParticleType(EnumParticleTypes.WATER_WAKE, true));
+        this.addParticleType("SUSPENDED", new SpongeParticleType(EnumParticleTypes.SUSPENDED, false));
+        this.addParticleType("SUSPENDED_DEPTH", new SpongeParticleType(EnumParticleTypes.SUSPENDED_DEPTH, false));
+        this.addParticleType("CRIT", new SpongeParticleType(EnumParticleTypes.CRIT, true));
+        this.addParticleType("CRIT_MAGIC", new SpongeParticleType(EnumParticleTypes.CRIT_MAGIC, true));
+        this.addParticleType("SMOKE_NORMAL", new SpongeParticleType(EnumParticleTypes.SMOKE_NORMAL, true));
+        this.addParticleType("SMOKE_LARGE", new SpongeParticleType(EnumParticleTypes.SMOKE_LARGE, true));
+        this.addParticleType("SPELL", new SpongeParticleType(EnumParticleTypes.SPELL, false));
+        this.addParticleType("SPELL_INSTANT", new SpongeParticleType(EnumParticleTypes.SPELL_INSTANT, false));
+        this.addParticleType("SPELL_MOB", new SpongeParticleType.Colorable(EnumParticleTypes.SPELL_MOB, Color.BLACK));
+        this.addParticleType("SPELL_MOB_AMBIENT", new SpongeParticleType.Colorable(EnumParticleTypes.SPELL_MOB_AMBIENT, Color.BLACK));
+        this.addParticleType("SPELL_WITCH", new SpongeParticleType(EnumParticleTypes.SPELL_WITCH, false));
+        this.addParticleType("DRIP_WATER", new SpongeParticleType(EnumParticleTypes.DRIP_WATER, false));
+        this.addParticleType("DRIP_LAVA", new SpongeParticleType(EnumParticleTypes.DRIP_LAVA, false));
+        this.addParticleType("VILLAGER_ANGRY", new SpongeParticleType(EnumParticleTypes.VILLAGER_ANGRY, false));
+        this.addParticleType("VILLAGER_HAPPY", new SpongeParticleType(EnumParticleTypes.VILLAGER_HAPPY, true));
+        this.addParticleType("TOWN_AURA", new SpongeParticleType(EnumParticleTypes.TOWN_AURA, true));
+        this.addParticleType("NOTE", new SpongeParticleType.Note(EnumParticleTypes.NOTE, 0f));
+        this.addParticleType("PORTAL", new SpongeParticleType(EnumParticleTypes.PORTAL, true));
+        this.addParticleType("ENCHANTMENT_TABLE", new SpongeParticleType(EnumParticleTypes.ENCHANTMENT_TABLE, true));
+        this.addParticleType("FLAME", new SpongeParticleType(EnumParticleTypes.FLAME, true));
+        this.addParticleType("LAVA", new SpongeParticleType(EnumParticleTypes.LAVA, false));
+        this.addParticleType("FOOTSTEP", new SpongeParticleType(EnumParticleTypes.FOOTSTEP, false));
+        this.addParticleType("CLOUD", new SpongeParticleType(EnumParticleTypes.CLOUD, true));
+        this.addParticleType("REDSTONE", new SpongeParticleType.Colorable(EnumParticleTypes.REDSTONE, Color.RED));
+        this.addParticleType("SNOWBALL", new SpongeParticleType(EnumParticleTypes.SNOWBALL, false));
+        this.addParticleType("SNOW_SHOVEL", new SpongeParticleType(EnumParticleTypes.SNOW_SHOVEL, true));
+        this.addParticleType("SLIME", new SpongeParticleType(EnumParticleTypes.SLIME, false));
+        this.addParticleType("HEART", new SpongeParticleType(EnumParticleTypes.HEART, false));
+        this.addParticleType("BARRIER", new SpongeParticleType(EnumParticleTypes.BARRIER, false));
+        this.addParticleType("ITEM_CRACK", new SpongeParticleType.Material(EnumParticleTypes.ITEM_CRACK, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("BLOCK_CRACK", new SpongeParticleType.Material(EnumParticleTypes.BLOCK_CRACK, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("BLOCK_DUST", new SpongeParticleType.Material(EnumParticleTypes.BLOCK_DUST, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("WATER_DROP", new SpongeParticleType(EnumParticleTypes.WATER_DROP, false));
+        // Is this particle available to be spawned? It's not registered on the client though
+        this.addParticleType("ITEM_TAKE", new SpongeParticleType(EnumParticleTypes.ITEM_TAKE, false));
+        this.addParticleType("MOB_APPEARANCE", new SpongeParticleType(EnumParticleTypes.MOB_APPEARANCE, false));
+
+        for (Field field : ParticleTypes.class.getDeclaredFields()) {
+            try {
+                field.set(null, this.particleMappings.get(field.getName()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void addParticleType(String mapping, SpongeParticleType particle) {
+        this.particleMappings.put(mapping, particle);
+        this.particleByName.put(particle.getName(), particle);
     }
 
     private void setBlockTypes() {
@@ -935,6 +1009,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setMessageFactory();
         setSelectors();
         setTitleFactory();
+        setParticles();
     }
 
     public void postInit() {
