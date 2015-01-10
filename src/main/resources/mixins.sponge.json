@@ -62,6 +62,7 @@
     "entity.living.villager.MixinEntityVillager",
     "entity.player.MixinEntityPlayer",
     "entity.player.MixinEntityPlayerMP",
+    "entity.projectile.MixinEntityArrow",
     "entity.vehicle.MixinEntityBoat",
     "entity.weather.MixinEntityLightningBolt",
     "entity.weather.MixinEntityWeatherEffect",
