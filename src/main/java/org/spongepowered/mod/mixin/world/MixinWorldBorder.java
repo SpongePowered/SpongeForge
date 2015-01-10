@@ -137,7 +137,7 @@ public abstract class MixinWorldBorder implements WorldBorder {
     }
 
     public double border$getNewDiameter() {
-        return getTargetSize() / 2;
+        return getTargetSize();
     }
 
     public double border$getDiameter() {
@@ -145,25 +145,25 @@ public abstract class MixinWorldBorder implements WorldBorder {
             double time = (double)((float)(System.currentTimeMillis() - this.startTime) / (float)(this.endTime - this.startTime));
 
             if (time < 1.0D) {
-                return (this.startDiameter + (this.endDiameter - this.startDiameter) * time) / 2;
+                return (this.startDiameter + (this.endDiameter - this.startDiameter) * time);
             }
 
             this.setTransition(this.endDiameter);
         }
 
-        return this.startDiameter / 2;
+        return this.startDiameter;
     }
 
     public void border$setDiameter(double diameter) {
-        setTransition(diameter * 2);
+        setTransition(diameter);
     }
 
     public void border$setDiameter(double diameter, long time) {
-        setTransition(getDiameter() * 2, diameter * 2, time);
+        setTransition(getDiameter(), diameter, time);
     }
 
     public void border$setDiameter(double startDiameter, double endDiameter, long time) {
-        setTransition(startDiameter * 2, endDiameter * 2, time);
+        setTransition(startDiameter, endDiameter, time);
     }
 
     public long border$getTimeRemaining() {
