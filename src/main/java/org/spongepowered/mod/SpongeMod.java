@@ -32,6 +32,7 @@ import com.google.inject.Injector;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
@@ -125,6 +126,9 @@ public class SpongeMod extends DummyModContainer {
     public void onPreInit(FMLPreInitializationEvent e) {
         this.logger = e.getModLog();
         MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
+
+        // Add the SyncScheduler as a listener for ServerTickEvents
+        FMLCommonHandler.instance().bus().register(this.game.getScheduler());
     }
 
     @Subscribe
