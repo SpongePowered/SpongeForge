@@ -31,7 +31,7 @@ import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -40,52 +40,81 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityBoat.class)
 public abstract class MixinEntityBoat extends Entity implements Boat {
 
+    @Shadow
+    private double speedMultiplier;
+
     private double maxSpeed;
     private boolean moveOnLand;
     private double occupiedDecelerationSpeed;
     private double unoccupiedDecelerationSpeed;
 
+    private double tempMotionX;
+    private double tempMotionZ;
+    private double tempSpeedMultiplier;
+    private double initialDisplacement;
+
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(World world, CallbackInfo ci) {
-        this.maxSpeed = 0.4D;
+        this.maxSpeed = 0.35;
         this.moveOnLand = false;
         this.occupiedDecelerationSpeed = 0f;
         this.unoccupiedDecelerationSpeed = 0.8f;
     }
 
-    // this method overwrites vanilla boat behavior to allow for a custom max speed
-    @Override
-    @Overwrite
-    public void updateRiderPosition() {
-        if (this.riddenByEntity != null) {
-            double d0 = Math.cos(this.rotationYaw * Math.PI / 180.0D) * this.maxSpeed;
-            double d1 = Math.sin(this.rotationYaw * Math.PI / 180.0D) * this.maxSpeed;
-            this.riddenByEntity.setPosition(this.posX + d0, this.posY + getMountedYOffset() + this.riddenByEntity.getYOffset(), this.posZ + d1);
-        }
-    }
-
     @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "net.minecraft.entity.Entity.moveEntity(DDD)V"))
     public void implementLandBoats(CallbackInfo ci) {
         if (this.onGround && this.moveOnLand) {
-            this.motionX /= 0.5D;
-            this.motionY /= 0.5D;
-            this.motionZ /= 0.5D;
+            this.motionX /= 0.5;
+            this.motionY /= 0.5;
+            this.motionZ /= 0.5;
         }
     }
 
-    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.riddenByEntity:Z", ordinal = 0))
+    @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "java.lang.Math.sqrt(D):Z", ordinal = 0))
+    public void beforeModifyMotion(CallbackInfo ci) {
+        initialDisplacement = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+    }
+
+    @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "java.lang.Math.sqrt(D):Z", ordinal = 1))
+    public void beforeLimitSpeed(CallbackInfo ci) {
+        tempMotionX = this.motionX;
+        tempMotionZ = this.motionZ;
+        tempSpeedMultiplier = this.speedMultiplier;
+    }
+
+    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.onGround:Z", ordinal = 1))
+    public void afterLimitSpeed(CallbackInfo ci) {
+        this.motionX = tempMotionX;
+        this.motionZ = tempMotionZ;
+        this.speedMultiplier = tempSpeedMultiplier;
+        double displacement = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+        if (displacement > this.maxSpeed) {
+            double ratio = this.maxSpeed / displacement;
+            this.motionX *= ratio;
+            this.motionZ *= ratio;
+            displacement = this.maxSpeed;
+        }
+        if ((displacement > initialDisplacement) && (this.speedMultiplier < this.maxSpeed)) {
+            this.speedMultiplier += (this.maxSpeed - this.speedMultiplier) / this.maxSpeed * 100.0;
+            this.speedMultiplier = Math.min(this.speedMultiplier, this.maxSpeed);
+        }
+        else {
+            this.speedMultiplier -= (this.speedMultiplier - 0.07) / this.maxSpeed * 100.0;
+            this.speedMultiplier = Math.max(this.speedMultiplier, 0.07);
+        }
+    }
+
+    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.riddenByEntity:Lnet/minecraft/entity/Entity;", ordinal = 0))
     public void implementCustomDeceleration(CallbackInfo ci) {
         if (!(this.riddenByEntity instanceof EntityLivingBase)) {
             double decel = this.riddenByEntity == null ? this.unoccupiedDecelerationSpeed : this.occupiedDecelerationSpeed;
             this.motionX *= decel;
             this.motionZ *= decel;
-
-            if (this.motionX < 0.00005D) {
-                this.motionX = 0;
+            if (this.motionX < 0.00005) {
+                this.motionX = 0.0;
             }
-
-            if (this.motionZ < 0.00005D) {
-                this.motionZ = 0;
+            if (this.motionZ < 0.00005) {
+                this.motionZ = 0.0;
             }
         }
     }
