@@ -24,29 +24,60 @@
  */
 package org.spongepowered.mod.mixin.event.player;
 
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.event.world.BlockEvent;
 
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.player.PlayerEvent;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.player.PlayerPlaceBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import com.google.common.base.Optional;
+
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.entity.player.PlayerEvent.class, remap = false)
-public abstract class MixinEventPlayer extends LivingEvent implements PlayerEvent {
+@Mixin(BlockEvent.PlaceEvent.class)
+public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements PlayerPlaceBlockEvent {
 
-    @Shadow public EntityPlayer entityPlayer;
+    @Shadow public EntityPlayer player;
+    @Shadow public ItemStack itemInHand;
+    @Shadow public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
+    @Shadow public IBlockState placedBlock;
+    @Shadow public IBlockState placedAgainst;
 
-    public MixinEventPlayer(EntityLivingBase entity) {
-        super(entity);
+    public MixinEventPlayerPlaceBlock(World world, BlockPos pos, IBlockState state) {
+        super(world, pos, state);
+    }
+
+    @Override    
+    public Player getPlayer() {
+        return (Player)this.player;
     }
 
     @Override
-    public Player getPlayer() {
-        return (Player)this.entityPlayer;
+    public Entity getEntity() {
+        return (Entity)this.player;
     }
 
+    @Override
+    public BlockSnapshot getReplacementBlock() {
+        return (BlockSnapshot)this.blockSnapshot;
+    }
+
+    @Override
+    public Optional<Cause> getCause() {
+        return Optional.fromNullable(new Cause(null, this.player, null));
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return this.isCanceled();
+    }
 }

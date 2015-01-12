@@ -22,31 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.event.player;
+package org.spongepowered.mod.mixin.event.block;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.player.PlayerEvent;
+import org.spongepowered.api.block.BlockLoc;
+import org.spongepowered.api.event.block.BlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.wrapper.BlockWrapper;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.entity.player.PlayerEvent.class, remap = false)
-public abstract class MixinEventPlayer extends LivingEvent implements PlayerEvent {
+@Mixin(net.minecraftforge.event.world.BlockEvent.class)
+public abstract class MixinEventBlock extends Event implements BlockEvent {
 
-    @Shadow public EntityPlayer entityPlayer;
-
-    public MixinEventPlayer(EntityLivingBase entity) {
-        super(entity);
-    }
+    @Shadow public BlockPos pos;
+    @Shadow public net.minecraft.world.World world;
 
     @Override
-    public Player getPlayer() {
-        return (Player)this.entityPlayer;
+    public BlockLoc getBlock() {
+        return new BlockWrapper((World)this.world, (int) this.pos.getX(), (int) this.pos.getY(), (int) this.pos.getZ());
     }
 
 }

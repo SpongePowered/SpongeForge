@@ -22,31 +22,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.event.player;
+package org.spongepowered.mod.mixin.event;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.living.LivingEvent;
-
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.player.PlayerEvent;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.event.GameEvent;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.CauseTracked;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.util.event.Cancellable;
+import org.spongepowered.api.util.event.callback.CallbackList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.SpongeMod;
+
+import com.google.common.base.Optional;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.entity.player.PlayerEvent.class, remap = false)
-public abstract class MixinEventPlayer extends LivingEvent implements PlayerEvent {
+@Mixin(net.minecraftforge.fml.common.eventhandler.Event.class)
+public abstract class MixinEvent implements GameEvent, CauseTracked, Cancellable {
 
-    @Shadow public EntityPlayer entityPlayer;
+    @Shadow
+    public abstract void setCanceled(boolean cancel);
+    @Shadow
+    public abstract boolean isCanceled();
 
-    public MixinEventPlayer(EntityLivingBase entity) {
-        super(entity);
+    @Override
+    public Game getGame() {
+        return SpongeMod.instance.getGame();
     }
 
     @Override
-    public Player getPlayer() {
-        return (Player)this.entityPlayer;
+    public Optional<Cause> getCause() {
+        return Optional.fromNullable(new Cause(null, Optional.absent(), null));
     }
 
+    @Override
+    public boolean isCancelled() {
+        return isCanceled();
+    }
+
+    @Override
+    public void setCancelled(boolean cancel) {
+        setCanceled(cancel);
+    }
+
+    @Override
+    public CallbackList getCallbacks() {
+        // TODO
+        return null;
+    }
 }

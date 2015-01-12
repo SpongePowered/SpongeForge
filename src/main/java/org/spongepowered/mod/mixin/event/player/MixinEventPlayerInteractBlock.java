@@ -33,28 +33,28 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.entity.EntityInteractionType;
-import org.spongepowered.api.event.player.PlayerInteractEvent;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
+import com.google.common.base.Optional;
+
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteract extends PlayerEvent implements PlayerInteractEvent {
+public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implements PlayerInteractBlockEvent {
 
-    @Shadow
-    public Action action;
-    @Shadow
-    public World world;
-    @Shadow
-    public BlockPos pos;
+    @Shadow public Action action;
+    @Shadow public World world;
+    @Shadow public BlockPos pos;
 
-    public MixinEventPlayerInteract(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, World world)
-    {
+    public MixinEventPlayerInteractBlock(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, World world) {
         super(player);
     }
 
+    @Override
     public BlockLoc getBlock() {
         return (BlockLoc)new BlockWrapper((org.spongepowered.api.world.World)this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
     }
@@ -68,5 +68,15 @@ public abstract class MixinEventPlayerInteract extends PlayerEvent implements Pl
         } else {
             return EntityInteractionType.MIDDLE_CLICK;
         }
+    }
+
+    @Override
+    public Optional<Cause> getCause() {
+        return Optional.fromNullable(new Cause(null, this.entityPlayer, null));
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return this.isCanceled();
     }
 }
