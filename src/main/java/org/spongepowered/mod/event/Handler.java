@@ -22,35 +22,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.spongepowered.mod.event;
 
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOWEST;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.NORMAL;
+import org.spongepowered.api.util.event.Event;
 
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import org.spongepowered.api.util.event.Order;
+import java.lang.reflect.InvocationTargetException;
 
-public class PriorityMap {
+public interface Handler {
 
-    private static final EventPriority[] eventPriorities;
-    private static final Order[] orders;
+    void handle(Event event) throws InvocationTargetException;
 
-    static {
-        eventPriorities = new EventPriority[]{HIGHEST, HIGHEST, HIGH, HIGH, NORMAL, LOW, LOW, LOWEST, LOWEST};
-        orders = Order.values();
-    }
-
-    private PriorityMap() {
-    }
-
-    public static EventPriority getEventPriority(Order order) {
-        return eventPriorities[order.ordinal()];
-    }
-
-    public static Order getOrder(EventPriority priority) {
-        return orders[priority.ordinal()];
-    }
 }

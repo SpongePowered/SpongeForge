@@ -39,11 +39,13 @@ import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
@@ -61,8 +63,7 @@ public class SpongeMod extends DummyModContainer {
 
     private Map<Object, PluginContainer> plugins = Maps.newHashMap();
     private Map<String, PluginContainer> pluginIdMap = Maps.newHashMap();
-    @SuppressWarnings("unused")
-    private EventBus eventBus;
+    private SpongeEventBus eventBus;
     @SuppressWarnings("unused")
     private LoadController controller;
     private Injector spongeInjector = Guice.createInjector(new SpongeGuiceModule());
@@ -116,8 +117,7 @@ public class SpongeMod extends DummyModContainer {
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
-        bus.register(this.game.getEventManager());
-        this.eventBus = bus;
+        this.eventBus = new SpongeEventBus(this.game.getPluginManager());
         this.controller = controller;
         return true;
     }
@@ -128,7 +128,7 @@ public class SpongeMod extends DummyModContainer {
         MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 
         // Add the SyncScheduler as a listener for ServerTickEvents
-        FMLCommonHandler.instance().bus().register(this.game.getScheduler());
+        this.eventBus.register(this.getGame().getPluginManager(), this.getGame().getScheduler());
     }
 
     @Subscribe

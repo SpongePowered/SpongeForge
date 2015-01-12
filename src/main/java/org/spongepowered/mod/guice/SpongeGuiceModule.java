@@ -36,19 +36,18 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.api.service.config.DefaultConfig;
 import org.spongepowered.api.service.config.ConfigDir;
+import org.spongepowered.api.service.config.DefaultConfig;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.util.config.ConfigFile;
 import org.spongepowered.mod.SpongeGame;
-import org.spongepowered.mod.event.SpongeEventManager;
+import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.lang.annotation.Annotation;
-
-import javax.inject.Inject;
 
 public class SpongeGuiceModule extends AbstractModule {
 
@@ -65,7 +64,7 @@ public class SpongeGuiceModule extends AbstractModule {
 
         bind(Game.class).to(SpongeGame.class).in(Scopes.SINGLETON);
         bind(PluginManager.class).to(SpongePluginManager.class).in(Scopes.SINGLETON);
-        bind(EventManager.class).to(SpongeEventManager.class).in(Scopes.SINGLETON);
+        bind(EventManager.class).to(SpongeEventBus.class).in(Scopes.SINGLETON);
         bind(GameRegistry.class).to(SpongeGameRegistry.class).in(Scopes.SINGLETON);
         bind(File.class).annotatedWith(sharedDir).toProvider(GeneralConfigDirProvider.class).in(Scopes.SINGLETON);
 
