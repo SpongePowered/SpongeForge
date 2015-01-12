@@ -43,7 +43,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import com.google.common.base.Optional;
 
 @NonnullByDefault
-@Mixin(BlockEvent.PlaceEvent.class)
+@Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
 public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements PlayerPlaceBlockEvent {
 
     @Shadow public EntityPlayer player;

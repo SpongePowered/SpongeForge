@@ -39,7 +39,7 @@ import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 
 @NonnullByDefault
-@Mixin(net.minecraftforge.fml.common.eventhandler.EventBus.class)
+@Mixin(value = net.minecraftforge.fml.common.eventhandler.EventBus.class, remap = false)
 public abstract class MixinEventBus {
 
     private EventBus eventBus = (EventBus)(Object)this;

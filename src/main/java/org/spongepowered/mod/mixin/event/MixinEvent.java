@@ -38,7 +38,7 @@ import org.spongepowered.mod.SpongeMod;
 import com.google.common.base.Optional;
 
 @NonnullByDefault
-@Mixin(net.minecraftforge.fml.common.eventhandler.Event.class)
+@Mixin(value = net.minecraftforge.fml.common.eventhandler.Event.class, remap = false)
 public abstract class MixinEvent implements GameEvent, CauseTracked, Cancellable {
 
     @Shadow

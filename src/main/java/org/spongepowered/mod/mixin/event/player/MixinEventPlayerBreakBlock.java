@@ -48,7 +48,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
-@Mixin(BlockEvent.BreakEvent.class)
+@Mixin(value = BlockEvent.BreakEvent.class, remap = false)
 public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements PlayerBreakBlockEvent {
 
     private final net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
