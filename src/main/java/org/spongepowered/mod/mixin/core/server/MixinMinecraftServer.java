@@ -35,7 +35,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.source.ConsoleSource;
 import org.spongepowered.api.world.World;
@@ -44,6 +46,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.interfaces.Subjectable;
 import org.spongepowered.mod.text.SpongeText;
 
 import java.net.InetSocketAddress;
@@ -55,7 +58,7 @@ import java.util.UUID;
 @NonnullByDefault
 @Mixin(MinecraftServer.class)
 @Implements(@Interface(iface = Server.class, prefix = "server$"))
-public abstract class MixinMinecraftServer implements Server, ConsoleSource {
+public abstract class MixinMinecraftServer implements Server, ConsoleSource, Subjectable {
 
     @Shadow
     public abstract ServerConfigurationManager getConfigurationManager();
@@ -205,9 +208,23 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     }
 
     @Override
-    public boolean hasPermission(String permission) {
-        // TODO
-        return true;
+    public String getIdentifier() {
+        return getName();
+    }
+
+    @Override
+    public String getSubjectCollectionIdentifier() {
+        return PermissionService.SUBJECTS_SYSTEM;
+    }
+
+    @Override
+    public Tristate permDefault(String permission) {
+        return Tristate.TRUE;
+    }
+
+    @Override
+    public String getName() {
+        return "Server";
     }
 
     @Override

@@ -35,6 +35,7 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.text.SpongeText;
 
 import java.util.List;
@@ -43,6 +44,8 @@ import java.util.Set;
 @Mixin(targets = "net/minecraft/command/CommandExecuteAt$1")
 @NonnullByDefault
 public abstract class MixinCommandExecuteAtSender implements CommandSource, ICommandSender {
+    @Shadow
+    private ICommandSender field_174802_b;
 
     @Override
     public void sendMessage(Text... messages) {
@@ -59,68 +62,73 @@ public abstract class MixinCommandExecuteAtSender implements CommandSource, ICom
     }
 
     @Override
+    public String getName() {
+        return ((CommandSource) field_174802_b).getIdentifier();
+    }
+
+    @Override
     public String getIdentifier() {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).getIdentifier();
     }
 
     @Override
     public Optional<CommandSource> getCommandSource() {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).getCommandSource();
     }
 
     @Override
     public SubjectCollection getContainingCollection() {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).getContainingCollection();
     }
 
     @Override
     public SubjectData getData() {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).getData();
     }
 
     @Override
     public SubjectData getTransientData() {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).getTransientData();
     }
 
     @Override
     public boolean hasPermission(Set<Context> contexts, String permission) {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).hasPermission(contexts, permission);
     }
 
     @Override
     public boolean hasPermission(String permission) {
-        return true; // TODO
+        return ((CommandSource) field_174802_b).hasPermission(permission);
     }
 
     @Override
     public Tristate getPermissionValue(Set<Context> contexts, String permission) {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).getPermissionValue(contexts, permission);
     }
 
     @Override
     public boolean isChildOf(Subject parent) {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).isChildOf(parent);
     }
 
     @Override
     public boolean isChildOf(Set<Context> contexts, Subject parent) {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).isChildOf(contexts, parent);
     }
 
     @Override
     public List<Subject> getParents() {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).getParents();
     }
 
     @Override
     public List<Subject> getParents(Set<Context> contexts) {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).getParents(contexts);
     }
 
     @Override
     public Set<Context> getActiveContexts() {
-        throw new UnsupportedOperationException(); // TODO
+        return ((CommandSource) field_174802_b).getActiveContexts();
     }
 
 }

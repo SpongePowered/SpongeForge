@@ -24,20 +24,36 @@
  */
 package org.spongepowered.mod.mixin.core.command;
 
+import com.google.common.base.Optional;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.server.CommandBlockLogic;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectCollection;
+import org.spongepowered.api.service.permission.SubjectData;
+import org.spongepowered.api.service.permission.context.Context;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.api.util.command.source.CommandBlockSource;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.interfaces.Subjectable;
 import org.spongepowered.mod.text.SpongeText;
 import org.spongepowered.mod.util.VecHelper;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
 @NonnullByDefault
 @Mixin(CommandBlockLogic.class)
-public abstract class MixinCommandBlockLogic implements ICommandSender, CommandBlockSource {
+public abstract class MixinCommandBlockLogic implements ICommandSender, CommandBlockSource, Subjectable {
 
     @Override
     public void sendMessage(Text... messages) {
@@ -63,4 +79,18 @@ public abstract class MixinCommandBlockLogic implements ICommandSender, CommandB
         return (org.spongepowered.api.world.World) getEntityWorld();
     }
 
+    @Override
+    public String getIdentifier() {
+        return getName();
+    }
+
+    @Override
+    public String getSubjectCollectionIdentifier() {
+        return PermissionService.SUBJECTS_COMMAND_BLOCK;
+    }
+
+    @Override
+    public Tristate permDefault(String permission) {
+        return Tristate.TRUE;
+    }
 }
