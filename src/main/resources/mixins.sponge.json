@@ -81,6 +81,7 @@
     "event.state.MixinEventServerStopping",
     "event.state.MixinEventServerStopped",
     "fml.MixinEntityRegistry",
+    "forge.MixinBlockSnapshot",
     "forge.MixinDimensionManager",
     "inventory.MixinContainer",
     "item.MixinItemType",
