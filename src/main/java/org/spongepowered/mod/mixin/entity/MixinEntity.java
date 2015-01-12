@@ -51,37 +51,24 @@ import com.google.common.base.Optional;
 @Mixin(net.minecraft.entity.Entity.class)
 public abstract class MixinEntity implements Entity, ISpongeEntity {
 
-    private boolean teleporting = false;
+    private boolean teleporting;
     private net.minecraft.entity.Entity teleportVehicle;
 
-    @Shadow
-    public net.minecraft.world.World worldObj;
-    @Shadow
-    public double posX;
-    @Shadow
-    public double posY;
-    @Shadow
-    public double posZ;
-    @Shadow
-    public float rotationYaw;
-    @Shadow
-    public float rotationPitch;
-    @Shadow
-    public float width;
-    @Shadow
-    public float height;
-    @Shadow
-    public boolean isDead;
-    @Shadow
-    public boolean onGround;
-    @Shadow
-    public int fireResistance;
-    @Shadow
-    private int fire;
-    @Shadow
-    public net.minecraft.entity.Entity riddenByEntity;
-    @Shadow
-    public net.minecraft.entity.Entity ridingEntity;
+    @Shadow public net.minecraft.world.World worldObj;
+    @Shadow public double posX;
+    @Shadow public double posY;
+    @Shadow public double posZ;
+    @Shadow public float rotationYaw;
+    @Shadow public float rotationPitch;
+    @Shadow public float width;
+    @Shadow public float height;
+    @Shadow public boolean isDead;
+    @Shadow public boolean onGround;
+    @Shadow public int fireResistance;
+    @Shadow private int fire;
+    @Shadow public net.minecraft.entity.Entity riddenByEntity;
+    @Shadow public net.minecraft.entity.Entity ridingEntity;
+
     @Shadow
     public abstract void setPosition(double x, double y, double z);
     @Shadow(prefix = "shadow$")
@@ -332,6 +319,17 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
     @Override
     public void setTeleportVehicle(net.minecraft.entity.Entity vehicle) {
         this.teleportVehicle = vehicle;
+    }
+
+    @Override
+    public boolean isPersistent() {
+        // TODO
+        return true;
+    }
+
+    @Override
+    public void setPersistent(boolean persistent) {
+        // TODO
     }
 
 }
