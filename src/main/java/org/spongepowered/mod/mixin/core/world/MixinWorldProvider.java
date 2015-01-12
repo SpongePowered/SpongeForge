@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.world;
 
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.common.DimensionManager;
+import org.spongepowered.api.service.permission.context.Context;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionType;
@@ -45,6 +46,7 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
 
     private boolean allowPlayerRespawns;
     private SpongeConfig<SpongeConfig.DimensionConfig> dimensionConfig;
+    private volatile Context dimContext;
 
     @Shadow
     protected int dimensionId;
@@ -135,5 +137,13 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
     @Override
     public SpongeConfig<SpongeConfig.DimensionConfig> getDimensionConfig() {
         return this.dimensionConfig;
+    }
+
+    @Override
+    public Context getContext() {
+        if (dimContext == null) {
+            dimContext = new Context(Context.DIMENSION_KEY, getName());
+        }
+        return dimContext;
     }
 }

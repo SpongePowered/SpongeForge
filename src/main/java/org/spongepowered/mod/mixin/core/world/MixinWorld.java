@@ -53,6 +53,7 @@ import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.service.permission.context.Context;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
@@ -85,12 +86,15 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 @NonnullByDefault
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinWorld implements World, IMixinWorld {
 
     private boolean keepSpawnLoaded;
     public SpongeConfig<SpongeConfig.WorldConfig> worldConfig;
+    private volatile Context worldContext;
 
     @Shadow
     public WorldProvider provider;
@@ -502,5 +506,14 @@ public abstract class MixinWorld implements World, IMixinWorld {
             return false;
         }
         return chunk.unloadChunk();
+    }
+
+
+    @Override
+    public Context getContext() {
+        if (worldContext == null) {
+            worldContext = new Context(Context.WORLD_KEY, getName());
+        }
+        return worldContext;
     }
 }
