@@ -452,20 +452,70 @@ public class SyncScheduler implements Scheduler {
         return result;
     }
 
+    /**
+     * <p>Determine the list of Tasks that the TaskScheduler is aware of.</p>
+     *
+     * @return Collection<Task> of all known Tasks in the TaskScheduler
+     */
     @Override
     public Collection<Task> getScheduledTasks() {
 
-        // TODO -- make copy of the collection (?)
-        // TODO -- Not Implemented
-        return null;
+        Collection<Task> taskCollection;
+
+        synchronized(taskList) {
+            taskCollection = new ArrayList<Task>(taskList);
+        }
+
+        return taskCollection;
     }
 
+    /**
+     * <p>The query for Tasks owned by a target Plugin owner is found by testing
+     * the list of Tasks by testing the ID of each PluginContainer.<p>
+     *
+     * <p>If the PluginContainer passed to the method is not correct (invalid
+     * or null) then return a null reference.  Else, return a Collection of Tasks
+     * that are owned by the Plugin.</p>
+     * @param plugin The plugin that may own the Tasks in the TaskScheduler
+     * @return Collection<Task> of Tasks owned by the PluginContainer plugin.
+     */
     @Override
     public Collection<Task> getScheduledTasks(Object plugin) {
 
-        // TODO -- make copy of the collection (?)
-        // TODO -- Not Implemented
-        return null;
+        // The argument is an Object so we have due diligence to perform...
+
+        // Owner is not a PluginContainer derived class
+        if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
+            SpongeMod.instance.getLogger().warn(LogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
+
+            // The plugin owner was not valid, so the "Collection" is empty.
+            //(TODO) Perhaps we move this into using Optional<T> to make it explicit that
+            // Eg., the resulting Collection is NOT present vs. empty.
+
+            return null;
+        }
+
+        // The plugin owner is OK, so let's figure out which Tasks (if any) belong to it.
+        // The result Collection represents the Tasks that are owned by the plugin.  The list
+        // is non-null.  If no Tasks exists owned by the Plugin, return an empty Collection
+        // else return a Collection of Tasks.
+
+        PluginContainer testedOwner = (PluginContainer) plugin;
+        String testOwnerID = testedOwner.getId();
+        Collection<Task> subsetCollection;
+
+        synchronized(taskList) {
+            subsetCollection = new ArrayList<Task>(taskList);
+        }
+
+        Iterator<Task> it = subsetCollection.iterator();
+
+        while (it.hasNext()) {
+            String pluginId = ((PluginContainer) it.next()).getId();
+            if (!testOwnerID.equals(pluginId)) it.remove();
+        }
+
+        return subsetCollection;
     }
 
     private ScheduledTask taskValidationStep(Object plugin, Runnable task, long offset, long period) {
