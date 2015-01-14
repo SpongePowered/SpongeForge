@@ -40,7 +40,7 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.network.play.server.S45PacketTitle;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
 import org.spongepowered.api.effect.particle.ParticleEffect;
@@ -77,7 +77,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public Message playermp$getDisplayName() {
-        return new SpongeMessageText.SpongeTextBuilder(getName()).build();
+        return new SpongeMessageText.SpongeMessageTextBuilder(getName()).build();
     }
 
     public boolean playermp$getAllowFlight() {
@@ -106,20 +106,20 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
 
     public void playermp$sendMessage(ChatType type, String... messages) {
         for (String string : messages) {
-            ChatComponentText component = new ChatComponentText(string);
+            ChatComponentTranslation component = new ChatComponentTranslation(string);
             this.playerNetServerHandler.sendPacket(new S02PacketChat(component, ((SpongeChatType)type).getId()));
         }
     }
 
     public void playermp$sendMessage(ChatType type, Message... messages) {
         for (Message message : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage<?>)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
     public void playermp$sendMessage(ChatType type, Iterable<Message> messages) {
         for (Message message : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage<?>)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 

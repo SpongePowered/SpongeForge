@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Iterator;
 
 import net.minecraft.util.IChatComponent;
 
@@ -35,15 +33,17 @@ import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.ShiftClickAction;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyle;
+import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.text.format.TextStyle.TextStyleComponent;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.text.message.MessageBuilder;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import com.google.common.base.Optional;
 
-public abstract class SpongeMessageBuilder<T extends Message> implements MessageBuilder {
+public abstract class SpongeMessageBuilder<T extends MessageBuilder> implements MessageBuilder {
 
     protected Deque<Message> children;
-    protected T content;
     protected TextColor color;
     protected TextStyle style;
     protected Optional<ClickAction<?>> clickAction;
@@ -51,65 +51,80 @@ public abstract class SpongeMessageBuilder<T extends Message> implements Message
     protected Optional<ShiftClickAction<?>> shiftClickAction;
     protected IChatComponent handle;
 
-    public SpongeMessageBuilder() {
-        this.children = new ArrayDeque<Message>();
-    }
-
-    public SpongeMessageBuilder(T content) {
-        this.content = content;
-        this.children = new ArrayDeque<Message>();
-    }
-
+    @SuppressWarnings("unchecked")
     @Override
-    public MessageBuilder append(Message... children) {
+    public T append(Message... children) {
         for (Message message : children) {
             this.children.add(message);
+            this.handle.appendSibling(((SpongeMessageText)message).handle);
         }
-        return this;
+
+        return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public MessageBuilder append(Iterable<Message> children) {
-        Iterator<Message> iter = children.iterator();
-        while (iter.hasNext()) {
-            Message message = iter.next();
+    public T append(Iterable<Message> children) {
+        for (Message message : children) {
             this.children.add(message);
-            this.handle.appendSibling(((SpongeMessage)message).getHandle());
+            this.handle.appendSibling(((SpongeMessageText)message).handle);
         }
 
-        return this;
+        return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public MessageBuilder color(TextColor color) {
+    public T color(TextColor color) {
         this.color = color;
-        return this;
+        this.handle.getChatStyle().setColor(SpongeGameRegistry.textColorToEnumMappings.get(color));
+        return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public MessageBuilder style(TextStyle... styles) {
-        for (TextStyle textStyle : styles) {
-            this.style.and(textStyle);
+    public T style(TextStyle... styles) {
+        TextStyle style = TextStyles.ZERO.and(styles);
+        for (TextStyle.Base baseStyle : SpongeGameRegistry.textStyleMappings.values()) {
+            TextStyleComponent component = style.applied(baseStyle);
+
+            if (component != TextStyleComponent.UNAPPLIED) {
+                if (baseStyle == TextStyles.BOLD) {
+                    this.handle.getChatStyle().setBold((component == TextStyleComponent.APPLIED));
+                } else if (baseStyle == TextStyles.ITALIC) {
+                    this.handle.getChatStyle().setItalic((component == TextStyleComponent.APPLIED));
+                } else if (baseStyle == TextStyles.OBFUSCATED) {
+                    this.handle.getChatStyle().setObfuscated((component == TextStyleComponent.APPLIED));
+                } else if (baseStyle == TextStyles.STRIKETHROUGH) {
+                    this.handle.getChatStyle().setStrikethrough((component == TextStyleComponent.APPLIED));
+                } else if (baseStyle == TextStyles.UNDERLINE) {
+                    this.handle.getChatStyle().setUnderlined((component == TextStyleComponent.APPLIED));
+                } else if (baseStyle == TextStyles.RESET) {
+                    // TODO
+                }
+            }
         }
-        return this;
+        return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public MessageBuilder onClick(ClickAction<?> action) {
+    public T onClick(ClickAction<?> action) {
         this.clickAction = Optional.<ClickAction<?>>fromNullable(action);
-        return this;
+        return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public MessageBuilder onHover(HoverAction<?> action) {
+    public T onHover(HoverAction<?> action) {
         this.hoverAction = Optional.<HoverAction<?>>fromNullable(action);
-        return this;
+        return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public MessageBuilder onShiftClick(ShiftClickAction<?> action) {
+    public T onShiftClick(ShiftClickAction<?> action) {
         this.shiftClickAction = Optional.<ShiftClickAction<?>>fromNullable(action);
-        return this;
+        return (T) this;
     }
-
 }

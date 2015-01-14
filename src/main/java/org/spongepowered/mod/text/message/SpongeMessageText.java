@@ -28,135 +28,41 @@ import java.util.ArrayDeque;
 
 import net.minecraft.util.ChatComponentText;
 
-import org.spongepowered.api.text.action.ClickAction;
-import org.spongepowered.api.text.action.HoverAction;
-import org.spongepowered.api.text.action.ShiftClickAction;
-import org.spongepowered.api.text.format.TextColor;
-import org.spongepowered.api.text.format.TextStyle;
-import org.spongepowered.api.text.format.TextStyle.TextStyleComponent;
-import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.text.message.MessageBuilder;
-import org.spongepowered.mod.registry.SpongeGameRegistry;
 
-import com.google.common.base.Optional;
-
-public class SpongeMessageText extends SpongeMessage implements Message.Text {
+public class SpongeMessageText extends SpongeMessage<String> implements Message.Text {
 
     @Override
     public MessageBuilder.Text builder() {
-        return new SpongeTextBuilder(this.content);
+        return new SpongeMessageTextBuilder(this.content);
     }
 
-    private SpongeMessageText(SpongeTextBuilder builder) {
+    private SpongeMessageText(SpongeMessageTextBuilder builder) {
         super(builder);
+        this.content = builder.content;
     }
 
-    public static class SpongeTextBuilder extends SpongeMessageBuilder<Text> implements MessageBuilder.Text {
+    public static class SpongeMessageTextBuilder extends SpongeMessageBuilder<MessageBuilder.Text> implements MessageBuilder.Text {
 
         protected String content;
-        protected ChatComponentText handle;
 
-        public SpongeTextBuilder() {
-            this.children = new ArrayDeque<Message>();
-            this.handle = new ChatComponentText("");
-        }
-
-        public SpongeTextBuilder(String text) {
+        public SpongeMessageTextBuilder(String text) {
             this.content = text;
             this.children = new ArrayDeque<Message>();
-            this.handle = new ChatComponentText(this.content);
+            this.handle = new ChatComponentText(text);
         }
 
-        public SpongeTextBuilder(ChatComponentText component) {
+        public SpongeMessageTextBuilder(ChatComponentText component) {
             this.content = component.getUnformattedText();
             this.children = new ArrayDeque<Message>();
             this.handle = component;
-        }
-
-        public MessageBuilder.Text append(Message message) {
-            this.children.add(message);
-            this.handle.appendSibling(((SpongeMessageText)message).handle);
-            return this;
-        }
-
-        @Override
-        public MessageBuilder.Text append(Message... children) {
-            for (Message message : children) {
-                this.children.add(message);
-                this.handle.appendSibling(((SpongeMessageText)message).handle);
-            }
-
-            return this;
-        }
-
-        @Override
-        public MessageBuilder.Text append(Iterable<Message> children) {
-            for (Message message : children) {
-                this.children.add(message);
-                this.handle.appendSibling(((SpongeMessageText)message).handle);
-            }
-
-            return this;
         }
 
         @Override
         public MessageBuilder.Text content(String content) {
             this.content = content;
             this.handle = new ChatComponentText(content);
-            return this;
-        }
-
-        @Override
-        public MessageBuilder.Text color(TextColor color) {
-            this.color = color;
-            this.handle.getChatStyle().setColor(SpongeGameRegistry.textColorToEnumMappings.get(color));
-            return this;
-        }
-
-        @Override
-        public MessageBuilder.Text style(TextStyle... styles) {
-            TextStyle style = TextStyles.ZERO.and(styles);
-            for (TextStyle.Base baseStyle : SpongeGameRegistry.textStyleMappings.values()) {
-                TextStyleComponent component = style.applied(baseStyle);
-
-                if (component != TextStyleComponent.UNAPPLIED) {
-                    if (baseStyle == TextStyles.BOLD) {
-                        this.handle.getChatStyle().setBold((component == TextStyleComponent.APPLIED));
-                    } else if (baseStyle == TextStyles.ITALIC) {
-                        this.handle.getChatStyle().setItalic((component == TextStyleComponent.APPLIED));
-                    } else if (baseStyle == TextStyles.OBFUSCATED) {
-                        this.handle.getChatStyle().setObfuscated((component == TextStyleComponent.APPLIED));
-                    } else if (baseStyle == TextStyles.STRIKETHROUGH) {
-                        this.handle.getChatStyle().setStrikethrough((component == TextStyleComponent.APPLIED));
-                    } else if (baseStyle == TextStyles.UNDERLINE) {
-                        this.handle.getChatStyle().setUnderlined((component == TextStyleComponent.APPLIED));
-                    } else if (baseStyle == TextStyles.RESET) {
-                        // TODO
-                    }
-                }
-            }
-            return this;
-        }
-
-        @Override
-        public MessageBuilder.Text onClick(ClickAction<?> action) {
-            this.clickAction = Optional.<ClickAction<?>>fromNullable(action);
-            // TODO
-            return this;
-        }
-
-        @Override
-        public MessageBuilder.Text onHover(HoverAction<?> action) {
-            this.hoverAction = Optional.<HoverAction<?>>fromNullable(action);
-            // TODO
-            return this;
-        }
-
-        @Override
-        public MessageBuilder.Text onShiftClick(ShiftClickAction<?> action) {
-            this.shiftClickAction = Optional.<ShiftClickAction<?>>fromNullable(action);
-            // TODO
             return this;
         }
 
