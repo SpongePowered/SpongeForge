@@ -35,6 +35,7 @@ import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -87,43 +88,20 @@ public abstract class MixinPropertyDirection extends PropertyEnum implements Blo
         return ImmutableSet.copyOf(converted);
     }
 
-    // TODO: These are probably generally useful and should be in a helper class somewhere.
     private Direction getDirection(EnumFacing facing) {
-        switch (facing) {
-            case DOWN:
-                return Direction.DOWN;
-            case UP:
-                return Direction.UP;
-            case NORTH:
-                return Direction.NORTH;
-            case SOUTH:
-                return Direction.SOUTH;
-            case WEST:
-                return Direction.WEST;
-            case EAST:
-                return Direction.EAST;
-            default:
-                throw new IllegalArgumentException(String.format("Invalid EnumFacing '%s'", facing.toString()));
+        Direction direction = SpongeGameRegistry.directionMap.inverse().get(facing);
+        if (direction == null) {
+            throw new IllegalArgumentException(String.format("Invalid EnumFacing '%s'", facing.toString()));
         }
+        return direction;
     }
 
     private EnumFacing getFacing(Direction direction) {
-        switch (direction) {
-            case NORTH:
-                return EnumFacing.NORTH;
-            case EAST:
-                return EnumFacing.EAST;
-            case SOUTH:
-                return EnumFacing.SOUTH;
-            case WEST:
-                return EnumFacing.WEST;
-            case UP:
-                return EnumFacing.UP;
-            case DOWN:
-                return EnumFacing.DOWN;
-            default:
-                throw new IllegalArgumentException(
-                        String.format("Invalid Direction '%s', only cardinal and upright directions are supported", direction.toString()));
+        EnumFacing facing = SpongeGameRegistry.directionMap.get(direction);
+        if (facing == null) {
+            throw new IllegalArgumentException(String.format("Invalid Direction '%s', only cardinal and upright directions are supported",
+                    direction.toString()));
         }
+        return facing;
     }
 }
