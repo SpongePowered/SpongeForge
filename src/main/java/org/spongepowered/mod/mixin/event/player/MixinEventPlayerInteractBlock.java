@@ -33,6 +33,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.entity.EntityInteractionType;
+import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -72,11 +73,16 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
 
     @Override
     public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, this.entityPlayer, null));
+        return Optional.fromNullable(new Cause(null, (Player)this.entityPlayer, null));
     }
 
     @Override
     public boolean isCancelled() {
         return this.isCanceled();
+    }
+
+    @Override
+    public void setCancelled(boolean cancelled) {
+        this.setCanceled(cancelled);
     }
 }

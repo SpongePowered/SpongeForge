@@ -22,36 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.event.block;
+package org.spongepowered.mod.mixin.event.world;
 
-import net.minecraft.util.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.Event;
-
-import org.spongepowered.api.block.BlockLoc;
-import org.spongepowered.api.event.block.BlockEvent;
-import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.world.ChunkLoadEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.wrapper.BlockWrapper;
-
-import com.google.common.base.Optional;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)
-public abstract class MixinEventBlock extends Event implements BlockEvent {
+@Mixin(value = net.minecraftforge.event.world.ChunkEvent.Load.class, remap = false)
+public abstract class MixinEventChunkLoad implements ChunkLoadEvent {
 
-    @Shadow public BlockPos pos;
-    @Shadow public net.minecraft.world.World world;
-
-    @Override
-    public BlockLoc getBlock() {
-        return new BlockWrapper((World)this.world, (int) this.pos.getX(), (int) this.pos.getY(), (int) this.pos.getZ());
-    }
-
-    @Override
-    public Optional<Cause> getCause() {
-        return Optional.of(new Cause(null, getBlock(), null));
-    }
 }
