@@ -24,12 +24,19 @@
  */
 package org.spongepowered.mod.mixin.event.world;
 
+import net.minecraft.world.World;
+import net.minecraftforge.event.world.WorldEvent;
+
 import org.spongepowered.api.event.world.WorldLoadEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.WorldEvent.Load.class, remap = false)
-public abstract class MixinEventWorldLoad implements WorldLoadEvent {
+public abstract class MixinEventWorldLoad extends WorldEvent implements WorldLoadEvent {
+
+    public MixinEventWorldLoad(World world) {
+        super(world);
+    }
 
 }

@@ -104,6 +104,7 @@
     "item.merchant.MixinMerchantRecipe",
     "potion.MixinPotion",
     "potion.MixinPotionEffect",
+    "world.MixinChunk",
     "world.MixinWorld",
     "world.MixinWorldBorder",
     "world.MixinWorldProvider",

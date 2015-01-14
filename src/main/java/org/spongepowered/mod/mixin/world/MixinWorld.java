@@ -41,6 +41,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.WorldInfo;
 
 import org.spongepowered.api.block.BlockLoc;
@@ -94,12 +95,22 @@ public abstract class MixinWorld implements World {
 
     @Override
     public Optional<Chunk> getChunk(Vector3i position) {
-        return Optional.absent();
+        WorldServer worldserver = (WorldServer)(Object)this;
+        net.minecraft.world.chunk.Chunk chunk = null;
+        if (worldserver.theChunkProviderServer.chunkExists(position.getX(), position.getZ())) {
+            chunk = worldserver.theChunkProviderServer.provideChunk(position.getX(), position.getZ());
+        }
+        return Optional.fromNullable((Chunk)chunk);
     }
 
     @Override
     public Optional<Chunk> loadChunk(Vector3i position, boolean shouldGenerate) {
-        return Optional.absent();
+        WorldServer worldserver = (WorldServer)(Object)this;
+        net.minecraft.world.chunk.Chunk chunk = null;
+        if (worldserver.theChunkProviderServer.chunkExists(position.getX(), position.getZ()) || shouldGenerate) {
+            chunk = worldserver.theChunkProviderServer.loadChunk(position.getX(), position.getZ());
+        }
+        return Optional.fromNullable((Chunk)chunk);
     }
 
     @Override
