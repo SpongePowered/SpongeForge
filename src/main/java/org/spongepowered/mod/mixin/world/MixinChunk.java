@@ -55,18 +55,22 @@ public abstract class MixinChunk implements Chunk {
         this.chunkPos = new Vector3i(x, 0, z);
     }
 
+    @Override
     public Vector3i getPosition() {
         return this.chunkPos;
     }
 
+    @Override
     public boolean isLoaded() {
         return this.isChunkLoaded;
     }
 
+    @Override
     public boolean isPopulated() {
         return this.isTerrainPopulated;
     }
 
+    @Override
     public boolean loadChunk(boolean generate) {
         WorldServer worldserver = (WorldServer)(Object)this;
         net.minecraft.world.chunk.Chunk chunk = null;
@@ -77,6 +81,7 @@ public abstract class MixinChunk implements Chunk {
         return chunk != null;
     }
 
+    @Override
     public boolean unloadChunk() {
         if (this.worldObj.provider.canRespawnHere() && DimensionManager.shouldLoadSpawn(this.worldObj.provider.getDimensionId())) {
             if (this.worldObj.chunkExists(this.xPosition, this.zPosition)) {

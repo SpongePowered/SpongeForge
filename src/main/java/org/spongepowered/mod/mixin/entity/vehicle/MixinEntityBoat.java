@@ -71,21 +71,21 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
 
     @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "java.lang.Math.sqrt(D):Z", ordinal = 0))
     public void beforeModifyMotion(CallbackInfo ci) {
-        initialDisplacement = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+        this.initialDisplacement = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
     }
 
     @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "java.lang.Math.sqrt(D):Z", ordinal = 1))
     public void beforeLimitSpeed(CallbackInfo ci) {
-        tempMotionX = this.motionX;
-        tempMotionZ = this.motionZ;
-        tempSpeedMultiplier = this.speedMultiplier;
+        this.tempMotionX = this.motionX;
+        this.tempMotionZ = this.motionZ;
+        this.tempSpeedMultiplier = this.speedMultiplier;
     }
 
     @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.onGround:Z", ordinal = 1))
     public void afterLimitSpeed(CallbackInfo ci) {
-        this.motionX = tempMotionX;
-        this.motionZ = tempMotionZ;
-        this.speedMultiplier = tempSpeedMultiplier;
+        this.motionX = this.tempMotionX;
+        this.motionZ = this.tempMotionZ;
+        this.speedMultiplier = this.tempSpeedMultiplier;
         double displacement = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
 
         if (displacement > this.maxSpeed) {
@@ -95,7 +95,7 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
             displacement = this.maxSpeed;
         }
 
-        if ((displacement > initialDisplacement) && (this.speedMultiplier < this.maxSpeed)) {
+        if ((displacement > this.initialDisplacement) && (this.speedMultiplier < this.maxSpeed)) {
             this.speedMultiplier += (this.maxSpeed - this.speedMultiplier) / this.maxSpeed * 100.0;
             this.speedMultiplier = Math.min(this.speedMultiplier, this.maxSpeed);
         }

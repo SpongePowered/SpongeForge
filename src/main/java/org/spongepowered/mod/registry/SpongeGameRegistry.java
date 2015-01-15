@@ -563,7 +563,7 @@ public class SpongeGameRegistry implements GameRegistry {
         this.enchantmentMappings.put("LUCK_OF_THE_SEA", (Enchantment) net.minecraft.enchantment.Enchantment.luckOfTheSea);
         this.enchantmentMappings.put("LURE", (Enchantment) net.minecraft.enchantment.Enchantment.lure);
 
-        RegistryHelper.mapFields(Enchantments.class, enchantmentMappings);
+        RegistryHelper.mapFields(Enchantments.class, this.enchantmentMappings);
     }
     
     // Note: This is probably fairly slow, but only needs to be run rarely.
@@ -596,16 +596,16 @@ public class SpongeGameRegistry implements GameRegistry {
     private Map<String, Integer> mcEntityNameToId = null;
 
     private SpongeEntityType newEntityTypeFromName(String spongeName, String mcName) {
-        if (mcEntityNameToId == null) {
+        if (this.mcEntityNameToId == null) {
             try {
                 Field field_180126_g = EntityList.class.getDeclaredField("field_180126_g");
                 field_180126_g.setAccessible(true);
-                mcEntityNameToId = (Map<String, Integer>) field_180126_g.get(null);
+                this.mcEntityNameToId = (Map<String, Integer>) field_180126_g.get(null);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
-        return new SpongeEntityType(mcEntityNameToId.get(mcName), spongeName, (Class<? extends Entity>) EntityList.stringToClassMapping.get(mcName));
+        return new SpongeEntityType(this.mcEntityNameToId.get(mcName), spongeName, (Class<? extends Entity>) EntityList.stringToClassMapping.get(mcName));
     }
 
     private SpongeEntityType newEntityTypeFromName(String name) {
@@ -772,7 +772,7 @@ public class SpongeGameRegistry implements GameRegistry {
         this.biomeTypeMappings.put("EXTREME_HILLS_PLUS_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.extremeHillsPlus.biomeID + 128]);
         this.biomeTypeMappings.put("MEGA_SPRUCE_TAIGA_HILLS", (BiomeType) biomeArray[BiomeGenBase.megaTaigaHills.biomeID + 128]);
 
-        RegistryHelper.mapFields(BiomeTypes.class, biomeTypeMappings);
+        RegistryHelper.mapFields(BiomeTypes.class, this.biomeTypeMappings);
     }
 
     private void setCareersAndProfessions() {

@@ -462,8 +462,8 @@ public class SyncScheduler implements Scheduler {
 
         Collection<Task> taskCollection;
 
-        synchronized(taskList) {
-            taskCollection = new ArrayList<Task>(taskList);
+        synchronized(this.taskList) {
+            taskCollection = new ArrayList<Task>(this.taskList);
         }
 
         return taskCollection;
@@ -504,8 +504,8 @@ public class SyncScheduler implements Scheduler {
         String testOwnerID = testedOwner.getId();
         Collection<Task> subsetCollection;
 
-        synchronized(taskList) {
-            subsetCollection = new ArrayList<Task>(taskList);
+        synchronized(this.taskList) {
+            subsetCollection = new ArrayList<Task>(this.taskList);
         }
 
         Iterator<Task> it = subsetCollection.iterator();
