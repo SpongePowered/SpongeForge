@@ -25,48 +25,112 @@
 package org.spongepowered.mod.service.scheduler;
 
 import com.google.common.base.Optional;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.service.scheduler.Scheduler;
+import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.*;
 
-public class SyncScheduler implements Scheduler {
+/**
+ * <p>Asynchronous Scheduler</p>
+ *
+ * <p>The Asynchronous Scheduler is similar to the {@Link SyncScheduler}.  They have the same kind of API signature
+ * and operate with the same kind of Tasks.  The exceptional difference between the SyncScheduler and this
+ * Asynchronous Scheduler is that this Scheduler will base timing of Tasks on wall-clock time.  The wall-clock
+ * time is used to determine when to run a Task.</p>
+ *
+ * <p>Main Differences</p>
+ *
+ * <p>{@Link SyncScheduler} implements {@Link Scheduler} interface and uses Ticks as the time unit. Tasks are
+ * created with parameters (if any) that involve delays and periods based on Tick time units. Theoretically a Tick
+ * is 50ms, but due to overhead and latency, the monotonous timing of Tick based Tasks is not guaranteed.</p>
+ *
+ * <p> {@Link AsyncScheduler} implements {@Link AsynchronousScheduler} interface and uses milliseconds as the time
+ * unit.  Tasks created with parameters (if any) that involve delays and periods based on milliseconds and relative
+ * to the wall-clock of the host system.  Caveat: the wall-clock time is used for measuring elapsed time, but the
+ * actual date/time of the host system or changes to the host date/time will not affect the scheduling of Tasks.
+ * Because the AsyncScheduler is running its own thread all tasks that  execute from this scheduler are not
+ * synchronous with the game data.  In other-words, the Tasks that are executed by the AsyncScheduler are not
+ * thread-safe with the game data.  Plugin authors should use care when leveraging concurrency in their plugins
+ * when those plugins access game data as a result of a Asynchronous {@Link Task} running.  Several resources can
+ * help the plugin author:  The Java Concurrency book by Lea and Effective Java by Bloch for information handling
+ * concurrency issues in their plugins.</p>
+ *
+ * <p>Wall-clock time is determined with the System.currentTimeMillis() method from Java.  This method is used because
+ * the result is not affected by changes to the date/time on the host system.  System.currentTimeMillis() will give
+ * unpredictable results if the host date/time is changed, thus wall-clock time for this Scheduler is based on
+ * currentTimeMillis(). </p>
+ *
+ * <p>Tasks can be created using the API in the {@Link AsynchronousScheduler} interface. The access to this Scheduler
+ * through the {@Link Game} interface method    AsynchronousScheduler getAsyncScheduler();  Plugin authors never
+ * cause the creation of a scheduler, the scheduler (Asynchronous and {@Link SyncScheduler} are each Singletons.</p>
+ *
+ *
+ */
+
+
+public class AsyncScheduler implements AsynchronousScheduler {
 
     /**
      * <p>
-     * The intent is the implementation of the Task Scheduler is 
+     * The intent is the implementation of this Asynchronous Task Scheduler is
      * a single instance in the context of the Sponge.</p>
      *
      * <p>
-     * There isn't a strong motivation to have multiple instances of the "Scheduler".</p>
+     * There isn't a strong motivation to have multiple instances of this Asynchronous "Scheduler".</p>
      */
 
-    private static volatile Scheduler instance = null;
+    private static volatile AsynchronousScheduler instance = null;
+    private MachineState sm;
 
     // The simple private list of all pending (and running) ScheduledTasks
-    private final List<ScheduledTask> taskList;
+    private final List<ScheduledTask> taskList = new ArrayList<ScheduledTask>();
+    private long minimumTimeout = Long.MAX_VALUE;
 
-    private volatile long counter = 0L;
+
+    private AsyncScheduler() {
+        sm = MachineState.PRE_INIT;
+        new Thread(new Runnable() {
+            public void run() {
+                SMachine();
+            }
+        }).start();
+    }
 
     /**
-     * <p>
-     * We establish the SyncScheduler when the SyncScheduler is created.  This will
-     * happen once.  We simply initialize the first state in the SyncScheduler state
-     * machine and let the state machine execute.  Only calls to the SyncScheduler
-     * through the control interface (TBD) may control the behavior of the state machine itself.</p>
-     *
-     * <p>
-     * The constructor of the Scheduler is private.  So to get the scheduler, user code calls game.getScheduler()
-     * or directly by SyncScheduler.getInstance().  In time access to the scheduler should be migrated into
-     * the Services Manager.</p>
-     *
+     * <p>Unlike the State of a ScheduledTask, the @MachineState of this Asynchronous Scheduler is private and not an
+     * enumeration of values that have any user facing purpose.  This is why the enumeration is
+     * defined within the class and inaccessible to user code.</p>
      */
-    private SyncScheduler() {
-        this.taskList = new ArrayList<ScheduledTask>();
+    private enum MachineState {
+        PRE_INIT,
+        INIT,
+        RUN,
+        NOT_RUNNING,
+    }
+
+    private void SMachine() {
+        while ( sm != MachineState.NOT_RUNNING ) {
+            switch ( sm ) {
+                case PRE_INIT: {
+                    // TODO - Pre-Initialization ?
+                    sm = MachineState.INIT;
+                    break;
+                }
+                case INIT: {
+                    // TODO - Initialization ?
+                    sm = MachineState.RUN;
+                    break;
+                }
+
+                case RUN: {
+                    // We're in the RUN state -- process all the tasks, forever.
+                    ProcessTasks();
+                    break;
+                }
+            }
+        }
     }
 
     /**
@@ -78,46 +142,35 @@ public class SyncScheduler implements Scheduler {
      * typical practice of double locking on the instance variable. The instance variable
      * is type modified volatile as part of the Pattern of this kind of Singleton implementation.</p>
      *
-     * @return interface to the Scheduler
+     * @return interface to the Asynchronous Scheduler
      */
-    public static Scheduler getInstance() {
+    public static AsynchronousScheduler getInstance() {
         if (instance == null) {
-            synchronized (SyncScheduler.class) {
+            synchronized (AsyncScheduler.class) {
                 if (instance == null) {
-                    instance = new SyncScheduler();
+                    instance =  (AsynchronousScheduler) new AsyncScheduler();
                 }
             }
         }
         return instance;
     }
 
-    /**
-     * <p>The hook to update the Ticks known by the SyncScheduler.</p>
-     *
-     * <p>
-     * When a TickEvent occurs, the event handler onTick will accumulate a new value for
-     * the counter.  The Phase of the TickEvent used is the TickEvent.ServerTickEvent Phase.START.</p>
-     *
-     * <p>
-     * The counter is equivalent to a clock in that each new value represents a new
-     * tick event.  Use of delay (Task.offset), interval (Task.period), timestamp (Task.timestamp) all
-     * are based on the time unit of Ticks.  To make it easier to work with in in Plugins, the type
-     * is simply a @long but it's never negative.  A better representation would been Number (a cardinal
-     * value), but this is what we're using.</p>
-     *
-     * @param event The Forge ServerTickEvent observed by this object.
-     */
-    @SubscribeEvent
-    public void onTick(TickEvent.ServerTickEvent event) {
-       if (event.phase == TickEvent.Phase.START) {
-            this.counter++;
-            ProcessTasks();
-       }
-    }
+
 
     private void ProcessTasks() {
 
         synchronized (this.taskList) {
+
+            try {
+                long qtrDutyCycle = minimumTimeout / 4;
+                taskList.wait(qtrDutyCycle);
+            } catch (InterruptedException e) {
+                // The taskList has been modified; there is work to do.
+            } catch (IllegalMonitorStateException e) {
+                System.out.println("What is the cause? " + e.toString());
+            }
+
+
 
             // We've locked down the taskList but the lock is short lived if the size of the
             // size of the list is zero.
@@ -154,7 +207,7 @@ public class SyncScheduler implements Scheduler {
                 }
 
                 // This moment is 'now'
-                long now = this.counter;
+                long now = System.currentTimeMillis();
 
                 // So, if the current time minus the timestamp of the task is greater than
                 // the delay to wait before starting the task, then start the task.
@@ -164,28 +217,52 @@ public class SyncScheduler implements Scheduler {
                 // after we start it.
 
                 if (threshold < (now - task.timestamp)) {
+                    task.timestamp = System.currentTimeMillis();
 
-                    // startTask is just a utility function within the Scheduler that
-                    // starts the task.
-
+                    // startTask is a utility function within this Scheduler that starts the task.
                     boolean bTaskStarted = startTask(task);
                     if (bTaskStarted) {
-
                         task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
-
                         // If task is one time shot, remove it from the list.
                         if (task.period == 0L) {
                             this.taskList.remove(task);
                         } else {
-                            // If the task is not a one time shot then keep it and
-                            // change the timestamp to now.
-                            task.timestamp = this.counter;
+                            // Tasks may have dropped off the list.
+                            // Whatever Tasks remain, recalibrate:
+                            //
+                            // Recalibrate the wait delay for processing tasks before new tasks
+                            // cause the scheduler to process pending tasks.
+
+                            minimumTimeout = Long.MAX_VALUE;
+                            if (task.offset == 0 && task.period == 0) {
+                                minimumTimeout = 0;
+                            }
+                            // task with non-zero offset, zero period
+                            else if (task.offset > 0 && task.period == 0) {
+                                minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
+                            }
+                            // task with zero offset, non-zero period
+                            else if (task.offset == 0 && task.period > 0) {
+                                minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
+                            }
+                            // task with non-zero offset, non-zero period
+                            else if (task.offset > 0 && task.period > 0) {
+                                minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
+                                minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
+                            }
                         }
                     }
                 }
             }
+            // If no tasks remain, recalibrate to max timeout
+            if ( taskList.size() == 0) {
+                minimumTimeout = Long.MAX_VALUE;
+            }
         }
+
     }
+
+
 
     /**
      * <p>Runs a Task once immediately.</p>
@@ -193,7 +270,7 @@ public class SyncScheduler implements Scheduler {
      * <p>
      * The runTask method is used to run a single Task just once.  The Task
      * may persist for the life of the server, however the Task itself will never
-     * be restarted.  It has no delay offset.  The Scheduler will not wait before
+     * be restarted.  It has no delay offset.  This Asynchronous Scheduler will not wait before
      * running the Task.<p>
      *
      * <p>Example code to obtain plugin container argument from User code:</p>
@@ -229,6 +306,9 @@ public class SyncScheduler implements Scheduler {
         else {
             synchronized(this.taskList) {
                 this.taskList.add(nonRepeatingtask);
+
+                // Regardless of the minimumTimeout, the notify will unlock the processing of the Task
+                taskList.notify();
             }
             result = Optional.of  ( (Task) nonRepeatingtask );
         }
@@ -240,12 +320,14 @@ public class SyncScheduler implements Scheduler {
      * <p>Runs a Task once after a specific delay offset.</p>
      *
      * <p>
-     * The runTask method is used to run a single Task just once.  The Task
+     * The runTask() method is used to run a single Task just once.  The Task
      * may persist for the life of the server, however the Task itself will never
-     * be restarted.  The Scheduler will not wait before running the Task.
-     * <b>The Task will be delayed artificially for delay Ticks.</b>  Because the time
-     * unit is in Ticks, this scheduled Task is synchronous (as possible) with the
-     * event of the Tick from the game.  Overhead, network and system latency not 
+     * be restarted.  This Asynchronous Scheduler will not wait before running the Task.
+     * <b>The Task will be delayed artificially for delay Ticks.</b>  </p>
+     *
+     * <p>Because the time unit is in milliseconds, this scheduled Task is asynchronous with the game.
+     * The timing of when to run a Task is based on wall-clock time.
+     * Overhead, network and system latency not
      * withstanding the event will fire after the delay expires.</p>
      *
      * <p>Example code to obtain plugin container argument from User code:</p>
@@ -276,8 +358,11 @@ public class SyncScheduler implements Scheduler {
         else {
 
             synchronized(this.taskList) {
-                nonRepeatingTask.setTimestamp(this.counter);
+                nonRepeatingTask.setTimestamp(System.currentTimeMillis());
                 this.taskList.add(nonRepeatingTask);
+
+                // Regardless of the minimumTimeout, the notify will unlock the processing of the Task
+                taskList.notify();
             }
             result = Optional.of  ( (Task) nonRepeatingTask );
         }
@@ -289,23 +374,24 @@ public class SyncScheduler implements Scheduler {
      * <p>Start a repeating Task with a period (interval) of Ticks.  The first occurrence will start immediately.</p>
      *
      * <p>
-     * The runRepeatingTask method is used to run a Task that repeats.  The Task
-     * may persist for the life of the server. The Scheduler will not wait before running
-     * the first occurrence of the Task. The Scheduler will not allow a second occurrence of
+     * The runRepeatingTask() method is used to run a Task that repeats.  The Task
+     * may persist for the life of the server. This Asynchronous Scheduler will not wait before running
+     * the first occurrence of the Task. This Scheduler will not allow a second occurrence of
      * the task to start if the preceding occurrence is is still alive.  Be sure to end
      * the Runnable Thread of the Task before anticipating the recurrence of the Task.</p>
      *
-     * <p> 
-     * If the Scheduler detects that two tasks will overlap as such, the 2nd Task will not
+     * <p>
+     * If this Scheduler detects that two tasks will overlap as such, the 2nd Task will not
      * be started.  The next time the Task is due to run, the test will be made again to determine
      * if the previous occurrence of the Task is still alive (running).  As long as a previous occurrence
-     * is running no new occurrences of that specific Task will start, although the Scheduler will
+     * is running no new occurrences of that specific Task will start, although this Scheduler will
      * never cease in trying to start it a 2nd time.</p>
-     * 
-     * <p>
-     * Because the time unit is in Ticks, this scheduled Task is synchronous (as possible) with the
-     * event of the Tick from the game.  Overhead, network and system latency not 
-     * withstanding the Task will run (and re-run) after the delay expires.</p>
+     *
+     * <p>Because the time
+     * unit is in milliseconds, this scheduled Task is asynchronous with the game.
+     * The timing of when to run a Task is based on wall-clock time.
+     * Overhead, network and system latency not
+     * withstanding the event will fire after the delay expires.</p>
      *
      * <p>Example code to obtain plugin container argument from User code:</p>
      *
@@ -333,8 +419,11 @@ public class SyncScheduler implements Scheduler {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
             synchronized(this.taskList) {
-                repeatingTask.setTimestamp(this.counter);
+                repeatingTask.setTimestamp(System.currentTimeMillis());
                 this.taskList.add(repeatingTask);
+
+                // Regardless of the minimumTimeout, the notify will unlock the processing of the Task
+                taskList.notify();
             }
             result = Optional.of  ( (Task) repeatingTask );
         }
@@ -344,27 +433,27 @@ public class SyncScheduler implements Scheduler {
 
     /**
      * <p>
-     * Start a repeating Task with a period (interval) of Ticks.  
+     * Start a repeating Task with a period (interval) of Ticks.
      * The first occurrence will start after an initial delay.</p>
      *
      * <p>
      * The runRepeatingTask method is used to run a Task that repeats.  The Task
-     * may persist for the life of the server. The Scheduler <b>will wait</b> before running
-     * the first occurrence of the Task. The Scheduler will not allow a second occurrence of
+     * may persist for the life of the server. This Asynchronous Scheduler <b>will wait</b> before running
+     * the first occurrence of the Task. This Scheduler will not allow a second occurrence of
      * the task to start if the preceding occurrence is is still alive.  Be sure to end
      * the Runnable Thread of the Task before anticipating the recurrence of the Task.</p>
      *
-     * <p> 
-     * If the Scheduler detects that two tasks will overlap as such, the 2nd Task will not
+     * <p>
+     * If this Scheduler detects that two tasks will overlap as such, the 2nd Task will not
      * be started.  The next time the Task is due to run, the test will be made again to determine
      * if the previous occurrence of the Task is still alive (running).  As long as a previous occurrence
-     * is running no new occurrences of that specific Task will start, although the Scheduler will
+     * is running no new occurrences of that specific Task will start, although this Scheduler will
      * never cease in trying to start it a 2nd time.</p>
-     * 
-     * <p>
-     * Because the time unit is in Ticks, this scheduled Task is synchronous (as possible) with the
-     * event of the Tick from the game.  Overhead, network and system latency not 
-     * withstanding the Task will run (and re-run) after the delay expires.</p>
+     *
+     * <p>Because the time unit is in milliseconds, this scheduled Task is asynchronous with the game.
+     * The timing of when to run a Task is based on wall-clock time.
+     * Overhead, network and system latency not
+     * withstanding the event will fire after the delay expires.</p>
      *
      * <p>Example code to obtain plugin container argument from User code:</p>
      *
@@ -392,8 +481,11 @@ public class SyncScheduler implements Scheduler {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
             synchronized(this.taskList) {
-                repeatingTask.setTimestamp(this.counter);
+                repeatingTask.setTimestamp(System.currentTimeMillis());
                 this.taskList.add(repeatingTask);
+
+                // Regardless of the minimumTimeout, the notify will unlock the processing of the Task
+                taskList.notify();
             }
             result = Optional.of  ( (Task) repeatingTask );
         }
@@ -413,7 +505,7 @@ public class SyncScheduler implements Scheduler {
      *     UUID myID;
      *     // ...
      *     Optional<Task> task;
-     *     task = SyncScheduler.getInstance().getTaskById(myID); 
+     *     task = SyncScheduler.getInstance().getTaskById(myID);
      * </code>
      * </p>
      *
@@ -422,7 +514,6 @@ public class SyncScheduler implements Scheduler {
      */
     @Override
     public Optional<Task> getTaskById(UUID id) {
-
         Optional<Task> result = Optional.absent();
 
         for (ScheduledTask t : taskList) {
@@ -436,7 +527,7 @@ public class SyncScheduler implements Scheduler {
     /**
      * <p>Determine the list of Tasks that the TaskScheduler is aware of.</p>
      *
-     * @return Collection<Task> of all known Tasks in the TaskScheduler
+     * @return Collection of all known Tasks in the TaskScheduler
      */
     @Override
     public Collection<Task> getScheduledTasks() {
@@ -458,7 +549,7 @@ public class SyncScheduler implements Scheduler {
      * or null) then return a null reference.  Else, return a Collection of Tasks
      * that are owned by the Plugin.</p>
      * @param plugin The plugin that may own the Tasks in the TaskScheduler
-     * @return Collection<Task> of Tasks owned by the PluginContainer plugin.
+     * @return Collection of Tasks owned by the PluginContainer plugin.
      */
     @Override
     public Collection<Task> getScheduledTasks(Object plugin) {
@@ -498,6 +589,21 @@ public class SyncScheduler implements Scheduler {
 
         return subsetCollection;
     }
+
+    /**
+     * The taskValidationStep is an internal method to validate the requested task.
+     *
+     * <p>The taskValidationStep looks at the requested Task, the parameters passed, and
+     * then if everything is OK, will proceed with creating a non-timestamped task.  The task
+     * isn't added to the List of tasks yet.  After the validation step, the Task merely exists
+     * loose unattached to any list.  Only the specific method to run a task will bind the task
+     * to the list and give it a timestamp.</p>
+     * @param plugin The plugin that may own the Tasks in the TaskScheduler
+     * @param task  The Runnable task authored by the developer using this Scheduler
+     * @param offset The time (in milliseconds) from when the Task is scheduled until it first runs, if any
+     * @param period The time between repeated scheduled invocations of the task, if any
+     * @return ScheduledTask  The ScheduledTask is the internal implementation of the Task managed by this Scheduler
+     */
 
     private ScheduledTask taskValidationStep(Object plugin, Runnable task, long offset, long period) {
 
@@ -550,7 +656,9 @@ public class SyncScheduler implements Scheduler {
         //    in milliseconds between firing the event.   The "Period" argument to making a new
         //    ScheduledTask is a Period interface intentionally so that
 
+        // 10000000 nanoseconds per millisecond
         return new ScheduledTask(offset, period)
+                .setTimestamp(System.currentTimeMillis())
                 .setPluginContainer(plugincontainer)
                 .setRunnableBody(task)
                 .setState(ScheduledTask.ScheduledTaskState.WAITING);
