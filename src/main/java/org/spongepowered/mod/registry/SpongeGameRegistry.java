@@ -26,12 +26,18 @@
 package org.spongepowered.mod.registry;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -63,6 +69,7 @@ import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.common.registry.GameData;
 
+import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
@@ -100,6 +107,7 @@ import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
+import org.spongepowered.api.status.Favicon;
 import org.spongepowered.api.text.action.SpongeTextActionFactory;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.chat.ChatType;
@@ -211,7 +219,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     public Optional<PotionEffectType> getPotion(String id) {
-        return Optional.fromNullable((PotionEffectType)Potion.getPotionFromResourceLocation(id));
+        return Optional.fromNullable((PotionEffectType) Potion.getPotionFromResourceLocation(id));
     }
 
     @Override
@@ -448,6 +456,36 @@ public class SpongeGameRegistry implements GameRegistry {
     @Override
     public List<DimensionType> getDimensionTypes() {
         return ImmutableList.copyOf(this.dimensionTypeMappings.values());
+    }
+
+    @Override
+    public GameProfile createGameProfile(UUID uuid, String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Favicon loadFavicon(String raw) throws IOException {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Favicon loadFavicon(File file) throws IOException {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Favicon loadFavicon(URL url) throws IOException {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Favicon loadFavicon(InputStream in) throws IOException {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Favicon loadFavicon(BufferedImage image) throws IOException {
+        throw new UnsupportedOperationException(); // TODO
     }
 
     public void registerEnvironment(DimensionType env) {

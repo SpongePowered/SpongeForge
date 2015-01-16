@@ -177,7 +177,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     }
 
     @Override
-    public Message.Text getMOTD() {
+    public Message.Text getMotd() {
         throw new UnsupportedOperationException();
     }
 

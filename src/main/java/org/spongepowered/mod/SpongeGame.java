@@ -28,6 +28,7 @@ import com.google.common.base.Optional;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.GameVersion;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.plugin.PluginManager;
@@ -90,6 +91,11 @@ public final class SpongeGame implements Game {
     @Override
     public String getImplementationVersion() {
         return implementationVersion != null ? implementationVersion : "UNKNOWN";
+    }
+
+    @Override
+    public GameVersion getVersion() {
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
