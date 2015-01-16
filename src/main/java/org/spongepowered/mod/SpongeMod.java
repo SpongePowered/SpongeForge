@@ -128,7 +128,7 @@ public class SpongeMod extends DummyModContainer {
         MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 
         // Add the SyncScheduler as a listener for ServerTickEvents
-        FMLCommonHandler.instance().bus().register(this.getGame().getScheduler());
+        FMLCommonHandler.instance().bus().register(this.getGame().getSyncScheduler());
     }
 
     @Subscribe
