@@ -69,12 +69,12 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
         }
     }
 
-    @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "java.lang.Math.sqrt(D):Z", ordinal = 0))
+    @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "java.lang.Math.sqrt(D)D", ordinal = 0))
     public void beforeModifyMotion(CallbackInfo ci) {
         this.initialDisplacement = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
     }
 
-    @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "java.lang.Math.sqrt(D):Z", ordinal = 1))
+    @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "java.lang.Math.sqrt(D)D", ordinal = 1))
     public void beforeLimitSpeed(CallbackInfo ci) {
         this.tempMotionX = this.motionX;
         this.tempMotionZ = this.motionZ;
