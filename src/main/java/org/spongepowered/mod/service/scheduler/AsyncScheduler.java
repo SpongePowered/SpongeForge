@@ -56,12 +56,7 @@ import java.util.*;
  * when those plugins access game data as a result of a Asynchronous {@Link Task} running.  Several resources can
  * help the plugin author:  The Java Concurrency book by Lea and Effective Java by Bloch for information handling
  * concurrency issues in their plugins.</p>
- *
- * <p>Wall-clock time is determined with the System.currentTimeMillis() method from Java.  This method is used because
- * the result is not affected by changes to the date/time on the host system.  System.currentTimeMillis() will give
- * unpredictable results if the host date/time is changed, thus wall-clock time for this Scheduler is based on
- * currentTimeMillis(). </p>
- *
+ * *
  * <p>Tasks can be created using the API in the {@Link AsynchronousScheduler} interface. The access to this Scheduler
  * through the {@Link Game} interface method    AsynchronousScheduler getAsyncScheduler();  Plugin authors never
  * cause the creation of a scheduler, the scheduler (Asynchronous and {@Link SyncScheduler} are each Singletons.</p>
@@ -167,7 +162,6 @@ public class AsyncScheduler implements AsynchronousScheduler {
             } catch (InterruptedException e) {
                 // The taskList has been modified; there is work to do.
             } catch (IllegalMonitorStateException e) {
-                System.out.println("What is the cause? " + e.toString());
             }
 
 
