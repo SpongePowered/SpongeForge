@@ -31,6 +31,8 @@ import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>Asynchronous Scheduler</p>
@@ -63,29 +65,18 @@ import java.util.*;
  *
  *
  */
-
-
 public class AsyncScheduler implements AsynchronousScheduler {
 
-    /**
-     * <p>
-     * The intent is the implementation of this Asynchronous Task Scheduler is
-     * a single instance in the context of the Sponge.</p>
-     *
-     * <p>
-     * There isn't a strong motivation to have multiple instances of this Asynchronous "Scheduler".</p>
-     */
-
-    private static volatile AsynchronousScheduler instance = null;
+    // Singleton reference for this Scheduler.
+    private static final AtomicReference<AsynchronousScheduler> instance = new AtomicReference<AsynchronousScheduler>();
+    // Simple Moore State machine state. (http://en.wikipedia.org/wiki/Moore_machine)
     private MachineState sm;
-
-    // The simple private list of all pending (and running) ScheduledTasks
-    private final List<ScheduledTask> taskList = new ArrayList<ScheduledTask>();
+    // The simple private queue of all pending (and running) ScheduledTasks
+    private final Queue<ScheduledTask> taskList = new ConcurrentLinkedQueue<ScheduledTask>();
+    // Adjustable timeout for pending Tasks
     private long minimumTimeout = Long.MAX_VALUE;
 
-
     private AsyncScheduler() {
-        sm = MachineState.PRE_INIT;
         new Thread(new Runnable() {
             public void run() {
                 SMachine();
@@ -105,7 +96,9 @@ public class AsyncScheduler implements AsynchronousScheduler {
         NOT_RUNNING,
     }
 
+    // The Moore State Machine for this Scheduler
     private void SMachine() {
+        sm = MachineState.PRE_INIT;
         while ( sm != MachineState.NOT_RUNNING ) {
             switch ( sm ) {
                 case PRE_INIT: {
@@ -118,7 +111,6 @@ public class AsyncScheduler implements AsynchronousScheduler {
                     sm = MachineState.RUN;
                     break;
                 }
-
                 case RUN: {
                     // We're in the RUN state -- process all the tasks, forever.
                     ProcessTasks();
@@ -129,46 +121,36 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     /**
-     * <p>Returns the instance (handle) to the TaskScheduler.</p>
+     * <p>Returns the instance (handle) to the Asynchronous TaskScheduler.</p>
      *
      * <p>
      * A static reference to the TaskScheduler singleton is returned by
-     * the function getInstance().  The implementation of getInstance follows the
-     * typical practice of double locking on the instance variable. The instance variable
-     * is type modified volatile as part of the Pattern of this kind of Singleton implementation.</p>
+     * the function getInstance().  The implementation of getInstance follows the usage
+     * of the AtomicReference idiom.</p>
      *
-     * @return interface to the Asynchronous Scheduler
+     * @return The single interface to the Asynchronous Scheduler
      */
     public static AsynchronousScheduler getInstance() {
-        if (instance == null) {
-            synchronized (AsyncScheduler.class) {
-                if (instance == null) {
-                    instance =  (AsynchronousScheduler) new AsyncScheduler();
-                }
-            }
+        AsynchronousScheduler inst = instance.get();
+        if (inst == null) {
+            instance.set(inst = new AsyncScheduler());
         }
-        return instance;
+        return inst;
     }
 
-
-
     private void ProcessTasks() {
-
         synchronized (this.taskList) {
-
             try {
-                long qtrDutyCycle = minimumTimeout / 4;
-                taskList.wait(qtrDutyCycle);
+                taskList.wait(minimumTimeout);
             } catch (InterruptedException e) {
                 // The taskList has been modified; there is work to do.
+                // Continue on without handling the Exception.
             } catch (IllegalMonitorStateException e) {
+                SpongeMod.instance.getLogger().error(SchedulerLogMessages.CATASTROPHIC_ERROR_IN_SCHEDULER_SEEK_HELP);
             }
-
-
 
             // We've locked down the taskList but the lock is short lived if the size of the
             // size of the list is zero.
-
             //
             // For each task, inspect the state.
             //
@@ -180,11 +162,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
             // Else if the task is already RUNNING, use the period (the time delay until
             // the next moment to run the task).
             //
-
             for (ScheduledTask task : this.taskList) {
-
                 // If the task is now slated to be canceled, we just remove it as if it no longer exists.
-
                 if (task.state == ScheduledTask.ScheduledTaskState.CANCELED) {
                     this.taskList.remove(task);
                     continue;
@@ -211,22 +190,27 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 // after we start it.
 
                 if (threshold < (now - task.timestamp)) {
+                    // startTask is just a utility function within the Scheduler that
+                    // starts the task.
+                    // If the task is not a one time shot then keep it and
+                    // change the timestamp to now.  It is a little more
+                    // efficient to do this now than after starting the task.
                     task.timestamp = System.currentTimeMillis();
-
-                    // startTask is a utility function within this Scheduler that starts the task.
                     boolean bTaskStarted = startTask(task);
                     if (bTaskStarted) {
                         task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
                         // If task is one time shot, remove it from the list.
                         if (task.period == 0L) {
                             this.taskList.remove(task);
-                        } else {
+                        }
+                        // It is not a one-time shot.  The task will repeat.
+                        // We need to recalibrate the wait() timeout
+                        else {
                             // Tasks may have dropped off the list.
                             // Whatever Tasks remain, recalibrate:
                             //
                             // Recalibrate the wait delay for processing tasks before new tasks
                             // cause the scheduler to process pending tasks.
-
                             minimumTimeout = Long.MAX_VALUE;
                             if (task.offset == 0 && task.period == 0) {
                                 minimumTimeout = 0;
@@ -249,14 +233,26 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 }
             }
             // If no tasks remain, recalibrate to max timeout
-            if ( taskList.size() == 0) {
+            if ( taskList.isEmpty() ) {
                 minimumTimeout = Long.MAX_VALUE;
             }
         }
-
     }
 
+    private Optional<Task> utilityForAddingTask(ScheduledTask task) {
+        Optional<Task> result = Optional.absent();
 
+        if ( task != null ) {
+            task.setTimestamp(System.currentTimeMillis());
+            this.taskList.add(task);
+            synchronized (this.taskList) {
+                // Regardless of the minimumTimeout, the notifyAll will unlock the processing of the Task
+                taskList.notifyAll();
+            }
+            result = Optional.of((Task) task);
+        }
+        return result;
+    }
 
     /**
      * <p>Runs a Task once immediately.</p>
@@ -292,19 +288,13 @@ public class AsyncScheduler implements AsynchronousScheduler {
         final long NODELAY = 0L;
         final long NOPERIOD = 0L;
 
-        ScheduledTask nonRepeatingtask = taskValidationStep(plugin, task, NODELAY, NOPERIOD);
+        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, task, NODELAY, NOPERIOD);
 
-        if (nonRepeatingtask == null) {
+        if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         }
         else {
-            synchronized(this.taskList) {
-                this.taskList.add(nonRepeatingtask);
-
-                // Regardless of the minimumTimeout, the notify will unlock the processing of the Task
-                taskList.notify();
-            }
-            result = Optional.of  ( (Task) nonRepeatingtask );
+            result = utilityForAddingTask(nonRepeatingTask);
         }
 
         return result;
@@ -350,15 +340,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         }
         else {
-
-            synchronized(this.taskList) {
-                nonRepeatingTask.setTimestamp(System.currentTimeMillis());
-                this.taskList.add(nonRepeatingTask);
-
-                // Regardless of the minimumTimeout, the notify will unlock the processing of the Task
-                taskList.notify();
-            }
-            result = Optional.of  ( (Task) nonRepeatingTask );
+            result = utilityForAddingTask(nonRepeatingTask);
         }
 
         return result;
@@ -412,14 +394,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            synchronized(this.taskList) {
-                repeatingTask.setTimestamp(System.currentTimeMillis());
-                this.taskList.add(repeatingTask);
-
-                // Regardless of the minimumTimeout, the notify will unlock the processing of the Task
-                taskList.notify();
-            }
-            result = Optional.of  ( (Task) repeatingTask );
+            result = utilityForAddingTask(repeatingTask);
         }
 
         return result;
@@ -474,14 +449,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            synchronized(this.taskList) {
-                repeatingTask.setTimestamp(System.currentTimeMillis());
-                this.taskList.add(repeatingTask);
-
-                // Regardless of the minimumTimeout, the notify will unlock the processing of the Task
-                taskList.notify();
-            }
-            result = Optional.of  ( (Task) repeatingTask );
+            result = utilityForAddingTask(repeatingTask);
         }
 
         return result;
@@ -527,11 +495,9 @@ public class AsyncScheduler implements AsynchronousScheduler {
     public Collection<Task> getScheduledTasks() {
 
         Collection<Task> taskCollection;
-
         synchronized(this.taskList) {
             taskCollection = new ArrayList<Task>(this.taskList);
         }
-
         return taskCollection;
     }
 
@@ -598,7 +564,6 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * @param period The time between repeated scheduled invocations of the task, if any
      * @return ScheduledTask  The ScheduledTask is the internal implementation of the Task managed by this Scheduler
      */
-
     private ScheduledTask taskValidationStep(Object plugin, Runnable task, long offset, long period) {
 
         // No owner
@@ -618,12 +583,12 @@ public class AsyncScheduler implements AsynchronousScheduler {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.NULL_RUNNABLE_ARGUMENT_WARNING);
             return null;
         }
+
         // task is not derived from a Runnable class.
         else if (!Runnable.class.isAssignableFrom(task.getClass())) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.NULL_RUNNABLE_ARGUMENT_INVALID_WARNING);
             return null;
         }
-
 
         if ( offset < 0L ) {
             SpongeMod.instance.getLogger().error(SchedulerLogMessages.DELAY_NEGATIVE_ERROR);
@@ -641,7 +606,6 @@ public class AsyncScheduler implements AsynchronousScheduler {
         // The caller provided a valid PluginContainer owner and a valid Runnable task.
         // Convert the arguments and store the Task for execution the next time the task
         // list is checked. (this task is firing immediately)
-
         // A task has at least three things to keep track:
         //   The container that owns the task (pcont)
         //   The Thread Body (Runnable) of the Task (task)
@@ -650,7 +614,6 @@ public class AsyncScheduler implements AsynchronousScheduler {
         //    in milliseconds between firing the event.   The "Period" argument to making a new
         //    ScheduledTask is a Period interface intentionally so that
 
-        // 10000000 nanoseconds per millisecond
         return new ScheduledTask(offset, period)
                 .setTimestamp(System.currentTimeMillis())
                 .setPluginContainer(plugincontainer)
@@ -660,11 +623,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
     private  boolean startTask(ScheduledTask task) {
         boolean bRes = true;
-
         if (task != null) {
-
             Runnable taskRunnableBody = task.runnableBody;
-
             try {
                 taskRunnableBody.run();
             } catch (Exception ex) {
@@ -673,12 +633,10 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 bRes = false;
 
             }
-
         } else {
             SpongeMod.instance.getLogger().error(SchedulerLogMessages.USER_TASK_TO_RUN_WAS_NULL_WARNING);
             bRes = false;
         }
-
         return bRes;
     }
 }

@@ -33,23 +33,16 @@ import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SyncScheduler implements Scheduler {
+    private static final AtomicReference<Scheduler> instance = new AtomicReference<Scheduler>();
 
-    /**
-     * <p>
-     * The intent is the implementation of the Task Scheduler is 
-     * a single instance in the context of the Sponge.</p>
-     *
-     * <p>
-     * There isn't a strong motivation to have multiple instances of the "Scheduler".</p>
-     */
-
-    private static volatile Scheduler instance = null;
-
-    // The simple private list of all pending (and running) ScheduledTasks
-    private final List<ScheduledTask> taskList;
-
+    // The simple private queue of all pending (and running) ScheduledTasks
+    private final Queue<ScheduledTask> taskList = new ConcurrentLinkedQueue<ScheduledTask>();
+    // The internal counter of the number of Ticks elapsed since this Scheduler was listening for
+    // ServerTickEvent from Forge.
     private volatile long counter = 0L;
 
     /**
@@ -66,29 +59,24 @@ public class SyncScheduler implements Scheduler {
      *
      */
     private SyncScheduler() {
-        this.taskList = new ArrayList<ScheduledTask>();
     }
 
     /**
-     * <p>Returns the instance (handle) to the TaskScheduler.</p>
+     * <p>Returns the instance (handle) to the Synchronous TaskScheduler.</p>
      *
      * <p>
-     * A static reference to the TaskScheduler singleton is returned by
-     * the function getInstance().  The implementation of getInstance follows the
-     * typical practice of double locking on the instance variable. The instance variable
-     * is type modified volatile as part of the Pattern of this kind of Singleton implementation.</p>
+     * A static reference to the Synchronous Scheduler singleton is returned by
+     * the function getInstance().  The implementation of getInstance follows the usage
+     * of the AtomicReference idiom.</p>
      *
-     * @return interface to the Scheduler
+     * @return The single interface to the Synchronous Scheduler
      */
     public static Scheduler getInstance() {
-        if (instance == null) {
-            synchronized (SyncScheduler.class) {
-                if (instance == null) {
-                    instance = new SyncScheduler();
-                }
-            }
+        Scheduler inst = instance.get();
+        if (inst == null) {
+            instance.set(inst = new SyncScheduler());
         }
-        return instance;
+        return inst;
     }
 
     /**
@@ -118,10 +106,8 @@ public class SyncScheduler implements Scheduler {
     private void ProcessTasks() {
 
         synchronized (this.taskList) {
-
             // We've locked down the taskList but the lock is short lived if the size of the
             // size of the list is zero.
-
             //
             // For each task, inspect the state.
             //
@@ -133,11 +119,8 @@ public class SyncScheduler implements Scheduler {
             // Else if the task is already RUNNING, use the period (the time delay until
             // the next moment to run the task).
             //
-
             for (ScheduledTask task : this.taskList) {
-
                 // If the task is now slated to be canceled, we just remove it as if it no longer exists.
-
                 if (task.state == ScheduledTask.ScheduledTaskState.CANCELED) {
                     this.taskList.remove(task);
                     continue;
@@ -158,33 +141,42 @@ public class SyncScheduler implements Scheduler {
 
                 // So, if the current time minus the timestamp of the task is greater than
                 // the delay to wait before starting the task, then start the task.
-
                 // Repeating tasks get a reset-timestamp each time they are set RUNNING
                 // If the task has a period of 0 (zero) this task will not repeat, and is removed
                 // after we start it.
-
                 if (threshold < (now - task.timestamp)) {
-
                     // startTask is just a utility function within the Scheduler that
                     // starts the task.
-
+                    // If the task is not a one time shot then keep it and
+                    // change the timestamp to now.  It is a little more
+                    // efficient to do this now than after starting the task.
+                    task.timestamp = this.counter;
                     boolean bTaskStarted = startTask(task);
                     if (bTaskStarted) {
-
                         task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
-
                         // If task is one time shot, remove it from the list.
                         if (task.period == 0L) {
                             this.taskList.remove(task);
-                        } else {
-                            // If the task is not a one time shot then keep it and
-                            // change the timestamp to now.
-                            task.timestamp = this.counter;
                         }
                     }
                 }
             }
         }
+    }
+
+    private Optional<Task> utilityForAddingTask(ScheduledTask task) {
+        Optional<Task> result = Optional.absent();
+
+        if ( task != null ) {
+            task.setTimestamp(System.currentTimeMillis());
+            this.taskList.add(task);
+            synchronized (this.taskList) {
+                // Regardless of the minimumTimeout, the notifyAll will unlock the processing of the Task
+                taskList.notifyAll();
+            }
+            result = Optional.of((Task) task);
+        }
+        return result;
     }
 
     /**
@@ -221,16 +213,13 @@ public class SyncScheduler implements Scheduler {
         final long NODELAY = 0L;
         final long NOPERIOD = 0L;
 
-        ScheduledTask nonRepeatingtask = taskValidationStep(plugin, task, NODELAY, NOPERIOD);
+        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, task, NODELAY, NOPERIOD);
 
-        if (nonRepeatingtask == null) {
+        if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         }
         else {
-            synchronized(this.taskList) {
-                this.taskList.add(nonRepeatingtask);
-            }
-            result = Optional.of  ( (Task) nonRepeatingtask );
+            result = utilityForAddingTask(nonRepeatingTask);
         }
 
         return result;
@@ -274,12 +263,7 @@ public class SyncScheduler implements Scheduler {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         }
         else {
-
-            synchronized(this.taskList) {
-                nonRepeatingTask.setTimestamp(this.counter);
-                this.taskList.add(nonRepeatingTask);
-            }
-            result = Optional.of  ( (Task) nonRepeatingTask );
+            result = utilityForAddingTask(nonRepeatingTask);
         }
 
         return result;
@@ -332,11 +316,7 @@ public class SyncScheduler implements Scheduler {
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            synchronized(this.taskList) {
-                repeatingTask.setTimestamp(this.counter);
-                this.taskList.add(repeatingTask);
-            }
-            result = Optional.of  ( (Task) repeatingTask );
+            result = utilityForAddingTask(repeatingTask);
         }
 
         return result;
@@ -391,11 +371,7 @@ public class SyncScheduler implements Scheduler {
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            synchronized(this.taskList) {
-                repeatingTask.setTimestamp(this.counter);
-                this.taskList.add(repeatingTask);
-            }
-            result = Optional.of  ( (Task) repeatingTask );
+            result = utilityForAddingTask(repeatingTask);
         }
 
         return result;
@@ -422,9 +398,7 @@ public class SyncScheduler implements Scheduler {
      */
     @Override
     public Optional<Task> getTaskById(UUID id) {
-
         Optional<Task> result = Optional.absent();
-
         for (ScheduledTask t : taskList) {
             if ( id.equals ( t.id) ) {
                 return Optional.of ( (Task) t);
@@ -440,13 +414,10 @@ public class SyncScheduler implements Scheduler {
      */
     @Override
     public Collection<Task> getScheduledTasks() {
-
         Collection<Task> taskCollection;
-
         synchronized(this.taskList) {
             taskCollection = new ArrayList<Task>(this.taskList);
         }
-
         return taskCollection;
     }
 
@@ -464,15 +435,12 @@ public class SyncScheduler implements Scheduler {
     public Collection<Task> getScheduledTasks(Object plugin) {
 
         // The argument is an Object so we have due diligence to perform...
-
         // Owner is not a PluginContainer derived class
         if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
-
             // The plugin owner was not valid, so the "Collection" is empty.
             //(TODO) Perhaps we move this into using Optional<T> to make it explicit that
             // Eg., the resulting Collection is NOT present vs. empty.
-
             return null;
         }
 
@@ -524,7 +492,6 @@ public class SyncScheduler implements Scheduler {
             return null;
         }
 
-
         if ( offset < 0L ) {
             SpongeMod.instance.getLogger().error(SchedulerLogMessages.DELAY_NEGATIVE_ERROR);
             return null;
@@ -541,7 +508,6 @@ public class SyncScheduler implements Scheduler {
         // The caller provided a valid PluginContainer owner and a valid Runnable task.
         // Convert the arguments and store the Task for execution the next time the task
         // list is checked. (this task is firing immediately)
-
         // A task has at least three things to keep track:
         //   The container that owns the task (pcont)
         //   The Thread Body (Runnable) of the Task (task)
@@ -549,7 +515,6 @@ public class SyncScheduler implements Scheduler {
         //    implies a One Time Shot (See Task interface).  Non zero Period means just that -- the time
         //    in milliseconds between firing the event.   The "Period" argument to making a new
         //    ScheduledTask is a Period interface intentionally so that
-
         return new ScheduledTask(offset, period)
                 .setPluginContainer(plugincontainer)
                 .setRunnableBody(task)
@@ -558,11 +523,8 @@ public class SyncScheduler implements Scheduler {
 
     private  boolean startTask(ScheduledTask task) {
         boolean bRes = true;
-
         if (task != null) {
-
             Runnable taskRunnableBody = task.runnableBody;
-
             try {
                 taskRunnableBody.run();
             } catch (Exception ex) {
@@ -571,7 +533,6 @@ public class SyncScheduler implements Scheduler {
                 bRes = false;
 
             }
-
         } else {
             SpongeMod.instance.getLogger().error(SchedulerLogMessages.USER_TASK_TO_RUN_WAS_NULL_WARNING);
             bRes = false;
