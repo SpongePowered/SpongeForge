@@ -76,6 +76,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
     // Adjustable timeout for pending Tasks
     private long minimumTimeout = Long.MAX_VALUE;
 
+    private volatile long lastTimeProcessed;
+
     private AsyncScheduler() {
         new Thread(new Runnable() {
             public void run() {
@@ -108,12 +110,18 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 }
                 case INIT: {
                     // TODO - Initialization ?
+                    lastTimeProcessed = System.currentTimeMillis();
                     sm = MachineState.RUN;
                     break;
                 }
                 case RUN: {
                     // We're in the RUN state -- process all the tasks, forever.
                     ProcessTasks();
+                    synchronized(taskList) {
+                        if ( !taskList.isEmpty()) {
+                            taskList.notifyAll();
+                        }
+                    }
                     break;
                 }
             }
@@ -138,8 +146,49 @@ public class AsyncScheduler implements AsynchronousScheduler {
         return inst;
     }
 
+
+    private void recalibrateMinimumTimeout() {
+
+        for (ScheduledTask task : this.taskList) {
+            // Tasks may have dropped off the list.
+            // Whatever Tasks remain, recalibrate:
+            //
+            // Recalibrate the wait delay for processing tasks before new tasks
+            // cause the scheduler to process pending tasks.
+            minimumTimeout = Long.MAX_VALUE;
+            if (task.offset == 0 && task.period == 0) {
+                minimumTimeout = 0;
+            }
+            // task with non-zero offset, zero period
+            else if (task.offset > 0 && task.period == 0) {
+                minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
+            }
+            // task with zero offset, non-zero period
+            else if (task.offset == 0 && task.period > 0) {
+                minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
+            }
+            // task with non-zero offset, non-zero period
+            else if (task.offset > 0 && task.period > 0) {
+                minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
+                minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
+            }
+        }
+
+        // If no tasks remain, recalibrate to max timeout
+        if ( taskList.isEmpty() ) {
+            minimumTimeout = Long.MAX_VALUE;
+        }
+        else {
+            minimumTimeout = minimumTimeout - (System.currentTimeMillis() - lastTimeProcessed);
+        }
+
+    }
+
     private void ProcessTasks() {
+
         synchronized (this.taskList) {
+            recalibrateMinimumTimeout();
+
             try {
                 taskList.wait(minimumTimeout);
             } catch (InterruptedException e) {
@@ -203,40 +252,13 @@ public class AsyncScheduler implements AsynchronousScheduler {
                         if (task.period == 0L) {
                             this.taskList.remove(task);
                         }
-                        // It is not a one-time shot.  The task will repeat.
-                        // We need to recalibrate the wait() timeout
-                        else {
-                            // Tasks may have dropped off the list.
-                            // Whatever Tasks remain, recalibrate:
-                            //
-                            // Recalibrate the wait delay for processing tasks before new tasks
-                            // cause the scheduler to process pending tasks.
-                            minimumTimeout = Long.MAX_VALUE;
-                            if (task.offset == 0 && task.period == 0) {
-                                minimumTimeout = 0;
-                            }
-                            // task with non-zero offset, zero period
-                            else if (task.offset > 0 && task.period == 0) {
-                                minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
-                            }
-                            // task with zero offset, non-zero period
-                            else if (task.offset == 0 && task.period > 0) {
-                                minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
-                            }
-                            // task with non-zero offset, non-zero period
-                            else if (task.offset > 0 && task.period > 0) {
-                                minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
-                                minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
-                            }
-                        }
                     }
                 }
             }
-            // If no tasks remain, recalibrate to max timeout
-            if ( taskList.isEmpty() ) {
-                minimumTimeout = Long.MAX_VALUE;
-            }
+            lastTimeProcessed = System.currentTimeMillis();
         }
+
+
     }
 
     private Optional<Task> utilityForAddingTask(ScheduledTask task) {
