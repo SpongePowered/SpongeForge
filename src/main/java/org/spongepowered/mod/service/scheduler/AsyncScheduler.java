@@ -204,8 +204,6 @@ public class AsyncScheduler implements AsynchronousScheduler {
             } catch (IllegalMonitorStateException e) {
                 SpongeMod.instance.getLogger().error(SchedulerLogMessages.CATASTROPHIC_ERROR_IN_SCHEDULER_SEEK_HELP);
                 SpongeMod.instance.getLogger().error(e.toString());
-                lock.unlock();
-                return;
             }
 
             // We've locked down the taskList but the lock is short lived if the size of the
