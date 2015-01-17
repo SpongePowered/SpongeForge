@@ -32,7 +32,11 @@ import org.spongepowered.mod.SpongeMod;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>Asynchronous Scheduler</p>
@@ -75,6 +79,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
     private final Queue<ScheduledTask> taskList = new ConcurrentLinkedQueue<ScheduledTask>();
     // Adjustable timeout for pending Tasks
     private long minimumTimeout = Long.MAX_VALUE;
+    private final Lock lock = new ReentrantLock();
+    private final Condition lockUse = lock.newCondition();
 
     private volatile long lastTimeProcessed;
 
@@ -117,11 +123,6 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 case RUN: {
                     // We're in the RUN state -- process all the tasks, forever.
                     ProcessTasks();
-                    synchronized(taskList) {
-                        if ( !taskList.isEmpty()) {
-                            taskList.notifyAll();
-                        }
-                    }
                     break;
                 }
             }
@@ -178,19 +179,16 @@ public class AsyncScheduler implements AsynchronousScheduler {
         if ( taskList.isEmpty() ) {
             minimumTimeout = Long.MAX_VALUE;
         }
-        else {
-            minimumTimeout = minimumTimeout - (System.currentTimeMillis() - lastTimeProcessed);
-        }
-
     }
 
     private void ProcessTasks() {
-
-        synchronized (this.taskList) {
+        lock.lock();
+        try {
             recalibrateMinimumTimeout();
 
             try {
-                taskList.wait(minimumTimeout);
+                lockUse.await(minimumTimeout, TimeUnit.MILLISECONDS);
+
             } catch (InterruptedException e) {
                 // The taskList has been modified; there is work to do.
                 // Continue on without handling the Exception.
@@ -256,9 +254,9 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 }
             }
             lastTimeProcessed = System.currentTimeMillis();
+        } finally {
+            lock.unlock();
         }
-
-
     }
 
     private Optional<Task> utilityForAddingTask(ScheduledTask task) {
@@ -266,10 +264,13 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
         if ( task != null ) {
             task.setTimestamp(System.currentTimeMillis());
-            this.taskList.add(task);
-            synchronized (this.taskList) {
+            lock.lock();
+            try {
+                this.taskList.add(task);
                 // Regardless of the minimumTimeout, the notifyAll will unlock the processing of the Task
-                taskList.notifyAll();
+                lockUse.signalAll();
+            } finally {
+                lock.unlock();
             }
             result = Optional.of((Task) task);
         }
