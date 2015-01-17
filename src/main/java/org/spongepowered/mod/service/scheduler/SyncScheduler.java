@@ -35,6 +35,9 @@ import org.spongepowered.mod.SpongeMod;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SyncScheduler implements Scheduler {
     private static final AtomicReference<Scheduler> instance = new AtomicReference<Scheduler>();
@@ -51,19 +54,18 @@ public class SyncScheduler implements Scheduler {
      * happen once.  We simply initialize the first state in the SyncScheduler state
      * machine and let the state machine execute.  Only calls to the SyncScheduler
      * through the control interface (TBD) may control the behavior of the state machine itself.</p>
-     *
+     * <p/>
      * <p>
      * The constructor of the Scheduler is private.  So to get the scheduler, user code calls game.getScheduler()
      * or directly by SyncScheduler.getInstance().  In time access to the scheduler should be migrated into
      * the Services Manager.</p>
-     *
      */
     private SyncScheduler() {
     }
 
     /**
      * <p>Returns the instance (handle) to the Synchronous TaskScheduler.</p>
-     *
+     * <p/>
      * <p>
      * A static reference to the Synchronous Scheduler singleton is returned by
      * the function getInstance().  The implementation of getInstance follows the usage
@@ -81,11 +83,11 @@ public class SyncScheduler implements Scheduler {
 
     /**
      * <p>The hook to update the Ticks known by the SyncScheduler.</p>
-     *
+     * <p/>
      * <p>
      * When a TickEvent occurs, the event handler onTick will accumulate a new value for
      * the counter.  The Phase of the TickEvent used is the TickEvent.ServerTickEvent Phase.START.</p>
-     *
+     * <p/>
      * <p>
      * The counter is equivalent to a clock in that each new value represents a new
      * tick event.  Use of delay (Task.offset), interval (Task.period), timestamp (Task.timestamp) all
@@ -97,67 +99,62 @@ public class SyncScheduler implements Scheduler {
      */
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
-       if (event.phase == TickEvent.Phase.START) {
+        if (event.phase == TickEvent.Phase.START) {
             this.counter++;
             ProcessTasks();
-       }
+        }
     }
 
     private void ProcessTasks() {
+        //
+        // For each task, inspect the state.
+        //
+        // For the state of CANCELED, remove it and look at the next task, if any.
+        //
+        // For the state of WAITING, the task has not begun, so check the
+        // offset time before starting that task for the first time.
+        //
+        // Else if the task is already RUNNING, use the period (the time delay until
+        // the next moment to run the task).
+        //
+        for (ScheduledTask task : this.taskList) {
+            // If the task is now slated to be canceled, we just remove it as if it no longer exists.
+            if (task.state == ScheduledTask.ScheduledTaskState.CANCELED) {
+                this.taskList.remove(task);
+                continue;
+            }
 
-        synchronized (this.taskList) {
-            // We've locked down the taskList but the lock is short lived if the size of the
-            // size of the list is zero.
-            //
-            // For each task, inspect the state.
-            //
-            // For the state of CANCELED, remove it and look at the next task, if any.
-            //
-            // For the state of WAITING, the task has not begun, so check the
-            // offset time before starting that task for the first time.
-            //
-            // Else if the task is already RUNNING, use the period (the time delay until
-            // the next moment to run the task).
-            //
-            for (ScheduledTask task : this.taskList) {
-                // If the task is now slated to be canceled, we just remove it as if it no longer exists.
-                if (task.state == ScheduledTask.ScheduledTaskState.CANCELED) {
-                    this.taskList.remove(task);
-                    continue;
-                }
+            long threshold = Long.MAX_VALUE;
 
-                long threshold = Long.MAX_VALUE;
+            // Figure out if we start a delayed Task after threshold ticks or,
+            // start it after the interval (period) of the repeating task parameter.
+            if (task.state == ScheduledTask.ScheduledTaskState.WAITING) {
+                threshold = task.offset;
+            } else if (task.state == ScheduledTask.ScheduledTaskState.RUNNING) {
+                threshold = task.period;
+            }
 
-                // Figure out if we start a delayed Task after threshold ticks or,
-                // start it after the interval (period) of the repeating task parameter.
-                if (task.state == ScheduledTask.ScheduledTaskState.WAITING) {
-                    threshold = task.offset;
-                } else if (task.state == ScheduledTask.ScheduledTaskState.RUNNING) {
-                    threshold = task.period;
-                }
+            // This moment is 'now'
+            long now = this.counter;
 
-                // This moment is 'now'
-                long now = this.counter;
-
-                // So, if the current time minus the timestamp of the task is greater than
-                // the delay to wait before starting the task, then start the task.
-                // Repeating tasks get a reset-timestamp each time they are set RUNNING
-                // If the task has a period of 0 (zero) this task will not repeat, and is removed
-                // after we start it.
-                if (threshold < (now - task.timestamp)) {
-                    // startTask is just a utility function within the Scheduler that
-                    // starts the task.
-                    // If the task is not a one time shot then keep it and
-                    // change the timestamp to now.  It is a little more
-                    // efficient to do this now than after starting the task.
-                    task.timestamp = this.counter;
-                    boolean bTaskStarted = startTask(task);
-                    if (bTaskStarted) {
-                        task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
-                        // If task is one time shot, remove it from the list.
-                        if (task.period == 0L) {
-                            this.taskList.remove(task);
-                        }
+            // So, if the current time minus the timestamp of the task is greater than
+            // the delay to wait before starting the task, then start the task.
+            // Repeating tasks get a reset-timestamp each time they are set RUNNING
+            // If the task has a period of 0 (zero) this task will not repeat, and is removed
+            // after we start it.
+            if (threshold <= (now - task.timestamp)) {
+                // startTask is just a utility function within the Scheduler that
+                // starts the task.
+                // If the task is not a one time shot then keep it and
+                // change the timestamp to now.  It is a little more
+                // efficient to do this now than after starting the task.
+                task.timestamp = this.counter;
+                boolean bTaskStarted = startTask(task);
+                if (bTaskStarted) {
+                    task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
+                    // If task is one time shot, remove it from the list.
+                    if (task.period == 0L) {
+                        this.taskList.remove(task);
                     }
                 }
             }
@@ -166,14 +163,9 @@ public class SyncScheduler implements Scheduler {
 
     private Optional<Task> utilityForAddingTask(ScheduledTask task) {
         Optional<Task> result = Optional.absent();
-
         if ( task != null ) {
-            task.setTimestamp(System.currentTimeMillis());
+            task.setTimestamp(counter);
             this.taskList.add(task);
-            synchronized (this.taskList) {
-                // Regardless of the minimumTimeout, the notifyAll will unlock the processing of the Task
-                taskList.notifyAll();
-            }
             result = Optional.of((Task) task);
         }
         return result;

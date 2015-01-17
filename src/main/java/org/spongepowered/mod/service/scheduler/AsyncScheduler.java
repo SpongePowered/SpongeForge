@@ -72,17 +72,18 @@ import java.util.concurrent.locks.ReentrantLock;
 public class AsyncScheduler implements AsynchronousScheduler {
 
     // Singleton reference for this Scheduler.
-    private static final AtomicReference<AsynchronousScheduler> instance = new AtomicReference<AsynchronousScheduler>();
+    private final static AtomicReference<AsynchronousScheduler> instance = new AtomicReference<AsynchronousScheduler>();
     // Simple Moore State machine state. (http://en.wikipedia.org/wiki/Moore_machine)
     private MachineState sm;
     // The simple private queue of all pending (and running) ScheduledTasks
     private final Queue<ScheduledTask> taskList = new ConcurrentLinkedQueue<ScheduledTask>();
     // Adjustable timeout for pending Tasks
     private long minimumTimeout = Long.MAX_VALUE;
+    private long lastProcessingTimestamp;
+    // Locking mechanism
     private final Lock lock = new ReentrantLock();
-    private final Condition lockUse = lock.newCondition();
+    private final Condition condition = lock.newCondition();
 
-    private volatile long lastTimeProcessed;
 
     private AsyncScheduler() {
         new Thread(new Runnable() {
@@ -106,6 +107,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
     // The Moore State Machine for this Scheduler
     private void SMachine() {
+
         sm = MachineState.PRE_INIT;
         while ( sm != MachineState.NOT_RUNNING ) {
             switch ( sm ) {
@@ -116,11 +118,12 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 }
                 case INIT: {
                     // TODO - Initialization ?
-                    lastTimeProcessed = System.currentTimeMillis();
+                    lastProcessingTimestamp = System.currentTimeMillis();
                     sm = MachineState.RUN;
                     break;
                 }
                 case RUN: {
+                    recalibrateMinimumTimeout();
                     // We're in the RUN state -- process all the tasks, forever.
                     ProcessTasks();
                     break;
@@ -149,51 +152,60 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
 
     private void recalibrateMinimumTimeout() {
+        lock.lock();
+        try {
+            for (ScheduledTask task : this.taskList) {
+                // Tasks may have dropped off the list.
+                // Whatever Tasks remain, recalibrate:
+                //
+                // Recalibrate the wait delay for processing tasks before new tasks
+                // cause the scheduler to process pending tasks.
+                minimumTimeout = Long.MAX_VALUE;
+                if (task.offset == 0 && task.period == 0) {
+                    minimumTimeout = 0;
+                }
+                // task with non-zero offset, zero period
+                else if (task.offset > 0 && task.period == 0) {
+                    minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
+                }
+                // task with zero offset, non-zero period
+                else if (task.offset == 0 && task.period > 0) {
+                    minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
+                }
+                // task with non-zero offset, non-zero period
+                else if (task.offset > 0 && task.period > 0) {
+                    minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
+                    minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
+                }
+            }
 
-        for (ScheduledTask task : this.taskList) {
-            // Tasks may have dropped off the list.
-            // Whatever Tasks remain, recalibrate:
-            //
-            // Recalibrate the wait delay for processing tasks before new tasks
-            // cause the scheduler to process pending tasks.
-            minimumTimeout = Long.MAX_VALUE;
-            if (task.offset == 0 && task.period == 0) {
-                minimumTimeout = 0;
+            // If no tasks remain, recalibrate to max timeout
+            if (taskList.isEmpty()) {
+                minimumTimeout = Long.MAX_VALUE;
             }
-            // task with non-zero offset, zero period
-            else if (task.offset > 0 && task.period == 0) {
-                minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
+            else {
+                long latency = System.currentTimeMillis() - lastProcessingTimestamp;
+                minimumTimeout -= (latency <= 0) ? 0 : latency;
+                minimumTimeout = (minimumTimeout < 0) ? 0 : minimumTimeout;
             }
-            // task with zero offset, non-zero period
-            else if (task.offset == 0 && task.period > 0) {
-                minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
-            }
-            // task with non-zero offset, non-zero period
-            else if (task.offset > 0 && task.period > 0) {
-                minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
-                minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
-            }
-        }
-
-        // If no tasks remain, recalibrate to max timeout
-        if ( taskList.isEmpty() ) {
-            minimumTimeout = Long.MAX_VALUE;
+        } finally {
+            lock.unlock();
         }
     }
 
     private void ProcessTasks() {
         lock.lock();
         try {
-            recalibrateMinimumTimeout();
-
             try {
-                lockUse.await(minimumTimeout, TimeUnit.MILLISECONDS);
-
+                condition.await(minimumTimeout, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 // The taskList has been modified; there is work to do.
                 // Continue on without handling the Exception.
             } catch (IllegalMonitorStateException e) {
                 SpongeMod.instance.getLogger().error(SchedulerLogMessages.CATASTROPHIC_ERROR_IN_SCHEDULER_SEEK_HELP);
+                SpongeMod.instance.getLogger().error(e.toString());
+                lock.unlock();
+                return;
             }
 
             // We've locked down the taskList but the lock is short lived if the size of the
@@ -236,7 +248,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 // If the task has a period of 0 (zero) this task will not repeat, and is removed
                 // after we start it.
 
-                if (threshold < (now - task.timestamp)) {
+                if  (threshold <= (now - task.timestamp)) {
                     // startTask is just a utility function within the Scheduler that
                     // starts the task.
                     // If the task is not a one time shot then keep it and
@@ -253,8 +265,9 @@ public class AsyncScheduler implements AsynchronousScheduler {
                     }
                 }
             }
-            lastTimeProcessed = System.currentTimeMillis();
+            lastProcessingTimestamp = System.currentTimeMillis();
         } finally {
+
             lock.unlock();
         }
     }
@@ -267,12 +280,12 @@ public class AsyncScheduler implements AsynchronousScheduler {
             lock.lock();
             try {
                 this.taskList.add(task);
-                // Regardless of the minimumTimeout, the notifyAll will unlock the processing of the Task
-                lockUse.signalAll();
-            } finally {
+                condition.signalAll();
+                result = Optional.of((Task) task);
+            }
+            finally {
                 lock.unlock();
             }
-            result = Optional.of((Task) task);
         }
         return result;
     }
