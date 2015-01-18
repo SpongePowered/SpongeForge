@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin;
+package org.spongepowered.mod.mixin.server;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -147,12 +147,12 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
 
     @Override
     public boolean hasWhitelist() {
-        return serverConfigManager.isWhiteListEnabled();
+        return this.serverConfigManager.isWhiteListEnabled();
     }
 
     @Override
     public void setHasWhitelist(boolean enabled) {
-        serverConfigManager.setWhiteListEnabled(enabled);
+        this.serverConfigManager.setWhiteListEnabled(enabled);
     }
 
     @Override

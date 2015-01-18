@@ -29,7 +29,6 @@ import java.util.Locale;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
-import com.mojang.authlib.GameProfile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -43,6 +42,7 @@ import net.minecraft.network.play.server.S45PacketTitle;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
+import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.chat.ChatType;
@@ -72,8 +72,12 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     @Shadow
     public NetHandlerPlayServer playerNetServerHandler;
 
-    public MixinEntityPlayerMP(World worldIn, GameProfile gameprofile) {
+    public MixinEntityPlayerMP(World worldIn, com.mojang.authlib.GameProfile gameprofile) {
         super(worldIn, gameprofile);
+    }
+
+    public GameProfile playermp$getProfile() {
+        return (GameProfile) getGameProfile();
     }
 
     public Message playermp$getDisplayName() {

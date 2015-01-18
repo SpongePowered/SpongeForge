@@ -151,6 +151,7 @@ import org.spongepowered.mod.item.SpongeItemStackBuilder;
 import org.spongepowered.mod.item.merchant.SpongeTradeOfferBuilder;
 import org.spongepowered.mod.potion.SpongePotionBuilder;
 import org.spongepowered.mod.rotation.SpongeRotation;
+import org.spongepowered.mod.status.SpongeFavicon;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 import org.spongepowered.mod.text.selector.SpongeSelectorType;
@@ -484,32 +485,32 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public GameProfile createGameProfile(UUID uuid, String name) {
-        throw new UnsupportedOperationException(); // TODO
+        return (GameProfile) new com.mojang.authlib.GameProfile(uuid, name);
     }
 
     @Override
     public Favicon loadFavicon(String raw) throws IOException {
-        throw new UnsupportedOperationException(); // TODO
+        return SpongeFavicon.load(raw);
     }
 
     @Override
     public Favicon loadFavicon(File file) throws IOException {
-        throw new UnsupportedOperationException(); // TODO
+        return SpongeFavicon.load(file);
     }
 
     @Override
     public Favicon loadFavicon(URL url) throws IOException {
-        throw new UnsupportedOperationException(); // TODO
+        return SpongeFavicon.load(url);
     }
 
     @Override
     public Favicon loadFavicon(InputStream in) throws IOException {
-        throw new UnsupportedOperationException(); // TODO
+        return SpongeFavicon.load(in);
     }
 
     @Override
     public Favicon loadFavicon(BufferedImage image) throws IOException {
-        throw new UnsupportedOperationException(); // TODO
+        return SpongeFavicon.load(image);
     }
 
     @Override

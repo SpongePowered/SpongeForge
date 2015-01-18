@@ -25,6 +25,8 @@
 package org.spongepowered.mod.mixin.entity;
 
 import java.util.ArrayDeque;
+import java.util.UUID;
+
 import javax.annotation.Nullable;
 
 import com.flowpowered.math.vector.Vector3f;
@@ -36,6 +38,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.api.world.Location;
@@ -54,6 +58,7 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
     private boolean teleporting;
     private net.minecraft.entity.Entity teleportVehicle;
 
+    @Shadow private UUID entityUniqueID;
     @Shadow public net.minecraft.world.World worldObj;
     @Shadow public double posX;
     @Shadow public double posY;
@@ -332,4 +337,23 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
         // TODO
     }
 
+    @Override
+    public <T> Optional<T> getData(Class<T> dataClass) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public EntityType getType() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public EntitySnapshot getSnapshot() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return this.entityUniqueID;
+    }
 }

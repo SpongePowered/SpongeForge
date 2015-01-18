@@ -122,4 +122,8 @@ public abstract class SpongeMessage<T> implements Message {
     public IChatComponent getHandle() {
         return this.handle;
     }
+
+    public static Message of(IChatComponent component) {
+        return null; // TODO
+    }
 }
