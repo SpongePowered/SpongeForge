@@ -22,6 +22,8 @@
     "entity.hanging.MixinEntityItemFrame",
     "entity.hanging.MixinEntityLeashKnot",
     "entity.hanging.art.MixinEnumArt",
+    "entity.projectile.MixinEntityThrowable",
+    "entity.projectile.MixinEntityEgg",
     "entity.living.MixinEntityAgeable",
     "entity.living.MixinEntityLiving",
     "entity.living.MixinEntityLivingBase",
