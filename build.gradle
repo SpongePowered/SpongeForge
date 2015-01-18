@@ -146,13 +146,14 @@ license {
 }
 
 checkstyle {
+    configFile = project('SpongeAPI').file('checkstyle.xml')
     configProperties = [
         "name" : project.name,
         "organization" : project.organization,
         "url" : project.url,
-        "year" : project.inceptionYear
+        "year" : project.inceptionYear,
+        "suppressions": project('SpongeAPI').file('checkstyle-suppressions.xml')
     ]
-    configFile = new File(project("SpongeAPI").getProjectDir(),"checkstyle.xml")
 }
 tasks.reobf.dependsOn "check"
 
