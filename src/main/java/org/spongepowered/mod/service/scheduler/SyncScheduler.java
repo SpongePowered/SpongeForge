@@ -40,7 +40,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SyncScheduler implements Scheduler {
-    private static final AtomicReference<Scheduler> instance = new AtomicReference<Scheduler>();
 
     // The simple private queue of all pending (and running) ScheduledTasks
     private final Queue<ScheduledTask> taskList = new ConcurrentLinkedQueue<ScheduledTask>();
@@ -73,13 +72,13 @@ public class SyncScheduler implements Scheduler {
      *
      * @return The single interface to the Synchronous Scheduler
      */
-    public static Scheduler getInstance() {
-        Scheduler inst = instance.get();
-        if (inst == null) {
-            instance.set(inst = new SyncScheduler());
-        }
-        return inst;
-    }
+     private static class SynchronousSchedulerSingletonHolder {
+        private static final Scheduler INSTANCE = new SyncScheduler();
+     }
+
+     public static Scheduler getInstance() {
+         return SynchronousSchedulerSingletonHolder.INSTANCE;
+     }
 
     /**
      * <p>The hook to update the Ticks known by the SyncScheduler.</p>
@@ -163,11 +162,10 @@ public class SyncScheduler implements Scheduler {
 
     private Optional<Task> utilityForAddingTask(ScheduledTask task) {
         Optional<Task> result = Optional.absent();
-        if ( task != null ) {
-            task.setTimestamp(counter);
-            this.taskList.add(task);
-            result = Optional.of((Task) task);
-        }
+        task.setTimestamp(counter);
+        this.taskList.add(task);
+        result = Optional.of((Task) task);
+
         return result;
     }
 
@@ -191,11 +189,11 @@ public class SyncScheduler implements Scheduler {
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param task  The Runnable object that implements a run() method to execute the Task desired
+     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runTask(Object plugin, Runnable task) {
+    public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {
         /**
          * <p>
          * The intent of this method is to run a single task (non-repeating) and has zero
@@ -205,7 +203,7 @@ public class SyncScheduler implements Scheduler {
         final long NODELAY = 0L;
         final long NOPERIOD = 0L;
 
-        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, task, NODELAY, NOPERIOD);
+        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
@@ -240,16 +238,16 @@ public class SyncScheduler implements Scheduler {
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param task  The Runnable object that implements a run() method to execute the Task desired
+     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param delay  The offset in ticks before running the task.
      * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runTaskAfter(Object plugin, Runnable task, long delay) {
+    public Optional<Task> runTaskAfter(Object plugin, Runnable runnableTarget, long delay) {
         Optional<Task> result = Optional.absent();
         final long NOPERIOD = 0L;
 
-        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, task, delay, NOPERIOD);
+        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
@@ -294,16 +292,16 @@ public class SyncScheduler implements Scheduler {
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param task  The Runnable object that implements a run() method to execute the Task desired
+     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param interval The period in ticks of the repeating Task.
      * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runRepeatingTask(Object plugin, Runnable task, long interval) {
+    public Optional<Task> runRepeatingTask(Object plugin, Runnable runnableTarget, long interval) {
         Optional<Task> result = Optional.absent();
         final long NODELAY = 0L;
 
-        ScheduledTask repeatingTask = taskValidationStep(plugin, task, NODELAY, interval);
+        ScheduledTask repeatingTask = taskValidationStep(plugin, runnableTarget, NODELAY, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
@@ -349,16 +347,16 @@ public class SyncScheduler implements Scheduler {
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param task  The Runnable object that implements a run() method to execute the Task desired
+     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param delay  The offset in ticks before running the task.
      * @param interval The offset in ticks before running the task.
      * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable task, long interval, long delay) {
+    public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, long interval, long delay) {
         Optional<Task> result = Optional.absent();
 
-        ScheduledTask repeatingTask = taskValidationStep(plugin, task, delay, interval);
+        ScheduledTask repeatingTask = taskValidationStep(plugin, runnableTarget, delay, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
@@ -459,7 +457,7 @@ public class SyncScheduler implements Scheduler {
         return subsetCollection;
     }
 
-    private ScheduledTask taskValidationStep(Object plugin, Runnable task, long offset, long period) {
+    private ScheduledTask taskValidationStep(Object plugin, Runnable runnableTarget, long offset, long period) {
 
         // No owner
         if (plugin == null) {
@@ -474,13 +472,8 @@ public class SyncScheduler implements Scheduler {
         }
 
         // Is task a Runnable task?
-        if (task == null) {
+        if (runnableTarget == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.NULL_RUNNABLE_ARGUMENT_WARNING);
-            return null;
-        }
-        // task is not derived from a Runnable class.
-        else if (!Runnable.class.isAssignableFrom(task.getClass())) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.NULL_RUNNABLE_ARGUMENT_INVALID_WARNING);
             return null;
         }
 
@@ -509,27 +502,24 @@ public class SyncScheduler implements Scheduler {
         //    ScheduledTask is a Period interface intentionally so that
         return new ScheduledTask(offset, period)
                 .setPluginContainer(plugincontainer)
-                .setRunnableBody(task)
+                .setRunnableBody(runnableTarget)
                 .setState(ScheduledTask.ScheduledTaskState.WAITING);
     }
 
     private  boolean startTask(ScheduledTask task) {
+        // We'll succeed unless there's an exception found when we try to start the
+        // actual Runnable target.
         boolean bRes = true;
-        if (task != null) {
-            Runnable taskRunnableBody = task.runnableBody;
-            try {
-                taskRunnableBody.run();
-            } catch (Exception ex) {
-                SpongeMod.instance.getLogger().error(SchedulerLogMessages.USER_TASK_FAILED_TO_RUN_ERROR);
-                SpongeMod.instance.getLogger().error(ex.toString());
-                bRes = false;
 
-            }
-        } else {
-            SpongeMod.instance.getLogger().error(SchedulerLogMessages.USER_TASK_TO_RUN_WAS_NULL_WARNING);
+        Runnable taskRunnableBody = task.runnableBody;
+        try {
+            taskRunnableBody.run();
+        } catch (Exception ex) {
+            SpongeMod.instance.getLogger().error(SchedulerLogMessages.USER_TASK_FAILED_TO_RUN_ERROR);
+            SpongeMod.instance.getLogger().error(ex.toString());
             bRes = false;
-        }
 
+        }
         return bRes;
     }
 }
