@@ -29,15 +29,12 @@ import net.minecraft.entity.item.EntityMinecartFurnace;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.MinecartFurnace;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityMinecartFurnace.class)
-@Implements(@Interface(iface = MinecartFurnace.class, prefix = "furnaceminecart$"))
-public abstract class MixinEntityMinecartFurnace extends EntityMinecart {
+public abstract class MixinEntityMinecartFurnace extends EntityMinecart implements MinecartFurnace {
 
     @Shadow
     private int fuel;

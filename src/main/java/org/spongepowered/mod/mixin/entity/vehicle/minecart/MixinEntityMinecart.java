@@ -35,18 +35,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.io.IOException;
-
 @NonnullByDefault
 @Mixin(EntityMinecart.class)
-@Implements(@Interface(iface = Minecart.class, prefix = "minecart$"))
-public abstract class MixinEntityMinecart extends Entity {
+public abstract class MixinEntityMinecart extends Entity implements Minecart {
 
     @Shadow
     public abstract double getDragAir();
 
     @Shadow
     public abstract boolean isOnGround();
+
+    @Shadow
+    public abstract double getMaxSpeed();
 
     private double maxSpeed;
     private boolean slowWhenEmpty;
@@ -68,7 +68,7 @@ public abstract class MixinEntityMinecart extends Entity {
     }
 
     // this method overwrite vanilla behavior to allow for a custom deceleration rate on all three axes when airborne
-    @Inject(method = "func_180459_n", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.onGround:Z", ordinal = 2))
+    @Inject(method = "func_180459_n()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.onGround:Z", ordinal = 2))
     public void implementCustomAirborneDeceleration(CallbackInfo ci) {
         if (!this.isOnGround()) {
             this.motionX /= this.getDragAir();
@@ -81,7 +81,7 @@ public abstract class MixinEntityMinecart extends Entity {
     }
 
     // this method overwrites vanilla behavior to allow for a custom deceleration rate when derailed
-    @Inject(method = "func_180459_n", at = @At(value = "INVOKE", target = "net.minecraft.entity.Entity.moveEntity(DDD)V"))
+    @Inject(method = "func_180459_n()V", at = @At(value = "INVOKE", target = "net.minecraft.entity.Entity.moveEntity(DDD)V"))
     public void implementCustomDerailedDeceleration(CallbackInfo ci) {
         if (this.isOnGround()) {
             this.motionX /= 0.5D;
@@ -112,35 +112,47 @@ public abstract class MixinEntityMinecart extends Entity {
         super(worldIn);
     }
 
-    public double minecart$getMaxSpeed() {
+    @Override
+    public double getSwiftness() {
         return this.maxSpeed;
     }
 
-    public void minecart$setMaxSpeed(double maxSpeed) {
+    @Override
+    public void setSwiftness(double maxSpeed) {
         this.maxSpeed = maxSpeed;
     }
 
-    public boolean minecart$doesSlowWhenEmpty() {
+    @Override
+    public double getPotentialMaxSpeed() {
+        return this.getMaxSpeed();
+    }
+
+    @Override
+    public boolean doesSlowWhenEmpty() {
         return this.slowWhenEmpty;
     }
 
-    public void minecart$setSlowWhenEmpty(boolean slowWhenEmpty) {
+    public void setSlowWhenEmpty(boolean slowWhenEmpty) {
         this.slowWhenEmpty = slowWhenEmpty;
     }
 
-    public Vector3d minecart$getAirborneVelocityMod() {
+    @Override
+    public Vector3d getAirborneVelocityMod() {
         return this.airborneMod;
     }
 
-    public void minecart$setAirborneVelocityMod(Vector3d airborneMod) {
+    @Override
+    public void setAirborneVelocityMod(Vector3d airborneMod) {
         this.airborneMod = airborneMod;
     }
 
-    public Vector3d minecart$getDerailedVelocityMod() {
+    @Override
+    public Vector3d getDerailedVelocityMod() {
         return this.derailedMod;
     }
 
-    public void minecart$setDerailedVelocityMod(Vector3d derailedVelocityMod) {
+    @Override
+    public void setDerailedVelocityMod(Vector3d derailedVelocityMod) {
         this.derailedMod = derailedVelocityMod;
     }
 }

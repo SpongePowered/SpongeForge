@@ -30,8 +30,6 @@ import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.MinecartCommandBlock;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -40,8 +38,7 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityMinecartCommandBlock.class)
-@Implements(@Interface(iface = MinecartCommandBlock.class, prefix = "commandminecartminecart$"))
-public abstract class MixinEntityMinecartCommandBlock extends EntityMinecart {
+public abstract class MixinEntityMinecartCommandBlock extends EntityMinecart implements MinecartCommandBlock {
 
     @Shadow
     private CommandBlockLogic field_145824_a;
@@ -50,19 +47,23 @@ public abstract class MixinEntityMinecartCommandBlock extends EntityMinecart {
         super(worldIn);
     }
 
-    public String commandminecart$getCommand() {
+    @Override
+    public String getCommand() {
         return field_145824_a.getName();
     }
 
-    public void commandminecart$setCommand(@Nonnull String command) {
+    @Override
+    public void setCommand(@Nonnull String command) {
         field_145824_a.setCommand(command);
     }
 
-    public String commandminecart$getCommandName() {
+    @Override
+    public String getCommandName() {
         return field_145824_a.getCustomName();
     }
 
-    public void commandminecartsetCommandName(@Nullable String name) {
+    @Override
+    public void setCommandName(@Nullable String name) {
         if (name == null)
             name = "@";
         field_145824_a.func_145754_b(name);

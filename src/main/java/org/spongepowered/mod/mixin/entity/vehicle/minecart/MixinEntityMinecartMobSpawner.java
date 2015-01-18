@@ -29,14 +29,11 @@ import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.MinecartMobSpawner;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(EntityMinecartMobSpawner.class)
-@Implements(@Interface(iface = MinecartMobSpawner.class, prefix = "mobspawnerminecart$"))
-public abstract class MixinEntityMinecartMobSpawner extends EntityMinecart {
+public abstract class MixinEntityMinecartMobSpawner extends EntityMinecart implements MinecartMobSpawner {
 
     public MixinEntityMinecartMobSpawner(World worldIn) {
         super(worldIn);
