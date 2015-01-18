@@ -1,5 +1,6 @@
 {
   "package": "org.spongepowered.mod.mixin",
+  "refmap": "mixins.sponge.refmap.json",
   "mixins": [
     "MixinMinecraftServer",
     "MixinServerCommandManager",

@@ -78,6 +78,12 @@ dependencies {
 
     deployerJars 'org.apache.maven.wagon:wagon-ftp:2.7'
 }
+
+task mixin {
+    ext.srg = "${tasks.mixin.temporaryDir}" + File.separator + 'mixins.srg'
+    ext.refMap = "${tasks.mixin.temporaryDir}" + File.separator + 'mixins.sponge.refmap.json';
+}
+
 shadowJar  {
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
@@ -94,6 +100,8 @@ shadowJar  {
         include(project('Mixin'))
     }
     classifier = ''
+    
+    from tasks.mixin.ext.refMap
 }
 build.dependsOn(shadowJar)
 
@@ -161,13 +169,14 @@ reobf {
     }
 }
 reobf.dependsOn shadowJar
-
-def mixinSrg = "${tasks.reobf.temporaryDir}" + File.separator + 'mixins.srg'
-reobf.addExtraSrgFile mixinSrg
+reobf.addExtraSrgFile tasks.mixin.ext.srg
 
 // Source compiler configuration
 tasks.withType(JavaCompile) {
-    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path', '-Xlint:-processing', "-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=${mixinSrg}" ]
+    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path', '-Xlint:-processing',
+        "-AreobfSrgFile=${tasks.reobf.srg}",
+        "-AoutSrgFile=${tasks.mixin.ext.srg}",
+        "-AoutRefMapFile=${tasks.mixin.ext.refMap}" ]
     options.deprecation = true
     options.encoding = 'utf8'
 }
