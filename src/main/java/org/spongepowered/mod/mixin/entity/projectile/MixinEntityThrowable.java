@@ -58,8 +58,8 @@ public abstract class MixinEntityThrowable extends Entity implements Projectile 
 
     @Override
     public ProjectileSource getShooter() {
-        if (this.projectileSource != null && this.projectileSource instanceof ProjectileSource) {
-            return (ProjectileSource) this.projectileSource;
+        if (this.projectileSource != null) {
+            return this.projectileSource;
         } else if (this.getThrower() != null && this.getThrower() instanceof ProjectileSource) {
             return (ProjectileSource) this.getThrower();
         }
