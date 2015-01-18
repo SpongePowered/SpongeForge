@@ -255,8 +255,6 @@ public class SpongeGameRegistry implements GameRegistry {
         directionMapBuilder.put(Direction.DOWN, EnumFacing.DOWN);
         directionMap = directionMapBuilder.build();
     }
->>>>>>> Implement GameMode
->>>>>>> Implement GameMode
 
     @Override
     public Optional<BlockType> getBlock(String id) {
