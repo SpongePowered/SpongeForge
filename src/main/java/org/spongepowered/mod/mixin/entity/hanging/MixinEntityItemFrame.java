@@ -38,6 +38,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.google.common.base.Optional;
+import org.spongepowered.mod.SpongeMod;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.item.EntityItemFrame.class)
@@ -71,7 +72,7 @@ public abstract class MixinEntityItemFrame extends EntityHanging implements Item
 
     @Override
     public Rotation getItemRotation() {
-        return Rotations.getRotationForDegree(shadow$getRotation() * 45).get();
+        return SpongeMod.instance.getGame().getRegistry().getRotationFromDegree(shadow$getRotation() * 45).get();
     }
 
     @Override

@@ -56,7 +56,7 @@ public class SpongeSelectorBuilder implements SelectorBuilder {
     }
 
     @Override
-    public SelectorBuilder type(SelectorType type) {
+    public SelectorBuilder selectorType(SelectorType type) {
         this.type = type;
         return this;
     }

@@ -73,9 +73,13 @@ import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.meta.BannerPatternShape;
+import org.spongepowered.api.block.meta.NotePitch;
+import org.spongepowered.api.block.meta.SkullType;
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.effect.particle.ParticleTypes;
+import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
@@ -303,6 +307,16 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
+    public Optional<SoundType> getSound(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public List<SoundType> getSounds() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
     public List<String> getDefaultGameRules() {
 
         List<String> gameruleList = new ArrayList<String>();
@@ -459,6 +473,16 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
+    public Optional<Rotation> getRotationFromDegree(int degrees) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public List<Rotation> getRotations() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
     public GameProfile createGameProfile(UUID uuid, String name) {
         throw new UnsupportedOperationException(); // TODO
     }
@@ -485,6 +509,41 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Favicon loadFavicon(BufferedImage image) throws IOException {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<NotePitch> getNotePitch(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public List<NotePitch> getNotePitches() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<SkullType> getSkullType(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public List<SkullType> getSkullTypes() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<BannerPatternShape> getBannerPatternShape(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<BannerPatternShape> getBannerPatternShapeById(String id) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public List<BannerPatternShape> getBannerPatternShapes() {
         throw new UnsupportedOperationException(); // TODO
     }
 
