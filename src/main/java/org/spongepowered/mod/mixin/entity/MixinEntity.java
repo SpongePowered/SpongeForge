@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.entity;
 import java.util.ArrayDeque;
 import javax.annotation.Nullable;
 
+import com.flowpowered.math.vector.Vector3f;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.server.S07PacketRespawn;
@@ -43,7 +44,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.entity.ISpongeEntity;
 
-import com.flowpowered.math.vector.Vector2f;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
 
@@ -143,12 +143,12 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
     }
 
     @Override
-    public Vector2f getRotation() {
-        return new Vector2f(this.rotationYaw, this.rotationPitch);
+    public Vector3f getRotation() {
+        return new Vector3f(this.rotationYaw, this.rotationPitch, 0);
     }
 
     @Override
-    public void setRotation(Vector2f rotation) {
+    public void setRotation(Vector3f rotation) {
         shadow$setRotation(rotation.getX(), rotation.getY());
     }
 
