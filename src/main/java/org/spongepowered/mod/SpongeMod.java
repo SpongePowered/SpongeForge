@@ -24,18 +24,13 @@
  */
 package org.spongepowered.mod;
 
-import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.LoadController;
-import net.minecraftforge.fml.common.ModContainerFactory;
-import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -45,6 +40,9 @@ import org.objectweb.asm.Type;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.ProviderExistsException;
+import org.spongepowered.api.service.command.CommandService;
+import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
@@ -109,6 +107,11 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onInitialization(FMLInitializationEvent e) {
         this.registry.init();
+        try {
+            getGame().getServiceManager().setProvider(this, CommandService.class, new SimpleCommandService(getGame().getPluginManager()));
+        } catch (ProviderExistsException e1) {
+            this.logger.warn("Non-Sponge CommandService already registered: " + e1.getLocalizedMessage());
+        }
     }
 
     @Subscribe
