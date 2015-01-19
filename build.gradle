@@ -182,6 +182,18 @@ tasks.withType(JavaCompile) {
     options.encoding = 'utf8'
 }
 
+// Copy the current srgs to the build dir so the user doesn't have to go hunting for them
+task copySrgs(type: Copy) {
+    doFirst {
+        delete 'build/srgs'
+    }
+    
+    include '**/*.srg'
+    from tasks.reobf.srg.parentFile
+    into 'build/srgs'
+}
+setupDecompWorkspace.dependsOn copySrgs
+
 def manifestEntries = [
     "Built-By": System.properties['user.name'],
     "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
