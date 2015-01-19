@@ -182,7 +182,7 @@ public class SyncScheduler implements Scheduler {
      *
      * <p>
      * <code>
-     *     Optional<PluginContainer> result;
+     *     Optional&lt;PluginContainer&gt;&nbsp; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
@@ -190,7 +190,7 @@ public class SyncScheduler implements Scheduler {
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {
@@ -231,7 +231,7 @@ public class SyncScheduler implements Scheduler {
      *
      * <p>
      * <code>
-     *     Optional<PluginContainer> result;
+     *     Optional&lt;PluginContainer&gt;&nbsp; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
@@ -240,7 +240,7 @@ public class SyncScheduler implements Scheduler {
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param delay  The offset in ticks before running the task.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runTaskAfter(Object plugin, Runnable runnableTarget, long delay) {
@@ -285,7 +285,7 @@ public class SyncScheduler implements Scheduler {
      *
      * <p>
      * <code>
-     *     Optional<PluginContainer> result;
+     *     Optional&lt;PluginContainer&gt;&nbsp; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
@@ -294,7 +294,7 @@ public class SyncScheduler implements Scheduler {
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param interval The period in ticks of the repeating Task.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runRepeatingTask(Object plugin, Runnable runnableTarget, long interval) {
@@ -340,7 +340,7 @@ public class SyncScheduler implements Scheduler {
      *
      * <p>
      * <code>
-     *     Optional<PluginContainer> result;
+     *     Optional&lt;PluginContainer&gt;&nbsp; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
@@ -350,7 +350,7 @@ public class SyncScheduler implements Scheduler {
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param delay  The offset in ticks before running the task.
      * @param interval The offset in ticks before running the task.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, long interval, long delay) {
@@ -378,13 +378,13 @@ public class SyncScheduler implements Scheduler {
      * <code>
      *     UUID myID;
      *     // ...
-     *     Optional<Task> task;
+     *     Optional&lt;Task&gt;&nbsp; task;
      *     task = SyncScheduler.getInstance().getTaskById(myID); 
      * </code>
      * </p>
      *
      * @param id The UUID of the Task to find.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the existing Task.
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the existing Task.
      */
     @Override
     public Optional<Task> getTaskById(UUID id) {
