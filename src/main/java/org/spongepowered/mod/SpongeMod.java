@@ -45,27 +45,17 @@ import org.objectweb.asm.Type;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
-public class SpongeMod extends DummyModContainer {
+public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     public static SpongeMod instance;
 
     private final Game game;
-
-    private Map<Object, PluginContainer> plugins = Maps.newHashMap();
-    private Map<String, PluginContainer> pluginIdMap = Maps.newHashMap();
-    private SpongeEventBus eventBus;
     @SuppressWarnings("unused")
-    private LoadController controller;
     private Injector spongeInjector = Guice.createInjector(new SpongeGuiceModule());
     private Logger logger;
     private SpongeGameRegistry registry;
@@ -84,22 +74,9 @@ public class SpongeMod extends DummyModContainer {
         this.registry = (SpongeGameRegistry) this.game.getRegistry();
     }
 
-    public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object instance) {
-        this.plugins.put(instance, spongePluginContainer);
-        this.pluginIdMap.put(pluginId.toLowerCase(), spongePluginContainer);
-        this.game.getEventManager().register(spongePluginContainer.getInstance(), spongePluginContainer.getInstance());
-    }
-
-    public Collection<PluginContainer> getPlugins() {
-        return Collections.unmodifiableCollection(this.plugins.values());
-    }
-
-    public PluginContainer getPlugin(String s) {
-        return this.pluginIdMap.get(s.toLowerCase());
-    }
-
-    public PluginContainer getPluginContainer(Object instance) {
-        return this.plugins.get(instance);
+    @Override
+    public Object getMod() {
+        return this;
     }
 
     public Game getGame() {
@@ -117,8 +94,6 @@ public class SpongeMod extends DummyModContainer {
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
-        this.eventBus = new SpongeEventBus(this.game.getPluginManager());
-        this.controller = controller;
         return true;
     }
 
@@ -139,5 +114,15 @@ public class SpongeMod extends DummyModContainer {
     @Subscribe
     public void onInitialization(FMLPostInitializationEvent e) {
         this.registry.postInit();
+    }
+
+    @Override
+    public String getId() {
+        return getModId();
+    }
+
+    @Override
+    public Object getInstance() {
+        return getMod();
     }
 }

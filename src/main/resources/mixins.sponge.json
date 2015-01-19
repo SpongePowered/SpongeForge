@@ -97,6 +97,7 @@
     "event.world.MixinEventWorldLoad",
     "event.world.MixinEventWorldUnload",
     "fml.MixinEntityRegistry",
+    "fml.MixinModContainer",
     "forge.MixinBlockSnapshot",
     "forge.MixinDimensionManager",
     "inventory.MixinContainer",
