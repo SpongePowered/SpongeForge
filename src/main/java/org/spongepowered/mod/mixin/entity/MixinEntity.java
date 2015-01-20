@@ -80,6 +80,13 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
     protected abstract void shadow$setRotation(float yaw, float pitch);
     @Shadow
     public abstract void mountEntity(net.minecraft.entity.Entity entityIn);
+    @Shadow
+    public abstract UUID getUniqueID();
+
+    @Override
+    public UUID getUniqueId() {
+        return this.getUniqueID();
+    }
 
     @Override
     public World getWorld() {
