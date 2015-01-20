@@ -47,7 +47,7 @@ public class SpongeSelectorFactory implements SelectorFactory {
     @Override
     public Selector parseRawSelector(String selector) {
         checkArgument(tokenPattern.matcher(selector).matches());
-        SelectorBuilder builder = createEmptyBuilder().type(SelectorTypes.valueOf(selector.substring(1, 2)).get());
+        SelectorBuilder builder = createEmptyBuilder().selectorType(SelectorTypes.valueOf(selector.substring(1, 2)).get());
         setArguments(builder, selector.substring(selector.indexOf('[') + 1, selector.lastIndexOf(']')));
         return builder.build();
     }

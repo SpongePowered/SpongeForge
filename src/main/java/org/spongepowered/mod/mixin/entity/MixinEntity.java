@@ -25,8 +25,11 @@
 package org.spongepowered.mod.mixin.entity;
 
 import java.util.ArrayDeque;
+import java.util.UUID;
+
 import javax.annotation.Nullable;
 
+import com.flowpowered.math.vector.Vector3f;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.server.S07PacketRespawn;
@@ -35,6 +38,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.api.world.Location;
@@ -43,7 +48,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.entity.ISpongeEntity;
 
-import com.flowpowered.math.vector.Vector2f;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
 
@@ -51,37 +55,25 @@ import com.google.common.base.Optional;
 @Mixin(net.minecraft.entity.Entity.class)
 public abstract class MixinEntity implements Entity, ISpongeEntity {
 
-    private boolean teleporting = false;
+    private boolean teleporting;
     private net.minecraft.entity.Entity teleportVehicle;
 
-    @Shadow
-    public net.minecraft.world.World worldObj;
-    @Shadow
-    public double posX;
-    @Shadow
-    public double posY;
-    @Shadow
-    public double posZ;
-    @Shadow
-    public float rotationYaw;
-    @Shadow
-    public float rotationPitch;
-    @Shadow
-    public float width;
-    @Shadow
-    public float height;
-    @Shadow
-    public boolean isDead;
-    @Shadow
-    public boolean onGround;
-    @Shadow
-    public int fireResistance;
-    @Shadow
-    private int fire;
-    @Shadow
-    public net.minecraft.entity.Entity riddenByEntity;
-    @Shadow
-    public net.minecraft.entity.Entity ridingEntity;
+    @Shadow private UUID entityUniqueID;
+    @Shadow public net.minecraft.world.World worldObj;
+    @Shadow public double posX;
+    @Shadow public double posY;
+    @Shadow public double posZ;
+    @Shadow public float rotationYaw;
+    @Shadow public float rotationPitch;
+    @Shadow public float width;
+    @Shadow public float height;
+    @Shadow public boolean isDead;
+    @Shadow public boolean onGround;
+    @Shadow public int fireResistance;
+    @Shadow private int fire;
+    @Shadow public net.minecraft.entity.Entity riddenByEntity;
+    @Shadow public net.minecraft.entity.Entity ridingEntity;
+
     @Shadow
     public abstract void setPosition(double x, double y, double z);
     @Shadow(prefix = "shadow$")
@@ -156,12 +148,12 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
     }
 
     @Override
-    public Vector2f getRotation() {
-        return new Vector2f(this.rotationYaw, this.rotationPitch);
+    public Vector3f getRotation() {
+        return new Vector3f(this.rotationYaw, this.rotationPitch, 0);
     }
 
     @Override
-    public void setRotation(Vector2f rotation) {
+    public void setRotation(Vector3f rotation) {
         shadow$setRotation(rotation.getX(), rotation.getY());
     }
 
@@ -334,4 +326,34 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
         this.teleportVehicle = vehicle;
     }
 
+    @Override
+    public boolean isPersistent() {
+        // TODO
+        return true;
+    }
+
+    @Override
+    public void setPersistent(boolean persistent) {
+        // TODO
+    }
+
+    @Override
+    public <T> Optional<T> getData(Class<T> dataClass) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public EntityType getType() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public EntitySnapshot getSnapshot() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return this.entityUniqueID;
+    }
 }

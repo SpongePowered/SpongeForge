@@ -24,16 +24,26 @@
  */
 package org.spongepowered.mod.mixin.entity.player;
 
+import java.util.List;
 import java.util.Locale;
+
+import com.flowpowered.math.vector.Vector3d;
+import com.google.common.base.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.network.play.server.S45PacketTitle;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
+import org.spongepowered.api.GameProfile;
+import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.chat.ChatTypes;
@@ -45,11 +55,11 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
+import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.message.SpongeMessage;
 import org.spongepowered.mod.text.message.SpongeMessageText;
-
-import com.mojang.authlib.GameProfile;
 import org.spongepowered.mod.text.title.SpongeTitle;
 
 @NonnullByDefault
@@ -62,12 +72,16 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     @Shadow
     public NetHandlerPlayServer playerNetServerHandler;
 
-    public MixinEntityPlayerMP(World worldIn, GameProfile gameprofile) {
+    public MixinEntityPlayerMP(World worldIn, com.mojang.authlib.GameProfile gameprofile) {
         super(worldIn, gameprofile);
     }
 
+    public GameProfile playermp$getProfile() {
+        return (GameProfile) getGameProfile();
+    }
+
     public Message playermp$getDisplayName() {
-        return new SpongeMessageText.SpongeTextBuilder(getName()).build();
+        return new SpongeMessageText.SpongeMessageTextBuilder(getName()).build();
     }
 
     public boolean playermp$getAllowFlight() {
@@ -96,20 +110,20 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
 
     public void playermp$sendMessage(ChatType type, String... messages) {
         for (String string : messages) {
-            ChatComponentText component = new ChatComponentText(string);
+            ChatComponentTranslation component = new ChatComponentTranslation(string);
             this.playerNetServerHandler.sendPacket(new S02PacketChat(component, ((SpongeChatType)type).getId()));
         }
     }
 
     public void playermp$sendMessage(ChatType type, Message... messages) {
         for (Message message : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage<?>)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
     public void playermp$sendMessage(ChatType type, Iterable<Message> messages) {
         for (Message message : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage)message).getHandle(), ((SpongeChatType)type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage<?>)message).getHandle(), ((SpongeChatType)type).getId()));
         }
     }
 
@@ -122,10 +136,42 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public void playermp$resetTitle() {
-        throw new UnsupportedOperationException();
+        SpongeTitle title = new SpongeTitle(false, true, Optional.<Message>absent(), Optional.<Message>absent(),
+                Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<Integer>absent());
+        for (S45PacketTitle packet : title.getPackets()) {
+            this.playerNetServerHandler.sendPacket(packet);
+        }
     }
 
     public void playermp$clearTitle() {
-        throw new UnsupportedOperationException();
+        SpongeTitle title = new SpongeTitle(true, false, Optional.<Message>absent(), Optional.<Message>absent(),
+                Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<Integer>absent());
+        for (S45PacketTitle packet : title.getPackets()) {
+            this.playerNetServerHandler.sendPacket(packet);
+        }
+    }
+
+    public void playermp$spawnParticles(ParticleEffect particleEffect, Vector3d position) {
+        this.playermp$spawnParticles(particleEffect, position, Integer.MAX_VALUE);
+    }
+
+    public void playermp$spawnParticles(ParticleEffect particleEffect, Vector3d position, int radius) {
+        checkNotNull(particleEffect, "The particle effect cannot be null!");
+        checkNotNull(position, "The position cannot be null");
+        checkArgument(radius > 0, "The radius has to be greater then zero!");
+
+        List<Packet> packets = SpongeParticleHelper.toPackets((SpongeParticleEffect) particleEffect, position);
+
+        if (!packets.isEmpty()) {
+            double dx = this.posX - position.getX();
+            double dy = this.posY - position.getY();
+            double dz = this.posZ - position.getZ();
+
+            if (dx * dx + dy * dy + dz * dz < radius * radius) {
+                for (Packet packet : packets) {
+                    this.playerNetServerHandler.sendPacket(packet);
+                }
+            }
+        }
     }
 }

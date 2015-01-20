@@ -26,12 +26,27 @@
 package org.spongepowered.mod.registry;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -42,9 +57,11 @@ import net.minecraft.entity.item.EntityPainting.EnumArt;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityFishHook;
+import net.minecraft.init.Blocks;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldProviderHell;
@@ -52,11 +69,17 @@ import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.common.registry.GameData;
 
+import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.meta.BannerPatternShape;
+import org.spongepowered.api.block.meta.NotePitch;
+import org.spongepowered.api.block.meta.SkullType;
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.effect.particle.ParticleType;
+import org.spongepowered.api.effect.particle.ParticleTypes;
+import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
@@ -88,6 +111,7 @@ import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
+import org.spongepowered.api.status.Favicon;
 import org.spongepowered.api.text.action.SpongeTextActionFactory;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.chat.ChatType;
@@ -114,7 +138,10 @@ import org.spongepowered.api.world.DimensionTypes;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
+import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
+import org.spongepowered.mod.effect.particle.SpongeParticleEffectBuilder;
+import org.spongepowered.mod.effect.particle.SpongeParticleType;
 import org.spongepowered.mod.entity.SpongeCareer;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
@@ -124,26 +151,20 @@ import org.spongepowered.mod.item.SpongeItemStackBuilder;
 import org.spongepowered.mod.item.merchant.SpongeTradeOfferBuilder;
 import org.spongepowered.mod.potion.SpongePotionBuilder;
 import org.spongepowered.mod.rotation.SpongeRotation;
+import org.spongepowered.mod.status.SpongeFavicon;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 import org.spongepowered.mod.text.selector.SpongeSelectorType;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableBiMap.Builder;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-
 @SuppressWarnings("unchecked")
 @NonnullByDefault
 public class SpongeGameRegistry implements GameRegistry {
 
-    private Map<String, BiomeType> biomeTypeMappings = Maps.newHashMap();
-    public static Map<String, SpongeTextColor> textColorMappings = Maps.newHashMap();
-    public static Map<TextColor, EnumChatFormatting> textColorToEnumMappings = Maps.newHashMap();
+    private final Map<String, BiomeType> biomeTypeMappings = Maps.newHashMap();
+    public static final Map<String, SpongeTextColor> textColorMappings = Maps.newHashMap();
+    public static final Map<TextColor, EnumChatFormatting> textColorToEnumMappings = Maps.newHashMap();
     public static final ImmutableMap<String, TextStyle.Base> textStyleMappings = new ImmutableMap.Builder<String, TextStyle.Base>()
                                                                                 .put("OBFUSCATED", new TextStyle.Base("OBFUSCATED", 'k'))
                                                                                 .put("BOLD", new TextStyle.Base("BOLD", 'l'))
@@ -167,33 +188,30 @@ public class SpongeGameRegistry implements GameRegistry {
                                                                            .put("LEFT", new SpongeRotation(270))
                                                                            .put("TOP_LEFT", new SpongeRotation(315))
                                                                            .build();
-
-    private Map<String, Art> artMappings = Maps.newHashMap();
-    private Map<String, EntityType> entityTypeMappings = Maps.newHashMap();
-    public Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
-    public Map<Class<? extends Entity>, SpongeEntityType> entityClassToTypeMappings = Maps.newHashMap();
-    public Map<String, Enchantment> enchantmentMappings = Maps.newHashMap();
-    private Map<String, Career> careerMappings = Maps.newHashMap();
-    private Map<String, Profession> professionMappings = Maps.newHashMap();
-    private Map<Integer, List<Career>> professionToCareerMappings = Maps.newHashMap();
-    private Map<String, DimensionType> dimensionTypeMappings = Maps.newHashMap();
-    public Map<Class<? extends Dimension>, DimensionType> dimensionClassMappings = Maps.newHashMap();
-    private List<BlockType> blockList = new ArrayList<BlockType>();
-    private List<ItemType> itemList = new ArrayList<ItemType>();
-    private List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
-    private List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
-
-    public static final ImmutableBiMap<Direction, EnumFacing> directionMap;
-    static {
-        Builder<Direction, EnumFacing> directionMapBuilder = ImmutableBiMap.builder();
-        directionMapBuilder.put(Direction.NORTH, EnumFacing.NORTH);
-        directionMapBuilder.put(Direction.EAST, EnumFacing.EAST);
-        directionMapBuilder.put(Direction.SOUTH, EnumFacing.SOUTH);
-        directionMapBuilder.put(Direction.WEST, EnumFacing.WEST);
-        directionMapBuilder.put(Direction.UP, EnumFacing.UP);
-        directionMapBuilder.put(Direction.DOWN, EnumFacing.DOWN);
-        directionMap = directionMapBuilder.build();
-    }
+    public static final ImmutableBiMap<Direction, EnumFacing> directionMap = ImmutableBiMap.<Direction, EnumFacing>builder()
+                                                                            .put(Direction.NORTH, EnumFacing.NORTH)
+                                                                            .put(Direction.EAST, EnumFacing.EAST)
+                                                                            .put(Direction.SOUTH, EnumFacing.SOUTH)
+                                                                            .put(Direction.WEST, EnumFacing.WEST)
+                                                                            .put(Direction.UP, EnumFacing.UP)
+                                                                            .put(Direction.DOWN, EnumFacing.DOWN)
+                                                                            .build();
+    private final Map<String, Art> artMappings = Maps.newHashMap();
+    private final Map<String, EntityType> entityTypeMappings = Maps.newHashMap();
+    public final Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
+    public final Map<Class<? extends Entity>, SpongeEntityType> entityClassToTypeMappings = Maps.newHashMap();
+    public final Map<String, Enchantment> enchantmentMappings = Maps.newHashMap();
+    private final Map<String, Career> careerMappings = Maps.newHashMap();
+    private final Map<String, Profession> professionMappings = Maps.newHashMap();
+    private final Map<Integer, List<Career>> professionToCareerMappings = Maps.newHashMap();
+    private final Map<String, DimensionType> dimensionTypeMappings = Maps.newHashMap();
+    public final Map<Class<? extends Dimension>, DimensionType> dimensionClassMappings = Maps.newHashMap();
+    private final Map<String, SpongeParticleType> particleMappings = Maps.newHashMap();
+    private final Map<String, ParticleType> particleByName = Maps.newHashMap();
+    private final List<BlockType> blockList = new ArrayList<BlockType>();
+    private final List<ItemType> itemList = new ArrayList<ItemType>();
+    private final List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
+    private final List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
 
     @Override
     public Optional<BlockType> getBlock(String id) {
@@ -206,7 +224,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     public Optional<PotionEffectType> getPotion(String id) {
-        return Optional.fromNullable((PotionEffectType)Potion.getPotionFromResourceLocation(id));
+        return Optional.fromNullable((PotionEffectType) Potion.getPotionFromResourceLocation(id));
     }
 
     @Override
@@ -263,23 +281,40 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
-    public Optional<ParticleType> getParticleType(String id) {
-
-        //TODO Implement getParticle once particles are implemented.
-        return Optional.absent();
+    public Optional<ParticleType> getParticleType(String name) {
+        return Optional.fromNullable((ParticleType) this.particleByName.get(name));
     }
 
     @Override
     public List<ParticleType> getParticleTypes() {
-
-        //TODO implement.
-        return null;
+        return ImmutableList.copyOf(this.particleByName.values());
     }
 
     @Override
     public ParticleEffectBuilder getParticleEffectBuilder(ParticleType particle) {
-        // TODO
-        return null;
+        Preconditions.checkNotNull(particle);
+
+        if (particle instanceof SpongeParticleType.Colorable) {
+            return new SpongeParticleEffectBuilder.BuilderColorable((SpongeParticleType.Colorable) particle);
+        } else if (particle instanceof SpongeParticleType.Resizable) {
+            return new SpongeParticleEffectBuilder.BuilderResizable((SpongeParticleType.Resizable) particle);
+        } else if (particle instanceof SpongeParticleType.Note) {
+            return new SpongeParticleEffectBuilder.BuilderNote((SpongeParticleType.Note) particle);
+        } else if (particle instanceof SpongeParticleType.Material) {
+            return new SpongeParticleEffectBuilder.BuilderMaterial((SpongeParticleType.Material) particle);
+        } else {
+            return new SpongeParticleEffectBuilder((SpongeParticleType) particle);
+        }
+    }
+
+    @Override
+    public Optional<SoundType> getSound(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public List<SoundType> getSounds() {
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
@@ -301,6 +336,7 @@ public class SpongeGameRegistry implements GameRegistry {
         return Optional.fromNullable(this.artMappings.get(id));
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public List<Art> getArts() {
         return (List) Arrays.asList(EnumArt.values());
@@ -437,9 +473,137 @@ public class SpongeGameRegistry implements GameRegistry {
         return ImmutableList.copyOf(this.dimensionTypeMappings.values());
     }
 
+    @Override
+    public Optional<Rotation> getRotationFromDegree(int degrees) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public List<Rotation> getRotations() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public GameProfile createGameProfile(UUID uuid, String name) {
+        return (GameProfile) new com.mojang.authlib.GameProfile(uuid, name);
+    }
+
+    @Override
+    public Favicon loadFavicon(String raw) throws IOException {
+        return SpongeFavicon.load(raw);
+    }
+
+    @Override
+    public Favicon loadFavicon(File file) throws IOException {
+        return SpongeFavicon.load(file);
+    }
+
+    @Override
+    public Favicon loadFavicon(URL url) throws IOException {
+        return SpongeFavicon.load(url);
+    }
+
+    @Override
+    public Favicon loadFavicon(InputStream in) throws IOException {
+        return SpongeFavicon.load(in);
+    }
+
+    @Override
+    public Favicon loadFavicon(BufferedImage image) throws IOException {
+        return SpongeFavicon.load(image);
+    }
+
+    @Override
+    public Optional<NotePitch> getNotePitch(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public List<NotePitch> getNotePitches() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<SkullType> getSkullType(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public List<SkullType> getSkullTypes() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<BannerPatternShape> getBannerPatternShape(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<BannerPatternShape> getBannerPatternShapeById(String id) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public List<BannerPatternShape> getBannerPatternShapes() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
     public void registerEnvironment(DimensionType env) {
         this.dimensionTypeMappings.put(env.getName(), env);
         this.dimensionClassMappings.put(env.getDimensionClass(), env);
+    }
+
+    private void setParticles() {
+        this.addParticleType("EXPLOSION_NORMAL", new SpongeParticleType(EnumParticleTypes.EXPLOSION_NORMAL, true));
+        this.addParticleType("EXPLOSION_LARGE", new SpongeParticleType.Resizable(EnumParticleTypes.EXPLOSION_LARGE, 1f));
+        this.addParticleType("EXPLOSION_HUGE", new SpongeParticleType(EnumParticleTypes.EXPLOSION_HUGE, false));
+        this.addParticleType("FIREWORKS_SPARK", new SpongeParticleType(EnumParticleTypes.FIREWORKS_SPARK, true));
+        this.addParticleType("WATER_BUBBLE", new SpongeParticleType(EnumParticleTypes.WATER_BUBBLE, true));
+        this.addParticleType("WATER_SPLASH", new SpongeParticleType(EnumParticleTypes.WATER_SPLASH, true));
+        this.addParticleType("WATER_WAKE", new SpongeParticleType(EnumParticleTypes.WATER_WAKE, true));
+        this.addParticleType("SUSPENDED", new SpongeParticleType(EnumParticleTypes.SUSPENDED, false));
+        this.addParticleType("SUSPENDED_DEPTH", new SpongeParticleType(EnumParticleTypes.SUSPENDED_DEPTH, false));
+        this.addParticleType("CRIT", new SpongeParticleType(EnumParticleTypes.CRIT, true));
+        this.addParticleType("CRIT_MAGIC", new SpongeParticleType(EnumParticleTypes.CRIT_MAGIC, true));
+        this.addParticleType("SMOKE_NORMAL", new SpongeParticleType(EnumParticleTypes.SMOKE_NORMAL, true));
+        this.addParticleType("SMOKE_LARGE", new SpongeParticleType(EnumParticleTypes.SMOKE_LARGE, true));
+        this.addParticleType("SPELL", new SpongeParticleType(EnumParticleTypes.SPELL, false));
+        this.addParticleType("SPELL_INSTANT", new SpongeParticleType(EnumParticleTypes.SPELL_INSTANT, false));
+        this.addParticleType("SPELL_MOB", new SpongeParticleType.Colorable(EnumParticleTypes.SPELL_MOB, Color.BLACK));
+        this.addParticleType("SPELL_MOB_AMBIENT", new SpongeParticleType.Colorable(EnumParticleTypes.SPELL_MOB_AMBIENT, Color.BLACK));
+        this.addParticleType("SPELL_WITCH", new SpongeParticleType(EnumParticleTypes.SPELL_WITCH, false));
+        this.addParticleType("DRIP_WATER", new SpongeParticleType(EnumParticleTypes.DRIP_WATER, false));
+        this.addParticleType("DRIP_LAVA", new SpongeParticleType(EnumParticleTypes.DRIP_LAVA, false));
+        this.addParticleType("VILLAGER_ANGRY", new SpongeParticleType(EnumParticleTypes.VILLAGER_ANGRY, false));
+        this.addParticleType("VILLAGER_HAPPY", new SpongeParticleType(EnumParticleTypes.VILLAGER_HAPPY, true));
+        this.addParticleType("TOWN_AURA", new SpongeParticleType(EnumParticleTypes.TOWN_AURA, true));
+        this.addParticleType("NOTE", new SpongeParticleType.Note(EnumParticleTypes.NOTE, 0f));
+        this.addParticleType("PORTAL", new SpongeParticleType(EnumParticleTypes.PORTAL, true));
+        this.addParticleType("ENCHANTMENT_TABLE", new SpongeParticleType(EnumParticleTypes.ENCHANTMENT_TABLE, true));
+        this.addParticleType("FLAME", new SpongeParticleType(EnumParticleTypes.FLAME, true));
+        this.addParticleType("LAVA", new SpongeParticleType(EnumParticleTypes.LAVA, false));
+        this.addParticleType("FOOTSTEP", new SpongeParticleType(EnumParticleTypes.FOOTSTEP, false));
+        this.addParticleType("CLOUD", new SpongeParticleType(EnumParticleTypes.CLOUD, true));
+        this.addParticleType("REDSTONE", new SpongeParticleType.Colorable(EnumParticleTypes.REDSTONE, Color.RED));
+        this.addParticleType("SNOWBALL", new SpongeParticleType(EnumParticleTypes.SNOWBALL, false));
+        this.addParticleType("SNOW_SHOVEL", new SpongeParticleType(EnumParticleTypes.SNOW_SHOVEL, true));
+        this.addParticleType("SLIME", new SpongeParticleType(EnumParticleTypes.SLIME, false));
+        this.addParticleType("HEART", new SpongeParticleType(EnumParticleTypes.HEART, false));
+        this.addParticleType("BARRIER", new SpongeParticleType(EnumParticleTypes.BARRIER, false));
+        this.addParticleType("ITEM_CRACK", new SpongeParticleType.Material(EnumParticleTypes.ITEM_CRACK, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("BLOCK_CRACK", new SpongeParticleType.Material(EnumParticleTypes.BLOCK_CRACK, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("BLOCK_DUST", new SpongeParticleType.Material(EnumParticleTypes.BLOCK_DUST, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("WATER_DROP", new SpongeParticleType(EnumParticleTypes.WATER_DROP, false));
+        // Is this particle available to be spawned? It's not registered on the client though
+        this.addParticleType("ITEM_TAKE", new SpongeParticleType(EnumParticleTypes.ITEM_TAKE, false));
+        this.addParticleType("MOB_APPEARANCE", new SpongeParticleType(EnumParticleTypes.MOB_APPEARANCE, false));
+
+        RegistryHelper.mapFields(ParticleTypes.class, this.particleMappings);
+    }
+
+    private void addParticleType(String mapping, SpongeParticleType particle) {
+        this.particleMappings.put(mapping, particle);
+        this.particleByName.put(particle.getName(), particle);
     }
 
     private void setBlockTypes() {
@@ -448,13 +612,12 @@ public class SpongeGameRegistry implements GameRegistry {
             this.blockList.add(getBlock(iter.next().toString()).get());
         }
 
-        for (Field f : BlockTypes.class.getDeclaredFields()) {
-            try {
-                f.set(null, getBlock(f.getName().toLowerCase()).get());
-            } catch (Exception e) {
-                // Ignoring error
+        RegistryHelper.mapFields(BlockTypes.class, new Function<String, BlockType>() {
+            @Override
+            public BlockType apply(String fieldName) {
+                return getBlock(fieldName.toLowerCase()).get();
             }
-        }
+        });
     }
 
     private void setItemTypes() {
@@ -463,13 +626,12 @@ public class SpongeGameRegistry implements GameRegistry {
             this.itemList.add(getItem(iter.next().toString()).get());
         }
 
-        for (Field f : ItemTypes.class.getDeclaredFields()) {
-            try {
-                f.set(null, getItem(f.getName().toLowerCase()).get());
-            } catch (Exception e) {
-                // Ignoring error
+        RegistryHelper.mapFields(ItemTypes.class, new Function<String, ItemType>() {
+            @Override
+            public ItemType apply(String fieldName) {
+                return getItem(fieldName.toLowerCase()).get();
             }
-        }
+        });
     }
 
     private void setEnchantments() {
@@ -498,13 +660,8 @@ public class SpongeGameRegistry implements GameRegistry {
         this.enchantmentMappings.put("INFINITY", (Enchantment) net.minecraft.enchantment.Enchantment.infinity);
         this.enchantmentMappings.put("LUCK_OF_THE_SEA", (Enchantment) net.minecraft.enchantment.Enchantment.luckOfTheSea);
         this.enchantmentMappings.put("LURE", (Enchantment) net.minecraft.enchantment.Enchantment.lure);
-        for (Field f : Enchantments.class.getDeclaredFields()) {
-            try {
-                f.set(null, this.enchantmentMappings.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+
+        RegistryHelper.mapFields(Enchantments.class, this.enchantmentMappings);
     }
     
     // Note: This is probably fairly slow, but only needs to be run rarely.
@@ -515,88 +672,105 @@ public class SpongeGameRegistry implements GameRegistry {
                 this.potionList.add(potionEffectType);
             }
         }
-        for (Field f : PotionEffectTypes.class.getDeclaredFields()) {
-            try {
-                f.set(null, getPotion(f.getName().toLowerCase()).get());
-            } catch (Exception e) {
-                e.printStackTrace();
+        RegistryHelper.mapFields(PotionEffectTypes.class, new Function<String, PotionEffectType>() {
+            @Override
+            public PotionEffectType apply(String fieldName) {
+                return getPotion(fieldName.toLowerCase()).get();
             }
-        }
+        });
     }
 
     private void setArts() {
-        for(Field f : Arts.class.getDeclaredFields()) {
+        RegistryHelper.mapFields(Arts.class, new Function<String, Art>() {
+            @Override
+            public Art apply(String fieldName) {
+                Art art = (Art) (Object) EnumArt.valueOf(fieldName);
+                SpongeGameRegistry.this.artMappings.put(art.getName(), art);
+                return art;
+            }
+        });
+    }
+
+    private Map<String, Integer> mcEntityNameToId = null;
+
+    private SpongeEntityType newEntityTypeFromName(String spongeName, String mcName) {
+        if (this.mcEntityNameToId == null) {
             try {
-                Art art = (Art) (Object) EnumArt.valueOf(f.getName());
-                f.set(null, art);
-                this.artMappings.put(art.getName(), art);
+                Field field_180126_g = EntityList.class.getDeclaredField("field_180126_g");
+                field_180126_g.setAccessible(true);
+                this.mcEntityNameToId = (Map<String, Integer>) field_180126_g.get(null);
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
+        return new SpongeEntityType(this.mcEntityNameToId.get(mcName), spongeName, (Class<? extends Entity>) EntityList.stringToClassMapping.get(mcName));
     }
-    
+
+    private SpongeEntityType newEntityTypeFromName(String name) {
+        return newEntityTypeFromName(name, name);
+    }
+
     private void setEntityTypes() {
         // internal mapping of our EntityTypes to actual MC names
-        this.entityTypeMappings.put("DROPPED_ITEM", new SpongeEntityType(1, "Item", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Item")));
-        this.entityTypeMappings.put("EXPERIENCE_ORB", new SpongeEntityType(2, "XPOrb", (Class<? extends Entity>)EntityList.stringToClassMapping.get("XPOrb")));
-        this.entityTypeMappings.put("LEASH_HITCH", new SpongeEntityType(8, "LeashKnot", (Class<? extends Entity>)EntityList.stringToClassMapping.get("LeashKnot")));
-        this.entityTypeMappings.put("PAINTING", new SpongeEntityType(9, "Painting", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Painting")));
-        this.entityTypeMappings.put("ARROW", new SpongeEntityType(10, "Arrow", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Arrow")));
-        this.entityTypeMappings.put("SNOWBALL", new SpongeEntityType(11, "Snowball", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Snowball")));
-        this.entityTypeMappings.put("FIREBALL", new SpongeEntityType(12, "LargeFireball", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Fireball")));
-        this.entityTypeMappings.put("SMALL_FIREBALL", new SpongeEntityType(13, "SmallFireball", (Class<? extends Entity>)EntityList.stringToClassMapping.get("SmallFireball")));
-        this.entityTypeMappings.put("ENDER_PEARL", new SpongeEntityType(14, "ThrownEnderpearl", (Class<? extends Entity>)EntityList.stringToClassMapping.get("ThrownEnderpearl")));
-        this.entityTypeMappings.put("EYE_OF_ENDER", new SpongeEntityType(15, "EyeOfEnderSignal", (Class<? extends Entity>)EntityList.stringToClassMapping.get("EyeOfEnderSignal")));
-        this.entityTypeMappings.put("SPLASH_POTION", new SpongeEntityType(16, "ThrownPotion", (Class<? extends Entity>)EntityList.stringToClassMapping.get("ThrownPotion")));
-        this.entityTypeMappings.put("THROWN_EXP_BOTTLE", new SpongeEntityType(17, "ThrownExpBottle", (Class<? extends Entity>)EntityList.stringToClassMapping.get("ThrownExpBottle")));
-        this.entityTypeMappings.put("ITEM_FRAME", new SpongeEntityType(18, "ItemFrame", (Class<? extends Entity>)EntityList.stringToClassMapping.get("ItemFrame")));
-        this.entityTypeMappings.put("WITHER_SKULL", new SpongeEntityType(19, "WitherSkull", (Class<? extends Entity>)EntityList.stringToClassMapping.get("WitherSkull")));
-        this.entityTypeMappings.put("PRIMED_TNT", new SpongeEntityType(20, "PrimedTnt", (Class<? extends Entity>)EntityList.stringToClassMapping.get("PrimedTnt")));
-        this.entityTypeMappings.put("FALLING_BLOCK", new SpongeEntityType(21, "FallingSand", (Class<? extends Entity>)EntityList.stringToClassMapping.get("FallingSand")));
-        this.entityTypeMappings.put("FIREWORK", new SpongeEntityType(22, "FireworksRocketEntity", (Class<? extends Entity>)EntityList.stringToClassMapping.get("FireworksRocketEntity")));
-        this.entityTypeMappings.put("ARMORSTAND", new SpongeEntityType(30, "ArmorStand", (Class<? extends Entity>)EntityList.stringToClassMapping.get("ArmorStand")));;
-        this.entityTypeMappings.put("BOAT", new SpongeEntityType(41, "Boat", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Boat")));
-        this.entityTypeMappings.put("RIDEABLE_MINECART", new SpongeEntityType(42, "MinecartRideable", (Class<? extends Entity>)EntityList.stringToClassMapping.get("MinecartRideable")));
-        this.entityTypeMappings.put("CHESTED_MINECART", new SpongeEntityType(43, "MinecartChest", (Class<? extends Entity>)EntityList.stringToClassMapping.get("MinecartChest")));
-        this.entityTypeMappings.put("FURNACE_MINECART", new SpongeEntityType(44, "MinecartFurnace", (Class<? extends Entity>)EntityList.stringToClassMapping.get("MinecartFurnace")));
-        this.entityTypeMappings.put("TNT_MINECART", new SpongeEntityType(45, "MinecartTnt", (Class<? extends Entity>)EntityList.stringToClassMapping.get("MinecartTNT")));
-        this.entityTypeMappings.put("HOPPER_MINECART", new SpongeEntityType(46, "MinecartHopper", (Class<? extends Entity>)EntityList.stringToClassMapping.get("MinecartHopper")));
-        this.entityTypeMappings.put("MOB_SPAWNER_MINECART", new SpongeEntityType(47, "MinecartSpawner", (Class<? extends Entity>)EntityList.stringToClassMapping.get("MinecartSpawner")));
-        this.entityTypeMappings.put("COMMANDBLOCK_MINECART", new SpongeEntityType(40, "MinecartCommandBlock", (Class<? extends Entity>)EntityList.stringToClassMapping.get("MinecartCommandBlock")));
-        this.entityTypeMappings.put("CREEPER", new SpongeEntityType(50, "Creeper", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Creeper")));
-        this.entityTypeMappings.put("SKELETON", new SpongeEntityType(51, "Skeleton", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Skeleton")));
-        this.entityTypeMappings.put("SPIDER", new SpongeEntityType(52, "Spider", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Spider")));
-        this.entityTypeMappings.put("GIANT", new SpongeEntityType(53, "Giant", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Giant")));
-        this.entityTypeMappings.put("ZOMBIE", new SpongeEntityType(54, "Zombie", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Zombie")));
-        this.entityTypeMappings.put("SLIME", new SpongeEntityType(55, "Slime", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Slime")));
-        this.entityTypeMappings.put("GHAST", new SpongeEntityType(56, "Ghast", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Ghast")));
-        this.entityTypeMappings.put("PIG_ZOMBIE", new SpongeEntityType(57, "PigZombie", (Class<? extends Entity>)EntityList.stringToClassMapping.get("PigZombie")));
-        this.entityTypeMappings.put("ENDERMAN", new SpongeEntityType(58, "Enderman", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Enderman")));
-        this.entityTypeMappings.put("CAVE_SPIDER", new SpongeEntityType(59, "CaveSpider", (Class<? extends Entity>)EntityList.stringToClassMapping.get("CaveSpider")));
-        this.entityTypeMappings.put("SILVERFISH", new SpongeEntityType(60, "Silverfish", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Silverfish")));
-        this.entityTypeMappings.put("BLAZE", new SpongeEntityType(61, "Blaze", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Blaze")));
-        this.entityTypeMappings.put("MAGMA_CUBE", new SpongeEntityType(62, "LavaSlime", (Class<? extends Entity>)EntityList.stringToClassMapping.get("LavaSlime")));
-        this.entityTypeMappings.put("ENDER_DRAGON", new SpongeEntityType(63, "EnderDragon", (Class<? extends Entity>)EntityList.stringToClassMapping.get("EnderDragon")));
-        this.entityTypeMappings.put("WITHER", new SpongeEntityType(64, "WitherBoss", (Class<? extends Entity>)EntityList.stringToClassMapping.get("WitherBoss")));
-        this.entityTypeMappings.put("BAT", new SpongeEntityType(65, "Bat", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Bat")));
-        this.entityTypeMappings.put("WITCH", new SpongeEntityType(66, "Witch", (Class<? extends Entity>)EntityList.stringToClassMapping.get("FallingSand")));
-        this.entityTypeMappings.put("ENDERMITE", new SpongeEntityType(67, "Endermite", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Endermite")));
-        this.entityTypeMappings.put("GUARDIAN", new SpongeEntityType(68, "Guardian", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Guardian")));
-        this.entityTypeMappings.put("PIG", new SpongeEntityType(90, "Pig", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Pig")));
-        this.entityTypeMappings.put("SHEEP", new SpongeEntityType(91, "Sheep", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Sheep")));
-        this.entityTypeMappings.put("COW", new SpongeEntityType(92, "Cow", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Cow")));
-        this.entityTypeMappings.put("CHICKEN", new SpongeEntityType(93, "Chicken", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Chicken")));
-        this.entityTypeMappings.put("SQUID", new SpongeEntityType(94, "Squid", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Squid")));
-        this.entityTypeMappings.put("WOLF", new SpongeEntityType(95, "Wolf", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Wolf")));
-        this.entityTypeMappings.put("MUSHROOM_COW", new SpongeEntityType(96, "MushroomCow", (Class<? extends Entity>)EntityList.stringToClassMapping.get("MushroomCow")));
-        this.entityTypeMappings.put("SNOWMAN", new SpongeEntityType(97, "SnowMan", (Class<? extends Entity>)EntityList.stringToClassMapping.get("SnowMan")));
-        this.entityTypeMappings.put("OCELOT", new SpongeEntityType(98, "Ozelot", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Ozelot")));
-        this.entityTypeMappings.put("IRON_GOLEM", new SpongeEntityType(99, "VillagerGolem", (Class<? extends Entity>)EntityList.stringToClassMapping.get("VillagerGolem")));
-        this.entityTypeMappings.put("HORSE", new SpongeEntityType(100, "EntityHorse", (Class<? extends Entity>)EntityList.stringToClassMapping.get("EntityHorse")));
-        this.entityTypeMappings.put("RABBIT", new SpongeEntityType(101, "Rabbit", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Rabbit")));
-        this.entityTypeMappings.put("VILLAGER", new SpongeEntityType(120, "Villager", (Class<? extends Entity>)EntityList.stringToClassMapping.get("Villager")));
-        this.entityTypeMappings.put("ENDER_CRYSTAL", new SpongeEntityType(200, "EnderCrystal", (Class<? extends Entity>)EntityList.stringToClassMapping.get("EnderCrystal")));
+        this.entityTypeMappings.put("DROPPED_ITEM", newEntityTypeFromName("Item"));
+        this.entityTypeMappings.put("EXPERIENCE_ORB", newEntityTypeFromName("XPOrb"));
+        this.entityTypeMappings.put("LEASH_HITCH", newEntityTypeFromName("LeashKnot"));
+        this.entityTypeMappings.put("PAINTING", newEntityTypeFromName("Painting"));
+        this.entityTypeMappings.put("ARROW", newEntityTypeFromName("Arrow"));
+        this.entityTypeMappings.put("SNOWBALL", newEntityTypeFromName("Snowball"));
+        this.entityTypeMappings.put("FIREBALL", newEntityTypeFromName("LargeFireball", "Fireball"));
+        this.entityTypeMappings.put("SMALL_FIREBALL", newEntityTypeFromName("SmallFireball"));
+        this.entityTypeMappings.put("ENDER_PEARL", newEntityTypeFromName("ThrownEnderpearl"));
+        this.entityTypeMappings.put("EYE_OF_ENDER", newEntityTypeFromName("EyeOfEnderSignal"));
+        this.entityTypeMappings.put("SPLASH_POTION", newEntityTypeFromName("ThrownPotion"));
+        this.entityTypeMappings.put("THROWN_EXP_BOTTLE", newEntityTypeFromName("ThrownExpBottle"));
+        this.entityTypeMappings.put("ITEM_FRAME", newEntityTypeFromName("ItemFrame"));
+        this.entityTypeMappings.put("WITHER_SKULL", newEntityTypeFromName("WitherSkull"));
+        this.entityTypeMappings.put("PRIMED_TNT", newEntityTypeFromName("PrimedTnt"));
+        this.entityTypeMappings.put("FALLING_BLOCK", newEntityTypeFromName("FallingSand"));
+        this.entityTypeMappings.put("FIREWORK", newEntityTypeFromName("FireworksRocketEntity"));
+        this.entityTypeMappings.put("ARMOR_STAND", newEntityTypeFromName("ArmorStand"));
+        this.entityTypeMappings.put("BOAT", newEntityTypeFromName("Boat"));
+        this.entityTypeMappings.put("RIDEABLE_MINECART", newEntityTypeFromName("MinecartRideable"));
+        this.entityTypeMappings.put("CHESTED_MINECART", newEntityTypeFromName("MinecartChest"));
+        this.entityTypeMappings.put("FURNACE_MINECART", newEntityTypeFromName("MinecartFurnace"));
+        this.entityTypeMappings.put("TNT_MINECART", newEntityTypeFromName("MinecartTnt", "MinecartTNT"));
+        this.entityTypeMappings.put("HOPPER_MINECART", newEntityTypeFromName("MinecartHopper"));
+        this.entityTypeMappings.put("MOB_SPAWNER_MINECART", newEntityTypeFromName("MinecartSpawner"));
+        this.entityTypeMappings.put("COMMANDBLOCK_MINECART", newEntityTypeFromName("MinecartCommandBlock"));
+        this.entityTypeMappings.put("CREEPER", newEntityTypeFromName("Creeper"));
+        this.entityTypeMappings.put("SKELETON", newEntityTypeFromName("Skeleton"));
+        this.entityTypeMappings.put("SPIDER", newEntityTypeFromName("Spider"));
+        this.entityTypeMappings.put("GIANT", newEntityTypeFromName("Giant"));
+        this.entityTypeMappings.put("ZOMBIE", newEntityTypeFromName("Zombie"));
+        this.entityTypeMappings.put("SLIME", newEntityTypeFromName("Slime"));
+        this.entityTypeMappings.put("GHAST", newEntityTypeFromName("Ghast"));
+        this.entityTypeMappings.put("PIG_ZOMBIE", newEntityTypeFromName("PigZombie"));
+        this.entityTypeMappings.put("ENDERMAN", newEntityTypeFromName("Enderman"));
+        this.entityTypeMappings.put("CAVE_SPIDER", newEntityTypeFromName("CaveSpider"));
+        this.entityTypeMappings.put("SILVERFISH", newEntityTypeFromName("Silverfish"));
+        this.entityTypeMappings.put("BLAZE", newEntityTypeFromName("Blaze"));
+        this.entityTypeMappings.put("MAGMA_CUBE", newEntityTypeFromName("LavaSlime"));
+        this.entityTypeMappings.put("ENDER_DRAGON", newEntityTypeFromName("EnderDragon"));
+        this.entityTypeMappings.put("WITHER", newEntityTypeFromName("WitherBoss"));
+        this.entityTypeMappings.put("BAT", newEntityTypeFromName("Bat"));
+        this.entityTypeMappings.put("WITCH", newEntityTypeFromName("Witch"));
+        this.entityTypeMappings.put("ENDERMITE", newEntityTypeFromName("Endermite"));
+        this.entityTypeMappings.put("GUARDIAN", newEntityTypeFromName("Guardian"));
+        this.entityTypeMappings.put("PIG", newEntityTypeFromName("Pig"));
+        this.entityTypeMappings.put("SHEEP", newEntityTypeFromName("Sheep"));
+        this.entityTypeMappings.put("COW", newEntityTypeFromName("Cow"));
+        this.entityTypeMappings.put("CHICKEN", newEntityTypeFromName("Chicken"));
+        this.entityTypeMappings.put("SQUID", newEntityTypeFromName("Squid"));
+        this.entityTypeMappings.put("WOLF", newEntityTypeFromName("Wolf"));
+        this.entityTypeMappings.put("MUSHROOM_COW", newEntityTypeFromName("MushroomCow"));
+        this.entityTypeMappings.put("SNOWMAN", newEntityTypeFromName("SnowMan"));
+        this.entityTypeMappings.put("OCELOT", newEntityTypeFromName("Ozelot"));
+        this.entityTypeMappings.put("IRON_GOLEM", newEntityTypeFromName("VillagerGolem"));
+        this.entityTypeMappings.put("HORSE", newEntityTypeFromName("EntityHorse"));
+        this.entityTypeMappings.put("RABBIT", newEntityTypeFromName("Rabbit"));
+        this.entityTypeMappings.put("VILLAGER", newEntityTypeFromName("Villager"));
+        this.entityTypeMappings.put("ENDER_CRYSTAL", newEntityTypeFromName("EnderCrystal"));
         this.entityTypeMappings.put("EGG", new SpongeEntityType(-1, "Egg", EntityEgg.class));
         this.entityTypeMappings.put("FISHING_HOOK", new SpongeEntityType(-2, "FishingHook", EntityFishHook.class));
         this.entityTypeMappings.put("LIGHTNING", new SpongeEntityType(-3, "Lightning", EntityLightningBolt.class));
@@ -604,71 +778,31 @@ public class SpongeGameRegistry implements GameRegistry {
         this.entityTypeMappings.put("PLAYER", new SpongeEntityType(-5, "Player", EntityPlayerMP.class));
         this.entityTypeMappings.put("COMPLEX_PART", new SpongeEntityType(-6, "ComplexPart", EntityDragonPart.class));
 
-        for (Field f : EntityTypes.class.getDeclaredFields()) {
-            try {
-                EntityType entityType = this.entityTypeMappings.get(f.getName());
-                f.set(null, this.entityTypeMappings.get(f.getName()));
-                this.entityClassToTypeMappings.put(((SpongeEntityType)entityType).entityClass, (SpongeEntityType)entityType);
-                this.entityIdToTypeMappings.put(((SpongeEntityType)entityType).modId, ((SpongeEntityType)entityType));
-            } catch (Exception e) {
-                // Ignore errors
+        RegistryHelper.mapFields(EntityTypes.class, new Function<String, EntityType>() {
+            @Override
+            public EntityType apply(String fieldName) {
+                if (fieldName.equals("UNKNOWN")) {
+                    // TODO Something for Unknown?
+                    return null;
+                }
+                EntityType entityType = SpongeGameRegistry.this.entityTypeMappings.get(fieldName);
+                SpongeGameRegistry.this.entityClassToTypeMappings.put(((SpongeEntityType) entityType).entityClass, (SpongeEntityType) entityType);
+                SpongeGameRegistry.this.entityIdToTypeMappings.put(((SpongeEntityType) entityType).getId(), ((SpongeEntityType) entityType));
+                return entityType;
             }
-        }
+        });
 
-        // skeleton types
-        for (Field f : SkeletonTypes.class.getDeclaredFields()) {
-            try {
-                f.set(null, SpongeEntityConstants.SKELETON_TYPES.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        // horse colors
-        for (Field f : HorseColors.class.getDeclaredFields()) {
-            try {
-                f.set(null, SpongeEntityConstants.HORSE_COLORS.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        // horse variants
-        for (Field f : HorseVariants.class.getDeclaredFields()) {
-            try {
-                f.set(null, SpongeEntityConstants.HORSE_VARIANTS.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        for (Field f : HorseStyles.class.getDeclaredFields()) {
-            try {
-                f.set(null, SpongeEntityConstants.HORSE_STYLES.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        for (Field f : OcelotTypes.class.getDeclaredFields()) {
-            try {
-                f.set(null, SpongeEntityConstants.OCELOT_TYPES.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        for (Field f : RabbitTypes.class.getDeclaredFields()) {
-            try {
-                f.set(null, SpongeEntityConstants.RABBIT_TYPES.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        RegistryHelper.mapFields(SkeletonTypes.class, SpongeEntityConstants.SKELETON_TYPES);
+        RegistryHelper.mapFields(HorseColors.class, SpongeEntityConstants.HORSE_COLORS);
+        RegistryHelper.mapFields(HorseVariants.class, SpongeEntityConstants.HORSE_VARIANTS);
+        RegistryHelper.mapFields(HorseStyles.class, SpongeEntityConstants.HORSE_STYLES);
+        RegistryHelper.mapFields(OcelotTypes.class, SpongeEntityConstants.OCELOT_TYPES);
+        RegistryHelper.mapFields(RabbitTypes.class, SpongeEntityConstants.RABBIT_TYPES);
     }
 
     private void setBiomeTypes() {
-        for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
+        BiomeGenBase[] biomeArray = BiomeGenBase.getBiomeGenArray();
+        for (BiomeGenBase biome : biomeArray) {
             if (biome != null) {
                 this.biomeTypes.add((BiomeType)biome);
             }
@@ -714,35 +848,29 @@ public class SpongeGameRegistry implements GameRegistry {
         this.biomeTypeMappings.put("MESA", (BiomeType)BiomeGenBase.mesa);
         this.biomeTypeMappings.put("MESA_PLATEAU_FOREST", (BiomeType)BiomeGenBase.mesaPlateau_F);
         this.biomeTypeMappings.put("MESA_PLATEAU", (BiomeType)BiomeGenBase.mesaPlateau);
-        this.biomeTypeMappings.put("SUNFLOWER_PLAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.plains.biomeID + 128]);
-        this.biomeTypeMappings.put("DESERT_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.desert.biomeID + 128]);
-        this.biomeTypeMappings.put("FLOWER_FOREST", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.forest.biomeID + 128]);
-        this.biomeTypeMappings.put("TAIGA_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.taiga.biomeID + 128]);
-        this.biomeTypeMappings.put("SWAMPLAND_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.swampland.biomeID + 128]);
-        this.biomeTypeMappings.put("ICE_PLAINS_SPIKES", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.icePlains.biomeID + 128]);
-        this.biomeTypeMappings.put("JUNGLE_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.jungle.biomeID + 128]);
-        this.biomeTypeMappings.put("JUNGLE_EDGE_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.jungleEdge.biomeID + 128]);
-        this.biomeTypeMappings.put("COLD_TAIGA_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.coldTaiga.biomeID + 128]);
-        this.biomeTypeMappings.put("SAVANNA_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.savanna.biomeID + 128]);
-        this.biomeTypeMappings.put("SAVANNA_PLATEAU_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.savannaPlateau.biomeID + 128]);
-        this.biomeTypeMappings.put("MESA_BRYCE", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.mesa.biomeID + 128]);
-        this.biomeTypeMappings.put("MESA_PLATEAU_FOREST_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.mesaPlateau_F.biomeID + 128]);
-        this.biomeTypeMappings.put("MESA_PLATEAU_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.mesaPlateau.biomeID + 128]);
-        this.biomeTypeMappings.put("BIRCH_FOREST_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.birchForest.biomeID + 128]);
-        this.biomeTypeMappings.put("BIRCH_FOREST_HILLS_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.birchForestHills.biomeID + 128]);
-        this.biomeTypeMappings.put("ROOFED_FOREST_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.roofedForest.biomeID + 128]);
-        this.biomeTypeMappings.put("MEGA_SPRUCE_TAIGA", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.megaTaiga.biomeID + 128]);
-        this.biomeTypeMappings.put("EXTREME_HILLS_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.extremeHills.biomeID + 128]);
-        this.biomeTypeMappings.put("EXTREME_HILLS_PLUS_MOUNTAINS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.extremeHillsPlus.biomeID + 128]);
-        this.biomeTypeMappings.put("MEGA_SPRUCE_TAIGA_HILLS", (BiomeType)BiomeGenBase.getBiomeGenArray()[BiomeGenBase.megaTaigaHills.biomeID + 128]);
+        this.biomeTypeMappings.put("SUNFLOWER_PLAINS", (BiomeType) biomeArray[BiomeGenBase.plains.biomeID + 128]);
+        this.biomeTypeMappings.put("DESERT_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.desert.biomeID + 128]);
+        this.biomeTypeMappings.put("FLOWER_FOREST", (BiomeType) biomeArray[BiomeGenBase.forest.biomeID + 128]);
+        this.biomeTypeMappings.put("TAIGA_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.taiga.biomeID + 128]);
+        this.biomeTypeMappings.put("SWAMPLAND_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.swampland.biomeID + 128]);
+        this.biomeTypeMappings.put("ICE_PLAINS_SPIKES", (BiomeType) biomeArray[BiomeGenBase.icePlains.biomeID + 128]);
+        this.biomeTypeMappings.put("JUNGLE_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.jungle.biomeID + 128]);
+        this.biomeTypeMappings.put("JUNGLE_EDGE_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.jungleEdge.biomeID + 128]);
+        this.biomeTypeMappings.put("COLD_TAIGA_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.coldTaiga.biomeID + 128]);
+        this.biomeTypeMappings.put("SAVANNA_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.savanna.biomeID + 128]);
+        this.biomeTypeMappings.put("SAVANNA_PLATEAU_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.savannaPlateau.biomeID + 128]);
+        this.biomeTypeMappings.put("MESA_BRYCE", (BiomeType) biomeArray[BiomeGenBase.mesa.biomeID + 128]);
+        this.biomeTypeMappings.put("MESA_PLATEAU_FOREST_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.mesaPlateau_F.biomeID + 128]);
+        this.biomeTypeMappings.put("MESA_PLATEAU_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.mesaPlateau.biomeID + 128]);
+        this.biomeTypeMappings.put("BIRCH_FOREST_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.birchForest.biomeID + 128]);
+        this.biomeTypeMappings.put("BIRCH_FOREST_HILLS_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.birchForestHills.biomeID + 128]);
+        this.biomeTypeMappings.put("ROOFED_FOREST_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.roofedForest.biomeID + 128]);
+        this.biomeTypeMappings.put("MEGA_SPRUCE_TAIGA", (BiomeType) biomeArray[BiomeGenBase.megaTaiga.biomeID + 128]);
+        this.biomeTypeMappings.put("EXTREME_HILLS_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.extremeHills.biomeID + 128]);
+        this.biomeTypeMappings.put("EXTREME_HILLS_PLUS_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.extremeHillsPlus.biomeID + 128]);
+        this.biomeTypeMappings.put("MEGA_SPRUCE_TAIGA_HILLS", (BiomeType) biomeArray[BiomeGenBase.megaTaigaHills.biomeID + 128]);
 
-        for (Field f : BiomeTypes.class.getDeclaredFields()) {
-            try {
-                f.set(null, this.biomeTypeMappings.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        RegistryHelper.mapFields(BiomeTypes.class, this.biomeTypeMappings);
     }
 
     private void setCareersAndProfessions() {
@@ -829,67 +957,30 @@ public class SpongeGameRegistry implements GameRegistry {
         textColorToEnumMappings.put(textColorMappings.get("RESET"), EnumChatFormatting.RESET);
         textColorToEnumMappings.put(textColorMappings.get("YELLOW"), EnumChatFormatting.YELLOW);
 
-        for (Field f : TextColors.class.getDeclaredFields()) {
-            try {
-                f.set(null, textColorMappings.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        for (Field f : TextStyles.class.getDeclaredFields()) {
-            try {
-                if (!f.getName().equals("NONE") && !f.getName().equals("ZERO")) { // ignore these as they are already implemented in API
-                    f.set(null, textStyleMappings.get(f.getName()));
-                }
-            } catch (Exception e) {
-                // e.printStackTrace();
-            }
-        }
-
-        for (Field f : ChatTypes.class.getDeclaredFields()) {
-            try {
-                f.set(null, chatTypeMappings.get(f.getName()));
-            } catch (Exception e) {
-                // e.printStackTrace();
-            }
-        }
+        RegistryHelper.mapFields(TextColors.class, textColorMappings);
+        RegistryHelper.mapFields(TextStyles.class, textStyleMappings, Lists.newArrayList("NONE", "ZERO"));
+        RegistryHelper.mapFields(ChatTypes.class, chatTypeMappings);
     }
 
     private void setRotations() {
-        for (Field f : Rotations.class.getDeclaredFields()) {
-            try {
-                f.set(null, rotationMappings.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        RegistryHelper.mapFields(Rotations.class, rotationMappings);
     }
     
     private void setWeathers() {
-        for (Field f : Weathers.class.getDeclaredFields()) {
-            try {
-                f.set(null, new SpongeWeather());
-            } catch (Exception e) {
-                e.printStackTrace();
+        RegistryHelper.mapFields(Weathers.class, new Function<String, Weather>() {
+            @Override
+            public Weather apply(String fieldName) {
+                return new SpongeWeather();
             }
-        }
+        });
     }
 
     private void setTextActionFactory() {
-        try {
-            TextActions.class.getDeclaredField("factory").set(null, new SpongeTextActionFactory());
-        } catch (Exception e) {
-            // e.printStackTrace();
-        }
+        RegistryHelper.setFactory(TextActions.class, new SpongeTextActionFactory());
     }
 
     private void setMessageFactory() {
-        try {
-            Messages.class.getDeclaredField("factory").set(null, new SpongeMessageFactory());
-        } catch (Exception e) {
-            // e.printStackTrace();
-        }
+        RegistryHelper.setFactory(Messages.class, new SpongeMessageFactory());
     }
 
     private void setSelectors() {
@@ -898,19 +989,15 @@ public class SpongeGameRegistry implements GameRegistry {
             SelectorTypes.class.getDeclaredField("ALL_ENTITIES").set(null, new SpongeSelectorType("e"));
             SelectorTypes.class.getDeclaredField("NEAREST_PLAYER").set(null, new SpongeSelectorType("p"));
             SelectorTypes.class.getDeclaredField("RANDOM_PLAYER").set(null, new SpongeSelectorType("r"));
-            SelectorTypes.class.getDeclaredField("factory").set(null, new SpongeSelectorTypeFactory());
-            Selectors.class.getDeclaredField("factory").set(null, new SpongeSelectorFactory());
         } catch (Exception e) {
             e.printStackTrace();
         }
+        RegistryHelper.setFactory(SelectorTypes.class, new SpongeSelectorTypeFactory());
+        RegistryHelper.setFactory(Selectors.class, new SpongeSelectorFactory());
     }
 
     private void setTitleFactory() {
-        try {
-            Titles.class.getDeclaredField("factory").set(null, new SpongeTitleFactory());
-        } catch (Exception e) {
-            // e.printStackTrace();
-        }
+        RegistryHelper.setFactory(Titles.class, new SpongeTitleFactory());
     }
 
     private void setDimensionTypes() {
@@ -935,6 +1022,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setMessageFactory();
         setSelectors();
         setTitleFactory();
+        setParticles();
     }
 
     public void postInit() {

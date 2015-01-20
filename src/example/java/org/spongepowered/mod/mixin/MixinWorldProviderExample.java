@@ -115,7 +115,7 @@ public abstract class MixinWorldProviderExample {
     /**
      * <p>What's this? A parameterised {@link At}? Surely not!</p>
      * 
-     * <p>{@link org.spongepowered.asm.mixin.injection.points.MethodHEad HEAD} and
+     * <p>{@link org.spongepowered.asm.mixin.injection.points.MethodHead HEAD} and
      * {@link org.spongepowered.asm.mixin.injection.points.BeforeReturn RETURN} are only two of the available values for {@link At} types and are the
      * most straightforward to understand. HEAD only ever makes a single injection (at the head of the method) and RETURN injects before <em>every
      * RETURN opcode</em> in a method. Other injection types are available however:<p>
@@ -149,9 +149,12 @@ public abstract class MixinWorldProviderExample {
      *     this.registerWorldChunkManager();
      *     this.generateLightBrightnessTable();
      * </pre></blockquote>
-     * Having identified the target method, we simply supply the method name as the <em>target</em> argument to the {@link At} annotation.</p>
+     * Having identified the target method, we simply supply the method name as the <em>target</em> argument to the {@link At} annotation. Note that
+     * unlike the <em>method</em> parameter (which <b>must</b> refer to a method in the target class) the <em>target</em> parameter for the {@link At}
+     * <b>must</b> be a <em>fully-qualified</em> member reference (include both the owner and signature) because the obfuscation processor requires
+     * this information in order to look up the target member in the obfuscation tables.</p>
      */
-    @Inject(method = "registerWorld", at = @At(value = "INVOKE", target = "registerWorldChunkManager"))
+    @Inject(method = "registerWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldProvider;registerWorldChunkManager()V"))
     public void onRegisterWorld(World worldIn, CallbackInfo ci)
     {
         // I will be called immediately before the call to registerWorldChunkManager. Just like magic.

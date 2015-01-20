@@ -29,12 +29,12 @@ import java.util.Iterator;
 
 import com.flowpowered.math.vector.Vector3d;
 
+import net.minecraft.world.border.EnumBorderStatus;
 import net.minecraft.world.border.IBorderListener;
 
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.WorldBorder;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -44,11 +44,17 @@ import org.spongepowered.asm.mixin.Interface;
 @Implements(@Interface(iface = WorldBorder.class, prefix = "border$"))
 public abstract class MixinWorldBorder implements WorldBorder {
 
-    @Shadow
-    private int warningTime;
+    @Shadow private int warningTime;
 
-    @Shadow
-    private int warningDistance;
+    @Shadow private int warningDistance;
+
+    @Shadow private double startDiameter;
+
+    @Shadow private double endDiameter;
+
+    @Shadow private long endTime;
+
+    @Shadow private long startTime;
 
     @Shadow
     public abstract double getDamageBuffer();
@@ -80,15 +86,8 @@ public abstract class MixinWorldBorder implements WorldBorder {
     @Shadow
     public abstract double getCenterZ();
 
-    @Override
-    @Shadow
-    public abstract void setCenter(double x, double z);
-
     @Shadow
     public abstract double getTargetSize();
-
-    @Shadow
-    public abstract double getDiameter();
 
     @Shadow
     public abstract void setTransition(double newSize);
@@ -100,26 +99,18 @@ public abstract class MixinWorldBorder implements WorldBorder {
     public abstract long getTimeUntilTarget();
 
     @Shadow
+    public abstract EnumBorderStatus getStatus();
+
+    @SuppressWarnings("rawtypes")
+    @Shadow
     public abstract List getListeners();
 
     public int border$getWarningTime() {
-        return this.getWarningTime();
-    }
-
-    @Override
-    @Overwrite
-    public int getWarningTime() {
         return this.warningTime;
     }
 
-
+    @SuppressWarnings("rawtypes")
     public void border$setWarningTime(int time) {
-        this.setWarningTime(time);
-    }
-
-    @Override
-    @Overwrite
-    public void setWarningTime(int time) {
         this.warningTime = time;
         Iterator var2 = this.getListeners().iterator();
 
@@ -130,20 +121,11 @@ public abstract class MixinWorldBorder implements WorldBorder {
     }
 
     public int border$getWarningDistance() {
-        return this.getWarningDistance();
-    }
-
-    @Override
-    public int getWarningDistance() {
         return this.warningDistance;
     }
 
+    @SuppressWarnings("rawtypes")
     public void border$setWarningDistance(int distance) {
-        this.setWarningDistance(distance);
-    }
-
-    @Override
-    public void setWarningDistance(int distance) {
         this.warningDistance = distance;
         Iterator var2 = this.getListeners().iterator();
 
@@ -154,20 +136,34 @@ public abstract class MixinWorldBorder implements WorldBorder {
         }
     }
 
-    public double border$getNewRadius() {
-        return getTargetSize() / 2;
+    public double border$getNewDiameter() {
+        return getTargetSize();
     }
 
-    public double border$getRadius() {
-        return getDiameter() / 2;
+    public double border$getDiameter() {
+        if (this.getStatus() != EnumBorderStatus.STATIONARY) {
+            double time = (double)((float)(System.currentTimeMillis() - this.startTime) / (float)(this.endTime - this.startTime));
+
+            if (time < 1.0D) {
+                return (this.startDiameter + (this.endDiameter - this.startDiameter) * time);
+            }
+
+            this.setTransition(this.endDiameter);
+        }
+
+        return this.startDiameter;
     }
 
-    public void border$setRadius(double radius) {
-        setTransition(radius * 2);
+    public void border$setDiameter(double diameter) {
+        setTransition(diameter);
     }
 
-    public void border$setRadius(double radius, long time) {
-        setTransition(getRadius() * 2, radius * 2, time);
+    public void border$setDiameter(double diameter, long time) {
+        setTransition(getDiameter(), diameter, time);
+    }
+
+    public void border$setDiameter(double startDiameter, double endDiameter, long time) {
+        setTransition(startDiameter, endDiameter, time);
     }
 
     public long border$getTimeRemaining() {
@@ -178,11 +174,11 @@ public abstract class MixinWorldBorder implements WorldBorder {
         return new Vector3d(getCenterX(), 0, getCenterZ());
     }
 
-    public int border$getBlockBuffer() {
-        return ((int) getDamageBuffer());
+    public double border$getDamageThreshold() {
+        return getDamageBuffer();
     }
 
-    public void border$setBlockBuffer(int distance) {
+    public void border$setDamageThreshold(double distance) {
         setDamageBuffer(distance);
     }
 

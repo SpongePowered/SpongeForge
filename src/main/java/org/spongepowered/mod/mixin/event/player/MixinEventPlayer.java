@@ -38,8 +38,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerEvent.class, remap = false)
 public abstract class MixinEventPlayer extends LivingEvent implements PlayerEvent {
 
-    @Shadow
-    public EntityPlayer entityPlayer;
+    @Shadow public EntityPlayer entityPlayer;
 
     public MixinEventPlayer(EntityLivingBase entity) {
         super(entity);
@@ -49,4 +48,5 @@ public abstract class MixinEventPlayer extends LivingEvent implements PlayerEven
     public Player getPlayer() {
         return (Player)this.entityPlayer;
     }
+
 }

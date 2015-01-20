@@ -22,35 +22,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.event;
+package org.spongepowered.mod.mixin.event.world;
 
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGH;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.HIGHEST;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOW;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.LOWEST;
-import static net.minecraftforge.fml.common.eventhandler.EventPriority.NORMAL;
+import org.spongepowered.api.event.world.WorldEvent;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import org.spongepowered.api.util.event.Order;
+@NonnullByDefault
+@Mixin(value = net.minecraftforge.event.world.WorldEvent.class, remap = false)
+public abstract class MixinEventWorld implements WorldEvent {
 
-public class PriorityMap {
+    @Shadow public net.minecraft.world.World world;
 
-    private static final EventPriority[] eventPriorities;
-    private static final Order[] orders;
-
-    static {
-        eventPriorities = new EventPriority[]{HIGHEST, HIGHEST, HIGH, HIGH, NORMAL, LOW, LOW, LOWEST, LOWEST};
-        orders = Order.values();
+    @Override
+    public World getWorld() {
+        return (World)this.world;
     }
 
-    private PriorityMap() {
-    }
-
-    public static EventPriority getEventPriority(Order order) {
-        return eventPriorities[order.ordinal()];
-    }
-
-    public static Order getOrder(EventPriority priority) {
-        return orders[priority.ordinal()];
-    }
 }

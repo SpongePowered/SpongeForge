@@ -26,28 +26,30 @@
 package org.spongepowered.api.text.message;
 
 import org.spongepowered.api.text.translation.Translation;
+import org.spongepowered.mod.text.message.SpongeMessageSelector;
 import org.spongepowered.mod.text.message.SpongeMessageText;
+import org.spongepowered.mod.text.message.SpongeMessageTranslatable;
 
 public class SpongeMessageFactory implements MessageFactory {
 
     @Override
     public MessageBuilder createEmptyBuilder() {
-        return new SpongeMessageText.SpongeTextBuilder();
+        return new SpongeMessageText.SpongeMessageTextBuilder("");
     }
 
     @Override
     public MessageBuilder.Text createTextBuilder(String text) {
-        return new SpongeMessageText.SpongeTextBuilder(text);
+        return new SpongeMessageText.SpongeMessageTextBuilder(text);
     }
 
     @Override
     public MessageBuilder.Translatable createTranslatableBuilder(Translation translation, Object[] args) {
-        throw new UnsupportedOperationException();
+        return new SpongeMessageTranslatable.SpongeMessageTranslatableBuilder(translation, args);
     }
 
     @Override
     public MessageBuilder.Selector createSelectorBuilder(String selector) {
-        throw new UnsupportedOperationException();
+        return new SpongeMessageSelector.SpongeMessageSelectorBuilder(selector);
     }
 
     @Override

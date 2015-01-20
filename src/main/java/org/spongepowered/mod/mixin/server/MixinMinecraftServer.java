@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin;
+package org.spongepowered.mod.mixin.server;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -33,6 +33,7 @@ import java.util.UUID;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.relauncher.Side;
@@ -44,6 +45,7 @@ import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.source.ConsoleSource;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.gen.WorldGenerator;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,6 +53,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import org.spongepowered.mod.text.message.SpongeMessage;
 
 @NonnullByDefault
 @Mixin(MinecraftServer.class)
@@ -70,6 +73,16 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
 
     @Shadow
     private int tickCounter;
+
+    @Shadow
+    private ServerConfigurationManager serverConfigManager;
+
+    @Shadow
+    public abstract void addChatMessage(IChatComponent message);
+
+    @Shadow
+    public abstract boolean isServerInOnlineMode();
+
 
     @Override
     public Collection<World> getWorlds() {
@@ -97,6 +110,31 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     }
 
     @Override
+    public Optional<World> loadWorld(String worldName) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public boolean unloadWorld(World world) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public World createWorld(String worldName, WorldGenerator generator, long seed) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public World createWorld(String worldName, WorldGenerator generator) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public World createWorld(String worldName) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
     public void broadcastMessage(Message message) {
         // TODO: Revisit this when text API is actually implemented.
         getConfigurationManager().sendChatMsg(new ChatComponentText((String) message.getContent()));
@@ -105,6 +143,21 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     @Override
     public Optional<InetSocketAddress> getBoundAddress() {
         return Optional.fromNullable(new InetSocketAddress(getServerHostname(), getPort()));
+    }
+
+    @Override
+    public boolean hasWhitelist() {
+        return this.serverConfigManager.isWhiteListEnabled();
+    }
+
+    @Override
+    public void setHasWhitelist(boolean enabled) {
+        this.serverConfigManager.setWhiteListEnabled(enabled);
+    }
+
+    @Override
+    public boolean getOnlineMode() {
+        return isServerInOnlineMode();
     }
 
     @Override
@@ -124,7 +177,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     }
 
     @Override
-    public Message.Text getMOTD() {
+    public Message.Text getMotd() {
         throw new UnsupportedOperationException();
     }
 
@@ -136,5 +189,26 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     @Override
     public int getRunningTimeTicks() {
         return this.tickCounter;
+    }
+
+    @Override
+    public void sendMessage(String... messages) {
+        for (String message : messages) {
+            addChatMessage(new ChatComponentText(message));
+        }
+    }
+
+    @Override
+    public void sendMessage(Message... messages) {
+        for (Message message : messages) {
+            addChatMessage(((SpongeMessage<?>) message).getHandle());
+        }
+    }
+
+    @Override
+    public void sendMessage(Iterable<Message> messages) {
+        for (Message message : messages) {
+            addChatMessage(((SpongeMessage<?>) message).getHandle());
+        }
     }
 }

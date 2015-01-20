@@ -28,6 +28,7 @@ import com.google.common.base.Optional;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.GameVersion;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.plugin.PluginManager;
@@ -37,6 +38,7 @@ import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.service.scheduler.SyncScheduler;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -92,6 +94,11 @@ public final class SpongeGame implements Game {
     }
 
     @Override
+    public GameVersion getVersion() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
     public GameRegistry getRegistry() {
         return this.gameRegistry;
     }
@@ -103,7 +110,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public Scheduler getScheduler() {
-        throw new UnsupportedOperationException();
+        return SyncScheduler.getInstance();
     }
 
     @Override

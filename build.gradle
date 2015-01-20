@@ -37,7 +37,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 group = 'org.spongepowered'
 archivesBaseName = 'sponge'
 // Version -> Minecraft-MinecraftForge-Ours(If any?)
-version = '1.8-11.14.0.1281-SNAPSHOT'
+version = '1.8-11.14.0.1290-SNAPSHOT'
 
 // Define variables
 ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
@@ -58,7 +58,7 @@ repositories {
 
 // MinecraftForge version
 minecraft {
-    version = "1.8-11.14.0.1281-1.8"
+    version = "1.8-11.14.0.1290-1.8"
 }
 
 configurations {
@@ -78,15 +78,30 @@ dependencies {
 
     deployerJars 'org.apache.maven.wagon:wagon-ftp:2.7'
 }
+
+task mixin {
+    ext.srg = "${tasks.mixin.temporaryDir}" + File.separator + 'mixins.srg'
+    ext.refMap = "${tasks.mixin.temporaryDir}" + File.separator + 'mixins.sponge.refmap.json';
+}
+
 shadowJar  {
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
+    exclude 'GradleStart**'
     dependencies {
         include(dependency('org.slf4j:slf4j-api'))
         include(dependency('org.apache.logging.log4j:log4j-slf4j-impl'))
         include(dependency('com.google.inject:guice'))
+        include(dependency('javax.inject:javax.inject'))
+        include(dependency('org.slf4j:slf4j-api'))
+        include(dependency('com.flowpowered:flow-math'))
+        include(dependency('aopalliance:aopalliance'))
+        include(project('SpongeAPI'))
+        include(project('Mixin'))
     }
     classifier = ''
+    
+    from tasks.mixin.ext.refMap
 }
 build.dependsOn(shadowJar)
 
@@ -131,13 +146,14 @@ license {
 }
 
 checkstyle {
+    configFile = project('SpongeAPI').file('checkstyle.xml')
     configProperties = [
         "name" : project.name,
         "organization" : project.organization,
         "url" : project.url,
-        "year" : project.inceptionYear
+        "year" : project.inceptionYear,
+        "suppressions": project('SpongeAPI').file('checkstyle-suppressions.xml')
     ]
-    configFile = new File(project("SpongeAPI").getProjectDir(),"checkstyle.xml")
 }
 tasks.reobf.dependsOn "check"
 
@@ -148,12 +164,35 @@ if (!minecraft.mappingsSet && minecraft.version.startsWith("1.8")) {
     minecraft.mappings = "snapshot_20141001"
 }
 
+reobf {
+    reobf(shadowJar.archivePath) {
+        spec -> spec.classpath = configurations.compile
+    }
+}
+reobf.dependsOn shadowJar
+reobf.addExtraSrgFile tasks.mixin.ext.srg
+
 // Source compiler configuration
 tasks.withType(JavaCompile) {
-    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path', "-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=mixins.srg" ]
+    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path', '-Xlint:-processing',
+        "-AreobfSrgFile=${tasks.reobf.srg}",
+        "-AoutSrgFile=${tasks.mixin.ext.srg}",
+        "-AoutRefMapFile=${tasks.mixin.ext.refMap}" ]
     options.deprecation = true
     options.encoding = 'utf8'
 }
+
+// Copy the current srgs to the build dir so the user doesn't have to go hunting for them
+task copySrgs(type: Copy) {
+    doFirst {
+        delete 'build/srgs'
+    }
+    
+    include '**/*.srg'
+    from tasks.reobf.srg.parentFile
+    into 'build/srgs'
+}
+setupDecompWorkspace.dependsOn copySrgs
 
 def manifestEntries = [
     "Built-By": System.properties['user.name'],
@@ -161,7 +200,9 @@ def manifestEntries = [
     "Implementation-Title": name,
     "Implementation-Version": version + "+" + ciSystem + "-b" + buildNumber + ".git-" + commit,
     "Implementation-Vendor": url,
-    "FMLCorePlugin": "org.spongepowered.mod.SpongeCoremod"
+    "FMLCorePlugin": "org.spongepowered.mod.SpongeCoremod",
+    "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+    "TweakOrder": "10000"
     ]
 
 jar {
