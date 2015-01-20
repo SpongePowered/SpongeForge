@@ -34,7 +34,7 @@ import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
-@Mixin(value = net.minecraft.command.server.CommandBlockLogic.class, remap = false)
+@Mixin(value = net.minecraft.command.server.CommandBlockLogic.class)
 public abstract class MixinCommandBlockLogic implements ICommandSender, CommandSource {
 
     @Override
