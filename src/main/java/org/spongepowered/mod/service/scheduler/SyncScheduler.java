@@ -28,18 +28,14 @@ import com.google.common.base.Optional;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.service.scheduler.Scheduler;
+import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
-public class SyncScheduler implements Scheduler {
+public class SyncScheduler implements SynchronousScheduler {
 
     // The simple private queue of all pending (and running) ScheduledTasks
     private final Queue<ScheduledTask> taskList = new ConcurrentLinkedQueue<ScheduledTask>();
@@ -73,10 +69,10 @@ public class SyncScheduler implements Scheduler {
      * @return The single interface to the Synchronous Scheduler
      */
      private static class SynchronousSchedulerSingletonHolder {
-        private static final Scheduler INSTANCE = new SyncScheduler();
+        private static final SynchronousScheduler INSTANCE = new SyncScheduler();
      }
 
-     public static Scheduler getInstance() {
+     public static SynchronousScheduler getInstance() {
          return SynchronousSchedulerSingletonHolder.INSTANCE;
      }
 
@@ -162,10 +158,8 @@ public class SyncScheduler implements Scheduler {
 
     private Optional<Task> utilityForAddingTask(ScheduledTask task) {
         Optional<Task> result = Optional.absent();
-        task.setTimestamp(counter);
         this.taskList.add(task);
         result = Optional.of((Task) task);
-
         return result;
     }
 
@@ -457,6 +451,7 @@ public class SyncScheduler implements Scheduler {
         return subsetCollection;
     }
 
+    // offset and period are in milliseconds (unless the Synchronicity of the Task is SYNCHRONOUS)
     private ScheduledTask taskValidationStep(Object plugin, Runnable runnableTarget, long offset, long period) {
 
         // No owner
@@ -500,10 +495,10 @@ public class SyncScheduler implements Scheduler {
         //    implies a One Time Shot (See Task interface).  Non zero Period means just that -- the time
         //    in milliseconds between firing the event.   The "Period" argument to making a new
         //    ScheduledTask is a Period interface intentionally so that
-        return new ScheduledTask(offset, period)
+        return new ScheduledTask(offset, period, false)
+                .setTimestamp(counter)
                 .setPluginContainer(plugincontainer)
-                .setRunnableBody(runnableTarget)
-                .setState(ScheduledTask.ScheduledTaskState.WAITING);
+                .setRunnableBody(runnableTarget);
     }
 
     private  boolean startTask(ScheduledTask task) {

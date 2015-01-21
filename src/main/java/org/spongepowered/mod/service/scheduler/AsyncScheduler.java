@@ -25,17 +25,14 @@
 package org.spongepowered.mod.service.scheduler;
 
 import com.google.common.base.Optional;
-import org.eclipse.jgit.revwalk.AsyncRevObjectQueue;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
-import org.spongepowered.api.service.scheduler.Scheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -176,16 +173,16 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 }
                 // task with non-zero offset, zero period
                 else if (task.offset > 0 && task.period == 0) {
-                    minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
+                    minimumTimeout = Math.min(task.offset, minimumTimeout);
                 }
                 // task with zero offset, non-zero period
                 else if (task.offset == 0 && task.period > 0) {
-                    minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
+                    minimumTimeout = Math.min(task.period, minimumTimeout);
                 }
                 // task with non-zero offset, non-zero period
                 else if (task.offset > 0 && task.period > 0) {
-                    minimumTimeout = (task.offset < minimumTimeout) ? task.offset : minimumTimeout;
-                    minimumTimeout = (task.period < minimumTimeout) ? task.period : minimumTimeout;
+                    minimumTimeout = Math.min(task.offset, minimumTimeout);
+                    minimumTimeout = Math.min(task.period, minimumTimeout);
                 }
             }
 
@@ -238,7 +235,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
                 long threshold = Long.MAX_VALUE;
 
-                // Figure out if we start a delayed Task after threshold ticks or,
+                // Figure out if we start a delayed Task after threshold milliseconds or,
                 // start it after the interval (period) of the repeating task parameter.
                 if (task.state == ScheduledTask.ScheduledTaskState.WAITING) {
                     threshold = task.offset;
@@ -349,7 +346,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * The runTask() method is used to run a single Task just once.  The Task
      * may persist for the life of the server, however the Task itself will never
      * be restarted.  This Asynchronous Scheduler will not wait before running the Task.
-     * <b>The Task will be delayed artificially for delay Ticks.</b>  </p>
+     * <b>The Task will be delayed artificially for delay in the time unit scale.</b>  </p>
      *
      * <p>Because the time unit is in milliseconds, this scheduled Task is asynchronous with the game.
      * The timing of when to run a Task is based on wall-clock time.
@@ -366,15 +363,28 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </code>
      * </p>
      *
+     * <p>Example for specifying a certain time unit scale:</p>
+     *
+     * <p>
+     *     <code>
+     *         // The task will run with a delay of 500 seconds.
+     *         runTaskAfter(somePlugin, someRunnableTarget, TimeUnit.MILLISECONDS, 500);
+     *     </code>
+     * </p>
+     *
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @param delay  The offset in ticks before running the task.
+     * @param delay  The offset in scale units before running the task.
      * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runTaskAfter(Object plugin, Runnable runnableTarget, long delay) {
+    public Optional<Task> runTaskAfter(Object plugin, Runnable runnableTarget, TimeUnit scale, long delay) {
         Optional<Task> result = Optional.absent();
         final long NOPERIOD = 0L;
+
+        // The delay passed to this method is converted to the number of milliseconds
+        // per the scale of the time unit.
+        delay = scale.toMillis(delay);
 
         ScheduledTask nonRepeatingTask = taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
 
@@ -389,7 +399,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     /**
-     * <p>Start a repeating Task with a period (interval) of Ticks.  The first occurrence will start immediately.</p>
+     * <p>Start a repeating Task with a period in specified time unit  The first occurrence will start immediately.</p>
      *
      * <p>
      * The runRepeatingTask() method is used to run a Task that repeats.  The Task
@@ -405,8 +415,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * is running no new occurrences of that specific Task will start, although this Scheduler will
      * never cease in trying to start it a 2nd time.</p>
      *
-     * <p>Because the time
-     * unit is in milliseconds, this scheduled Task is asynchronous with the game.
+     * <p>Because the time unit is in the scale provided, this scheduled Task is asynchronous with the game.
      * The timing of when to run a Task is based on wall-clock time.
      * Overhead, network and system latency not
      * withstanding the event will fire after the delay expires.</p>
@@ -421,16 +430,38 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </code>
      * </p>
      *
+     * <p>Example for specifying a certain time unit scale:</p>
+     *
+     * <p>
+     *     <code>
+     *         // The task will run with a period of 15 seconds.
+     *         runRepeatingTask(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 15);
+     *     </code>
+     * </p>
+     *
+     * <p>Example for specifying a certain time unit scale:</p>
+     *
+     * <p>
+     *     <code>
+     *         // The task will run with a period of 30 seconds
+     *         runTaskAfter(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 30);
+     *     </code>
+     * </p>
+     *
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @param interval The period in ticks of the repeating Task.
+     * @param scale The TimeUnit scale of the interval argument.
+     * @param interval The period in scale time units of the repeating Task.
      * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runRepeatingTask(Object plugin, Runnable runnableTarget, long interval) {
+    public Optional<Task> runRepeatingTask(Object plugin, Runnable runnableTarget, TimeUnit scale, long interval) {
         Optional<Task> result = Optional.absent();
         final long NODELAY = 0L;
 
+        // The interval passed to this method is converted to the number of milliseconds
+        // per the scale of the time unit.
+        interval = scale.toMillis(interval);
         ScheduledTask repeatingTask = taskValidationStep(plugin, runnableTarget, NODELAY, interval);
 
         if (repeatingTask == null) {
@@ -444,8 +475,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
     /**
      * <p>
-     * Start a repeating Task with a period (interval) of Ticks.
-     * The first occurrence will start after an initial delay.</p>
+     * Start a repeating Task with a period (interval) of time unit scale.
+     * The first occurrence will start after an initial delay in time unit scale.</p>
      *
      * <p>
      * The runRepeatingTask method is used to run a Task that repeats.  The Task
@@ -476,16 +507,49 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </code>
      * </p>
      *
+     * <p>Example for specifying a certain time unit scale:</p>
+     *
+     * <p>
+     *     <code>
+     *         // The task will run with a period of 15 seconds.
+     *         runRepeatingTask(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 15);
+     *     </code>
+     * </p>
+     *
+     * <p>Example for specifying a certain time unit scale:</p>
+     *
+     * <p>
+     *     <code>
+     *         // The task will run with a period of 120 milliseconds and delay of 302 milliseconds
+     *         // (If the scales are the same for both arguments)
+     *         runRepeatingTaskAfter(somePlugin, someRunnableTarget, TimeUnit.MILLISECONDS, 120, 302);
+     *
+     *         // If the two units are in different scales:
+     *
+     *         // The task will run with a period of 20 seconds and delay of 500 milliseconds:
+     *         Either:
+     *         runRepeatingTaskAfter(somePlugin, someRunnableTarget, TimeUnit.MILLISECONDS, TimeUnit.SECOND.toMillis(20), 500);
+     *         // OR
+     *         runRepeatingTaskAfter(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 20, TimeUnit.MILLISECONDS.toSeconds(500));
+     *
+     *     </code>
+     * </p>
+     *
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @param delay  The offset in ticks before running the task.
-     * @param interval The offset in ticks before running the task.
+     * @param scale
+     * @param delay  The offset in time unit scale before running the task.
+     * @param interval The offset in time unit scale before running the task.
      * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, long interval, long delay) {
+    public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, TimeUnit scale, long interval, long delay) {
         Optional<Task> result = Optional.absent();
 
+        // The interval and delay passed to this method is converted to the number of milliseconds
+        // per the scale of the time unit.
+        interval = scale.toMillis(interval);
+        delay = scale.toMillis(delay);
         ScheduledTask repeatingTask = taskValidationStep(plugin, runnableTarget, delay, interval);
 
         if (repeatingTask == null) {
@@ -498,9 +562,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     /**
-     * <p>
-     * Start a repeating Task with a period (interval) of Ticks.  The first occurrence
-     * will start after an initial delay.</p>
+     *
+     * <p>Get the task from the Scheduler identified by the UUID</p>
      *
      * <p>Example code to use the method:</p>
      *
@@ -650,11 +713,10 @@ public class AsyncScheduler implements AsynchronousScheduler {
         //    in milliseconds between firing the event.   The "Period" argument to making a new
         //    ScheduledTask is a Period interface intentionally so that
 
-        return new ScheduledTask(offset, period)
+        return new ScheduledTask(offset, period, true)
                 .setTimestamp(System.currentTimeMillis())
                 .setPluginContainer(plugincontainer)
-                .setRunnableBody(runnableTarget)
-                .setState(ScheduledTask.ScheduledTaskState.WAITING);
+                .setRunnableBody(runnableTarget);
     }
 
     private  boolean startTask(ScheduledTask task) {

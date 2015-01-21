@@ -36,7 +36,7 @@ import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
-import org.spongepowered.api.service.scheduler.Scheduler;
+import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.service.scheduler.AsyncScheduler;
 import org.spongepowered.mod.service.scheduler.SyncScheduler;
@@ -105,7 +105,7 @@ public final class SpongeGame implements Game {
     }
 
     @Override
-    public Scheduler getScheduler() {
+    public SynchronousScheduler getSyncScheduler() {
         return SyncScheduler.getInstance();
     }
 
