@@ -66,6 +66,7 @@
     "entity.projectile.MixinEntityArrow",
     "entity.projectile.MixinEntityEgg",
     "entity.projectile.MixinEntityThrowable",
+    "entity.projectile.MixinEntityEnderPearl",
     "entity.vehicle.MixinEntityBoat",
     "entity.weather.MixinEntityLightningBolt",
     "entity.weather.MixinEntityWeatherEffect",
