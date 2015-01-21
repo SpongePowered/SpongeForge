@@ -10,6 +10,7 @@
     "block.MixinPropertyHelper$MixinPropertyEnum",
     "block.MixinPropertyHelper$MixinPropertyInteger",
     "block.MixinPropertyDirection",
+    "command.server.MixinCommandBlockLogic",
     "entity.MixinEntity",
     "entity.MixinArmorEquipable",
     "entity.MixinEntityEnderCrystal",

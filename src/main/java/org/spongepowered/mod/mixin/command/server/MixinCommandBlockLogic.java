@@ -26,8 +26,10 @@ package org.spongepowered.mod.mixin.command.server;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
+
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
@@ -46,12 +48,13 @@ public abstract class MixinCommandBlockLogic implements ICommandSender, CommandS
 
     @Override
     public void sendMessage(Message... messages) {
-        List<String> s = new ArrayList<String>();
         for (Message message : messages) {
-            if (message instanceof Message.Text)
-                s.add((String) message.getContent());
+            if (message instanceof Message.Text) {
+            	this.addChatMessage(new ChatComponentText((String) message.getContent()));
+            } else {
+            	this.addChatMessage(new ChatComponentText(message.toLegacy()));
+            }
         }
-        this.sendMessage(s.toArray(new String[s.size()]));
     }
 
     @Override
