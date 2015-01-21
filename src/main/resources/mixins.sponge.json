@@ -65,6 +65,7 @@
     "entity.player.MixinEntityPlayerMP",
     "entity.projectile.MixinEntityArrow",
     "entity.projectile.MixinEntityEgg",
+    "entity.projectile.MixinEntityEnderPearl",
     "entity.projectile.MixinEntityThrowable",
     "entity.vehicle.MixinEntityBoat",
     "entity.weather.MixinEntityLightningBolt",
