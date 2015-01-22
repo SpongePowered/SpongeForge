@@ -22,32 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.block.data;
+package org.spongepowered.mod.block.meta;
 
-import net.minecraft.tileentity.TileEntity;
-
-import org.spongepowered.api.block.data.Note;
 import org.spongepowered.api.block.meta.NotePitch;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
 
 @NonnullByDefault
-@Implements(@Interface(iface = Note.class, prefix = "note$"))
-@Mixin(net.minecraft.tileentity.TileEntityNote.class)
-public abstract class MixinTileEntityNote extends TileEntity {
+public class SpongeNotePitch implements NotePitch {
 
-    @Shadow public byte note;
+    private final byte id;
+    private final String name;
 
-    public NotePitch note$getNote() {
-        return SpongeMod.instance.getGame().getRegistry().getNotePitches().get(this.note);
+    public SpongeNotePitch(byte id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
-    public void note$setNote(NotePitch pitch) {
-        this.note = pitch.getId();
+    @Override
+    public byte getId() {
+        return this.id;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 
 }

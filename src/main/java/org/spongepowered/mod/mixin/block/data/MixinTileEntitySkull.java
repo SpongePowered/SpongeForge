@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.block.data;
 
-import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntity;
 
 import org.spongepowered.api.GameProfile;
@@ -36,6 +35,9 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.SpongeMod;
+
+import com.google.common.base.Optional;
 
 @NonnullByDefault
 @Implements(@Interface(iface = Skull.class, prefix = "skull$"))
@@ -74,7 +76,7 @@ public abstract class MixinTileEntitySkull extends TileEntity {
     }
 
     public SkullType skull$getType() {
-        return null; //TODO
+        return SpongeMod.instance.getGame().getRegistry().getSkullTypes().get(getSkullType());
     }
 
     public void skull$setType(SkullType type) {

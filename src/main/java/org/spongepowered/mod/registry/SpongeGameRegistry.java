@@ -75,7 +75,9 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.meta.BannerPatternShape;
 import org.spongepowered.api.block.meta.NotePitch;
+import org.spongepowered.api.block.meta.NotePitches;
 import org.spongepowered.api.block.meta.SkullType;
+import org.spongepowered.api.block.meta.SkullTypes;
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.effect.particle.ParticleTypes;
@@ -140,6 +142,8 @@ import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
+import org.spongepowered.mod.block.meta.SpongeNotePitch;
+import org.spongepowered.mod.block.meta.SpongeSkullType;
 import org.spongepowered.mod.effect.particle.SpongeParticleEffectBuilder;
 import org.spongepowered.mod.effect.particle.SpongeParticleType;
 import org.spongepowered.mod.entity.SpongeCareer;
@@ -212,6 +216,8 @@ public class SpongeGameRegistry implements GameRegistry {
     private final List<ItemType> itemList = new ArrayList<ItemType>();
     private final List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
     private final List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
+    private final Map<String, SkullType> skullTypeMappings = Maps.newHashMap();
+    private final Map<String, NotePitch> notePitchMappings = Maps.newHashMap();
 
     @Override
     public Optional<BlockType> getBlock(String id) {
@@ -515,22 +521,22 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<NotePitch> getNotePitch(String name) {
-        throw new UnsupportedOperationException(); // TODO
+        return Optional.fromNullable(this.notePitchMappings.get(name));
     }
 
     @Override
     public List<NotePitch> getNotePitches() {
-        throw new UnsupportedOperationException(); // TODO
+        return ImmutableList.copyOf(this.notePitchMappings.values());
     }
 
     @Override
     public Optional<SkullType> getSkullType(String name) {
-        throw new UnsupportedOperationException(); // TODO
+        return Optional.fromNullable(this.skullTypeMappings.get(name));
     }
 
     @Override
     public List<SkullType> getSkullTypes() {
-        throw new UnsupportedOperationException(); // TODO
+        return ImmutableList.copyOf(this.skullTypeMappings.values());
     }
 
     @Override
@@ -1009,7 +1015,33 @@ public class SpongeGameRegistry implements GameRegistry {
             e.printStackTrace();
         }
     }
+  
+    private void setNotePitches() {
+        RegistryHelper.mapFields(NotePitches.class, new Function<String, NotePitch>() {
 
+            @Override
+            public NotePitch apply(String input) {
+                NotePitch pitch = new SpongeNotePitch((byte) SpongeGameRegistry.this.notePitchMappings.size(), input);
+                SpongeGameRegistry.this.notePitchMappings.put(input, pitch);
+                return pitch;
+            }
+            
+        });
+    }
+    
+    private void setSkullTypes() {
+        RegistryHelper.mapFields(SkullTypes.class, new Function<String, SkullType>() {
+
+            @Override
+            public SkullType apply(String input) {
+                SkullType skullType = new SpongeSkullType((byte) SpongeGameRegistry.this.skullTypeMappings.size(), input);
+                SpongeGameRegistry.this.skullTypeMappings.put(input, skullType);
+                return skullType;
+            }
+            
+        });
+    }
+    
     public void init() {
         setDimensionTypes();
         setEnchantments();
@@ -1023,6 +1055,8 @@ public class SpongeGameRegistry implements GameRegistry {
         setSelectors();
         setTitleFactory();
         setParticles();
+        setSkullTypes();
+        setNotePitches();
     }
 
     public void postInit() {
