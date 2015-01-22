@@ -79,7 +79,10 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.7'
     compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9'
     compile 'com.google.inject:guice:4.0-beta5'
-    
+    compile 'com.zaxxer:HikariCP-java6:2.1.0'
+    compile 'org.mariadb.jdbc:mariadb-java-client:1.1.8'
+    compile 'com.h2database:h2:1.4.186'
+    compile 'org.xerial:sqlite-jdbc:3.8.+'
     compile project('Mixin')
     compile project('SpongeAPI')
     
@@ -105,6 +108,10 @@ shadowJar  {
         include(dependency('ninja.leaping.configurate:configurate-hocon'))
         include(dependency('ninja.leaping.configurate:configurate-core'))
         include(dependency('com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru'))
+        include(dependency('com.zaxxer:HikariCP-java6'))
+        include(dependency('org.mariadb.jdbc:mariadb-java-client'))
+        include(dependency('com.h2database:h2'))
+        include(dependency('org.xerial:sqlite-jdbc'))
         include(project('SpongeAPI'))
         include(project('Mixin'))
     }

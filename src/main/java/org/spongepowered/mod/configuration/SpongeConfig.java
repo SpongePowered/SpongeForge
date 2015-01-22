@@ -200,8 +200,15 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
 
     public static class GlobalConfig extends ConfigBase {
 
+        @Setting
+        private SqlCategory sql = new SqlCategory();
+
         @Setting(value = "modules")
         private ModuleCategory mixins = new ModuleCategory();
+
+        public SqlCategory getSql() {
+            return sql;
+        }
 
         public ModuleCategory getModules() {
             return mixins;
@@ -271,6 +278,16 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
 
         public WorldCategory getWorld() {
             return world;
+        }
+    }
+
+    @ConfigSerializable
+    public static class SqlCategory extends Category {
+        @Setting
+        private Map<String, String> aliases = new HashMap<String, String>();
+
+        public Map<String, String> getAliases() {
+            return aliases;
         }
     }
 
