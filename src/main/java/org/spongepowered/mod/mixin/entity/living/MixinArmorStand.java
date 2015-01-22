@@ -35,6 +35,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.util.VecHelper;
 
 @Mixin(EntityArmorStand.class)
 @Implements(@Interface(iface = ArmorStand.class, prefix = "astand$"))
@@ -84,51 +85,51 @@ public abstract class MixinArmorStand extends EntityLivingBase {
     }
 
     public Vector3f astand$getHeadDirection() {
-        return new Vector3f(this.headRotation.func_179415_b(), this.headRotation.func_179416_c(), this.headRotation.func_179413_d());
+        return VecHelper.toVector(this.headRotation);
     }
 
     public void astand$setHeadDirection(Vector3f direction) {
-        setHeadRotation(new Rotations(direction.getX(), direction.getY(), direction.getZ()));
+        setHeadRotation(VecHelper.toRotation(direction));
     }
 
     public Vector3f astand$getBodyRotation() {
-        return new Vector3f(this.bodyRotation.func_179415_b(), this.bodyRotation.func_179416_c(), this.bodyRotation.func_179413_d());
+        return VecHelper.toVector(this.bodyRotation);
     }
 
     public void astand$setBodyDirection(Vector3f direction) {
-        setBodyRotation(new Rotations(direction.getX(), direction.getY(), direction.getZ()));
+        setBodyRotation(VecHelper.toRotation(direction));
     }
 
     public Vector3f astand$getLeftArmDirection() {
-        return new Vector3f(this.leftArmRotation.func_179415_b(), this.leftArmRotation.func_179416_c(), this.leftArmRotation.func_179413_d());
+        return VecHelper.toVector(this.leftArmRotation);
     }
 
     public void astand$setLeftArmDirection(Vector3f direction) {
-        setLeftArmRotation(new Rotations(direction.getX(), direction.getY(), direction.getZ()));
+        setLeftArmRotation(VecHelper.toRotation(direction));
     }
 
     public Vector3f astand$getRightArmDirection() {
-        return new Vector3f(this.rightArmRotation.func_179415_b(), this.rightArmRotation.func_179416_c(), this.rightArmRotation.func_179413_d());
+        return VecHelper.toVector(this.rightArmRotation);
     }
 
     public void astand$setRightArmDirection(Vector3f direction) {
-        setRightArmRotation(new Rotations(direction.getX(), direction.getY(), direction.getZ()));
+        setRightArmRotation(VecHelper.toRotation(direction));
     }
 
     public Vector3f astand$getLeftLegDirection() {
-        return new Vector3f(this.leftLegRotation.func_179415_b(), this.leftLegRotation.func_179416_c(), this.leftLegRotation.func_179413_d());
+        return VecHelper.toVector(this.leftLegRotation);
     }
 
     public void astand$setLeftLegDirection(Vector3f direction) {
-        setLeftLegRotation(new Rotations(direction.getX(), direction.getY(), direction.getZ()));
+        setLeftLegRotation(VecHelper.toRotation(direction));
     }
 
     public Vector3f astand$getRightLegDirection() {
-        return new Vector3f(this.rightLegRotation.func_179415_b(), this.rightLegRotation.func_179416_c(), this.rightLegRotation.func_179413_d());
+        return VecHelper.toVector(this.rightLegRotation);
     }
 
     public void astand$setRightLegDirection(Vector3f direction) {
-        setRightLegRotation(new Rotations(direction.getX(), direction.getY(), direction.getZ()));
+        setRightLegRotation(VecHelper.toRotation(direction));
     }
 
     public boolean astand$isSmall() {

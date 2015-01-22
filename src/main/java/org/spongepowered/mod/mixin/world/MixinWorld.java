@@ -63,6 +63,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
 import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
+import org.spongepowered.mod.util.VecHelper;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
 @NonnullByDefault
@@ -115,9 +116,7 @@ public abstract class MixinWorld implements World {
 
     @Override
     public BlockLoc getBlock(Vector3d position) {
-        // TODO: MC's BlockPos does some sort of special rounding on double
-        // positions -- do we want to do that too?
-        return new BlockWrapper(this, (int) position.getX(), (int) position.getY(), (int) position.getZ());
+        return new BlockWrapper(this, VecHelper.toBlockPos(position));
     }
 
     @Override
