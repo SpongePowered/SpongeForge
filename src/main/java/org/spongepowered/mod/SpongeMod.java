@@ -39,6 +39,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,15 +50,18 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.ProviderExistsException;
 import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.command.SimpleCommandService;
+import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.mod.command.CommandSponge;
 import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
+import org.spongepowered.mod.service.sql.SqlServiceImpl;
 import org.spongepowered.mod.util.SpongeHooks;
 
 import java.io.File;
+import java.io.IOException;
 
 public class SpongeMod extends DummyModContainer implements PluginContainer {
 
@@ -86,8 +90,13 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             SimpleCommandService commandService = new SimpleCommandService(this.game.getPluginManager());
             this.game.getServiceManager().setProvider(this, CommandService.class, commandService);
             ((SpongeEventBus) this.game.getEventManager()).register(this, commandService);
-        } catch (ProviderExistsException e1) {
-            logger.warn("Non-Sponge CommandService already registered: " + e1.getLocalizedMessage());
+        } catch (ProviderExistsException e) {
+            logger.warn("Non-Sponge CommandService already registered: " + e.getLocalizedMessage());
+        }
+        try {
+            game.getServiceManager().setProvider(this, SqlService.class, new SqlServiceImpl());
+        } catch (ProviderExistsException e) {
+            logger.warn("Non-Sponge SqlService already registered: " + e.getLocalizedMessage());
         }
     }
 
@@ -150,6 +159,10 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         e.registerServerCommand(new CommandSponge());
     }
 
+    @Subscribe
+    public void onServerStopped(FMLServerStoppedEvent e) throws IOException {
+        ((SqlServiceImpl) getGame().getServiceManager().provideUnchecked(SqlService.class)).close();
+    }
     @Override
     public String getId() {
         return getModId();
