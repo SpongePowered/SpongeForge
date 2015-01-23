@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.entity;
 
+import com.google.common.base.MoreObjects;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
 
@@ -100,7 +101,7 @@ public class SpongeEntityType implements EntityType {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
             .add("id", this.entityTypeId)
             .add("name", this.entityTypeId)
             .add("modid", this.modId)
