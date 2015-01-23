@@ -109,6 +109,11 @@ public class BlockWrapper implements BlockLoc {
     }
 
     @Override
+    public BlockLoc getRelative(Direction direction) {
+        return getLocation().add(direction.toVector3d()).getBlock();
+    }
+
+    @Override
     public void replaceWith(BlockState state) {
         // 0 is no notify flag. For now not going to notify nearby blocks of update.
         if (state instanceof IBlockState) {

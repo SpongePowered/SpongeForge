@@ -38,11 +38,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
 
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.player.PlayerBreakBlockEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerBreakBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -75,11 +74,6 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
     @Override    
     public Player getPlayer() {
         return (Player)this.player;
-    }
-
-    @Override
-    public Entity getEntity() {
-        return (Entity)this.player;
     }
 
     @Override
