@@ -63,7 +63,15 @@ public abstract class MixinMobSpawnerBaseLogic {
      *     likewise be specified.</li>
      * </ul>
      * 
-     * <p>This hook does not interrupt the normal execution of the method, it only allows a single parameter to be modified.</p> 
+     * <p>This hook does not interrupt the normal execution of the method, it only allows a single parameter to be modified.</p>
+     *
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @param z The z coordinate
+     * @param a a
+     * @param b b
+     * @param c c
+     * @param params params
      */
     @ModifyArg(method = "updateSpawner()V", at = 
         @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnParticle(Lnet/minecraft/util/EnumParticleTypes;DDDDDD[I)V"))
@@ -89,7 +97,9 @@ public abstract class MixinMobSpawnerBaseLogic {
      * required, and also allows a more sophisticated version of {@link ModifyArg} to be enacted since all parameters are available to the hook method
      * and can be altered as required.</p>
      * 
-     * <p>For <em>static</em> methods the handler must also be <em>static</em>, and the first argument can be omitted.</p> 
+     * <p>For <em>static</em> methods the handler must also be <em>static</em>, and the first argument can be omitted.</p>
+     *
+     * @param this$0 this$0
      */
     @Redirect(method = "updateSpawner()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/tileentity/MobSpawnerBaseLogic;resetTimer()V"))
     private void onResetTimer(MobSpawnerBaseLogic this$0) {

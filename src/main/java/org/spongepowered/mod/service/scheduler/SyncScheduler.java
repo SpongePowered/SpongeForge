@@ -122,7 +122,7 @@ public class SyncScheduler implements Scheduler {
      * is simply a @long but it's never negative.  A better representation would been Number (a cardinal
      * value), but this is what we're using.</p>
      *
-     * @param event
+     * @param event The server tick event
      */
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
@@ -212,13 +212,13 @@ public class SyncScheduler implements Scheduler {
      * The runTask method is used to run a single Task just once.  The Task
      * may persist for the life of the server, however the Task itself will never
      * be restarted.  It has no delay offset.  The Scheduler will not wait before
-     * running the Task.<p>
+     * running the Task.</p>
      *
      * <p>Example code to obtain plugin container argument from User code:</p>
      *
      * <p>
      * <code>
-     *     Optional<PluginContainer> result;
+     *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
@@ -226,7 +226,7 @@ public class SyncScheduler implements Scheduler {
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param task  The Runnable object that implements a run() method to execute the Task desired
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runTask(Object plugin, Runnable task) {
@@ -270,7 +270,7 @@ public class SyncScheduler implements Scheduler {
      *
      * <p>
      * <code>
-     *     Optional<PluginContainer> result;
+     *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
@@ -279,7 +279,7 @@ public class SyncScheduler implements Scheduler {
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param task  The Runnable object that implements a run() method to execute the Task desired
      * @param delay  The offset in ticks before running the task.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runTaskAfter(Object plugin, Runnable task, long delay) {
@@ -329,7 +329,7 @@ public class SyncScheduler implements Scheduler {
      *
      * <p>
      * <code>
-     *     Optional<PluginContainer> result;
+     *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
@@ -338,7 +338,7 @@ public class SyncScheduler implements Scheduler {
      * @param plugin The plugin container of the Plugin that initiated the Task
      * @param task  The Runnable object that implements a run() method to execute the Task desired
      * @param interval The period in ticks of the repeating Task.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runRepeatingTask(Object plugin, Runnable task, long interval) {
@@ -388,7 +388,7 @@ public class SyncScheduler implements Scheduler {
      *
      * <p>
      * <code>
-     *     Optional<PluginContainer> result;
+     *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
@@ -398,7 +398,7 @@ public class SyncScheduler implements Scheduler {
      * @param task  The Runnable object that implements a run() method to execute the Task desired
      * @param delay  The offset in ticks before running the task.
      * @param interval The offset in ticks before running the task.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable task, long interval, long delay) {
@@ -430,13 +430,13 @@ public class SyncScheduler implements Scheduler {
      * <code>
      *     UUID myID;
      *     // ...
-     *     Optional<Task> task;
+     *     Optional&lt;Task&gt; task;
      *     task = SyncScheduler.getInstance().getTaskById(myID); 
      * </code>
      * </p>
      *
      * @param id The UUID of the Task to find.
-     * @return Optional<Task> Either Optional.absent() if invalid or a reference to the existing Task.
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the existing Task.
      */
     @Override
     public Optional<Task> getTaskById(UUID id) {
@@ -455,7 +455,7 @@ public class SyncScheduler implements Scheduler {
     /**
      * <p>Determine the list of Tasks that the TaskScheduler is aware of.</p>
      *
-     * @return Collection<Task> of all known Tasks in the TaskScheduler
+     * @return Collection&lt;Task&gt; of all known Tasks in the TaskScheduler
      */
     @Override
     public Collection<Task> getScheduledTasks() {
@@ -471,13 +471,13 @@ public class SyncScheduler implements Scheduler {
 
     /**
      * <p>The query for Tasks owned by a target Plugin owner is found by testing
-     * the list of Tasks by testing the ID of each PluginContainer.<p>
+     * the list of Tasks by testing the ID of each PluginContainer.</p>
      *
      * <p>If the PluginContainer passed to the method is not correct (invalid
      * or null) then return a null reference.  Else, return a Collection of Tasks
      * that are owned by the Plugin.</p>
      * @param plugin The plugin that may own the Tasks in the TaskScheduler
-     * @return Collection<Task> of Tasks owned by the PluginContainer plugin.
+     * @return Collection&lt;Task&gt; of Tasks owned by the PluginContainer plugin.
      */
     @Override
     public Collection<Task> getScheduledTasks(Object plugin) {

@@ -27,6 +27,7 @@ package org.spongepowered.exampleinterfaces;
 import net.minecraft.entity.EntityLivingBase;
 
 import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.mod.mixin.MixinWorldProviderExample;
 
 
 /**
@@ -37,23 +38,31 @@ public interface IEntityPlayerConflict {
     /**
      * In {@link EntityLivingBase}, this same method exists but returns a float. Whilst java bytecode would actually allow both methods to exist, the
      * java compiler doesn't support this. This conflict is deliberately here to demostrate the use of the {@link Implements} annotation in
-     * {@link MixinEntityPlayerExample}
+     * {@link MixinWorldProviderExample}
+     *
+     * @return return value
      */
     public abstract double getHealth();
 
     /**
      * This method conflicts with a method in the target class and has precisely the same signature, this is to demonstrate how we deal with a method
      * which would ordinarily fall foul of reobfuscation and thus break our (non-obfuscated) interface in a production environment
+     *
+     * @return return value
      */
     public abstract boolean isUsingItem();
 
     /**
      * Additional method which doesn't conflict
+     *
+     * @return return value
      */
     public abstract int thisMethodDoesNotConflict();
     
     /**
      * Additional method with no conflicts
+     *
+     * @return return value
      */
     public abstract int norDoesThisOne();
 }

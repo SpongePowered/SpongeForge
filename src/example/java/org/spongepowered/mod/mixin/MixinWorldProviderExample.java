@@ -75,6 +75,10 @@ public abstract class MixinWorldProviderExample {
      * syntax see the javadoc in {@link org.spongepowered.asm.mixin.injection.struct.MemberInfo}.</p>
      * 
      * <p>The {@link At} specified HEAD will inject the callback at the top of the method (before all other code).</p>
+     *
+     * @param celestialAngle The celestial angle
+     * @param partialTicks The partial ticks
+     * @param cir The callback
      */
     @Inject(method = "getFogColor(FF)Lnet/minecraft/util/Vec3;", at = @At("HEAD"))
     @SideOnly(Side.CLIENT)
@@ -95,7 +99,11 @@ public abstract class MixinWorldProviderExample {
      * 
      * <p>It should be noted that it's perfectly possible to specify <em>cancellable</em> when injecting into a method which returns void, but with
      * the key difference being that it's not possible to fetch the return value (because there isn't one) or set a return value (because there isn't
-     * one!) but it is still perfectly possible to short-circuit a method in this way.</p> 
+     * one!) but it is still perfectly possible to short-circuit a method in this way.</p>
+     *
+     * @param x The x coordinate
+     * @param z The z coordinate
+     * @param cir The callback
      */
     @Inject(method = "canCoordinateBeSpawn", at = @At("RETURN"), cancellable = true)
     public void onCanCoordinateBeSpawn(int x, int z, CallbackInfoReturnable<Boolean> cir) {
@@ -118,7 +126,7 @@ public abstract class MixinWorldProviderExample {
      * <p>{@link org.spongepowered.asm.mixin.injection.points.MethodHead HEAD} and
      * {@link org.spongepowered.asm.mixin.injection.points.BeforeReturn RETURN} are only two of the available values for {@link At} types and are the
      * most straightforward to understand. HEAD only ever makes a single injection (at the head of the method) and RETURN injects before <em>every
-     * RETURN opcode</em> in a method. Other injection types are available however:<p>
+     * RETURN opcode</em> in a method. Other injection types are available however:</p>
      * 
      * <dl>
      *   <dt>{@link org.spongepowered.asm.mixin.injection.points.BeforeInvoke INVOKE}</dt>
@@ -140,7 +148,7 @@ public abstract class MixinWorldProviderExample {
      * <p>The specific arguments accepted by each type of invokation are described in each class's javadoc. This example shows a simple use of the
      * INVOKE type.</p>
      * 
-     * <p>This is what the code in the target method looks like:
+     * <p>This is what the code in the target method looks like:</p>
      * <blockquote><pre>
      *     this.worldObj = worldIn;
      *     this.terrainType = worldIn.getWorldInfo().getTerrainType();
@@ -149,10 +157,13 @@ public abstract class MixinWorldProviderExample {
      *     this.registerWorldChunkManager();
      *     this.generateLightBrightnessTable();
      * </pre></blockquote>
-     * Having identified the target method, we simply supply the method name as the <em>target</em> argument to the {@link At} annotation. Note that
+     * <p>Having identified the target method, we simply supply the method name as the <em>target</em> argument to the {@link At} annotation. Note that
      * unlike the <em>method</em> parameter (which <b>must</b> refer to a method in the target class) the <em>target</em> parameter for the {@link At}
      * <b>must</b> be a <em>fully-qualified</em> member reference (include both the owner and signature) because the obfuscation processor requires
      * this information in order to look up the target member in the obfuscation tables.</p>
+     *
+     * @param worldIn The world to register
+     * @param ci The callback on register
      */
     @Inject(method = "registerWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldProvider;registerWorldChunkManager()V"))
     public void onRegisterWorld(World worldIn, CallbackInfo ci)

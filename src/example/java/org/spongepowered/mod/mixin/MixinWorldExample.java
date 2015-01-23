@@ -88,8 +88,9 @@ public abstract class MixinWorldExample implements IWorld {
      * implemented by a mixin. Luckily, the JVM itself actually supports such overlaps, and thus we can work around the problem by renaming the
      * overlapping methods at runtime. Using the "prefix" option allows this behaviour to be leveraged. For more details see {@link Shadow#prefix}.
      *
-     * @param pos
-     * @return
+     * @param pos The position
+     * @return The blockstate
+     *
      */
     @Shadow(prefix = "shadow$")
     abstract IBlockState shadow$getBlockState(BlockPos pos);
@@ -122,6 +123,12 @@ public abstract class MixinWorldExample implements IWorld {
      * time.
      *
      * @see org.spongepowered.exampleinterfaces.IWorld#getBlock(int, int, int)
+     *
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @param z The z coordinate
+     *
+     * @return The block
      */
     @Override
     public Object getBlock(int x, int y, int z) {
@@ -136,8 +143,8 @@ public abstract class MixinWorldExample implements IWorld {
     /**
      * <b>Overwrites</b> the <em>NotifyBlockChange</em> method in the target class
      *
-     * @param pos
-     * @param block
+     * @param pos The block location
+     * @param block The block
      */
     @Overwrite
     public void func_175722_b(BlockPos pos, Block block) {
