@@ -50,7 +50,6 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3f;
 import com.google.common.base.Optional;
 
@@ -177,8 +176,7 @@ public abstract class MixinEntityLivingBase extends Entity {
     }
 
     public Vector3f living$getEyeLocation() {
-        Vector3d vec = ((Living)this).getLocation().getPosition();
-        return new Vector3f(vec.getX(), vec.getY() + getEyeHeight(), vec.getZ());
+        return ((Living) this).getLocation().getPosition().add(0, getEyeHeight(), 0).toFloat();
     }
 
     public int living$getRemainingAir() {

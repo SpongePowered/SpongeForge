@@ -24,13 +24,14 @@
  */
 package org.spongepowered.mod.wrapper;
 
-import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
+
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
@@ -40,6 +41,8 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.extent.Extent;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
+import org.spongepowered.mod.util.VecHelper;
 
 import java.util.Collection;
 
@@ -51,6 +54,10 @@ public class BlockWrapper implements BlockLoc {
     private BlockPos pos;
 
     public BlockWrapper(World world, int x, int y, int z) {
+        this(world, new BlockPos(x, y, z));
+    }
+
+    public BlockWrapper(World world, BlockPos blockPos) {
         // This is a NOT check, be careful of that
         if (!(world instanceof net.minecraft.world.World)) {
             System.err.println("World passed to BlockWrapper wasn't a mixin for net.minecraft.world.World! Serious issue!");
@@ -58,28 +65,16 @@ public class BlockWrapper implements BlockLoc {
         }
         this.handle = (net.minecraft.world.World) world;
         this.extent = world;
-        this.pos = new BlockPos(x, y, z);
+        this.pos = blockPos;
     }
 
-    //TODO: Move this to Direction
     private static EnumFacing getNotchDirection(Direction dir) {
-        switch (dir) {
-            case DOWN:
-                return EnumFacing.DOWN;
-            case UP:
-                return EnumFacing.UP;
-            case NORTH:
-                return EnumFacing.NORTH;
-            case SOUTH:
-                return EnumFacing.SOUTH;
-            case WEST:
-                return EnumFacing.WEST;
-            case EAST:
-                return EnumFacing.EAST;
-            default:
-                // TODO: EnumFacing doesn't have an 'invalid/default' value.
-                return EnumFacing.DOWN;
+        EnumFacing facing = SpongeGameRegistry.directionMap.get(dir);
+        if (facing == null) {
+            // TODO: EnumFacing doesn't have an 'invalid/default' value.
+            return EnumFacing.DOWN;
         }
+        return facing;
     }
 
     @Override
@@ -87,15 +82,14 @@ public class BlockWrapper implements BlockLoc {
         return this.extent;
     }
 
-    // TODO: Can we mixin Vector3i with BlockPos?
     @Override
     public Vector3i getPosition() {
-        return new Vector3i(this.pos.getX(), this.pos.getY(), this.pos.getZ());
+        return VecHelper.toVector(this.pos);
     }
 
     @Override
     public Location getLocation() {
-        return new Location(this.extent, new Vector3d(this.pos.getX(), this.pos.getY(), this.pos.getZ()));
+        return new Location(this.extent, VecHelper.toVector(this.pos).toDouble());
     }
 
     @Override
