@@ -76,7 +76,7 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
         return Optional.fromNullable(new Cause(null, (Player)this.entityPlayer, null));
     }
 
-    @Override
+    /*&@Override
     public boolean isCancelled() {
         return this.isCanceled();
     }
@@ -84,5 +84,5 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
     @Override
     public void setCancelled(boolean cancelled) {
         this.setCanceled(cancelled);
-    }
+    }*/
 }

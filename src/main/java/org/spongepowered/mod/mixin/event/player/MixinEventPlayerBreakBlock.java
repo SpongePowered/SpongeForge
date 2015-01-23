@@ -61,7 +61,7 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
         this.blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
     }
 
-    @Override
+    /*@Override
     public int getExp() {
         return this.exp;
     }
@@ -69,7 +69,7 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
     @Override
     public void setExp(int exp) {
         this.exp = exp;
-    }
+    }*/
 
     @Override    
     public Player getPlayer() {
@@ -81,10 +81,10 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
         return (BlockSnapshot)this.blockSnapshot;
     }
 
-    @Override
+    /*@Override
     public Collection<Item> getDroppedItems() {
         return ImmutableList.copyOf(this.droppedItems);
-    }
+    }*/
 
     @Override
     public Optional<Cause> getCause() {

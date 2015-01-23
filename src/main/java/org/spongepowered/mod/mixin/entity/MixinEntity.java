@@ -124,6 +124,9 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
             }
         } else {
             setPosition(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ());
+            if(thisEntity instanceof EntityPlayerMP) {
+                ((EntityPlayerMP) thisEntity).playerNetServerHandler.setPlayerLocation(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ(), thisEntity.rotationYaw, thisEntity.rotationPitch);
+            }
         }
 
         // reattach passengers
