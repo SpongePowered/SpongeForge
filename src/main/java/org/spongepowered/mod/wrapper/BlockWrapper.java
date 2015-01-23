@@ -36,6 +36,7 @@ import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.data.TileEntity;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
@@ -225,7 +226,12 @@ public class BlockWrapper implements BlockLoc {
 
     @Override
     public <T> Optional<T> getData(Class<T> dataClass) {
-        return Optional.absent();
+        net.minecraft.tileentity.TileEntity tileEntity = handle.getTileEntity(pos);
+        if(dataClass.isInstance(tileEntity)) {
+            return Optional.of((T) tileEntity);
+        } else {
+            return Optional.absent();
+        }
     }
 
     @Override
