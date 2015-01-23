@@ -32,6 +32,8 @@ import org.spongepowered.mod.SpongeMod;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -80,7 +82,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
     // Locking mechanism
     private final Lock lock = new ReentrantLock();
     private final Condition condition = lock.newCondition();
-
+    // The dynamic thread pooling executor of asynchronous tasks.
+    private static ExecutorService executor;
 
     private AsyncScheduler() {
         new Thread(new Runnable() {
@@ -109,6 +112,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         while ( sm != MachineState.NOT_RUNNING ) {
             switch ( sm ) {
                 case PRE_INIT: {
+                    executor = Executors.newCachedThreadPool();
                     // TODO - Pre-Initialization ?
                     sm = MachineState.INIT;
                     break;
@@ -723,10 +727,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
         // We'll succeed unless there's an exception found when we try to start the
         // actual Runnable target.
         boolean bRes = true;
-
-        Runnable taskRunnableBody = task.runnableBody;
         try {
-            taskRunnableBody.run();
+            executor.submit(task.runnableBody);
         } catch (Exception ex) {
             SpongeMod.instance.getLogger().error(SchedulerLogMessages.USER_TASK_FAILED_TO_RUN_ERROR);
             SpongeMod.instance.getLogger().error(ex.toString());
