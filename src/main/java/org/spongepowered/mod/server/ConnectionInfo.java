@@ -22,13 +22,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.status;
+package org.spongepowered.mod.server;
 
 import org.spongepowered.api.GameVersion;
 
 import java.net.InetSocketAddress;
 
-public interface ConnectionMeta {
+public interface ConnectionInfo {
 
     InetSocketAddress getAddress();
 

@@ -24,48 +24,59 @@
  */
 package org.spongepowered.mod.mixin.server;
 
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.buffer.Unpooled;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.NetworkManager;
-import org.spongepowered.api.GameVersion;
+import net.minecraft.network.Packet;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.S3FPacketCustomPayload;
+import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.net.ChannelBuf;
+import org.spongepowered.api.net.PlayerConnection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeGameVersion;
 import org.spongepowered.mod.server.ConnectionInfo;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
-@Mixin(NetworkManager.class)
-public abstract class MixinNetworkManager extends SimpleChannelInboundHandler implements ConnectionInfo {
+@Mixin(NetHandlerPlayServer.class)
+public abstract class MixinNetHandlerPlayServer implements PlayerConnection {
+
+    @Shadow public NetworkManager netManager;
+    @Shadow public EntityPlayerMP playerEntity;
 
     @Shadow
-    public abstract SocketAddress getRemoteAddress();
+    public abstract void sendPacket(final Packet packetIn);
 
-    private InetSocketAddress virtualHost;
-    private GameVersion version;
+    @Override
+    public Player getPlayer() {
+        return (Player) this.playerEntity;
+    }
 
     @Override
     public InetSocketAddress getAddress() {
-        return (InetSocketAddress) getRemoteAddress();
+        return ((ConnectionInfo) this.netManager).getAddress();
     }
 
     @Override
     public InetSocketAddress getVirtualHost() {
-        return this.virtualHost;
+        return ((ConnectionInfo) this.netManager).getVirtualHost();
     }
 
     @Override
-    public void setVirtualHost(String host, int port) {
-        this.virtualHost = InetSocketAddress.createUnresolved(host, port);
+    public int getPing() {
+        return this.playerEntity.ping;
     }
 
     @Override
-    public GameVersion getVersion() {
-        return this.version;
+    public void sendCustomPayload(Object plugin, String channel, ChannelBuf dataStream) {
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
-    public void setVersion(int version) {
-        this.version = new SpongeGameVersion(String.valueOf(version), version);
+    public void sendCustomPayload(Object plugin, String channel, byte[] data) {
+        sendPacket(new S3FPacketCustomPayload(channel, new PacketBuffer(Unpooled.wrappedBuffer(data))));
     }
+
 }

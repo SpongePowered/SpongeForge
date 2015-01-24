@@ -45,6 +45,7 @@ import net.minecraft.world.World;
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.net.PlayerConnection;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.message.Message;
@@ -173,5 +174,9 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
                 }
             }
         }
+    }
+
+    public PlayerConnection playermp$getConnection() {
+        return (PlayerConnection) this.playerNetServerHandler;
     }
 }

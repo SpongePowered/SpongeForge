@@ -128,6 +128,7 @@
     "potion.MixinPotionEffect",
     "server.MixinMinecraftServer",
     "server.MixinNetHandlerHandshakeTCP",
+    "server.MixinNetHandlerPlayServer",
     "server.MixinNetworkManager",
     "server.MixinServerCommandManager",
     "status.MixinMinecraftProtocolVersionIdentifier",

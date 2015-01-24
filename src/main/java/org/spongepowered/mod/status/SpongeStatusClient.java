@@ -30,15 +30,16 @@ import com.google.common.base.Optional;
 import net.minecraft.network.NetworkManager;
 import org.spongepowered.api.GameVersion;
 import org.spongepowered.api.status.StatusClient;
+import org.spongepowered.mod.server.ConnectionInfo;
 
 import java.net.InetSocketAddress;
 
 public class SpongeStatusClient implements StatusClient {
 
-    private final ConnectionMeta connection;
+    private final ConnectionInfo connection;
 
     public SpongeStatusClient(NetworkManager networkManager) {
-        this.connection = (ConnectionMeta) networkManager;
+        this.connection = (ConnectionInfo) networkManager;
     }
 
     @Override
@@ -53,7 +54,7 @@ public class SpongeStatusClient implements StatusClient {
 
     @Override
     public Optional<InetSocketAddress> getVirtualHost() {
-        return Optional.of(this.connection.getVirtualHost());
+        return Optional.fromNullable(this.connection.getVirtualHost());
     }
 
     @Override
