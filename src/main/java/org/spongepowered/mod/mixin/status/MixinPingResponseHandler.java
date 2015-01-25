@@ -36,7 +36,7 @@ import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.status.SpongeLegacyGameVersion;
+import org.spongepowered.mod.status.SpongeLegacyMinecraftVersion;
 import org.spongepowered.mod.status.SpongeStatusResponse;
 
 import java.net.InetSocketAddress;
@@ -106,7 +106,7 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
             case 0:
                 logger.debug("Ping: (<=1.3) from {}:{}", client.getAddress(), client.getPort());
 
-                response = SpongeStatusResponse.postLegacy(server, client, SpongeLegacyGameVersion.V1_3, null);
+                response = SpongeStatusResponse.postLegacy(server, client, SpongeLegacyMinecraftVersion.V1_3, null);
                 if (response != null) {
                     this.writeResponse(ctx, String.format("%s§%d§%d",
                                                           SpongeStatusResponse.getUnformattedMotd(response),
@@ -123,7 +123,7 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
 
                 logger.debug("Ping: (1.4-1.5) from {}:{}", client.getAddress(), client.getPort());
 
-                response = SpongeStatusResponse.postLegacy(server, client, SpongeLegacyGameVersion.V1_5, null);
+                response = SpongeStatusResponse.postLegacy(server, client, SpongeLegacyMinecraftVersion.V1_5, null);
                 if (response != null) {
                     this.writeResponse(ctx, String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",
                                                           response.getProtocolVersionInfo().getProtocol(),
@@ -159,7 +159,7 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
 
                 logger.debug("Ping: (1.6) from {}:{}", client.getAddress(), client.getPort());
 
-                response = SpongeStatusResponse.postLegacy(server, client, new SpongeLegacyGameVersion(SpongeLegacyGameVersion.V1_6, protocol),
+                response = SpongeStatusResponse.postLegacy(server, client, new SpongeLegacyMinecraftVersion(SpongeLegacyMinecraftVersion.V1_6, protocol),
                                                            InetSocketAddress.createUnresolved(host, port));
                 if (response != null) {
                     this.writeResponse(ctx, String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",

@@ -30,7 +30,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import net.minecraft.network.ServerStatusResponse;
 import net.minecraft.util.IChatComponent;
-import org.spongepowered.api.GameVersion;
+import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.event.server.StatusPingEvent;
 import org.spongepowered.api.status.Favicon;
 import org.spongepowered.api.text.message.Message;
@@ -98,8 +98,8 @@ public abstract class MixinServerStatusResponse implements StatusPingEvent.Respo
     }
 
     @Override
-    public GameVersion getVersion() {
-        return (GameVersion) this.protocolVersion;
+    public MinecraftVersion getVersion() {
+        return (MinecraftVersion) this.protocolVersion;
     }
 
     @Override

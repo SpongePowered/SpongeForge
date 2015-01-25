@@ -25,7 +25,7 @@
 package org.spongepowered.mod.status;
 
 import com.google.common.base.Optional;
-import org.spongepowered.api.GameVersion;
+import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.status.StatusClient;
 
 import java.net.InetSocketAddress;
@@ -33,10 +33,10 @@ import java.net.InetSocketAddress;
 public class SpongeLegacyStatusClient implements StatusClient {
 
     private final InetSocketAddress address;
-    private final GameVersion version;
+    private final MinecraftVersion version;
     private final Optional<InetSocketAddress> virtualHost;
 
-    public SpongeLegacyStatusClient(InetSocketAddress address, GameVersion version, InetSocketAddress virtualHost) {
+    public SpongeLegacyStatusClient(InetSocketAddress address, MinecraftVersion version, InetSocketAddress virtualHost) {
         this.address = address;
         if (version != null) {
             this.version = version;
@@ -52,7 +52,7 @@ public class SpongeLegacyStatusClient implements StatusClient {
     }
 
     @Override
-    public GameVersion getVersion() {
+    public MinecraftVersion getVersion() {
         return this.version;
     }
 

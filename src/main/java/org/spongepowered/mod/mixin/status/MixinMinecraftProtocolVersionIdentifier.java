@@ -25,14 +25,14 @@
 package org.spongepowered.mod.mixin.status;
 
 import net.minecraft.network.ServerStatusResponse;
-import org.spongepowered.api.GameVersion;
+import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.ProtocolGameVersion;
-import org.spongepowered.mod.SpongeGameVersion;
+import org.spongepowered.mod.ProtocolMinecraftVersion;
+import org.spongepowered.mod.SpongeMinecraftVersion;
 
 @Mixin(ServerStatusResponse.MinecraftProtocolVersionIdentifier.class)
-public abstract class MixinMinecraftProtocolVersionIdentifier implements ProtocolGameVersion {
+public abstract class MixinMinecraftProtocolVersionIdentifier implements ProtocolMinecraftVersion {
 
     @Shadow
     private String name;
@@ -55,7 +55,7 @@ public abstract class MixinMinecraftProtocolVersionIdentifier implements Protoco
     }
 
     @Override
-    public int compareTo(GameVersion o) {
-        return SpongeGameVersion.compare(this, o);
+    public int compareTo(MinecraftVersion o) {
+        return SpongeMinecraftVersion.compare(this, o);
     }
 }

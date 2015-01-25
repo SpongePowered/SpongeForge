@@ -26,10 +26,10 @@ package org.spongepowered.mod.mixin.server;
 
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.minecraft.network.NetworkManager;
-import org.spongepowered.api.GameVersion;
+import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeGameVersion;
+import org.spongepowered.mod.SpongeMinecraftVersion;
 import org.spongepowered.mod.server.ConnectionInfo;
 
 import java.net.InetSocketAddress;
@@ -42,7 +42,7 @@ public abstract class MixinNetworkManager extends SimpleChannelInboundHandler im
     public abstract SocketAddress getRemoteAddress();
 
     private InetSocketAddress virtualHost;
-    private GameVersion version;
+    private MinecraftVersion version;
 
     @Override
     public InetSocketAddress getAddress() {
@@ -60,12 +60,12 @@ public abstract class MixinNetworkManager extends SimpleChannelInboundHandler im
     }
 
     @Override
-    public GameVersion getVersion() {
+    public MinecraftVersion getVersion() {
         return this.version;
     }
 
     @Override
     public void setVersion(int version) {
-        this.version = new SpongeGameVersion(String.valueOf(version), version);
+        this.version = new SpongeMinecraftVersion(String.valueOf(version), version);
     }
 }

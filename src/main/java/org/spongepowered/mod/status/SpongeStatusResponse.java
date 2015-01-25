@@ -26,7 +26,7 @@ package org.spongepowered.mod.status;
 
 import net.minecraft.network.ServerStatusResponse;
 import net.minecraft.server.MinecraftServer;
-import org.spongepowered.api.GameVersion;
+import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.server.StatusPingEvent;
 import org.spongepowered.api.status.StatusClient;
@@ -44,7 +44,7 @@ public final class SpongeStatusResponse {
         return call(create(server), client);
     }
 
-    public static ServerStatusResponse postLegacy(MinecraftServer server, InetSocketAddress address, GameVersion version,
+    public static ServerStatusResponse postLegacy(MinecraftServer server, InetSocketAddress address, MinecraftVersion version,
                                                   InetSocketAddress virtualHost) {
         ServerStatusResponse response = create(server);
         response.setProtocolVersionInfo(

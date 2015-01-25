@@ -28,7 +28,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import net.minecraft.network.NetworkManager;
-import org.spongepowered.api.GameVersion;
+import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.status.StatusClient;
 import org.spongepowered.mod.server.ConnectionInfo;
 
@@ -48,7 +48,7 @@ public class SpongeStatusClient implements StatusClient {
     }
 
     @Override
-    public GameVersion getVersion() {
+    public MinecraftVersion getVersion() {
         return this.connection.getVersion();
     }
 

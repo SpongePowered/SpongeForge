@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.server;
 
-import org.spongepowered.api.GameVersion;
+import org.spongepowered.api.MinecraftVersion;
 
 import java.net.InetSocketAddress;
 
@@ -36,7 +36,7 @@ public interface ConnectionInfo {
 
     void setVirtualHost(String host, int port);
 
-    GameVersion getVersion();
+    MinecraftVersion getVersion();
 
     void setVersion(int version);
 }
