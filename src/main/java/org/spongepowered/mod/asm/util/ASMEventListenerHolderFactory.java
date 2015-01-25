@@ -113,7 +113,7 @@ public class ASMEventListenerHolderFactory {
             {
                 av0 = mv.visitAnnotation("Lnet/minecraftforge/fml/common/eventhandler/SubscribeEvent;", true);
                 av0.visitEnum("priority", "Lnet/minecraftforge/fml/common/eventhandler/EventPriority;", eventPriorityName);
-                av0.visit("receiveCanceled", (Boolean) canceled);
+                av0.visit("receiveCanceled", canceled);
                 av0.visitEnd();
             }
             mv.visitCode();

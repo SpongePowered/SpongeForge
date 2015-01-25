@@ -227,7 +227,7 @@ public class SpongeEventBus implements EventManager {
 
         for (int index = 0; index < listeners.length; index++) {
             if (listeners[index] instanceof EventPriority) {
-                Order order = this.priorityMappings.get((EventPriority)listeners[index]);
+                Order order = this.priorityMappings.get(listeners[index]);
 
                 for (int orderIndex = 0; orderIndex <= order.ordinal(); orderIndex++) {
                     Order currentOrder = Order.values()[orderIndex];

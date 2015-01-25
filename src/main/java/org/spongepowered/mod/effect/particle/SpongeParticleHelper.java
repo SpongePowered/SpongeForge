@@ -180,9 +180,9 @@ public final class SpongeParticleHelper {
             Random random = new Random();
 
             for (int i = 0; i < count; i++) {
-                float px0 = (float) (px + (random.nextFloat() * 2f - 1f) * ox);
-                float py0 = (float) (py + (random.nextFloat() * 2f - 1f) * oy);
-                float pz0 = (float) (pz + (random.nextFloat() * 2f - 1f) * oz);
+                float px0 = px + (random.nextFloat() * 2f - 1f) * ox;
+                float py0 = py + (random.nextFloat() * 2f - 1f) * oy;
+                float pz0 = pz + (random.nextFloat() * 2f - 1f) * oz;
     
                 packets.add(new S2APacketParticles(internal, true, px0, py0, pz0, f0, f1, f2, 1f, 0, extra));
             }

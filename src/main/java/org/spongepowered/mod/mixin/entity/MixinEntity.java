@@ -97,7 +97,7 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
             return false;
         }
 
-        Entity spongeEntity = (Entity)this;
+        Entity spongeEntity = this;
         net.minecraft.entity.Entity thisEntity = (net.minecraft.entity.Entity)spongeEntity;
 
         // dettach passengers
@@ -105,7 +105,7 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
         ArrayDeque<net.minecraft.entity.Entity> passengers = new ArrayDeque<net.minecraft.entity.Entity>();
         while (passenger != null) {
             if (passenger instanceof EntityPlayerMP && !this.worldObj.isRemote) {
-                ((EntityPlayerMP)passenger).mountEntity(null);
+                passenger.mountEntity(null);
             }
             net.minecraft.entity.Entity nextPassenger = null;
             if (passenger.riddenByEntity != null) {
@@ -117,7 +117,7 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
         }
 
         net.minecraft.world.World nmsWorld = null;
-        if (location.getExtent() instanceof World && ((net.minecraft.world.World)location.getExtent() != this.worldObj)) {
+        if (location.getExtent() instanceof World && (location.getExtent() != this.worldObj)) {
             if (!(thisEntity instanceof EntityPlayer)) {
                 nmsWorld = (net.minecraft.world.World)location.getExtent();
                 teleportEntity(thisEntity, location, thisEntity.dimension, nmsWorld.provider.getDimensionId());
@@ -173,7 +173,7 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
     @Override
     public Entity getBaseVehicle() {
         if (this.ridingEntity == null) {
-          return (Entity)this;
+          return this;
         }
 
         net.minecraft.entity.Entity baseVehicle = this.ridingEntity;
@@ -191,13 +191,13 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
                 return true;
             }
 
-            Entity thisEntity = (Entity)this;
+            Entity thisEntity = this;
             passenger.mountEntity((net.minecraft.entity.Entity)thisEntity);
         } else { // passenger already exists
             this.riddenByEntity.mountEntity(null); // eject current passenger
 
             if (passenger != null) {
-                Entity thisEntity = (Entity)this;
+                Entity thisEntity = this;
                 passenger.mountEntity((net.minecraft.entity.Entity)thisEntity);
             }
         }
@@ -272,7 +272,7 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
         if (entity instanceof EntityPlayer) {
             fromWorld.getEntityTracker().removePlayerFromTrackers((EntityPlayerMP)entity);
             fromWorld.getPlayerManager().removePlayer((EntityPlayerMP)entity);
-            mcServer.getConfigurationManager().playerEntityList.remove((EntityPlayerMP)entity);
+            mcServer.getConfigurationManager().playerEntityList.remove(entity);
         } else {
             fromWorld.getEntityTracker().untrackEntity(entity);
         }
