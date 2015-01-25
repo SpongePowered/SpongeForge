@@ -57,7 +57,7 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
 
     @Override
     public BlockLoc getBlock() {
-        return (BlockLoc)new BlockWrapper((org.spongepowered.api.world.World)this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
+        return new BlockWrapper((org.spongepowered.api.world.World)this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
     }
 
     @Override
@@ -73,7 +73,7 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
 
     @Override
     public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, (Player)this.entityPlayer, null));
+        return Optional.fromNullable(new Cause(null, this.entityPlayer, null));
     }
 
     /*&@Override

@@ -288,7 +288,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<ParticleType> getParticleType(String name) {
-        return Optional.fromNullable((ParticleType) this.particleByName.get(name));
+        return Optional.fromNullable(this.particleByName.get(name));
     }
 
     @Override
@@ -793,7 +793,7 @@ public class SpongeGameRegistry implements GameRegistry {
                 }
                 EntityType entityType = SpongeGameRegistry.this.entityTypeMappings.get(fieldName);
                 SpongeGameRegistry.this.entityClassToTypeMappings.put(((SpongeEntityType) entityType).entityClass, (SpongeEntityType) entityType);
-                SpongeGameRegistry.this.entityIdToTypeMappings.put(((SpongeEntityType) entityType).getId(), ((SpongeEntityType) entityType));
+                SpongeGameRegistry.this.entityIdToTypeMappings.put(entityType.getId(), ((SpongeEntityType) entityType));
                 return entityType;
             }
         });

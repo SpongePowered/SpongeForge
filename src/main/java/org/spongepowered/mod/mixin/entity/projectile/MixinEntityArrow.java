@@ -63,7 +63,7 @@ public abstract class MixinEntityArrow extends Entity implements Arrow {
     @Override
     public ProjectileSource getShooter() {
         if (this.projectileSource != null && this.projectileSource instanceof ProjectileSource) {
-            return (ProjectileSource) this.projectileSource;
+            return this.projectileSource;
         } else if (this.shootingEntity != null && this.shootingEntity instanceof ProjectileSource) {
             return (ProjectileSource) this.shootingEntity;
         }

@@ -1,3 +1,4 @@
+sudo: false
 language: java
 notifications:
   email: false
@@ -9,3 +10,7 @@ script:
 matrix:
   include:
   - jdk: openjdk6
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/

@@ -88,7 +88,7 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
 
     @Override
     public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, (Player)this.player, null));
+        return Optional.fromNullable(new Cause(null, this.player, null));
     }
 
     @Override

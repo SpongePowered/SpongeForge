@@ -71,7 +71,7 @@ public abstract class MixinEntityHanging extends Entity implements Hanging {
 
             if (!this.isDead && !this.onValidSurface() && !this.ignorePhysics) {
                 this.setDead();
-                this.onBroken((Entity) null);
+                this.onBroken(null);
             }
         }
     }
