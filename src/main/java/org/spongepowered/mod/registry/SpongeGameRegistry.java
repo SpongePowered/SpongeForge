@@ -228,33 +228,7 @@ public class SpongeGameRegistry implements GameRegistry {
     private final List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
     private final List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
     private final Map<String, SkullType> skullTypeMappings = Maps.newHashMap();
-    
-    private Map<String, Art> artMappings = Maps.newHashMap();
-    private Map<String, EntityType> entityTypeMappings = Maps.newHashMap();
-    public Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
-    public Map<Class<? extends Entity>, SpongeEntityType> entityClassToTypeMappings = Maps.newHashMap();
-    public Map<String, Enchantment> enchantmentMappings = Maps.newHashMap();
-    private Map<String, Career> careerMappings = Maps.newHashMap();
-    private Map<String, Profession> professionMappings = Maps.newHashMap();
-    private Map<Integer, List<Career>> professionToCareerMappings = Maps.newHashMap();
-    private Map<String, DimensionType> dimensionTypeMappings = Maps.newHashMap();
-    public Map<Class<? extends Dimension>, DimensionType> dimensionClassMappings = Maps.newHashMap();
-    private List<BlockType> blockList = new ArrayList<BlockType>();
-    private List<ItemType> itemList = new ArrayList<ItemType>();
-    private List<PotionEffectType> potionList = new ArrayList<PotionEffectType>();
-    private List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
-
-    public static final ImmutableBiMap<Direction, EnumFacing> directionMap;
-    static {
-        Builder<Direction, EnumFacing> directionMapBuilder = ImmutableBiMap.builder();
-        directionMapBuilder.put(Direction.NORTH, EnumFacing.NORTH);
-        directionMapBuilder.put(Direction.EAST, EnumFacing.EAST);
-        directionMapBuilder.put(Direction.SOUTH, EnumFacing.SOUTH);
-        directionMapBuilder.put(Direction.WEST, EnumFacing.WEST);
-        directionMapBuilder.put(Direction.UP, EnumFacing.UP);
-        directionMapBuilder.put(Direction.DOWN, EnumFacing.DOWN);
-        directionMap = directionMapBuilder.build();
-    }
+    private final Map<String, NotePitch> notePitchMappings = Maps.newHashMap();
 
     @Override
     public Optional<BlockType> getBlock(String id) {
@@ -1077,13 +1051,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
     
     private void setGameModes() {
-        for (Field f: GameModes.class.getDeclaredFields()) {
-            try {
-                f.set(null, gameModeMappings.get(f.getName()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        RegistryHelper.mapFields(GameModes.class, gameModeMappings);
     }
 
     public void init() {
