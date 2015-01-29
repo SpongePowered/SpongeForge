@@ -27,47 +27,33 @@ package org.spongepowered.mod.service.scheduler;
 import com.google.common.base.Optional;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.service.scheduler.Scheduler;
+import org.spongepowered.api.service.scheduler.SchedulerQuery;
+import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 /**
+ * <p>Internal implementation of the SynchronousScheduler interface.</p>
  *
- * <p>Synchronous Scheduler Implementation Notes:</p>
- * <p>
- * For the feature/schedulers branch, initial checkin for updates
- * to the API, the core game (where necessary) and added new
- * interfaces for one kind of scheduler - a synchronous scheduler.</p>
- *
- * <p>
- * Synchronous is related to a clock, and by default the relationship
- * of being "synchronous" is to be in step with the Minecraft server tick event.
- * So, to be "asynchronous" means to not run on the time base of the 
- * Server Tick, but rather run on a time base that is relative, 
- * eg., the wall-clock. </p>
- *
+ * @see {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}
  */
+public class SyncScheduler implements SynchronousScheduler {
 
-public class SyncScheduler implements Scheduler {
-
-    /**
-     * <p>
-     * The intent is the implementation of the Task Scheduler is 
-     * a single instance in the context of the Sponge.</p>
-     *
-     * <p>
-     * There isn't a strong motivation to have multiple instances of the "Scheduler".</p>
-     */
-
-    private static volatile Scheduler instance = null;
-
-    // The simple private list of all pending (and running) ScheduledTasks
-    private List<ScheduledTask> taskList = null;
-
+    // The simple queue of all pending (and running) ScheduledTasks
+    private final Map<UUID, ScheduledTask> taskMap = new ConcurrentHashMap<UUID, ScheduledTask>();
+    // The internal counter of the number of Ticks elapsed since this Scheduler was listening for
+    // ServerTickEvent from Forge.
     private volatile long counter = 0L;
+    private long sequenceNumber = 0L;
+
+    // Query actor for task information
+    private SchedulerHelper schedulerHelper;
 
     /**
      * <p>
@@ -75,46 +61,70 @@ public class SyncScheduler implements Scheduler {
      * happen once.  We simply initialize the first state in the SyncScheduler state
      * machine and let the state machine execute.  Only calls to the SyncScheduler
      * through the control interface (TBD) may control the behavior of the state machine itself.</p>
-     *
+     * <p/>
      * <p>
-     * The c'tor of the Scheduler is private.  So to get the scheduler, user code calls game.getScheduler()
+     * The constructor of the Scheduler is private.  So to get the scheduler, user code calls game.getScheduler()
      * or directly by SyncScheduler.getInstance().  In time access to the scheduler should be migrated into
      * the Services Manager.</p>
-     *
      */
     private SyncScheduler() {
-        this.taskList = new ArrayList<ScheduledTask>();
+        schedulerHelper = new SchedulerHelper(Task.TaskSynchroncity.SYNCHRONOUS);
+    }
+
+    @Override
+    public Optional<Task> getTaskById(UUID id) {
+        return schedulerHelper.getTaskById(taskMap, id);
+    }
+
+    @Override
+    public Optional<UUID> getUuidOfTaskByName(String name) {
+        return schedulerHelper.getUuidOfTaskByName(taskMap, name);
+    }
+
+    @Override
+    public Collection<Task> getTasksByName(String pattern) {
+        return schedulerHelper.getfTasksByName(taskMap, pattern);
+    }
+
+    @Override
+    public Collection<Task> getScheduledTasks() {
+        return schedulerHelper.getScheduledTasks(taskMap);
+    }
+
+    @Override
+    public Collection<Task> getScheduledTasks(Object plugin) {
+        return schedulerHelper.getScheduledTasks(taskMap, plugin);
     }
 
     /**
-     * <p>Returns the instance (handle) to the TaskScheduler.</p>
-     *
+     * <p>Returns the instance (handle) to the Synchronous TaskScheduler.</p>
+     * <p/>
      * <p>
-     * A static reference to the TaskScheduler singleton is returned by
-     * the function getInstance().  The implementation of getInstance follows the
-     * typical practice of double locking on the instance variable. The instance variable
-     * is type modified volatile as part of the Pattern of this kind of Singleton implementation.</p>
+     * A static reference to the Synchronous Scheduler singleton is returned by
+     * the function getInstance().
+     * <p>Singleton based on:
+     * <a href="http://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">
+     *     Initialization on Demand Idiom</a>
+     * </p>
      *
-     * @return interface to the Scheduler
+     * @return The single interface to the Synchronous Scheduler
      */
-    public static Scheduler getInstance() {
-        if (instance == null) {
-            synchronized (SyncScheduler.class) {
-                if (instance == null) {
-                    instance = (Scheduler) new SyncScheduler();
-                }
-            }
-        }
-        return instance;
+    private static class SynchronousSchedulerSingletonHolder {
+
+        private static final SynchronousScheduler INSTANCE = new SyncScheduler();
+    }
+
+    public static SynchronousScheduler getInstance() {
+        return SynchronousSchedulerSingletonHolder.INSTANCE;
     }
 
     /**
      * <p>The hook to update the Ticks known by the SyncScheduler.</p>
-     *
+     * <p/>
      * <p>
      * When a TickEvent occurs, the event handler onTick will accumulate a new value for
      * the counter.  The Phase of the TickEvent used is the TickEvent.ServerTickEvent Phase.START.</p>
-     *
+     * <p/>
      * <p>
      * The counter is equivalent to a clock in that each new value represents a new
      * tick event.  Use of delay (Task.offset), interval (Task.period), timestamp (Task.timestamp) all
@@ -122,83 +132,66 @@ public class SyncScheduler implements Scheduler {
      * is simply a @long but it's never negative.  A better representation would been Number (a cardinal
      * value), but this is what we're using.</p>
      *
-     * @param event The server tick event
+     * @param event The Forge ServerTickEvent observed by this object.
      */
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
-       if (event.phase == TickEvent.Phase.START) {
+        if (event.phase == TickEvent.Phase.START) {
             this.counter++;
-            ProcessTasks();
-       }
+            processTasks();
+        }
     }
 
-    private void ProcessTasks() {
+    private void processTasks() {
+        //
+        // For each task, inspect the state.
+        //
+        // For the state of CANCELED, remove it and look at the next task, if any.
+        //
+        // For the state of WAITING, the task has not begun, so check the
+        // offset time before starting that task for the first time.
+        //
+        // Else if the task is already RUNNING, use the period (the time delay until
+        // the next moment to run the task).
+        //
+        for (ScheduledTask task : taskMap.values()) {
+            // If the task is now slated to be canceled, we just remove it as if it no longer exists.
+            if (task.state == ScheduledTask.ScheduledTaskState.CANCELED) {
+                this.taskMap.remove(task.getUniqueId());
+                continue;
+            }
 
-        synchronized (this.taskList) {
+            long threshold = Long.MAX_VALUE;
 
-            // We've locked down the taskList but the lock is short lived if the size of the
-            // size of the list is zero.
+            // Figure out if we start a delayed Task after threshold ticks or,
+            // start it after the interval (period) of the repeating task parameter.
+            if (task.state == ScheduledTask.ScheduledTaskState.WAITING) {
+                threshold = task.offset;
+            } else if (task.state == ScheduledTask.ScheduledTaskState.RUNNING) {
+                threshold = task.period;
+            }
 
-            //
-            // For each task, inspect the state.
-            //
-            // For the state of CANCELED, remove it and look at the next task, if any.
-            //
-            // For the state of WAITING, the task has not begun, so check the
-            // offset time before starting that task for the first time.
-            //
-            // Else if the task is already RUNNING, use the period (the time delay until
-            // the next moment to run the task).
-            //
+            // This moment is 'now'
+            long now = this.counter;
 
-            for (ScheduledTask task : this.taskList) {
-
-                // If the task is now slated to be canceled, we just remove it as if it no longer exists.
-
-                if (task.state == ScheduledTask.ScheduledTaskState.CANCELED) {
-                    this.taskList.remove(task);
-                    continue;
-                }
-
-                long threshold = Long.MAX_VALUE;
-
-                // Figure out if we start a delayed Task after threshold ticks or,
-                // start it after the interval (period) of the repeating task parameter.
-                if (task.state == ScheduledTask.ScheduledTaskState.WAITING) {
-                    threshold = task.offset;
-                } else if (task.state == ScheduledTask.ScheduledTaskState.RUNNING) {
-                    threshold = task.period;
-                }
-
-                // This moment is 'now'
-                long now = this.counter;
-
-                // So, if the current time minus the timestamp of the task is greater than
-                // the delay to wait before starting the task, then start the task.
-
-                // Repeating tasks get a reset-timestamp each time they are set RUNNING
-                // If the task has a period of 0 (zero) this task will not repeat, and is removed
-                // after we start it.
-
-                if (threshold < (now - task.timestamp)) {
-
-                    // startTask is just a utility function within the Scheduler that
-                    // starts the task.
-
-                    boolean bTaskStarted = startTask(task);
-                    if (bTaskStarted) {
-
-                        task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
-
-                        // If task is one time shot, remove it from the list.
-                        if (task.period == 0L) {
-                            this.taskList.remove(task);
-                            continue;
-                        } else {
-                            // If the task is not a one time shot then keep it and
-                            // change the timestamp to now.
-                            task.timestamp = this.counter;
-                        }
+            // So, if the current time minus the timestamp of the task is greater than
+            // the delay to wait before starting the task, then start the task.
+            // Repeating tasks get a reset-timestamp each time they are set RUNNING
+            // If the task has a period of 0 (zero) this task will not repeat, and is removed
+            // after we start it.
+            if (threshold <= (now - task.timestamp)) {
+                // startTask is just a utility function within the Scheduler that
+                // starts the task.
+                // If the task is not a one time shot then keep it and
+                // change the timestamp to now.  It is a little more
+                // efficient to do this now than after starting the task.
+                task.timestamp = this.counter;
+                boolean bTaskStarted = startTask(task);
+                if (bTaskStarted) {
+                    task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
+                    // If task is one time shot, remove it from the map.
+                    if (task.period == 0L) {
+                        this.taskMap.remove(task.getUniqueId());
                     }
                 }
             }
@@ -225,33 +218,30 @@ public class SyncScheduler implements Scheduler {
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param task  The Runnable object that implements a run() method to execute the Task desired
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
+     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runTask(Object plugin, Runnable task) {
+    public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {
         /**
          * <p>
          * The intent of this method is to run a single task (non-repeating) and has zero
          * offset (doesn't wait a delay before starting), and a zero period (no repetition)</p>
          */
-        Optional<Task> result = Optional.absent();
+        Optional<Task> resultTask = Optional.absent();
         final long NODELAY = 0L;
         final long NOPERIOD = 0L;
 
-        ScheduledTask nonRepeatingtask = taskValidationStep(plugin, task, NODELAY, NOPERIOD);
+        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        ScheduledTask nonRepeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
 
-        if (nonRepeatingtask == null) {
-            SpongeMod.instance.getLogger().warn(LogMessages.CANNOT_MAKE_TASK_WARNING);
-        }
-        else {
-            synchronized(this.taskList) {
-                this.taskList.add(nonRepeatingtask);
-            }
-            result = Optional.of  ( (Task) nonRepeatingtask );
+        if (nonRepeatingTask == null) {
+            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
+        } else {
+            resultTask = schedulerHelper.utilityForAddingTask(taskMap, nonRepeatingTask);
         }
 
-        return result;
+        return resultTask;
     }
 
     /**
@@ -261,7 +251,7 @@ public class SyncScheduler implements Scheduler {
      * The runTask method is used to run a single Task just once.  The Task
      * may persist for the life of the server, however the Task itself will never
      * be restarted.  The Scheduler will not wait before running the Task.
-     * <b>The Task will be delayed artifically for delay Ticks.</b>  Because the time
+     * <b>The Task will be delayed artificially for delay Ticks.</b>  Because the time
      * unit is in Ticks, this scheduled Task is synchronous (as possible) with the
      * event of the Tick from the game.  Overhead, network and system latency not 
      * withstanding the event will fire after the delay expires.</p>
@@ -277,49 +267,44 @@ public class SyncScheduler implements Scheduler {
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param task  The Runnable object that implements a run() method to execute the Task desired
+     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param delay  The offset in ticks before running the task.
      * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runTaskAfter(Object plugin, Runnable task, long delay) {
-        Optional<Task> result = Optional.absent();
+    public Optional<Task> runTaskAfter(Object plugin, Runnable runnableTarget, long delay) {
+        Optional<Task> resultTask = Optional.absent();
         final long NOPERIOD = 0L;
 
-        ScheduledTask nonRepeatingTask = taskValidationStep(plugin, task, delay, NOPERIOD);
+        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        ScheduledTask nonRepeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
 
         if (nonRepeatingTask == null) {
-            SpongeMod.instance.getLogger().warn(LogMessages.CANNOT_MAKE_TASK_WARNING);
-        }
-        else {
-
-            synchronized(this.taskList) {
-                nonRepeatingTask.setTimestamp(this.counter);
-                this.taskList.add(nonRepeatingTask);
-            }
-            result = Optional.of  ( (Task) nonRepeatingTask );
+            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
+        } else {
+            resultTask = schedulerHelper.utilityForAddingTask(taskMap, nonRepeatingTask);
         }
 
-        return result;
+        return resultTask;
     }
 
     /**
-     * <p>Start a repeating Task with a period (interval) of Ticks.  The first occurance will start immediately.</p>
+     * <p>Start a repeating Task with a period (interval) of Ticks.  The first occurrence will start immediately.</p>
      *
      * <p>
      * The runRepeatingTask method is used to run a Task that repeats.  The Task
      * may persist for the life of the server. The Scheduler will not wait before running
-     * the first occurance of the Task. The Scheduler will not allow a second occurance of
-     * the task to start if the preceeding occurance is is still alive.  Be sure to end
-     * the Runnable Thread of the Task before anticipating the recurrance of the Task.</p>
+     * the first occurrence of the Task. The Scheduler will not allow a second occurrence of
+     * the task to start if the preceding occurrence is is still alive.  Be sure to end
+     * the Runnable Thread of the Task before anticipating the recurrence of the Task.</p>
      *
      * <p> 
      * If the Scheduler detects that two tasks will overlap as such, the 2nd Task will not
      * be started.  The next time the Task is due to run, the test will be made again to determine
-     * if the previous occurance of the Task is still alive (running).  As long as a prevous occurance
-     * is running no new occurances of that specific Task will start, although the Scheduler will
+     * if the previous occurrence of the Task is still alive (running).  As long as a previous occurrence
+     * is running no new occurrences of that specific Task will start, although the Scheduler will
      * never cease in trying to start it a 2nd time.</p>
-     * 
+     *
      * <p>
      * Because the time unit is in Ticks, this scheduled Task is synchronous (as possible) with the
      * event of the Tick from the game.  Overhead, network and system latency not 
@@ -336,49 +321,46 @@ public class SyncScheduler implements Scheduler {
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param task  The Runnable object that implements a run() method to execute the Task desired
+     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param interval The period in ticks of the repeating Task.
      * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runRepeatingTask(Object plugin, Runnable task, long interval) {
-        Optional<Task> result = Optional.absent();;
+    public Optional<Task> runRepeatingTask(Object plugin, Runnable runnableTarget, long interval) {
+        Optional<Task> resultTask = Optional.absent();
         final long NODELAY = 0L;
 
-        ScheduledTask repeatingTask = taskValidationStep(plugin, task, NODELAY, interval);
+        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        ScheduledTask repeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, interval);
 
         if (repeatingTask == null) {
-            SpongeMod.instance.getLogger().warn(LogMessages.CANNOT_MAKE_TASK_WARNING);
+            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            synchronized(this.taskList) {
-                repeatingTask.setTimestamp(this.counter);
-                this.taskList.add(repeatingTask);
-            }
-            result = Optional.of  ( (Task) repeatingTask );
+            resultTask = schedulerHelper.utilityForAddingTask(taskMap, repeatingTask);
         }
 
-        return result;
+        return resultTask;
     }
 
     /**
      * <p>
      * Start a repeating Task with a period (interval) of Ticks.  
-     * The first occurance will start after an initial delay.</p>
+     * The first occurrence will start after an initial delay.</p>
      *
      * <p>
      * The runRepeatingTask method is used to run a Task that repeats.  The Task
      * may persist for the life of the server. The Scheduler <b>will wait</b> before running
-     * the first occurance of the Task. The Scheduler will not allow a second occurance of
-     * the task to start if the preceeding occurance is is still alive.  Be sure to end
-     * the Runnable Thread of the Task before anticipating the recurrance of the Task.</p>
+     * the first occurrence of the Task. The Scheduler will not allow a second occurrence of
+     * the task to start if the preceding occurrence is is still alive.  Be sure to end
+     * the Runnable Thread of the Task before anticipating the recurrence of the Task.</p>
      *
      * <p> 
      * If the Scheduler detects that two tasks will overlap as such, the 2nd Task will not
      * be started.  The next time the Task is due to run, the test will be made again to determine
-     * if the previous occurance of the Task is still alive (running).  As long as a prevous occurance
-     * is running no new occurances of that specific Task will start, although the Scheduler will
+     * if the previous occurrence of the Task is still alive (running).  As long as a previous occurrence
+     * is running no new occurrences of that specific Task will start, although the Scheduler will
      * never cease in trying to start it a 2nd time.</p>
-     * 
+     *
      * <p>
      * Because the time unit is in Ticks, this scheduled Task is synchronous (as possible) with the
      * event of the Tick from the game.  Overhead, network and system latency not 
@@ -395,244 +377,40 @@ public class SyncScheduler implements Scheduler {
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param task  The Runnable object that implements a run() method to execute the Task desired
+     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
      * @param delay  The offset in ticks before running the task.
      * @param interval The offset in ticks before running the task.
      * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
      */
     @Override
-    public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable task, long interval, long delay) {
-        Optional<Task> result = Optional.absent();;
-
-        ScheduledTask repeatingTask = taskValidationStep(plugin, task, delay, interval);
+    public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, long interval, long delay) {
+        Optional<Task> resultTask = Optional.absent();
+        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        ScheduledTask repeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, interval);
 
         if (repeatingTask == null) {
-            SpongeMod.instance.getLogger().warn(LogMessages.CANNOT_MAKE_TASK_WARNING);
+            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            synchronized(this.taskList) {
-                repeatingTask.setTimestamp(this.counter);
-                this.taskList.add(repeatingTask);
-            }
-            result = Optional.of  ( (Task) repeatingTask );
+            resultTask = schedulerHelper.utilityForAddingTask(taskMap, repeatingTask);
         }
 
-        return result;
+        return resultTask;
     }
 
-    /**
-     * <p>
-     * Start a repeating Task with a period (interval) of Ticks.  The first occurance
-     * will start after an initial delay.</p>
-     *
-     * <p>Example code to use the method:</p>
-     *
-     * <p>
-     * <code>
-     *     UUID myID;
-     *     // ...
-     *     Optional&lt;Task&gt; task;
-     *     task = SyncScheduler.getInstance().getTaskById(myID); 
-     * </code>
-     * </p>
-     *
-     * @param id The UUID of the Task to find.
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the existing Task.
-     */
-    @Override
-    public Optional<Task> getTaskById(UUID id) {
-
-        Optional<Task> result = Optional.absent();
-
-        for (Iterator<ScheduledTask> itr = this.taskList.iterator(); itr.hasNext(); ) {
-            ScheduledTask task = itr.next();
-            if (id.equals(task.id)) {
-                result = Optional.of( (Task) task);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * <p>Determine the list of Tasks that the TaskScheduler is aware of.</p>
-     *
-     * @return Collection&lt;Task&gt; of all known Tasks in the TaskScheduler
-     */
-    @Override
-    public Collection<Task> getScheduledTasks() {
-
-        Collection<Task> taskCollection;
-
-        synchronized(this.taskList) {
-            taskCollection = new ArrayList<Task>(this.taskList);
-        }
-
-        return taskCollection;
-    }
-
-    /**
-     * <p>The query for Tasks owned by a target Plugin owner is found by testing
-     * the list of Tasks by testing the ID of each PluginContainer.</p>
-     *
-     * <p>If the PluginContainer passed to the method is not correct (invalid
-     * or null) then return a null reference.  Else, return a Collection of Tasks
-     * that are owned by the Plugin.</p>
-     * @param plugin The plugin that may own the Tasks in the TaskScheduler
-     * @return Collection&lt;Task&gt; of Tasks owned by the PluginContainer plugin.
-     */
-    @Override
-    public Collection<Task> getScheduledTasks(Object plugin) {
-
-        // The argument is an Object so we have due diligence to perform...
-
-        // Owner is not a PluginContainer derived class
-        if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
-            SpongeMod.instance.getLogger().warn(LogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
-
-            // The plugin owner was not valid, so the "Collection" is empty.
-            //(TODO) Perhaps we move this into using Optional<T> to make it explicit that
-            // Eg., the resulting Collection is NOT present vs. empty.
-
-            return null;
-        }
-
-        // The plugin owner is OK, so let's figure out which Tasks (if any) belong to it.
-        // The result Collection represents the Tasks that are owned by the plugin.  The list
-        // is non-null.  If no Tasks exists owned by the Plugin, return an empty Collection
-        // else return a Collection of Tasks.
-
-        PluginContainer testedOwner = (PluginContainer) plugin;
-        String testOwnerID = testedOwner.getId();
-        Collection<Task> subsetCollection;
-
-        synchronized(this.taskList) {
-            subsetCollection = new ArrayList<Task>(this.taskList);
-        }
-
-        Iterator<Task> it = subsetCollection.iterator();
-
-        while (it.hasNext()) {
-            String pluginId = ((PluginContainer) it.next()).getId();
-            if (!testOwnerID.equals(pluginId)) it.remove();
-        }
-
-        return subsetCollection;
-    }
-
-    private ScheduledTask taskValidationStep(Object plugin, Runnable task, long offset, long period) {
-
-        // No owner
-        if (plugin == null) {
-            if (plugin == null) {
-                SpongeMod.instance.getLogger().warn(LogMessages.PLUGIN_CONTAINER_NULL_WARNING);
-            } 
-            return null;
-        }
-
-        // Owner is not a PluginContainer derived class
-        else if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
-            SpongeMod.instance.getLogger().warn(LogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
-            return null;
-        }
-
-        // Is task a Runnable task?
-        if (task == null) {
-            SpongeMod.instance.getLogger().warn(LogMessages.NULL_RUNNABLE_ARGUMENT_WARNING);
-            return null;
-        }
-        // task is not derived from a Runnable class.
-        else if (!Runnable.class.isAssignableFrom(task.getClass())) {
-            SpongeMod.instance.getLogger().warn(LogMessages.NULL_RUNNABLE_ARGUMENT_INVALID_WARNING);
-            return null;
-        }
-
-
-        if ( offset < 0L ) {
-            SpongeMod.instance.getLogger().error(LogMessages.DELAY_NEGATIVE_ERROR);
-            return null;
-        }
-
-        if ( period < 0L ) {
-            SpongeMod.instance.getLogger().error(LogMessages.INTERVAL_NEGATIVE_ERROR);
-            return null;
-        }
-
-        // plugin is a PluginContainer
-        PluginContainer plugincontainer = (PluginContainer) plugin;
-
-        // The caller provided a valid PluginContainer owner and a valid Runnable task.
-        // Convert the arguments and store the Task for execution the next time the task
-        // list is checked. (this task is firing immediately)
-
-        // A task has at least three things to keep track:
-        //   The container that owns the task (pcont)
-        //   The Thread Body (Runnable) of the Task (task)
-        //   The Task Period (the time between firing the task.)   A default TaskTiming is zero (0) which
-        //    implies a One Time Shot (See Task interface).  Non zero Period means just that -- the time
-        //    in milliseconds between firing the event.   The "Period" argument to making a new
-        //    ScheduledTask is a Period interface intentionally so that
-
-        ScheduledTask scheduledtask = new ScheduledTask(offset, period)
-                .setPluginContainer(plugincontainer)
-                .setRunnableBody(task)
-                .setState(ScheduledTask.ScheduledTaskState.WAITING);
-
-        return scheduledtask;
-    }
-
-    private  boolean startTask(ScheduledTask task) {
+    private boolean startTask(ScheduledTask task) {
+        // We'll succeed unless there's an exception found when we try to start the
+        // actual Runnable target.
         boolean bRes = true;
 
-        if (task != null) {
-
-            Runnable taskRunnableBody = task.runnableBody;
-
-            try {
-                taskRunnableBody.run();
-            } catch (Exception ex) {
-                SpongeMod.instance.getLogger().error(LogMessages.USER_TASK_FAILED_TO_RUN_ERROR);
-                SpongeMod.instance.getLogger().error(ex.toString());
-                bRes = false;
-
-            }
-
-        } else {
-            SpongeMod.instance.getLogger().error(LogMessages.USER_TASK_TO_RUN_WAS_NULL_WARNING);
+        Runnable taskRunnableBody = task.runnableBody;
+        try {
+            taskRunnableBody.run();
+        } catch (Exception ex) {
+            SpongeMod.instance.getLogger().error(SchedulerLogMessages.USER_TASK_FAILED_TO_RUN_ERROR);
+            SpongeMod.instance.getLogger().error(ex.toString());
             bRes = false;
-        }
 
+        }
         return bRes;
     }
-
-    // Text strings that are logged in the case of warnings/errors/exceptions as needed.
-    // Edit to suit.
- 
-    private enum LogMessages {
-
-        CANNOT_MAKE_TASK_WARNING("Task cannot be created."),
-
-        INTERVAL_NEGATIVE_ERROR("The Task as defined cannot be created. The interval (period) of the Task is negative."),
-
-        DELAY_NEGATIVE_ERROR("The Task as defined cannot be created. The delay (offset) of the Task is negative."),
-
-        PLUGIN_CONTAINER_NULL_WARNING("The Scheduler could not create the Task because the PluginContainer was null."),
-
-        PLUGIN_CONTAINER_INVALID_WARNING("The Task cannot be created because the PluginContainer was not derived from a PluginContainer.class."),
-
-        NULL_RUNNABLE_ARGUMENT_WARNING("The Task cannot be created because the Runnable argument is null."),
-
-        NULL_RUNNABLE_ARGUMENT_INVALID_WARNING("The Task could not be created because the Runnable argument is not derived from a Runnable interface."),
-
-        USER_TASK_FAILED_TO_RUN_ERROR("The Scheduler tried to run the Task, but the Runnable could not be started."),
-
-        USER_TASK_TO_RUN_WAS_NULL_WARNING("The Scheduler tried to run the Task, but the Task is null. The Task did not start.");
-
-        @SuppressWarnings("unused")
-        String message;
-
-        LogMessages(String val) {
-            this.message = val;
-        }
-    }
-    
-
 }
