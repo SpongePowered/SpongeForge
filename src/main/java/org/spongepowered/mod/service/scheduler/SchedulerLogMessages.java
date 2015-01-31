@@ -37,6 +37,6 @@ public final class SchedulerLogMessages {
     public final static String CATASTROPHIC_ERROR_IN_SCHEDULER_SEEK_HELP = "The scheduler internal state machine suffered a catastrophic error.  Check #spongedev";
 
     public String toString() {
-        return new String("SchedulerLogMessage");
+        return "SchedulerLogMessage";
     }
 }

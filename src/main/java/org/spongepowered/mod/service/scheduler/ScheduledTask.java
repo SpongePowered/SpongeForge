@@ -119,7 +119,7 @@ public class ScheduledTask implements Task {
     public Optional<Long> getDelay() {
         Optional<Long> result = Optional.absent();
         if ( this.offset > 0 ) {
-            result = Optional.of(new Long(this.offset));
+            result = Optional.of(Long.valueOf(this.offset));
 
         }
         return result;
@@ -130,7 +130,7 @@ public class ScheduledTask implements Task {
         Optional<Long> result = Optional.absent();
 
         if ( this.period > 0 ) {
-            result = Optional.of(new Long(this.period));
+            result = Optional.of(Long.valueOf(this.period));
         }
         return result;
     }
