@@ -57,10 +57,13 @@ import java.util.List;
 @Mixin(NetHandlerPlayServer.class)
 public abstract class MixinNetHandlerPlayServer implements PlayerConnection, INetHandlerPlayServer {
 
-    @Shadow public NetworkManager netManager;
-    @Shadow public EntityPlayerMP playerEntity;
-    @Shadow private MinecraftServer serverController;
-    
+    @Shadow
+    public NetworkManager netManager;
+    @Shadow
+    public EntityPlayerMP playerEntity;
+    @Shadow
+    private MinecraftServer serverController;
+
     @Shadow
     public abstract void sendPacket(final Packet packetIn);
 
@@ -95,56 +98,56 @@ public abstract class MixinNetHandlerPlayServer implements PlayerConnection, INe
     }
 
     @Override
-	public void processTabComplete(C14PacketTabComplete packetIn) {
-		PacketThreadUtil.func_180031_a(packetIn, this, this.playerEntity.getServerForPlayer());
-		ArrayList<String> arraylist = Lists.newArrayList();
+    public void processTabComplete(C14PacketTabComplete packetIn) {
+        PacketThreadUtil.func_180031_a(packetIn, this, this.playerEntity.getServerForPlayer());
+        ArrayList<String> arraylist = Lists.newArrayList();
 
-		Iterator<?> iterator = processTab(playerEntity, packetIn.getMessage()).iterator();
+        Iterator<?> iterator = processTab(playerEntity, packetIn.getMessage()).iterator();
 
-		while (iterator.hasNext()) {
-			String value = (String) iterator.next();
-			arraylist.add(value);
-		}
+        while (iterator.hasNext()) {
+            String value = (String) iterator.next();
+            arraylist.add(value);
+        }
 
-		Iterator<?> vanillaIterator = this.serverController.func_180506_a(this.playerEntity, packetIn.getMessage(), packetIn.func_179709_b()).iterator();
+        Iterator<?> vanillaIterator = this.serverController.func_180506_a(this.playerEntity, packetIn.getMessage(), packetIn.func_179709_b()).iterator();
 
-		while (vanillaIterator.hasNext()) {
-			String value = (String) vanillaIterator.next();
-			arraylist.add(value);
-		}
-		this.playerEntity.playerNetServerHandler.sendPacket(new S3APacketTabComplete((String[]) arraylist.toArray(new String[arraylist.size()])));
+        while (vanillaIterator.hasNext()) {
+            String value = (String) vanillaIterator.next();
+            arraylist.add(value);
+        }
+        this.playerEntity.playerNetServerHandler.sendPacket(new S3APacketTabComplete((String[]) arraylist.toArray(new String[arraylist.size()])));
 
-	}
+    }
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private List<String> processTab(ICommandSender sender, String string) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private List<String> processTab(ICommandSender sender, String string) {
 
-		ArrayList arraylist = Lists.newArrayList();
+        ArrayList arraylist = Lists.newArrayList();
 
-		if (string.startsWith("/")) {
-			string = string.substring(1);
-			boolean flag = !string.contains(" ");
-			List list;
-			try {
-				list = SpongeMod.instance.getGame().getCommandDispatcher().getSuggestions((CommandSource) sender, string);
-				if (list != null) {
-					Iterator iterator = list.iterator();
+        if (string.startsWith("/")) {
+            string = string.substring(1);
+            boolean flag = !string.contains(" ");
+            List list;
+            try {
+                list = SpongeMod.instance.getGame().getCommandDispatcher().getSuggestions((CommandSource) sender, string);
+                if (list != null) {
+                    Iterator iterator = list.iterator();
 
-					while (iterator.hasNext()) {
-						String value = (String) iterator.next();
+                    while (iterator.hasNext()) {
+                        String value = (String) iterator.next();
 
-						if (flag) {
-							arraylist.add("/" + value);
-						} else {
-							arraylist.add(value);
-						}
-					}
-				}
-			} catch (Exception e) {
-			}
+                        if (flag) {
+                            arraylist.add("/" + value);
+                        } else {
+                            arraylist.add(value);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+            }
 
-		}
-		return arraylist;
-	}
-    
+        }
+        return arraylist;
+    }
+
 }
