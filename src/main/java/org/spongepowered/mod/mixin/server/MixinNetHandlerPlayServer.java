@@ -57,12 +57,9 @@ import java.util.List;
 @Mixin(NetHandlerPlayServer.class)
 public abstract class MixinNetHandlerPlayServer implements PlayerConnection, INetHandlerPlayServer {
 
-    @Shadow
-    public NetworkManager netManager;
-    @Shadow
-    public EntityPlayerMP playerEntity;
-    @Shadow
-    private MinecraftServer serverController;
+    @Shadow public NetworkManager netManager;
+    @Shadow public EntityPlayerMP playerEntity;
+    @Shadow private MinecraftServer serverController;
 
     @Shadow
     public abstract void sendPacket(final Packet packetIn);
@@ -119,19 +116,18 @@ public abstract class MixinNetHandlerPlayServer implements PlayerConnection, INe
 
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private List<String> processTab(ICommandSender sender, String string) {
 
-        ArrayList arraylist = Lists.newArrayList();
+        ArrayList<String> arraylist = Lists.newArrayList();
 
         if (string.startsWith("/")) {
             string = string.substring(1);
             boolean flag = !string.contains(" ");
-            List list;
+            List<String> list;
             try {
                 list = SpongeMod.instance.getGame().getCommandDispatcher().getSuggestions((CommandSource) sender, string);
                 if (list != null) {
-                    Iterator iterator = list.iterator();
+                    Iterator<String> iterator = list.iterator();
 
                     while (iterator.hasNext()) {
                         String value = (String) iterator.next();
