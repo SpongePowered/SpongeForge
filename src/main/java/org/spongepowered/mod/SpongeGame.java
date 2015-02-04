@@ -25,6 +25,7 @@
 package org.spongepowered.mod;
 
 import com.google.common.base.Optional;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
@@ -97,7 +98,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public MinecraftVersion getMinecraftVersion() {
-        throw new UnsupportedOperationException(); // TODO
+        return (MinecraftVersion) MinecraftServer.getServer().getServerStatusResponse().getProtocolVersionInfo();
     }
 
     @Override
