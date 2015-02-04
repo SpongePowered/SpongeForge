@@ -104,6 +104,7 @@ import org.spongepowered.api.entity.living.villager.Careers;
 import org.spongepowered.api.entity.living.villager.Profession;
 import org.spongepowered.api.entity.living.villager.Professions;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
+import org.spongepowered.api.entity.player.gamemode.GameModes;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemType;
@@ -151,6 +152,7 @@ import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
 import org.spongepowered.mod.entity.SpongeEntityType;
 import org.spongepowered.mod.entity.SpongeProfession;
+import org.spongepowered.mod.entity.player.gamemode.SpongeGameMode;
 import org.spongepowered.mod.item.SpongeItemStackBuilder;
 import org.spongepowered.mod.item.merchant.SpongeTradeOfferBuilder;
 import org.spongepowered.mod.potion.SpongePotionBuilder;
@@ -200,6 +202,12 @@ public class SpongeGameRegistry implements GameRegistry {
                                                                             .put(Direction.UP, EnumFacing.UP)
                                                                             .put(Direction.DOWN, EnumFacing.DOWN)
                                                                             .build();
+    private static final ImmutableMap<String, GameMode> gameModeMappings =  new ImmutableMap.Builder<String, GameMode>()
+            .put("SURVIVAL", new SpongeGameMode())
+            .put("CREATIVE", new SpongeGameMode())
+            .put("ADVENTURE", new SpongeGameMode())
+            .put("SPECTATOR", new SpongeGameMode())
+            .build();
     private final Map<String, Art> artMappings = Maps.newHashMap();
     private final Map<String, EntityType> entityTypeMappings = Maps.newHashMap();
     public final Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
@@ -449,9 +457,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<GameMode> getGameModes() {
-
-        //TODO implement.
-        return null;
+        return ImmutableList.copyOf(this.gameModeMappings.values());
     }
 
     @Override
@@ -1041,7 +1047,11 @@ public class SpongeGameRegistry implements GameRegistry {
             
         });
     }
-    
+
+    private void setGameModes() {
+        RegistryHelper.mapFields(GameModes.class, gameModeMappings);
+    }
+
     public void init() {
         setDimensionTypes();
         setEnchantments();
@@ -1057,6 +1067,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setParticles();
         setSkullTypes();
         setNotePitches();
+        setGameModes();
     }
 
     public void postInit() {
