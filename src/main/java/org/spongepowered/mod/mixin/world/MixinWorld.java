@@ -24,33 +24,35 @@
  */
 package org.spongepowered.mod.mixin.world;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkArgument;
-
+import com.google.common.base.Predicate;
 import net.minecraft.network.Packet;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
-
+import net.minecraftforge.common.ForgeChunkManager;
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.effect.particle.ParticleEffect;
+import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Dimension;
@@ -73,6 +75,15 @@ import org.spongepowered.mod.util.SpongeHooks;
 import org.spongepowered.mod.util.VecHelper;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+
 @NonnullByDefault
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinWorld implements World, IMixinWorld {
@@ -80,17 +91,38 @@ public abstract class MixinWorld implements World, IMixinWorld {
     private boolean keepSpawnLoaded;
     public SpongeConfig worldConfig;
 
-    @Shadow
-    public WorldProvider provider;
+    @Shadow public WorldProvider provider;
 
-    @Shadow
-    protected WorldInfo worldInfo;
+    @Shadow protected WorldInfo worldInfo;
 
-    @Shadow
-    public Random rand;
+    @Shadow public Random rand;
+
+    @Shadow public List<net.minecraft.entity.Entity> loadedEntityList;
 
     @Shadow(prefix = "shadow$")
     public abstract net.minecraft.world.border.WorldBorder shadow$getWorldBorder();
+
+    @Shadow
+    public abstract boolean spawnEntityInWorld(net.minecraft.entity.Entity p_72838_1_);
+
+    @Shadow
+    public abstract List<net.minecraft.entity.Entity> func_175644_a(Class<net.minecraft.entity.Entity> p_175644_1_,
+            Predicate<net.minecraft.entity.Entity> p_175644_2_);
+
+    @Shadow
+    public abstract void playSoundEffect(double x, double y, double z, String soundName, float volume, float pitch);
+
+    @Shadow
+    public abstract long getSeed();
+
+    @Shadow
+    public abstract BiomeGenBase getBiomeGenForCoords(BlockPos pos);
+
+    @Shadow
+    public abstract net.minecraft.world.chunk.Chunk getChunkFromBlockCoords(BlockPos pos);
+
+    @Shadow
+    public abstract IChunkProvider getChunkProvider();
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client, CallbackInfo ci) {
@@ -149,21 +181,62 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     @Override
     public BiomeType getBiome(Vector3i position) {
-        throw new UnsupportedOperationException();
+        return (BiomeType) this.getBiomeGenForCoords(VecHelper.toBlockPos(position));
     }
 
     @Override
     public void setBiome(Vector3i position, BiomeType biome) {
-        // TODO
+        int x = position.getX() >> 4;
+        int z = position.getZ() >> 4;
+        IChunkProvider chunkProvider = this.getChunkProvider();
+        if (!chunkProvider.chunkExists(x, z)) {
+            return;
+        }
+        net.minecraft.world.chunk.Chunk chunk = chunkProvider.provideChunk(x, z);
+        byte[] biomeArray = chunk.getBiomeArray();
+        // Taken from Chunk#getBiome
+        int i = position.getX() & 15;
+        int j = position.getZ() & 15;
+        biomeArray[j << 4 | i] = (byte) (((BiomeGenBase) biome).biomeID & 255);
+        chunk.setBiomeArray(biomeArray);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Collection<Entity> getEntities() {
-        return new ArrayList<Entity>();
+        return (Collection<Entity>) (Object) this.loadedEntityList;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<Entity> getEntities(Predicate<Entity> filter) {
+        return (Collection<Entity>) (Object) this.func_175644_a(net.minecraft.entity.Entity.class,
+                (Predicate<net.minecraft.entity.Entity>) (Object) filter);
     }
 
     @Override
     public Optional<Entity> createEntity(EntityType type, Vector3d position) {
+        try {
+            net.minecraft.entity.Entity entity =
+                    (net.minecraft.entity.Entity) type.getEntityClass().getConstructor(net.minecraft.world.World.class).newInstance(this);
+            entity.setPosition(position.getX(), position.getY(), position.getZ());
+            if (this.spawnEntityInWorld(entity)) {
+                return Optional.of((Entity) entity);
+            }
+        } catch (Exception ignored) {
+            // Entity constructor does not have single World parameter, too bad
+        }
+        return Optional.absent();
+    }
+
+    @Override
+    public Optional<Entity> createEntity(EntitySnapshot snapshot, Vector3d position) {
+        return this.createEntity(snapshot.getType(), position);
+    }
+
+    @Override
+    public Optional<Entity> createEntity(DataContainer entityContainer) {
+        // TODO once entity containers are implemented
         return Optional.absent();
     }
 
@@ -287,5 +360,87 @@ public abstract class MixinWorld implements World, IMixinWorld {
     @Override
     public SpongeConfig getWorldConfig() {
         return this.worldConfig;
+    }
+
+    @Override
+    public void playSound(SoundType sound, Vector3d position, double volume) {
+        this.playSound(sound, position, volume, 1);
+    }
+
+    @Override
+    public void playSound(SoundType sound, Vector3d position, double volume, double pitch) {
+        this.playSound(sound, position, volume, pitch, 0);
+    }
+
+    @Override
+    public void playSound(SoundType sound, Vector3d position, double volume, double pitch, double minVolume) {
+        this.playSoundEffect(position.getX(), position.getY(), position.getZ(), sound.getName(), (float) Math.max(minVolume, volume), (float) pitch);
+    }
+
+    @Override
+    public Optional<Entity> getEntityFromUUID(UUID uuid) {
+        if ((Object) this instanceof WorldServer) {
+            // TODO Should this be done in an override in a WorldServer mixin?
+            return Optional.fromNullable((Entity) ((WorldServer) (Object) this).getEntityFromUuid(uuid));
+        }
+        for (net.minecraft.entity.Entity entity : this.loadedEntityList) {
+            if (entity.getUniqueID().equals(uuid)) {
+                return Optional.of((Entity) entity);
+            }
+        }
+        return Optional.absent();
+    }
+
+    @Override
+    public Optional<String> getGameRule(String gameRule) {
+        if (this.worldInfo.getGameRulesInstance().hasRule(gameRule)) {
+            return Optional.of(this.worldInfo.getGameRulesInstance().getGameRuleStringValue(gameRule));
+        }
+        return Optional.absent();
+    }
+
+    @Override
+    public void setGameRule(String gameRule, String value) {
+        this.worldInfo.getGameRulesInstance().setOrCreateGameRule(gameRule, value);
+    }
+
+    @Override
+    public Map<String, String> getGameRules() {
+        GameRules gameRules = this.worldInfo.getGameRulesInstance();
+        Map<String, String> ruleMap = new HashMap<String, String>();
+        for (String rule : gameRules.getRules()) {
+            ruleMap.put(rule, gameRules.getGameRuleStringValue(rule));
+        }
+        return ruleMap;
+    }
+
+    @Override
+    public long getWorldSeed() {
+        return this.getSeed();
+    }
+
+    @Override
+    public void setSeed(long seed) {
+        this.worldInfo.randomSeed = seed;
+        this.rand.setSeed(seed);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Iterable<Chunk> getLoadedChunks() {
+        return ((ChunkProviderServer) this.getChunkProvider()).loadedChunks;
+    }
+
+    @Override
+    public boolean deleteChunk(Chunk chunk) {
+        ChunkProviderServer provider = (ChunkProviderServer) this.getChunkProvider();
+        Vector3i chunkPos = chunk.getPosition();
+        if (ForgeChunkManager.getPersistentChunksFor((net.minecraft.world.World) (Object) this).containsKey(
+                new ChunkCoordIntPair(chunkPos.getX(), chunkPos.getZ()))) {
+            return false;
+        }
+        // TODO This method is async, how to know if successful?
+        provider.dropChunk(chunkPos.getX(), chunkPos.getZ());
+        return true;
     }
 }
