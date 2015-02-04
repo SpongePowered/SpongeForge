@@ -39,12 +39,17 @@ import com.google.common.collect.Maps;
 public class SpongeEntityConstants {
 
     public static final Map<String, SkeletonType> SKELETON_TYPES = Maps.newHashMap();
+    public static final Map<Integer, SkeletonType> SKELETON_IDMAP = Maps.newHashMap();
     public static final Map<String, OcelotType> OCELOT_TYPES = Maps.newHashMap();
+    public static final Map<Integer, OcelotType> OCELOT_IDMAP = Maps.newHashMap();
     public static final Map<String, RabbitType> RABBIT_TYPES = Maps.newHashMap();
     public static final Map<Integer, RabbitType> RABBIT_IDMAP = Maps.newHashMap();
     public static final Map<String, HorseColor> HORSE_COLORS = Maps.newHashMap();
+    public static final Map<Integer, HorseColor> HORSE_COLOR_IDMAP = Maps.newHashMap();
     public static final Map<String, HorseStyle> HORSE_STYLES = Maps.newHashMap();
+    public static final Map<Integer, HorseStyle> HORSE_STYLE_IDMAP = Maps.newHashMap();
     public static final Map<String, HorseVariant> HORSE_VARIANTS = Maps.newHashMap();
+    public static final Map<Integer, HorseVariant> HORSE_VARIANT_IDMAP = Maps.newHashMap();
 
     // skeleton types
     public static final SpongeSkeletonType NORMAL_SKELETON = new SpongeSkeletonType(0, "NORMAL");
@@ -91,10 +96,18 @@ public class SpongeEntityConstants {
         SKELETON_TYPES.put("NORMAL", NORMAL_SKELETON);
         SKELETON_TYPES.put("WITHER", WITHER_SKELETON);
 
+        SKELETON_IDMAP.put(0, NORMAL_SKELETON);
+        SKELETON_IDMAP.put(1, WITHER_SKELETON);
+
         OCELOT_TYPES.put("WILD_OCELOT", WILD_OCELOT);
-        OCELOT_TYPES.put("BLACK_CAT", WILD_OCELOT);
-        OCELOT_TYPES.put("RED_CAT", WILD_OCELOT);
-        OCELOT_TYPES.put("SIAMESE_CAT", WILD_OCELOT);
+        OCELOT_TYPES.put("BLACK_CAT", BLACK_CAT);
+        OCELOT_TYPES.put("RED_CAT", RED_CAT);
+        OCELOT_TYPES.put("SIAMESE_CAT", SIAMESE_CAT);
+
+        OCELOT_IDMAP.put(0, WILD_OCELOT);
+        OCELOT_IDMAP.put(1, BLACK_CAT);
+        OCELOT_IDMAP.put(2, RED_CAT);
+        OCELOT_IDMAP.put(3, SIAMESE_CAT);
 
         RABBIT_TYPES.put("BROWN", BROWN_RABBIT);
         RABBIT_TYPES.put("WHITE", WHITE_RABBIT);
@@ -119,16 +132,35 @@ public class SpongeEntityConstants {
         HORSE_COLORS.put("GRAY", GRAY);
         HORSE_COLORS.put("DARK_BROWN", DARK_BROWN);
 
+        HORSE_COLOR_IDMAP.put(0, CREAMY);
+        HORSE_COLOR_IDMAP.put(1, CHESTNUT);
+        HORSE_COLOR_IDMAP.put(2, BROWN);
+        HORSE_COLOR_IDMAP.put(3, BLACK);
+        HORSE_COLOR_IDMAP.put(4, GRAY);
+        HORSE_COLOR_IDMAP.put(5, DARK_BROWN);
+
         HORSE_STYLES.put("NONE", NONE);
         HORSE_STYLES.put("WHITE", WHITE);
         HORSE_STYLES.put("WHITEFIELD", WHITEFIELD);
         HORSE_STYLES.put("WHITE_DOTS", WHITE_DOTS);
         HORSE_STYLES.put("BLACK_DOTS", BLACK_DOTS);
 
+        HORSE_STYLE_IDMAP.put(0, NONE);
+        HORSE_STYLE_IDMAP.put(1, WHITE);
+        HORSE_STYLE_IDMAP.put(2, WHITEFIELD);
+        HORSE_STYLE_IDMAP.put(3, WHITE_DOTS);
+        HORSE_STYLE_IDMAP.put(4, BLACK_DOTS);
+
         HORSE_VARIANTS.put("HORSE", HORSE);
         HORSE_VARIANTS.put("DONKEY", DONKEY);
         HORSE_VARIANTS.put("MULE", MULE);
         HORSE_VARIANTS.put("UNDEAD_HORSE", UNDEAD_HORSE);
         HORSE_VARIANTS.put("SKELETON_HORSE", SKELETON_HORSE);
+
+        HORSE_VARIANT_IDMAP.put(0, HORSE);
+        HORSE_VARIANT_IDMAP.put(1, DONKEY);
+        HORSE_VARIANT_IDMAP.put(2, MULE);
+        HORSE_VARIANT_IDMAP.put(3, UNDEAD_HORSE);
+        HORSE_VARIANT_IDMAP.put(4, SKELETON_HORSE);
     }
 }

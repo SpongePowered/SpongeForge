@@ -54,7 +54,7 @@ public abstract class MixinEntityOcelot extends EntityTameable {
     }
 
     public OcelotType ocelot$getOcelotType() {
-        return SpongeEntityConstants.OCELOT_TYPES.get(this.getTameSkin());
+        return SpongeEntityConstants.OCELOT_IDMAP.get(this.getTameSkin());
     }
 
     public void ocelot$setOcelotType(final OcelotType ocelotType) {
