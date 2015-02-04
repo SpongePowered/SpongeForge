@@ -51,7 +51,7 @@ public abstract class MixinEntitySkeleton extends EntityMob {
     }
 
     public SkeletonType skeleton$getSkeletonType() {
-        return SpongeEntityConstants.SKELETON_TYPES.get(this.dataWatcher.getWatchableObjectByte(13));
+        return SpongeEntityConstants.SKELETON_IDMAP.get((int)this.dataWatcher.getWatchableObjectByte(13));
     }
 
     public void skeleton$setSkeletonType(SkeletonType skeletonType) {
