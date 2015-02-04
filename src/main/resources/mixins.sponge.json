@@ -3,6 +3,7 @@
   "refmap": "mixins.sponge.refmap.json",
   "mixins": [
     "MixinGameProfile",
+    "MixinBootstrap",
     "block.MixinBlockState",
     "block.MixinBlockType",
     "block.MixinPropertyHelper",
@@ -86,6 +87,10 @@
     "entity.projectile.MixinEntityEgg",
     "entity.projectile.MixinEntityEnderPearl",
     "entity.projectile.MixinEntityThrowable",
+    "entity.projectile.fireball.MixinEntityFireball",
+    "entity.projectile.fireball.MixinEntityLargeFireball",
+    "entity.projectile.fireball.MixinEntitySmallFireball",
+    "entity.projectile.fireball.MixinEntityWitherSkull",
     "entity.vehicle.MixinEntityBoat",
     "entity.weather.MixinEntityLightningBolt",
     "entity.weather.MixinEntityWeatherEffect",
