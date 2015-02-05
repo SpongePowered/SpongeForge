@@ -34,7 +34,6 @@ import org.spongepowered.api.Server;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.command.CommandService;
-import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
@@ -55,14 +54,14 @@ public final class SpongeGame implements Game {
     private final PluginManager pluginManager;
     private final EventManager eventManager;
     private final GameRegistry gameRegistry;
-    private final SimpleCommandService dispatcher;
+    private final ServiceManager serviceManager;
 
     @Inject
-    public SpongeGame(PluginManager plugin, EventManager event, GameRegistry registry) {
+    public SpongeGame(PluginManager plugin, EventManager event, GameRegistry registry, ServiceManager service) {
         this.pluginManager = plugin;
         this.eventManager = event;
         this.gameRegistry = registry;
-        this.dispatcher = new SimpleCommandService(this.pluginManager);
+        this.serviceManager = service;
     }
 
     @Override
@@ -107,7 +106,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public ServiceManager getServiceManager() {
-        throw new UnsupportedOperationException();
+        return this.serviceManager;
     }
 
     @Override
@@ -122,7 +121,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public CommandService getCommandDispatcher() {
-        return this.dispatcher;
+        return serviceManager.provideUnchecked(CommandService.class);
     }
 
     @Override

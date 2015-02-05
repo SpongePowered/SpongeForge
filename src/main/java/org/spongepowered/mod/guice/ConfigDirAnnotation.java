@@ -22,19 +22,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package org.spongepowered.mod.guice;
 
-import com.google.inject.ScopeAnnotation;
+import org.spongepowered.api.service.config.ConfigDir;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.Annotation;
 
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-@ScopeAnnotation
-public @interface PluginScoped {
+// This is strange, but required for Guice and annotations with values.
+class ConfigDirAnnotation implements ConfigDir {
 
+    boolean shared;
+
+    ConfigDirAnnotation(boolean isShared) {
+        this.shared = isShared;
+    }
+
+    @Override
+    public boolean sharedRoot() {
+        return this.shared;
+    }
+
+    @Override
+    public Class<? extends Annotation> annotationType() {
+        return ConfigDir.class;
+    }
+
+    // See Javadocs for java.lang.annotation.Annotation for specification of equals, hashCode, toString
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || !(o instanceof ConfigDir)) {
+            return false;
+        }
+
+        ConfigDir that = (ConfigDir) o;
+
+        return sharedRoot() == that.sharedRoot();
+    }
+
+    @Override
+    public int hashCode() {
+        return (127 * "sharedRoot".hashCode()) ^ Boolean.valueOf(sharedRoot()).hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "@org.spongepowered.api.service.config.ConfigDir(" +
+                "sharedRoot=" + this.shared +
+                ')';
+    }
 }
