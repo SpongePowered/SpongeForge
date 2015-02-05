@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod;
 
-import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
@@ -45,29 +44,23 @@ import org.objectweb.asm.Type;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.mod.event.SpongeEventBus;
+import org.spongepowered.api.service.ProviderExistsException;
+import org.spongepowered.api.service.command.CommandService;
+import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
-public class SpongeMod extends DummyModContainer {
+public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     public static SpongeMod instance;
 
     private final Game game;
-
-    private Map<Object, PluginContainer> plugins = Maps.newHashMap();
-    private Map<String, PluginContainer> pluginIdMap = Maps.newHashMap();
-    private SpongeEventBus eventBus;
-    @SuppressWarnings("unused")
-    private LoadController controller;
     private Injector spongeInjector = Guice.createInjector(new SpongeGuiceModule());
     private Logger logger;
+    @SuppressWarnings("unused")
+    private LoadController controller;
     private SpongeGameRegistry registry;
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be instantiated before FML scans the system
@@ -84,22 +77,9 @@ public class SpongeMod extends DummyModContainer {
         this.registry = (SpongeGameRegistry) this.game.getRegistry();
     }
 
-    public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object instance) {
-        this.plugins.put(instance, spongePluginContainer);
-        this.pluginIdMap.put(pluginId.toLowerCase(), spongePluginContainer);
-        this.game.getEventManager().register(spongePluginContainer.getInstance(), spongePluginContainer.getInstance());
-    }
-
-    public Collection<PluginContainer> getPlugins() {
-        return Collections.unmodifiableCollection(this.plugins.values());
-    }
-
-    public PluginContainer getPlugin(String s) {
-        return this.pluginIdMap.get(s.toLowerCase());
-    }
-
-    public PluginContainer getPluginContainer(Object instance) {
-        return this.plugins.get(instance);
+    @Override
+    public Object getMod() {
+        return this;
     }
 
     public Game getGame() {
@@ -110,6 +90,10 @@ public class SpongeMod extends DummyModContainer {
         return this.spongeInjector;
     }
 
+    public LoadController getController() {
+        return this.controller;
+    }
+
     public Logger getLogger() {
         return this.logger;
     }
@@ -117,7 +101,6 @@ public class SpongeMod extends DummyModContainer {
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
-        this.eventBus = new SpongeEventBus(this.game.getPluginManager());
         this.controller = controller;
         return true;
     }
@@ -134,10 +117,25 @@ public class SpongeMod extends DummyModContainer {
     @Subscribe
     public void onInitialization(FMLInitializationEvent e) {
         this.registry.init();
+        try {
+            getGame().getServiceManager().setProvider(this, CommandService.class, new SimpleCommandService(getGame().getPluginManager()));
+        } catch (ProviderExistsException e1) {
+            this.logger.warn("Non-Sponge CommandService already registered: " + e1.getLocalizedMessage());
+        }
     }
 
     @Subscribe
     public void onInitialization(FMLPostInitializationEvent e) {
         this.registry.postInit();
+    }
+
+    @Override
+    public String getId() {
+        return getModId();
+    }
+
+    @Override
+    public Object getInstance() {
+        return getMod();
     }
 }

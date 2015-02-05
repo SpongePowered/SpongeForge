@@ -24,71 +24,67 @@
  */
 package org.spongepowered.mod.plugin;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
-import net.minecraftforge.fml.common.FMLModContainer;
-import net.minecraftforge.fml.common.LoadController;
-import net.minecraftforge.fml.common.MetadataCollection;
-import net.minecraftforge.fml.common.ModClassLoader;
+import com.google.inject.Injector;
+
+import net.minecraftforge.fml.common.*;
+import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLEvent;
+
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.event.Event;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.EventRegistry;
-import org.spongepowered.mod.guice.PluginScope;
+import org.spongepowered.mod.guice.SpongePluginGuiceModule;
+
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 @NonnullByDefault
 public class SpongePluginContainer extends FMLModContainer implements PluginContainer {
 
     private final Map<String, Object> fmlDescriptor;
-    private final String className;
-    private final ModCandidate container;
     @SuppressWarnings("unused")
     private final File source;
-    private Object plugin;
 
-    @Inject
-    private PluginScope scope;
+    private Injector selfInjector;
 
-    private LoadController controller;
     @SuppressWarnings("unused")
     private boolean enabled = true;
     private Multimap<Class<? extends Event>, Method> stateEventHandlers = ArrayListMultimap.create();
 
     public SpongePluginContainer(String className, ModCandidate container, Map<String, Object> modDescriptor) {
-        // I suggest that you should be instantiating a proxy object, not the real plugin here.
-        super("org.spongepowered.mod.plugin.SpongePluginContainer$ProxyMod", container, modDescriptor);
+        super(className, container, modDescriptor);
         this.fmlDescriptor = modDescriptor;
-        this.className = className;
-        this.container = container;
         this.source = container.getModContainer();
+        try {
+            Class<?> c = FMLModContainer.class;
+            Field langAdapter = c.getDeclaredField("languageAdapter");
+            langAdapter.setAccessible(true);
+            langAdapter.set(this, GuiceJavaAdapter.INSTANCE);
+        } catch (Throwable t) {
+            SpongeMod.instance.getController().errorOccurred(this, t);
+        }
 
         // Allow connections from clients without this plugin
         this.fmlDescriptor.put("acceptableRemoteVersions", "*");
 
-        SpongeMod.instance.getInjector().injectMembers(this);
+        this.selfInjector = SpongeMod.instance.getInjector().createChildInjector(new SpongePluginGuiceModule(this));
     }
 
     @Override
     public String getModId() {
         return (String) this.fmlDescriptor.get("id");
-    }
-
-    @Override
-    public void bindMetadata(MetadataCollection mc) {
-        super.bindMetadata(mc);
     }
 
     @Override
@@ -105,57 +101,34 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
     @Override
     @Subscribe
     public void constructMod(FMLConstructionEvent event) {
-        this.scope.setScope(this);
-
         super.constructMod(event);
-
-        try {
-            ModClassLoader modClassLoader = event.getModClassLoader();
-            modClassLoader.clearNegativeCacheFor(this.container.getClassList());
-
-            Class<?> clazz = Class.forName(this.className, true, modClassLoader);
-
-            findEventHandlers(clazz);
-
-            this.plugin = SpongeMod.instance.getInjector().getInstance(clazz);
-        } catch (Throwable e) {
-            this.controller.errorOccurred(this, e);
-            Throwables.propagateIfPossible(e);
-        }
-
-        SpongeMod.instance.registerPluginContainer(this, getId(), getInstance());
-
-        this.scope.setScope(null);
+        SpongeMod.instance.getGame().getEventManager().register(getInstance(), getInstance());
     }
 
     @Subscribe
     @Override
     @SuppressWarnings("unchecked")
     public void handleModStateEvent(FMLEvent event) {
-        this.scope.setScope(this);
-
         Class<? extends FMLEvent> eventClass = event.getClass();
         Class<? extends Event> spongeEvent = (Class<? extends Event>) EventRegistry.getAPIClass(eventClass);
         if (this.stateEventHandlers.containsKey(spongeEvent)) {
             try {
                 for (Method m : this.stateEventHandlers.get(spongeEvent)) {
-                    m.invoke(this.plugin, event);
+                    m.invoke(this.getMod(), event);
                 }
             } catch (Throwable t) {
-                this.controller.errorOccurred(this, t);
+                SpongeMod.instance.getController().errorOccurred(this, t);
             }
         }
-
-        this.scope.setScope(null);
     }
 
     @Override
     public Object getInstance() {
-        return this.plugin;
+        return getMod();
     }
 
     @SuppressWarnings("unchecked")
-    private void findEventHandlers(Class<?> clazz) {
+    protected @Nullable Method gatherAnnotations(Class<?> clazz) throws Exception {
         for (Method m : clazz.getDeclaredMethods()) {
             for (Annotation a : m.getAnnotations()) {
                 if (a.annotationType().equals(org.spongepowered.api.util.event.Subscribe.class)) {
@@ -167,10 +140,36 @@ public class SpongePluginContainer extends FMLModContainer implements PluginCont
                 }
             }
         }
+        return null;
     }
 
-    // DUMMY proxy class for FML to track
-    public static class ProxyMod {
+    protected void processFieldAnnotations(ASMDataTable asm) throws Exception {}
 
+    private static class GuiceJavaAdapter extends ILanguageAdapter.JavaAdapter {
+        public static final GuiceJavaAdapter INSTANCE = new GuiceJavaAdapter();
+
+        private GuiceJavaAdapter() {
+        }
+
+        @Override
+        public Object getNewInstance(FMLModContainer container, Class<?> objectClass, ClassLoader classLoader, Method factoryMarkedMethod) throws Exception {
+            if (!(container instanceof SpongePluginContainer)) {
+                throw new IllegalArgumentException("Guice adapter only supports Sponge containers");
+            }
+            Object mod;
+            if (factoryMarkedMethod != null) {
+                mod = factoryMarkedMethod.invoke(null);
+                ((SpongePluginContainer) container).selfInjector.injectMembers(mod);
+            } else {
+                mod = ((SpongePluginContainer) container).selfInjector.getInstance(objectClass);
+            }
+            return mod;
+        }
     }
+
+    @Override
+    public String toString() {
+        return "SpongePlugin:" + getName() + "{" + getVersion() + "}";
+    }
+
 }
