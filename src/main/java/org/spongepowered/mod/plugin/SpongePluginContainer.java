@@ -24,152 +24,298 @@
  */
 package org.spongepowered.mod.plugin;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Injector;
-
-import net.minecraftforge.fml.common.*;
-import net.minecraftforge.fml.common.discovery.ASMDataTable;
+import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.MetadataCollection;
+import net.minecraftforge.fml.common.ModClassLoader;
+import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLEvent;
-
+import net.minecraftforge.fml.common.event.FMLStateEvent;
+import net.minecraftforge.fml.common.versioning.ArtifactVersion;
+import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
+import net.minecraftforge.fml.common.versioning.VersionRange;
+import org.spongepowered.api.event.state.StateEvent;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.event.Event;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.EventRegistry;
+import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.guice.SpongePluginGuiceModule;
-
-import javax.annotation.Nullable;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.security.cert.Certificate;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-@NonnullByDefault
-public class SpongePluginContainer extends FMLModContainer implements PluginContainer {
+import javax.annotation.Nonnull;
 
-    private final Map<String, Object> fmlDescriptor;
-    @SuppressWarnings("unused")
-    private final File source;
+public class SpongePluginContainer implements ModContainer, PluginContainer {
 
-    private Injector selfInjector;
-
-    @SuppressWarnings("unused")
+    private String pluginClassName;
+    private ModCandidate modCandidate;
+    private Map<String, Object> pluginDescriptor;
+    private ModMetadata modMetadata;
     private boolean enabled = true;
+    private EventBus fmlEventBus;
+    private LoadController fmlController;
+
     private Multimap<Class<? extends Event>, Method> stateEventHandlers = ArrayListMultimap.create();
 
-    public SpongePluginContainer(String className, ModCandidate container, Map<String, Object> modDescriptor) {
-        super(className, container, modDescriptor);
-        this.fmlDescriptor = modDescriptor;
-        this.source = container.getModContainer();
+    private Object pluginInstance;
+
+    public SpongePluginContainer(String className, ModCandidate candidate, Map<String, Object> descriptor) {
+        pluginClassName = className;
+        modCandidate = candidate;
+        pluginDescriptor = descriptor;
+    }
+
+    @Subscribe
+    public void constructMod(FMLConstructionEvent event) {
         try {
-            Class<?> c = FMLModContainer.class;
-            Field langAdapter = c.getDeclaredField("languageAdapter");
-            langAdapter.setAccessible(true);
-            langAdapter.set(this, GuiceJavaAdapter.INSTANCE);
+            // Add source file to classloader so we can load it.
+            ModClassLoader modClassLoader = event.getModClassLoader();
+            modClassLoader.addFile(modCandidate.getModContainer());
+            modClassLoader.clearNegativeCacheFor(modCandidate.getClassList());
+
+            Class<?> pluginClazz = Class.forName(pluginClassName, true, modClassLoader);
+
+            findStateEventHandlers(pluginClazz);
+
+            Injector injector = SpongeMod.instance.getInjector().createChildInjector(new SpongePluginGuiceModule(this));
+            pluginInstance = injector.getInstance(pluginClazz);
+
+            SpongeEventBus spongeBus = (SpongeEventBus) SpongeMod.instance.getGame().getEventManager();
+            spongeBus.register(this, pluginInstance);
         } catch (Throwable t) {
-            SpongeMod.instance.getController().errorOccurred(this, t);
+            fmlController.errorOccurred(this, t);
+            Throwables.propagateIfPossible(t);
         }
+    }
 
-        // Allow connections from clients without this plugin
-        this.fmlDescriptor.put("acceptableRemoteVersions", "*");
+    @Subscribe
+    @SuppressWarnings("unchecked")
+    public void handleModStateEvent(FMLStateEvent event) {
+        Class<? extends FMLEvent> eventClass = event.getClass();
+        Class<? extends Event> spongeEvent = (Class<? extends Event>) EventRegistry.getAPIClass(eventClass);
+        if (stateEventHandlers.containsKey(spongeEvent)) {
+            try {
+                for (Method m : stateEventHandlers.get(spongeEvent)) {
+                    m.invoke(getMod(), event);
+                }
+            } catch (Throwable t) {
+                fmlController.errorOccurred(this, t);
+                Throwables.propagateIfPossible(t);
+            }
+        }
+    }
 
-        this.selfInjector = SpongeMod.instance.getInjector().createChildInjector(new SpongePluginGuiceModule(this));
+    @SuppressWarnings("unchecked")
+    protected void findStateEventHandlers(Class<?> clazz) throws Exception {
+        for (Method m : clazz.getDeclaredMethods()) {
+            for (Annotation a : m.getAnnotations()) {
+                if (a.annotationType().equals(org.spongepowered.api.util.event.Subscribe.class)) {
+                    Class<?>[] paramTypes = m.getParameterTypes();
+                    if ((paramTypes.length == 1) && StateEvent.class.isAssignableFrom(paramTypes[0])) {
+                        m.setAccessible(true);
+                        stateEventHandlers.put((Class<? extends StateEvent>) paramTypes[0], m);
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public String getModId() {
-        return (String) this.fmlDescriptor.get("id");
+        return (String) pluginDescriptor.get("id");
     }
 
     @Override
+    @Nonnull
+    public String getName() {
+        return (String) pluginDescriptor.get("name");
+    }
+
+    @Override
+    @Nonnull
+    public String getVersion() {
+        String annotationVersion = (String) pluginDescriptor.get("version");
+        return (annotationVersion != null) ? annotationVersion : "unknown";
+    }
+
+    @Override
+    public File getSource() {
+        return modCandidate.getModContainer();
+    }
+
+    @Override
+    public ModMetadata getMetadata() {
+        return modMetadata;
+    }
+
+    @Override
+    public void bindMetadata(MetadataCollection mc) {
+        // Note: Much simpler than FML's, since I'm assuming there's no useful information.
+        // All information given here is from mcmod.info which we haven't documented as part of plugin 'API'
+        modMetadata = mc.getMetadataForId(getModId(), pluginDescriptor);
+
+        String annotationDependencies = (String) pluginDescriptor.get("dependencies");
+
+        Set<ArtifactVersion> requirements = Sets.newHashSet();
+        List<ArtifactVersion> dependencies = Lists.newArrayList();
+        List<ArtifactVersion> dependants = Lists.newArrayList();
+
+        Loader.instance().computeDependencies(annotationDependencies, requirements, dependencies, dependants);
+
+        modMetadata.requiredMods = requirements;
+        modMetadata.dependencies = dependencies;
+        modMetadata.dependants = dependants;
+    }
+
+    @Override
+    public void setEnabledState(boolean isEnabled) {
+        enabled = isEnabled;
+    }
+
+    @Override
+    public Set<ArtifactVersion> getRequirements() {
+        return modMetadata.requiredMods;
+    }
+
+    @Override
+    public List<ArtifactVersion> getDependencies() {
+        return modMetadata.dependencies;
+    }
+
+    @Override
+    public List<ArtifactVersion> getDependants() {
+        return modMetadata.dependants;
+    }
+
+    @Override
+    public String getSortingRules() {
+        return (String) pluginDescriptor.get("dependencies");
+    }
+
+    @Override
+    public boolean registerBus(EventBus bus, LoadController controller) {
+        if (enabled) {
+            fmlEventBus = bus;
+            fmlController = controller;
+            fmlEventBus.register(this);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean matches(Object mod) {
+        return mod == pluginInstance;
+    }
+
+    @Override
+    public Object getMod() {
+        return pluginInstance;
+    }
+
+    @Override
+    public ArtifactVersion getProcessedVersion() {
+        // Note: FML caches this.
+        return new DefaultArtifactVersion(getModId(), getVersion());
+    }
+
+    @Override
+    public boolean isImmutable() {
+        return false;
+    }
+
+    @Override
+    public String getDisplayVersion() {
+        return getVersion();
+    }
+
+    @Override
+    public VersionRange acceptableMinecraftVersionRange() {
+        return Loader.instance().getMinecraftModContainer().getStaticVersionRange();
+    }
+
+    @Override
+    public Certificate getSigningCertificate() {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getCustomModProperties() {
+        return EMPTY_PROPERTIES;
+    }
+
+    @Override
+    public Class<?> getCustomResourcePackClass() {
+        // Note: Has meaning only on client side, so skipping for now.
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getSharedModDescriptor() {
+        Map<String, String> descriptor = Maps.newHashMap();
+
+        descriptor.put("modsystem", "Sponge");
+        descriptor.put("id", getModId());
+        descriptor.put("version", getDisplayVersion());
+        descriptor.put("name", getName());
+
+        // Note: FML puts url, authors, description here as well, but that comes from mcmod.info instead of annotations.
+        // So far we haven't really documented anything about mcmod.info for plugin use, so I've been assuming no info.
+
+        return descriptor;
+    }
+
+    @Override
+    public Disableable canBeDisabled() {
+        // Note: No flag to indicate if a plugin allows it, can only happen while server is not running.
+        // (e.g., main menu in SSP). Defaulting to on restart only.
+        return Disableable.RESTART;
+    }
+
+    @Override
+    public String getGuiClassName() {
+        // Note: Not needed, client-side only
+        return "";
+    }
+
+    @Override
+    public List<String> getOwnedPackages() {
+        return modCandidate.getContainedPackages();
+    }
+
+    @Override
+    @Nonnull
     public String getId() {
         return getModId();
     }
 
     @Override
-    public void setEnabledState(boolean enabled) {
-        super.setEnabledState(enabled);
-        this.enabled = enabled;
-    }
-
-    @Override
-    @Subscribe
-    public void constructMod(FMLConstructionEvent event) {
-        super.constructMod(event);
-        SpongeMod.instance.getGame().getEventManager().register(getInstance(), getInstance());
-    }
-
-    @Subscribe
-    @Override
-    @SuppressWarnings("unchecked")
-    public void handleModStateEvent(FMLEvent event) {
-        Class<? extends FMLEvent> eventClass = event.getClass();
-        Class<? extends Event> spongeEvent = (Class<? extends Event>) EventRegistry.getAPIClass(eventClass);
-        if (this.stateEventHandlers.containsKey(spongeEvent)) {
-            try {
-                for (Method m : this.stateEventHandlers.get(spongeEvent)) {
-                    m.invoke(this.getMod(), event);
-                }
-            } catch (Throwable t) {
-                SpongeMod.instance.getController().errorOccurred(this, t);
-            }
-        }
-    }
-
-    @Override
+    @Nonnull
     public Object getInstance() {
-        return getMod();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected @Nullable Method gatherAnnotations(Class<?> clazz) throws Exception {
-        for (Method m : clazz.getDeclaredMethods()) {
-            for (Annotation a : m.getAnnotations()) {
-                if (a.annotationType().equals(org.spongepowered.api.util.event.Subscribe.class)) {
-                    Class<?>[] paramTypes = m.getParameterTypes();
-                    if (paramTypes.length == 1 && Event.class.isAssignableFrom(paramTypes[0])) {
-                        m.setAccessible(true);
-                        this.stateEventHandlers.put((Class<? extends Event>) paramTypes[0], m);
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    protected void processFieldAnnotations(ASMDataTable asm) throws Exception {}
-
-    private static class GuiceJavaAdapter extends ILanguageAdapter.JavaAdapter {
-        public static final GuiceJavaAdapter INSTANCE = new GuiceJavaAdapter();
-
-        private GuiceJavaAdapter() {
-        }
-
-        @Override
-        public Object getNewInstance(FMLModContainer container, Class<?> objectClass, ClassLoader classLoader, Method factoryMarkedMethod) throws Exception {
-            if (!(container instanceof SpongePluginContainer)) {
-                throw new IllegalArgumentException("Guice adapter only supports Sponge containers");
-            }
-            Object mod;
-            if (factoryMarkedMethod != null) {
-                mod = factoryMarkedMethod.invoke(null);
-                ((SpongePluginContainer) container).selfInjector.injectMembers(mod);
-            } else {
-                mod = ((SpongePluginContainer) container).selfInjector.getInstance(objectClass);
-            }
-            return mod;
-        }
+        return pluginInstance;
     }
 
     @Override
     public String toString() {
         return "SpongePlugin:" + getName() + "{" + getVersion() + "}";
     }
-
 }

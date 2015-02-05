@@ -49,6 +49,7 @@ import com.google.inject.Inject;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 
+import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.event.EventManager;
@@ -198,6 +199,13 @@ public class SpongeEventBus implements EventManager {
         } catch (Throwable t) {
             SpongeMod.instance.getLogger().warn("A handler raised an error when handling an event", t);
         }
+    }
+
+    public void register(PluginContainer container, Object object) {
+        checkNotNull(container, "plugin");
+        checkNotNull(object, "object");
+
+        registerAll(findAllSubscribers(object), container);
     }
 
     @Override
