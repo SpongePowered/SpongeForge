@@ -25,6 +25,7 @@
 package org.spongepowered.mod;
 
 import com.google.common.base.MoreObjects;
+import net.minecraft.network.ServerStatusResponse;
 import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
@@ -37,6 +38,11 @@ public class SpongeMinecraftVersion implements ProtocolMinecraftVersion {
     public SpongeMinecraftVersion(String name, int protocol) {
         this.name = name;
         this.protocol = protocol;
+    }
+
+    public SpongeMinecraftVersion(ServerStatusResponse.MinecraftProtocolVersionIdentifier identifier) {
+        this.name = identifier.getName();
+        this.protocol = identifier.getProtocol();
     }
 
     @Override
