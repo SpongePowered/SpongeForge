@@ -28,12 +28,13 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import net.minecraftforge.fml.common.Loader;
+import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.config.ConfigDir;
 import org.spongepowered.api.service.config.DefaultConfig;
-import org.spongepowered.api.util.config.ConfigFile;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -58,7 +59,7 @@ public class SpongePluginGuiceModule extends AbstractModule {
         bind(Logger.class).toInstance(LoggerFactory.getLogger(this.container.getId()));
         bind(File.class).annotatedWith(pluginConfig).toProvider(PluginConfigFileProvider.class).in(Scopes.SINGLETON);
         bind(File.class).annotatedWith(pluginDir).toProvider(PluginConfigDirProvider.class).in(Scopes.SINGLETON);
-        bind(ConfigFile.class).annotatedWith(pluginConfig).toProvider(PluginHoconConfigProvider.class);
+        bind(ConfigurationLoader.class).annotatedWith(pluginConfig).toProvider(PluginHoconConfigProvider.class);
 
     }
 
@@ -124,7 +125,7 @@ public class SpongePluginGuiceModule extends AbstractModule {
         }
     }
 
-    private static class PluginHoconConfigProvider implements Provider<ConfigFile> {
+    private static class PluginHoconConfigProvider implements Provider<ConfigurationLoader> {
 
         private final PluginContainer container;
 
@@ -134,8 +135,8 @@ public class SpongePluginGuiceModule extends AbstractModule {
         }
 
         @Override
-        public ConfigFile get() {
-            return ConfigFile.parseFile(new File(Loader.instance().getConfigDir(), this.container.getId() + ".conf"));
+        public ConfigurationLoader get() {
+            return HoconConfigurationLoader.builder().setFile(new File(Loader.instance().getConfigDir(), this.container.getId() + ".conf")).build();
         }
     }
 
