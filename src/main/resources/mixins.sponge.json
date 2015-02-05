@@ -3,7 +3,6 @@
   "refmap": "mixins.sponge.refmap.json",
   "mixins": [
     "MixinGameProfile",
-    "MixinBootstrap",
     "block.MixinBlockState",
     "block.MixinBlockType",
     "block.MixinPropertyHelper",
