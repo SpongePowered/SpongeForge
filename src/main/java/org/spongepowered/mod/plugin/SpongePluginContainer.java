@@ -42,6 +42,7 @@ import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
@@ -98,13 +99,16 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
 
             Injector injector = SpongeMod.instance.getInjector().createChildInjector(new SpongePluginGuiceModule(this));
             pluginInstance = injector.getInstance(pluginClazz);
-
-            SpongeEventBus spongeBus = (SpongeEventBus) SpongeMod.instance.getGame().getEventManager();
-            spongeBus.register(this, pluginInstance);
         } catch (Throwable t) {
             fmlController.errorOccurred(this, t);
             Throwables.propagateIfPossible(t);
         }
+    }
+
+    @Subscribe
+    public void registerMod(FMLPreInitializationEvent event) {
+        SpongeEventBus spongeBus = (SpongeEventBus) SpongeMod.instance.getGame().getEventManager();
+        spongeBus.register(this, pluginInstance);
     }
 
     @Subscribe
