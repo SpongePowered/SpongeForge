@@ -22,36 +22,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.event;
+package org.spongepowered.mod.configuration;
 
-import org.spongepowered.mod.interfaces.IMixinEntity;
-import org.spongepowered.mod.util.SpongeHooks;
+import net.minecraftforge.common.config.Property;
 
+public class ConfigSetting {
 
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.world.ChunkWatchEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+    protected Property property;
+    protected String category;
 
-public class SpongeEventHooks {
-
-    @SideOnly(Side.SERVER)
-    @SubscribeEvent
-    public void onChunkWatchEvent(ChunkWatchEvent event) {
-        IMixinEntity spongeEntity = (IMixinEntity)event.player;
-
-        if (spongeEntity.isTeleporting()) {
-            event.player.mountEntity(spongeEntity.getTeleportVehicle());
-            spongeEntity.setTeleportVehicle(null);
-            spongeEntity.setIsTeleporting(false);
-        }
+    public ConfigSetting(String category, Property property) {
+        this.category = category;
+        this.property = property;
     }
 
-    @SideOnly(Side.SERVER)
-    @SubscribeEvent
-    public void onEntityDeathEvent(LivingDeathEvent event) {
-        SpongeHooks.logEntityDeath(event.entity);
+    public Property getProperty() {
+        return this.property;
     }
 
+    public String getCategory() {
+        return this.category;
+    }
+
+    public String getDescription() {
+        return this.property.comment;
+    }
+
+    public void setValue(String value) {
+        this.property.set(value);
+    }
+
+    public String getValue() {
+        return this.property.getString();
+    }
 }

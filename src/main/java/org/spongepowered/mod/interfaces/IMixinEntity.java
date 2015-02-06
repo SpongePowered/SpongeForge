@@ -22,12 +22,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.entity;
+package org.spongepowered.mod.interfaces;
 
 import net.minecraft.entity.Entity;
 
-
-public interface ISpongeEntity {
+public interface IMixinEntity {
 
     boolean isTeleporting();
 

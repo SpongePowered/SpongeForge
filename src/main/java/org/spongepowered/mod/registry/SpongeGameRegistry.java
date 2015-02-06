@@ -63,6 +63,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldProviderHell;
 import net.minecraft.world.WorldProviderSurface;
@@ -145,6 +146,7 @@ import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
 import org.spongepowered.mod.block.meta.SpongeNotePitch;
 import org.spongepowered.mod.block.meta.SpongeSkullType;
+import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.effect.particle.SpongeParticleEffectBuilder;
 import org.spongepowered.mod.effect.particle.SpongeParticleType;
 import org.spongepowered.mod.entity.SpongeCareer;
@@ -171,6 +173,7 @@ public class SpongeGameRegistry implements GameRegistry {
     private final Map<String, BiomeType> biomeTypeMappings = Maps.newHashMap();
     public static final Map<String, SpongeTextColor> textColorMappings = Maps.newHashMap();
     public static final Map<TextColor, EnumChatFormatting> textColorToEnumMappings = Maps.newHashMap();
+    public static final Map<Class<? extends WorldProvider>, SpongeConfig> dimensionConfigs = Maps.newHashMap();
     public static final ImmutableMap<String, TextStyle.Base> textStyleMappings = new ImmutableMap.Builder<String, TextStyle.Base>()
                                                                                 .put("OBFUSCATED", new TextStyle.Base("OBFUSCATED", 'k'))
                                                                                 .put("BOLD", new TextStyle.Base("BOLD", 'l'))

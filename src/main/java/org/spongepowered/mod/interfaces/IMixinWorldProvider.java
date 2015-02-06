@@ -22,36 +22,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.event;
+package org.spongepowered.mod.interfaces;
 
-import org.spongepowered.mod.interfaces.IMixinEntity;
-import org.spongepowered.mod.util.SpongeHooks;
+import org.spongepowered.mod.configuration.SpongeConfig;
 
+public interface IMixinWorldProvider {
 
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.world.ChunkWatchEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+    void setDimensionConfig(SpongeConfig config);
 
-public class SpongeEventHooks {
-
-    @SideOnly(Side.SERVER)
-    @SubscribeEvent
-    public void onChunkWatchEvent(ChunkWatchEvent event) {
-        IMixinEntity spongeEntity = (IMixinEntity)event.player;
-
-        if (spongeEntity.isTeleporting()) {
-            event.player.mountEntity(spongeEntity.getTeleportVehicle());
-            spongeEntity.setTeleportVehicle(null);
-            spongeEntity.setIsTeleporting(false);
-        }
-    }
-
-    @SideOnly(Side.SERVER)
-    @SubscribeEvent
-    public void onEntityDeathEvent(LivingDeathEvent event) {
-        SpongeHooks.logEntityDeath(event.entity);
-    }
-
+    SpongeConfig getDimensionConfig();
 }

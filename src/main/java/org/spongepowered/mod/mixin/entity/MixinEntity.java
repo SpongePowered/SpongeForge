@@ -46,14 +46,18 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.entity.ISpongeEntity;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.interfaces.IMixinEntity;
+import org.spongepowered.mod.util.SpongeHooks;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.Entity.class)
-public abstract class MixinEntity implements Entity, ISpongeEntity {
+public abstract class MixinEntity implements Entity, IMixinEntity {
 
     private boolean teleporting;
     private net.minecraft.entity.Entity teleportVehicle;
@@ -80,6 +84,13 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
     protected abstract void shadow$setRotation(float yaw, float pitch);
     @Shadow
     public abstract void mountEntity(net.minecraft.entity.Entity entityIn);
+
+    @Inject(method = "moveEntity(DDD)V", at = @At("HEAD"), cancellable = true)
+    public void onMoveEntity(double x, double y, double z, CallbackInfo ci) {
+        if (!this.worldObj.isRemote && SpongeHooks.checkEntitySpeed(((net.minecraft.entity.Entity)(Object)this), x, y, z)) {
+            ci.cancel();
+        }
+    }
 
     @Override
     public World getWorld() {
@@ -139,8 +150,8 @@ public abstract class MixinEntity implements Entity, ISpongeEntity {
 
             if (passengerEntity instanceof EntityPlayerMP && !this.worldObj.isRemote) {
                 // The actual mount is handled in our event as mounting must be set after client fully loads.
-                ((ISpongeEntity)passengerEntity).setIsTeleporting(true);
-                ((ISpongeEntity)passengerEntity).setTeleportVehicle(lastPassenger);
+                ((IMixinEntity)passengerEntity).setIsTeleporting(true);
+                ((IMixinEntity)passengerEntity).setTeleportVehicle(lastPassenger);
             } else {
                 passengerEntity.mountEntity(lastPassenger);
             }

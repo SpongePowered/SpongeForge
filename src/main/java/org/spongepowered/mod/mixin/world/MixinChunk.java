@@ -29,6 +29,8 @@ import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
@@ -37,6 +39,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.util.SpongeHooks;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.chunk.Chunk.class)
@@ -53,6 +56,18 @@ public abstract class MixinChunk implements Chunk {
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(World world, int x, int z, CallbackInfo ci) {
         this.chunkPos = new Vector3i(x, 0, z);
+    }
+
+    @SideOnly(Side.SERVER)
+    @Inject(method = "onChunkLoad()V", at = @At("RETURN"))
+    public void onChunkLoadInject(CallbackInfo ci) {
+        SpongeHooks.logChunkLoad(this.worldObj, this.chunkPos);
+    }
+
+    @SideOnly(Side.SERVER)
+    @Inject(method = "onChunkUnload()V", at = @At("RETURN"))
+    public void onChunkUnloadInject(CallbackInfo ci) {
+        SpongeHooks.logChunkUnload(this.worldObj, this.chunkPos);
     }
 
     @Override
