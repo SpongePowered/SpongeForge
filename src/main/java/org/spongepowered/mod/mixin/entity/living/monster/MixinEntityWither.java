@@ -24,9 +24,6 @@
  */
 package org.spongepowered.mod.mixin.entity.living.monster;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.monster.Wither;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -39,6 +36,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(EntityWither.class)

@@ -24,14 +24,6 @@
  */
 package org.spongepowered.mod.mixin.entity.living.animal;
 
-import javax.annotation.Nullable;
-
-import net.minecraft.entity.passive.EntityAnimal;
-import net.minecraft.entity.passive.EntityHorse;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.AnimalChest;
-import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.animal.Horse;
 import org.spongepowered.api.entity.living.meta.HorseColor;
 import org.spongepowered.api.entity.living.meta.HorseStyle;
@@ -46,6 +38,13 @@ import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
 
 import com.google.common.base.Optional;
+import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityHorse;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.AnimalChest;
+import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityHorse.class)

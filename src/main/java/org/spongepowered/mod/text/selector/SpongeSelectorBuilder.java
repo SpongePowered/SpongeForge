@@ -24,9 +24,6 @@
  */
 package org.spongepowered.mod.text.selector;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.text.selector.Selector;
 import org.spongepowered.api.text.selector.SelectorBuilder;
@@ -38,6 +35,9 @@ import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+
+import java.util.Collections;
+import java.util.Map;
 
 @NonnullByDefault
 public class SpongeSelectorBuilder implements SelectorBuilder {

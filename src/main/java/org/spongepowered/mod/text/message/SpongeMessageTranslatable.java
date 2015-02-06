@@ -24,17 +24,16 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.ArrayDeque;
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-
-import net.minecraft.util.ChatComponentTranslation;
-
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.text.message.MessageBuilder;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.mod.text.translation.SpongeTranslation;
+
+import com.google.common.collect.ImmutableList;
+import net.minecraft.util.ChatComponentTranslation;
+
+import java.util.ArrayDeque;
+import java.util.List;
 
 public class SpongeMessageTranslatable extends SpongeMessage<Translation> implements Message.Translatable {
 

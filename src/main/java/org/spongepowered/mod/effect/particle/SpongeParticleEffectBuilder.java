@@ -24,18 +24,17 @@
  */
 package org.spongepowered.mod.effect.particle;
 
-import java.awt.Color;
-
-import net.minecraft.item.Item;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 import com.flowpowered.math.vector.Vector3f;
+import net.minecraft.item.Item;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkArgument;
+import java.awt.Color;
 
 public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     protected final SpongeParticleType type;

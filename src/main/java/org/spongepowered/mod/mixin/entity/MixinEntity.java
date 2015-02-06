@@ -24,32 +24,30 @@
  */
 package org.spongepowered.mod.mixin.entity;
 
-import java.util.ArrayDeque;
-import java.util.UUID;
-
-import javax.annotation.Nullable;
-
-import com.flowpowered.math.vector.Vector3f;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.server.S07PacketRespawn;
-import net.minecraft.network.play.server.S1FPacketSetExperience;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.WorldServer;
-
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.entity.ISpongeEntity;
 
 import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3f;
 import com.google.common.base.Optional;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.play.server.S07PacketRespawn;
+import net.minecraft.network.play.server.S1FPacketSetExperience;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.WorldServer;
+
+import java.util.ArrayDeque;
+import java.util.UUID;
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.Entity.class)

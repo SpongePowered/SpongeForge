@@ -24,8 +24,9 @@
  */
 package org.spongepowered.mod.text.selector;
 
-import javax.annotation.Nullable;
+import org.spongepowered.api.world.Location;
 
+import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.command.CommandResultStats.Type;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
@@ -34,9 +35,7 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import org.spongepowered.api.world.Location;
-
-import com.flowpowered.math.vector.Vector3d;
+import javax.annotation.Nullable;
 
 class FakeCommandSender implements ICommandSender {
 

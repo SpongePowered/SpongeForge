@@ -24,11 +24,11 @@
  */
 package org.spongepowered.mod.text.format;
 
-import java.awt.Color;
+import org.spongepowered.api.text.format.TextColor;
 
 import net.minecraft.util.EnumChatFormatting;
 
-import org.spongepowered.api.text.format.TextColor;
+import java.awt.Color;
 
 public class SpongeTextColor implements TextColor.Base {
 

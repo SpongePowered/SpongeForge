@@ -24,18 +24,6 @@
  */
 package org.spongepowered.mod.mixin.fml;
 
-import java.util.Map;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
-import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
-
-import org.apache.logging.log4j.Level;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,6 +34,17 @@ import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ListMultimap;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
+import org.apache.logging.log4j.Level;
+
+import java.util.Map;
 
 @NonnullByDefault
 @Mixin(value = EntityRegistry.class, remap = false)

@@ -24,11 +24,6 @@
  */
 package org.spongepowered.mod.mixin.entity.hanging;
 
-import javax.annotation.Nullable;
-
-import net.minecraft.entity.EntityHanging;
-import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -36,9 +31,13 @@ import org.spongepowered.api.util.rotation.Rotation;
 import org.spongepowered.api.util.rotation.Rotations;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.SpongeMod;
 
 import com.google.common.base.Optional;
-import org.spongepowered.mod.SpongeMod;
+import net.minecraft.entity.EntityHanging;
+import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.item.EntityItemFrame.class)

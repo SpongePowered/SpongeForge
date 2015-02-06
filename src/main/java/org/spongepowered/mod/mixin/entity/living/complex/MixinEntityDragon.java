@@ -24,16 +24,6 @@
  */
 package org.spongepowered.mod.mixin.entity.living.complex;
 
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.boss.EntityDragon;
-import net.minecraft.entity.boss.EntityDragonPart;
-import net.minecraft.entity.item.EntityEnderCrystal;
-import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.EnderCrystal;
 import org.spongepowered.api.entity.living.complex.EnderDragon;
 import org.spongepowered.api.entity.living.complex.EnderDragonPart;
@@ -44,8 +34,16 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import com.google.common.collect.ImmutableSet;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.boss.EntityDragon;
+import net.minecraft.entity.boss.EntityDragonPart;
+import net.minecraft.entity.item.EntityEnderCrystal;
+import net.minecraft.world.World;
+
+import java.util.Set;
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityDragon.class)

@@ -24,23 +24,8 @@
  */
 package org.spongepowered.mod.mixin.entity.player;
 
-import java.util.List;
-import java.util.Locale;
-
-import com.flowpowered.math.vector.Vector3d;
-import com.google.common.base.Optional;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkArgument;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S02PacketChat;
-import net.minecraft.network.play.server.S45PacketTitle;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.world.World;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
@@ -62,6 +47,20 @@ import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.message.SpongeMessage;
 import org.spongepowered.mod.text.message.SpongeMessageText;
 import org.spongepowered.mod.text.title.SpongeTitle;
+
+import com.flowpowered.math.vector.Vector3d;
+import com.google.common.base.Optional;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S02PacketChat;
+import net.minecraft.network.play.server.S45PacketTitle;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.world.World;
+
+import java.util.List;
+import java.util.Locale;
 
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)

@@ -24,12 +24,6 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.List;
-
-import net.minecraft.util.IChatComponent;
-
 import org.spongepowered.api.text.action.ClickAction;
 import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.ShiftClickAction;
@@ -39,6 +33,11 @@ import org.spongepowered.api.text.message.Message;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.util.IChatComponent;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
 
 public abstract class SpongeMessage<T> implements Message {
 
