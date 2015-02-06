@@ -37,6 +37,7 @@ import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.Game;
@@ -56,7 +57,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     private final Game game;
     private Injector spongeInjector = Guice.createInjector(new SpongeGuiceModule());
-    private Logger logger;
+    private Logger logger = LogManager.getLogger("SpongeAPIMod");
     @SuppressWarnings("unused")
     private LoadController controller;
     private SpongeGameRegistry registry;
@@ -105,7 +106,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     @Subscribe
     public void onPreInit(FMLPreInitializationEvent e) {
-        this.logger = e.getModLog();
         MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 
         // Add the SyncScheduler as a listener for ServerTickEvents
