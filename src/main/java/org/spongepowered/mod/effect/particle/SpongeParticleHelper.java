@@ -24,17 +24,6 @@
  */
 package org.spongepowered.mod.effect.particle;
 
-import java.awt.Color;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S2APacketParticles;
-import net.minecraft.util.EnumParticleTypes;
-
 import org.spongepowered.api.item.ItemBlock;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -42,6 +31,16 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3f;
 import com.google.common.collect.Lists;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S2APacketParticles;
+import net.minecraft.util.EnumParticleTypes;
+
+import java.awt.Color;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public final class SpongeParticleHelper {
 

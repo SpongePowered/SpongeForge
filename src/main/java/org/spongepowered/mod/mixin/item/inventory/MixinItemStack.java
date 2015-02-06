@@ -24,18 +24,18 @@
  */
 package org.spongepowered.mod.mixin.item.inventory;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagList;
-
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+
+import net.minecraft.item.Item;
+import net.minecraft.nbt.NBTTagList;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("serial")
 @NonnullByDefault

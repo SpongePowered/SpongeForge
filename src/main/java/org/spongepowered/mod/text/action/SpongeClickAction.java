@@ -24,10 +24,10 @@
  */
 package org.spongepowered.mod.text.action;
 
-import java.net.URL;
-
 import org.spongepowered.api.text.action.ClickAction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+
+import java.net.URL;
 
 @NonnullByDefault
 public class SpongeClickAction<R> implements ClickAction<R> {
