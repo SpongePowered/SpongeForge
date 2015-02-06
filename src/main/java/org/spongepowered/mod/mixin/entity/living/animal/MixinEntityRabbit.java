@@ -29,7 +29,7 @@ import net.minecraft.entity.passive.EntityRabbit;
 import net.minecraft.world.World;
 
 import org.spongepowered.api.entity.living.animal.Rabbit;
-import org.spongepowered.api.entity.living.meta.RabbitType;
+import org.spongepowered.api.entity.living.animal.RabbitType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;

@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.entity.living.meta.SkeletonType;
+import org.spongepowered.api.entity.living.monster.SkeletonType;
 
 public class SpongeSkeletonType extends SpongeEntityMeta implements SkeletonType {
 
