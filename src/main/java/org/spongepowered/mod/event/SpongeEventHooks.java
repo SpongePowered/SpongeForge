@@ -24,16 +24,15 @@
  */
 package org.spongepowered.mod.event;
 
-import org.spongepowered.mod.entity.ISpongeEntity;
-
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.spongepowered.mod.entity.ISpongeEntity;
 
 public class SpongeEventHooks {
 
     @SubscribeEvent
     public void onChunkWatchEvent(ChunkWatchEvent event) {
-        ISpongeEntity spongeEntity = (ISpongeEntity)event.player;
+        ISpongeEntity spongeEntity = (ISpongeEntity) event.player;
 
         if (spongeEntity.isTeleporting()) {
             event.player.mountEntity(spongeEntity.getTeleportVehicle());

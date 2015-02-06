@@ -32,7 +32,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 public class SpongeCareer extends SpongeEntityMeta implements Career {
 
     private final Profession profession;
-    
+
     public SpongeCareer(int id, String name, Profession profession) {
         super(id, name);
         this.profession = profession;

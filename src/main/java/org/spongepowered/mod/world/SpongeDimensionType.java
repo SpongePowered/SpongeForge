@@ -24,12 +24,10 @@
  */
 package org.spongepowered.mod.world;
 
+import com.google.common.base.Objects;
 import net.minecraft.world.WorldProvider;
-
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionType;
-
-import com.google.common.base.Objects;
 
 public class SpongeDimensionType implements DimensionType {
 
@@ -56,15 +54,15 @@ public class SpongeDimensionType implements DimensionType {
     @SuppressWarnings("unchecked")
     @Override
     public Class<? extends Dimension> getDimensionClass() {
-        return (Class<? extends Dimension>)this.dimensionClass;
+        return (Class<? extends Dimension>) this.dimensionClass;
     }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-            .add("name", this.name)
-            .add("keepLoaded", this.keepLoaded)
-            .add("class", this.dimensionClass.getName())
-            .toString();
+                .add("name", this.name)
+                .add("keepLoaded", this.keepLoaded)
+                .add("class", this.dimensionClass.getName())
+                .toString();
     }
 }

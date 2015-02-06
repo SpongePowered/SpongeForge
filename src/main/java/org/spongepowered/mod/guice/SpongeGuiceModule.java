@@ -58,6 +58,7 @@ public class SpongeGuiceModule extends AbstractModule {
     }
 
     private static class GeneralConfigDirProvider implements Provider<File> {
+
         @Override
         public File get() {
             return Loader.instance().getConfigDir();

@@ -116,7 +116,8 @@ public final class SpongeGame implements Game {
 
     @Override
     public AsynchronousScheduler getAsyncScheduler() {
-        return AsyncScheduler.getInstance(); }
+        return AsyncScheduler.getInstance();
+    }
 
 
     @Override
@@ -126,6 +127,6 @@ public final class SpongeGame implements Game {
 
     @Override
     public Optional<Server> getServer() {
-        return Optional.fromNullable((Server)FMLCommonHandler.instance().getMinecraftServerInstance());
+        return Optional.fromNullable((Server) FMLCommonHandler.instance().getMinecraftServerInstance());
     }
 }

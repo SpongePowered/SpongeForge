@@ -27,7 +27,6 @@ package org.spongepowered.mod.util;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3f;
 import com.flowpowered.math.vector.Vector3i;
-
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Rotations;
 import net.minecraft.util.Vec3i;

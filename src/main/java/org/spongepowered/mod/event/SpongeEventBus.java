@@ -25,14 +25,6 @@
 
 package org.spongepowered.mod.event;
 
-import javax.annotation.Nullable;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
@@ -45,11 +37,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
-
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
-
-import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.event.EventManager;
@@ -58,6 +47,14 @@ import org.spongepowered.api.util.event.Event;
 import org.spongepowered.api.util.event.Order;
 import org.spongepowered.api.util.event.Subscribe;
 import org.spongepowered.mod.SpongeMod;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Nullable;
 
 public class SpongeEventBus implements EventManager {
 
@@ -94,7 +91,17 @@ public class SpongeEventBus implements EventManager {
         this.pluginManager = pluginManager;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static boolean isValidHandler(Method method) {
+        Class<?>[] paramTypes = method.getParameterTypes();
+        return !Modifier.isStatic(method.getModifiers())
+               && !Modifier.isAbstract(method.getModifiers())
+               && !Modifier.isInterface(method.getDeclaringClass().getModifiers())
+               && method.getReturnType() == void.class
+               && paramTypes.length == 1
+               && Event.class.isAssignableFrom(paramTypes[0]);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private HandlerCache bakeHandlers(Class<?> rootType) {
         List<RegisteredHandler> registrations = Lists.newArrayList();
         Set<Class<?>> types = (Set) TypeToken.of(rootType).getTypes().rawTypes();
@@ -133,7 +140,7 @@ public class SpongeEventBus implements EventManager {
                     subscribers.add(new Subscriber(eventClass, handler, subscribe.order()));
                 } else {
                     SpongeMod.instance.getLogger().warn("The method {} on {} has @{} but has the wrong signature",
-                            method, method.getDeclaringClass().getName(), Subscribe.class.getName());
+                                                        method, method.getDeclaringClass().getName(), Subscribe.class.getName());
                 }
             }
         }
@@ -235,18 +242,18 @@ public class SpongeEventBus implements EventManager {
 
         for (int index = 0; index < listeners.length; index++) {
             if (listeners[index] instanceof EventPriority) {
-                Order order = this.priorityMappings.get((EventPriority)listeners[index]);
+                Order order = this.priorityMappings.get((EventPriority) listeners[index]);
 
                 for (int orderIndex = 0; orderIndex <= order.ordinal(); orderIndex++) {
                     Order currentOrder = Order.values()[orderIndex];
                     for (Handler handler : handlerCache.getHandlersByOrder(currentOrder)) {
-                        callListener(handler, (Event)forgeEvent);
+                        callListener(handler, (Event) forgeEvent);
                     }
                 }
                 orderStart = Order.values()[order.ordinal() + 1];
             }
             try {
-               listeners[index].invoke(forgeEvent);
+                listeners[index].invoke(forgeEvent);
             } catch (Throwable throwable) {
                 SpongeMod.instance.getLogger().catching(throwable);
             }
@@ -255,7 +262,7 @@ public class SpongeEventBus implements EventManager {
         for (int orderIndex = orderStart.ordinal(); orderIndex <= Order.POST.ordinal(); orderIndex++) {
             Order currentOrder = Order.values()[orderIndex];
             for (Handler handler : handlerCache.getHandlersByOrder(currentOrder)) {
-                callListener(handler, (Event)forgeEvent);
+                callListener(handler, (Event) forgeEvent);
             }
         }
 
@@ -282,16 +289,6 @@ public class SpongeEventBus implements EventManager {
         }
 
         return event instanceof Cancellable && ((Cancellable) event).isCancelled();
-    }
-
-    private static boolean isValidHandler(Method method) {
-        Class<?>[] paramTypes = method.getParameterTypes();
-        return !Modifier.isStatic(method.getModifiers())
-                && !Modifier.isAbstract(method.getModifiers())
-                && !Modifier.isInterface(method.getDeclaringClass().getModifiers())
-                && method.getReturnType() == void.class
-                && paramTypes.length == 1
-                && Event.class.isAssignableFrom(paramTypes[0]);
     }
 
 }

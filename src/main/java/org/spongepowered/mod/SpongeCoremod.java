@@ -24,12 +24,11 @@
  */
 package org.spongepowered.mod;
 
-import java.util.Map;
-
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
+
+import java.util.Map;
 
 public class SpongeCoremod implements IFMLLoadingPlugin {
 

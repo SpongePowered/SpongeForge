@@ -35,14 +35,16 @@ import org.spongepowered.api.service.config.ConfigDir;
 import org.spongepowered.api.service.config.DefaultConfig;
 import org.spongepowered.api.util.config.ConfigFile;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.lang.annotation.Annotation;
+
+import javax.inject.Inject;
 
 /**
  * Guice module that contains injections for a single plugin
  */
 public class SpongePluginGuiceModule extends AbstractModule {
+
     private final PluginContainer container;
 
     public SpongePluginGuiceModule(PluginContainer container) {
@@ -104,8 +106,8 @@ public class SpongePluginGuiceModule extends AbstractModule {
         @Override
         public String toString() {
             return "@org.spongepowered.api.service.config.Config(" +
-                    "sharedRoot=" + this.shared +
-                    ')';
+                   "sharedRoot=" + this.shared +
+                   ')';
         }
     }
 

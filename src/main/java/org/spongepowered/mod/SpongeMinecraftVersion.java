@@ -39,6 +39,13 @@ public class SpongeMinecraftVersion implements ProtocolMinecraftVersion {
         this.protocol = protocol;
     }
 
+    public static int compare(ProtocolMinecraftVersion version, MinecraftVersion to) {
+        if (version == to) {
+            return 0;
+        }
+        return to.isLegacy() ? 1 : version.getProtocol() - ((ProtocolMinecraftVersion) to).getProtocol();
+    }
+
     @Override
     public String getName() {
         return this.name;
@@ -84,10 +91,5 @@ public class SpongeMinecraftVersion implements ProtocolMinecraftVersion {
                 .add("name", this.name)
                 .add("protocol", this.protocol)
                 .toString();
-    }
-
-    public static int compare(ProtocolMinecraftVersion version, MinecraftVersion to) {
-        if (version == to) return 0;
-        return to.isLegacy() ? 1 : version.getProtocol() - ((ProtocolMinecraftVersion) to).getProtocol();
     }
 }

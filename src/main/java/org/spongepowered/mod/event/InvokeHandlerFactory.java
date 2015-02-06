@@ -39,6 +39,7 @@ class InvokeHandlerFactory implements HandlerFactory {
     }
 
     private static class InvokeHandler implements Handler {
+
         private final Object object;
         private final Method method;
         private final boolean ignoreCancelled;
@@ -63,13 +64,21 @@ class InvokeHandlerFactory implements HandlerFactory {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             InvokeHandler that = (InvokeHandler) o;
 
-            if (!this.method.equals(that.method)) return false;
-            if (!this.object.equals(that.object)) return false;
+            if (!this.method.equals(that.method)) {
+                return false;
+            }
+            if (!this.object.equals(that.object)) {
+                return false;
+            }
 
             return true;
         }

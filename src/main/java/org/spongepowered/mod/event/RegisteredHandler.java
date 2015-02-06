@@ -40,6 +40,10 @@ class RegisteredHandler implements Comparable<RegisteredHandler> {
         this.container = container;
     }
 
+    static RegisteredHandler createForComparison(Handler handler) {
+        return new RegisteredHandler(handler, null, null);
+    }
+
     public Handler getHandler() {
         return this.handler;
     }
@@ -54,8 +58,12 @@ class RegisteredHandler implements Comparable<RegisteredHandler> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         RegisteredHandler that = (RegisteredHandler) o;
         return this.handler.equals(that.handler);
     }
@@ -68,10 +76,6 @@ class RegisteredHandler implements Comparable<RegisteredHandler> {
     @Override
     public int compareTo(RegisteredHandler o) {
         return getOrder().ordinal() - o.getOrder().ordinal();
-    }
-
-    static RegisteredHandler createForComparison(Handler handler) {
-        return new RegisteredHandler(handler, null, null);
     }
 
 }
