@@ -24,8 +24,6 @@
  */
 package org.spongepowered.api.text.action;
 
-import java.net.URL;
-
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.action.ClickAction.ChangePage;
@@ -42,6 +40,8 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.text.action.SpongeClickAction;
 import org.spongepowered.mod.text.action.SpongeHoverAction;
 import org.spongepowered.mod.text.action.SpongeShiftClickAction;
+
+import java.net.URL;
 
 @NonnullByDefault
 public class SpongeTextActionFactory implements TextActionFactory {

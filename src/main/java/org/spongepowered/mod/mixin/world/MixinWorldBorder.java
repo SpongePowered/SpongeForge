@@ -24,20 +24,19 @@
  */
 package org.spongepowered.mod.mixin.world;
 
-import java.util.List;
-import java.util.Iterator;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.WorldBorder;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 import com.flowpowered.math.vector.Vector3d;
-
 import net.minecraft.world.border.EnumBorderStatus;
 import net.minecraft.world.border.IBorderListener;
 
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.WorldBorder;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
+import java.util.Iterator;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.border.WorldBorder.class)

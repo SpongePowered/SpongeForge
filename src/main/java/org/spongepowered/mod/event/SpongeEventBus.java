@@ -25,15 +25,16 @@
 
 package org.spongepowered.mod.event;
 
-import javax.annotation.Nullable;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.service.event.EventManager;
+import org.spongepowered.api.util.event.Cancellable;
+import org.spongepowered.api.util.event.Event;
+import org.spongepowered.api.util.event.Order;
+import org.spongepowered.api.util.event.Subscribe;
+import org.spongepowered.mod.SpongeMod;
 
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
@@ -45,18 +46,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
-
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.api.service.event.EventManager;
-import org.spongepowered.api.util.event.Cancellable;
-import org.spongepowered.api.util.event.Event;
-import org.spongepowered.api.util.event.Order;
-import org.spongepowered.api.util.event.Subscribe;
-import org.spongepowered.mod.SpongeMod;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Nullable;
 
 public class SpongeEventBus implements EventManager {
 

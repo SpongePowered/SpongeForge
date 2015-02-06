@@ -24,8 +24,6 @@
  */
 package org.spongepowered.mod.mixin.server;
 
-import java.util.ArrayList;
-
 import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandException;
@@ -36,9 +34,10 @@ import org.spongepowered.mod.SpongeMod;
 
 import net.minecraft.command.CommandHandler;
 import net.minecraft.command.ICommandSender;
-
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.server.MinecraftServer;
+
+import java.util.ArrayList;
 
 @NonnullByDefault
 @Mixin(ServerCommandManager.class)

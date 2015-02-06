@@ -24,17 +24,16 @@
  */
 package org.spongepowered.mod.mixin.inventory;
 
-import java.util.List;
-
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ICrafting;
-
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.google.common.collect.Lists;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ICrafting;
+
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(Container.class)

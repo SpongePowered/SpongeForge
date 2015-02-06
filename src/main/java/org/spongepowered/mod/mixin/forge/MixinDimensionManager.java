@@ -24,11 +24,6 @@
  */
 package org.spongepowered.mod.mixin.forge;
 
-import java.util.Hashtable;
-
-import net.minecraft.world.WorldProvider;
-import net.minecraftforge.common.DimensionManager;
-
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -36,6 +31,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.world.SpongeDimensionType;
+
+import net.minecraft.world.WorldProvider;
+import net.minecraftforge.common.DimensionManager;
+
+import java.util.Hashtable;
 
 @NonnullByDefault
 @Mixin(value = DimensionManager.class, remap = false)

@@ -24,12 +24,12 @@
  */
 package org.spongepowered.mod.effect.particle;
 
-import java.awt.Color;
-
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 import net.minecraft.util.EnumParticleTypes;
+
+import java.awt.Color;
 
 public class SpongeParticleType implements ParticleType {
     private EnumParticleTypes type;
