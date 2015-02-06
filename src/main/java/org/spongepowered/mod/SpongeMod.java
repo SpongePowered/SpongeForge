@@ -83,6 +83,11 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         SpongeMod.instance = this;
         this.game = this.spongeInjector.getInstance(Game.class);
         this.registry = (SpongeGameRegistry) this.game.getRegistry();
+        try {
+            this.game.getServiceManager().setProvider(this, CommandService.class, new SimpleCommandService(this.game.getPluginManager()));
+        } catch (ProviderExistsException e1) {
+            this.logger.warn("Non-Sponge CommandService already registered: " + e1.getLocalizedMessage());
+        }
     }
 
     @Override
@@ -137,11 +142,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onInitialization(FMLInitializationEvent e) {
         this.registry.init();
-        try {
-            getGame().getServiceManager().setProvider(this, CommandService.class, new SimpleCommandService(getGame().getPluginManager()));
-        } catch (ProviderExistsException e1) {
-            this.logger.warn("Non-Sponge CommandService already registered: " + e1.getLocalizedMessage());
-        }
     }
 
     @Subscribe
