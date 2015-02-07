@@ -46,7 +46,6 @@ import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.BlockPos;
-import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
