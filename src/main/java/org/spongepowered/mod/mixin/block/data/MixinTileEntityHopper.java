@@ -43,5 +43,5 @@ public abstract class MixinTileEntityHopper extends TileEntityLockable implement
     @Shadow
     private int transferCooldown = -1;
 
-    public int hopper$getTransferCooldown() { return transferCooldown; }
+    public int hopper$getTransferCooldown() { return this.transferCooldown; }
 }

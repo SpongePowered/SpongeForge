@@ -43,9 +43,9 @@ public abstract class MixinTileEntityLockable extends TileEntity implements IInt
     @Shadow
     private LockCode code;
 
-    public String getLockToken() { return code.getLock(); }
+    public String getLockToken() { return this.code.getLock(); }
 
     public void setLockToken(String token) {
-        code = new LockCode(token);
+        this.code = new LockCode(token);
     }
 }

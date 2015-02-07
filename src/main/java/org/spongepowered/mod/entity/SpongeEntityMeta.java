@@ -27,7 +27,7 @@ package org.spongepowered.mod.entity;
 import org.spongepowered.api.service.persistence.DataSource;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 public class SpongeEntityMeta  {
 
@@ -71,7 +71,7 @@ public class SpongeEntityMeta  {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
             .add("type", this.type)
             .add("name", this.name)
             .toString();

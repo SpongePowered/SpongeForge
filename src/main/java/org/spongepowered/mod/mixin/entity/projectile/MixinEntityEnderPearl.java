@@ -49,14 +49,4 @@ public abstract class MixinEntityEnderPearl extends EntityThrowable implements E
     private float onAttackEntityFrom(float damage) {
         return (float) this.damageAmount;
     }
-
-    @Override
-    public double getDamage() {
-        return this.damageAmount;
-    }
-
-    @Override
-    public void setDamage(double damage) {
-        this.damageAmount = damage;
-    }
 }

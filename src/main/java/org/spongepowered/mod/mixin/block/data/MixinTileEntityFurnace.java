@@ -40,9 +40,11 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(net.minecraft.tileentity.TileEntityFurnace.class)
 public abstract class MixinTileEntityFurnace extends TileEntityLockable implements IUpdatePlayerListBox, ISidedInventory {
 
+    @Override
     @Shadow
     public abstract int getField(int id);
 
+    @Override
     @Shadow
     public abstract void setField(int id, int value);
 

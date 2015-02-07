@@ -183,7 +183,7 @@ public class ScheduledTask implements Task {
 
     @Override
     public boolean isSynchronous() {
-        return syncType == TaskSynchroncity.SYNCHRONOUS;
+        return this.syncType == TaskSynchroncity.SYNCHRONOUS;
     }
 
     @Override

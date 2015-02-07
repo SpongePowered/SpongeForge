@@ -43,9 +43,11 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(net.minecraft.tileentity.TileEntityBeacon.class)
 public abstract class MixinTileEntityBeacon extends TileEntityLockable implements IUpdatePlayerListBox, IInventory {
 
+    @Override
     @Shadow
     public abstract int getField(int id);
 
+    @Override
     @Shadow
     public abstract void setField(int id, int value);
 

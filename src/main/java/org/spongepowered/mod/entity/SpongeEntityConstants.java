@@ -26,15 +26,14 @@ package org.spongepowered.mod.entity;
 
 import java.util.Map;
 
-import org.spongepowered.api.entity.living.meta.HorseColor;
-import org.spongepowered.api.entity.living.meta.HorseStyle;
-import org.spongepowered.api.entity.living.meta.HorseVariant;
-import org.spongepowered.api.entity.living.meta.OcelotType;
-import org.spongepowered.api.entity.living.meta.RabbitType;
-import org.spongepowered.api.entity.living.meta.SkeletonType;
+import org.spongepowered.api.entity.living.animal.HorseColor;
+import org.spongepowered.api.entity.living.animal.HorseStyle;
+import org.spongepowered.api.entity.living.animal.HorseVariant;
+import org.spongepowered.api.entity.living.animal.OcelotType;
+import org.spongepowered.api.entity.living.animal.RabbitType;
+import org.spongepowered.api.entity.living.monster.SkeletonType;
 
 import com.google.common.collect.Maps;
-
 
 public class SpongeEntityConstants {
 

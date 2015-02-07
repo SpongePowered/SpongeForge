@@ -231,7 +231,7 @@ public class BlockWrapper implements BlockLoc {
 
     @Override
     public <T> Optional<T> getData(Class<T> dataClass) {
-        net.minecraft.tileentity.TileEntity tileEntity = handle.getTileEntity(pos);
+        net.minecraft.tileentity.TileEntity tileEntity = this.handle.getTileEntity(this.pos);
         if(dataClass.isInstance(tileEntity)) {
             return Optional.of((T) tileEntity);
         } else {

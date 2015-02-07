@@ -36,6 +36,7 @@ public final class SchedulerLogMessages {
     public final static String USER_TASK_TO_RUN_WAS_NULL_WARNING = "The Scheduler tried to run the Task, but the Task is null. The Task did not start.";
     public final static String CATASTROPHIC_ERROR_IN_SCHEDULER_SEEK_HELP = "The scheduler internal state machine suffered a catastrophic error.  Check #spongedev";
 
+    @Override
     public String toString() {
         return "SchedulerLogMessage";
     }

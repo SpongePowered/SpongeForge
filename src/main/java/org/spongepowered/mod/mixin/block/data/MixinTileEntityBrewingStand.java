@@ -39,9 +39,11 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(net.minecraft.tileentity.TileEntityBrewingStand.class)
 public abstract class MixinTileEntityBrewingStand extends TileEntityLockable implements IUpdatePlayerListBox, ISidedInventory {
 
+    @Override
     @Shadow
     public abstract int getField(int id);
 
+    @Override
     @Shadow
     public abstract void setField(int id, int value);
 

@@ -50,5 +50,5 @@ public abstract class MixinTileEntity implements TileEntity {
     }
 
     @Override
-    public World getWorld() { return (World) worldObj; }
+    public World getWorld() { return (World) this.worldObj; }
 }

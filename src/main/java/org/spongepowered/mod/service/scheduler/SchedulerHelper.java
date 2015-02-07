@@ -211,12 +211,12 @@ public class SchedulerHelper {
         String pluginId = ((PluginContainer) plugin).getId();
         String taskName;
 
-        sequenceNumber++;
+        this.sequenceNumber++;
 
         if (pluginId == null) {
-            taskName = String.format("Unknown-%d", sequenceNumber);
+            taskName = String.format("Unknown-%d", this.sequenceNumber);
         } else {
-            taskName = String.format("%s-S%d", pluginId, sequenceNumber);
+            taskName = String.format("%s-S%d", pluginId, this.sequenceNumber);
         }
 
         // Is task a Runnable task?
@@ -249,7 +249,7 @@ public class SchedulerHelper {
         //    in milliseconds between firing the event.   The "Period" argument to making a new
         //    ScheduledTask is a Period interface intentionally so that
 
-        ScheduledTask tmpTask = new ScheduledTask(offset, period, syncType)
+        ScheduledTask tmpTask = new ScheduledTask(offset, period, this.syncType)
                 .setPluginContainer(plugincontainer)
                 .setRunnableBody(runnableTarget);
 

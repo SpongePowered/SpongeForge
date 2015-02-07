@@ -68,32 +68,32 @@ public class SyncScheduler implements SynchronousScheduler {
      * the Services Manager.</p>
      */
     private SyncScheduler() {
-        schedulerHelper = new SchedulerHelper(Task.TaskSynchroncity.SYNCHRONOUS);
+        this.schedulerHelper = new SchedulerHelper(Task.TaskSynchroncity.SYNCHRONOUS);
     }
 
     @Override
     public Optional<Task> getTaskById(UUID id) {
-        return schedulerHelper.getTaskById(taskMap, id);
+        return this.schedulerHelper.getTaskById(this.taskMap, id);
     }
 
     @Override
     public Optional<UUID> getUuidOfTaskByName(String name) {
-        return schedulerHelper.getUuidOfTaskByName(taskMap, name);
+        return this.schedulerHelper.getUuidOfTaskByName(this.taskMap, name);
     }
 
     @Override
     public Collection<Task> getTasksByName(String pattern) {
-        return schedulerHelper.getfTasksByName(taskMap, pattern);
+        return this.schedulerHelper.getfTasksByName(this.taskMap, pattern);
     }
 
     @Override
     public Collection<Task> getScheduledTasks() {
-        return schedulerHelper.getScheduledTasks(taskMap);
+        return this.schedulerHelper.getScheduledTasks(this.taskMap);
     }
 
     @Override
     public Collection<Task> getScheduledTasks(Object plugin) {
-        return schedulerHelper.getScheduledTasks(taskMap, plugin);
+        return this.schedulerHelper.getScheduledTasks(this.taskMap, plugin);
     }
 
     /**
@@ -154,7 +154,7 @@ public class SyncScheduler implements SynchronousScheduler {
         // Else if the task is already RUNNING, use the period (the time delay until
         // the next moment to run the task).
         //
-        for (ScheduledTask task : taskMap.values()) {
+        for (ScheduledTask task : this.taskMap.values()) {
             // If the task is now slated to be canceled, we just remove it as if it no longer exists.
             if (task.state == ScheduledTask.ScheduledTaskState.CANCELED) {
                 this.taskMap.remove(task.getUniqueId());
@@ -233,12 +233,12 @@ public class SyncScheduler implements SynchronousScheduler {
         final long NOPERIOD = 0L;
 
         Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
-        ScheduledTask nonRepeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
+        ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            resultTask = schedulerHelper.utilityForAddingTask(taskMap, nonRepeatingTask);
+            resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, nonRepeatingTask);
         }
 
         return resultTask;
@@ -277,12 +277,12 @@ public class SyncScheduler implements SynchronousScheduler {
         final long NOPERIOD = 0L;
 
         Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
-        ScheduledTask nonRepeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
+        ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            resultTask = schedulerHelper.utilityForAddingTask(taskMap, nonRepeatingTask);
+            resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, nonRepeatingTask);
         }
 
         return resultTask;
@@ -331,12 +331,12 @@ public class SyncScheduler implements SynchronousScheduler {
         final long NODELAY = 0L;
 
         Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
-        ScheduledTask repeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, interval);
+        ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            resultTask = schedulerHelper.utilityForAddingTask(taskMap, repeatingTask);
+            resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, repeatingTask);
         }
 
         return resultTask;
@@ -386,12 +386,12 @@ public class SyncScheduler implements SynchronousScheduler {
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, long interval, long delay) {
         Optional<Task> resultTask = Optional.absent();
         Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
-        ScheduledTask repeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, interval);
+        ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
         } else {
-            resultTask = schedulerHelper.utilityForAddingTask(taskMap, repeatingTask);
+            resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, repeatingTask);
         }
 
         return resultTask;

@@ -85,16 +85,17 @@ public class AsyncScheduler implements AsynchronousScheduler {
     private long lastProcessingTimestamp;
     // Locking mechanism
     private final Lock lock = new ReentrantLock();
-    private final Condition condition = lock.newCondition();
+    private final Condition condition = this.lock.newCondition();
     // The dynamic thread pooling executor of asynchronous tasks.
     private ExecutorService executor;
     // Query actor for task information
     private SchedulerHelper schedulerHelper;
 
     private AsyncScheduler() {
-        schedulerHelper = new SchedulerHelper(Task.TaskSynchroncity.ASYNCHRONOUS);
+        this.schedulerHelper = new SchedulerHelper(Task.TaskSynchroncity.ASYNCHRONOUS);
 
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 stateMachineBody();
             }
@@ -102,8 +103,8 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     private void stateMachineBody() {
-        executor = Executors.newCachedThreadPool();
-        lastProcessingTimestamp = System.currentTimeMillis();
+        this.executor = Executors.newCachedThreadPool();
+        this.lastProcessingTimestamp = System.currentTimeMillis();
         while (true) {
             recalibrateMinimumTimeout();
             processTasks();
@@ -133,48 +134,48 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     private void recalibrateMinimumTimeout() {
-        lock.lock();
+        this.lock.lock();
         try {
-            for (ScheduledTask task : taskMap.values()) {
+            for (ScheduledTask task : this.taskMap.values()) {
                 // Tasks may have dropped off the list.
                 // Whatever Tasks remain, recalibrate:
                 //
                 // Recalibrate the wait delay for processing tasks before new tasks
                 // cause the scheduler to process pending tasks.
-                minimumTimeout = Long.MAX_VALUE;
+                this.minimumTimeout = Long.MAX_VALUE;
                 if (task.offset == 0 && task.period == 0) {
-                    minimumTimeout = 0;
+                    this.minimumTimeout = 0;
                 } else if (task.offset > 0 && task.period == 0) {
                     // task with non-zero offset, zero period
-                    minimumTimeout = Math.min(task.offset, minimumTimeout);
+                    this.minimumTimeout = Math.min(task.offset, this.minimumTimeout);
                 } else if (task.offset == 0 && task.period > 0) {
                     // task with zero offset, non-zero period
-                    minimumTimeout = Math.min(task.period, minimumTimeout);
+                    this.minimumTimeout = Math.min(task.period, this.minimumTimeout);
                 } else if (task.offset > 0 && task.period > 0) {
                     // task with non-zero offset, non-zero period
-                    minimumTimeout = Math.min(task.offset, minimumTimeout);
-                    minimumTimeout = Math.min(task.period, minimumTimeout);
+                    this.minimumTimeout = Math.min(task.offset, this.minimumTimeout);
+                    this.minimumTimeout = Math.min(task.period, this.minimumTimeout);
                 }
             }
 
             // If no tasks remain, recalibrate to max timeout
-            if (taskMap.isEmpty()) {
-                minimumTimeout = Long.MAX_VALUE;
+            if (this.taskMap.isEmpty()) {
+                this.minimumTimeout = Long.MAX_VALUE;
             }  else {
-                long latency = System.currentTimeMillis() - lastProcessingTimestamp;
-                minimumTimeout -= (latency <= 0) ? 0 : latency;
-                minimumTimeout = (minimumTimeout < 0) ? 0 : minimumTimeout;
+                long latency = System.currentTimeMillis() - this.lastProcessingTimestamp;
+                this.minimumTimeout -= (latency <= 0) ? 0 : latency;
+                this.minimumTimeout = (this.minimumTimeout < 0) ? 0 : this.minimumTimeout;
             }
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
     }
 
     private void processTasks() {
-        lock.lock();
+        this.lock.lock();
         try {
             try {
-                condition.await(minimumTimeout, TimeUnit.MILLISECONDS);
+                this.condition.await(this.minimumTimeout, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 // The taskMap has been modified; there is work to do.
                 // Continue on without handling the Exception.
@@ -196,10 +197,10 @@ public class AsyncScheduler implements AsynchronousScheduler {
             // Else if the task is already RUNNING, use the period (the time delay until
             // the next moment to run the task).
             //
-            for (ScheduledTask task : taskMap.values()) {
+            for (ScheduledTask task : this.taskMap.values()) {
                 // If the task is now slated to be canceled, we just remove it as if it no longer exists.
                 if (task.state == ScheduledTask.ScheduledTaskState.CANCELED) {
-                    taskMap.remove(task.getUniqueId());
+                    this.taskMap.remove(task.getUniqueId());
                     continue;
                 }
 
@@ -235,14 +236,14 @@ public class AsyncScheduler implements AsynchronousScheduler {
                         task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
                         // If task is one time shot, remove it from the list.
                         if (task.period == 0L) {
-                            taskMap.remove(task.getUniqueId());
+                            this.taskMap.remove(task.getUniqueId());
                         }
                     }
                 }
             }
-            lastProcessingTimestamp = System.currentTimeMillis();
+            this.lastProcessingTimestamp = System.currentTimeMillis();
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
     }
 
@@ -250,13 +251,13 @@ public class AsyncScheduler implements AsynchronousScheduler {
         Optional<Task> resultTask = Optional.absent();
 
         task.setTimestamp(System.currentTimeMillis());
-        lock.lock();
+        this.lock.lock();
         try {
-            taskMap.put(task.getUniqueId(), task);
-            condition.signalAll();
+            this.taskMap.put(task.getUniqueId(), task);
+            this.condition.signalAll();
             resultTask = Optional.of((Task) task);
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
 
         return resultTask;
@@ -296,7 +297,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         final long NODELAY = 0L;
         final long NOPERIOD = 0L;
 
-        ScheduledTask nonRepeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
+        ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
@@ -354,7 +355,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         // per the scale of the time unit.
         delay = scale.toMillis(delay);
 
-        ScheduledTask nonRepeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
+        ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
 
         if (nonRepeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
@@ -429,7 +430,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         // The interval passed to this method is converted to the number of milliseconds
         // per the scale of the time unit.
         interval = scale.toMillis(interval);
-        ScheduledTask repeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, interval);
+        ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
@@ -517,7 +518,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         // per the scale of the time unit.
         interval = scale.toMillis(interval);
         delay = scale.toMillis(delay);
-        ScheduledTask repeatingTask = schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, interval);
+        ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, interval);
 
         if (repeatingTask == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
@@ -550,7 +551,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
     public Optional<Task> getTaskById(UUID id) {
         Optional<Task> resultTask = Optional.absent();
 
-        Task tmpTask = taskMap.get(id);
+        Task tmpTask = this.taskMap.get(id);
 
         if (tmpTask != null) {
             resultTask = Optional.of(tmpTask);
@@ -560,22 +561,22 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
     @Override
     public Optional<UUID> getUuidOfTaskByName(String name) {
-        return schedulerHelper.getUuidOfTaskByName(taskMap, name);
+        return this.schedulerHelper.getUuidOfTaskByName(this.taskMap, name);
     }
 
     @Override
     public Collection<Task> getTasksByName(String pattern) {
-        return schedulerHelper.getfTasksByName(taskMap, pattern);
+        return this.schedulerHelper.getfTasksByName(this.taskMap, pattern);
     }
 
     @Override
     public Collection<Task> getScheduledTasks() {
-        return schedulerHelper.getScheduledTasks(taskMap);
+        return this.schedulerHelper.getScheduledTasks(this.taskMap);
     }
 
     @Override
     public Collection<Task> getScheduledTasks(Object plugin) {
-        return schedulerHelper.getScheduledTasks(taskMap, plugin);
+        return this.schedulerHelper.getScheduledTasks(this.taskMap, plugin);
     }
 
     private boolean startTask(ScheduledTask task) {
@@ -583,7 +584,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         // actual Runnable target.
         boolean bRes = true;
         try {
-            executor.submit(task.runnableBody);
+            this.executor.submit(task.runnableBody);
         } catch (Exception ex) {
             SpongeMod.instance.getLogger().error(SchedulerLogMessages.USER_TASK_FAILED_TO_RUN_ERROR);
             SpongeMod.instance.getLogger().error(ex.toString());

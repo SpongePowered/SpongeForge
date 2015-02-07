@@ -80,9 +80,9 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
     private Object pluginInstance;
 
     public SpongePluginContainer(String className, ModCandidate candidate, Map<String, Object> descriptor) {
-        pluginClassName = className;
-        modCandidate = candidate;
-        pluginDescriptor = descriptor;
+        this.pluginClassName = className;
+        this.modCandidate = candidate;
+        this.pluginDescriptor = descriptor;
     }
 
     @Subscribe
@@ -90,17 +90,17 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
         try {
             // Add source file to classloader so we can load it.
             ModClassLoader modClassLoader = event.getModClassLoader();
-            modClassLoader.addFile(modCandidate.getModContainer());
-            modClassLoader.clearNegativeCacheFor(modCandidate.getClassList());
+            modClassLoader.addFile(this.modCandidate.getModContainer());
+            modClassLoader.clearNegativeCacheFor(this.modCandidate.getClassList());
 
-            Class<?> pluginClazz = Class.forName(pluginClassName, true, modClassLoader);
+            Class<?> pluginClazz = Class.forName(this.pluginClassName, true, modClassLoader);
 
             findStateEventHandlers(pluginClazz);
 
             Injector injector = SpongeMod.instance.getInjector().createChildInjector(new SpongePluginGuiceModule(this));
-            pluginInstance = injector.getInstance(pluginClazz);
+            this.pluginInstance = injector.getInstance(pluginClazz);
         } catch (Throwable t) {
-            fmlController.errorOccurred(this, t);
+            this.fmlController.errorOccurred(this, t);
             Throwables.propagateIfPossible(t);
         }
     }
@@ -108,7 +108,7 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
     @Subscribe
     public void registerMod(FMLPreInitializationEvent event) {
         SpongeEventBus spongeBus = (SpongeEventBus) SpongeMod.instance.getGame().getEventManager();
-        spongeBus.register(this, pluginInstance);
+        spongeBus.register(this, this.pluginInstance);
     }
 
     @Subscribe
@@ -116,13 +116,13 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
     public void handleModStateEvent(FMLStateEvent event) {
         Class<? extends FMLEvent> eventClass = event.getClass();
         Class<? extends Event> spongeEvent = (Class<? extends Event>) EventRegistry.getAPIClass(eventClass);
-        if (stateEventHandlers.containsKey(spongeEvent)) {
+        if (this.stateEventHandlers.containsKey(spongeEvent)) {
             try {
-                for (Method m : stateEventHandlers.get(spongeEvent)) {
+                for (Method m : this.stateEventHandlers.get(spongeEvent)) {
                     m.invoke(getMod(), event);
                 }
             } catch (Throwable t) {
-                fmlController.errorOccurred(this, t);
+                this.fmlController.errorOccurred(this, t);
                 Throwables.propagateIfPossible(t);
             }
         }
@@ -136,7 +136,7 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
                     Class<?>[] paramTypes = m.getParameterTypes();
                     if ((paramTypes.length == 1) && StateEvent.class.isAssignableFrom(paramTypes[0])) {
                         m.setAccessible(true);
-                        stateEventHandlers.put((Class<? extends StateEvent>) paramTypes[0], m);
+                        this.stateEventHandlers.put((Class<? extends StateEvent>) paramTypes[0], m);
                     }
                 }
             }
@@ -145,39 +145,39 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
 
     @Override
     public String getModId() {
-        return (String) pluginDescriptor.get("id");
+        return (String) this.pluginDescriptor.get("id");
     }
 
     @Override
     @Nonnull
     public String getName() {
-        return (String) pluginDescriptor.get("name");
+        return (String) this.pluginDescriptor.get("name");
     }
 
     @Override
     @Nonnull
     public String getVersion() {
-        String annotationVersion = (String) pluginDescriptor.get("version");
+        String annotationVersion = (String) this.pluginDescriptor.get("version");
         return (annotationVersion != null) ? annotationVersion : "unknown";
     }
 
     @Override
     public File getSource() {
-        return modCandidate.getModContainer();
+        return this.modCandidate.getModContainer();
     }
 
     @Override
     public ModMetadata getMetadata() {
-        return modMetadata;
+        return this.modMetadata;
     }
 
     @Override
     public void bindMetadata(MetadataCollection mc) {
         // Note: Much simpler than FML's, since I'm assuming there's no useful information.
         // All information given here is from mcmod.info which we haven't documented as part of plugin 'API'
-        modMetadata = mc.getMetadataForId(getModId(), pluginDescriptor);
+        this.modMetadata = mc.getMetadataForId(getModId(), this.pluginDescriptor);
 
-        String annotationDependencies = (String) pluginDescriptor.get("dependencies");
+        String annotationDependencies = (String) this.pluginDescriptor.get("dependencies");
 
         Set<ArtifactVersion> requirements = Sets.newHashSet();
         List<ArtifactVersion> dependencies = Lists.newArrayList();
@@ -185,42 +185,42 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
 
         Loader.instance().computeDependencies(annotationDependencies, requirements, dependencies, dependants);
 
-        modMetadata.requiredMods = requirements;
-        modMetadata.dependencies = dependencies;
-        modMetadata.dependants = dependants;
+        this.modMetadata.requiredMods = requirements;
+        this.modMetadata.dependencies = dependencies;
+        this.modMetadata.dependants = dependants;
     }
 
     @Override
     public void setEnabledState(boolean isEnabled) {
-        enabled = isEnabled;
+        this.enabled = isEnabled;
     }
 
     @Override
     public Set<ArtifactVersion> getRequirements() {
-        return modMetadata.requiredMods;
+        return this.modMetadata.requiredMods;
     }
 
     @Override
     public List<ArtifactVersion> getDependencies() {
-        return modMetadata.dependencies;
+        return this.modMetadata.dependencies;
     }
 
     @Override
     public List<ArtifactVersion> getDependants() {
-        return modMetadata.dependants;
+        return this.modMetadata.dependants;
     }
 
     @Override
     public String getSortingRules() {
-        return (String) pluginDescriptor.get("dependencies");
+        return (String) this.pluginDescriptor.get("dependencies");
     }
 
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
-        if (enabled) {
-            fmlEventBus = bus;
-            fmlController = controller;
-            fmlEventBus.register(this);
+        if (this.enabled) {
+            this.fmlEventBus = bus;
+            this.fmlController = controller;
+            this.fmlEventBus.register(this);
             return true;
         }
         return false;
@@ -228,12 +228,12 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
 
     @Override
     public boolean matches(Object mod) {
-        return mod == pluginInstance;
+        return mod == this.pluginInstance;
     }
 
     @Override
     public Object getMod() {
-        return pluginInstance;
+        return this.pluginInstance;
     }
 
     @Override
@@ -303,7 +303,7 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
 
     @Override
     public List<String> getOwnedPackages() {
-        return modCandidate.getContainedPackages();
+        return this.modCandidate.getContainedPackages();
     }
 
     @Override
@@ -315,7 +315,7 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
     @Override
     @Nonnull
     public Object getInstance() {
-        return pluginInstance;
+        return this.pluginInstance;
     }
 
     @Override
