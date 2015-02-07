@@ -127,9 +127,6 @@ public abstract class MixinWorld implements World, IMixinWorld {
     @Shadow
     public abstract IChunkProvider getChunkProvider();
 
-    @Shadow
-    public abstract boolean spawnEntityInWorld(net.minecraft.entity.Entity p_72838_1_);
-
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client, CallbackInfo ci) {
         if (!client) {
