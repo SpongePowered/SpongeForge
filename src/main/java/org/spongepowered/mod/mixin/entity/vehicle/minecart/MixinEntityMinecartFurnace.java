@@ -43,11 +43,11 @@ public abstract class MixinEntityMinecartFurnace extends EntityMinecart implemen
         super(worldIn);
     }
 
-    public int furnaceminecart$getFuel() {
+    public int getFuel() {
         return this.fuel;
     }
 
-    public void furnaceminecart$setFuel(int fuel) {
+    public void setFuel(int fuel) {
         this.fuel = fuel;
     }
 }
