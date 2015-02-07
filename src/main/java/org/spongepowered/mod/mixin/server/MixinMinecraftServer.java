@@ -136,8 +136,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
 
     @Override
     public void broadcastMessage(Message message) {
-        // TODO: Revisit this when text API is actually implemented.
-        getConfigurationManager().sendChatMsg(new ChatComponentText((String) message.getContent()));
+        getConfigurationManager().sendChatMsg(((SpongeMessage) message).getHandle());
     }
 
     @Override
