@@ -87,7 +87,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     @Inject(method = "moveEntity(DDD)V", at = @At("HEAD"), cancellable = true)
     public void onMoveEntity(double x, double y, double z, CallbackInfo ci) {
-        if (!this.worldObj.isRemote && SpongeHooks.checkEntitySpeed(((net.minecraft.entity.Entity)(Object)this), x, y, z)) {
+        if (!this.worldObj.isRemote && !SpongeHooks.checkEntitySpeed(((net.minecraft.entity.Entity)(Object)this), x, y, z)) {
             ci.cancel();
         }
     }
