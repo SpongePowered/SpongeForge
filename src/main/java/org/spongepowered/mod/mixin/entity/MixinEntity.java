@@ -49,7 +49,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEntity;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.util.SpongeHooks;
 
 import com.flowpowered.math.vector.Vector3d;
@@ -59,6 +61,7 @@ import com.google.common.base.Optional;
 @Mixin(net.minecraft.entity.Entity.class)
 public abstract class MixinEntity implements Entity, IMixinEntity {
 
+    private EntityType entityType;
     private boolean teleporting;
     private net.minecraft.entity.Entity teleportVehicle;
 
@@ -84,6 +87,11 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     protected abstract void shadow$setRotation(float yaw, float pitch);
     @Shadow
     public abstract void mountEntity(net.minecraft.entity.Entity entityIn);
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onConstructed(net.minecraft.world.World world, CallbackInfo ci) {
+        this.entityType = ((SpongeGameRegistry)SpongeMod.instance.getGame().getRegistry()).entityClassToTypeMappings.get(this.getClass());
+    }
 
     @Inject(method = "moveEntity(DDD)V", at = @At("HEAD"), cancellable = true)
     public void onMoveEntity(double x, double y, double z, CallbackInfo ci) {
@@ -358,7 +366,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     @Override
     public EntityType getType() {
-        throw new UnsupportedOperationException(); // TODO
+        return this.entityType;
     }
 
     @Override
