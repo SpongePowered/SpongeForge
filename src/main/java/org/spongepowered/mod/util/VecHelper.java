@@ -39,6 +39,10 @@ public final class VecHelper {
         return new BlockPos(vector.getX(), vector.getY(), vector.getZ());
     }
 
+    public static BlockPos toBlockPos(Vector3i vector) {
+        return new BlockPos(vector.getX(), vector.getY(), vector.getZ());
+    }
+
     // === Flow Vector --> Rotations ===
 
     public static Rotations toRotation(Vector3f vector) {

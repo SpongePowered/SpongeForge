@@ -26,9 +26,11 @@ package org.spongepowered.mod.mixin.world;
 
 import com.flowpowered.math.vector.Vector3i;
 
+import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -46,6 +48,7 @@ import org.spongepowered.mod.util.SpongeHooks;
 public abstract class MixinChunk implements Chunk {
 
     private Vector3i chunkPos;
+    private ChunkCoordIntPair chunkCoordIntPair;
 
     @Shadow private net.minecraft.world.World worldObj;
     @Shadow public int xPosition;
@@ -56,6 +59,7 @@ public abstract class MixinChunk implements Chunk {
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(World world, int x, int z, CallbackInfo ci) {
         this.chunkPos = new Vector3i(x, 0, z);
+        this.chunkCoordIntPair = new ChunkCoordIntPair(x, z);
     }
 
     @SideOnly(Side.SERVER)
@@ -98,6 +102,10 @@ public abstract class MixinChunk implements Chunk {
 
     @Override
     public boolean unloadChunk() {
+        if (ForgeChunkManager.getPersistentChunksFor(this.worldObj).containsKey(this.chunkCoordIntPair)) {
+            return false;
+        }
+
         if (this.worldObj.provider.canRespawnHere() && DimensionManager.shouldLoadSpawn(this.worldObj.provider.getDimensionId())) {
             if (this.worldObj.chunkExists(this.xPosition, this.zPosition)) {
                 return false;
