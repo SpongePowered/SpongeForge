@@ -34,27 +34,31 @@ public interface IWorld {
 
     /**
      * Stupid example
+     *
+     * @return return value
      */
     public abstract int getAmbientTickCountdown();
 
     /**
      * Even more tenuous example
      *
-     * @param x
-     * @param y
-     * @param z
-     * @param block
-     * @return
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @param z The z coordinate
+     * @param block The SkyBlock value
+     *
+     * @return The calculated light
      */
     public abstract int exampleMethodToComputeLightValue(int x, int y, int z, EnumSkyBlock block);
 
     /**
      * Contrived example to deliberately create a name clash with World
      *
-     * @param x
-     * @param y
-     * @param z
-     * @return
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @param z The z coordinate
+     *
+     * @return The block
      */
     public abstract Object getBlock(int x, int y, int z);
 }

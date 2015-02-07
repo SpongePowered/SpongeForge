@@ -24,49 +24,52 @@
  */
 package org.spongepowered.mod;
 
-import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.mod.command.CommandSponge;
+import org.spongepowered.mod.configuration.SpongeConfig;
+import org.spongepowered.api.service.ProviderExistsException;
+import org.spongepowered.api.service.command.CommandService;
+import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
+import org.spongepowered.mod.util.SpongeHooks;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.io.File;
 
-public class SpongeMod extends DummyModContainer {
+public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     public static SpongeMod instance;
 
     private final Game game;
-
-    private Map<Object, PluginContainer> plugins = Maps.newHashMap();
-    private Map<String, PluginContainer> pluginIdMap = Maps.newHashMap();
-    @SuppressWarnings("unused")
-    private EventBus eventBus;
-    @SuppressWarnings("unused")
-    private LoadController controller;
     private Injector spongeInjector = Guice.createInjector(new SpongeGuiceModule());
-    private Logger logger;
+    private Logger logger = LogManager.getLogger("SpongeAPIMod");
+    private LoadController controller;
     private SpongeGameRegistry registry;
+    private SpongeConfig globalConfig;
+    private File configFile;
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be instantiated before FML scans the system
     // For mods (or plugins)
@@ -80,24 +83,16 @@ public class SpongeMod extends DummyModContainer {
         SpongeMod.instance = this;
         this.game = this.spongeInjector.getInstance(Game.class);
         this.registry = (SpongeGameRegistry) this.game.getRegistry();
+        try {
+            this.game.getServiceManager().setProvider(this, CommandService.class, new SimpleCommandService(this.game.getPluginManager()));
+        } catch (ProviderExistsException e1) {
+            this.logger.warn("Non-Sponge CommandService already registered: " + e1.getLocalizedMessage());
+        }
     }
 
-    public void registerPluginContainer(SpongePluginContainer spongePluginContainer, String pluginId, Object instance) {
-        this.plugins.put(instance, spongePluginContainer);
-        this.pluginIdMap.put(pluginId.toLowerCase(), spongePluginContainer);
-        this.game.getEventManager().register(spongePluginContainer.getInstance(), spongePluginContainer.getInstance());
-    }
-
-    public Collection<PluginContainer> getPlugins() {
-        return Collections.unmodifiableCollection(this.plugins.values());
-    }
-
-    public PluginContainer getPlugin(String s) {
-        return this.pluginIdMap.get(s.toLowerCase());
-    }
-
-    public PluginContainer getPluginContainer(Object instance) {
-        return this.plugins.get(instance);
+    @Override
+    public Object getMod() {
+        return this;
     }
 
     public Game getGame() {
@@ -108,23 +103,40 @@ public class SpongeMod extends DummyModContainer {
         return this.spongeInjector;
     }
 
+    public LoadController getController() {
+        return this.controller;
+    }
+
     public Logger getLogger() {
         return this.logger;
+    }
+
+    public SpongeConfig getGlobalConfig() {
+        return this.globalConfig;
+    }
+
+    public File getSuggestedConfigFile() {
+        return this.configFile;
     }
 
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
-        bus.register(this.game.getEventManager());
-        this.eventBus = bus;
         this.controller = controller;
         return true;
     }
 
     @Subscribe
     public void onPreInit(FMLPreInitializationEvent e) {
-        this.logger = e.getModLog();
         MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
+
+        // Add the SyncScheduler as a listener for ServerTickEvents
+        FMLCommonHandler.instance().bus().register(this.getGame().getSyncScheduler());
+        this.configFile = e.getSuggestedConfigurationFile();
+        this.globalConfig = new SpongeConfig(SpongeConfig.Type.GLOBAL, "global.cfg");
+        if (e.getSide() == Side.SERVER) {
+            SpongeHooks.enableThreadContentionMonitoring();
+        }
     }
 
     @Subscribe
@@ -135,5 +147,20 @@ public class SpongeMod extends DummyModContainer {
     @Subscribe
     public void onInitialization(FMLPostInitializationEvent e) {
         this.registry.postInit();
+    }
+
+    @Subscribe
+    public void onServerStarting(FMLServerStartingEvent e) {
+        e.registerServerCommand(new CommandSponge());
+    }
+
+    @Override
+    public String getId() {
+        return getModId();
+    }
+
+    @Override
+    public Object getInstance() {
+        return getMod();
     }
 }

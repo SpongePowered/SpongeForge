@@ -60,34 +60,34 @@ public class SpongeTradeOfferBuilder implements TradeOfferBuilder {
     }
 
     @Override
-    public TradeOfferBuilder withFirstBuyingItem(ItemStack item) {
+    public TradeOfferBuilder firstBuyingItem(ItemStack item) {
         checkNotNull(item, "Buying item cannot be null");
         this.firstItem = item;
         return this;
     }
 
     @Override
-    public TradeOfferBuilder withSeconBuyingItem(ItemStack item) {
+    public TradeOfferBuilder secondBuyingItem(ItemStack item) {
         this.secondItem = item;
         return this;
     }
 
     @Override
-    public TradeOfferBuilder withSellingItem(ItemStack item) {
+    public TradeOfferBuilder sellingItem(ItemStack item) {
         checkNotNull(item, "Selling item cannot be null");
         this.sellingItem = item;
         return this;
     }
 
     @Override
-    public TradeOfferBuilder withUses(int uses) {
+    public TradeOfferBuilder uses(int uses) {
         checkArgument(uses >= 0, "Usage count cannot be negative");
         this.useCount = uses;
         return this;
     }
 
     @Override
-    public TradeOfferBuilder withMaxUses(int maxUses) {
+    public TradeOfferBuilder maxUses(int maxUses) {
         checkArgument(maxUses > 0, "Max usage count must be greater than 0");
         this.maxUses = maxUses;
         return this;

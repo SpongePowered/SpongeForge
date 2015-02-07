@@ -63,6 +63,7 @@ Thumbs.db
 .project
 .settings
 .checkstyle
+.factorypath
 run
 eclipse
 nbproject
@@ -72,3 +73,4 @@ nb-configuration.xml
 *.iml
 *.ipr
 *.iws
+/.apt_generated/

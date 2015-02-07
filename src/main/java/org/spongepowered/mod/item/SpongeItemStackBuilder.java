@@ -29,21 +29,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import net.minecraft.item.Item;
-
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackBuilder;
 
 public class SpongeItemStackBuilder implements ItemStackBuilder {
 
-    public SpongeItemStackBuilder() {
-        reset();
-    }
-
     private ItemType type;
     private int damage;
     private int quantity;
     private int maxQuantity;
+    public SpongeItemStackBuilder() {
+        reset();
+    }
 
     @Override
     public ItemStackBuilder itemType(ItemType itemType) {

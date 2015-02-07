@@ -25,40 +25,46 @@
 package org.spongepowered.mod.plugin;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
+import net.minecraftforge.fml.common.Loader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.SpongeMod;
 
 import java.util.Collection;
+import java.util.List;
 
 @NonnullByDefault
 public class SpongePluginManager implements PluginManager {
 
     @Override
     public Optional<PluginContainer> getPlugin(String s) {
-        return Optional.fromNullable(SpongeMod.instance.getPlugin(s));
+        return Optional.fromNullable((PluginContainer) Loader.instance().getIndexedModList().get(s));
     }
 
     @Override
     public Logger getLogger(PluginContainer pluginContainer) {
-        return LoggerFactory.getLogger(pluginContainer.getName());
+        return LoggerFactory.getLogger(pluginContainer.getId());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Collection<PluginContainer> getPlugins() {
-        return SpongeMod.instance.getPlugins();
+        return ImmutableSet.copyOf((List) Loader.instance().getActiveModList());
     }
 
     @Override
     public Optional<PluginContainer> fromInstance(Object instance) {
-        return Optional.fromNullable(SpongeMod.instance.getPluginContainer(instance));
+        if (instance instanceof PluginContainer) {
+            return Optional.of((PluginContainer) instance);
+        }
+        return Optional.fromNullable((PluginContainer) Loader.instance().getReversedModObjectList().get(instance));
     }
 
     @Override
     public boolean isLoaded(String s) {
-        return SpongeMod.instance.getPlugin(s) != null;
+        return Loader.isModLoaded(s);
     }
 }

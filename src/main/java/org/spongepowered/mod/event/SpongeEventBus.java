@@ -22,76 +22,273 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.spongepowered.mod.event;
 
-import com.google.common.collect.Maps;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.base.Optional;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.reflect.TypeToken;
+import com.google.inject.Inject;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.IEventListener;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.service.event.EventManager;
+import org.spongepowered.api.util.event.Cancellable;
+import org.spongepowered.api.util.event.Event;
+import org.spongepowered.api.util.event.Order;
 import org.spongepowered.api.util.event.Subscribe;
-import org.spongepowered.mod.asm.util.ASMEventListenerHolderFactory;
+import org.spongepowered.mod.SpongeMod;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-public class SpongeEventBus {
+import javax.annotation.Nullable;
 
-    private final Map<Class<?>, Map<EventPriority, EventListenerHolder<Event>>> eventAndPriorityToEventListenerHolderMap;
+public class SpongeEventBus implements EventManager {
 
-    public SpongeEventBus() {
-        this.eventAndPriorityToEventListenerHolderMap = Maps.newHashMap();
-    }
+    private final Object lock = new Object();
+    private final PluginManager pluginManager;
+    private final HandlerFactory handlerFactory = new HandlerClassFactory("org.spongepowered.mod.event.handler");
+    private final Multimap<Class<?>, RegisteredHandler> handlersByEvent = HashMultimap.create();
 
-    public void add(Class<?> implementingEvent, Subscribe annotation, PriorityEventListener<Event> listener) {
-        EventListenerHolder<Event> holder = getEventHolder(implementingEvent, annotation);
-        holder.add(listener);
-    }
-
-    public void remove(PriorityEventListener<Event> listener) {
-        Iterator<Map<EventPriority, EventListenerHolder<Event>>> mapIterator = this.eventAndPriorityToEventListenerHolderMap.values().iterator();
-        while (mapIterator.hasNext()) {
-            Map<EventPriority, EventListenerHolder<Event>> map = mapIterator.next();
-            Iterator<EventListenerHolder<Event>> holderIterator = map.values().iterator();
-            while (holderIterator.hasNext()) {
-                EventListenerHolder<Event> holder = holderIterator.next();
-                if (holder != listener.getHolder()) {
-                    continue;
+    /**
+     * A cache of all the handlers for an event type for quick event posting.
+     *
+     * <p>The cache is currently entirely invalidated if handlers are added
+     * or removed.</p>
+     */
+    private final LoadingCache<Class<?>, HandlerCache> handlersCache =
+            CacheBuilder.newBuilder().build(new CacheLoader<Class<?>, HandlerCache>() {
+                @Override
+                public HandlerCache load(Class<?> type) throws Exception {
+                    return bakeHandlers(type);
                 }
-                holder.remove(listener);
-                if (holder.isEmpty()) {
-                    FMLCommonHandler.instance().bus().unregister(holder);
-                    MinecraftForge.EVENT_BUS.unregister(holder);
-                    holderIterator.remove();
+            });
+
+    private final ImmutableMap<EventPriority, Order> priorityMappings = new ImmutableMap.Builder<EventPriority, Order>()
+            .put(EventPriority.HIGHEST, Order.FIRST)
+            .put(EventPriority.HIGH, Order.EARLY)
+            .put(EventPriority.NORMAL, Order.DEFAULT)
+            .put(EventPriority.LOW, Order.LATE)
+            .put(EventPriority.LOWEST, Order.LAST)
+            .build();
+
+    @Inject
+    public SpongeEventBus(PluginManager pluginManager) {
+        checkNotNull(pluginManager, "pluginManager");
+        this.pluginManager = pluginManager;
+    }
+
+    private static boolean isValidHandler(Method method) {
+        Class<?>[] paramTypes = method.getParameterTypes();
+        return !Modifier.isStatic(method.getModifiers())
+               && !Modifier.isAbstract(method.getModifiers())
+               && !Modifier.isInterface(method.getDeclaringClass().getModifiers())
+               && method.getReturnType() == void.class
+               && paramTypes.length == 1
+               && Event.class.isAssignableFrom(paramTypes[0]);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private HandlerCache bakeHandlers(Class<?> rootType) {
+        List<RegisteredHandler> registrations = Lists.newArrayList();
+        Set<Class<?>> types = (Set) TypeToken.of(rootType).getTypes().rawTypes();
+
+        synchronized (this.lock) {
+            for (Class<?> type : types) {
+                if (Event.class.isAssignableFrom(type)) {
+                    registrations.addAll(this.handlersByEvent.get(type));
                 }
             }
-            if (map.isEmpty()) {
-                mapIterator.remove();
+        }
+
+        Collections.sort(registrations);
+
+        return new HandlerCache(registrations);
+    }
+
+    private HandlerCache getHandlerCache(Class<?> type) {
+        return this.handlersCache.getUnchecked(type);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Subscriber> findAllSubscribers(Object object) {
+        List<Subscriber> subscribers = Lists.newArrayList();
+        Class<?> type = object.getClass();
+
+        for (Method method : type.getMethods()) {
+            @Nullable Subscribe subscribe = method.getAnnotation(Subscribe.class);
+
+            if (subscribe != null) {
+                Class<?>[] paramTypes = method.getParameterTypes();
+
+                if (isValidHandler(method)) {
+                    Class<Event> eventClass = (Class<Event>) paramTypes[0];
+                    Handler handler = this.handlerFactory.createHandler(object, method, subscribe.ignoreCancelled());
+                    subscribers.add(new Subscriber(eventClass, handler, subscribe.order()));
+                } else {
+                    SpongeMod.instance.getLogger().warn("The method {} on {} has @{} but has the wrong signature",
+                                                        method, method.getDeclaringClass().getName(), Subscribe.class.getName());
+                }
             }
+        }
+
+        return subscribers;
+    }
+
+    public boolean register(Class<?> type, Handler handler, Order order, PluginContainer container) {
+        return register(new Subscriber(type, handler, order), container);
+    }
+
+    public boolean register(Subscriber subscriber, PluginContainer container) {
+        return registerAll(Lists.newArrayList(subscriber), container);
+    }
+
+    private boolean registerAll(List<Subscriber> subscribers, PluginContainer container) {
+        synchronized (this.lock) {
+            boolean changed = false;
+
+            for (Subscriber sub : subscribers) {
+                if (this.handlersByEvent.put(sub.getEventClass(), new RegisteredHandler(sub.getHandler(), sub.getOrder(), container))) {
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                this.handlersCache.invalidateAll();
+            }
+
+            return changed;
         }
     }
 
-    private EventListenerHolder<Event> getEventHolder(Class<?> implementingEvent, Subscribe annotation) {
+    public boolean unregister(Class<?> type, Handler handler) {
+        return unregister(new Subscriber(type, handler));
+    }
 
-        Map<EventPriority, EventListenerHolder<Event>> priorityHolderMap = this.eventAndPriorityToEventListenerHolderMap.get(implementingEvent);
+    public boolean unregister(Subscriber subscriber) {
+        return unregisterAll(Lists.newArrayList(subscriber));
+    }
 
-        if (priorityHolderMap == null) {
-            priorityHolderMap = new HashMap<EventPriority, EventListenerHolder<Event>>();
-            this.eventAndPriorityToEventListenerHolderMap.put(implementingEvent, priorityHolderMap);
+    public boolean unregisterAll(List<Subscriber> subscribers) {
+        synchronized (this.lock) {
+            boolean changed = false;
+
+            for (Subscriber sub : subscribers) {
+                if (this.handlersByEvent.remove(sub.getEventClass(), RegisteredHandler.createForComparison(sub.getHandler()))) {
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                this.handlersCache.invalidateAll();
+            }
+
+            return changed;
+        }
+    }
+
+    private void callListener(Handler handler, Event event) {
+        try {
+            handler.handle(event);
+        } catch (Throwable t) {
+            SpongeMod.instance.getLogger().warn("A handler raised an error when handling an event", t);
+        }
+    }
+
+    public void register(PluginContainer container, Object object) {
+        checkNotNull(container, "plugin");
+        checkNotNull(object, "object");
+
+        registerAll(findAllSubscribers(object), container);
+    }
+
+    @Override
+    public void register(Object plugin, Object object) {
+        checkNotNull(plugin, "plugin");
+        checkNotNull(object, "object");
+
+        Optional<PluginContainer> container = this.pluginManager.fromInstance(plugin);
+        if (!container.isPresent()) {
+            throw new IllegalArgumentException("The specified object is not a plugin object");
         }
 
-        EventPriority priority = PriorityMap.getEventPriority(annotation.order());
-        EventListenerHolder<Event> eventListenerHolder = priorityHolderMap.get(priority);
+        registerAll(findAllSubscribers(object), container.get());
+    }
 
-        if (eventListenerHolder == null) {
-            eventListenerHolder = ASMEventListenerHolderFactory.getNewEventListenerHolder(implementingEvent, priority, !annotation.ignoreCancelled());
-            priorityHolderMap.put(priority, eventListenerHolder);
-            FMLCommonHandler.instance().bus().register(eventListenerHolder);
-            MinecraftForge.EVENT_BUS.register(eventListenerHolder);
+    @Override
+    public void unregister(Object object) {
+        checkNotNull(object, "object");
+        unregisterAll(findAllSubscribers(object));
+    }
+
+    public boolean post(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, IEventListener[] listeners) {
+        checkNotNull(forgeEvent, "forgeEvent");
+
+        Order orderStart = Order.PRE;
+        HandlerCache handlerCache = getHandlerCache(forgeEvent.getClass());
+
+        for (int index = 0; index < listeners.length; index++) {
+            if (listeners[index] instanceof EventPriority) {
+                Order order = this.priorityMappings.get((EventPriority) listeners[index]);
+
+                for (int orderIndex = 0; orderIndex <= order.ordinal(); orderIndex++) {
+                    Order currentOrder = Order.values()[orderIndex];
+                    for (Handler handler : handlerCache.getHandlersByOrder(currentOrder)) {
+                        callListener(handler, (Event) forgeEvent);
+                    }
+                }
+                orderStart = Order.values()[order.ordinal() + 1];
+            }
+            try {
+                listeners[index].invoke(forgeEvent);
+            } catch (Throwable throwable) {
+                SpongeMod.instance.getLogger().catching(throwable);
+            }
         }
 
-        return eventListenerHolder;
+        for (int orderIndex = orderStart.ordinal(); orderIndex <= Order.POST.ordinal(); orderIndex++) {
+            Order currentOrder = Order.values()[orderIndex];
+            for (Handler handler : handlerCache.getHandlersByOrder(currentOrder)) {
+                callListener(handler, (Event) forgeEvent);
+            }
+        }
+
+        return (forgeEvent.isCancelable() ? forgeEvent.isCanceled() : false);
+    }
+
+    @Override
+    public boolean post(Event event) {
+        checkNotNull(event, "event");
+
+        for (Handler handler : getHandlerCache(event.getClass()).getHandlers()) {
+            callListener(handler, event);
+        }
+
+        return event instanceof Cancellable && ((Cancellable) event).isCancelled();
+    }
+
+    public boolean post(Event event, Order order) {
+        checkNotNull(event, "event");
+        checkNotNull(event, "order");
+
+        for (Handler handler : getHandlerCache(event.getClass()).getHandlersByOrder(order)) {
+            callListener(handler, event);
+        }
+
+        return event instanceof Cancellable && ((Cancellable) event).isCancelled();
     }
 
 }

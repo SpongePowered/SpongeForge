@@ -49,6 +49,8 @@ public abstract class MixinEntityPlayerExample extends EntityLivingBase { // imp
 
     /**
      * ctor, not used
+     *
+     * @param worldIn The world to spawn the player in
      */
     public MixinEntityPlayerExample(World worldIn) {
         super(worldIn);
@@ -60,6 +62,8 @@ public abstract class MixinEntityPlayerExample extends EntityLivingBase { // imp
     
     /**
      * Conflicting method, now magically safe to implement because the prefix makes it compile
+     *
+     * @return The player's health
      */
     public double entityPlayer$getHealth() {
         return this.getHealth();
@@ -69,6 +73,8 @@ public abstract class MixinEntityPlayerExample extends EntityLivingBase { // imp
      * This non-conflicting method is also prefixed, this is recommended for soft implementations because there is no {@link Override} annotation and
      * thus if the method in the underlying interface changes, there is no compile-time error which indicates this. By using the prefix even on
      * non-conflicting methods, the transformer can verify that the method exists in the target interface at application time.
+     *
+     * @return The number 0
      */
     public int entityPlayer$thisMethodDoesNotConflict() {
         return 0;
@@ -77,6 +83,8 @@ public abstract class MixinEntityPlayerExample extends EntityLivingBase { // imp
     /**
      * This method doesn't conflict, but is not tagged with the prefix. Whilst this is totally legal, it's a bad idea because there is then no way
      * to detect errors when the underlying interface changes, see the notes on {@link #entityPlayer$thisMethodDoesNotConflict}
+     *
+     * @return The number 0
      */
     public int norDoesThisOne() {
         return 0;
@@ -113,9 +121,11 @@ public abstract class MixinEntityPlayerExample extends EntityLivingBase { // imp
      * 
      * <p>However, post-obfuscation, this method magically becomes an accessor for the (now renamed) isUsingItem() in the target class, and thus
      * allows <em>both</em> the custom code to be injected into the original method (by the declaration below) <em>and</em> the interface to be
-     * implemented all at once.<p>
+     * implemented all at once.</p>
      * 
      * <p>See the example below for where custom code is <b>not</b> required in the accessor</p>.
+     *
+     * @return Whether the player is using the item
      */
     public boolean entityPlayer$isUsingItem() {
         return this.isUsingItem();
@@ -130,6 +140,8 @@ public abstract class MixinEntityPlayerExample extends EntityLivingBase { // imp
      * 
      * <p>We need the {@link Overwrite} annotation in order to have this method renamed, but we don't want to break the interface. So how do we do
      * that? See {@link #entityPlayer$isUsingItem} above for how.</p>
+     *
+     * @return Whether the player is using the item
      */
     @Overwrite
     public boolean isUsingItem() {
@@ -152,7 +164,7 @@ public abstract class MixinEntityPlayerExample extends EntityLivingBase { // imp
      * <p><b>Yes!</b> And it's because of the nature of {@link Overwrite}, notice how our new champion <em>is not</em> annotated with
      * {@link Overwrite}. The {@link Overwrite} annotation is used to indicate to the annotation processor that the method should be obfuscated
      * <em>as if it existed in the target class</em>, by omitting the annotation this method with simply replace the target method at dev time, and
-     * exist in tandem with it in production.<p>
+     * exist in tandem with it in production.</p>
      * 
      * <p><em>So what's the catch?</em><p>
      * 

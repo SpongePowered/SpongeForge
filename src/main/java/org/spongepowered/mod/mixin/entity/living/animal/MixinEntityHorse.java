@@ -33,9 +33,9 @@ import net.minecraft.inventory.AnimalChest;
 import net.minecraft.world.World;
 
 import org.spongepowered.api.entity.living.animal.Horse;
-import org.spongepowered.api.entity.living.meta.HorseColor;
-import org.spongepowered.api.entity.living.meta.HorseStyle;
-import org.spongepowered.api.entity.living.meta.HorseVariant;
+import org.spongepowered.api.entity.living.animal.HorseColor;
+import org.spongepowered.api.entity.living.animal.HorseStyle;
+import org.spongepowered.api.entity.living.animal.HorseVariant;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -72,7 +72,7 @@ public abstract class MixinEntityHorse extends EntityAnimal {
     }
 
     public HorseStyle getStyle() {
-        return SpongeEntityConstants.HORSE_STYLES.get(getHorseVariant() & 0xFF);
+        return SpongeEntityConstants.HORSE_STYLE_IDMAP.get(getHorseVariant() & 0xFF);
     }
 
     public void setStyle(HorseStyle style) {
@@ -80,7 +80,7 @@ public abstract class MixinEntityHorse extends EntityAnimal {
     }
 
     public HorseColor getColor() {
-        return SpongeEntityConstants.HORSE_COLORS.get(getHorseVariant() & 0xFF);
+        return SpongeEntityConstants.HORSE_COLOR_IDMAP.get(getHorseVariant() & 0xFF);
     }
 
     public void setColor(HorseColor color) {
@@ -88,7 +88,7 @@ public abstract class MixinEntityHorse extends EntityAnimal {
     }
 
     public HorseVariant getVariant() {
-       return SpongeEntityConstants.HORSE_VARIANTS.get(getHorseType());
+       return SpongeEntityConstants.HORSE_VARIANT_IDMAP.get(getHorseType());
     }
 
     public void setVariant(HorseVariant variant) {

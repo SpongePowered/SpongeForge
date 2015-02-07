@@ -24,7 +24,10 @@
  */
 package org.spongepowered.mod.entity;
 
-import com.google.common.base.Objects;
+import org.spongepowered.api.service.persistence.DataSource;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+
+import com.google.common.base.MoreObjects;
 
 public class SpongeEntityMeta  {
 
@@ -57,9 +60,18 @@ public class SpongeEntityMeta  {
         return true;
     }
 
+    public DataContainer toContainer() {
+        // TODO
+        return null;
+    }
+
+    public void serialize(DataSource source) {
+        // TODO
+    }
+
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
             .add("type", this.type)
             .add("name", this.name)
             .toString();

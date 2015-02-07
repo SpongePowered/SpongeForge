@@ -44,12 +44,12 @@ public abstract class MixinEntityXPOrb extends Entity implements ExperienceOrb {
     }
 
     @Override
-    public int getExperience() {
+    public double getExperience() {
         return this.xpValue;
     }
 
     @Override
-    public void setExperience(int experience) {
-        this.xpValue = experience;
+    public void setExperience(double experience) {
+        this.xpValue =  (int) experience;
     }
 }

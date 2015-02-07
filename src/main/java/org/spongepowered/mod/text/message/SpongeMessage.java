@@ -28,7 +28,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
-import net.minecraft.util.ChatComponentStyle;
+import net.minecraft.util.IChatComponent;
 
 import org.spongepowered.api.text.action.ClickAction;
 import org.spongepowered.api.text.action.HoverAction;
@@ -36,25 +36,24 @@ import org.spongepowered.api.text.action.ShiftClickAction;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.message.Message;
-import org.spongepowered.mod.text.message.SpongeMessageText.SpongeTextBuilder;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-public abstract class SpongeMessage implements Message {
+public abstract class SpongeMessage<T> implements Message {
 
-    protected final String content;
+    protected T content;
     protected final List<Message> children;
     protected final TextColor color;
     protected final TextStyle style;
     protected final Optional<ClickAction<?>> clickAction;
     protected final Optional<HoverAction<?>> hoverAction;
     protected final Optional<ShiftClickAction<?>> shiftClickAction;
-    protected final ChatComponentStyle handle;
+    protected final IChatComponent handle;
 
-    protected SpongeMessage(SpongeTextBuilder builder) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected SpongeMessage(SpongeMessageBuilder builder) {
         this.children = ImmutableList.copyOf(builder.children);
-        this.content = builder.content;
         this.color = builder.color;
         this.style = builder.style;
         this.clickAction = builder.clickAction;
@@ -102,7 +101,7 @@ public abstract class SpongeMessage implements Message {
     }
 
     @Override
-    public String getContent() {
+    public T getContent() {
         return this.content;
     }
 
@@ -110,17 +109,21 @@ public abstract class SpongeMessage implements Message {
     @Deprecated
     public String toLegacy() {
         // TODO
-        return null;
+        return "";
     }
 
     @Override
     @Deprecated
     public String toLegacy(char code) {
         // TODO
-        return null;
+        return "";
     }
 
-    public ChatComponentStyle getHandle() {
+    public IChatComponent getHandle() {
         return this.handle;
+    }
+
+    public static Message of(IChatComponent component) {
+        return null; // TODO
     }
 }

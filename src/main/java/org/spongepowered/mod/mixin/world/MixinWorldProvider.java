@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.world;
 
+import java.io.File;
+
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.common.DimensionManager;
 
@@ -34,13 +36,16 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.configuration.SpongeConfig;
+import org.spongepowered.mod.interfaces.IMixinWorldProvider;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 @NonnullByDefault
 @Mixin(WorldProvider.class)
-public abstract class MixinWorldProvider implements Dimension {
+public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvider {
 
     private boolean allowPlayerRespawns;
+    private SpongeConfig dimensionConfig;
 
     @Shadow
     protected int dimensionId;
@@ -58,6 +63,12 @@ public abstract class MixinWorldProvider implements Dimension {
     @Overwrite
     public static WorldProvider getProviderForDimension(int dimension) {
         WorldProvider provider = net.minecraftforge.common.DimensionManager.createProviderFor(dimension);
+        if (!SpongeGameRegistry.dimensionConfigs.containsKey(provider.getClass())) {
+            SpongeConfig dimConfig = new SpongeConfig(SpongeConfig.Type.DIMENSION, provider.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "") + File.separator + "dimension.cfg");
+            SpongeGameRegistry.dimensionConfigs.put(provider.getClass(), dimConfig);
+            ((IMixinWorldProvider)provider).setDimensionConfig(dimConfig);
+        }
+
         Dimension dim = (Dimension)provider;
         dim.setAllowsPlayerRespawns(DimensionManager.shouldLoadSpawn(dimension));
         return provider;
@@ -106,5 +117,15 @@ public abstract class MixinWorldProvider implements Dimension {
     @Override
     public DimensionType getType() {
         return ((SpongeGameRegistry)SpongeMod.instance.getGame().getRegistry()).dimensionClassMappings.get(this.getClass());
+    }
+
+    @Override
+    public void setDimensionConfig(SpongeConfig config) {
+        this.dimensionConfig = config;
+    }
+
+    @Override
+    public SpongeConfig getDimensionConfig() {
+        return this.dimensionConfig;
     }
 }

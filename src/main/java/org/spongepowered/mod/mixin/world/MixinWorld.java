@@ -24,15 +24,31 @@
  */
 package org.spongepowered.mod.mixin.world;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3i;
+import com.google.common.base.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
+
+import net.minecraft.network.Packet;
+import net.minecraft.profiler.Profiler;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 
 import org.spongepowered.api.block.BlockLoc;
+import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -40,7 +56,7 @@ import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldBorder;
-import org.spongepowered.api.world.biome.Biome;
+import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,17 +64,21 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.mod.configuration.SpongeConfig;
+import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
+import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
+import org.spongepowered.mod.interfaces.IMixinWorld;
+import org.spongepowered.mod.util.SpongeHooks;
+import org.spongepowered.mod.util.VecHelper;
 import org.spongepowered.mod.wrapper.BlockWrapper;
-
-import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3i;
-import com.google.common.base.Optional;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.World.class)
-public abstract class MixinWorld implements World {
+public abstract class MixinWorld implements World, IMixinWorld {
 
     private boolean keepSpawnLoaded;
+    public SpongeConfig worldConfig;
 
     @Shadow
     public WorldProvider provider;
@@ -72,6 +92,21 @@ public abstract class MixinWorld implements World {
     @Shadow(prefix = "shadow$")
     public abstract net.minecraft.world.border.WorldBorder shadow$getWorldBorder();
 
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onConstructed(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client, CallbackInfo ci) {
+        if (!client) {
+            this.worldConfig = new SpongeConfig(SpongeConfig.Type.WORLD, providerIn.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "") + File.separator + (providerIn.getDimensionId() == 0 ? "dim0" : providerIn.getSaveFolder().toLowerCase()) + File.separator + "world.cfg");
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Inject(method = "getCollidingBoundingBoxes(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/AxisAlignedBB;)Ljava/util/List;", at = @At("HEAD"))
+    public void onGetCollidingBoundingBoxes(net.minecraft.entity.Entity entity, net.minecraft.util.AxisAlignedBB axis, CallbackInfoReturnable<List> cir) {
+        if (!entity.worldObj.isRemote && SpongeHooks.checkBoundingBoxSize(entity, axis)) {
+            cir.setReturnValue(new ArrayList());// Removing misbehaved living entities
+        }
+    }
+
     @Override
     public UUID getUniqueID() {
         throw new UnsupportedOperationException();
@@ -84,19 +119,27 @@ public abstract class MixinWorld implements World {
 
     @Override
     public Optional<Chunk> getChunk(Vector3i position) {
-        return Optional.absent();
+        WorldServer worldserver = (WorldServer)(Object)this;
+        net.minecraft.world.chunk.Chunk chunk = null;
+        if (worldserver.theChunkProviderServer.chunkExists(position.getX(), position.getZ())) {
+            chunk = worldserver.theChunkProviderServer.provideChunk(position.getX(), position.getZ());
+        }
+        return Optional.fromNullable((Chunk)chunk);
     }
 
     @Override
     public Optional<Chunk> loadChunk(Vector3i position, boolean shouldGenerate) {
-        return Optional.absent();
+        WorldServer worldserver = (WorldServer)(Object)this;
+        net.minecraft.world.chunk.Chunk chunk = null;
+        if (worldserver.theChunkProviderServer.chunkExists(position.getX(), position.getZ()) || shouldGenerate) {
+            chunk = worldserver.theChunkProviderServer.loadChunk(position.getX(), position.getZ());
+        }
+        return Optional.fromNullable((Chunk)chunk);
     }
 
     @Override
     public BlockLoc getBlock(Vector3d position) {
-        // TODO: MC's BlockPos does some sort of special rounding on double
-        // positions -- do we want to do that too?
-        return new BlockWrapper(this, (int) position.getX(), (int) position.getY(), (int) position.getZ());
+        return new BlockWrapper(this, VecHelper.toBlockPos(position));
     }
 
     @Override
@@ -105,8 +148,13 @@ public abstract class MixinWorld implements World {
     }
 
     @Override
-    public Biome getBiome(Vector3d position) {
+    public BiomeType getBiome(Vector3i position) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setBiome(Vector3i position, BiomeType biome) {
+        // TODO
     }
 
     @Override
@@ -122,6 +170,32 @@ public abstract class MixinWorld implements World {
     @Override
     public WorldBorder getWorldBorder() {
         return (WorldBorder) shadow$getWorldBorder();
+    }
+
+    @Override
+    public void spawnParticles(ParticleEffect particleEffect, Vector3d position) {
+        this.spawnParticles(particleEffect, position, Integer.MAX_VALUE);
+    }
+
+    @Override
+    public void spawnParticles(ParticleEffect particleEffect, Vector3d position, int radius) {
+        checkNotNull(particleEffect, "The particle effect cannot be null!");
+        checkNotNull(position, "The position cannot be null");
+        checkArgument(radius > 0, "The radius has to be greater then zero!");
+
+        List<Packet> packets = SpongeParticleHelper.toPackets((SpongeParticleEffect) particleEffect, position);
+
+        if (!packets.isEmpty()) {
+            ServerConfigurationManager manager = MinecraftServer.getServer().getConfigurationManager();
+
+            double x = position.getX();
+            double y = position.getY();
+            double z = position.getZ();
+
+            for (Packet packet : packets) {
+                manager.sendToAllNear(x, y, z, (double) radius, this.provider.getDimensionId(), packet);
+            }
+        }
     }
 
     @Override
@@ -208,5 +282,10 @@ public abstract class MixinWorld implements World {
     @Override
     public void setKeepSpawnLoaded(boolean keepLoaded) {
         this.keepSpawnLoaded = keepLoaded;
+    }
+
+    @Override
+    public SpongeConfig getWorldConfig() {
+        return this.worldConfig;
     }
 }

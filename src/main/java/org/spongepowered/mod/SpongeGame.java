@@ -28,15 +28,18 @@ import com.google.common.base.Optional;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.command.CommandService;
-import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.event.EventManager;
-import org.spongepowered.api.service.scheduler.Scheduler;
+import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
+import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.service.scheduler.AsyncScheduler;
+import org.spongepowered.mod.service.scheduler.SyncScheduler;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -51,14 +54,14 @@ public final class SpongeGame implements Game {
     private final PluginManager pluginManager;
     private final EventManager eventManager;
     private final GameRegistry gameRegistry;
-    private final SimpleCommandService dispatcher;
+    private final ServiceManager serviceManager;
 
     @Inject
-    public SpongeGame(PluginManager plugin, EventManager event, GameRegistry registry) {
+    public SpongeGame(PluginManager plugin, EventManager event, GameRegistry registry, ServiceManager service) {
         this.pluginManager = plugin;
         this.eventManager = event;
         this.gameRegistry = registry;
-        this.dispatcher = new SimpleCommandService(this.pluginManager);
+        this.serviceManager = service;
     }
 
     @Override
@@ -92,27 +95,38 @@ public final class SpongeGame implements Game {
     }
 
     @Override
+    public MinecraftVersion getMinecraftVersion() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
     public GameRegistry getRegistry() {
         return this.gameRegistry;
     }
 
     @Override
     public ServiceManager getServiceManager() {
-        throw new UnsupportedOperationException();
+        return this.serviceManager;
     }
 
     @Override
-    public Scheduler getScheduler() {
-        throw new UnsupportedOperationException();
+    public SynchronousScheduler getSyncScheduler() {
+        return SyncScheduler.getInstance();
     }
+
+    @Override
+    public AsynchronousScheduler getAsyncScheduler() {
+        return AsyncScheduler.getInstance();
+    }
+
 
     @Override
     public CommandService getCommandDispatcher() {
-        return this.dispatcher;
+        return this.serviceManager.provideUnchecked(CommandService.class);
     }
 
     @Override
     public Optional<Server> getServer() {
-        return Optional.fromNullable((Server)FMLCommonHandler.instance().getMinecraftServerInstance());
+        return Optional.fromNullable((Server) FMLCommonHandler.instance().getMinecraftServerInstance());
     }
 }
