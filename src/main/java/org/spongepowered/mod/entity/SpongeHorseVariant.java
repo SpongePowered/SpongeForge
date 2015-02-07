@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.entity.living.meta.HorseVariant;
+import org.spongepowered.api.entity.living.animal.HorseVariant;
 
 public class SpongeHorseVariant extends SpongeEntityMeta implements HorseVariant {
 

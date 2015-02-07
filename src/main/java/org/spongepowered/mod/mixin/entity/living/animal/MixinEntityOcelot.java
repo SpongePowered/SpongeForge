@@ -29,7 +29,7 @@ import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.world.World;
 
 import org.spongepowered.api.entity.living.animal.Ocelot;
-import org.spongepowered.api.entity.living.meta.OcelotType;
+import org.spongepowered.api.entity.living.animal.OcelotType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
