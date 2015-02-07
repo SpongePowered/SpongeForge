@@ -31,8 +31,8 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.text.message.SpongeMessage;
+import org.spongepowered.mod.util.VecHelper;
 
-import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.server.CommandBlockLogic;
 import net.minecraft.util.ChatComponentText;
@@ -64,8 +64,7 @@ public abstract class MixinCommandBlockLogic implements ICommandSender, CommandB
 
     @Override
     public Location getLocation() {
-        return new Location((Extent) getEntityWorld(), new Vector3d(getPositionVector().xCoord, getPositionVector().yCoord,
-                getPositionVector().zCoord));
+        return new Location((Extent) getEntityWorld(), VecHelper.toVector(getPositionVector()));
     }
 
     @Override
