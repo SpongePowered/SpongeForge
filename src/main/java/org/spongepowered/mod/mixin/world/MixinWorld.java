@@ -57,6 +57,7 @@ import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.ForgeChunkManager;
 
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.sound.SoundType;
@@ -125,6 +126,9 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     @Shadow
     public abstract IChunkProvider getChunkProvider();
+
+    @Shadow
+    public abstract boolean spawnEntityInWorld(net.minecraft.entity.Entity p_72838_1_);
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client, CallbackInfo ci) {
@@ -218,7 +222,39 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     @Override
     public Optional<Entity> createEntity(EntityType type, Vector3d position) {
-        return Optional.absent();
+        checkNotNull(type, "The entity type cannot be null!");
+        checkNotNull(position, "The position cannot be null!");
+
+        Entity entity = null;
+
+        try {
+            entity = ConstructorUtils.invokeConstructor(type.getEntityClass(), this);
+            entity.setLocation(entity.getLocation().setPosition(position));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Optional.fromNullable(entity);
+    }
+
+    @Override
+    public Optional<Entity> createEntity(EntityType type, Vector3i position) {
+        checkNotNull(type, "The entity type cannot be null!");
+        checkNotNull(position, "The position cannot be null!");
+        Entity entity = null;
+
+        try {
+            entity = ConstructorUtils.invokeConstructor(type.getEntityClass(), this);
+            entity.setLocation(entity.getLocation().setPosition(position.toDouble()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Optional.fromNullable(entity);
+    }
+
+    @Override
+    public boolean spawnEntity(Entity entity) {
+        checkNotNull(entity, "Entity cannot be null!");
+        return spawnEntityInWorld(((net.minecraft.entity.Entity) entity));
     }
 
     @Override
