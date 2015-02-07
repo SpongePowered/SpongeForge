@@ -38,17 +38,18 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import net.minecraft.item.ItemFishingRod;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.interfaces.IMixinEntityFishHook;
 
 @NonnullByDefault
 @Mixin(ItemFishingRod.class)
-public abstract class MixinItemFishingRod extends Item {
+public abstract class MixinItemFishingRod extends Item implements IMixinEntityFishHook {
 
-    @Override
     @Overwrite
     public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
         if (player.fishEntity != null) {
             // Damage and animation logic is moved inside handleHookRetraction, as the event
             // is fired there
+            ((IMixinEntityFishHook) player.fishEntity).setFishingRodItemStack(itemStack);
             player.fishEntity.handleHookRetraction();
         } else {
             EntityFishHook fishHook = new EntityFishHook(world, player);
