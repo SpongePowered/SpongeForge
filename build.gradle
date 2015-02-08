@@ -36,13 +36,14 @@ apply plugin: 'com.github.johnrengelman.shadow'
 // Basic project information
 group = 'org.spongepowered'
 archivesBaseName = 'sponge'
-// Version -> Minecraft-MinecraftForge-Ours(If any?)
-version = '1.8-11.14.1.1306-SNAPSHOT'
 
 // Define variables
 ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
 ext.ciSystem = project.hasProperty("ciSystem") ? ciSystem : 'unknown'
 ext.commit = project.hasProperty("commit") ? commit : 'unknown'
+
+// Version -> Minecraft-MinecraftForge-Ours(If any?)
+version = '1.8-1306-1.1DEV-' + buildNumber
 
 // mixin variables
 ext.mixinSrg = new File(project.buildDir, "tmp/mixins/mixins.srg")
@@ -97,6 +98,9 @@ shadowJar  {
         include(dependency('org.slf4j:slf4j-api'))
         include(dependency('com.flowpowered:flow-math'))
         include(dependency('aopalliance:aopalliance'))
+        include(dependency('ninja.leaping.configurate:configurate-hocon'))
+        include(dependency('ninja.leaping.configurate:configurate-core'))
+        include(dependency('com.typesafe:config'))
         include(project('SpongeAPI'))
         include(project('Mixin'))
     }
