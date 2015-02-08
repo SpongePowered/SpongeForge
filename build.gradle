@@ -146,7 +146,6 @@ license {
     }
 }
 
-println "CHECKSTYLE"
 checkstyle {
     configFile = project('SpongeAPI').file('checkstyle.xml')
     configProperties = [
