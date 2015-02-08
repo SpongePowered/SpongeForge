@@ -39,6 +39,11 @@ import net.minecraft.network.play.server.S45PacketTitle;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
+<<<<<<< HEAD:src/main/java/org/spongepowered/mod/mixin/core/entity/player/MixinEntityPlayerMP.java
+=======
+
+import net.minecraftforge.common.DimensionManager;
+>>>>>>> Update implementation to match changes to SpongeAPI PR:src/main/java/org/spongepowered/mod/mixin/entity/player/MixinEntityPlayerMP.java
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
@@ -57,6 +62,7 @@ import org.spongepowered.api.text.title.Titles;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
@@ -74,6 +80,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
@@ -285,11 +293,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         return subj == null ? Collections.<Context>emptySet() : subj.getActiveContexts();
 	}
 
-    public Optional<Vector3i> playermp$getBedPosition() {
-        return super.spawnChunk != null ? Optional.of(VecHelper.toVector(super.spawnChunk)) : Optional.<Vector3i>absent();
-    }
-
-    public void playermp$setBedPosition(Optional<Vector3i> position) {
-        super.spawnChunk = position.isPresent() ? VecHelper.toBlockPos(position.get().toDouble()) : null;
+    public void playermp$setBedLocation(@Nullable Location location) {
+        super.spawnChunk = location != null ? VecHelper.toBlockPos(location.getPosition()) : null;
     }
 }

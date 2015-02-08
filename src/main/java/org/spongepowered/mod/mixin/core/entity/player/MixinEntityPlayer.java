@@ -67,11 +67,11 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
         super(worldIn);
     }
 
-    public float human$getExhaustion() {
+    public double human$getExhaustion() {
         return this.foodStats.foodExhaustionLevel;
     }
 
-    public void human$setExhaustion(float exhaustion) {
+    public void human$setExhaustion(double exhaustion) {
         this.foodStats.foodExhaustionLevel = exhaustion;
     }
 
@@ -83,11 +83,11 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
         this.foodStats.setFoodSaturationLevel((float) saturation);
     }
 
-    public float human$getFoodLevel() {
+    public double human$getFoodLevel() {
         return this.foodStats.getFoodLevel();
     }
 
-    public void human$setFoodLevel(float hunger) {
+    public void human$setFoodLevel(double hunger) {
         this.foodStats.setFoodLevel((int)hunger);
     }
 
@@ -99,20 +99,12 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
         this.experienceLevel = level;
     }
 
-    public double human$getTotalExperience() {
+    public int human$getTotalExperience() {
         return this.experienceTotal;
     }
 
-    public void human$setTotalExperience(double exp) {
+    public void human$setTotalExperience(int exp) {
         this.experienceTotal = (int)exp;
-    }
-
-    public boolean human$isFlightAllowed() {
-        return this.capabilities.allowFlying;
-    }
-
-    public void human$setFlightAllowed(boolean allowFlight) {
-        this.capabilities.allowFlying = allowFlight;
     }
 
     public boolean human$isFlying() {
