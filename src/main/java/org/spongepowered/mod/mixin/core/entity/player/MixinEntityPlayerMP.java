@@ -28,12 +28,16 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
+import net.minecraft.network.play.server.S45PacketTitle;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
@@ -64,6 +68,7 @@ import org.spongepowered.mod.text.SpongeChatComponent;
 import org.spongepowered.mod.text.SpongeText;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.title.SpongeTitle;
+import org.spongepowered.mod.util.VecHelper;
 
 import java.util.Collections;
 import java.util.List;
@@ -278,5 +283,13 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     public Set<Context> getActiveContexts() {
         Subject subj = internalSubject();
         return subj == null ? Collections.<Context>emptySet() : subj.getActiveContexts();
+	}
+
+    public Optional<Vector3i> playermp$getBedPosition() {
+        return super.spawnChunk != null ? Optional.of(VecHelper.toVector(super.spawnChunk)) : Optional.<Vector3i>absent();
+    }
+
+    public void playermp$setBedPosition(Optional<Vector3i> position) {
+        super.spawnChunk = position.isPresent() ? VecHelper.toBlockPos(position.get().toDouble()) : null;
     }
 }

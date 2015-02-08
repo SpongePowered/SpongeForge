@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.entity.player;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.FoodStats;
 import net.minecraft.world.World;
@@ -50,16 +51,28 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
     @Shadow
     protected FoodStats foodStats;
 
+    @Shadow
+    public int experienceLevel;
+
+    @Shadow
+    public int experienceTotal;
+
+	@Shadow
+    public PlayerCapabilities capabilities;
+
+    @Shadow
+    public abstract int xpBarCap();
+
     public MixinEntityPlayer(World worldIn) {
         super(worldIn);
     }
 
-    public double human$getFoodLevel() {
-        return this.foodStats.getFoodLevel();
+    public float human$getExhaustion() {
+        return this.foodStats.foodExhaustionLevel;
     }
 
-    public void human$setFoodLevel(double foodLevel) {
-        this.foodStats.setFoodLevel((int) foodLevel);
+    public void human$setExhaustion(float exhaustion) {
+        this.foodStats.foodExhaustionLevel = exhaustion;
     }
 
     public double human$getSaturation() {
@@ -68,6 +81,62 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
 
     public void human$setSaturation(double saturation) {
         this.foodStats.setFoodSaturationLevel((float) saturation);
+    }
+
+    public float human$getFoodLevel() {
+        return this.foodStats.getFoodLevel();
+    }
+
+    public void human$setFoodLevel(float hunger) {
+        this.foodStats.setFoodLevel((int)hunger);
+    }
+
+    public int human$getLevel() {
+        return this.experienceLevel;
+    }
+
+    public void human$setLevel(int level) {
+        this.experienceLevel = level;
+    }
+
+    public double human$getTotalExperience() {
+        return this.experienceTotal;
+    }
+
+    public void human$setTotalExperience(double exp) {
+        this.experienceTotal = (int)exp;
+    }
+
+    public boolean human$isFlightAllowed() {
+        return this.capabilities.allowFlying;
+    }
+
+    public void human$setFlightAllowed(boolean allowFlight) {
+        this.capabilities.allowFlying = allowFlight;
+    }
+
+    public boolean human$isFlying() {
+        return this.capabilities.isFlying;
+    }
+
+    public void human$setFlying(boolean flying) {
+        this.capabilities.isFlying = flying;
+    }
+
+    public double human$getFlySpeed() {
+        return this.capabilities.getFlySpeed();
+    }
+
+    public void human$setFlySpeed(double speed) {
+        this.capabilities.setFlySpeed((float)speed);
+    }
+
+    public double human$getWalkSpeed() {
+        return this.capabilities.getWalkSpeed();
+    }
+
+    public void human$setWalkSpeed(double speed) {
+        this.capabilities.setPlayerWalkSpeed((float)speed);
     }
 
     public boolean human$isViewingInventory() {
