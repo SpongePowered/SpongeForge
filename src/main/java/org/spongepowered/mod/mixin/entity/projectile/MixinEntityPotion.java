@@ -22,28 +22,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin;
+package org.spongepowered.mod.mixin.entity.projectile;
 
-import net.minecraft.dispenser.IBlockSource;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.init.Items;
 import net.minecraft.world.World;
-import org.spongepowered.api.entity.projectile.fireball.SmallFireball;
-import org.spongepowered.api.entity.projectile.source.ProjectileSource;
+import org.spongepowered.api.entity.projectile.ThrownPotion;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.potion.PotionEffect;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.Shadow;
+
+import java.util.List;
 
 @NonnullByDefault
-@Mixin(targets = "net/minecraft/init/Bootstrap$8")
-public class MixinBootstrapAnonInner8 {
+@Mixin(net.minecraft.entity.projectile.EntityPotion.class)
+public abstract class MixinEntityPotion extends EntityThrowable implements ThrownPotion {
 
-    @Redirect(method = "dispenseStack(Lnet/minecraft/dispenser/IBlockSource;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
-    public boolean onSpawnEntityInWorld(World world, Entity smallFireball, IBlockSource source, ItemStack stack) {
-        ((SmallFireball) smallFireball).setShooter((ProjectileSource) source.getBlockTileEntity());
-        return world.spawnEntityInWorld(smallFireball);
+    public MixinEntityPotion(World worldIn) {
+        super(worldIn);
+    }
+
+    @Shadow private net.minecraft.item.ItemStack potionDamage;
+
+    @Override
+    public ItemStack getItem() {
+        return (ItemStack) this.potionDamage;
+    }
+
+    @Override
+    public void setItem(ItemStack item) {
+        this.potionDamage = (net.minecraft.item.ItemStack) item;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<PotionEffect> getPotionEffects() {
+        return Items.potionitem.getEffects(this.potionDamage);
     }
 
 }

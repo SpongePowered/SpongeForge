@@ -22,13 +22,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin;
+package org.spongepowered.mod.mixin.block;
 
+import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import org.spongepowered.api.entity.projectile.fireball.SmallFireball;
+import org.spongepowered.api.entity.projectile.Projectile;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,14 +38,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @NonnullByDefault
-@Mixin(targets = "net/minecraft/init/Bootstrap$8")
-public class MixinBootstrapAnonInner8 {
+@Mixin(net.minecraft.dispenser.BehaviorProjectileDispense.class)
+public class MixinBehaviorProjectileDispense extends BehaviorDefaultDispenseItem {
 
-    @Redirect(method = "dispenseStack(Lnet/minecraft/dispenser/IBlockSource;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
-    public boolean onSpawnEntityInWorld(World world, Entity smallFireball, IBlockSource source, ItemStack stack) {
-        ((SmallFireball) smallFireball).setShooter((ProjectileSource) source.getBlockTileEntity());
-        return world.spawnEntityInWorld(smallFireball);
+    @Redirect(method = "dispenseStack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
+    public boolean onSpawnEntityInWorld(World world, Entity entity, IBlockSource source, ItemStack stack) {
+        TileEntity tileEntity = source.getBlockTileEntity();
+        if (entity instanceof Projectile && tileEntity instanceof ProjectileSource) {
+            ((Projectile) entity).setShooter((ProjectileSource) tileEntity);
+        }
+        return world.spawnEntityInWorld(entity);
     }
 
 }

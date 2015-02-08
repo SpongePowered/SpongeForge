@@ -28,7 +28,7 @@ import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import org.spongepowered.api.entity.projectile.fireball.SmallFireball;
+import org.spongepowered.api.entity.projectile.Firework;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,14 +36,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @NonnullByDefault
-@Mixin(targets = "net/minecraft/init/Bootstrap$8")
-public class MixinBootstrapAnonInner8 {
+@Mixin(targets = "net/minecraft/init/Bootstrap$7")
+public class MixinBootstrapAnonInner7 {
 
     @Redirect(method = "dispenseStack(Lnet/minecraft/dispenser/IBlockSource;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
-    public boolean onSpawnEntityInWorld(World world, Entity smallFireball, IBlockSource source, ItemStack stack) {
-        ((SmallFireball) smallFireball).setShooter((ProjectileSource) source.getBlockTileEntity());
-        return world.spawnEntityInWorld(smallFireball);
+    public boolean onSpawnEntityInWorld(World world, Entity firework, IBlockSource source, ItemStack stack) {
+        ((Firework) firework).setShooter((ProjectileSource) source.getBlockTileEntity());
+        return world.spawnEntityInWorld(firework);
     }
 
 }

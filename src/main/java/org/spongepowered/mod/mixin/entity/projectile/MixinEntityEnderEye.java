@@ -22,28 +22,63 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin;
+package org.spongepowered.mod.mixin.entity.projectile;
 
-import net.minecraft.dispenser.IBlockSource;
+import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import org.spongepowered.api.entity.projectile.fireball.SmallFireball;
+import org.spongepowered.api.entity.projectile.EyeOfEnder;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
+import org.spongepowered.api.entity.projectile.source.UnknownProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
-@Mixin(targets = "net/minecraft/init/Bootstrap$8")
-public class MixinBootstrapAnonInner8 {
+@Mixin(net.minecraft.entity.item.EntityEnderEye.class)
+public abstract class MixinEntityEnderEye extends Entity implements EyeOfEnder {
 
-    @Redirect(method = "dispenseStack(Lnet/minecraft/dispenser/IBlockSource;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
-    public boolean onSpawnEntityInWorld(World world, Entity smallFireball, IBlockSource source, ItemStack stack) {
-        ((SmallFireball) smallFireball).setShooter((ProjectileSource) source.getBlockTileEntity());
-        return world.spawnEntityInWorld(smallFireball);
+    public MixinEntityEnderEye(World worldIn) {
+        super(worldIn);
+    }
+
+    @Shadow private double targetX;
+    @Shadow private double targetY;
+    @Shadow private double targetZ;
+    @Shadow private boolean shatterOrDrop;
+
+    private ProjectileSource projectileSource = new UnknownProjectileSource();
+
+    @Override
+    public Vector3d getTargetedLocation() {
+        return new Vector3d(this.targetX, this.targetY, this.targetZ);
+    }
+
+    @Override
+    public void setTargetedLocation(Vector3d vector3d) {
+        this.targetX = vector3d.getX();
+        this.targetY = vector3d.getY();
+        this.targetZ = vector3d.getZ();
+    }
+
+    @Override
+    public boolean doesShatterOnDrop() {
+        return !this.shatterOrDrop;
+    }
+
+    @Override
+    public void setShatterOnDrop(boolean shatterOnDrop) {
+        this.shatterOrDrop = !shatterOnDrop;
+    }
+
+    @Override
+    public ProjectileSource getShooter() {
+        return this.projectileSource;
+    }
+
+    @Override
+    public void setShooter(ProjectileSource shooter) {
+        this.projectileSource = shooter;
     }
 
 }

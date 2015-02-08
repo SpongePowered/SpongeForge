@@ -22,28 +22,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin;
+package org.spongepowered.mod.mixin.entity.projectile;
 
-import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import org.spongepowered.api.entity.projectile.fireball.SmallFireball;
+import org.spongepowered.api.entity.projectile.Firework;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
+import org.spongepowered.api.entity.projectile.source.UnknownProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
-@Mixin(targets = "net/minecraft/init/Bootstrap$8")
-public class MixinBootstrapAnonInner8 {
+@Mixin(net.minecraft.entity.item.EntityFireworkRocket.class)
+public abstract class MixinEntityFireworkRocket extends Entity implements Firework {
 
-    @Redirect(method = "dispenseStack(Lnet/minecraft/dispenser/IBlockSource;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
-    public boolean onSpawnEntityInWorld(World world, Entity smallFireball, IBlockSource source, ItemStack stack) {
-        ((SmallFireball) smallFireball).setShooter((ProjectileSource) source.getBlockTileEntity());
-        return world.spawnEntityInWorld(smallFireball);
+    public MixinEntityFireworkRocket(World worldIn) {
+        super(worldIn);
+    }
+
+    @Shadow private int lifetime;
+    @Shadow private int fireworkAge;
+
+    private ProjectileSource projectileSource = new UnknownProjectileSource();
+
+    @Override
+    public int getFuseDuration() {
+        return this.lifetime - this.fireworkAge;
+    }
+
+    @Override
+    public void setFuseDuration(int fuseTicks) {
+        this.lifetime = fuseTicks + this.fireworkAge;
+    }
+
+    @Override
+    public void detonate() {
+        this.lifetime = -1;
+    }
+
+    @Override
+    public ProjectileSource getShooter() {
+        return this.projectileSource;
+    }
+
+    @Override
+    public void setShooter(ProjectileSource shooter) {
+        this.projectileSource = shooter;
     }
 
 }
