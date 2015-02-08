@@ -29,6 +29,7 @@
     "block.data.MixinTileEntityNote",
     "block.data.MixinTileEntitySign",
     "block.data.MixinTileEntitySkull",
+    "command.MixinCommandBlockLogic",
     "entity.MixinEntity",
     "entity.MixinArmorEquipable",
     "entity.MixinEntityEnderCrystal",

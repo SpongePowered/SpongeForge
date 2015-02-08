@@ -29,18 +29,33 @@ import com.flowpowered.math.vector.Vector3f;
 import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Rotations;
+import net.minecraft.util.Vec3;
 import net.minecraft.util.Vec3i;
 
 public final class VecHelper {
 
-    // === Flow Vector --> BlockPos ===
+    // === Flow Vector3d --> BlockPos ===
 
     public static BlockPos toBlockPos(Vector3d vector) {
         return new BlockPos(vector.getX(), vector.getY(), vector.getZ());
     }
 
+    // === Flow Vector3f --> BlockPos ===
+
+    public static BlockPos toBlockPos(Vector3f vector) {
+        return new BlockPos(vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    // === Flow Vector3i --> BlockPos ===
+
     public static BlockPos toBlockPos(Vector3i vector) {
         return new BlockPos(vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    // === MC BlockPos --> flow Vector3i ==
+
+    public static Vector3i toVector(BlockPos pos) {
+        return new Vector3i(pos.getX(), pos.getY(), pos.getZ());
     }
 
     // === Flow Vector --> Rotations ===
@@ -55,9 +70,28 @@ public final class VecHelper {
         return new Vector3f(rotation.func_179415_b(), rotation.func_179416_c(), rotation.func_179413_d());
     }
 
-    // === MC Vector --> Flow Vector ===
+    // === MC Vec3i --> Flow Vector3i ===
 
     public static Vector3i toVector(Vec3i vector) {
         return new Vector3i(vector.getX(), vector.getY(), vector.getZ());
     }
+
+    // === flow Vector3i --> MC Vec3i ===
+
+    public static Vec3i toVector(Vector3i vector) {
+        return new Vec3i(vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    // === MC Vec3 --> flow Vector3d ==
+
+    public static Vector3d toVector(Vec3 vector) {
+        return new Vector3d(vector.xCoord, vector.yCoord, vector.zCoord);
+    }
+
+    // === flow Vector3d --> MC Vec3 ==
+
+    public static Vec3 toVector(Vector3d vector) {
+        return new Vec3(vector.getX(), vector.getY(), vector.getZ());
+    }
+
 }
