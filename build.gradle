@@ -44,6 +44,10 @@ ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
 ext.ciSystem = project.hasProperty("ciSystem") ? ciSystem : 'unknown'
 ext.commit = project.hasProperty("commit") ? commit : 'unknown'
 
+// mixin variables
+ext.mixinSrg = new File(project.buildDir, "tmp/mixins/mixins.srg")
+ext.mixinRefMap = new File(project.buildDir, "tmp/mixins/mixins.sponge.refmap.json")
+
 // Minimum version of Java required
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
@@ -70,18 +74,15 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.7'
     compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9'
     compile 'com.google.inject:guice:4.0-beta5'
+    
     compile project('Mixin')
     compile project('SpongeAPI')
+    
     testCompile 'junit:junit:4.11'
 
     checkstyle 'com.puppycrawl.tools:checkstyle:6.1.1'
 
     deployerJars 'org.apache.maven.wagon:wagon-ftp:2.7'
-}
-
-task mixin {
-    ext.srg = "${tasks.mixin.temporaryDir}" + File.separator + 'mixins.srg'
-    ext.refMap = "${tasks.mixin.temporaryDir}" + File.separator + 'mixins.sponge.refmap.json';
 }
 
 shadowJar  {
@@ -101,7 +102,7 @@ shadowJar  {
     }
     classifier = ''
     
-    from tasks.mixin.ext.refMap
+    from project.mixinRefMap
 }
 build.dependsOn(shadowJar)
 
@@ -145,6 +146,7 @@ license {
     }
 }
 
+println "CHECKSTYLE"
 checkstyle {
     configFile = project('SpongeAPI').file('checkstyle.xml')
     configProperties = [
@@ -155,47 +157,44 @@ checkstyle {
         "suppressions": project('SpongeAPI').file('checkstyle-suppressions.xml')
     ]
 }
-tasks.reobf.dependsOn "check"
-
-if (!minecraft.mappingsSet && minecraft.version.startsWith("1.8")) {
-    // Default mappings, normally if mappings are not specified then the plugin will set this
-    // default value internally, unfortunately this happens too late for the compile step below
-    // which needs the correct value to pass to the annotation processor.
-    minecraft.mappings = "snapshot_20141001"
-}
+tasks.jar.dependsOn "check"
 
 reobf {
-    reobf(shadowJar.archivePath) {
-        spec -> spec.classpath = configurations.compile
+    reobf.addExtraSrgFile project.mixinSrg
+    
+    reobf(shadowJar) { spec ->
+        spec.classpath = configurations.compile
     }
 }
-reobf.dependsOn shadowJar
-reobf.addExtraSrgFile tasks.mixin.ext.srg
 
 // Source compiler configuration
-tasks.withType(JavaCompile) {
-
-	if (it.name == "recompMinecraft") return;
-
-    options.compilerArgs += [ '-Xlint:all', '-Xlint:-path', '-Xlint:-processing',
-        "-AreobfSrgFile=${tasks.reobf.srg}",
-        "-AoutSrgFile=${tasks.mixin.ext.srg}",
-        "-AoutRefMapFile=${tasks.mixin.ext.refMap}" ]
+compileJava {
+    options.compilerArgs += [ 
+        '-Xlint:all', 
+        '-Xlint:-path',
+        '-Xlint:-processing',
+        "-AoutSrgFile=${project.mixinSrg.getCanonicalPath()}",
+        "-AoutRefMapFile=${project.mixinRefMap.getCanonicalPath()}"
+    ]
     options.deprecation = true
     options.encoding = 'utf8'
 }
 
+// set the reobf srg late
+afterEvaluate {
+    tasks.compileJava.options.compilerArgs += "-AreobfSrgFile=${tasks.reobf.srg}"
+}
+
 // Copy the current srgs to the build dir so the user doesn't have to go hunting for them
-task copySrgs(type: Copy) {
-    doFirst {
-        delete 'build/srgs'
-    }
+task copySrgs(type: Copy, dependsOn: "genSrgs") {
+    // using some FG hacks here
+    from plugins.getPlugin("forge").delayedFile("{SRG_DIR}")
     
     include '**/*.srg'
-    from tasks.reobf.srg.parentFile
     into 'build/srgs'
 }
 setupDecompWorkspace.dependsOn copySrgs
+setupDevWorkspace.dependsOn copySrgs
 
 def manifestEntries = [
     "Built-By": System.properties['user.name'],
@@ -210,8 +209,8 @@ def manifestEntries = [
 
 jar {
     // Jar shading and packaging configuration
-    from { project("Mixin").sourceSets.main.output }
-    from { project("SpongeAPI").sourceSets.main.output }
+    from project("Mixin").sourceSets.main.output
+    from project("SpongeAPI").sourceSets.main.output
 
     // JAR manifest configuration
     manifest.mainAttributes(manifestEntries)
@@ -226,12 +225,12 @@ javadoc {
         project("SpongeAPI").sourceSets.main.java,
         sourceSets.main.java,
         "src/example/java"
-        ]
+    ]
 }
 
 task deobfJar(type: Jar) {
-    from { project("Mixin").sourceSets.main.output }
-    from { project("SpongeAPI").sourceSets.main.output }
+    from project("Mixin").sourceSets.main.output
+    from project("SpongeAPI").sourceSets.main.output
     from sourceSets.main.output
 }
 
