@@ -24,14 +24,12 @@
  */
 package org.spongepowered.mod.mixin.entity.living.animal;
 
-import javax.annotation.Nullable;
-
+import com.google.common.base.Optional;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.AnimalChest;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.animal.Horse;
 import org.spongepowered.api.entity.living.animal.HorseColor;
 import org.spongepowered.api.entity.living.animal.HorseStyle;
@@ -45,7 +43,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
 
-import com.google.common.base.Optional;
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityHorse.class)
@@ -76,7 +74,7 @@ public abstract class MixinEntityHorse extends EntityAnimal {
     }
 
     public void setStyle(HorseStyle style) {
-        setHorseVariant(((SpongeEntityMeta)getColor()).type & 0xFF | ((SpongeEntityMeta)style).type << 8);
+        setHorseVariant(((SpongeEntityMeta) getColor()).type & 0xFF | ((SpongeEntityMeta) style).type << 8);
     }
 
     public HorseColor getColor() {
@@ -84,23 +82,23 @@ public abstract class MixinEntityHorse extends EntityAnimal {
     }
 
     public void setColor(HorseColor color) {
-        setHorseVariant(((SpongeEntityMeta)color).type & 0xFF | ((SpongeEntityMeta)getStyle()).type << 8);
+        setHorseVariant(((SpongeEntityMeta) color).type & 0xFF | ((SpongeEntityMeta) getStyle()).type << 8);
     }
 
     public HorseVariant getVariant() {
-       return SpongeEntityConstants.HORSE_VARIANT_IDMAP.get(getHorseType());
+        return SpongeEntityConstants.HORSE_VARIANT_IDMAP.get(getHorseType());
     }
 
     public void setVariant(HorseVariant variant) {
-        setHorseType(((SpongeEntityMeta)variant).type);
+        setHorseType(((SpongeEntityMeta) variant).type);
     }
 
     public Optional<ItemStack> getSaddle() {
-         return Optional.fromNullable((ItemStack)this.horseChest.getStackInSlot(0));
+        return Optional.fromNullable((ItemStack) this.horseChest.getStackInSlot(0));
     }
 
     public void setSaddle(@Nullable ItemStack itemStack) {
-        net.minecraft.item.ItemStack nmsStack = (net.minecraft.item.ItemStack)itemStack;
+        net.minecraft.item.ItemStack nmsStack = (net.minecraft.item.ItemStack) itemStack;
         if (nmsStack != null && nmsStack.getItem() == Items.saddle) {
             this.horseChest.setInventorySlotContents(0, nmsStack);
         }

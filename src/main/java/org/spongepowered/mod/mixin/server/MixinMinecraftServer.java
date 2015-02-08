@@ -24,12 +24,8 @@
  */
 package org.spongepowered.mod.mixin.server;
 
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
@@ -38,7 +34,6 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.message.Message;
@@ -50,24 +45,27 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import org.spongepowered.mod.text.message.SpongeMessage;
+
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 @NonnullByDefault
 @Mixin(MinecraftServer.class)
 @Implements(@Interface(iface = Server.class, prefix = "server$"))
 public abstract class MixinMinecraftServer implements Server, ConsoleSource {
 
-    @Shadow 
+    @Shadow
     public abstract ServerConfigurationManager getConfigurationManager();
 
     @Shadow
     @SideOnly(Side.SERVER)
     public abstract String getServerHostname();
 
-    @Shadow 
+    @Shadow
     @SideOnly(Side.SERVER)
     public abstract int getPort();
 
@@ -162,7 +160,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     @Override
     @SuppressWarnings("unchecked")
     public Collection<Player> getOnlinePlayers() {
-        return ImmutableList.copyOf((List<Player>)getConfigurationManager().playerEntityList);
+        return ImmutableList.copyOf((List<Player>) getConfigurationManager().playerEntityList);
     }
 
     @Override

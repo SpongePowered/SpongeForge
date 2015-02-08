@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.potion;
 
 import net.minecraft.potion.Potion;
-
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;

@@ -25,20 +25,6 @@
 
 package org.spongepowered.mod.registry;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -47,7 +33,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.boss.EntityDragonPart;
@@ -71,7 +56,6 @@ import net.minecraft.world.WorldProviderHell;
 import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.common.registry.GameData;
-
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
@@ -170,6 +154,20 @@ import org.spongepowered.mod.text.selector.SpongeSelectorType;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 @SuppressWarnings("unchecked")
 @NonnullByDefault
 public class SpongeGameRegistry implements GameRegistry {
@@ -179,37 +177,37 @@ public class SpongeGameRegistry implements GameRegistry {
     public static final Map<TextColor, EnumChatFormatting> textColorToEnumMappings = Maps.newHashMap();
     public static final Map<Class<? extends WorldProvider>, SpongeConfig> dimensionConfigs = Maps.newHashMap();
     public static final ImmutableMap<String, TextStyle.Base> textStyleMappings = new ImmutableMap.Builder<String, TextStyle.Base>()
-                                                                                .put("OBFUSCATED", new TextStyle.Base("OBFUSCATED", 'k'))
-                                                                                .put("BOLD", new TextStyle.Base("BOLD", 'l'))
-                                                                                .put("STRIKETHROUGH", new TextStyle.Base("STRIKETHROUGH", 'm'))
-                                                                                .put("UNDERLINE", new TextStyle.Base("UNDERLINE", 'n'))
-                                                                                .put("ITALIC", new TextStyle.Base("ITALIC", 'o'))
-                                                                                .put("RESET", new TextStyle.Base("RESET", 'r'))
-                                                                                .build();
+            .put("OBFUSCATED", new TextStyle.Base("OBFUSCATED", 'k'))
+            .put("BOLD", new TextStyle.Base("BOLD", 'l'))
+            .put("STRIKETHROUGH", new TextStyle.Base("STRIKETHROUGH", 'm'))
+            .put("UNDERLINE", new TextStyle.Base("UNDERLINE", 'n'))
+            .put("ITALIC", new TextStyle.Base("ITALIC", 'o'))
+            .put("RESET", new TextStyle.Base("RESET", 'r'))
+            .build();
     private static final ImmutableMap<String, ChatType> chatTypeMappings = new ImmutableMap.Builder<String, ChatType>()
-                                                                           .put("CHAT", new SpongeChatType("CHAT", (byte) 0))
-                                                                           .put("SYSTEM", new SpongeChatType("SYSTEM", (byte) 1))
-                                                                           .put("ACTION_BAR", new SpongeChatType("ACTION_BAR", (byte) 2))
-                                                                           .build();
-    private static final ImmutableMap<String, Rotation> rotationMappings =  new ImmutableMap.Builder<String, Rotation>()
-                                                                           .put("TOP", new SpongeRotation(0))
-                                                                           .put("TOP_RIGHT", new SpongeRotation(45))
-                                                                           .put("RIGHT", new SpongeRotation(90))
-                                                                           .put("BOTTOM_RIGHT", new SpongeRotation(135))
-                                                                           .put("BOTTOM", new SpongeRotation(180))
-                                                                           .put("BOTTOM_LEFT", new SpongeRotation(225))
-                                                                           .put("LEFT", new SpongeRotation(270))
-                                                                           .put("TOP_LEFT", new SpongeRotation(315))
-                                                                           .build();
+            .put("CHAT", new SpongeChatType("CHAT", (byte) 0))
+            .put("SYSTEM", new SpongeChatType("SYSTEM", (byte) 1))
+            .put("ACTION_BAR", new SpongeChatType("ACTION_BAR", (byte) 2))
+            .build();
+    private static final ImmutableMap<String, Rotation> rotationMappings = new ImmutableMap.Builder<String, Rotation>()
+            .put("TOP", new SpongeRotation(0))
+            .put("TOP_RIGHT", new SpongeRotation(45))
+            .put("RIGHT", new SpongeRotation(90))
+            .put("BOTTOM_RIGHT", new SpongeRotation(135))
+            .put("BOTTOM", new SpongeRotation(180))
+            .put("BOTTOM_LEFT", new SpongeRotation(225))
+            .put("LEFT", new SpongeRotation(270))
+            .put("TOP_LEFT", new SpongeRotation(315))
+            .build();
     public static final ImmutableBiMap<Direction, EnumFacing> directionMap = ImmutableBiMap.<Direction, EnumFacing>builder()
-                                                                            .put(Direction.NORTH, EnumFacing.NORTH)
-                                                                            .put(Direction.EAST, EnumFacing.EAST)
-                                                                            .put(Direction.SOUTH, EnumFacing.SOUTH)
-                                                                            .put(Direction.WEST, EnumFacing.WEST)
-                                                                            .put(Direction.UP, EnumFacing.UP)
-                                                                            .put(Direction.DOWN, EnumFacing.DOWN)
-                                                                            .build();
-    private static final ImmutableMap<String, GameMode> gameModeMappings =  new ImmutableMap.Builder<String, GameMode>()
+            .put(Direction.NORTH, EnumFacing.NORTH)
+            .put(Direction.EAST, EnumFacing.EAST)
+            .put(Direction.SOUTH, EnumFacing.SOUTH)
+            .put(Direction.WEST, EnumFacing.WEST)
+            .put(Direction.UP, EnumFacing.UP)
+            .put(Direction.DOWN, EnumFacing.DOWN)
+            .build();
+    private static final ImmutableMap<String, GameMode> gameModeMappings = new ImmutableMap.Builder<String, GameMode>()
             .put("SURVIVAL", new SpongeGameMode())
             .put("CREATIVE", new SpongeGameMode())
             .put("ADVENTURE", new SpongeGameMode())
@@ -271,7 +269,7 @@ public class SpongeGameRegistry implements GameRegistry {
         if (!id.contains(":")) {
             id = "minecraft:" + id;
         }
-        return Optional.fromNullable((EntityType)this.entityIdToTypeMappings.get(id));
+        return Optional.fromNullable((EntityType) this.entityIdToTypeMappings.get(id));
     }
 
     @Override
@@ -283,7 +281,7 @@ public class SpongeGameRegistry implements GameRegistry {
     public Optional<BiomeType> getBiome(String id) {
         for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
             if (biome != null && biome.biomeName.equalsIgnoreCase(id)) {
-                return Optional.of((BiomeType)biome);
+                return Optional.of((BiomeType) biome);
             }
         }
         return Optional.absent();
@@ -345,10 +343,10 @@ public class SpongeGameRegistry implements GameRegistry {
     public List<String> getDefaultGameRules() {
 
         List<String> gameruleList = new ArrayList<String>();
-        for(Field f : DefaultGameRules.class.getFields()) {
+        for (Field f : DefaultGameRules.class.getFields()) {
             try {
-                gameruleList.add((String)f.get(null));
-            } catch(Exception e) {
+                gameruleList.add((String) f.get(null));
+            } catch (Exception e) {
                 //Ignoring error
             }
         }
@@ -463,7 +461,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public List<GameMode> getGameModes() {
-        return ImmutableList.copyOf(this.gameModeMappings.values());
+        return ImmutableList.copyOf(gameModeMappings.values());
     }
 
     @Override
@@ -608,9 +606,12 @@ public class SpongeGameRegistry implements GameRegistry {
         this.addParticleType("SLIME", new SpongeParticleType(EnumParticleTypes.SLIME, false));
         this.addParticleType("HEART", new SpongeParticleType(EnumParticleTypes.HEART, false));
         this.addParticleType("BARRIER", new SpongeParticleType(EnumParticleTypes.BARRIER, false));
-        this.addParticleType("ITEM_CRACK", new SpongeParticleType.Material(EnumParticleTypes.ITEM_CRACK, new net.minecraft.item.ItemStack(Blocks.air), true));
-        this.addParticleType("BLOCK_CRACK", new SpongeParticleType.Material(EnumParticleTypes.BLOCK_CRACK, new net.minecraft.item.ItemStack(Blocks.air), true));
-        this.addParticleType("BLOCK_DUST", new SpongeParticleType.Material(EnumParticleTypes.BLOCK_DUST, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("ITEM_CRACK",
+                new SpongeParticleType.Material(EnumParticleTypes.ITEM_CRACK, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("BLOCK_CRACK",
+                new SpongeParticleType.Material(EnumParticleTypes.BLOCK_CRACK, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("BLOCK_DUST",
+                new SpongeParticleType.Material(EnumParticleTypes.BLOCK_DUST, new net.minecraft.item.ItemStack(Blocks.air), true));
         this.addParticleType("WATER_DROP", new SpongeParticleType(EnumParticleTypes.WATER_DROP, false));
         // Is this particle available to be spawned? It's not registered on the client though
         this.addParticleType("ITEM_TAKE", new SpongeParticleType(EnumParticleTypes.ITEM_TAKE, false));
@@ -681,12 +682,12 @@ public class SpongeGameRegistry implements GameRegistry {
 
         RegistryHelper.mapFields(Enchantments.class, this.enchantmentMappings);
     }
-    
+
     // Note: This is probably fairly slow, but only needs to be run rarely.
     private void setPotionTypes() {
         for (Potion potion : Potion.potionTypes) {
             if (potion != null) {
-                PotionEffectType potionEffectType = (PotionEffectType)potion;
+                PotionEffectType potionEffectType = (PotionEffectType) potion;
                 this.potionList.add(potionEffectType);
             }
         }
@@ -721,7 +722,8 @@ public class SpongeGameRegistry implements GameRegistry {
                 throw new RuntimeException(e);
             }
         }
-        return new SpongeEntityType(this.mcEntityNameToId.get(mcName), spongeName, (Class<? extends Entity>) EntityList.stringToClassMapping.get(mcName));
+        return new SpongeEntityType(this.mcEntityNameToId.get(mcName), spongeName,
+                (Class<? extends Entity>) EntityList.stringToClassMapping.get(mcName));
     }
 
     private SpongeEntityType newEntityTypeFromName(String name) {
@@ -822,50 +824,50 @@ public class SpongeGameRegistry implements GameRegistry {
         BiomeGenBase[] biomeArray = BiomeGenBase.getBiomeGenArray();
         for (BiomeGenBase biome : biomeArray) {
             if (biome != null) {
-                this.biomeTypes.add((BiomeType)biome);
+                this.biomeTypes.add((BiomeType) biome);
             }
         }
 
-        this.biomeTypeMappings.put("OCEAN", (BiomeType)BiomeGenBase.ocean);
-        this.biomeTypeMappings.put("PLAINS", (BiomeType)BiomeGenBase.plains);
-        this.biomeTypeMappings.put("DESERT", (BiomeType)BiomeGenBase.desert);
-        this.biomeTypeMappings.put("EXTREME_HILLS", (BiomeType)BiomeGenBase.extremeHills);
-        this.biomeTypeMappings.put("FOREST", (BiomeType)BiomeGenBase.forest);
-        this.biomeTypeMappings.put("TAIGA", (BiomeType)BiomeGenBase.taiga);
-        this.biomeTypeMappings.put("SWAMPLAND", (BiomeType)BiomeGenBase.swampland);
-        this.biomeTypeMappings.put("RIVER", (BiomeType)BiomeGenBase.river);
-        this.biomeTypeMappings.put("HELL", (BiomeType)BiomeGenBase.hell);
-        this.biomeTypeMappings.put("SKY", (BiomeType)BiomeGenBase.sky);
-        this.biomeTypeMappings.put("FROZEN_OCEAN", (BiomeType)BiomeGenBase.frozenOcean);
-        this.biomeTypeMappings.put("FROZEN_RIVER", (BiomeType)BiomeGenBase.frozenRiver);
-        this.biomeTypeMappings.put("ICE_PLAINS", (BiomeType)BiomeGenBase.icePlains);
-        this.biomeTypeMappings.put("ICE_MOUNTAINS", (BiomeType)BiomeGenBase.iceMountains);
-        this.biomeTypeMappings.put("MUSHROOM_ISLAND", (BiomeType)BiomeGenBase.mushroomIsland);
-        this.biomeTypeMappings.put("MUSHROOM_ISLAND_SHORE", (BiomeType)BiomeGenBase.mushroomIslandShore);
-        this.biomeTypeMappings.put("BEACH", (BiomeType)BiomeGenBase.beach);
-        this.biomeTypeMappings.put("DESERT_HILLS", (BiomeType)BiomeGenBase.desertHills);
-        this.biomeTypeMappings.put("FOREST_HILLS", (BiomeType)BiomeGenBase.forestHills);
-        this.biomeTypeMappings.put("TAIGA_HILLS", (BiomeType)BiomeGenBase.taigaHills);
-        this.biomeTypeMappings.put("EXTREME_HILLS_EDGE", (BiomeType)BiomeGenBase.extremeHillsEdge);
-        this.biomeTypeMappings.put("JUNGLE", (BiomeType)BiomeGenBase.jungle);
-        this.biomeTypeMappings.put("JUNGLE_HILLS", (BiomeType)BiomeGenBase.jungleHills);
-        this.biomeTypeMappings.put("JUNGLE_EDGE", (BiomeType)BiomeGenBase.jungleEdge);
-        this.biomeTypeMappings.put("DEEP_OCEAN", (BiomeType)BiomeGenBase.deepOcean);
-        this.biomeTypeMappings.put("STONE_BEACH", (BiomeType)BiomeGenBase.stoneBeach);
-        this.biomeTypeMappings.put("COLD_BEACH", (BiomeType)BiomeGenBase.coldBeach);
-        this.biomeTypeMappings.put("BIRCH_FOREST", (BiomeType)BiomeGenBase.birchForest);
-        this.biomeTypeMappings.put("BIRCH_FOREST_HILLS", (BiomeType)BiomeGenBase.birchForestHills);
-        this.biomeTypeMappings.put("ROOFED_FOREST", (BiomeType)BiomeGenBase.roofedForest);
-        this.biomeTypeMappings.put("COLD_TAIGA", (BiomeType)BiomeGenBase.coldTaiga);
-        this.biomeTypeMappings.put("COLD_TAIGA_HILLS", (BiomeType)BiomeGenBase.coldTaigaHills);
-        this.biomeTypeMappings.put("MEGA_TAIGA", (BiomeType)BiomeGenBase.megaTaiga);
-        this.biomeTypeMappings.put("MEGA_TAIGA_HILLS", (BiomeType)BiomeGenBase.megaTaigaHills);
-        this.biomeTypeMappings.put("EXTREME_HILLS_PLUS", (BiomeType)BiomeGenBase.extremeHillsPlus);
-        this.biomeTypeMappings.put("SAVANNA", (BiomeType)BiomeGenBase.savanna);
-        this.biomeTypeMappings.put("SAVANNA_PLATEAU", (BiomeType)BiomeGenBase.savannaPlateau);
-        this.biomeTypeMappings.put("MESA", (BiomeType)BiomeGenBase.mesa);
-        this.biomeTypeMappings.put("MESA_PLATEAU_FOREST", (BiomeType)BiomeGenBase.mesaPlateau_F);
-        this.biomeTypeMappings.put("MESA_PLATEAU", (BiomeType)BiomeGenBase.mesaPlateau);
+        this.biomeTypeMappings.put("OCEAN", (BiomeType) BiomeGenBase.ocean);
+        this.biomeTypeMappings.put("PLAINS", (BiomeType) BiomeGenBase.plains);
+        this.biomeTypeMappings.put("DESERT", (BiomeType) BiomeGenBase.desert);
+        this.biomeTypeMappings.put("EXTREME_HILLS", (BiomeType) BiomeGenBase.extremeHills);
+        this.biomeTypeMappings.put("FOREST", (BiomeType) BiomeGenBase.forest);
+        this.biomeTypeMappings.put("TAIGA", (BiomeType) BiomeGenBase.taiga);
+        this.biomeTypeMappings.put("SWAMPLAND", (BiomeType) BiomeGenBase.swampland);
+        this.biomeTypeMappings.put("RIVER", (BiomeType) BiomeGenBase.river);
+        this.biomeTypeMappings.put("HELL", (BiomeType) BiomeGenBase.hell);
+        this.biomeTypeMappings.put("SKY", (BiomeType) BiomeGenBase.sky);
+        this.biomeTypeMappings.put("FROZEN_OCEAN", (BiomeType) BiomeGenBase.frozenOcean);
+        this.biomeTypeMappings.put("FROZEN_RIVER", (BiomeType) BiomeGenBase.frozenRiver);
+        this.biomeTypeMappings.put("ICE_PLAINS", (BiomeType) BiomeGenBase.icePlains);
+        this.biomeTypeMappings.put("ICE_MOUNTAINS", (BiomeType) BiomeGenBase.iceMountains);
+        this.biomeTypeMappings.put("MUSHROOM_ISLAND", (BiomeType) BiomeGenBase.mushroomIsland);
+        this.biomeTypeMappings.put("MUSHROOM_ISLAND_SHORE", (BiomeType) BiomeGenBase.mushroomIslandShore);
+        this.biomeTypeMappings.put("BEACH", (BiomeType) BiomeGenBase.beach);
+        this.biomeTypeMappings.put("DESERT_HILLS", (BiomeType) BiomeGenBase.desertHills);
+        this.biomeTypeMappings.put("FOREST_HILLS", (BiomeType) BiomeGenBase.forestHills);
+        this.biomeTypeMappings.put("TAIGA_HILLS", (BiomeType) BiomeGenBase.taigaHills);
+        this.biomeTypeMappings.put("EXTREME_HILLS_EDGE", (BiomeType) BiomeGenBase.extremeHillsEdge);
+        this.biomeTypeMappings.put("JUNGLE", (BiomeType) BiomeGenBase.jungle);
+        this.biomeTypeMappings.put("JUNGLE_HILLS", (BiomeType) BiomeGenBase.jungleHills);
+        this.biomeTypeMappings.put("JUNGLE_EDGE", (BiomeType) BiomeGenBase.jungleEdge);
+        this.biomeTypeMappings.put("DEEP_OCEAN", (BiomeType) BiomeGenBase.deepOcean);
+        this.biomeTypeMappings.put("STONE_BEACH", (BiomeType) BiomeGenBase.stoneBeach);
+        this.biomeTypeMappings.put("COLD_BEACH", (BiomeType) BiomeGenBase.coldBeach);
+        this.biomeTypeMappings.put("BIRCH_FOREST", (BiomeType) BiomeGenBase.birchForest);
+        this.biomeTypeMappings.put("BIRCH_FOREST_HILLS", (BiomeType) BiomeGenBase.birchForestHills);
+        this.biomeTypeMappings.put("ROOFED_FOREST", (BiomeType) BiomeGenBase.roofedForest);
+        this.biomeTypeMappings.put("COLD_TAIGA", (BiomeType) BiomeGenBase.coldTaiga);
+        this.biomeTypeMappings.put("COLD_TAIGA_HILLS", (BiomeType) BiomeGenBase.coldTaigaHills);
+        this.biomeTypeMappings.put("MEGA_TAIGA", (BiomeType) BiomeGenBase.megaTaiga);
+        this.biomeTypeMappings.put("MEGA_TAIGA_HILLS", (BiomeType) BiomeGenBase.megaTaigaHills);
+        this.biomeTypeMappings.put("EXTREME_HILLS_PLUS", (BiomeType) BiomeGenBase.extremeHillsPlus);
+        this.biomeTypeMappings.put("SAVANNA", (BiomeType) BiomeGenBase.savanna);
+        this.biomeTypeMappings.put("SAVANNA_PLATEAU", (BiomeType) BiomeGenBase.savannaPlateau);
+        this.biomeTypeMappings.put("MESA", (BiomeType) BiomeGenBase.mesa);
+        this.biomeTypeMappings.put("MESA_PLATEAU_FOREST", (BiomeType) BiomeGenBase.mesaPlateau_F);
+        this.biomeTypeMappings.put("MESA_PLATEAU", (BiomeType) BiomeGenBase.mesaPlateau);
         this.biomeTypeMappings.put("SUNFLOWER_PLAINS", (BiomeType) biomeArray[BiomeGenBase.plains.biomeID + 128]);
         this.biomeTypeMappings.put("DESERT_MOUNTAINS", (BiomeType) biomeArray[BiomeGenBase.desert.biomeID + 128]);
         this.biomeTypeMappings.put("FLOWER_FOREST", (BiomeType) biomeArray[BiomeGenBase.forest.biomeID + 128]);
@@ -898,22 +900,22 @@ public class SpongeGameRegistry implements GameRegistry {
             Careers.class.getDeclaredField("FISHERMAN").set(null, new SpongeCareer(1, "fisherman", Professions.FARMER));
             Careers.class.getDeclaredField("SHEPHERD").set(null, new SpongeCareer(2, "shepherd", Professions.FARMER));
             Careers.class.getDeclaredField("FLETCHER").set(null, new SpongeCareer(3, "fletcher", Professions.FARMER));
-            
+
             Professions.class.getDeclaredField("LIBRARIAN").set(null, new SpongeProfession(1, "librarian"));
             Careers.class.getDeclaredField("LIBRARIAN").set(null, new SpongeCareer(0, "librarian", Professions.LIBRARIAN));
-            
+
             Professions.class.getDeclaredField("PRIEST").set(null, new SpongeProfession(2, "priest"));
             Careers.class.getDeclaredField("CLERIC").set(null, new SpongeCareer(0, "cleric", Professions.PRIEST));
-            
+
             Professions.class.getDeclaredField("BLACKSMITH").set(null, new SpongeProfession(3, "blacksmith"));
             Careers.class.getDeclaredField("ARMORER").set(null, new SpongeCareer(0, "armor", Professions.BLACKSMITH));
             Careers.class.getDeclaredField("WEAPON_SMITH").set(null, new SpongeCareer(1, "weapon", Professions.BLACKSMITH));
             Careers.class.getDeclaredField("TOOL_SMITH").set(null, new SpongeCareer(2, "tool", Professions.BLACKSMITH));
-            
+
             Professions.class.getDeclaredField("BUTCHER").set(null, new SpongeProfession(4, "butcher"));
             Careers.class.getDeclaredField("BUTCHER").set(null, new SpongeCareer(0, "butcher", Professions.BUTCHER));
             Careers.class.getDeclaredField("LEATHERWORKER").set(null, new SpongeCareer(1, "leatherworker", Professions.BUTCHER));
-            
+
             this.professionMappings.put(Professions.FARMER.getName(), Professions.FARMER);
             this.professionMappings.put(Professions.LIBRARIAN.getName(), Professions.LIBRARIAN);
             this.professionMappings.put(Professions.PRIEST.getName(), Professions.PRIEST);
@@ -921,8 +923,8 @@ public class SpongeGameRegistry implements GameRegistry {
             this.professionMappings.put(Professions.BUTCHER.getName(), Professions.BUTCHER);
             this.careerMappings.put(Careers.FARMER.getName(), Careers.FARMER);
             this.careerMappings.put(Careers.FISHERMAN.getName(), Careers.FISHERMAN);
-            this.careerMappings.put(Careers.SHEPHERD .getName(), Careers.SHEPHERD );
-            this.careerMappings.put(Careers.FLETCHER .getName(), Careers.FLETCHER );
+            this.careerMappings.put(Careers.SHEPHERD.getName(), Careers.SHEPHERD);
+            this.careerMappings.put(Careers.FLETCHER.getName(), Careers.FLETCHER);
             this.careerMappings.put(Careers.LIBRARIAN.getName(), Careers.LIBRARIAN);
             this.careerMappings.put(Careers.CLERIC.getName(), Careers.CLERIC);
             this.careerMappings.put(Careers.ARMORER.getName(), Careers.ARMORER);
@@ -930,16 +932,18 @@ public class SpongeGameRegistry implements GameRegistry {
             this.careerMappings.put(Careers.TOOL_SMITH.getName(), Careers.TOOL_SMITH);
             this.careerMappings.put(Careers.BUTCHER.getName(), Careers.BUTCHER);
             this.careerMappings.put(Careers.LEATHERWORKER.getName(), Careers.LEATHERWORKER);
-            this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.FARMER).type, Arrays.asList(Careers.FARMER, Careers.FISHERMAN, Careers.SHEPHERD, Careers.FLETCHER));
+            this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.FARMER).type,
+                    Arrays.asList(Careers.FARMER, Careers.FISHERMAN, Careers.SHEPHERD, Careers.FLETCHER));
             this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.LIBRARIAN).type, Arrays.asList(Careers.LIBRARIAN));
             this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.PRIEST).type, Arrays.asList(Careers.CLERIC));
-            this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.BLACKSMITH).type, Arrays.asList(Careers.ARMORER, Careers.WEAPON_SMITH, Careers.TOOL_SMITH));
+            this.professionToCareerMappings
+                    .put(((SpongeEntityMeta) Professions.BLACKSMITH).type, Arrays.asList(Careers.ARMORER, Careers.WEAPON_SMITH, Careers.TOOL_SMITH));
             this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.BUTCHER).type, Arrays.asList(Careers.BUTCHER, Careers.LEATHERWORKER));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     private void setTextColors() {
         textColorMappings.put("AQUA", new SpongeTextColor(Color.decode("0x00FFFF"), EnumChatFormatting.AQUA));
         textColorMappings.put("BLACK", new SpongeTextColor(Color.BLACK, EnumChatFormatting.BLACK));
@@ -979,7 +983,7 @@ public class SpongeGameRegistry implements GameRegistry {
         RegistryHelper.mapFields(TextStyles.class, textStyleMappings, Lists.newArrayList("NONE", "ZERO"));
         RegistryHelper.mapFields(ChatTypes.class, chatTypeMappings);
     }
-    
+
     private void setDyeColors() {
         RegistryHelper.mapFields(DyeColors.class, new Function<String, DyeColor>() {
 
@@ -989,14 +993,14 @@ public class SpongeGameRegistry implements GameRegistry {
                 SpongeGameRegistry.this.dyeColorMappings.put(dyeColor.getName(), dyeColor);
                 return dyeColor;
             }
-            
+
         });
     }
 
     private void setRotations() {
         RegistryHelper.mapFields(Rotations.class, rotationMappings);
     }
-    
+
     private void setWeathers() {
         RegistryHelper.mapFields(Weathers.class, new Function<String, Weather>() {
             @Override
@@ -1040,7 +1044,7 @@ public class SpongeGameRegistry implements GameRegistry {
             e.printStackTrace();
         }
     }
-  
+
     private void setNotePitches() {
         RegistryHelper.mapFields(NotePitches.class, new Function<String, NotePitch>() {
 
@@ -1050,10 +1054,10 @@ public class SpongeGameRegistry implements GameRegistry {
                 SpongeGameRegistry.this.notePitchMappings.put(input, pitch);
                 return pitch;
             }
-            
+
         });
     }
-    
+
     private void setSkullTypes() {
         RegistryHelper.mapFields(SkullTypes.class, new Function<String, SkullType>() {
 
@@ -1063,10 +1067,10 @@ public class SpongeGameRegistry implements GameRegistry {
                 SpongeGameRegistry.this.skullTypeMappings.put(input, skullType);
                 return skullType;
             }
-            
+
         });
     }
-    
+
     private void setBannerPatternShapes() {
         RegistryHelper.mapFields(BannerPatternShapes.class, new Function<String, BannerPatternShape>() {
 
@@ -1077,7 +1081,7 @@ public class SpongeGameRegistry implements GameRegistry {
                 SpongeGameRegistry.this.idToBannerPatternShapeMappings.put(bannerPattern.getId(), bannerPattern);
                 return bannerPattern;
             }
-            
+
         });
     }
 

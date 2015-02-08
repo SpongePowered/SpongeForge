@@ -54,6 +54,7 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
 
     @Shadow
     abstract void writeAndFlush(ChannelHandlerContext ctx, ByteBuf data);
+
     @Shadow
     abstract ByteBuf getStringBuffer(String string);
 
@@ -70,7 +71,8 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
         }
     }
 
-    @Override @Overwrite
+    @Override
+    @Overwrite
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf m = (ByteBuf) msg;
         this.buf.writeBytes(m);
@@ -94,8 +96,9 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
     }
 
     private boolean readLegacy(ChannelHandlerContext ctx, ByteBuf buf) {
-        if (buf.readUnsignedByte() != 0xFE)
+        if (buf.readUnsignedByte() != 0xFE) {
             return false;
+        }
 
         MinecraftServer server = this.networkSystem.getServer();
         InetSocketAddress client = (InetSocketAddress) ctx.channel().remoteAddress();
@@ -109,48 +112,55 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
                 response = SpongeStatusResponse.postLegacy(server, client, SpongeLegacyMinecraftVersion.V1_3, null);
                 if (response != null) {
                     this.writeResponse(ctx, String.format("%s§%d§%d",
-                                                          SpongeStatusResponse.getUnformattedMotd(response),
-                                                          response.getPlayerCountData().getOnlinePlayerCount(),
-                                                          response.getPlayerCountData().getMaxPlayers()));
+                            SpongeStatusResponse.getUnformattedMotd(response),
+                            response.getPlayerCountData().getOnlinePlayerCount(),
+                            response.getPlayerCountData().getMaxPlayers()));
                 } else {
                     ctx.close();
                 }
 
                 break;
             case 1:
-                if (buf.readUnsignedByte() != 0x01)
+                if (buf.readUnsignedByte() != 0x01) {
                     return false;
+                }
 
                 logger.debug("Ping: (1.4-1.5) from {}:{}", client.getAddress(), client.getPort());
 
                 response = SpongeStatusResponse.postLegacy(server, client, SpongeLegacyMinecraftVersion.V1_5, null);
                 if (response != null) {
-                    this.writeResponse(ctx, String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",
-                                                          response.getProtocolVersionInfo().getProtocol(),
-                                                          response.getProtocolVersionInfo().getName(),
-                                                          SpongeStatusResponse.getMotd(response),
-                                                          response.getPlayerCountData().getOnlinePlayerCount(),
-                                                          response.getPlayerCountData().getMaxPlayers()));
+                    this.writeResponse(ctx, String.format("§1\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",
+                            response.getProtocolVersionInfo().getProtocol(),
+                            response.getProtocolVersionInfo().getName(),
+                            SpongeStatusResponse.getMotd(response),
+                            response.getPlayerCountData().getOnlinePlayerCount(),
+                            response.getPlayerCountData().getMaxPlayers()));
                 } else {
                     ctx.close();
                 }
 
                 break;
             default:
-                if (buf.readUnsignedByte() != 0x01 || buf.readUnsignedByte() != 0xFA)
+                if (buf.readUnsignedByte() != 0x01 || buf.readUnsignedByte() != 0xFA) {
                     return false;
-                if (!buf.isReadable(2))
+                }
+                if (!buf.isReadable(2)) {
                     break;
+                }
                 short length = buf.readShort();
-                if (!buf.isReadable(length * 2))
+                if (!buf.isReadable(length * 2)) {
                     break;
-                if (!buf.readBytes(length * 2).toString(Charsets.UTF_16BE).equals("MC|PingHost"))
+                }
+                if (!buf.readBytes(length * 2).toString(Charsets.UTF_16BE).equals("MC|PingHost")) {
                     return false;
-                if (!buf.isReadable(2))
+                }
+                if (!buf.isReadable(2)) {
                     break;
+                }
                 length = buf.readShort();
-                if (!buf.isReadable(length))
+                if (!buf.isReadable(length)) {
                     break;
+                }
 
                 int protocol = buf.readUnsignedByte();
                 length = buf.readShort();
@@ -159,15 +169,16 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
 
                 logger.debug("Ping: (1.6) from {}:{}", client.getAddress(), client.getPort());
 
-                response = SpongeStatusResponse.postLegacy(server, client, new SpongeLegacyMinecraftVersion(SpongeLegacyMinecraftVersion.V1_6, protocol),
-                                                           InetSocketAddress.createUnresolved(host, port));
+                response =
+                        SpongeStatusResponse.postLegacy(server, client, new SpongeLegacyMinecraftVersion(SpongeLegacyMinecraftVersion.V1_6, protocol),
+                                InetSocketAddress.createUnresolved(host, port));
                 if (response != null) {
-                    this.writeResponse(ctx, String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",
-                                                          response.getProtocolVersionInfo().getProtocol(),
-                                                          response.getProtocolVersionInfo().getName(),
-                                                          SpongeStatusResponse.getMotd(response),
-                                                          response.getPlayerCountData().getOnlinePlayerCount(),
-                                                          response.getPlayerCountData().getMaxPlayers()));
+                    this.writeResponse(ctx, String.format("§1\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",
+                            response.getProtocolVersionInfo().getProtocol(),
+                            response.getProtocolVersionInfo().getName(),
+                            SpongeStatusResponse.getMotd(response),
+                            response.getPlayerCountData().getOnlinePlayerCount(),
+                            response.getPlayerCountData().getMaxPlayers()));
                 } else {
                     ctx.close();
                 }

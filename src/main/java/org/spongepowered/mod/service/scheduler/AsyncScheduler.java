@@ -25,9 +25,7 @@
 package org.spongepowered.mod.service.scheduler;
 
 import com.google.common.base.Optional;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
-import org.spongepowered.api.service.scheduler.SchedulerQuery;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
@@ -35,8 +33,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -92,7 +90,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
     private SchedulerHelper schedulerHelper;
 
     private AsyncScheduler() {
-        this.schedulerHelper = new SchedulerHelper(Task.TaskSynchronicity.ASYNCHRONOUS);
+        this.schedulerHelper = new SchedulerHelper(ScheduledTask.TaskSynchroncity.ASYNCHRONOUS);
 
         new Thread(new Runnable() {
             @Override
@@ -161,7 +159,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
             // If no tasks remain, recalibrate to max timeout
             if (this.taskMap.isEmpty()) {
                 this.minimumTimeout = Long.MAX_VALUE;
-            }  else {
+            } else {
                 long latency = System.currentTimeMillis() - this.lastProcessingTimestamp;
                 this.minimumTimeout -= (latency <= 0) ? 0 : latency;
                 this.minimumTimeout = (this.minimumTimeout < 0) ? 0 : this.minimumTimeout;
@@ -224,7 +222,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
                 // If the task has a period of 0 (zero) this task will not repeat, and is removed
                 // after we start it.
 
-                if  (threshold <= (now - task.timestamp)) {
+                if (threshold <= (now - task.timestamp)) {
                     // startTask is just a utility function within the Scheduler that
                     // starts the task.
                     // If the task is not a one time shot then keep it and
@@ -288,9 +286,9 @@ public class AsyncScheduler implements AsynchronousScheduler {
      */
     @Override
     public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {
-         //
-         // The intent of this method is to run a single task (non-repeating) and has zero
-         // offset (doesn't wait a delay before starting), and a zero period (no repetition)</p>
+        //
+        // The intent of this method is to run a single task (non-repeating) and has zero
+        // offset (doesn't wait a delay before starting), and a zero period (no repetition)</p>
         Optional<Task> resultTask = Optional.absent();
         final long NODELAY = 0L;
         final long NOPERIOD = 0L;

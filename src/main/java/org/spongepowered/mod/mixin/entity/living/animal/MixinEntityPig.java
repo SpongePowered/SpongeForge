@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.animal;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.animal.Pig;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -49,9 +48,9 @@ public abstract class MixinEntityPig extends EntityAnimal {
 
     public void pig$setSaddled(boolean saddled) {
         if (saddled) {
-            this.dataWatcher.updateObject(16, Byte.valueOf((byte)1));
+            this.dataWatcher.updateObject(16, (byte) 1);
         } else {
-            this.dataWatcher.updateObject(16, Byte.valueOf((byte)0));
+            this.dataWatcher.updateObject(16, (byte) 0);
         }
     }
 }

@@ -26,11 +26,11 @@ package org.spongepowered.mod.asm.transformers;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
+
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.common.event.FMLEvent;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
-
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -67,9 +67,9 @@ public class EventTransformer implements IClassTransformer {
     protected static MethodNode createGetGameMethod() {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "getGame", "()Lorg/spongepowered/api/Game;", null, null);
         methodNode.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, "org/spongepowered/mod/SpongeMod", "instance",
-                                                      "Lorg/spongepowered/mod/SpongeMod;"));
+                "Lorg/spongepowered/mod/SpongeMod;"));
         methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "org/spongepowered/mod/SpongeMod", "getGame",
-                                                       "()Lorg/spongepowered/mod/SpongeGame;", false));
+                "()Lorg/spongepowered/mod/SpongeGame;", false));
         methodNode.instructions.add(new InsnNode(Opcodes.ARETURN));
         methodNode.maxLocals = 1;
         methodNode.maxStack = 1;
@@ -91,7 +91,7 @@ public class EventTransformer implements IClassTransformer {
         MethodNode methodNode = new MethodNode(Opcodes.ASM4, Opcodes.ACC_PUBLIC, "isCancellable", "()Z", null, null);
         methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "isCancelable",
-                                                       "()Z", false));
+                "()Z", false));
         methodNode.instructions.add(new InsnNode(Opcodes.IRETURN));
         methodNode.maxLocals = 1;
         methodNode.maxStack = 1;
@@ -114,7 +114,7 @@ public class EventTransformer implements IClassTransformer {
         methodNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         methodNode.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
         methodNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "net/minecraftforge/fml/common/eventhandler/Event", "setCanceled",
-                                                       "(Z)V", false));
+                "(Z)V", false));
         methodNode.instructions.add(new InsnNode(Opcodes.RETURN));
         methodNode.maxLocals = 1;
         methodNode.maxStack = 1;
@@ -125,10 +125,10 @@ public class EventTransformer implements IClassTransformer {
     public byte[] transform(String name, String transformedName, byte[] bytes) {
 
         if (bytes == null
-            || transformedName.startsWith("net.minecraft.")
-            || transformedName.equals("net.minecraftforge.fml.common.event.FMLEvent")
-            || transformedName.equals("net.minecraftforge.fml.common.eventhandler.Event")
-            || transformedName.indexOf('.') == -1) {
+                || transformedName.startsWith("net.minecraft.")
+                || transformedName.equals("net.minecraftforge.fml.common.event.FMLEvent")
+                || transformedName.equals("net.minecraftforge.fml.common.eventhandler.Event")
+                || transformedName.indexOf('.') == -1) {
             return bytes;
         }
 
@@ -174,9 +174,9 @@ public class EventTransformer implements IClassTransformer {
             // TODO: This is a temporary thing to make PreInit work. The different things needed to make different events work should be abstracted.
             if (interf != null && PreInitializationEvent.class.isAssignableFrom(interf)) {
                 ASMHelper.generateSelfForwardingMethod(classNode, "getConfigurationDirectory", "getModConfigurationDirectory",
-                                                       Type.getType(File.class));
+                        Type.getType(File.class));
                 ASMHelper.generateSelfForwardingMethod(classNode, "getPluginLog", "getModLog",
-                                                       Type.getType(Logger.class));
+                        Type.getType(Logger.class));
             }
 
             ClassWriter cw = new ClassWriter(cr, COMPUTE_MAXS | COMPUTE_FRAMES);

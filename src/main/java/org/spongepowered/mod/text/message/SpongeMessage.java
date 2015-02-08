@@ -24,12 +24,9 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.List;
-
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.util.IChatComponent;
-
 import org.spongepowered.api.text.action.ClickAction;
 import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.ShiftClickAction;
@@ -37,8 +34,9 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.message.Message;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
 
 public abstract class SpongeMessage<T> implements Message {
 
@@ -51,7 +49,7 @@ public abstract class SpongeMessage<T> implements Message {
     protected final Optional<ShiftClickAction<?>> shiftClickAction;
     protected final IChatComponent handle;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected SpongeMessage(SpongeMessageBuilder builder) {
         this.children = ImmutableList.copyOf(builder.children);
         this.color = builder.color;

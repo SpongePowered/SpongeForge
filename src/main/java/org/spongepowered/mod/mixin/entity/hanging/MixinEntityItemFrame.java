@@ -24,21 +24,18 @@
  */
 package org.spongepowered.mod.mixin.entity.hanging;
 
-import javax.annotation.Nullable;
-
+import com.google.common.base.Optional;
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.rotation.Rotation;
-import org.spongepowered.api.util.rotation.Rotations;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
-import com.google.common.base.Optional;
 import org.spongepowered.mod.SpongeMod;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.item.EntityItemFrame.class)
@@ -77,6 +74,6 @@ public abstract class MixinEntityItemFrame extends EntityHanging implements Item
 
     @Override
     public void setRotation(Rotation itemRotation) {
-        setItemRotation(itemRotation.getAngle()/45);
+        setItemRotation(itemRotation.getAngle() / 45);
     }
 }

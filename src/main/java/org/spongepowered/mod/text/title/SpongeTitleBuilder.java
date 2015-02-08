@@ -34,6 +34,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @NonnullByDefault
 public class SpongeTitleBuilder implements TitleBuilder {
+
     private boolean isClear = false;
     private boolean isReset = false;
     private Optional<Message> titleMessage = Optional.absent();
@@ -106,8 +107,8 @@ public class SpongeTitleBuilder implements TitleBuilder {
 
     @Override
     public Title build() {
-        if(this.fadeIn.isPresent() || this.stay.isPresent() || this.fadeOut.isPresent()) {
-            if(!(this.fadeIn.isPresent() && this.stay.isPresent() && this.fadeOut.isPresent())) {
+        if (this.fadeIn.isPresent() || this.stay.isPresent() || this.fadeOut.isPresent()) {
+            if (!(this.fadeIn.isPresent() && this.stay.isPresent() && this.fadeOut.isPresent())) {
                 // We don't actually know the client's current settings and cannot update only one of the three.
                 throw new IllegalStateException("fadeIn, stay, and fadeOut must all be specified if one is");
             }

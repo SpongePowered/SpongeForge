@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.monster;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.monster.Creeper;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -91,9 +90,9 @@ public abstract class MixinEntityCreeper extends EntityMob {
 
     public void creeper$setPowered(boolean powered) {
         if (powered) {
-            this.dataWatcher.updateObject(17, Byte.valueOf((byte) 1));
+            this.dataWatcher.updateObject(17, (byte) 1);
         } else {
-            this.dataWatcher.updateObject(17, Byte.valueOf((byte) 0));
+            this.dataWatcher.updateObject(17, (byte) 0);
         }
     }
 

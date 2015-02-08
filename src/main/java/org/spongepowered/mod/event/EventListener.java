@@ -26,6 +26,6 @@ package org.spongepowered.mod.event;
 
 public interface EventListener<T> {
 
-    public void invoke(T event);
+    void invoke(T event);
 
 }

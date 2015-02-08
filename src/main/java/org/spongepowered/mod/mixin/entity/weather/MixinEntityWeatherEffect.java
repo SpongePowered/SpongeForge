@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.entity.weather;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.weather.WeatherEffect;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;

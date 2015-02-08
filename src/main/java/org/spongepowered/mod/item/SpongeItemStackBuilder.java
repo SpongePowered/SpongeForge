@@ -39,6 +39,7 @@ public class SpongeItemStackBuilder implements ItemStackBuilder {
     private int damage;
     private int quantity;
     private int maxQuantity;
+
     public SpongeItemStackBuilder() {
         reset();
     }

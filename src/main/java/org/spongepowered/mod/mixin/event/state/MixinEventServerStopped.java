@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.event.state;
 
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
-
 import org.spongepowered.api.Game;
 import org.spongepowered.api.event.state.ServerStoppedEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

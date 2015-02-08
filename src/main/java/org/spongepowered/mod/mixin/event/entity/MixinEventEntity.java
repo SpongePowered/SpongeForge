@@ -38,6 +38,6 @@ public abstract class MixinEventEntity implements EntityEvent {
 
     @Override
     public Entity getEntity() {
-        return (Entity)this.entity;
+        return (Entity) this.entity;
     }
 }

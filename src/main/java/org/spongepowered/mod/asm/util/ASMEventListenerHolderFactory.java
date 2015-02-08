@@ -73,9 +73,7 @@ public class ASMEventListenerHolderFactory {
         try {
             return (EventListenerHolder<Event>) clazz.newInstance();
         } catch (InstantiationException e) {
-            ;
         } catch (IllegalAccessException e) {
-            ;
         }
         return null;
     }
@@ -97,7 +95,7 @@ public class ASMEventListenerHolderFactory {
         cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, classNameInternal, null, "org/spongepowered/mod/event/EventListenerHolder", null);
 
         cw.visitInnerClass("net/minecraftforge/event/world/BlockEvent$BreakEvent", "net/minecraftforge/event/world/BlockEvent", "BreakEvent",
-                           ACC_PUBLIC + ACC_STATIC);
+                ACC_PUBLIC + ACC_STATIC);
 
         {
             mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
@@ -204,11 +202,8 @@ public class ASMEventListenerHolderFactory {
             try {
                 return (Class<?>) this.defineClassMethod.invoke(this.loader, className, b, 0, b.length);
             } catch (IllegalAccessException e) {
-                ;
             } catch (IllegalArgumentException e) {
-                ;
             } catch (InvocationTargetException e) {
-                ;
             }
             return null;
         }

@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.item;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
-
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.item.ItemBlock;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

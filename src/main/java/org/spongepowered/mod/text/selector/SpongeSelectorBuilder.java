@@ -24,9 +24,10 @@
  */
 package org.spongepowered.mod.text.selector;
 
-import java.util.Collections;
-import java.util.Map;
-
+import com.flowpowered.math.vector.Vector3i;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.text.selector.Selector;
 import org.spongepowered.api.text.selector.SelectorBuilder;
@@ -34,10 +35,8 @@ import org.spongepowered.api.text.selector.SelectorType;
 import org.spongepowered.api.text.selector.SelectorTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
-import com.flowpowered.math.vector.Vector3i;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.Map;
 
 @NonnullByDefault
 public class SpongeSelectorBuilder implements SelectorBuilder {
@@ -126,7 +125,9 @@ public class SpongeSelectorBuilder implements SelectorBuilder {
     @Override
     public Selector build() {
         Preconditions.checkState(this.type != null);
-        boolean requiresLocation = Collections.disjoint(this.arguments.keySet(), LOCATION_DEPENDENT_ARGS) || this.type.equals(SelectorTypes.NEAREST_PLAYER) || (this.arguments.containsKey("c") && !this.type.equals(SelectorTypes.RANDOM_PLAYER));
+        boolean requiresLocation =
+                Collections.disjoint(this.arguments.keySet(), LOCATION_DEPENDENT_ARGS) || this.type.equals(SelectorTypes.NEAREST_PLAYER) || (
+                        this.arguments.containsKey("c") && !this.type.equals(SelectorTypes.RANDOM_PLAYER));
         return new SpongeSelector(this.type, this.arguments, requiresLocation);
     }
 

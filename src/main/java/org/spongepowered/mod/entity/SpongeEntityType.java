@@ -24,12 +24,11 @@
  */
 package org.spongepowered.mod.entity;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
-
 import org.spongepowered.api.entity.EntityType;
-
-import com.google.common.base.Objects;
 
 public class SpongeEntityType implements EntityType {
 
@@ -42,21 +41,18 @@ public class SpongeEntityType implements EntityType {
     public int updateFrequency;
     public boolean sendsVelocityUpdates;
 
-    public SpongeEntityType(int id, String name, Class<? extends Entity> clazz)
-    {
+    public SpongeEntityType(int id, String name, Class<? extends Entity> clazz) {
         this(id, name, "minecraft", clazz);
     }
 
-    public SpongeEntityType(int id, String name, String modId, Class<? extends Entity> clazz)
-    {
+    public SpongeEntityType(int id, String name, String modId, Class<? extends Entity> clazz) {
         this.entityTypeId = id;
         this.entityName = name;
         this.entityClass = clazz;
         this.modId = modId;
     }
 
-    public SpongeEntityType(EntityRegistration entityRegistration)
-    {
+    public SpongeEntityType(EntityRegistration entityRegistration) {
         this.entityTypeId = entityRegistration.getModEntityId();
         this.entityName = entityRegistration.getEntityName();
         this.entityClass = entityRegistration.getEntityClass();
@@ -100,12 +96,12 @@ public class SpongeEntityType implements EntityType {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-            .add("id", this.entityTypeId)
-            .add("name", this.entityTypeId)
-            .add("modid", this.modId)
-            .add("class", this.entityClass.getName())
-            .toString();
+        return MoreObjects.toStringHelper(this)
+                .add("id", this.entityTypeId)
+                .add("name", this.entityTypeId)
+                .add("modid", this.modId)
+                .add("class", this.entityClass.getName())
+                .toString();
     }
 
 }

@@ -29,7 +29,6 @@ import static com.google.common.base.Preconditions.checkElementIndex;
 
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IChatComponent;
-
 import org.spongepowered.api.block.data.Sign;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -48,12 +47,13 @@ public abstract class MixinTileEntitySign extends TileEntity {
     public IChatComponent[] signText;
 
     public Message[] sign$getLines() {
-        return new Message[]{SpongeMessage.of(this.signText[0]), SpongeMessage.of(this.signText[1]), SpongeMessage.of(this.signText[2]), SpongeMessage.of(this.signText[3])};
+        return new Message[]{SpongeMessage.of(this.signText[0]), SpongeMessage.of(this.signText[1]), SpongeMessage.of(this.signText[2]),
+                SpongeMessage.of(this.signText[3])};
     }
 
     public void sign$setLines(Message... lines) {
         checkArgument(lines.length <= 4, "Only 4 lines can be entered on a sign!");
-        for(int i = 0; i < lines.length; i++) {
+        for (int i = 0; i < lines.length; i++) {
             this.signText[i] = ((SpongeMessage) lines[i]).getHandle();
         }
     }
@@ -67,7 +67,7 @@ public abstract class MixinTileEntitySign extends TileEntity {
     public void sign$setLine(int index, Message text) throws IndexOutOfBoundsException {
         checkElementIndex(index, this.signText.length);
 
-        this.signText[index] = ((SpongeMessage)text).getHandle();
+        this.signText[index] = ((SpongeMessage) text).getHandle();
     }
 
 }

@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.animal;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityRabbit;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.animal.Rabbit;
 import org.spongepowered.api.entity.living.animal.RabbitType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -58,7 +57,7 @@ public abstract class MixinEntityRabbit extends EntityAnimal {
     }
 
     public void setRabbitType(RabbitType type) {
-        this.func_175529_r(((SpongeEntityMeta)type).type);
+        this.func_175529_r(((SpongeEntityMeta) type).type);
     }
 
 }

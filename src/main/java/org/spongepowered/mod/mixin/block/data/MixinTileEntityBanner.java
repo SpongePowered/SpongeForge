@@ -24,14 +24,12 @@
  */
 package org.spongepowered.mod.mixin.block.data;
 
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.data.Banner.PatternLayer;
 import org.spongepowered.api.block.meta.BannerPatternShape;
@@ -47,7 +45,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.block.meta.SpongePatternLayer;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(net.minecraft.tileentity.TileEntityBanner.class)
@@ -82,7 +80,8 @@ public abstract class MixinTileEntityBanner extends TileEntity {
             GameRegistry registry = SpongeMod.instance.getGame().getRegistry();
             for (int i = 0; i < this.field_175118_f.tagCount(); i++) {
                 NBTTagCompound tagCompound = this.field_175118_f.getCompoundTagAt(i);
-                this.patterns.add(new SpongePatternLayer(registry.getBannerPatternShapeById(tagCompound.getString("Pattern")).get(), registry.getDye(EnumDyeColor.func_176766_a(tagCompound.getInteger("Color")).getName()).get()));
+                this.patterns.add(new SpongePatternLayer(registry.getBannerPatternShapeById(tagCompound.getString("Pattern")).get(),
+                        registry.getDye(EnumDyeColor.func_176766_a(tagCompound.getInteger("Color")).getName()).get()));
             }
         }
         this.markDirtyAndUpdate();

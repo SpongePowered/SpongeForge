@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.monster;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.monster.Monster;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;

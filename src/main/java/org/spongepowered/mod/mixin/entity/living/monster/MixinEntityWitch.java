@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.monster;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityWitch;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.monster.Witch;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -52,7 +51,7 @@ public abstract class MixinEntityWitch extends EntityMob {
     }
 
     public void witch$setAggressive(boolean aggressive) {
-        this.getDataWatcher().updateObject(21, Byte.valueOf((byte)(aggressive ? 1 : 0)));
+        this.getDataWatcher().updateObject(21, (byte) (aggressive ? 1 : 0));
     }
 
 }

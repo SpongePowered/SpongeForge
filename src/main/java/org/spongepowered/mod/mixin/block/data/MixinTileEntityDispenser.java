@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.block.data;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.tileentity.TileEntityLockable;
-
 import org.spongepowered.api.block.data.Dispenser;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;

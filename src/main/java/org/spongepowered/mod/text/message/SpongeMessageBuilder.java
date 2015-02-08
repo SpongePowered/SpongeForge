@@ -24,22 +24,20 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.Deque;
-
+import com.google.common.base.Optional;
 import net.minecraft.util.IChatComponent;
-
 import org.spongepowered.api.text.action.ClickAction;
 import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.ShiftClickAction;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyle;
-import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.format.TextStyle.TextStyleComponent;
+import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.text.message.MessageBuilder;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 
-import com.google.common.base.Optional;
+import java.util.Deque;
 
 public abstract class SpongeMessageBuilder<T extends MessageBuilder> implements MessageBuilder {
 
@@ -56,7 +54,7 @@ public abstract class SpongeMessageBuilder<T extends MessageBuilder> implements 
     public T append(Message... children) {
         for (Message message : children) {
             this.children.add(message);
-            this.handle.appendSibling(((SpongeMessageText)message).handle);
+            this.handle.appendSibling(((SpongeMessageText) message).handle);
         }
 
         return (T) this;
@@ -67,7 +65,7 @@ public abstract class SpongeMessageBuilder<T extends MessageBuilder> implements 
     public T append(Iterable<Message> children) {
         for (Message message : children) {
             this.children.add(message);
-            this.handle.appendSibling(((SpongeMessageText)message).handle);
+            this.handle.appendSibling(((SpongeMessageText) message).handle);
         }
 
         return (T) this;

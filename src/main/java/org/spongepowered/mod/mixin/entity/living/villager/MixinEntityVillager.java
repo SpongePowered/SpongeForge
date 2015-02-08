@@ -24,15 +24,11 @@
  */
 package org.spongepowered.mod.mixin.entity.living.villager;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
+import com.google.common.base.Optional;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.Human;
 import org.spongepowered.api.entity.living.villager.Career;
 import org.spongepowered.api.entity.living.villager.Profession;
@@ -50,7 +46,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
 
-import com.google.common.base.Optional;
+import java.util.List;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.passive.EntityVillager.class)
@@ -71,13 +69,13 @@ public abstract class MixinEntityVillager extends EntityAgeable implements Merch
 
     @Shadow
     public abstract void setProfession(int professionId);
-    
+
     @Shadow
     public abstract void setCustomer(EntityPlayer player);
-    
+
     @Shadow(prefix = "shadow$")
     public abstract EntityPlayer shadow$getCustomer();
-    
+
     @Shadow
     public abstract MerchantRecipeList getRecipes(EntityPlayer player);
 

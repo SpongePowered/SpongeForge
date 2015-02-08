@@ -24,20 +24,18 @@
  */
 package org.spongepowered.mod.mixin.world;
 
-import java.util.List;
-import java.util.Iterator;
-
 import com.flowpowered.math.vector.Vector3d;
-
 import net.minecraft.world.border.EnumBorderStatus;
 import net.minecraft.world.border.IBorderListener;
-
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.WorldBorder;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+
+import java.util.Iterator;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.border.WorldBorder.class)
@@ -115,8 +113,8 @@ public abstract class MixinWorldBorder implements WorldBorder {
         Iterator var2 = this.getListeners().iterator();
 
         while (var2.hasNext()) {
-            IBorderListener var3 = (IBorderListener)var2.next();
-            var3.onWarningTimeChanged((net.minecraft.world.border.WorldBorder)((Object) this), this.warningTime);
+            IBorderListener var3 = (IBorderListener) var2.next();
+            var3.onWarningTimeChanged((net.minecraft.world.border.WorldBorder) ((Object) this), this.warningTime);
         }
     }
 
@@ -129,10 +127,9 @@ public abstract class MixinWorldBorder implements WorldBorder {
         this.warningDistance = distance;
         Iterator var2 = this.getListeners().iterator();
 
-        while (var2.hasNext())
-        {
-            IBorderListener var3 = (IBorderListener)var2.next();
-            var3.onWarningDistanceChanged((net.minecraft.world.border.WorldBorder)((Object) this), this.warningDistance);
+        while (var2.hasNext()) {
+            IBorderListener var3 = (IBorderListener) var2.next();
+            var3.onWarningDistanceChanged((net.minecraft.world.border.WorldBorder) ((Object) this), this.warningDistance);
         }
     }
 
@@ -142,7 +139,7 @@ public abstract class MixinWorldBorder implements WorldBorder {
 
     public double border$getDiameter() {
         if (this.getStatus() != EnumBorderStatus.STATIONARY) {
-            double time = (double)((float)(System.currentTimeMillis() - this.startTime) / (float)(this.endTime - this.startTime));
+            double time = (double) ((float) (System.currentTimeMillis() - this.startTime) / (float) (this.endTime - this.startTime));
 
             if (time < 1.0D) {
                 return (this.startDiameter + (this.endDiameter - this.startDiameter) * time);

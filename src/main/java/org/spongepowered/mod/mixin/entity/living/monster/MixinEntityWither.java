@@ -24,9 +24,10 @@
  */
 package org.spongepowered.mod.mixin.entity.living.monster;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.boss.EntityWither;
+import net.minecraft.entity.monster.EntityMob;
+import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.monster.Wither;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -35,10 +36,8 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.boss.EntityWither;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.world.World;
+import java.util.ArrayList;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(EntityWither.class)
@@ -76,7 +75,7 @@ public abstract class MixinEntityWither extends EntityMob {
                 entity = this.worldObj.getEntityByID(j);
             }
             if (entity != null) {
-                watchedTargets.add((Living)entity);
+                watchedTargets.add((Living) entity);
             }
         }
         return watchedTargets;

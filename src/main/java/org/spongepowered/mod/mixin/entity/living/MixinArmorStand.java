@@ -25,11 +25,9 @@
 package org.spongepowered.mod.mixin.entity.living;
 
 import com.flowpowered.math.vector.Vector3f;
-
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.util.Rotations;
-
 import org.spongepowered.api.entity.living.ArmorStand;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -138,7 +136,7 @@ public abstract class MixinArmorStand extends EntityLivingBase {
 
     public void astand$setSmall(boolean small) {
         byte b0 = this.dataWatcher.getWatchableObjectByte(10);
-        this.dataWatcher.updateObject(10, Byte.valueOf((byte) (small ? (b0 | 1) : (b0 & -2))));
+        this.dataWatcher.updateObject(10, (byte) (small ? (b0 | 1) : (b0 & -2)));
     }
 
     public boolean astand$doesShowArms() {
@@ -147,7 +145,7 @@ public abstract class MixinArmorStand extends EntityLivingBase {
 
     public void astand$setShowArms(boolean showArms) {
         byte b0 = this.dataWatcher.getWatchableObjectByte(10);
-        this.dataWatcher.updateObject(10, Byte.valueOf((byte) (showArms ? (b0 | 4) : (b0 & -5))));
+        this.dataWatcher.updateObject(10, (byte) (showArms ? (b0 | 4) : (b0 & -5)));
     }
 
     public boolean astand$hasBasePlate() {

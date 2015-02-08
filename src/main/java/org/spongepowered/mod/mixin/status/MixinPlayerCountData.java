@@ -66,7 +66,8 @@ public abstract class MixinPlayerCountData implements StatusPingEvent.Response.P
         this.maxPlayers = max;
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     public List<org.spongepowered.api.GameProfile> getProfiles() {
         return (List) this.profiles; // This cast should be always save
     }

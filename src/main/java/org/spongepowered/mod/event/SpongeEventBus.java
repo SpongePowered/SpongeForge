@@ -94,11 +94,11 @@ public class SpongeEventBus implements EventManager {
     private static boolean isValidHandler(Method method) {
         Class<?>[] paramTypes = method.getParameterTypes();
         return !Modifier.isStatic(method.getModifiers())
-               && !Modifier.isAbstract(method.getModifiers())
-               && !Modifier.isInterface(method.getDeclaringClass().getModifiers())
-               && method.getReturnType() == void.class
-               && paramTypes.length == 1
-               && Event.class.isAssignableFrom(paramTypes[0]);
+                && !Modifier.isAbstract(method.getModifiers())
+                && !Modifier.isInterface(method.getDeclaringClass().getModifiers())
+                && method.getReturnType() == void.class
+                && paramTypes.length == 1
+                && Event.class.isAssignableFrom(paramTypes[0]);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -140,7 +140,7 @@ public class SpongeEventBus implements EventManager {
                     subscribers.add(new Subscriber(eventClass, handler, subscribe.order()));
                 } else {
                     SpongeMod.instance.getLogger().warn("The method {} on {} has @{} but has the wrong signature",
-                                                        method, method.getDeclaringClass().getName(), Subscribe.class.getName());
+                            method, method.getDeclaringClass().getName(), Subscribe.class.getName());
                 }
             }
         }
@@ -240,9 +240,9 @@ public class SpongeEventBus implements EventManager {
         Order orderStart = Order.PRE;
         HandlerCache handlerCache = getHandlerCache(forgeEvent.getClass());
 
-        for (int index = 0; index < listeners.length; index++) {
-            if (listeners[index] instanceof EventPriority) {
-                Order order = this.priorityMappings.get((EventPriority) listeners[index]);
+        for (IEventListener listener : listeners) {
+            if (listener instanceof EventPriority) {
+                Order order = this.priorityMappings.get((EventPriority) listener);
 
                 for (int orderIndex = 0; orderIndex <= order.ordinal(); orderIndex++) {
                     Order currentOrder = Order.values()[orderIndex];
@@ -253,7 +253,7 @@ public class SpongeEventBus implements EventManager {
                 orderStart = Order.values()[order.ordinal() + 1];
             }
             try {
-                listeners[index].invoke(forgeEvent);
+                listener.invoke(forgeEvent);
             } catch (Throwable throwable) {
                 SpongeMod.instance.getLogger().catching(throwable);
             }

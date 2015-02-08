@@ -24,15 +24,11 @@
  */
 package org.spongepowered.mod.mixin.entity.player;
 
-import java.util.List;
-import java.util.Locale;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkArgument;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -41,7 +37,6 @@ import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.network.play.server.S45PacketTitle;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
@@ -62,6 +57,9 @@ import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.message.SpongeMessage;
 import org.spongepowered.mod.text.message.SpongeMessageText;
 import org.spongepowered.mod.text.title.SpongeTitle;
+
+import java.util.List;
+import java.util.Locale;
 
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
@@ -124,26 +122,26 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     public void playermp$sendMessage(ChatType type, String... messages) {
         for (String string : messages) {
             ChatComponentTranslation component = new ChatComponentTranslation(string);
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(component, ((SpongeChatType)type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(component, ((SpongeChatType) type).getId()));
         }
     }
 
     public void playermp$sendMessage(ChatType type, Message... messages) {
         for (Message message : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage<?>)message).getHandle(), ((SpongeChatType)type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage<?>) message).getHandle(), ((SpongeChatType) type).getId()));
         }
     }
 
     public void playermp$sendMessage(ChatType type, Iterable<Message> messages) {
         for (Message message : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage<?>)message).getHandle(), ((SpongeChatType)type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage<?>) message).getHandle(), ((SpongeChatType) type).getId()));
         }
     }
 
     public void playermp$sendTitle(Title title) {
-        SpongeTitle spongeTitle = (SpongeTitle)title;
+        SpongeTitle spongeTitle = (SpongeTitle) title;
 
-        for(S45PacketTitle packet : spongeTitle.getPackets()) {
+        for (S45PacketTitle packet : spongeTitle.getPackets()) {
             this.playerNetServerHandler.sendPacket(packet);
         }
     }

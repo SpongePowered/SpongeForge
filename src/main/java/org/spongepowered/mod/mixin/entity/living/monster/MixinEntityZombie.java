@@ -28,7 +28,6 @@ import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.monster.Zombie;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;

@@ -27,7 +27,6 @@ package org.spongepowered.mod.service.scheduler;
 import com.google.common.base.Optional;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import org.spongepowered.api.service.scheduler.SchedulerQuery;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
@@ -68,7 +67,7 @@ public class SyncScheduler implements SynchronousScheduler {
      * the Services Manager.</p>
      */
     private SyncScheduler() {
-        this.schedulerHelper = new SchedulerHelper(Task.TaskSynchronicity.SYNCHRONOUS);
+        this.schedulerHelper = new SchedulerHelper(ScheduledTask.TaskSynchroncity.SYNCHRONOUS);
     }
 
     @Override
@@ -226,13 +225,13 @@ public class SyncScheduler implements SynchronousScheduler {
      */
     @Override
     public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {
-         // The intent of this method is to run a single task (non-repeating) and has zero
-         // offset (doesn't wait a delay before starting), and a zero period (no repetition)</p>
+        // The intent of this method is to run a single task (non-repeating) and has zero
+        // offset (doesn't wait a delay before starting), and a zero period (no repetition)</p>
         Optional<Task> resultTask = Optional.absent();
         final long NODELAY = 0L;
         final long NOPERIOD = 0L;
 
-        Task.TaskSynchronicity syncType = Task.TaskSynchronicity.SYNCHRONOUS;
+        ScheduledTask.TaskSynchroncity syncType = ScheduledTask.TaskSynchroncity.SYNCHRONOUS;
         ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
 
         if (nonRepeatingTask == null) {
@@ -276,7 +275,7 @@ public class SyncScheduler implements SynchronousScheduler {
         Optional<Task> resultTask = Optional.absent();
         final long NOPERIOD = 0L;
 
-        Task.TaskSynchronicity syncType = Task.TaskSynchronicity.SYNCHRONOUS;
+        ScheduledTask.TaskSynchroncity syncType = ScheduledTask.TaskSynchroncity.SYNCHRONOUS;
         ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
 
         if (nonRepeatingTask == null) {
@@ -330,7 +329,7 @@ public class SyncScheduler implements SynchronousScheduler {
         Optional<Task> resultTask = Optional.absent();
         final long NODELAY = 0L;
 
-        Task.TaskSynchronicity syncType = Task.TaskSynchronicity.SYNCHRONOUS;
+        ScheduledTask.TaskSynchroncity syncType = ScheduledTask.TaskSynchroncity.SYNCHRONOUS;
         ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, interval);
 
         if (repeatingTask == null) {
@@ -385,7 +384,8 @@ public class SyncScheduler implements SynchronousScheduler {
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, long interval, long delay) {
         Optional<Task> resultTask = Optional.absent();
-        Task.TaskSynchronicity syncType = Task.TaskSynchronicity.SYNCHRONOUS;
+
+        ScheduledTask.TaskSynchroncity syncType = ScheduledTask.TaskSynchroncity.SYNCHRONOUS;
         ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, interval);
 
         if (repeatingTask == null) {

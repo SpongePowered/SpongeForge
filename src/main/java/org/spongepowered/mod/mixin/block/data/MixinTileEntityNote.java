@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.block.data;
 
 import net.minecraft.tileentity.TileEntity;
-
 import org.spongepowered.api.block.data.Note;
 import org.spongepowered.api.block.meta.NotePitch;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

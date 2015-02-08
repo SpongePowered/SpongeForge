@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.block.data;
 import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.MobSpawnerBaseLogic;
 import net.minecraft.tileentity.TileEntity;
-
 import org.spongepowered.api.block.data.MobSpawner;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.service.persistence.data.DataContainer;
@@ -128,7 +127,7 @@ public abstract class MixinTileEntityMobSpawner extends TileEntity implements IU
     }
 
     public void mobspawner$spawnEntityBatchImmediately(boolean force) {
-        if(force) {
+        if (force) {
             short oldMaxNearby = (short) getSpawnerBaseLogic().maxNearbyEntities;
             getSpawnerBaseLogic().maxNearbyEntities = Short.MAX_VALUE;
 

@@ -24,12 +24,8 @@
  */
 package org.spongepowered.mod.mixin.entity.living;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
+import com.flowpowered.math.vector.Vector3f;
+import com.google.common.base.Optional;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.IAttribute;
@@ -39,7 +35,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.Human;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.potion.PotionEffect;
@@ -50,8 +45,11 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.flowpowered.math.vector.Vector3f;
-import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityLivingBase.class)
@@ -66,22 +64,31 @@ public abstract class MixinEntityLivingBase extends Entity {
 
     @Shadow
     public abstract float getHealth();
+
     @Shadow
     public abstract void setHealth(float health);
+
     @Shadow
     public abstract float getMaxHealth();
+
     @Shadow
     public abstract IAttributeInstance getEntityAttribute(IAttribute attribute);
+
     @Shadow
     public abstract void addPotionEffect(net.minecraft.potion.PotionEffect potionEffect);
+
     @Shadow
     public abstract void removePotionEffect(int id);
+
     @Shadow
     public abstract boolean isPotionActive(Potion potion);
+
     @Shadow
     public abstract Collection getActivePotionEffects();
+
     @Shadow
     public abstract EntityLivingBase getLastAttacker();
+
     @Shadow
     public abstract void setLastAttacker(Entity entity);
 
@@ -90,16 +97,16 @@ public abstract class MixinEntityLivingBase extends Entity {
     }
 
     public void living$damage(double amount) {
-        Living thisEntity = (Living)this;
+        Living thisEntity = (Living) this;
         DamageSource source = DamageSource.generic;
         if (thisEntity instanceof Human) {
-            source = net.minecraft.util.DamageSource.causePlayerDamage((EntityPlayerMP)thisEntity);
+            source = net.minecraft.util.DamageSource.causePlayerDamage((EntityPlayerMP) thisEntity);
         } else {
-            source = net.minecraft.util.DamageSource.causeMobDamage((EntityLivingBase)thisEntity);
+            source = net.minecraft.util.DamageSource.causeMobDamage((EntityLivingBase) thisEntity);
         }
 
         if (thisEntity instanceof net.minecraft.entity.boss.EntityDragon) {
-            ((EntityDragon)thisEntity).attackEntityFrom(source, (float) amount);
+            ((EntityDragon) thisEntity).attackEntityFrom(source, (float) amount);
         } else {
             attackEntityFrom(source, (float) amount);
         }
@@ -110,8 +117,8 @@ public abstract class MixinEntityLivingBase extends Entity {
     }
 
     public void living$setHealth(double health) {
-        Living thisEntity = (Living)this;
-        setHealth((float)health);
+        Living thisEntity = (Living) this;
+        setHealth((float) health);
 
         if (thisEntity instanceof EntityPlayerMP && health == 0) {
             ((EntityPlayerMP) thisEntity).onDeath(DamageSource.generic);
@@ -138,7 +145,7 @@ public abstract class MixinEntityLivingBase extends Entity {
             living$removePotionEffect(potionEffect.getType());
         }
 
-        addPotionEffect(new net.minecraft.potion.PotionEffect((net.minecraft.potion.PotionEffect)potionEffect));
+        addPotionEffect(new net.minecraft.potion.PotionEffect((net.minecraft.potion.PotionEffect) potionEffect));
     }
 
     public void living$addPotionEffects(Collection<PotionEffect> potionEffects, boolean force) {
@@ -148,27 +155,27 @@ public abstract class MixinEntityLivingBase extends Entity {
     }
 
     public void living$removePotionEffect(PotionEffectType potionEffectType) {
-        removePotionEffect(((Potion)potionEffectType).getId());
+        removePotionEffect(((Potion) potionEffectType).getId());
     }
 
     public boolean living$hasPotionEffect(PotionEffectType potionEffectType) {
-        return isPotionActive((Potion)potionEffectType);
+        return isPotionActive((Potion) potionEffectType);
     }
 
     public List<PotionEffect> living$getPotionEffects() {
         List<PotionEffect> potionEffects = new ArrayList<PotionEffect>();
         for (Object obj : getActivePotionEffects()) {
-            potionEffects.add((PotionEffect)obj);
+            potionEffects.add((PotionEffect) obj);
         }
         return potionEffects;
     }
 
     public Optional<Living> living$getLastAttacker() {
-        return Optional.fromNullable((Living)getLastAttacker());
+        return Optional.fromNullable((Living) getLastAttacker());
     }
 
     public void living$setLastAttacker(@Nullable Living lastAttacker) {
-        setLastAttacker((EntityLivingBase)lastAttacker);
+        setLastAttacker((EntityLivingBase) lastAttacker);
     }
 
     public double living$getEyeHeight() {

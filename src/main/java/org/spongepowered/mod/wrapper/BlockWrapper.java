@@ -26,17 +26,14 @@ package org.spongepowered.mod.wrapper;
 
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
-
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.block.data.TileEntity;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
@@ -232,7 +229,7 @@ public class BlockWrapper implements BlockLoc {
     @Override
     public <T> Optional<T> getData(Class<T> dataClass) {
         net.minecraft.tileentity.TileEntity tileEntity = this.handle.getTileEntity(this.pos);
-        if(dataClass.isInstance(tileEntity)) {
+        if (dataClass.isInstance(tileEntity)) {
             return Optional.of((T) tileEntity);
         } else {
             return Optional.absent();

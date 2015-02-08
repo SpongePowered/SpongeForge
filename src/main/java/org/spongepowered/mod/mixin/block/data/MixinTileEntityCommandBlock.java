@@ -73,7 +73,7 @@ public abstract class MixinTileEntityCommandBlock extends TileEntity {
     }
 
     public void command$setLastOutput(Message message) {
-        getCommandBlockLogic().func_145750_b(((SpongeMessage)message).getHandle());
+        getCommandBlockLogic().func_145750_b(((SpongeMessage) message).getHandle());
     }
 
     void command$execute() {

@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.entity.projectile.fireball;
 
 import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.projectile.fireball.LargeFireball;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -46,7 +45,8 @@ public abstract class MixinEntityLargeFireball extends EntityFireball implements
         super(worldIn);
     }
 
-    @ModifyArg(method = "onImpact(Lnet/minecraft/util/MovingObjectPosition;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
+    @ModifyArg(method = "onImpact(Lnet/minecraft/util/MovingObjectPosition;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
     protected float onAttackEntityFrom(float amount) {
         return this.damage;
     }

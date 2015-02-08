@@ -27,4 +27,5 @@ package org.spongepowered.mod.entity.player.gamemode;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
 
 public class SpongeGameMode implements GameMode {
+
 }

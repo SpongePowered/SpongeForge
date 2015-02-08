@@ -24,11 +24,8 @@
  */
 package org.spongepowered.mod.mixin.forge;
 
-import java.util.Hashtable;
-
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.common.DimensionManager;
-
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -36,6 +33,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.world.SpongeDimensionType;
+
+import java.util.Hashtable;
 
 @NonnullByDefault
 @Mixin(value = DimensionManager.class, remap = false)
@@ -69,7 +68,8 @@ public abstract class MixinDimensionManager {
                 worldType = worldType.replace("provider", "");
         }
         // register dimension type
-        ((SpongeGameRegistry)SpongeMod.instance.getGame().getRegistry()).registerEnvironment(new SpongeDimensionType(worldType, keepLoaded, provider));
+        ((SpongeGameRegistry) SpongeMod.instance.getGame().getRegistry())
+                .registerEnvironment(new SpongeDimensionType(worldType, keepLoaded, provider));
         providers.put(id, provider);
         spawnSettings.put(id, keepLoaded);
         return true;

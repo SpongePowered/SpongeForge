@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.world.biome;
 
 import net.minecraft.world.biome.BiomeGenBase;
-
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.asm.mixin.Mixin;

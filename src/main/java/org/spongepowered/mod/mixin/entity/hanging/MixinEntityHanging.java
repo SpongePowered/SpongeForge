@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.hanging;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.hanging.Hanging;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -84,6 +83,7 @@ public abstract class MixinEntityHanging extends Entity implements Hanging {
     @Override
     public void setHangingDirection(Direction direction, boolean forced) {
         this.ignorePhysics = forced;
-        this.field_174860_b = SpongeGameRegistry.directionMap.get(direction) == null ? EnumFacing.NORTH : SpongeGameRegistry.directionMap.get(direction);
+        this.field_174860_b =
+                SpongeGameRegistry.directionMap.get(direction) == null ? EnumFacing.NORTH : SpongeGameRegistry.directionMap.get(direction);
     }
 }

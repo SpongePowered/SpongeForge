@@ -1,8 +1,8 @@
 {
-  "package": "org.spongepowered.mod.mixin",
-  "mixins": [
-    "MixinWorldExample",
-    "MixinWorldProviderExample",
-    "MixinMobSpawnerBaseLogic"
-  ]
+    "package": "org.spongepowered.mod.mixin",
+    "mixins": [
+        "MixinWorldExample",
+        "MixinWorldProviderExample",
+        "MixinMobSpawnerBaseLogic"
+    ]
 }

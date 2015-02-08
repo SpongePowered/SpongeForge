@@ -87,17 +87,11 @@ public class ASMEventListenerFactory {
             }
             return (T) clazz.getConstructor(Object.class).newInstance(target);
         } catch (InstantiationException e) {
-            ;
         } catch (IllegalAccessException e) {
-            ;
         } catch (IllegalArgumentException e) {
-            ;
         } catch (InvocationTargetException e) {
-            ;
         } catch (NoSuchMethodException e) {
-            ;
         } catch (SecurityException e) {
-            ;
         }
         return null;
     }
@@ -149,7 +143,7 @@ public class ASMEventListenerFactory {
         // package org.spongepowered.mod.asm;
         // public class <className> extends java.lang.Object implements <interf>
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, classNameDesc, null, "java/lang/Object",
-                 new String[]{interfaceInternalName});
+                new String[]{interfaceInternalName});
 
         // private final Object target
         cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, "target", "Ljava/lang/Object;", null, null);

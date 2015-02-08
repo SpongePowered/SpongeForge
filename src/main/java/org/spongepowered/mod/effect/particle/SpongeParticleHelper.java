@@ -24,24 +24,22 @@
  */
 package org.spongepowered.mod.effect.particle;
 
-import java.awt.Color;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
+import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3f;
+import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S2APacketParticles;
 import net.minecraft.util.EnumParticleTypes;
-
 import org.spongepowered.api.item.ItemBlock;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3f;
-import com.google.common.collect.Lists;
+import java.awt.Color;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public final class SpongeParticleHelper {
 
@@ -49,7 +47,7 @@ public final class SpongeParticleHelper {
      * Gets the list of packets that are needed to spawn the particle effect at the position.
      * This method tries to minimize the amount of packets for better performance and
      * lower bandwidth use.
-     * 
+     *
      * @param effect The particle effect
      * @param position The position
      * @return The packets
@@ -101,7 +99,7 @@ public final class SpongeParticleHelper {
                 return Collections.emptyList();
             }
 
-            extra = new int[] { id, data };
+            extra = new int[]{id, data};
         }
 
         if (effect instanceof SpongeParticleEffect.Resized) {
@@ -142,7 +140,7 @@ public final class SpongeParticleHelper {
             if (note == 0f) {
                 return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, px, py, pz, ox, oy, oz, 0f, count, extra));
             }
-     
+
             f0 = note / 24f;
         } else if (type.hasMotion()) {
             Vector3f motion = effect.getMotion();
@@ -172,7 +170,7 @@ public final class SpongeParticleHelper {
 
         List<Packet> packets = Lists.newArrayList();
 
-        if (ox == 0f && oy == 0f && oz == 0f){
+        if (ox == 0f && oy == 0f && oz == 0f) {
             for (int i = 0; i < count; i++) {
                 packets.add(new S2APacketParticles(internal, true, px, py, pz, f0, f1, f2, 1f, 0, extra));
             }
@@ -183,7 +181,7 @@ public final class SpongeParticleHelper {
                 float px0 = (float) (px + (random.nextFloat() * 2f - 1f) * ox);
                 float py0 = (float) (py + (random.nextFloat() * 2f - 1f) * oy);
                 float pz0 = (float) (pz + (random.nextFloat() * 2f - 1f) * oz);
-    
+
                 packets.add(new S2APacketParticles(internal, true, px0, py0, pz0, f0, f1, f2, 1f, 0, extra));
             }
         }

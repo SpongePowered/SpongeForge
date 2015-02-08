@@ -25,7 +25,6 @@
 package org.spongepowered.exampleinterfaces;
 
 import net.minecraft.entity.EntityLivingBase;
-
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.mod.mixin.MixinWorldProviderExample;
 
@@ -58,7 +57,7 @@ public interface IEntityPlayerConflict {
      * @return return value
      */
     public abstract int thisMethodDoesNotConflict();
-    
+
     /**
      * Additional method with no conflicts
      *

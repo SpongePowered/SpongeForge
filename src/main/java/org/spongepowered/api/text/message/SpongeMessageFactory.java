@@ -64,7 +64,7 @@ public class SpongeMessageFactory implements MessageFactory {
 
     @Override
     public char getColorChar() {
-        return '\u00a7';
+        return '§';
     }
 
     @Override

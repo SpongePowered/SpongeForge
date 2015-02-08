@@ -58,11 +58,14 @@ public class SpongePluginGuiceModule extends AbstractModule {
 
         bind(PluginContainer.class).toInstance(this.container);
         bind(Logger.class).toInstance(LoggerFactory.getLogger(this.container.getId()));
-        bind(File.class).annotatedWith(pluginDirPrivate).toProvider(PluginConfigDirProvider.class); // plugin-private config directory (shared dir is in the global guice module)
+        bind(File.class).annotatedWith(pluginDirPrivate)
+                .toProvider(PluginConfigDirProvider.class); // plugin-private config directory (shared dir is in the global guice module)
         bind(File.class).annotatedWith(pluginConfigShared).toProvider(PluginSharedConfigFileProvider.class); // shared-directory config file
         bind(File.class).annotatedWith(pluginConfigPrivate).toProvider(PluginPrivateConfigFileProvider.class); // plugin-private directory config file
-        bind(ConfigurationLoader.class).annotatedWith(pluginConfigShared).toProvider(PluginSharedHoconConfigProvider.class); // loader for shared-directory config file
-        bind(ConfigurationLoader.class).annotatedWith(pluginConfigPrivate).toProvider(PluginPrivateHoconConfigProvider.class); // loader for plugin-private directory config file
+        bind(ConfigurationLoader.class).annotatedWith(pluginConfigShared)
+                .toProvider(PluginSharedHoconConfigProvider.class); // loader for shared-directory config file
+        bind(ConfigurationLoader.class).annotatedWith(pluginConfigPrivate)
+                .toProvider(PluginPrivateHoconConfigProvider.class); // loader for plugin-private directory config file
     }
 
     // This is strange, but required for Guice and annotations with values.
@@ -107,8 +110,8 @@ public class SpongePluginGuiceModule extends AbstractModule {
         @Override
         public String toString() {
             return "@org.spongepowered.api.service.config.Config(" +
-                   "sharedRoot=" + this.shared +
-                   ')';
+                    "sharedRoot=" + this.shared +
+                    ')';
         }
     }
 
@@ -125,7 +128,7 @@ public class SpongePluginGuiceModule extends AbstractModule {
 
         @Override
         public File get() {
-            return new File(root, this.container.getId() + ".conf");
+            return new File(this.root, this.container.getId() + ".conf");
         }
     }
 
@@ -142,7 +145,7 @@ public class SpongePluginGuiceModule extends AbstractModule {
 
         @Override
         public File get() {
-            return new File(root, this.container.getId() + ".conf");
+            return new File(this.root, this.container.getId() + ".conf");
         }
     }
 
@@ -159,7 +162,7 @@ public class SpongePluginGuiceModule extends AbstractModule {
 
         @Override
         public ConfigurationLoader get() {
-            return HoconConfigurationLoader.builder().setFile(configFile).build();
+            return HoconConfigurationLoader.builder().setFile(this.configFile).build();
         }
     }
 
@@ -176,7 +179,7 @@ public class SpongePluginGuiceModule extends AbstractModule {
 
         @Override
         public ConfigurationLoader get() {
-            return HoconConfigurationLoader.builder().setFile(configFile).build();
+            return HoconConfigurationLoader.builder().setFile(this.configFile).build();
         }
     }
 
@@ -186,14 +189,14 @@ public class SpongePluginGuiceModule extends AbstractModule {
         private final File sharedConfigDir;
 
         @Inject
-        private PluginConfigDirProvider(PluginContainer container, @ConfigDir(sharedRoot =  true) File sharedConfigDir) {
+        private PluginConfigDirProvider(PluginContainer container, @ConfigDir(sharedRoot = true) File sharedConfigDir) {
             this.container = container;
             this.sharedConfigDir = sharedConfigDir;
         }
 
         @Override
         public File get() {
-            return new File(sharedConfigDir, this.container.getId() + "/");
+            return new File(this.sharedConfigDir, this.container.getId() + "/");
         }
     }
 }

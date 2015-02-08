@@ -24,17 +24,15 @@
  */
 package org.spongepowered.mod.mixin.inventory;
 
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ICrafting;
-
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(Container.class)
@@ -43,25 +41,22 @@ public abstract class MixinContainer {
     @SuppressWarnings("rawtypes")
     @Shadow
     protected List crafters = Lists.newArrayList();
+
     @SuppressWarnings("rawtypes")
     @Shadow
     public abstract List getInventory();
 
     @SuppressWarnings("unchecked")
     @Overwrite
-    public void addCraftingToCrafters(ICrafting p_75132_1_)
-    {
-        Container container = (Container)(Object)this;
-        if (this.crafters.contains(p_75132_1_))
-        {
+    public void addCraftingToCrafters(ICrafting p_75132_1_) {
+        Container container = (Container) (Object) this;
+        if (this.crafters.contains(p_75132_1_)) {
             // Sponge start - As we do not create a new player object on respawn, we need to update the client with changes if listener already exists
             //throw new IllegalArgumentException("Listener already listening");
             p_75132_1_.sendContainerAndContentsToPlayer(container, this.getInventory());
             container.detectAndSendChanges();
             // Sponge end
-        }
-        else
-        {
+        } else {
             this.crafters.add(p_75132_1_);
             p_75132_1_.sendContainerAndContentsToPlayer(container, this.getInventory());
             container.detectAndSendChanges();

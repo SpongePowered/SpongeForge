@@ -29,7 +29,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntityLockable;
-
 import org.spongepowered.api.block.data.Beacon;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

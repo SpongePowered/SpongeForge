@@ -24,12 +24,11 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.ArrayDeque;
-
 import net.minecraft.util.ChatComponentText;
-
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.text.message.MessageBuilder;
+
+import java.util.ArrayDeque;
 
 public class SpongeMessageText extends SpongeMessage<String> implements Message.Text {
 

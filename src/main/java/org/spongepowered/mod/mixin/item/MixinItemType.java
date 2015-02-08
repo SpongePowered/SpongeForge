@@ -24,15 +24,14 @@
  */
 package org.spongepowered.mod.mixin.item;
 
+import net.minecraft.item.Item;
+import net.minecraft.util.StatCollector;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.util.TranslationHelper;
-
-import net.minecraft.item.Item;
-import net.minecraft.util.StatCollector;
 
 @NonnullByDefault
 @Mixin(Item.class)

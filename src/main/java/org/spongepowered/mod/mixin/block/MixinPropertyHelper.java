@@ -25,13 +25,11 @@
 package org.spongepowered.mod.mixin.block;
 
 import com.google.common.base.Optional;
-
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyHelper;
 import net.minecraft.block.properties.PropertyInteger;
-
 import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;

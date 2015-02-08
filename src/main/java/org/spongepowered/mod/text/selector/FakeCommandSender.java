@@ -24,8 +24,6 @@
  */
 package org.spongepowered.mod.text.selector;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.command.CommandResultStats.Type;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
@@ -33,9 +31,10 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.world.Location;
 import org.spongepowered.mod.util.VecHelper;
+
+import javax.annotation.Nullable;
 
 class FakeCommandSender implements ICommandSender {
 

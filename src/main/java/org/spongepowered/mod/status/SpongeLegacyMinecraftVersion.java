@@ -27,6 +27,7 @@ package org.spongepowered.mod.status;
 import org.spongepowered.api.MinecraftVersion;
 
 public class SpongeLegacyMinecraftVersion implements MinecraftVersion {
+
     public static final SpongeLegacyMinecraftVersion V1_3 = new SpongeLegacyMinecraftVersion("<=1.3", 39);
     public static final SpongeLegacyMinecraftVersion V1_5 = new SpongeLegacyMinecraftVersion("1.4-1.5", 61);
     public static final SpongeLegacyMinecraftVersion V1_6 = new SpongeLegacyMinecraftVersion("1.6", 78);
@@ -56,7 +57,9 @@ public class SpongeLegacyMinecraftVersion implements MinecraftVersion {
 
     @Override
     public int compareTo(MinecraftVersion o) {
-        if (o == this) return 0;
+        if (o == this) {
+            return 0;
+        }
         return o.isLegacy() ? this.latestVersion - ((SpongeLegacyMinecraftVersion) o).latestVersion : -1;
     }
 }

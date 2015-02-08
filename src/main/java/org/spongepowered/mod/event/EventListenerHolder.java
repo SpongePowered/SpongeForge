@@ -82,8 +82,8 @@ public abstract class EventListenerHolder<T> {
     }
 
     public void invoke(T event) {
-        for (int i = 0; i < this.listeners.length; i++) {
-            this.listeners[i].invoke(event);
+        for (PriorityEventListener<T> listener : this.listeners) {
+            listener.invoke(event);
         }
     }
 

@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.entity;
 
 import com.google.common.base.Optional;
-
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.monster.EntityGiantZombie;
@@ -33,13 +32,12 @@ import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.ArmorEquipable;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 
 // All implementors of ArmorEquipable
-@Mixin({ EntityArmorStand.class, EntityGiantZombie.class, EntitySkeleton.class, EntityPlayerMP.class, EntityZombie.class, })
+@Mixin({EntityArmorStand.class, EntityGiantZombie.class, EntitySkeleton.class, EntityPlayerMP.class, EntityZombie.class})
 public abstract class MixinArmorEquipable extends EntityLivingBase implements ArmorEquipable {
 
     public MixinArmorEquipable(World worldIn) {

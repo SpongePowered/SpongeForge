@@ -25,13 +25,12 @@
 package org.spongepowered.mod.mixin.block.data;
 
 import net.minecraft.util.BlockPos;
-
+import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.block.data.TileEntity;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.api.block.BlockLoc;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
 @NonnullByDefault
@@ -50,5 +49,7 @@ public abstract class MixinTileEntity implements TileEntity {
     }
 
     @Override
-    public World getWorld() { return (World) this.worldObj; }
+    public World getWorld() {
+        return (World) this.worldObj;
+    }
 }

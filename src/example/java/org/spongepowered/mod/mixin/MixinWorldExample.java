@@ -29,7 +29,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
@@ -162,24 +161,27 @@ public abstract class MixinWorldExample implements IWorld {
     // Methods below show things which are NOT ALLOWED in a mixin. Uncomment any of them to experience full derp mode.
     // ===============================================================================================================================================
 
-//    /**
-//     * This <b>Non-static</b> field has an initialiser. Note that since instance initialisers are not (currently) injected, primitive types will get
-//     * their default value (eg. zero in this case) and reference types will be <em>null</em>!
-//     */
-//    private int someValue = 3;
-//    
-//    /**
-//     * Public, package-private, or protected static members <b>cannot<b> be injected into a target class, there is no point in doing so since there
-//     * is no feasible way to invoke the injected method anyway. If you need to inject static methods, make them private.
-//     */
-//    public static void illegalPublicStaticMethod()
-//    {
-//        // derp
-//    }
-//    
-//    /**
-//     * Attempting to {@link Shadow} or {@link Overwrite} a method which doesn't exist is a detectable error condition. The same applies to shadow
-//     * fields.
-//     */
-//    @Shadow public abstract void methodWhichDoesntExist(); 
+    //    /**
+    //     * This <b>Non-static</b> field has an initialiser. Note that since instance initialisers are not (currently) injected, primitive types
+    // will get
+    //     * their default value (eg. zero in this case) and reference types will be <em>null</em>!
+    //     */
+    //    private int someValue = 3;
+    //
+    //    /**
+    //     * Public, package-private, or protected static members <b>cannot<b> be injected into a target class, there is no point in doing so since
+    // there
+    //     * is no feasible way to invoke the injected method anyway. If you need to inject static methods, make them private.
+    //     */
+    //    public static void illegalPublicStaticMethod()
+    //    {
+    //        // derp
+    //    }
+    //
+    //    /**
+    //     * Attempting to {@link Shadow} or {@link Overwrite} a method which doesn't exist is a detectable error condition. The same applies to
+    // shadow
+    //     * fields.
+    //     */
+    //    @Shadow public abstract void methodWhichDoesntExist();
 }

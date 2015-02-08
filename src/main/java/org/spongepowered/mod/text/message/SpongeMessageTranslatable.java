@@ -24,17 +24,15 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.ArrayDeque;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
-
 import net.minecraft.util.ChatComponentTranslation;
-
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.text.message.MessageBuilder;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.mod.text.translation.SpongeTranslation;
+
+import java.util.ArrayDeque;
+import java.util.List;
 
 public class SpongeMessageTranslatable extends SpongeMessage<Translation> implements Message.Translatable {
 
@@ -55,7 +53,8 @@ public class SpongeMessageTranslatable extends SpongeMessage<Translation> implem
         return this.arguments;
     }
 
-    public static class SpongeMessageTranslatableBuilder extends SpongeMessageBuilder<MessageBuilder.Translatable> implements MessageBuilder.Translatable {
+    public static class SpongeMessageTranslatableBuilder extends SpongeMessageBuilder<MessageBuilder.Translatable>
+            implements MessageBuilder.Translatable {
 
         protected Translation content;
         protected Object[] arguments;

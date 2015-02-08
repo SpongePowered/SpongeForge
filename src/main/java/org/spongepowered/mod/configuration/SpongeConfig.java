@@ -24,15 +24,13 @@
  */
 package org.spongepowered.mod.configuration;
 
-import java.io.File;
-import java.util.Map;
-
-import org.spongepowered.mod.SpongeMod;
-
 import com.google.common.collect.Maps;
-
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.config.Configuration;
+import org.spongepowered.mod.SpongeMod;
+
+import java.io.File;
+import java.util.Map;
 
 public class SpongeConfig {
 
@@ -92,11 +90,13 @@ public class SpongeConfig {
     public ConfigSetting flowingLavaDecay;
 
 
-    public SpongeConfig() {};
+    public SpongeConfig() {
+    }
 
     public SpongeConfig(Type type, String path) {
         this.type = type;
-        this.config = new Configuration(new File(SpongeMod.instance.getSuggestedConfigFile().getParent(), "sponge" + File.separator + path), this.HEADER);
+        this.config =
+                new Configuration(new File(SpongeMod.instance.getSuggestedConfigFile().getParent(), "sponge" + File.separator + path), this.HEADER);
         this.configName = this.config.getConfigFile().getParentFile().getName().toUpperCase();
 
         init();
@@ -104,39 +104,68 @@ public class SpongeConfig {
 
     public void init() {
         // General
-        this.configEnabled = new ConfigSetting(CATEGORY_GENERAL, this.config.get(CATEGORY_GENERAL, "config-enabled", this.type == Type.GLOBAL ? true : false, "Controls whether or not this config is enabled. Note: If enabled, World configs override Dimension and Global, Dimension configs override Global."));
+        this.configEnabled = new ConfigSetting(CATEGORY_GENERAL, this.config
+                .get(CATEGORY_GENERAL, "config-enabled", this.type == Type.GLOBAL ? true : false,
+                        "Controls whether or not this config is enabled. Note: If enabled, World configs override Dimension and Global, Dimension "
+                                + "configs override Global."));
 
         // Logging
-        this.disableWarnings = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "disabled-warnings", false, "Disable warning messages to server admins"));
-        this.chunkLoadLogging = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "chunk-load", false, "Log when chunks are loaded"));
-        this.chunkUnloadLogging = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "chunk-unload", false, "Log when chunks are unloaded"));
-        this.entitySpawnLogging = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "entity-spawn", false, "Log when living entities are spawned"));
-        this.entityDespawnLogging = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "entity-despawn", false, "Log when living entities are despawned"));
-        this.entityDeathLogging = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "entity-death", false, "Log when an entity is destroyed"));
-        this.logWithStackTraces = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "detailed-logging", false, "Add stack traces to dev logging"));
-        this.logEntityCollisionChecks = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "entity-collision-checks", false, "Whether to log entity collision/count checks"));
-        this.logEntitySpeedRemoval = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "entity-speed-removal", false, "Whether to log entity removals due to speed"));
-        this.largeCollisionLogSize = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "collision-warn-size", 200, "Number of colliding entities in one spot before logging a warning. Set to 0 to disable", 100, 2000));
-        this.largeEntityCountLogSize = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "entity-count-warn-size", 0, "Number of entities in one dimension logging a warning. Set to 0 to disable", 0, 999999));
+        this.disableWarnings = new ConfigSetting(CATEGORY_LOGGING,
+                this.config.get(CATEGORY_LOGGING, "disabled-warnings", false, "Disable warning messages to server admins"));
+        this.chunkLoadLogging =
+                new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "chunk-load", false, "Log when chunks are loaded"));
+        this.chunkUnloadLogging =
+                new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "chunk-unload", false, "Log when chunks are unloaded"));
+        this.entitySpawnLogging =
+                new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "entity-spawn", false, "Log when living entities are spawned"));
+        this.entityDespawnLogging = new ConfigSetting(CATEGORY_LOGGING,
+                this.config.get(CATEGORY_LOGGING, "entity-despawn", false, "Log when living entities are despawned"));
+        this.entityDeathLogging =
+                new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "entity-death", false, "Log when an entity is destroyed"));
+        this.logWithStackTraces =
+                new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "detailed-logging", false, "Add stack traces to dev logging"));
+        this.logEntityCollisionChecks = new ConfigSetting(CATEGORY_LOGGING,
+                this.config.get(CATEGORY_LOGGING, "entity-collision-checks", false, "Whether to log entity collision/count checks"));
+        this.logEntitySpeedRemoval = new ConfigSetting(CATEGORY_LOGGING,
+                this.config.get(CATEGORY_LOGGING, "entity-speed-removal", false, "Whether to log entity removals due to speed"));
+        this.largeCollisionLogSize = new ConfigSetting(CATEGORY_LOGGING, this.config.get(CATEGORY_LOGGING, "collision-warn-size", 200,
+                "Number of colliding entities in one spot before logging a warning. Set to 0 to disable", 100, 2000));
+        this.largeEntityCountLogSize = new ConfigSetting(CATEGORY_LOGGING, this.config
+                .get(CATEGORY_LOGGING, "entity-count-warn-size", 0, "Number of entities in one dimension logging a warning. Set to 0 to disable", 0,
+                        999999));
 
         // Chunk Settings
-        this.chunkLoadOverride = new ConfigSetting(CATEGORY_CHUNK_SETTINGS, this.config.get(CATEGORY_CHUNK_SETTINGS, "chunk-load-override", false, "Forces Chunk Loading on provide requests (speedup for mods that don't check if a chunk is loaded)"));
+        this.chunkLoadOverride = new ConfigSetting(CATEGORY_CHUNK_SETTINGS, this.config.get(CATEGORY_CHUNK_SETTINGS, "chunk-load-override", false,
+                "Forces Chunk Loading on provide requests (speedup for mods that don't check if a chunk is loaded)"));
 
         // Entity Settings
-        this.checkEntityBoundingBoxes = new ConfigSetting(CATEGORY_ENTITY_SETTINGS, this.config.get(CATEGORY_ENTITY_SETTINGS, "check-entity-bounding-boxes", true, "Removes a living entity that exceeds the max bounding box size."));
-        this.checkEntityMaxSpeeds = new ConfigSetting(CATEGORY_ENTITY_SETTINGS, this.config.get(CATEGORY_ENTITY_SETTINGS, "check-entity-max-speeds", false, "Removes any entity that exceeds max speed."));
-        this.largeBoundingBoxLogSize = new ConfigSetting(CATEGORY_ENTITY_SETTINGS, this.config.get(CATEGORY_ENTITY_SETTINGS, "entity-bounding-box-max-size", 1000, "Max size of an entity's bounding box before removing it (either being too large or bugged and 'moving' too fast)"));
-        this.entityMaxSpeed = new ConfigSetting(CATEGORY_ENTITY_SETTINGS, this.config.get(CATEGORY_ENTITY_SETTINGS, "entity-max-speed", 100, "Square of the max speed of an entity before removing it"));
+        this.checkEntityBoundingBoxes = new ConfigSetting(CATEGORY_ENTITY_SETTINGS, this.config
+                .get(CATEGORY_ENTITY_SETTINGS, "check-entity-bounding-boxes", true,
+                        "Removes a living entity that exceeds the max bounding box size."));
+        this.checkEntityMaxSpeeds = new ConfigSetting(CATEGORY_ENTITY_SETTINGS,
+                this.config.get(CATEGORY_ENTITY_SETTINGS, "check-entity-max-speeds", false, "Removes any entity that exceeds max speed."));
+        this.largeBoundingBoxLogSize = new ConfigSetting(CATEGORY_ENTITY_SETTINGS, this.config
+                .get(CATEGORY_ENTITY_SETTINGS, "entity-bounding-box-max-size", 1000,
+                        "Max size of an entity's bounding box before removing it (either being too large or bugged and 'moving' too fast)"));
+        this.entityMaxSpeed = new ConfigSetting(CATEGORY_ENTITY_SETTINGS,
+                this.config.get(CATEGORY_ENTITY_SETTINGS, "entity-max-speed", 100, "Square of the max speed of an entity before removing it"));
 
         // Debug Settings
-        this.enableThreadContentionMonitoring = new ConfigSetting(CATEGORY_DEBUG, this.config.get(CATEGORY_DEBUG, "thread-contention-monitoring", false, "Set true to enable Java's thread contention monitoring for thread dumps"));
-        this.dumpChunksOnDeadlock = new ConfigSetting(CATEGORY_DEBUG, this.config.get(CATEGORY_DEBUG, "dump-chunks-on-deadlock", false, "Dump chunks in the event of a deadlock"));
-        this.dumpHeapOnDeadlock = new ConfigSetting(CATEGORY_DEBUG, this.config.get(CATEGORY_DEBUG, "dump-heap-on-deadlock", false, "Dump the heap in the event of a deadlock"));
-        this.dumpThreadsOnWarn = new ConfigSetting(CATEGORY_DEBUG, this.config.get(CATEGORY_DEBUG, "dump-threads-on-warn", false, "Dump the the server thread on deadlock warning"));
+        this.enableThreadContentionMonitoring = new ConfigSetting(CATEGORY_DEBUG, this.config
+                .get(CATEGORY_DEBUG, "thread-contention-monitoring", false,
+                        "Set true to enable Java's thread contention monitoring for thread dumps"));
+        this.dumpChunksOnDeadlock = new ConfigSetting(CATEGORY_DEBUG,
+                this.config.get(CATEGORY_DEBUG, "dump-chunks-on-deadlock", false, "Dump chunks in the event of a deadlock"));
+        this.dumpHeapOnDeadlock = new ConfigSetting(CATEGORY_DEBUG,
+                this.config.get(CATEGORY_DEBUG, "dump-heap-on-deadlock", false, "Dump the heap in the event of a deadlock"));
+        this.dumpThreadsOnWarn = new ConfigSetting(CATEGORY_DEBUG,
+                this.config.get(CATEGORY_DEBUG, "dump-threads-on-warn", false, "Dump the the server thread on deadlock warning"));
 
         // World Settings
-        this.infiniteWaterSource = new ConfigSetting(CATEGORY_WORLD_SETTINGS, this.config.get(CATEGORY_WORLD_SETTINGS, "infinite-water-source", true, "Vanilla water source behavior - is infinite"));
-        this.flowingLavaDecay = new ConfigSetting(CATEGORY_WORLD_SETTINGS, this.config.get(CATEGORY_WORLD_SETTINGS, "flowing-lava-decay", false, "Lava behaves like vanilla water when source block is removed"));
+        this.infiniteWaterSource = new ConfigSetting(CATEGORY_WORLD_SETTINGS,
+                this.config.get(CATEGORY_WORLD_SETTINGS, "infinite-water-source", true, "Vanilla water source behavior - is infinite"));
+        this.flowingLavaDecay = new ConfigSetting(CATEGORY_WORLD_SETTINGS, this.config
+                .get(CATEGORY_WORLD_SETTINGS, "flowing-lava-decay", false, "Lava behaves like vanilla water when source block is removed"));
 
         this.settings.clear();
         this.settings.put("general.config-enabled", this.configEnabled);
@@ -170,7 +199,9 @@ public class SpongeConfig {
             this.config.load();
 
             for (ConfigSetting toggle : this.settings.values()) {
-                toggle.setValue(this.config.get(toggle.getCategory(), toggle.getProperty().getName(), toggle.getProperty().getDefault(), toggle.getDescription()).getString());
+                toggle.setValue(this.config
+                        .get(toggle.getCategory(), toggle.getProperty().getName(), toggle.getProperty().getDefault(), toggle.getDescription())
+                        .getString());
             }
 
             this.save();

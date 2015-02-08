@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.golem;
 import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.monster.EntityIronGolem;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.golem.IronGolem;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -51,9 +50,9 @@ public abstract class MixinEntityIronGolem extends EntityGolem {
         byte b0 = this.dataWatcher.getWatchableObjectByte(16);
 
         if (playerCreated) {
-            this.dataWatcher.updateObject(16, Byte.valueOf((byte)(b0 | 1)));
+            this.dataWatcher.updateObject(16, (byte) (b0 | 1));
         } else {
-            this.dataWatcher.updateObject(16, Byte.valueOf((byte)(b0 & -2)));
+            this.dataWatcher.updateObject(16, (byte) (b0 & -2));
         }
     }
 

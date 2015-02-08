@@ -50,6 +50,6 @@ public abstract class MixinEntityXPOrb extends Entity implements ExperienceOrb {
 
     @Override
     public void setExperience(double experience) {
-        this.xpValue =  (int) experience;
+        this.xpValue = (int) experience;
     }
 }

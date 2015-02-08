@@ -26,12 +26,8 @@ package org.spongepowered.mod.text.selector;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.command.PlayerSelector;
-
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.text.selector.Selector;
 import org.spongepowered.api.text.selector.SelectorBuilder;
@@ -39,7 +35,9 @@ import org.spongepowered.api.text.selector.SelectorType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @NonnullByDefault
 public class SpongeSelector implements Selector {
@@ -82,7 +80,7 @@ public class SpongeSelector implements Selector {
         for (Entry<String, String> entry : this.arguments.entrySet()) {
             sb.append(entry.getKey()).append("=").append(entry.getValue()).append(",");
         }
-        return "@" + this.type.getId() + "[" + sb.deleteCharAt(sb.length()-1).toString() + "]";
+        return "@" + this.type.getId() + "[" + sb.deleteCharAt(sb.length() - 1).toString() + "]";
     }
 
     @Override

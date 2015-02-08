@@ -24,20 +24,19 @@
  */
 package org.spongepowered.mod.effect.particle;
 
-import java.awt.Color;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.flowpowered.math.vector.Vector3f;
 import net.minecraft.item.Item;
-
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import com.flowpowered.math.vector.Vector3f;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkArgument;
+import java.awt.Color;
 
 public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
+
     protected final SpongeParticleType type;
 
     protected Vector3f motion = Vector3f.ZERO;
@@ -76,6 +75,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     public static class BuilderColorable extends SpongeParticleEffectBuilder implements ParticleEffectBuilder.Colorable {
+
         private Color color;
 
         public BuilderColorable(SpongeParticleType.Colorable type) {
@@ -113,6 +113,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     public static class BuilderResizable extends SpongeParticleEffectBuilder implements ParticleEffectBuilder.Resizable {
+
         private float size;
 
         public BuilderResizable(SpongeParticleType.Resizable type) {
@@ -150,6 +151,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     public static class BuilderNote extends SpongeParticleEffectBuilder implements ParticleEffectBuilder.Note {
+
         private float note;
 
         public BuilderNote(SpongeParticleType.Note type) {
@@ -187,6 +189,7 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
     }
 
     public static class BuilderMaterial extends SpongeParticleEffectBuilder implements ParticleEffectBuilder.Material {
+
         private ItemStack item;
 
         public BuilderMaterial(SpongeParticleType.Material type) {

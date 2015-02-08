@@ -24,17 +24,15 @@
  */
 package org.spongepowered.mod.text.message;
 
-import java.util.ArrayDeque;
-import java.util.Map;
-
 import com.google.common.collect.ImmutableMap;
-
 import net.minecraft.util.ChatComponentSelector;
-
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.text.message.MessageBuilder;
 import org.spongepowered.mod.text.selector.SpongeSelector;
 import org.spongepowered.mod.text.selector.SpongeSelectorType;
+
+import java.util.ArrayDeque;
+import java.util.Map;
 
 public class SpongeMessageSelector extends SpongeMessage<org.spongepowered.api.text.selector.Selector> implements Message.Selector {
 

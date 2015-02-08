@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.projectile;
 import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.projectile.Egg;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -45,7 +44,7 @@ public abstract class MixinEntityEgg extends EntityThrowable implements Egg {
     }
 
     @ModifyArg(method = "onImpact(Lnet/minecraft/util/MovingObjectPosition;)V", at =
-        @At(value = "INVOKE", target="Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
+    @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
     private float onAttackEntityFrom(float damage) {
         return (float) this.damageAmount;
     }

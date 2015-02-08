@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.forge;
 
 import net.minecraft.block.state.IBlockState;
-
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -40,7 +39,7 @@ public abstract class MixinBlockSnapshot implements BlockSnapshot {
 
     @Override
     public BlockState getState() {
-        return (BlockState)this.replacedBlock;
+        return (BlockState) this.replacedBlock;
     }
 
 }

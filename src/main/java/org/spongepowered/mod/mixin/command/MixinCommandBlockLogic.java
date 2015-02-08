@@ -24,6 +24,9 @@
  */
 package org.spongepowered.mod.mixin.command;
 
+import net.minecraft.command.ICommandSender;
+import net.minecraft.command.server.CommandBlockLogic;
+import net.minecraft.util.ChatComponentText;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.source.CommandBlockSource;
@@ -32,10 +35,6 @@ import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.text.message.SpongeMessage;
 import org.spongepowered.mod.util.VecHelper;
-
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.server.CommandBlockLogic;
-import net.minecraft.util.ChatComponentText;
 
 @NonnullByDefault
 @Mixin(CommandBlockLogic.class)

@@ -24,13 +24,12 @@
  */
 package org.spongepowered.mod.mixin.item.merchant;
 
+import com.google.common.base.Optional;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
-import com.google.common.base.Optional;
 
 @NonnullByDefault
 @Mixin(net.minecraft.village.MerchantRecipe.class)
@@ -38,28 +37,28 @@ public abstract class MixinMerchantRecipe implements TradeOffer {
 
     @Shadow
     public abstract net.minecraft.item.ItemStack getItemToBuy();
-    
+
     @Shadow
     public abstract boolean hasSecondItemToBuy();
-    
+
     @Shadow
     public abstract net.minecraft.item.ItemStack getSecondItemToBuy();
-    
+
     @Shadow
     public abstract net.minecraft.item.ItemStack getItemToSell();
-    
+
     @Shadow
     public abstract int func_180321_e();
-    
+
     @Shadow
     public abstract int func_180320_f();
-    
+
     @Shadow
     public abstract boolean isRecipeDisabled();
-    
+
     @Shadow
     public abstract boolean func_180322_j();
-    
+
     @Override
     public ItemStack getFirstBuyingItem() {
         return (ItemStack) getItemToBuy();
@@ -72,12 +71,12 @@ public abstract class MixinMerchantRecipe implements TradeOffer {
 
     @Override
     public Optional<ItemStack> getSecondBuyingItem() {
-        return Optional.fromNullable((ItemStack) getSecondBuyingItem());
+        return Optional.fromNullable((ItemStack) getSecondItemToBuy());
     }
 
     @Override
     public ItemStack getSellingItem() {
-        return getSellingItem();
+        return (ItemStack) getItemToSell();
     }
 
     @Override

@@ -38,14 +38,15 @@ import java.util.regex.Pattern;
 
 public final class SpongeStatusResponse {
 
-    private SpongeStatusResponse() {}
+    private SpongeStatusResponse() {
+    }
 
     public static ServerStatusResponse post(MinecraftServer server, StatusClient client) {
         return call(create(server), client);
     }
 
     public static ServerStatusResponse postLegacy(MinecraftServer server, InetSocketAddress address, MinecraftVersion version,
-                                                  InetSocketAddress virtualHost) {
+            InetSocketAddress virtualHost) {
         ServerStatusResponse response = create(server);
         response.setProtocolVersionInfo(
                 new ServerStatusResponse.MinecraftProtocolVersionIdentifier(response.getProtocolVersionInfo().getName(), Byte.MAX_VALUE));
@@ -58,7 +59,7 @@ public final class SpongeStatusResponse {
 
     private static ServerStatusResponse call(ServerStatusResponse response, StatusClient client) {
         if (!SpongeMod.instance.getGame().getEventManager().post(SpongeEventFactory.createStatusPing(SpongeMod.instance.getGame(), client,
-                                                                                                     (StatusPingEvent.Response) response))) {
+                (StatusPingEvent.Response) response))) {
             return response;
         } else {
             return null;
@@ -83,7 +84,7 @@ public final class SpongeStatusResponse {
 
     private static ServerStatusResponse.PlayerCountData clone(ServerStatusResponse.PlayerCountData original) {
         ServerStatusResponse.PlayerCountData clone = new ServerStatusResponse.PlayerCountData(original.getMaxPlayers(),
-                                                                                              original.getOnlinePlayerCount());
+                original.getOnlinePlayerCount());
         clone.setPlayers(original.getPlayers());
         return clone;
     }
@@ -102,7 +103,7 @@ public final class SpongeStatusResponse {
         return getFirstLine(response.getServerDescription().getUnformattedText());
     }
 
-    private static final Pattern STRIP_FORMATTING = Pattern.compile("(?i)\u00a7[0-9A-FK-OR]?");
+    private static final Pattern STRIP_FORMATTING = Pattern.compile("(?i)§[0-9A-FK-OR]?");
 
     public static String getUnformattedMotd(ServerStatusResponse response) {
         return getFirstLine(STRIP_FORMATTING.matcher(response.getServerDescription().getUnformattedText()).replaceAll(""));

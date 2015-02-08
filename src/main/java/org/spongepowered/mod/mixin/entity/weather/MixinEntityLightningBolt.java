@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.entity.weather;
 
 import net.minecraft.entity.effect.EntityWeatherEffect;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.weather.Lightning;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,7 +48,8 @@ public abstract class MixinEntityLightningBolt extends EntityWeatherEffect imple
         return this.effect;
     }
 
-    @Inject(method = "onUpdate()V", at = { @At(value = "NEW", args = "class=net.minecraft.util.BlockPos"), @At(value = "NEW", args = "class=net.minecraft.util.AxisAlignedBB") }, cancellable = true)
+    @Inject(method = "onUpdate()V", at = {@At(value = "NEW", args = "class=net.minecraft.util.BlockPos"),
+            @At(value = "NEW", args = "class=net.minecraft.util.AxisAlignedBB")}, cancellable = true)
     public void onOnUpdate(CallbackInfo ci) {
         if (this.effect) {
             ci.cancel();

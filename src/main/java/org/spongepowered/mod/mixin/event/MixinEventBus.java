@@ -25,7 +25,10 @@
 package org.spongepowered.mod.mixin.event;
 
 import com.google.common.base.Throwables;
-
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventBus;
+import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
+import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -33,16 +36,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.SpongeEventBus;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.EventBus;
-import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
-import net.minecraftforge.fml.common.eventhandler.IEventListener;
-
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.fml.common.eventhandler.EventBus.class, remap = false)
 public abstract class MixinEventBus {
 
-    private EventBus eventBus = (EventBus)(Object)this;
+    private EventBus eventBus = (EventBus) (Object) this;
 
     @Shadow private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;
@@ -52,7 +50,7 @@ public abstract class MixinEventBus {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
         if (event instanceof org.spongepowered.api.util.event.Event) {
-            return ((SpongeEventBus)SpongeMod.instance.getGame().getEventManager()).post(event, listeners);
+            return ((SpongeEventBus) SpongeMod.instance.getGame().getEventManager()).post(event, listeners);
         } else {
             listeners = event.getListenerList().getListeners(this.busID);
             int index = 0;

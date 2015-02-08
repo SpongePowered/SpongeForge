@@ -129,7 +129,7 @@ class HandlerClassFactory implements HandlerFactory {
         String eventInternalName = Type.getInternalName(eventClass);
 
         cw.visit(Opcodes.V1_6, ACC_PUBLIC + ACC_SUPER, createdInternalName, null, "java/lang/Object",
-                 new String[]{Type.getInternalName(Handler.class)});
+                new String[]{Type.getInternalName(Handler.class)});
 
         {
             fv = cw.visitField(ACC_PRIVATE + ACC_FINAL, "object", "L" + invokedInternalName + ";", null, null);

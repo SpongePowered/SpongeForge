@@ -42,7 +42,7 @@ public abstract class MixinEntityTNTPrimed extends Entity implements PrimedTNT {
     private int fuse;
 
     @Shadow
-    private EntityLivingBase tntPlacedBy;   
+    private EntityLivingBase tntPlacedBy;
 
     @Shadow
     public abstract void explode();

@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.EnderCrystal;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;

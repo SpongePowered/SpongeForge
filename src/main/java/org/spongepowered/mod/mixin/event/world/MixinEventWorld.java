@@ -38,7 +38,7 @@ public abstract class MixinEventWorld implements WorldEvent {
 
     @Override
     public World getWorld() {
-        return (World)this.world;
+        return (World) this.world;
     }
 
 }

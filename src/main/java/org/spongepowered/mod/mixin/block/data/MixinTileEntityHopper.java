@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.block.data;
 import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.IHopper;
 import net.minecraft.tileentity.TileEntityLockable;
-
 import org.spongepowered.api.block.data.Hopper;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -43,5 +42,7 @@ public abstract class MixinTileEntityHopper extends TileEntityLockable implement
     @Shadow
     private int transferCooldown = -1;
 
-    public int hopper$getTransferCooldown() { return this.transferCooldown; }
+    public int hopper$getTransferCooldown() {
+        return this.transferCooldown;
+    }
 }

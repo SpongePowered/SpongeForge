@@ -24,14 +24,14 @@
  */
 package org.spongepowered.mod.effect.particle;
 
-import java.awt.Color;
-
+import net.minecraft.util.EnumParticleTypes;
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import net.minecraft.util.EnumParticleTypes;
+import java.awt.Color;
 
 public class SpongeParticleType implements ParticleType {
+
     private EnumParticleTypes type;
     private boolean motion;
 
@@ -55,6 +55,7 @@ public class SpongeParticleType implements ParticleType {
     }
 
     public static class Colorable extends SpongeParticleType implements ParticleType.Colorable {
+
         private Color color;
 
         public Colorable(EnumParticleTypes type, Color color) {
@@ -70,6 +71,7 @@ public class SpongeParticleType implements ParticleType {
     }
 
     public static class Resizable extends SpongeParticleType implements ParticleType.Resizable {
+
         private float size;
 
         public Resizable(EnumParticleTypes type, float size) {
@@ -85,6 +87,7 @@ public class SpongeParticleType implements ParticleType {
     }
 
     public static class Note extends SpongeParticleType implements ParticleType.Note {
+
         private float note;
 
         public Note(EnumParticleTypes type, float note) {
@@ -100,6 +103,7 @@ public class SpongeParticleType implements ParticleType {
     }
 
     public static class Material extends SpongeParticleType implements ParticleType.Material {
+
         // TODO: This should change to the sponge item stack type if a clone method available is
         private net.minecraft.item.ItemStack item;
 

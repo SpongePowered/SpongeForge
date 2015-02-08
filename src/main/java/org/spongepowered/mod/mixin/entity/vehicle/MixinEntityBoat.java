@@ -98,14 +98,14 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
         if ((displacement > this.initialDisplacement) && (this.speedMultiplier < this.maxSpeed)) {
             this.speedMultiplier += (this.maxSpeed - this.speedMultiplier) / this.maxSpeed * 100.0;
             this.speedMultiplier = Math.min(this.speedMultiplier, this.maxSpeed);
-        }
-        else {
+        } else {
             this.speedMultiplier -= (this.speedMultiplier - 0.07) / this.maxSpeed * 100.0;
             this.speedMultiplier = Math.max(this.speedMultiplier, 0.07);
         }
     }
 
-    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.riddenByEntity:Lnet/minecraft/entity/Entity;", ordinal = 0))
+    @Inject(method = "onUpdate()V",
+            at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.riddenByEntity:Lnet/minecraft/entity/Entity;", ordinal = 0))
     public void implementCustomDeceleration(CallbackInfo ci) {
         if (!(this.riddenByEntity instanceof EntityLivingBase)) {
             double decel = this.riddenByEntity == null ? this.unoccupiedDecelerationSpeed : this.occupiedDecelerationSpeed;

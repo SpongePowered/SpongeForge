@@ -24,20 +24,18 @@
  */
 package org.spongepowered.mod.mixin.entity.living.monster;
 
+import com.google.common.base.Optional;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.entity.living.monster.Enderman;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
-
-import com.google.common.base.Optional;
 
 @NonnullByDefault
 @Mixin(EntityEnderman.class)
@@ -49,11 +47,12 @@ public abstract class MixinEntityEnderman extends EntityMob {
     }
 
     public Optional<BlockState> enderman$getCarriedBlock() {
-        return Optional.fromNullable((BlockState)Block.getStateById(this.dataWatcher.getWatchableObjectShort(16) & 65535));
+        return Optional.fromNullable((BlockState) Block.getStateById(this.dataWatcher.getWatchableObjectShort(16) & 65535));
     }
 
     public void enderman$setCarriedBlock(BlockState carriedBlock) {
-        this.dataWatcher.updateObject(16, Short.valueOf((short)(Block.getStateId(((IBlockState)carriedBlock).getBlock().getDefaultState()) & 65535)));
+        this.dataWatcher
+                .updateObject(16, (short) (Block.getStateId(((IBlockState) carriedBlock).getBlock().getDefaultState()) & 65535));
     }
 
     public boolean enderman$isScreaming() {
@@ -61,6 +60,6 @@ public abstract class MixinEntityEnderman extends EntityMob {
     }
 
     public void enderman$setScreaming(boolean screaming) {
-        this.dataWatcher.updateObject(18, Byte.valueOf((byte)(screaming ? 1 : 0)));
+        this.dataWatcher.updateObject(18, (byte) (screaming ? 1 : 0));
     }
 }

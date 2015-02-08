@@ -24,12 +24,11 @@
  */
 package org.spongepowered.mod.entity;
 
+import com.google.common.base.MoreObjects;
 import org.spongepowered.api.service.persistence.DataSource;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 
-import com.google.common.base.MoreObjects;
-
-public class SpongeEntityMeta  {
+public class SpongeEntityMeta {
 
     public final int type;
     public final String name;
@@ -51,7 +50,7 @@ public class SpongeEntityMeta  {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        SpongeEntityMeta other = (SpongeEntityMeta)obj;
+        SpongeEntityMeta other = (SpongeEntityMeta) obj;
         if (this.type != other.type) {
             return false;
         } else if (this.name != other.name) {
@@ -72,8 +71,8 @@ public class SpongeEntityMeta  {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-            .add("type", this.type)
-            .add("name", this.name)
-            .toString();
+                .add("type", this.type)
+                .add("name", this.name)
+                .toString();
     }
 }

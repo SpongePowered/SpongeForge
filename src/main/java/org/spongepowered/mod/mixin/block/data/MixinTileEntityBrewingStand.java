@@ -47,7 +47,11 @@ public abstract class MixinTileEntityBrewingStand extends TileEntityLockable imp
     @Shadow
     public abstract void setField(int id, int value);
 
-    public int brewingstand$getRemainingBrewTime() { return getField(0); }
+    public int brewingstand$getRemainingBrewTime() {
+        return getField(0);
+    }
 
-    public void brewingstand$setRemainingBrewTime(int time) { setField(0, time); }
+    public void brewingstand$setRemainingBrewTime(int time) {
+        setField(0, time);
+    }
 }

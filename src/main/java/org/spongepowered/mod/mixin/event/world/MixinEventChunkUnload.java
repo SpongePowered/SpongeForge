@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.event.world;
 
 import net.minecraftforge.event.world.ChunkEvent;
-
 import org.spongepowered.api.event.world.ChunkUnloadEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
@@ -43,6 +42,6 @@ public abstract class MixinEventChunkUnload extends ChunkEvent {
     }
 
     public Chunk chunkunload$getChunk() {
-        return (Chunk)getChunk();
+        return (Chunk) getChunk();
     }
 }

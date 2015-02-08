@@ -47,6 +47,7 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 
 public class SpongeFavicon implements Favicon {
+
     private final String encoded;
     private final BufferedImage decoded;
 

@@ -40,17 +40,17 @@ import java.util.regex.Pattern;
 public class SchedulerHelper {
 
     private long sequenceNumber = 0L;
-    private Task.TaskSynchronicity syncType;
+    private ScheduledTask.TaskSynchroncity syncType;
 
     @SuppressWarnings("unused")
-    private SchedulerHelper() {}
+    private SchedulerHelper() {
+    }
 
-    protected SchedulerHelper(Task.TaskSynchronicity syncType) {
-
+    protected SchedulerHelper(ScheduledTask.TaskSynchroncity syncType) {
         this.syncType = syncType;
     }
 
-    protected Optional<Task> utilityForAddingTask(Map<UUID,ScheduledTask> taskMap, ScheduledTask task) {
+    protected Optional<Task> utilityForAddingTask(Map<UUID, ScheduledTask> taskMap, ScheduledTask task) {
         Optional<Task> resultTask = Optional.absent();
         taskMap.put(task.getUniqueId(), task);
         resultTask = Optional.of((Task) task);
@@ -76,11 +76,11 @@ public class SchedulerHelper {
      * @param id The UUID of the Task to find.
      * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the existing Task.
      */
-    protected Optional<Task> getTaskById(Map<UUID,ScheduledTask> taskMap, UUID id) {
+    protected Optional<Task> getTaskById(Map<UUID, ScheduledTask> taskMap, UUID id) {
         Optional<Task> resultTask = Optional.absent();
 
         Task tmp = taskMap.get(id);
-        if ( tmp != null ) {
+        if (tmp != null) {
             resultTask = Optional.of(tmp);
         }
 
@@ -92,10 +92,10 @@ public class SchedulerHelper {
      *
      * @return Collection&lt;Task&gt; of all known Tasks in the TaskScheduler
      */
-    protected Collection<Task> getScheduledTasks(Map<UUID,ScheduledTask> taskMap) {
+    protected Collection<Task> getScheduledTasks(Map<UUID, ScheduledTask> taskMap) {
         Collection<Task> taskCollection;
         synchronized (taskMap) {
-            taskCollection = new ArrayList<Task>( taskMap.values());
+            taskCollection = new ArrayList<Task>(taskMap.values());
         }
         return taskCollection;
     }
@@ -110,7 +110,7 @@ public class SchedulerHelper {
      * @param plugin The plugin that may own the Tasks in the TaskScheduler
      * @return Collection&lt;Task&gt; of Tasks owned by the PluginContainer plugin.
      */
-    protected Collection<Task> getScheduledTasks(Map<UUID,ScheduledTask> taskMap, Object plugin) {
+    protected Collection<Task> getScheduledTasks(Map<UUID, ScheduledTask> taskMap, Object plugin) {
 
         // The argument is an Object so we have due diligence to perform...
         // Owner is not a PluginContainer derived class
@@ -150,13 +150,13 @@ public class SchedulerHelper {
     /**
      * <p>Get the UUID of the task by name.</p>
      * @param name  The name of the task to search
-     * @return  The Optional&lt;UUID&gt; result from the search by name.
+     * @return The Optional&lt;UUID&gt; result from the search by name.
      */
-    protected Optional<UUID> getUuidOfTaskByName(Map<UUID,ScheduledTask> taskMap, String name) {
+    protected Optional<UUID> getUuidOfTaskByName(Map<UUID, ScheduledTask> taskMap, String name) {
         Optional<UUID> resultUUID = Optional.absent();
 
         for (ScheduledTask t : taskMap.values()) {
-            if ( name.equals(t.name) ) {
+            if (name.equals(t.name)) {
                 return Optional.of(t.id);
             }
         }
@@ -175,7 +175,7 @@ public class SchedulerHelper {
      * @param pattern The regular expression pattern applied to the name of tasks.
      * @return An Optional&lt;UUID&gt; result of task UUIDs that match the pattern or Optional.absent() if none match.
      */
-    protected Collection<Task> getfTasksByName(Map<UUID,ScheduledTask> taskMap, String pattern) {
+    protected Collection<Task> getfTasksByName(Map<UUID, ScheduledTask> taskMap, String pattern) {
 
         Collection<Task> subsetCollection;
         Pattern searchPattern = Pattern.compile(pattern);
@@ -189,7 +189,7 @@ public class SchedulerHelper {
         while (it.hasNext()) {
             String taskName = ((PluginContainer) it.next()).getName();
             Matcher matcher = searchPattern.matcher(taskName);
-            if ( ! matcher.matches()) {
+            if (!matcher.matches()) {
                 it.remove();
             }
         }
@@ -203,7 +203,7 @@ public class SchedulerHelper {
         if (plugin == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_NULL_WARNING);
             return null;
-        }  else if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
+        } else if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
             // Owner is not a PluginContainer derived class
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
             return null;
@@ -228,12 +228,12 @@ public class SchedulerHelper {
             return null;
         }
 
-        if ( offset < 0L ) {
+        if (offset < 0L) {
             SpongeMod.instance.getLogger().error(SchedulerLogMessages.DELAY_NEGATIVE_ERROR);
             return null;
         }
 
-        if ( period < 0L ) {
+        if (period < 0L) {
             SpongeMod.instance.getLogger().error(SchedulerLogMessages.INTERVAL_NEGATIVE_ERROR);
             return null;
         }

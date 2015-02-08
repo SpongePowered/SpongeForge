@@ -24,8 +24,27 @@
  */
 package org.spongepowered.mod.util;
 
+import com.flowpowered.math.vector.Vector3i;
+import com.google.gson.stream.JsonWriter;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.World;
+import net.minecraft.world.gen.ChunkProviderServer;
+import net.minecraftforge.common.DimensionManager;
+import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.configuration.SpongeConfig;
+import org.spongepowered.mod.interfaces.IMixinWorld;
+import org.spongepowered.mod.interfaces.IMixinWorldProvider;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -41,28 +60,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.management.MBeanServer;
-
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.configuration.SpongeConfig;
-import org.spongepowered.mod.interfaces.IMixinWorld;
-import org.spongepowered.mod.interfaces.IMixinWorldProvider;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.ChunkCoordIntPair;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.ChunkProviderServer;
-import net.minecraftforge.common.DimensionManager;
-
-import com.flowpowered.math.vector.Vector3i;
-import com.google.gson.stream.JsonWriter;
 
 public class SpongeHooks {
 
@@ -139,18 +136,22 @@ public class SpongeHooks {
 
     public static boolean checkBoundingBoxSize(Entity entity, AxisAlignedBB aabb) {
         SpongeConfig config = getActiveConfig(entity.worldObj);
-        if (!(entity instanceof EntityLivingBase) || entity instanceof EntityPlayer) return false; // only check living entities that are not players
+        if (!(entity instanceof EntityLivingBase) || entity instanceof EntityPlayer) {
+            return false; // only check living entities that are not players
+        }
 
         int logSize = config.largeBoundingBoxLogSize.getProperty().getInt();
-        if (logSize <= 0 || !config.checkEntityBoundingBoxes.getProperty().getBoolean()) return false;
+        if (logSize <= 0 || !config.checkEntityBoundingBoxes.getProperty().getBoolean()) {
+            return false;
+        }
         int x = MathHelper.floor_double(aabb.minX);
         int x1 = MathHelper.floor_double(aabb.maxX + 1.0D);
         int y = MathHelper.floor_double(aabb.minY);
         int y1 = MathHelper.floor_double(aabb.maxY + 1.0D);
         int z = MathHelper.floor_double(aabb.minZ);
         int z1 = MathHelper.floor_double(aabb.maxZ + 1.0D);
-        
-        int size = Math.abs(x1-x) * Math.abs(y1-y) * Math.abs(z1-z);
+
+        int size = Math.abs(x1 - x) * Math.abs(y1 - y) * Math.abs(z1 - z);
         if (size > config.largeBoundingBoxLogSize.getProperty().getInt()) {
             logWarning("Entity being removed for bounding box restrictions");
             logWarning("BB Size: {0} > {1} avg edge: {2}", size, logSize, aabb.getAverageEdgeLength());
@@ -177,8 +178,9 @@ public class SpongeHooks {
                 if (config.logEntitySpeedRemoval.getProperty().getBoolean()) {
                     logInfo("Speed violation: {0} was over {1} - Removing Entity: {2}", distance, maxSpeed, entity);
                     if (entity instanceof EntityLivingBase) {
-                        EntityLivingBase livingBase = (EntityLivingBase)entity;
-                        logInfo("Entity Motion: ({0}, {1}, {2}) Move Strafing: {3} Move Forward: {4}", entity.motionX, entity.motionY, entity.motionZ, livingBase.moveStrafing, livingBase.moveForward);
+                        EntityLivingBase livingBase = (EntityLivingBase) entity;
+                        logInfo("Entity Motion: ({0}, {1}, {2}) Move Strafing: {3} Move Forward: {4}", entity.motionX, entity.motionY, entity.motionZ,
+                                livingBase.moveStrafing, livingBase.moveForward);
                     }
 
                     if (config.logWithStackTraces.getProperty().getBoolean()) {
@@ -208,19 +210,25 @@ public class SpongeHooks {
     // TODO - needs to be hooked
     public static void logEntitySize(Entity entity, List list) {
         SpongeConfig config = getActiveConfig(entity.worldObj);
-        if (!config.logEntityCollisionChecks.getProperty().getBoolean()) return;
+        if (!config.logEntityCollisionChecks.getProperty().getBoolean()) {
+            return;
+        }
         int largeCountLogSize = config.largeCollisionLogSize.getProperty().getInt();
         /*if (largeCountLogSize > 0 && entity.worldObj.entitiesTicked > largeCountLogSize)
         {
             logWarning("Entity size > {0, number} at: {1}", largeCountLogSize, entity);
         }*/
-        if (list == null) return;
+        if (list == null) {
+            return;
+        }
         int largeCollisionLogSize = config.largeCollisionLogSize.getProperty().getInt();
         if (largeCollisionLogSize > 0 && (MinecraftServer.getServer().getTickCounter() % 10) == 0 && list.size() >= largeCollisionLogSize) {
             SpongeHooks.CollisionWarning warning = new SpongeHooks.CollisionWarning(entity.worldObj, entity);
             if (recentWarnings.contains(warning)) {
                 long lastWarned = recentWarnings.get(warning);
-                if ((MinecraftServer.getCurrentTimeMillis() - lastWarned) < 30000) return;
+                if ((MinecraftServer.getCurrentTimeMillis() - lastWarned) < 30000) {
+                    return;
+                }
             }
             recentWarnings.put(warning, System.currentTimeMillis());
             logWarning("Entity collision > {0, number} at: {1}", largeCollisionLogSize, entity);
@@ -228,6 +236,7 @@ public class SpongeHooks {
     }
 
     private static class CollisionWarning {
+
         public BlockPos blockPos;
         public int dimensionId;
 
@@ -238,7 +247,9 @@ public class SpongeHooks {
 
         @Override
         public boolean equals(Object otherObj) {
-            if (!(otherObj instanceof CollisionWarning) || (otherObj == null)) return false;
+            if (!(otherObj instanceof CollisionWarning) || (otherObj == null)) {
+                return false;
+            }
             CollisionWarning other = (CollisionWarning) otherObj;
             return (other.dimensionId == this.dimensionId) && other.blockPos.equals(this.blockPos);
         }
@@ -281,7 +292,7 @@ public class SpongeHooks {
                     chunkEntityCounts.adjustOrPutValue(chunkCoords, 1, 1);
                     classEntityCounts.adjustOrPutValue(entity.getClass(), 1, 1);
                     if ((entity.getBoundingBox() != null) && logAll) {
-                        BlockPos coords = new BlockPos((int)Math.floor(entity.posX), (int)Math.floor(entity.posY), (int)Math.floor(entity.posZ));
+                        BlockPos coords = new BlockPos((int) Math.floor(entity.posX), (int) Math.floor(entity.posY), (int) Math.floor(entity.posZ));
                         if (!collidingCoords.contains(coords)) {
                             collidingCoords.add(coords);
                             int size = entity.worldObj.getEntitiesWithinAABBExcludingEntity(entity, entity.getBoundingBox().expand(1, 1, 1)).size();
@@ -365,7 +376,7 @@ public class SpongeHooks {
         writer.endArray();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static void dumpHeap(File file, boolean live) {
         try {
             if (file.getParentFile() != null) {
@@ -383,17 +394,20 @@ public class SpongeHooks {
     }
 
     public static void enableThreadContentionMonitoring() {
-        if (!SpongeMod.instance.getGlobalConfig().enableThreadContentionMonitoring.getProperty().getBoolean()) return;
+        if (!SpongeMod.instance.getGlobalConfig().enableThreadContentionMonitoring.getProperty().getBoolean()) {
+            return;
+        }
         java.lang.management.ThreadMXBean mbean = java.lang.management.ManagementFactory.getThreadMXBean();
         mbean.setThreadContentionMonitoringEnabled(true);
     }
 
     public static SpongeConfig getActiveConfig(World world) {
-        SpongeConfig config = ((IMixinWorld)world).getWorldConfig();
+        SpongeConfig config = ((IMixinWorld) world).getWorldConfig();
         if (config.configEnabled.getProperty().getBoolean()) {
             return config;
-        } else if (((IMixinWorldProvider)world.provider).getDimensionConfig() != null && ((IMixinWorldProvider)world.provider).getDimensionConfig().configEnabled.getProperty().getBoolean()) {
-            return ((IMixinWorldProvider)world.provider).getDimensionConfig();
+        } else if (((IMixinWorldProvider) world.provider).getDimensionConfig() != null && ((IMixinWorldProvider) world.provider)
+                .getDimensionConfig().configEnabled.getProperty().getBoolean()) {
+            return ((IMixinWorldProvider) world.provider).getDimensionConfig();
         } else {
             return SpongeMod.instance.getGlobalConfig();
         }

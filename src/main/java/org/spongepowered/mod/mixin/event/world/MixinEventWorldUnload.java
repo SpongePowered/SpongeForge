@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.event.world;
 
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.WorldEvent;
-
 import org.spongepowered.api.event.world.WorldUnloadEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;

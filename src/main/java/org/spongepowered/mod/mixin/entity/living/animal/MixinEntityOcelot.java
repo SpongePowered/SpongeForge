@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.animal;
 import net.minecraft.entity.passive.EntityOcelot;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.animal.Ocelot;
 import org.spongepowered.api.entity.living.animal.OcelotType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -58,7 +57,7 @@ public abstract class MixinEntityOcelot extends EntityTameable {
     }
 
     public void ocelot$setOcelotType(final OcelotType ocelotType) {
-        this.setTameSkin(((SpongeEntityMeta)ocelotType).type);
+        this.setTameSkin(((SpongeEntityMeta) ocelotType).type);
     }
 
 }

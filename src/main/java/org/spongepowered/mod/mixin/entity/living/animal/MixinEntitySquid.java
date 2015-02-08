@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.animal;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityWaterMob;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.Squid;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;

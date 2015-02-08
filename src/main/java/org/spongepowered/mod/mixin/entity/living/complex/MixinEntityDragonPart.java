@@ -28,7 +28,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.IEntityMultiPart;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.complex.EnderDragon;
 import org.spongepowered.api.entity.living.complex.EnderDragonPart;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -50,7 +49,7 @@ public abstract class MixinEntityDragonPart extends Entity {
     }
 
     public EnderDragon dragonpart$getParent() {
-        return (EnderDragon)this.entityDragonObj;
+        return (EnderDragon) this.entityDragonObj;
     }
 
 }

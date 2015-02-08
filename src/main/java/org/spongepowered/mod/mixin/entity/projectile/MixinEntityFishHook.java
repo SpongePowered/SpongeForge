@@ -114,9 +114,10 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
     }
 
     @Redirect(method = "onUpdate()V", at =
-        @At(value = "INVOKE", target="Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
+    @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
     public boolean onAttackEntityFrom(Entity this$0, DamageSource damageSource, float damage) {
-        PlayerHookedEntityEvent event = SpongeEventFactory.createPlayerHookedEntityEvent(SpongeMod.instance.getGame(), (Player) this.angler, this, (org.spongepowered.api.entity.Entity) this$0);
+        PlayerHookedEntityEvent event = SpongeEventFactory.createPlayerHookedEntityEvent(SpongeMod.instance.getGame(), (Player) this.angler, this,
+                (org.spongepowered.api.entity.Entity) this$0);
         if (!SpongeMod.instance.getGame().getEventManager().post(event)) {
             if (this.getShooter() instanceof Entity) {
                 damageSource = DamageSource.causeThrownDamage(this, (Entity) this.getShooter());
@@ -147,7 +148,9 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
             exp = this.rand.nextInt(6) + 1;
         }
 
-        PlayerRetractFishingLineEvent event = SpongeEventFactory.createPlayerRetractFishingLineEvent(SpongeMod.instance.getGame(), (Player) this.angler, this, (org.spongepowered.api.item.inventory.ItemStack) itemStack, (org.spongepowered.api.entity.Entity) this.caughtEntity, exp);
+        PlayerRetractFishingLineEvent event = SpongeEventFactory
+                .createPlayerRetractFishingLineEvent(SpongeMod.instance.getGame(), (Player) this.angler, this,
+                        (org.spongepowered.api.item.inventory.ItemStack) itemStack, (org.spongepowered.api.entity.Entity) this.caughtEntity, exp);
         byte b0 = 0;
         if (!SpongeMod.instance.getGame().getEventManager().post(event)) {
             exp = (int) event.getExp();
@@ -178,7 +181,7 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
                 this.worldObj.spawnEntityInWorld(entityitem1);
                 this.angler.worldObj.spawnEntityInWorld(
                         new EntityXPOrb(this.angler.worldObj, this.angler.posX, this.angler.posY + 0.5D, this.angler.posZ + 0.5D,
-                                        this.rand.nextInt(6) + 1));
+                                this.rand.nextInt(6) + 1));
                 b0 = 1;
             }
 

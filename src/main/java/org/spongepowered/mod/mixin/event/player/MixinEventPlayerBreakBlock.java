@@ -25,18 +25,11 @@
 package org.spongepowered.mod.mixin.event.player;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
-
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.player.Player;
@@ -45,6 +38,9 @@ import org.spongepowered.api.event.entity.living.player.PlayerBreakBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.BreakEvent.class, remap = false)
@@ -71,14 +67,14 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
         this.exp = exp;
     }*/
 
-    @Override    
+    @Override
     public Player getPlayer() {
-        return (Player)this.player;
+        return (Player) this.player;
     }
 
     @Override
     public BlockSnapshot getReplacementBlock() {
-        return (BlockSnapshot)this.blockSnapshot;
+        return (BlockSnapshot) this.blockSnapshot;
     }
 
     /*@Override
@@ -88,7 +84,7 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
 
     @Override
     public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, (Player)this.player, null));
+        return Optional.fromNullable(new Cause(null, (Player) this.player, null));
     }
 
     @Override

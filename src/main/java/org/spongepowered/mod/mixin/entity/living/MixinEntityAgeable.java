@@ -24,16 +24,15 @@
  */
 package org.spongepowered.mod.mixin.entity.living;
 
+import net.minecraft.entity.EntityAgeable;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.Ageable;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
-import net.minecraft.entity.EntityAgeable;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.world.World;
 
 @NonnullByDefault
 @Mixin(EntityAgeable.class)

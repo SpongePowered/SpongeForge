@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.potion;
 
 import net.minecraft.potion.Potion;
-
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.potion.PotionEffect;
 import org.spongepowered.api.potion.PotionEffectType;
@@ -40,10 +39,10 @@ import org.spongepowered.asm.mixin.Shadow;
 @Implements(@Interface(iface = PotionEffect.class, prefix = "potionEffect$"))
 public abstract class MixinPotionEffect implements PotionEffect {
 
-    @Shadow 
+    @Shadow
     public abstract int getPotionID();
 
-    @Shadow 
+    @Shadow
     private int duration;
 
     @Shadow

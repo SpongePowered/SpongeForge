@@ -25,7 +25,6 @@
 package org.spongepowered.mod.text.translation;
 
 import net.minecraft.util.StatCollector;
-
 import org.spongepowered.api.text.translation.Translation;
 
 public class SpongeTranslation implements Translation {

@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.animal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.animal.Wolf;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;

@@ -24,8 +24,8 @@
  */
 package org.spongepowered.mod.mixin.block.data;
 
+import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntity;
-
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.block.data.Skull;
 import org.spongepowered.api.block.meta.SkullType;
@@ -36,8 +36,6 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
-
-import com.google.common.base.Optional;
 
 @NonnullByDefault
 @Implements(@Interface(iface = Skull.class, prefix = "skull$"))
@@ -60,7 +58,7 @@ public abstract class MixinTileEntitySkull extends TileEntity {
     private int skullRotation;
 
     public Direction skull$getRotation() {
-    return null; //TODO
+        return null; //TODO
     }
 
     public void skull$setRotation(Direction rotation) {
@@ -68,11 +66,11 @@ public abstract class MixinTileEntitySkull extends TileEntity {
     }
 
     public Optional<GameProfile> skull$getPlayer() {
-        return Optional.fromNullable((GameProfile)getPlayerProfile());
+        return Optional.fromNullable((GameProfile) getPlayerProfile());
     }
 
     public void skull$setPlayer(GameProfile player) {
-        setPlayerProfile((com.mojang.authlib.GameProfile)player);
+        setPlayerProfile((com.mojang.authlib.GameProfile) player);
     }
 
     public SkullType skull$getType() {

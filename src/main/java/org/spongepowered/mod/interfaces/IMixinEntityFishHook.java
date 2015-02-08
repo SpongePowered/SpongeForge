@@ -24,10 +24,9 @@
  */
 package org.spongepowered.mod.interfaces;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 
 public interface IMixinEntityFishHook {
 
-    public void setFishingRodItemStack(ItemStack fishingRod);
+    void setFishingRodItemStack(ItemStack fishingRod);
 }

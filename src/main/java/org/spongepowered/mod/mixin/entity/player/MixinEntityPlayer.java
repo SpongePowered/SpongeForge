@@ -56,7 +56,7 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
     }
 
     public void human$setHunger(float hunger) {
-        this.foodStats.setFoodLevel((int)hunger);
+        this.foodStats.setFoodLevel((int) hunger);
     }
 
     public float human$getSaturation() {

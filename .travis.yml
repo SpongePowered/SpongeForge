@@ -1,11 +1,16 @@
+sudo: false
 language: java
-notifications:
-  email: false
-install: true
-script:
-  - gradle setupCIWorkspace
-  - gradle build
-  - git diff --exit-code
+jdk:
+  #- openjdk6 TODO: For some reason, JDK6 fails on Javadoc on the new container infrastructure.
+  # That's why we have to run it on the old infrastructure for now
+  - openjdk7
+  - oraclejdk7
+  #- oraclejdk8 TODO: Enable when Mixin is compilable under JDK8
 matrix:
   include:
-  - jdk: openjdk6
+    - jdk: openjdk6
+      sudo: true
+install: gradle setupCIWorkspace
+script: gradle build
+notifications:
+  email: false

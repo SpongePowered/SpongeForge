@@ -25,6 +25,7 @@
 package org.spongepowered.mod.service.scheduler;
 
 public final class SchedulerLogMessages {
+
     public static final String
             CANNOT_MAKE_TASK_WARNING = "Task cannot be created.";
     public static final String

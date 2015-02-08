@@ -24,12 +24,11 @@
  */
 package org.spongepowered.api.text.selector;
 
-import java.util.List;
-
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+
+import java.util.List;
 
 @NonnullByDefault
 public class SpongeSelectorTypeFactory implements SelectorTypeFactory {

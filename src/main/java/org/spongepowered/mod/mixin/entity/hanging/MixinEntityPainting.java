@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.hanging;
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.item.EntityPainting.EnumArt;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.hanging.Painting;
 import org.spongepowered.api.entity.hanging.art.Art;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

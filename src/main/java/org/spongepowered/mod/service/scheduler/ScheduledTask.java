@@ -36,6 +36,7 @@ import java.util.UUID;
  * one of the Scheduler interfaces. </p>
  */
 public class ScheduledTask implements Task {
+
     protected long offset;
     protected long period;
     protected PluginContainer owner;
@@ -44,7 +45,7 @@ public class ScheduledTask implements Task {
     protected ScheduledTaskState state;
     protected UUID id;
     protected String name;
-    protected Task.TaskSynchronicity syncType;
+    protected TaskSynchroncity syncType;
 
     // Internal Task state. Not for user-service use.
     public enum ScheduledTaskState {
@@ -60,7 +61,7 @@ public class ScheduledTask implements Task {
     }
 
     // This c'tor is OK for internal Sponge use. APIs do not expose the c'tor.
-    protected ScheduledTask(long x, long t,  Task.TaskSynchronicity syncType) {
+    protected ScheduledTask(long x, long t, TaskSynchroncity syncType) {
         // All tasks begin waiting.
         this.state = ScheduledTaskState.WAITING;
 
@@ -119,8 +120,8 @@ public class ScheduledTask implements Task {
     @Override
     public Optional<Long> getDelay() {
         Optional<Long> result = Optional.absent();
-        if ( this.offset > 0 ) {
-            result = Optional.of(Long.valueOf(this.offset));
+        if (this.offset > 0) {
+            result = Optional.of(this.offset);
 
         }
         return result;
@@ -130,8 +131,8 @@ public class ScheduledTask implements Task {
     public Optional<Long> getInterval() {
         Optional<Long> result = Optional.absent();
 
-        if ( this.period > 0 ) {
-            result = Optional.of(Long.valueOf(this.period));
+        if (this.period > 0) {
+            result = Optional.of(this.period);
         }
         return result;
     }
@@ -177,7 +178,7 @@ public class ScheduledTask implements Task {
     @Override
     public Optional<String> getName() {
         Optional<String> result = Optional.absent();
-        if ( this.name != null)  {
+        if (this.name != null) {
             result = Optional.of(this.name);
         }
         return result;
@@ -185,8 +186,7 @@ public class ScheduledTask implements Task {
 
     @Override
     public boolean isSynchronous() {
-
-        return this.syncType == TaskSynchronicity.SYNCHRONOUS;
+        return this.syncType == TaskSynchroncity.SYNCHRONOUS;
     }
 
     @Override
@@ -194,6 +194,11 @@ public class ScheduledTask implements Task {
 
         this.name = name;
         return this.name;
+    }
+
+    public enum TaskSynchroncity {
+        SYNCHRONOUS,
+        ASYNCHRONOUS
     }
 }
 

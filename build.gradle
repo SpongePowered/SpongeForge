@@ -59,6 +59,9 @@ repositories {
         name = 'sonatype-nexus'
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
+
+    // Add Sponge repo for custom checkstyle implementation to fix some wrong warnings
+    maven { url 'http://repo.spongepowered.org/maven' }
 }
 
 // MinecraftForge version
@@ -81,7 +84,7 @@ dependencies {
     
     testCompile 'junit:junit:4.11'
 
-    checkstyle 'com.puppycrawl.tools:checkstyle:6.1.1'
+    checkstyle 'org.spongepowered:checkstyle:6.1.1-sponge1'
 
     deployerJars 'org.apache.maven.wagon:wagon-ftp:2.7'
 }
@@ -153,11 +156,12 @@ license {
 checkstyle {
     configFile = project('SpongeAPI').file('checkstyle.xml')
     configProperties = [
-        "name" : project.name,
-        "organization" : project.organization,
-        "url" : project.url,
-        "year" : project.inceptionYear,
-        "suppressions": project('SpongeAPI').file('checkstyle-suppressions.xml')
+            "name" : project.name,
+            "organization" : project.organization,
+            "url" : project.url,
+            "year" : project.inceptionYear,
+            "basedir": project.projectDir,
+            "severity": 'warning'
     ]
 }
 tasks.jar.dependsOn "check"

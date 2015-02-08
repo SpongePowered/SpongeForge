@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.block.data;
 
 import net.minecraft.tileentity.TileEntityDispenser;
-
 import org.spongepowered.api.block.data.Dropper;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;

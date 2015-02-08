@@ -24,14 +24,10 @@
  */
 package org.spongepowered.mod.mixin.entity.living;
 
-import javax.annotation.Nullable;
-
 import com.google.common.base.Optional;
-
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.Agent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -39,6 +35,8 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityLiving.class)
@@ -49,10 +47,13 @@ public abstract class MixinEntityLiving extends EntityLivingBase {
 
     @Shadow
     public abstract boolean isAIDisabled();
+
     @Shadow
     protected abstract void setNoAI(boolean p_94061_1_);
+
     @Shadow
     public abstract net.minecraft.entity.Entity getLeashedToEntity();
+
     @Shadow
     public abstract void setLeashedToEntity(net.minecraft.entity.Entity entityIn, boolean sendAttachNotification);
 
@@ -73,11 +74,11 @@ public abstract class MixinEntityLiving extends EntityLivingBase {
     }
 
     public Optional<Entity> agent$getLeashHolder() {
-        return Optional.fromNullable((Entity)getLeashedToEntity());
+        return Optional.fromNullable((Entity) getLeashedToEntity());
     }
 
     public void agent$setLeashHolder(@Nullable Entity entity) {
-        setLeashedToEntity((net.minecraft.entity.Entity)entity, true);
+        setLeashedToEntity((net.minecraft.entity.Entity) entity, true);
     }
 
     public boolean agent$getCanPickupItems() {

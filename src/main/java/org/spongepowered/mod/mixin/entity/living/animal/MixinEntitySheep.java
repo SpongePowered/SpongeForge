@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.animal;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.animal.Sheep;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -55,9 +54,9 @@ public abstract class MixinEntitySheep extends EntityAnimal {
         byte b0 = this.dataWatcher.getWatchableObjectByte(16);
 
         if (sheared) {
-            this.dataWatcher.updateObject(16, Byte.valueOf((byte)(b0 | 16)));
+            this.dataWatcher.updateObject(16, (byte) (b0 | 16));
         } else {
-            this.dataWatcher.updateObject(16, Byte.valueOf((byte)(b0 & -17)));
+            this.dataWatcher.updateObject(16, (byte) (b0 & -17));
         }
     }
 

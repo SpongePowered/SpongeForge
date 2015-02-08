@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.event.player;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraftforge.fml.common.eventhandler.Event;
-
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -45,7 +44,7 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
 
     @Override
     public CommandSource getSource() {
-        return (CommandSource)this.player;
+        return (CommandSource) this.player;
     }
 
     @Override
@@ -55,22 +54,22 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
 
     @Override
     public Player getPlayer() {
-        return (Player)this.player;
+        return (Player) this.player;
     }
 
     @Override
     public Player getHuman() {
-        return (Player)this.player;
+        return (Player) this.player;
     }
 
     @Override
     public Player getLiving() {
-        return (Player)this.player;
+        return (Player) this.player;
     }
 
     @Override
     public Player getEntity() {
-        return (Player)this.player;
+        return (Player) this.player;
     }
 
 }

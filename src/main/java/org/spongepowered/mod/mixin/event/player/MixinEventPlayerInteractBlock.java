@@ -24,13 +24,13 @@
  */
 package org.spongepowered.mod.mixin.event.player;
 
+import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
-
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.player.Player;
@@ -40,8 +40,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.wrapper.BlockWrapper;
-
-import com.google.common.base.Optional;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
@@ -57,7 +55,7 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
 
     @Override
     public BlockLoc getBlock() {
-        return (BlockLoc)new BlockWrapper((org.spongepowered.api.world.World)this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
+        return (BlockLoc) new BlockWrapper((org.spongepowered.api.world.World) this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
     }
 
     @Override
@@ -73,7 +71,7 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
 
     @Override
     public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, (Player)this.entityPlayer, null));
+        return Optional.fromNullable(new Cause(null, (Player) this.entityPlayer, null));
     }
 
     /*&@Override

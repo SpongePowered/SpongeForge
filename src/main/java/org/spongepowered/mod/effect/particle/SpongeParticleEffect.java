@@ -24,14 +24,14 @@
  */
 package org.spongepowered.mod.effect.particle;
 
-import java.awt.Color;
-
+import com.flowpowered.math.vector.Vector3f;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import com.flowpowered.math.vector.Vector3f;
+import java.awt.Color;
 
 public class SpongeParticleEffect implements ParticleEffect {
+
     private SpongeParticleType type;
 
     private Vector3f motion;
@@ -67,6 +67,7 @@ public class SpongeParticleEffect implements ParticleEffect {
     }
 
     public static class Colored extends SpongeParticleEffect implements ParticleEffect.Colorable {
+
         private Color color;
 
         public Colored(SpongeParticleType type, Vector3f motion, Vector3f offset, Color color, int count) {
@@ -82,6 +83,7 @@ public class SpongeParticleEffect implements ParticleEffect {
     }
 
     public static class Resized extends SpongeParticleEffect implements ParticleEffect.Resizable {
+
         private float size;
 
         public Resized(SpongeParticleType type, Vector3f motion, Vector3f offset, float size, int count) {
@@ -97,6 +99,7 @@ public class SpongeParticleEffect implements ParticleEffect {
     }
 
     public static class Note extends SpongeParticleEffect implements ParticleEffect.Note {
+
         private float note;
 
         public Note(SpongeParticleType type, Vector3f motion, Vector3f offset, float note, int count) {
@@ -112,6 +115,7 @@ public class SpongeParticleEffect implements ParticleEffect {
     }
 
     public static class Materialized extends SpongeParticleEffect implements ParticleEffect.Material {
+
         private ItemStack item;
 
         public Materialized(SpongeParticleType type, Vector3f motion, Vector3f offset, ItemStack item, int count) {

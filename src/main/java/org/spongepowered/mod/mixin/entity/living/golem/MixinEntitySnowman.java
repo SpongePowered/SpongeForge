@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.entity.living.golem;
 import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.monster.EntitySnowman;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.living.golem.SnowGolem;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;

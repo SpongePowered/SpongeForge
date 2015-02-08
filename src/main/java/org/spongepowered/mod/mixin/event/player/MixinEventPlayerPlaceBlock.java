@@ -24,23 +24,20 @@
  */
 package org.spongepowered.mod.mixin.event.player;
 
+import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
-
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.living.player.PlayerPlaceBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
-import com.google.common.base.Optional;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
@@ -56,19 +53,19 @@ public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements P
         super(world, pos, state);
     }
 
-    @Override    
+    @Override
     public Player getPlayer() {
-        return (Player)this.player;
+        return (Player) this.player;
     }
 
     @Override
     public BlockSnapshot getReplacementBlock() {
-        return (BlockSnapshot)this.blockSnapshot;
+        return (BlockSnapshot) this.blockSnapshot;
     }
 
     @Override
     public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, (Player)this.player, null));
+        return Optional.fromNullable(new Cause(null, (Player) this.player, null));
     }
 
     @Override
