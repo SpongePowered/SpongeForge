@@ -22,12 +22,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.event.message;
+package org.spongepowered.mod.mixin.event.player;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 
-import org.spongepowered.api.event.message.MessageEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
-public abstract class MixinEventMessage implements MessageEvent {
+public abstract class MixinEventPlayerChat implements PlayerChatEvent {
 
     @Shadow public String message, username;
     @Shadow public EntityPlayerMP player;
