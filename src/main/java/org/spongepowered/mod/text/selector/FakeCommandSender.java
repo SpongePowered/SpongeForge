@@ -35,8 +35,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import org.spongepowered.api.world.Location;
-
-import com.flowpowered.math.vector.Vector3d;
+import org.spongepowered.mod.util.VecHelper;
 
 class FakeCommandSender implements ICommandSender {
 
@@ -46,8 +45,7 @@ class FakeCommandSender implements ICommandSender {
     public FakeCommandSender(@Nullable Location location) {
         this.location = location;
         if (location != null) {
-            Vector3d pos = location.getPosition();
-            this.positionVec3 = new Vec3(pos.getX(), pos.getY(), pos.getZ());
+            this.positionVec3 = VecHelper.toVector(location.getPosition());
         } else {
             this.positionVec3 = null;
         }
