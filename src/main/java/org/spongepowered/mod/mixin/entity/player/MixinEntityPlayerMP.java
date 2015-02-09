@@ -82,7 +82,15 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public String playermp$getName() {
-        return getName();
+        return getGameProfile().getName();
+    }
+
+    public boolean playermp$isOnline() {
+        return true;
+    }
+
+    public Optional<Player> playermp$getPlayer() {
+        return Optional.of((Player) this);
     }
 
     public Message playermp$getDisplayName() {
