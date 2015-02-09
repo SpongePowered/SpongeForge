@@ -26,20 +26,37 @@ package org.spongepowered.mod.mixin.core.entity.living.animal;
 
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityWolf;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.world.World;
+
+import org.spongepowered.api.entity.living.animal.DyeColor;
 import org.spongepowered.api.entity.living.animal.Wolf;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityWolf.class)
 @Implements(@Interface(iface = Wolf.class, prefix = "wolf$"))
 public abstract class MixinEntityWolf extends EntityTameable {
 
+    @Shadow
+    public abstract EnumDyeColor func_175546_cu();
+
+    @Shadow
+    public abstract void func_175547_a(EnumDyeColor p_175547_1_);
+
     public MixinEntityWolf(World worldIn) {
         super(worldIn);
     }
 
+    public DyeColor wolf$getColor() {
+        return (DyeColor) (Object) this.func_175546_cu();
+    }
+
+    public void wolf$setColor(DyeColor color) {
+        this.func_175547_a((EnumDyeColor) (Object) color);
+    }
 }
