@@ -29,23 +29,24 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SchedulerHelper {
 
     private long sequenceNumber = 0L;
-    private Task.TaskSynchroncity syncType;
+    private Task.TaskSynchronicity syncType;
 
     @SuppressWarnings("unused")
     private SchedulerHelper() {}
 
-    protected SchedulerHelper(Task.TaskSynchroncity syncType) {
+    protected SchedulerHelper(Task.TaskSynchronicity syncType) {
+
         this.syncType = syncType;
     }
 
@@ -93,7 +94,7 @@ public class SchedulerHelper {
      */
     protected Collection<Task> getScheduledTasks(Map<UUID,ScheduledTask> taskMap) {
         Collection<Task> taskCollection;
-        synchronized(taskMap) {
+        synchronized (taskMap) {
             taskCollection = new ArrayList<Task>( taskMap.values());
         }
         return taskCollection;
@@ -116,7 +117,6 @@ public class SchedulerHelper {
         if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
             // The plugin owner was not valid, so the "Collection" is empty.
-            //(TODO) Perhaps we move this into using Optional<T> to make it explicit that
             // Eg., the resulting Collection is NOT present vs. empty.
             return null;
         }
@@ -130,7 +130,7 @@ public class SchedulerHelper {
         String testOwnerID = testedOwner.getId();
         Collection<Task> subsetCollection;
 
-        synchronized(taskMap) {
+        synchronized (taskMap) {
             subsetCollection = new ArrayList<Task>(taskMap.values());
         }
 
@@ -138,7 +138,10 @@ public class SchedulerHelper {
 
         while (it.hasNext()) {
             String pluginId = ((PluginContainer) it.next()).getId();
-            if (!testOwnerID.equals(pluginId)) it.remove();
+
+            if (!testOwnerID.equals(pluginId)) {
+                it.remove();
+            }
         }
 
         return subsetCollection;
@@ -153,8 +156,8 @@ public class SchedulerHelper {
         Optional<UUID> resultUUID = Optional.absent();
 
         for (ScheduledTask t : taskMap.values()) {
-            if ( name.equals ( t.name ) ) {
-                return Optional.of ( (UUID) t.id);
+            if ( name.equals(t.name) ) {
+                return Optional.of(t.id);
             }
         }
         return resultUUID;
@@ -177,7 +180,7 @@ public class SchedulerHelper {
         Collection<Task> subsetCollection;
         Pattern searchPattern = Pattern.compile(pattern);
 
-        synchronized(taskMap) {
+        synchronized (taskMap) {
             subsetCollection = new ArrayList<Task>(taskMap.values());
         }
 
@@ -259,3 +262,4 @@ public class SchedulerHelper {
     }
 
 }
+

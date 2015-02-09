@@ -44,7 +44,7 @@ public class ScheduledTask implements Task {
     protected ScheduledTaskState state;
     protected UUID id;
     protected String name;
-    protected Task.TaskSynchroncity syncType;
+    protected Task.TaskSynchronicity syncType;
 
     // Internal Task state. Not for user-service use.
     public enum ScheduledTaskState {
@@ -53,14 +53,14 @@ public class ScheduledTask implements Task {
         CANCELED,
     }
 
-    // No c'tor without arguments.  This prevents internal Sponge code from accidently trying to
+    // No c'tor without arguments.  This prevents internal Sponge code from accidentally trying to
     // instantiate a ScheduledTask incorrectly.
     @SuppressWarnings("unused")
     private ScheduledTask() {
     }
 
     // This c'tor is OK for internal Sponge use. APIs do not expose the c'tor.
-    protected ScheduledTask(long x, long t,  Task.TaskSynchroncity syncType) {
+    protected ScheduledTask(long x, long t,  Task.TaskSynchronicity syncType) {
         // All tasks begin waiting.
         this.state = ScheduledTaskState.WAITING;
 
@@ -112,6 +112,7 @@ public class ScheduledTask implements Task {
 
     @Override
     public PluginContainer getOwner() {
+
         return this.owner;
     }
 
@@ -169,6 +170,7 @@ public class ScheduledTask implements Task {
 
     @Override
     public UUID getUniqueId() {
+
         return this.id;
     }
 
@@ -183,12 +185,15 @@ public class ScheduledTask implements Task {
 
     @Override
     public boolean isSynchronous() {
-        return this.syncType == TaskSynchroncity.SYNCHRONOUS;
+
+        return this.syncType == TaskSynchronicity.SYNCHRONOUS;
     }
 
     @Override
     public String setName(String name) {
 
-        return name;
+        this.name = name;
+        return this.name;
     }
 }
+

@@ -32,16 +32,16 @@ import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.scheduler.Task;
 import org.spongepowered.mod.SpongeMod;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
  * <p>Internal implementation of the SynchronousScheduler interface.</p>
  *
- * @see {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}
+ * {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}
  */
 public class SyncScheduler implements SynchronousScheduler {
 
@@ -61,47 +61,57 @@ public class SyncScheduler implements SynchronousScheduler {
      * happen once.  We simply initialize the first state in the SyncScheduler state
      * machine and let the state machine execute.  Only calls to the SyncScheduler
      * through the control interface (TBD) may control the behavior of the state machine itself.</p>
-     * <p/>
+     *
      * <p>
      * The constructor of the Scheduler is private.  So to get the scheduler, user code calls game.getScheduler()
      * or directly by SyncScheduler.getInstance().  In time access to the scheduler should be migrated into
      * the Services Manager.</p>
      */
     private SyncScheduler() {
-        this.schedulerHelper = new SchedulerHelper(Task.TaskSynchroncity.SYNCHRONOUS);
+        this.schedulerHelper = new SchedulerHelper(Task.TaskSynchronicity.SYNCHRONOUS);
     }
 
     @Override
     public Optional<Task> getTaskById(UUID id) {
+
         return this.schedulerHelper.getTaskById(this.taskMap, id);
     }
 
     @Override
     public Optional<UUID> getUuidOfTaskByName(String name) {
+
         return this.schedulerHelper.getUuidOfTaskByName(this.taskMap, name);
     }
 
     @Override
     public Collection<Task> getTasksByName(String pattern) {
+
         return this.schedulerHelper.getfTasksByName(this.taskMap, pattern);
     }
 
     @Override
     public Collection<Task> getScheduledTasks() {
+
         return this.schedulerHelper.getScheduledTasks(this.taskMap);
     }
 
     @Override
     public Collection<Task> getScheduledTasks(Object plugin) {
+
         return this.schedulerHelper.getScheduledTasks(this.taskMap, plugin);
+    }
+
+    private static class SynchronousSchedulerSingletonHolder {
+
+        private static final SynchronousScheduler INSTANCE = new SyncScheduler();
     }
 
     /**
      * <p>Returns the instance (handle) to the Synchronous TaskScheduler.</p>
-     * <p/>
-     * <p>
-     * A static reference to the Synchronous Scheduler singleton is returned by
-     * the function getInstance().
+     *
+     * <p>A static reference to the Synchronous Scheduler singleton is returned by
+     * the function getInstance().</p>
+     *
      * <p>Singleton based on:
      * <a href="http://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">
      *     Initialization on Demand Idiom</a>
@@ -109,24 +119,17 @@ public class SyncScheduler implements SynchronousScheduler {
      *
      * @return The single interface to the Synchronous Scheduler
      */
-    private static class SynchronousSchedulerSingletonHolder {
-
-        private static final SynchronousScheduler INSTANCE = new SyncScheduler();
-    }
-
     public static SynchronousScheduler getInstance() {
         return SynchronousSchedulerSingletonHolder.INSTANCE;
     }
 
     /**
      * <p>The hook to update the Ticks known by the SyncScheduler.</p>
-     * <p/>
-     * <p>
-     * When a TickEvent occurs, the event handler onTick will accumulate a new value for
+     *
+     * <p>When a TickEvent occurs, the event handler onTick will accumulate a new value for
      * the counter.  The Phase of the TickEvent used is the TickEvent.ServerTickEvent Phase.START.</p>
-     * <p/>
-     * <p>
-     * The counter is equivalent to a clock in that each new value represents a new
+     *
+     * <p>The counter is equivalent to a clock in that each new value represents a new
      * tick event.  Use of delay (Task.offset), interval (Task.period), timestamp (Task.timestamp) all
      * are based on the time unit of Ticks.  To make it easier to work with in in Plugins, the type
      * is simply a @long but it's never negative.  A better representation would been Number (a cardinal
@@ -223,16 +226,13 @@ public class SyncScheduler implements SynchronousScheduler {
      */
     @Override
     public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {
-        /**
-         * <p>
-         * The intent of this method is to run a single task (non-repeating) and has zero
-         * offset (doesn't wait a delay before starting), and a zero period (no repetition)</p>
-         */
+         // The intent of this method is to run a single task (non-repeating) and has zero
+         // offset (doesn't wait a delay before starting), and a zero period (no repetition)</p>
         Optional<Task> resultTask = Optional.absent();
         final long NODELAY = 0L;
         final long NOPERIOD = 0L;
 
-        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        Task.TaskSynchronicity syncType = Task.TaskSynchronicity.SYNCHRONOUS;
         ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
 
         if (nonRepeatingTask == null) {
@@ -276,7 +276,7 @@ public class SyncScheduler implements SynchronousScheduler {
         Optional<Task> resultTask = Optional.absent();
         final long NOPERIOD = 0L;
 
-        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        Task.TaskSynchronicity syncType = Task.TaskSynchronicity.SYNCHRONOUS;
         ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
 
         if (nonRepeatingTask == null) {
@@ -330,7 +330,7 @@ public class SyncScheduler implements SynchronousScheduler {
         Optional<Task> resultTask = Optional.absent();
         final long NODELAY = 0L;
 
-        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        Task.TaskSynchronicity syncType = Task.TaskSynchronicity.SYNCHRONOUS;
         ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, interval);
 
         if (repeatingTask == null) {
@@ -385,7 +385,7 @@ public class SyncScheduler implements SynchronousScheduler {
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, long interval, long delay) {
         Optional<Task> resultTask = Optional.absent();
-        Task.TaskSynchroncity syncType = Task.TaskSynchroncity.SYNCHRONOUS;
+        Task.TaskSynchronicity syncType = Task.TaskSynchronicity.SYNCHRONOUS;
         ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, interval);
 
         if (repeatingTask == null) {
@@ -414,3 +414,4 @@ public class SyncScheduler implements SynchronousScheduler {
         return bRes;
     }
 }
+

@@ -25,19 +25,30 @@
 package org.spongepowered.mod.service.scheduler;
 
 public final class SchedulerLogMessages {
-    public final static String CANNOT_MAKE_TASK_WARNING = "Task cannot be created.";
-    public final static String INTERVAL_NEGATIVE_ERROR = "The Task as defined cannot be created. The interval (period) of the Task is negative.";
-    public final static String DELAY_NEGATIVE_ERROR = "The Task as defined cannot be created. The delay (offset) of the Task is negative.";
-    public final static String PLUGIN_CONTAINER_NULL_WARNING = "The Scheduler could not create the Task because the PluginContainer was null.";
-    public final static String PLUGIN_CONTAINER_INVALID_WARNING = "The Task cannot be created because the PluginContainer was not derived from a PluginContainer.class.";
-    public final static String NULL_RUNNABLE_ARGUMENT_WARNING = "The Task cannot be created because the Runnable argument is null.";
-    public final static String NULL_RUNNABLE_ARGUMENT_INVALID_WARNING = "The Task could not be created because the Runnable argument is not derived from a Runnable interface.";
-    public final static String USER_TASK_FAILED_TO_RUN_ERROR = "The Scheduler tried to run the Task, but the Runnable could not be started.";
-    public final static String USER_TASK_TO_RUN_WAS_NULL_WARNING = "The Scheduler tried to run the Task, but the Task is null. The Task did not start.";
-    public final static String CATASTROPHIC_ERROR_IN_SCHEDULER_SEEK_HELP = "The scheduler internal state machine suffered a catastrophic error.  Check #spongedev";
+    public static final String
+            CANNOT_MAKE_TASK_WARNING = "Task cannot be created.";
+    public static final String
+            INTERVAL_NEGATIVE_ERROR = "The interval (period) of the Task is negative.";
+    public static final String
+            DELAY_NEGATIVE_ERROR = "The delay (offset) of the Task is negative.";
+    public static final String
+            PLUGIN_CONTAINER_NULL_WARNING = "The Scheduler could not create the Task because the PluginContainer was null.";
+    public static final String
+            PLUGIN_CONTAINER_INVALID_WARNING = "The Task cannot be created because the plugin was not derived from a PluginContainer";
+    public static final String
+            NULL_RUNNABLE_ARGUMENT_WARNING = "The Task cannot be created because the Runnable argument is null.";
+    public static final String
+            NULL_RUNNABLE_ARGUMENT_INVALID_WARNING = "The Task could not be created. The Runnable argument is not derived from Runnable.";
+    public static final String
+            USER_TASK_FAILED_TO_RUN_ERROR = "The Scheduler tried to run the Task, but the Runnable could not be started.";
+    public static final String
+            USER_TASK_TO_RUN_WAS_NULL_WARNING = "The Scheduler tried to run the Task, but the Task is null. The Task did not start.";
+    public static final String
+            CATASTROPHIC_ERROR_IN_SCHEDULER_SEEK_HELP = "The scheduler internal state machine suffered a catastrophic error.  Check #spongedev";
 
     @Override
     public String toString() {
+
         return "SchedulerLogMessage";
     }
 }
