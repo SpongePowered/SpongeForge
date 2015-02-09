@@ -58,7 +58,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.potion.Potion;
+import net.minecraft.tileentity.TileEntityBanner.EnumBannerPattern;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
@@ -75,6 +77,7 @@ import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.meta.BannerPatternShape;
+import org.spongepowered.api.block.meta.BannerPatternShapes;
 import org.spongepowered.api.block.meta.NotePitch;
 import org.spongepowered.api.block.meta.NotePitches;
 import org.spongepowered.api.block.meta.SkullType;
@@ -88,6 +91,7 @@ import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
 import org.spongepowered.api.entity.hanging.art.Arts;
 import org.spongepowered.api.entity.living.animal.DyeColor;
+import org.spongepowered.api.entity.living.animal.DyeColors;
 import org.spongepowered.api.entity.living.animal.HorseColor;
 import org.spongepowered.api.entity.living.animal.HorseColors;
 import org.spongepowered.api.entity.living.animal.HorseStyle;
@@ -229,6 +233,9 @@ public class SpongeGameRegistry implements GameRegistry {
     private final List<BiomeType> biomeTypes = new ArrayList<BiomeType>();
     private final Map<String, SkullType> skullTypeMappings = Maps.newHashMap();
     private final Map<String, NotePitch> notePitchMappings = Maps.newHashMap();
+    private final Map<String, BannerPatternShape> bannerPatternShapeMappings = Maps.newHashMap();
+    private final Map<String, BannerPatternShape> idToBannerPatternShapeMappings = Maps.newHashMap();
+    private final Map<String, DyeColor> dyeColorMappings = Maps.newHashMap();
 
     @Override
     public Optional<BlockType> getBlock(String id) {
@@ -361,16 +368,12 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<DyeColor> getDye(String id) {
-
-        //TODO implement.
-        return Optional.absent();
+        return Optional.fromNullable(this.dyeColorMappings.get(id));
     }
 
     @Override
     public List<DyeColor> getDyes() {
-
-        //TODO implement.
-        return null;
+        return ImmutableList.copyOf(this.dyeColorMappings.values());
     }
 
     @Override
@@ -550,17 +553,17 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<BannerPatternShape> getBannerPatternShape(String name) {
-        throw new UnsupportedOperationException(); // TODO
+        return Optional.fromNullable(this.bannerPatternShapeMappings.get(name));
     }
 
     @Override
     public Optional<BannerPatternShape> getBannerPatternShapeById(String id) {
-        throw new UnsupportedOperationException(); // TODO
+        return Optional.fromNullable(this.idToBannerPatternShapeMappings.get(id));
     }
 
     @Override
     public List<BannerPatternShape> getBannerPatternShapes() {
-        throw new UnsupportedOperationException(); // TODO
+        return ImmutableList.copyOf(this.bannerPatternShapeMappings.values());
     }
 
     public void registerEnvironment(DimensionType env) {
@@ -976,6 +979,19 @@ public class SpongeGameRegistry implements GameRegistry {
         RegistryHelper.mapFields(TextStyles.class, textStyleMappings, Lists.newArrayList("NONE", "ZERO"));
         RegistryHelper.mapFields(ChatTypes.class, chatTypeMappings);
     }
+    
+    private void setDyeColors() {
+        RegistryHelper.mapFields(DyeColors.class, new Function<String, DyeColor>() {
+
+            @Override
+            public DyeColor apply(String input) {
+                DyeColor dyeColor = DyeColor.class.cast(EnumDyeColor.valueOf(input));
+                SpongeGameRegistry.this.dyeColorMappings.put(dyeColor.getName(), dyeColor);
+                return dyeColor;
+            }
+            
+        });
+    }
 
     private void setRotations() {
         RegistryHelper.mapFields(Rotations.class, rotationMappings);
@@ -1050,6 +1066,20 @@ public class SpongeGameRegistry implements GameRegistry {
             
         });
     }
+    
+    private void setBannerPatternShapes() {
+        RegistryHelper.mapFields(BannerPatternShapes.class, new Function<String, BannerPatternShape>() {
+
+            @Override
+            public BannerPatternShape apply(String input) {
+                BannerPatternShape bannerPattern = BannerPatternShape.class.cast(EnumBannerPattern.valueOf(input));
+                SpongeGameRegistry.this.bannerPatternShapeMappings.put(bannerPattern.getName(), bannerPattern);
+                SpongeGameRegistry.this.idToBannerPatternShapeMappings.put(bannerPattern.getId(), bannerPattern);
+                return bannerPattern;
+            }
+            
+        });
+    }
 
     private void setGameModes() {
         RegistryHelper.mapFields(GameModes.class, gameModeMappings);
@@ -1061,6 +1091,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setArts();
         setCareersAndProfessions();
         setTextColors();
+        setDyeColors();
         setRotations();
         setWeathers();
         setTextActionFactory();
@@ -1070,6 +1101,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setParticles();
         setSkullTypes();
         setNotePitches();
+        setBannerPatternShapes();
         setGameModes();
     }
 
