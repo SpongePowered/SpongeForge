@@ -81,6 +81,10 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         return (GameProfile) getGameProfile();
     }
 
+    public String playermp$getName() {
+        return getName();
+    }
+
     public Message playermp$getDisplayName() {
         return new SpongeMessageText.SpongeMessageTextBuilder(getName()).build();
     }
