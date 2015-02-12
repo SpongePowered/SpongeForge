@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.entity.living.monster;
 
+import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.world.World;
@@ -40,21 +41,60 @@ import org.spongepowered.asm.mixin.Shadow;
 @Implements(@Interface(iface = Zombie.class, prefix = "zombie$"))
 public abstract class MixinEntityZombie extends EntityMob {
 
+    @Shadow private static IAttribute field_110186_bp;
+
     @Shadow
     public abstract boolean isVillager();
 
     @Shadow
     public abstract void setVillager(boolean villagerZombie);
 
+    @Shadow
+    public abstract boolean isChild();
+
+    @Shadow
+    public abstract void setChild(boolean childZombie);
+
+    @Shadow
+    public abstract void func_146071_k(boolean isChild);
+
     public MixinEntityZombie(World worldIn) {
         super(worldIn);
     }
 
-   public boolean zombie$isVillagerZombie() {
-       return this.isVillager();
-   }
+    public boolean zombie$isVillagerZombie() {
+        return this.isVillager();
+    }
 
-   public void zombie$setVillagerZombie(boolean villagerZombie) {
-       this.setVillager(villagerZombie);
-   }
+    public void zombie$setVillagerZombie(boolean villagerZombie) {
+        this.setVillager(villagerZombie);
+    }
+
+    public void zombie$setAge(int age) {
+        this.setChild(age < 0);
+    }
+
+    public void zombie$setBaby() {
+        this.setChild(true);
+    }
+
+    public void zombie$setAdult() {
+        this.setChild(false);
+    }
+
+    public boolean zombie$isBaby() {
+        return this.isChild();
+    }
+
+    public boolean zombie$canBreed() {
+        return this.getEntityAttribute(field_110186_bp).getAttributeValue() > 0;
+    }
+
+    public void zombie$setBreeding(boolean breeding) {
+        this.getEntityAttribute(field_110186_bp).setBaseValue(breeding ? this.rand.nextDouble() * 0.10000000149011612D : 0);
+    }
+
+    public void zombie$setScaleForAge() {
+        this.func_146071_k(this.isChild());
+    }
 }
