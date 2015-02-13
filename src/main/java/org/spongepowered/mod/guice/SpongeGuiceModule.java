@@ -26,7 +26,6 @@
 package org.spongepowered.mod.guice;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import net.minecraftforge.fml.common.Loader;
 import org.spongepowered.api.Game;
@@ -34,7 +33,6 @@ import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.SimpleServiceManager;
-import org.spongepowered.api.service.config.ConfigDir;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.mod.SpongeGame;
 import org.spongepowered.mod.event.SpongeEventBus;
@@ -47,22 +45,11 @@ public class SpongeGuiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        ConfigDir sharedDir = new ConfigDirAnnotation(true);
-
         bind(Game.class).to(SpongeGame.class).in(Scopes.SINGLETON);
         bind(PluginManager.class).to(SpongePluginManager.class).in(Scopes.SINGLETON);
         bind(ServiceManager.class).to(SimpleServiceManager.class).in(Scopes.SINGLETON);
         bind(EventManager.class).to(SpongeEventBus.class).in(Scopes.SINGLETON);
         bind(GameRegistry.class).to(SpongeGameRegistry.class).in(Scopes.SINGLETON);
-        bind(File.class).annotatedWith(sharedDir).toProvider(GeneralConfigDirProvider.class).in(Scopes.SINGLETON);
+        bind(File.class).annotatedWith(new ConfigDirAnnotation(true)).toInstance(Loader.instance().getConfigDir());
     }
-
-    private static class GeneralConfigDirProvider implements Provider<File> {
-
-        @Override
-        public File get() {
-            return Loader.instance().getConfigDir();
-        }
-    }
-
 }
