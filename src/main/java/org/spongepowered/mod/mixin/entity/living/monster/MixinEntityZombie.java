@@ -50,9 +50,6 @@ public abstract class MixinEntityZombie extends EntityMob {
     public abstract void setVillager(boolean villagerZombie);
 
     @Shadow
-    public abstract boolean isChild();
-
-    @Shadow
     public abstract void setChild(boolean childZombie);
 
     @Shadow

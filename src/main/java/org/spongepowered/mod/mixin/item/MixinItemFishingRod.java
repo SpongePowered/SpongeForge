@@ -44,6 +44,7 @@ import org.spongepowered.mod.interfaces.IMixinEntityFishHook;
 @Mixin(ItemFishingRod.class)
 public abstract class MixinItemFishingRod extends Item implements IMixinEntityFishHook {
 
+    @Override
     @Overwrite
     public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
         if (player.fishEntity != null) {
