@@ -27,16 +27,12 @@ package org.spongepowered.mod.mixin.server;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.ServerCommandManager;
-import net.minecraft.server.MinecraftServer;
-import org.spongepowered.api.service.command.SimpleCommandService;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandSource;
-import org.spongepowered.api.util.command.source.ConsoleSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.SpongeMod;
-
-import java.util.ArrayList;
 
 @NonnullByDefault
 @Mixin(ServerCommandManager.class)
@@ -49,24 +45,20 @@ public abstract class MixinServerCommandManager extends CommandHandler {
             command = command.substring(1);
         }
 
-        SimpleCommandService dispatcher = (SimpleCommandService) SpongeMod.instance.getGame().getCommandDispatcher();
-        boolean result = true;
-
-        try {
-            if (sender instanceof MinecraftServer) {
-                result = dispatcher.call((ConsoleSource) sender, command, new ArrayList<String>());
-            } else {
-                result = dispatcher.call((CommandSource) sender, command, new ArrayList<String>());
-            }
-        } catch (CommandException e) {
-            // Ignore
+        String name = command;
+        String args = "";
+        int pos = name.indexOf(' ');
+        if (pos > -1) {
+            name = command.substring(0, pos);
+            args = command.substring(pos + 1);
         }
 
-        if (!result) { // try vanilla
-            return super.executeCommand(sender, command);
+        Game game = SpongeMod.instance.getGame();
+        if (game.getEventManager().post(SpongeEventFactory.createCommand(game, args, (CommandSource) sender, name))) {
+            return 1;
         }
 
-        return 1;
+        return super.executeCommand(sender, command); // Try Vanilla instead
     }
 
 }
