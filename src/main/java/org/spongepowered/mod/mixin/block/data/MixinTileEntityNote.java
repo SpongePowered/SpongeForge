@@ -34,6 +34,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 
+import java.util.List;
+
 @NonnullByDefault
 @Implements(@Interface(iface = Note.class, prefix = "note$"))
 @Mixin(net.minecraft.tileentity.TileEntityNote.class)
@@ -42,7 +44,7 @@ public abstract class MixinTileEntityNote extends TileEntity {
     @Shadow public byte note;
 
     public NotePitch note$getNote() {
-        return SpongeMod.instance.getGame().getRegistry().getNotePitches().get(this.note);
+        return ((List<NotePitch>) SpongeMod.instance.getGame().getRegistry().getNotePitches()).get(this.note);
     }
 
     public void note$setNote(NotePitch pitch) {

@@ -83,7 +83,8 @@ public abstract class MixinEntityVillager extends EntityAgeable implements Merch
 
     @Inject(method = "setProfession(I)V", at = @At("RETURN"))
     public void onSetProfession(int professionId, CallbackInfo ci) {
-        this.profession = SpongeMod.instance.getGame().getRegistry().getProfessions().get(professionId);
+        // TODO: Fix GameRegistry for API changes
+        this.profession = ((List<Profession>) SpongeMod.instance.getGame().getRegistry().getProfessions()).get(professionId);
     }
 
     public boolean villager$isPlaying() {
@@ -104,7 +105,8 @@ public abstract class MixinEntityVillager extends EntityAgeable implements Merch
     }
 
     public Career villager$getCareer() {
-        return SpongeMod.instance.getGame().getRegistry().getCareers(this.profession).get(this.careerId);
+        // TODO: Fix GameRegistry for API changes
+        return ((List<Career>) SpongeMod.instance.getGame().getRegistry().getCareers(this.profession)).get(this.careerId);
     }
 
     public void villager$setCareer(Career career) {
