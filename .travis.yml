@@ -5,7 +5,7 @@ jdk:
   # That's why we have to run it on the old infrastructure for now
   - openjdk7
   - oraclejdk7
-  #- oraclejdk8 TODO: Enable when Mixin is compilable under JDK8
+  - oraclejdk8
 matrix:
   include:
     - jdk: openjdk6
