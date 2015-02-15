@@ -24,20 +24,22 @@
  */
 package org.spongepowered.mod.mixin.core.entity.projectile.fireball;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.projectile.explosive.fireball.Fireball;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.entity.projectile.source.UnknownProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.SoftOverride;
+import org.spongepowered.mod.entity.projectile.ProjectileSourceSerializer;
+import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.projectile.EntityFireball.class)
-public abstract class MixinEntityFireball extends Entity implements Fireball {
+public abstract class MixinEntityFireball extends MixinEntity implements Fireball {
 
     @Shadow
     public EntityLivingBase shootingEntity;
@@ -46,10 +48,6 @@ public abstract class MixinEntityFireball extends Entity implements Fireball {
     protected abstract void onImpact(MovingObjectPosition p_70227_1_);
 
     private ProjectileSource projectileSource = null;
-
-    public MixinEntityFireball(World worldIn) {
-        super(worldIn);
-    }
 
     @Override
     public ProjectileSource getShooter() {
@@ -76,6 +74,19 @@ public abstract class MixinEntityFireball extends Entity implements Fireball {
     @Override
     public void detonate() {
         this.onImpact(new MovingObjectPosition(null));
+    }
+
+    @Override
+    @SoftOverride
+    public void readFromNbt(NBTTagCompound compound) {
+        super.readFromNbt(compound);
+        ProjectileSourceSerializer.readSourceFromNbt(compound, this);
+    }
+
+    @Override
+    public void writeToNbt(NBTTagCompound compound) {
+        super.writeToNbt(compound);
+        ProjectileSourceSerializer.writeSourceToNbt(compound, this.projectileSource, this.shootingEntity);
     }
 
 }

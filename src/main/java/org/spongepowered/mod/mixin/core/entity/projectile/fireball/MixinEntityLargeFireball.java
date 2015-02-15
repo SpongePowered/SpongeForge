@@ -24,8 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.projectile.fireball;
 
-import net.minecraft.entity.projectile.EntityFireball;
-import net.minecraft.world.World;
+import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.entity.projectile.explosive.fireball.LargeFireball;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,16 +34,12 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.projectile.EntityLargeFireball.class)
-public abstract class MixinEntityLargeFireball extends EntityFireball implements LargeFireball {
+public abstract class MixinEntityLargeFireball extends MixinEntityFireball implements LargeFireball {
 
     @Shadow
-    public int explosionPower = 1;
+    public int explosionPower;
 
     private float damage = 6.0f;
-
-    public MixinEntityLargeFireball(World worldIn) {
-        super(worldIn);
-    }
 
     @ModifyArg(method = "onImpact(Lnet/minecraft/util/MovingObjectPosition;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
@@ -70,5 +65,19 @@ public abstract class MixinEntityLargeFireball extends EntityFireball implements
     @Override
     public void setExplosionPower(int explosionPower) {
         this.explosionPower = explosionPower;
+    }
+
+    @Override
+    public void readFromNbt(NBTTagCompound compound) {
+        super.readFromNbt(compound);
+        if (compound.hasKey("damageAmount")) {
+            this.damage = compound.getFloat("damageAmount");
+        }
+    }
+
+    @Override
+    public void writeToNbt(NBTTagCompound compound) {
+        super.writeToNbt(compound);
+        compound.setFloat("damageAmount", this.damage);
     }
 }

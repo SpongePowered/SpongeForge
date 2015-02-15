@@ -25,10 +25,8 @@
 package org.spongepowered.mod.mixin.core.entity.projectile;
 
 import net.minecraft.entity.item.EntityEnderPearl;
-import net.minecraft.entity.projectile.EntityThrowable;
-import net.minecraft.world.World;
+import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.entity.projectile.EnderPearl;
-import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -39,15 +37,9 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @NonnullByDefault
 @Mixin(EntityEnderPearl.class)
 @Implements(@Interface(iface = EnderPearl.class, prefix = "enderpearl$"))
-public abstract class MixinEntityEnderPearl extends EntityThrowable {
+public abstract class MixinEntityEnderPearl extends MixinEntityThrowable {
 
     public double damageAmount;
-
-    public ProjectileSource projectileSource;
-
-    public MixinEntityEnderPearl(World p_i1776_1_) {
-        super(p_i1776_1_);
-    }
 
     @ModifyArg(method = "onImpact(Lnet/minecraft/util/MovingObjectPosition;)V", at =
             @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
@@ -62,4 +54,19 @@ public abstract class MixinEntityEnderPearl extends EntityThrowable {
     public void enderpearl$setDamage(double damage) {
         this.damageAmount = damage;
     }
+
+    @Override
+    public void readFromNbt(NBTTagCompound compound) {
+        super.readFromNbt(compound);
+        if (compound.hasKey("damageAmount")) {
+            this.damageAmount = compound.getDouble("damageAmount");
+        }
+    }
+
+    @Override
+    public void writeToNbt(NBTTagCompound compound) {
+        super.writeToNbt(compound);
+        compound.setDouble("damageAmount", this.damageAmount);
+    }
+
 }

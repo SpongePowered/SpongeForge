@@ -25,9 +25,8 @@
 package org.spongepowered.mod.mixin.core.entity;
 
 import com.google.common.base.Optional;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.world.World;
+import net.minecraft.nbt.NBTTagCompound;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.player.User;
@@ -43,7 +42,7 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityItem.class)
-public abstract class MixinEntityItem extends Entity implements Item {
+public abstract class MixinEntityItem extends MixinEntity implements Item {
 
     private static final short MAGIC_INFINITE_PICKUP_DELAY = 32767;
 
@@ -78,10 +77,6 @@ public abstract class MixinEntityItem extends Entity implements Item {
     private boolean pluginDespawnSet;
 
     private boolean infiniteDespawnDelay;
-
-    public MixinEntityItem(World worldIn) {
-        super(worldIn);
-    }
 
     @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityItem;delayBeforeCanPickup:I",
             opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
@@ -167,6 +162,43 @@ public abstract class MixinEntityItem extends Entity implements Item {
     @Override
     public void setThrower(@Nullable User user) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void readFromNbt(NBTTagCompound compound) {
+        super.readFromNbt(compound);
+        // If the key exists, the value has been set by a plugin
+        if (compound.hasKey("infinitePickupDelay")) {
+            this.pluginPickupSet = true;
+            if (compound.getBoolean("infinitePickupDelay")) {
+                this.setInfinitePickupDelay();
+            } else {
+                this.infinitePickupDelay = false;
+            }
+        }
+        if (compound.hasKey("infiniteDespawnDelay")) {
+            this.pluginDespawnSet = true;
+            if (compound.getBoolean("infiniteDespawnDelay")) {
+                this.setInfiniteDespawnTime();
+            } else {
+                this.infiniteDespawnDelay = false;
+            }
+        }
+    }
+
+    @Override
+    public void writeToNbt(NBTTagCompound compound) {
+        super.writeToNbt(compound);
+        if (this.pluginPickupSet) {
+            compound.setBoolean("infinitePickupDelay", this.infinitePickupDelay);
+        } else {
+            compound.removeTag("infinitePickupDelay");
+        }
+        if (this.pluginDespawnSet) {
+            compound.setBoolean("infiniteDespawnDelay", this.infiniteDespawnDelay);
+        } else {
+            compound.removeTag("infiniteDespawnDelay");
+        }
     }
 
 }

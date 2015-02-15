@@ -25,22 +25,19 @@
 package org.spongepowered.mod.mixin.core.entity.projectile;
 
 import com.flowpowered.math.vector.Vector3d;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
+import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.entity.projectile.EyeOfEnder;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.entity.projectile.source.UnknownProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.entity.projectile.ProjectileSourceSerializer;
+import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.item.EntityEnderEye.class)
-public abstract class MixinEntityEnderEye extends Entity implements EyeOfEnder {
-
-    public MixinEntityEnderEye(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityEnderEye extends MixinEntity implements EyeOfEnder {
 
     @Shadow
     private double targetX;
@@ -86,6 +83,18 @@ public abstract class MixinEntityEnderEye extends Entity implements EyeOfEnder {
     @Override
     public void setShooter(ProjectileSource shooter) {
         this.projectileSource = shooter;
+    }
+
+    @Override
+    public void readFromNbt(NBTTagCompound compound) {
+        super.readFromNbt(compound);
+        ProjectileSourceSerializer.readSourceFromNbt(compound, this);
+    }
+
+    @Override
+    public void writeToNbt(NBTTagCompound compound) {
+        super.writeToNbt(compound);
+        ProjectileSourceSerializer.writeSourceToNbt(compound, this.projectileSource, null);
     }
 
 }
