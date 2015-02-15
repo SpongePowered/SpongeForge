@@ -50,6 +50,7 @@ import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.mod.command.CommandSponge;
 import org.spongepowered.mod.configuration.SpongeConfig;
+import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
@@ -83,7 +84,9 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         this.game = this.spongeInjector.getInstance(Game.class);
         this.registry = (SpongeGameRegistry) this.game.getRegistry();
         try {
-            this.game.getServiceManager().setProvider(this, CommandService.class, new SimpleCommandService(this.game.getPluginManager()));
+            SimpleCommandService commandService = new SimpleCommandService(this.game.getPluginManager());
+            this.game.getServiceManager().setProvider(this, CommandService.class, commandService);
+            ((SpongeEventBus) this.game.getEventManager()).register(this, commandService);
         } catch (ProviderExistsException e1) {
             this.logger.warn("Non-Sponge CommandService already registered: " + e1.getLocalizedMessage());
         }
