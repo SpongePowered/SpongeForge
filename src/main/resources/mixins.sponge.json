@@ -101,6 +101,7 @@
         "entity.weather.MixinEntityWeatherEffect",
         "event.MixinEvent",
         "event.MixinEventBus",
+        "event.MixinEventServerChat",
         "event.block.MixinEventBlock",
         "event.entity.MixinEventEntity",
         "event.entity.MixinEventEntityConstructing",
