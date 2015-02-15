@@ -103,7 +103,6 @@ shadowJar  {
         include(dependency('aopalliance:aopalliance'))
         include(dependency('ninja.leaping.configurate:configurate-hocon'))
         include(dependency('ninja.leaping.configurate:configurate-core'))
-        include(dependency('com.typesafe:config'))
         include(project('SpongeAPI'))
         include(project('Mixin'))
     }
