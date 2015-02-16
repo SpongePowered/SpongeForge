@@ -30,12 +30,15 @@ import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.S07PacketRespawn;
+import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S1FPacketSetExperience;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.util.RelativePositions;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -51,6 +54,8 @@ import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.util.SpongeHooks;
 
 import java.util.ArrayDeque;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -169,6 +174,76 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         }
 
         return true;
+    }
+
+    @Override
+    public boolean setLocationAndRotation(Location location, Vector3f rotation, EnumSet<RelativePositions> relativePositions) {
+        if(relativePositions.isEmpty()) {
+            //This is just a normal teleport that happens to set both.
+            if(setLocation(location)) {
+                setRotation(rotation);
+                return true;
+            }
+            return false;
+        } else {
+            if(((Entity) this) instanceof EntityPlayerMP) {
+                //Players use different logic, as they support real relative movement.
+                EnumSet<S08PacketPlayerPosLook.EnumFlags> relativeFlags = EnumSet.noneOf(S08PacketPlayerPosLook.EnumFlags.class);
+
+                if(relativePositions.contains(RelativePositions.X)) {
+                    relativeFlags.add(S08PacketPlayerPosLook.EnumFlags.X);
+                }
+
+                if(relativePositions.contains(RelativePositions.Y)) {
+                    relativeFlags.add(S08PacketPlayerPosLook.EnumFlags.Y);
+                }
+
+                if(relativePositions.contains(RelativePositions.Z)) {
+                    relativeFlags.add(S08PacketPlayerPosLook.EnumFlags.Z);
+                }
+
+                if(relativePositions.contains(RelativePositions.PITCH)) {
+                    relativeFlags.add(S08PacketPlayerPosLook.EnumFlags.Y_ROT);
+                }
+
+                if(relativePositions.contains(RelativePositions.YAW)) {
+                    relativeFlags.add(S08PacketPlayerPosLook.EnumFlags.X_ROT);
+                }
+
+                ((EntityPlayerMP) (Entity) this).playerNetServerHandler.func_175089_a(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ(), rotation.getX(), rotation.getY(), relativeFlags);
+                return true;
+            } else {
+                Location resultant = getLocation();
+                Vector3f resultantRotation = getRotation();
+
+                if(relativePositions.contains(RelativePositions.X)) {
+                    resultant.add(location.getPosition().getX(), 0, 0);
+                }
+
+                if(relativePositions.contains(RelativePositions.Y)) {
+                    resultant.add(0, location.getPosition().getY(), 0);
+                }
+
+                if(relativePositions.contains(RelativePositions.Z)) {
+                    resultant.add(0, 0, location.getPosition().getZ());
+                }
+
+                if(relativePositions.contains(RelativePositions.PITCH)) {
+                    resultantRotation.add(rotation.getX(), 0, 0);
+                }
+
+                if(relativePositions.contains(RelativePositions.YAW)) {
+                    resultantRotation.add(0, rotation.getY(), 0);
+                }
+
+                //From here just a normal teleport is needed.
+                if(setLocation(resultant)) {
+                    setRotation(resultantRotation);
+                    return true;
+                }
+                return false;
+            }
+        }
     }
 
     @Override
