@@ -38,6 +38,7 @@
         "entity.MixinEntity",
         "entity.MixinArmorEquipable",
         "entity.MixinEntityEnderCrystal",
+        "entity.MixinEntityItem",
         "entity.MixinEntityXPOrb",
         "entity.MixinEntityFallingBlock",
         "entity.explosive.MixinEntityTNTPrimed",
