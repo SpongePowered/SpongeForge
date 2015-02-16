@@ -85,14 +85,14 @@ public abstract class MixinEntityItem extends Entity implements Item {
 
     @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityItem;delayBeforeCanPickup:I", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
     private void onOnUpdate(CallbackInfo ci) {
-        if (this.delayBeforeCanPickup == MAGIC_INFINITE_PICKUP_DELAY && !infinitePickupDelay && pluginPickupSet) {
+        if (this.delayBeforeCanPickup == MAGIC_INFINITE_PICKUP_DELAY && !this.infinitePickupDelay && this.pluginPickupSet) {
             this.delayBeforeCanPickup--;
         }
     }
 
     @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityItem;age:I", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
     private void onOnUpdateAge(CallbackInfo ci) {
-        if (this.delayBeforeCanPickup == MAGIC_INFINITE_DESPAWN_TIME && !infiniteDespawnDelay && pluginDespawnSet) {
+        if (this.delayBeforeCanPickup == MAGIC_INFINITE_DESPAWN_TIME && !this.infiniteDespawnDelay && this.pluginDespawnSet) {
             this.delayBeforeCanPickup--;
         }
     }
