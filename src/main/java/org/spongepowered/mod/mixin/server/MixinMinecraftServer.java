@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.server;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
@@ -80,6 +81,9 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
 
     @Shadow
     public abstract boolean isServerInOnlineMode();
+
+    @Shadow
+    public abstract void initiateShutdown();
 
 
     @Override
@@ -207,5 +211,14 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
         for (Message message : messages) {
             addChatMessage(((SpongeMessage<?>) message).getHandle());
         }
+    }
+
+    @Override
+    public void shutdown(Message kickMessage) {
+        for(Player player : getOnlinePlayers()) {
+            ((EntityPlayerMP) player).playerNetServerHandler.kickPlayerFromServer(kickMessage.toLegacy()); //TODO update with the new Text API
+        }
+
+        initiateShutdown();
     }
 }
