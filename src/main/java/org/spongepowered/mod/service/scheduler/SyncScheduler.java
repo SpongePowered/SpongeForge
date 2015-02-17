@@ -227,18 +227,13 @@ public class SyncScheduler implements SynchronousScheduler {
     public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {
         // The intent of this method is to run a single task (non-repeating) and has zero
         // offset (doesn't wait a delay before starting), and a zero period (no repetition)</p>
-        Optional<Task> resultTask = Optional.absent();
-        final long NODELAY = 0L;
-        final long NOPERIOD = 0L;
+        Optional<Task> resultTask;
+        final long noDelay = 0L;
+        final long noPeriod = 0L;
 
-        ScheduledTask.TaskSynchroncity syncType = ScheduledTask.TaskSynchroncity.SYNCHRONOUS;
-        ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, NOPERIOD);
+        ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, noDelay, noPeriod);
 
-        if (nonRepeatingTask == null) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
-        } else {
-            resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, nonRepeatingTask);
-        }
+        resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, nonRepeatingTask);
 
         return resultTask;
     }
@@ -272,17 +267,12 @@ public class SyncScheduler implements SynchronousScheduler {
      */
     @Override
     public Optional<Task> runTaskAfter(Object plugin, Runnable runnableTarget, long delay) {
-        Optional<Task> resultTask = Optional.absent();
-        final long NOPERIOD = 0L;
+        Optional<Task> resultTask;
+        final long noPeriod = 0L;
 
-        ScheduledTask.TaskSynchroncity syncType = ScheduledTask.TaskSynchroncity.SYNCHRONOUS;
-        ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, NOPERIOD);
+        ScheduledTask nonRepeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, noPeriod);
 
-        if (nonRepeatingTask == null) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
-        } else {
-            resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, nonRepeatingTask);
-        }
+        resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, nonRepeatingTask);
 
         return resultTask;
     }
@@ -326,17 +316,12 @@ public class SyncScheduler implements SynchronousScheduler {
      */
     @Override
     public Optional<Task> runRepeatingTask(Object plugin, Runnable runnableTarget, long interval) {
-        Optional<Task> resultTask = Optional.absent();
-        final long NODELAY = 0L;
+        Optional<Task> resultTask;
+        final long noDelay = 0L;
 
-        ScheduledTask.TaskSynchroncity syncType = ScheduledTask.TaskSynchroncity.SYNCHRONOUS;
-        ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, NODELAY, interval);
+        ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, noDelay, interval);
 
-        if (repeatingTask == null) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
-        } else {
-            resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, repeatingTask);
-        }
+        resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, repeatingTask);
 
         return resultTask;
     }
@@ -383,16 +368,11 @@ public class SyncScheduler implements SynchronousScheduler {
      */
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, long interval, long delay) {
-        Optional<Task> resultTask = Optional.absent();
+        Optional<Task> resultTask;
 
-        ScheduledTask.TaskSynchroncity syncType = ScheduledTask.TaskSynchroncity.SYNCHRONOUS;
         ScheduledTask repeatingTask = this.schedulerHelper.taskValidationStep(plugin, runnableTarget, delay, interval);
 
-        if (repeatingTask == null) {
-            SpongeMod.instance.getLogger().warn(SchedulerLogMessages.CANNOT_MAKE_TASK_WARNING);
-        } else {
-            resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, repeatingTask);
-        }
+        resultTask = this.schedulerHelper.utilityForAddingTask(this.taskMap, repeatingTask);
 
         return resultTask;
     }
