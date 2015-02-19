@@ -40,10 +40,13 @@ public class SpongeMinecraftVersion implements ProtocolMinecraftVersion {
     }
 
     public static int compare(ProtocolMinecraftVersion version, MinecraftVersion to) {
-        if (version == to) {
+        if (version.equals(to)) {
             return 0;
+        } else if (to.isLegacy()) {
+            return 1;
+        } else {
+            return version.getProtocol() - ((ProtocolMinecraftVersion) to).getProtocol();
         }
-        return to.isLegacy() ? 1 : version.getProtocol() - ((ProtocolMinecraftVersion) to).getProtocol();
     }
 
     @Override
@@ -71,12 +74,12 @@ public class SpongeMinecraftVersion implements ProtocolMinecraftVersion {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SpongeMinecraftVersion)) {
+        if (!(o instanceof ProtocolMinecraftVersion)) {
             return false;
         }
 
-        SpongeMinecraftVersion that = (SpongeMinecraftVersion) o;
-        return this.protocol == that.protocol;
+        ProtocolMinecraftVersion that = (ProtocolMinecraftVersion) o;
+        return this.getProtocol() == that.getProtocol();
 
     }
 

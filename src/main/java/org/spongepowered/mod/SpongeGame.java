@@ -51,6 +51,9 @@ public final class SpongeGame implements Game {
     private static final String apiVersion = Game.class.getPackage().getImplementationVersion();
     @Nullable
     private static final String implementationVersion = SpongeGame.class.getPackage().getImplementationVersion();
+
+    private static final MinecraftVersion MINECRAFT_VERSION = new SpongeMinecraftVersion("1.8", 47); // TODO: Keep updated
+
     private final PluginManager pluginManager;
     private final EventManager eventManager;
     private final GameRegistry gameRegistry;
@@ -96,7 +99,7 @@ public final class SpongeGame implements Game {
 
     @Override
     public MinecraftVersion getMinecraftVersion() {
-        throw new UnsupportedOperationException(); // TODO
+        return MINECRAFT_VERSION;
     }
 
     @Override

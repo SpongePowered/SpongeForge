@@ -59,7 +59,10 @@ public class SpongeLegacyMinecraftVersion implements MinecraftVersion {
     public int compareTo(MinecraftVersion o) {
         if (o == this) {
             return 0;
+        } else if (!o.isLegacy()) {
+            return -1;
+        } else {
+            return this.latestVersion - ((SpongeLegacyMinecraftVersion) o).latestVersion;
         }
-        return o.isLegacy() ? this.latestVersion - ((SpongeLegacyMinecraftVersion) o).latestVersion : -1;
     }
 }
