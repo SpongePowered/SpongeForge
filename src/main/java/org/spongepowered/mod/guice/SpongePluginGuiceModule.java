@@ -64,9 +64,11 @@ public class SpongePluginGuiceModule extends AbstractModule {
                 .toProvider(PluginConfigDirProvider.class); // plugin-private config directory (shared dir is in the global guice module)
         bind(File.class).annotatedWith(pluginConfigShared).toProvider(PluginSharedConfigFileProvider.class); // shared-directory config file
         bind(File.class).annotatedWith(pluginConfigPrivate).toProvider(PluginPrivateConfigFileProvider.class); // plugin-private directory config file
-        bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {}).annotatedWith(pluginConfigShared)
+        bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {
+        }).annotatedWith(pluginConfigShared)
                 .toProvider(PluginSharedHoconConfigProvider.class); // loader for shared-directory config file
-        bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {}).annotatedWith(pluginConfigPrivate)
+        bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {
+        }).annotatedWith(pluginConfigPrivate)
                 .toProvider(PluginPrivateHoconConfigProvider.class); // loader for plugin-private directory config file
     }
 

@@ -40,7 +40,8 @@ import org.spongepowered.asm.mixin.Shadow;
 @Implements(@Interface(iface = Zombie.class, prefix = "zombie$"))
 public abstract class MixinEntityZombie extends EntityMob {
 
-    @Shadow private static IAttribute field_110186_bp;
+    @Shadow
+    private static IAttribute field_110186_bp;
 
     @Shadow
     public abstract boolean isVillager();

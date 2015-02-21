@@ -170,7 +170,8 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
                 logger.debug("Ping: (1.6) from {}:{}", client.getAddress(), client.getPort());
 
                 response =
-                        SpongeStatusResponse.postLegacy(server, client, new SpongeLegacyMinecraftVersion(SpongeLegacyMinecraftVersion.V1_6, protocol),
+                        SpongeStatusResponse.postLegacy(server, client,
+                                new SpongeLegacyMinecraftVersion(SpongeLegacyMinecraftVersion.V1_6, protocol),
                                 InetSocketAddress.createUnresolved(host, port));
                 if (response != null) {
                     this.writeResponse(ctx, String.format("§1\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d",

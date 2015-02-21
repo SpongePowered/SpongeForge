@@ -40,7 +40,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(net.minecraft.item.ItemEnderEye.class)
 public class MixinItemEnderEye extends Item {
 
-    @Redirect(method = "onItemRightClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
+    @Redirect(method = "onItemRightClick", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
     private boolean onSpawnEntityInWorld(World world, Entity enderEye, ItemStack itemStack, World world2, EntityPlayer player) {
         ((EyeOfEnder) enderEye).setShooter((ProjectileSource) player);
         return world.spawnEntityInWorld(enderEye);

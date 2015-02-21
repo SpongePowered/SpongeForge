@@ -43,7 +43,8 @@ import javax.annotation.Nullable;
 @Implements(@Interface(iface = Agent.class, prefix = "agent$"))
 public abstract class MixinEntityLiving extends EntityLivingBase {
 
-    @Shadow private boolean canPickUpLoot;
+    @Shadow
+    private boolean canPickUpLoot;
 
     @Shadow
     public abstract boolean isAIDisabled();

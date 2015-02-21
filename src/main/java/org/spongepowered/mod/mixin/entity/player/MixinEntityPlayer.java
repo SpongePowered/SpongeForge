@@ -41,11 +41,14 @@ import org.spongepowered.asm.mixin.Shadow;
 @Implements(@Interface(iface = Human.class, prefix = "human$"))
 public abstract class MixinEntityPlayer extends EntityLivingBase {
 
-    @Shadow public Container inventoryContainer;
+    @Shadow
+    public Container inventoryContainer;
 
-    @Shadow public Container openContainer;
+    @Shadow
+    public Container openContainer;
 
-    @Shadow protected FoodStats foodStats;
+    @Shadow
+    protected FoodStats foodStats;
 
     public MixinEntityPlayer(World worldIn) {
         super(worldIn);

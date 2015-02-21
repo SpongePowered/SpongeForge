@@ -40,7 +40,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityBoat.class)
 public abstract class MixinEntityBoat extends Entity implements Boat {
 
-    @Shadow private double speedMultiplier;
+    @Shadow
+    private double speedMultiplier;
 
     private double maxSpeed;
     private boolean moveOnLand;

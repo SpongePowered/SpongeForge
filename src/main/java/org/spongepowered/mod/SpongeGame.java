@@ -122,7 +122,6 @@ public final class SpongeGame implements Game {
         return AsyncScheduler.getInstance();
     }
 
-
     @Override
     public CommandService getCommandDispatcher() {
         return this.serviceManager.provideUnchecked(CommandService.class);

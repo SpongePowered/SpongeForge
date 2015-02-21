@@ -39,9 +39,11 @@ import org.spongepowered.mod.registry.SpongeGameRegistry;
 @Mixin(net.minecraft.entity.EntityHanging.class)
 public abstract class MixinEntityHanging extends Entity implements Hanging {
 
-    @Shadow public EnumFacing field_174860_b;
+    @Shadow
+    public EnumFacing field_174860_b;
 
-    @Shadow private int tickCounter1;
+    @Shadow
+    private int tickCounter1;
 
     @Shadow
     public abstract boolean onValidSurface();

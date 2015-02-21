@@ -61,9 +61,6 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
     private ItemStack fishingRod;
 
     @Shadow
-    public abstract ItemStack func_146033_f();
-
-    @Shadow
     private boolean inGround;
 
     @Shadow
@@ -74,6 +71,9 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
 
     @Shadow
     private int ticksCatchable;
+
+    @Shadow
+    public abstract ItemStack func_146033_f();
 
     @Nullable
     public ProjectileSource projectileSource;
@@ -114,7 +114,7 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
     }
 
     @Redirect(method = "onUpdate()V", at =
-    @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
+            @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
     public boolean onAttackEntityFrom(Entity this$0, DamageSource damageSource, float damage) {
         PlayerHookedEntityEvent event = SpongeEventFactory.createPlayerHookedEntityEvent(SpongeMod.instance.getGame(), (Player) this.angler, this,
                 (org.spongepowered.api.entity.Entity) this$0);
@@ -160,10 +160,10 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
                 double entityitem = this.angler.posX - this.posX;
                 double d2 = this.angler.posY - this.posY;
                 double d4 = this.angler.posZ - this.posZ;
-                double d6 = (double) MathHelper.sqrt_double(entityitem * entityitem + d2 * d2 + d4 * d4);
+                double d6 = MathHelper.sqrt_double(entityitem * entityitem + d2 * d2 + d4 * d4);
                 double d8 = 0.1D;
                 this.caughtEntity.motionX += entityitem * d8;
-                this.caughtEntity.motionY += d2 * d8 + (double) MathHelper.sqrt_double(d6) * 0.08D;
+                this.caughtEntity.motionY += d2 * d8 + MathHelper.sqrt_double(d6) * 0.08D;
                 this.caughtEntity.motionZ += d4 * d8;
                 b0 = 3;
             }
@@ -173,10 +173,10 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
                 double d1 = this.angler.posX - this.posX;
                 double d3 = this.angler.posY - this.posY;
                 double d5 = this.angler.posZ - this.posZ;
-                double d7 = (double) MathHelper.sqrt_double(d1 * d1 + d3 * d3 + d5 * d5);
+                double d7 = MathHelper.sqrt_double(d1 * d1 + d3 * d3 + d5 * d5);
                 double d9 = 0.1D;
                 entityitem1.motionX = d1 * d9;
-                entityitem1.motionY = d3 * d9 + (double) MathHelper.sqrt_double(d7) * 0.08D;
+                entityitem1.motionY = d3 * d9 + MathHelper.sqrt_double(d7) * 0.08D;
                 entityitem1.motionZ = d5 * d9;
                 this.worldObj.spawnEntityInWorld(entityitem1);
                 this.angler.worldObj.spawnEntityInWorld(

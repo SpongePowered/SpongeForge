@@ -40,7 +40,8 @@ public abstract class MixinEventChunk extends WorldEvent implements ChunkEvent {
         super(world);
     }
 
-    @Shadow public net.minecraft.world.chunk.Chunk chunk;
+    @Shadow
+    public net.minecraft.world.chunk.Chunk chunk;
 
     @Override
     public Chunk getChunk() {

@@ -40,6 +40,7 @@ import java.util.Collection;
 @Mixin(PropertyHelper.class)
 @SuppressWarnings("rawtypes")
 public abstract class MixinPropertyHelper implements BlockProperty, IProperty {
+
     // TODO: mixin, methods with same name and return type in mcp names
     //@Override
     //public String getName() {

@@ -41,36 +41,56 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * <p>Asynchronous Scheduler</p>
+ * <p>
+ * Asynchronous Scheduler
+ * </p>
  *
- * <p>The Asynchronous Scheduler is similar to the {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}.
- * They have the same kind of API signature
- * and operate with the same kind of Tasks.  The exceptional difference between the SyncScheduler and this
- * Asynchronous Scheduler is that this Scheduler will base timing of Tasks on wall-clock time.  The wall-clock
- * time is used to determine when to run a Task.</p>
+ * <p>
+ * The Asynchronous Scheduler is similar to the
+ * {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}. They
+ * have the same kind of API signature and operate with the same kind of Tasks.
+ * The exceptional difference between the SyncScheduler and this Asynchronous
+ * Scheduler is that this Scheduler will base timing of Tasks on wall-clock
+ * time. The wall-clock time is used to determine when to run a Task.
+ * </p>
  *
- * <p>Main Differences</p>
+ * <p>
+ * Main Differences
+ * </p>
  *
- * <p>{@link SyncScheduler} implements {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}
- * interface and uses Ticks as the time unit. Tasks are
- * created with parameters (if any) that involve delays and periods based on Tick time units. Theoretically a Tick
- * is 50ms, but due to overhead and latency, the monotonous timing of Tick based Tasks is not guaranteed.</p>
+ * <p>
+ * {@link SyncScheduler} implements
+ * {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}
+ * interface and uses Ticks as the time unit. Tasks are created with parameters
+ * (if any) that involve delays and periods based on Tick time units.
+ * Theoretically a Tick is 50ms, but due to overhead and latency, the monotonous
+ * timing of Tick based Tasks is not guaranteed.
+ * </p>
  *
- * <p> {@link AsyncScheduler} implements {@link AsynchronousScheduler} interface and uses milliseconds as the time
- * unit.  Tasks created with parameters (if any) that involve delays and periods based on milliseconds and relative
- * to the wall-clock of the host system.  Caveat: the wall-clock time is used for measuring elapsed time, but the
- * actual date/time of the host system or changes to the host date/time will not affect the scheduling of Tasks.
- * Because the AsyncScheduler is running its own thread all tasks that  execute from this scheduler are not
- * synchronous with the game data.  In other-words, the Tasks that are executed by the AsyncScheduler are not
- * thread-safe with the game data.  Plugin authors should use care when leveraging concurrency in their plugins
- * when those plugins access game data as a result of a Asynchronous {@link Task} running.  Several resources can
- * help the plugin author:  The Java Concurrency book by Lea and Effective Java by Bloch for information handling
- * concurrency issues in their plugins.</p>
+ * <p>
+ * {@link AsyncScheduler} implements {@link AsynchronousScheduler} interface and
+ * uses milliseconds as the time unit. Tasks created with parameters (if any)
+ * that involve delays and periods based on milliseconds and relative to the
+ * wall-clock of the host system. Caveat: the wall-clock time is used for
+ * measuring elapsed time, but the actual date/time of the host system or
+ * changes to the host date/time will not affect the scheduling of Tasks.
+ * Because the AsyncScheduler is running its own thread all tasks that execute
+ * from this scheduler are not synchronous with the game data. In other-words,
+ * the Tasks that are executed by the AsyncScheduler are not thread-safe with
+ * the game data. Plugin authors should use care when leveraging concurrency in
+ * their plugins when those plugins access game data as a result of a
+ * Asynchronous {@link Task} running. Several resources can help the plugin
+ * author: The Java Concurrency book by Lea and Effective Java by Bloch for
+ * information handling concurrency issues in their plugins.
+ * </p>
  * *
- * <p>Tasks can be created using the API in the {@link AsynchronousScheduler} interface. The access to this Scheduler
- * through the {@link org.spongepowered.api.Game} interface method AsynchronousScheduler getAsyncScheduler();
- * Plugin authors never cause the creation of a scheduler, the scheduler (Asynchronous and {@link SyncScheduler}
- * are each Singletons.</p>
+ * <p>
+ * Tasks can be created using the API in the {@link AsynchronousScheduler}
+ * interface. The access to this Scheduler through the
+ * {@link org.spongepowered.api.Game} interface method AsynchronousScheduler
+ * getAsyncScheduler(); Plugin authors never cause the creation of a scheduler,
+ * the scheduler (Asynchronous and {@link SyncScheduler} are each Singletons.
+ * </p>
  *
  *
  */
@@ -93,6 +113,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
         this.schedulerHelper = new SchedulerHelper(ScheduledTask.TaskSynchroncity.ASYNCHRONOUS);
 
         new Thread(new Runnable() {
+
             @Override
             public void run() {
                 stateMachineBody();
@@ -115,14 +136,18 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     /**
-     * <p>Returns the instance (handle) to the Asynchronous TaskScheduler.</p>
+     * <p>
+     * Returns the instance (handle) to the Asynchronous TaskScheduler.
+     * </p>
      *
      * <p>
      * A static reference to the Asynchronous Scheduler singleton is returned by
-     * the function getInstance().</p>
-     * <p>Singleton based on:
-     * <a href="http://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">
-     *     Initialization on Demand Idiom</a>
+     * the function getInstance().
+     * </p>
+     * <p>
+     * Singleton based on: <a href
+     * ="http://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">
+     * Initialization on Demand Idiom</a>
      * </p>
      *
      * @return The single interface to the Asynchronous Scheduler
@@ -262,27 +287,38 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     /**
-     * <p>Runs a Task once immediately.</p>
+     * <p>
+     * Runs a Task once immediately.
+     * </p>
      *
      * <p>
-     * The runTask method is used to run a single Task just once.  The Task
-     * may persist for the life of the server, however the Task itself will never
-     * be restarted.  It has no delay offset.  This Asynchronous Scheduler will not wait before
-     * running the Task.</p>
-     *
-     * <p>Example code to obtain plugin container argument from User code:</p>
+     * The runTask method is used to run a single Task just once. The Task may
+     * persist for the life of the server, however the Task itself will never be
+     * restarted. It has no delay offset. This Asynchronous Scheduler will not
+     * wait before running the Task.
+     * </p>
      *
      * <p>
+     * Example code to obtain plugin container argument from User code:
+     * </p>
+     *
+     * <p>
+     * 
+     * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
+     * </pre>
+     * 
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
+     * @param runnableTarget The Runnable object that implements a run() method
+     *        to execute the Task desired
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a
+     *         reference to the new Task
      */
     @Override
     public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {
@@ -305,42 +341,62 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     /**
-     * <p>Runs a Task once after a specific delay offset.</p>
+     * <p>
+     * Runs a Task once after a specific delay offset.
+     * </p>
      *
      * <p>
-     * The runTask() method is used to run a single Task just once.  The Task
-     * may persist for the life of the server, however the Task itself will never
-     * be restarted.  This Asynchronous Scheduler will not wait before running the Task.
-     * <b>The Task will be delayed artificially for delay in the time unit scale.</b>  </p>
-     *
-     * <p>Because the time unit is in milliseconds, this scheduled Task is asynchronous with the game.
-     * The timing of when to run a Task is based on wall-clock time.
-     * Overhead, network and system latency not
-     * withstanding the event will fire after the delay expires.</p>
-     *
-     * <p>Example code to obtain plugin container argument from User code:</p>
+     * The runTask() method is used to run a single Task just once. The Task may
+     * persist for the life of the server, however the Task itself will never be
+     * restarted. This Asynchronous Scheduler will not wait before running the
+     * Task. <b>The Task will be delayed artificially for delay in the time unit
+     * scale.</b>
+     * </p>
      *
      * <p>
+     * Because the time unit is in milliseconds, this scheduled Task is
+     * asynchronous with the game. The timing of when to run a Task is based on
+     * wall-clock time. Overhead, network and system latency not withstanding
+     * the event will fire after the delay expires.
+     * </p>
+     *
+     * <p>
+     * Example code to obtain plugin container argument from User code:
+     * </p>
+     *
+     * <p>
+     * 
+     * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
+     * </pre>
+     * 
      * </p>
      *
-     * <p>Example for specifying a certain time unit scale:</p>
+     * <p>
+     * Example for specifying a certain time unit scale:
+     * </p>
      *
      * <p>
+     * 
+     * <pre>
      *     <code>
      *         // The task will run with a delay of 500 seconds.
      *         runTaskAfter(somePlugin, someRunnableTarget, TimeUnit.MILLISECONDS, 500);
      *     </code>
+     * </pre>
+     * 
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @param delay  The offset in scale units before running the task.
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
+     * @param runnableTarget The Runnable object that implements a run() method
+     *        to execute the Task desired
+     * @param delay The offset in scale units before running the task.
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a
+     *         reference to the new Task
      */
     @Override
     public Optional<Task> runTaskAfter(Object plugin, Runnable runnableTarget, TimeUnit scale, long delay) {
@@ -363,60 +419,89 @@ public class AsyncScheduler implements AsynchronousScheduler {
     }
 
     /**
-     * <p>Start a repeating Task with a period in specified time unit  The first occurrence will start immediately.</p>
+     * <p>
+     * Start a repeating Task with a period in specified time unit The first
+     * occurrence will start immediately.
+     * </p>
      *
      * <p>
-     * The runRepeatingTask() method is used to run a Task that repeats.  The Task
-     * may persist for the life of the server. This Asynchronous Scheduler will not wait before running
-     * the first occurrence of the Task. This Scheduler will not allow a second occurrence of
-     * the task to start if the preceding occurrence is is still alive.  Be sure to end
-     * the Runnable Thread of the Task before anticipating the recurrence of the Task.</p>
+     * The runRepeatingTask() method is used to run a Task that repeats. The
+     * Task may persist for the life of the server. This Asynchronous Scheduler
+     * will not wait before running the first occurrence of the Task. This
+     * Scheduler will not allow a second occurrence of the task to start if the
+     * preceding occurrence is is still alive. Be sure to end the Runnable
+     * Thread of the Task before anticipating the recurrence of the Task.
+     * </p>
      *
      * <p>
-     * If this Scheduler detects that two tasks will overlap as such, the 2nd Task will not
-     * be started.  The next time the Task is due to run, the test will be made again to determine
-     * if the previous occurrence of the Task is still alive (running).  As long as a previous occurrence
-     * is running no new occurrences of that specific Task will start, although this Scheduler will
-     * never cease in trying to start it a 2nd time.</p>
-     *
-     * <p>Because the time unit is in the scale provided, this scheduled Task is asynchronous with the game.
-     * The timing of when to run a Task is based on wall-clock time.
-     * Overhead, network and system latency not
-     * withstanding the event will fire after the delay expires.</p>
-     *
-     * <p>Example code to obtain plugin container argument from User code:</p>
+     * If this Scheduler detects that two tasks will overlap as such, the 2nd
+     * Task will not be started. The next time the Task is due to run, the test
+     * will be made again to determine if the previous occurrence of the Task is
+     * still alive (running). As long as a previous occurrence is running no new
+     * occurrences of that specific Task will start, although this Scheduler
+     * will never cease in trying to start it a 2nd time.
+     * </p>
      *
      * <p>
+     * Because the time unit is in the scale provided, this scheduled Task is
+     * asynchronous with the game. The timing of when to run a Task is based on
+     * wall-clock time. Overhead, network and system latency not withstanding
+     * the event will fire after the delay expires.
+     * </p>
+     *
+     * <p>
+     * Example code to obtain plugin container argument from User code:
+     * </p>
+     *
+     * <p>
+     * 
+     * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
+     * </pre>
+     * 
      * </p>
      *
-     * <p>Example for specifying a certain time unit scale:</p>
+     * <p>
+     * Example for specifying a certain time unit scale:
+     * </p>
      *
      * <p>
+     * 
+     * <pre>
      *     <code>
      *         // The task will run with a period of 15 seconds.
      *         runRepeatingTask(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 15);
      *     </code>
+     * </pre>
+     * 
      * </p>
      *
-     * <p>Example for specifying a certain time unit scale:</p>
+     * <p>
+     * Example for specifying a certain time unit scale:
+     * </p>
      *
      * <p>
+     * 
+     * <pre>
      *     <code>
      *         // The task will run with a period of 30 seconds
      *         runTaskAfter(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 30);
      *     </code>
+     * </pre>
+     * 
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
+     * @param runnableTarget The Runnable object that implements a run() method
+     *        to execute the Task desired
      * @param scale The TimeUnit scale of the interval argument.
      * @param interval The period in scale time units of the repeating Task.
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a
+     *         reference to the new Task
      */
     @Override
     public Optional<Task> runRepeatingTask(Object plugin, Runnable runnableTarget, TimeUnit scale, long interval) {
@@ -439,72 +524,99 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
     /**
      * <p>
-     * Start a repeating Task with a period (interval) of time unit scale.
-     * The first occurrence will start after an initial delay in time unit scale.</p>
+     * Start a repeating Task with a period (interval) of time unit scale. The
+     * first occurrence will start after an initial delay in time unit scale.
+     * </p>
      *
      * <p>
-     * The runRepeatingTask method is used to run a Task that repeats.  The Task
-     * may persist for the life of the server. This Asynchronous Scheduler <b>will wait</b> before running
-     * the first occurrence of the Task. This Scheduler will not allow a second occurrence of
-     * the task to start if the preceding occurrence is is still alive.  Be sure to end
-     * the Runnable Thread of the Task before anticipating the recurrence of the Task.</p>
+     * The runRepeatingTask method is used to run a Task that repeats. The Task
+     * may persist for the life of the server. This Asynchronous Scheduler
+     * <b>will wait</b> before running the first occurrence of the Task. This
+     * Scheduler will not allow a second occurrence of the task to start if the
+     * preceding occurrence is is still alive. Be sure to end the Runnable
+     * Thread of the Task before anticipating the recurrence of the Task.
+     * </p>
      *
      * <p>
-     * If this Scheduler detects that two tasks will overlap as such, the 2nd Task will not
-     * be started.  The next time the Task is due to run, the test will be made again to determine
-     * if the previous occurrence of the Task is still alive (running).  As long as a previous occurrence
-     * is running no new occurrences of that specific Task will start, although this Scheduler will
-     * never cease in trying to start it a 2nd time.</p>
-     *
-     * <p>Because the time unit is in milliseconds, this scheduled Task is asynchronous with the game.
-     * The timing of when to run a Task is based on wall-clock time.
-     * Overhead, network and system latency not
-     * withstanding the event will fire after the delay expires.</p>
-     *
-     * <p>Example code to obtain plugin container argument from User code:</p>
+     * If this Scheduler detects that two tasks will overlap as such, the 2nd
+     * Task will not be started. The next time the Task is due to run, the test
+     * will be made again to determine if the previous occurrence of the Task is
+     * still alive (running). As long as a previous occurrence is running no new
+     * occurrences of that specific Task will start, although this Scheduler
+     * will never cease in trying to start it a 2nd time.
+     * </p>
      *
      * <p>
+     * Because the time unit is in milliseconds, this scheduled Task is
+     * asynchronous with the game. The timing of when to run a Task is based on
+     * wall-clock time. Overhead, network and system latency not withstanding
+     * the event will fire after the delay expires.
+     * </p>
+     *
+     * <p>
+     * Example code to obtain plugin container argument from User code:
+     * </p>
+     *
+     * <p>
+     * 
+     * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
+     * </pre>
+     * 
      * </p>
      *
-     * <p>Example for specifying a certain time unit scale:</p>
+     * <p>
+     * Example for specifying a certain time unit scale:
+     * </p>
      *
      * <p>
+     * 
+     * <pre>
      *     <code>
      *         // The task will run with a period of 15 seconds.
      *         runRepeatingTask(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 15);
      *     </code>
+     * </pre>
+     * 
      * </p>
      *
-     * <p>Example for specifying a certain time unit scale:</p>
+     * <p>
+     * Example for specifying a certain time unit scale:
+     * </p>
      *
      * <p>
+     * 
+     * <pre>
      *     <code>
      *         // The task will run with a period of 120 milliseconds and delay of 302 milliseconds
      *         // (If the scales are the same for both arguments)
      *         runRepeatingTaskAfter(somePlugin, someRunnableTarget, TimeUnit.MILLISECONDS, 120, 302);
-     *
+     * 
      *         // If the two units are in different scales:
-     *
+     * 
      *         // The task will run with a period of 20 seconds and delay of 500 milliseconds:
      *         Either:
      *         runRepeatingTaskAfter(somePlugin, someRunnableTarget, TimeUnit.MILLISECONDS, TimeUnit.SECOND.toMillis(20), 500);
      *         // OR
      *         runRepeatingTaskAfter(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 20, TimeUnit.MILLISECONDS.toSeconds(500));
-     *
+     * 
      *     </code>
+     * </pre>
+     * 
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
+     * @param runnableTarget The Runnable object that implements a run() method
+     *        to execute the Task desired
      * @param scale
-     * @param delay  The offset in time unit scale before running the task.
+     * @param delay The offset in time unit scale before running the task.
      * @param interval The offset in time unit scale before running the task.
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a
+     *         reference to the new Task
      */
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, TimeUnit scale, long interval, long delay) {
@@ -527,21 +639,30 @@ public class AsyncScheduler implements AsynchronousScheduler {
 
     /**
      *
-     * <p>Get the task from the Scheduler identified by the UUID</p>
-     *
-     * <p>Example code to use the method:</p>
+     * <p>
+     * Get the task from the Scheduler identified by the UUID
+     * </p>
      *
      * <p>
+     * Example code to use the method:
+     * </p>
+     *
+     * <p>
+     * 
+     * <pre>
      * <code>
      *     UUID myID;
      *     // ...
      *     Optional&lt;Task&gt; task;
      *     task = AsyncScheduler.getInstance().getTaskById(myID);
      * </code>
+     * </pre>
+     * 
      * </p>
      *
      * @param id The UUID of the Task to find.
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the existing Task.
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a
+     *         reference to the existing Task.
      */
     @Override
     public Optional<Task> getTaskById(UUID id) {
@@ -590,4 +711,3 @@ public class AsyncScheduler implements AsynchronousScheduler {
         return bRes;
     }
 }
-

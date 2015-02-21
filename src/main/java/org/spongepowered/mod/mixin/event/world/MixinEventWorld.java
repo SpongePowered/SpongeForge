@@ -34,7 +34,8 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = net.minecraftforge.event.world.WorldEvent.class, remap = false)
 public abstract class MixinEventWorld implements WorldEvent {
 
-    @Shadow public net.minecraft.world.World world;
+    @Shadow
+    public net.minecraft.world.World world;
 
     @Override
     public World getWorld() {

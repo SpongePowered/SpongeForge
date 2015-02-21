@@ -42,10 +42,17 @@ public abstract class MixinEntityEnderEye extends Entity implements EyeOfEnder {
         super(worldIn);
     }
 
-    @Shadow private double targetX;
-    @Shadow private double targetY;
-    @Shadow private double targetZ;
-    @Shadow private boolean shatterOrDrop;
+    @Shadow
+    private double targetX;
+
+    @Shadow
+    private double targetY;
+
+    @Shadow
+    private double targetZ;
+
+    @Shadow
+    private boolean shatterOrDrop;
 
     private ProjectileSource projectileSource = new UnknownProjectileSource();
 

@@ -37,6 +37,7 @@ public class TranslationHelper {
      */
     public static Translation createStaticTranslation(final String id, final String name) {
         return new Translation() {
+
             @Override
             public String getId() {
                 return id;

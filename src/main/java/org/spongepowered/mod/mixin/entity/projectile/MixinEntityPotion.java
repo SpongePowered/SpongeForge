@@ -44,7 +44,8 @@ public abstract class MixinEntityPotion extends EntityThrowable implements Throw
         super(worldIn);
     }
 
-    @Shadow private net.minecraft.item.ItemStack potionDamage;
+    @Shadow
+    private net.minecraft.item.ItemStack potionDamage;
 
     @Override
     public ItemStack getItem() {

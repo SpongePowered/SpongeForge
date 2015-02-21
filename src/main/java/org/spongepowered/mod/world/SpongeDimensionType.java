@@ -25,7 +25,6 @@
 package org.spongepowered.mod.world;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import net.minecraft.world.WorldProvider;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionType;

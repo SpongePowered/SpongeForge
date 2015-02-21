@@ -33,9 +33,14 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(net.minecraft.entity.item.EntityPainting.EnumArt.class)
 public class MixinEnumArt implements Art {
 
-    @Shadow public String title;
-    @Shadow public int sizeX;
-    @Shadow public int sizeY;
+    @Shadow
+    public String title;
+
+    @Shadow
+    public int sizeX;
+
+    @Shadow
+    public int sizeY;
 
     @Override
     public int getHeight() {

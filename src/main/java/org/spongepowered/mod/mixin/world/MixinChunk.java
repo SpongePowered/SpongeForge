@@ -48,11 +48,20 @@ public abstract class MixinChunk implements Chunk {
     private Vector3i chunkPos;
     private ChunkCoordIntPair chunkCoordIntPair;
 
-    @Shadow private net.minecraft.world.World worldObj;
-    @Shadow public int xPosition;
-    @Shadow public int zPosition;
-    @Shadow private boolean isChunkLoaded;
-    @Shadow private boolean isTerrainPopulated;
+    @Shadow
+    private net.minecraft.world.World worldObj;
+
+    @Shadow
+    public int xPosition;
+
+    @Shadow
+    public int zPosition;
+
+    @Shadow
+    private boolean isChunkLoaded;
+
+    @Shadow
+    private boolean isTerrainPopulated;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(World world, int x, int z, CallbackInfo ci) {

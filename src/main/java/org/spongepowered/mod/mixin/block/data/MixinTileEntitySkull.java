@@ -45,6 +45,9 @@ import java.util.List;
 public abstract class MixinTileEntitySkull extends TileEntity {
 
     @Shadow
+    private int skullRotation;
+
+    @Shadow
     public abstract void setPlayerProfile(com.mojang.authlib.GameProfile playerProfile);
 
     @Shadow
@@ -55,9 +58,6 @@ public abstract class MixinTileEntitySkull extends TileEntity {
 
     @Shadow
     public abstract int getSkullType();
-
-    @Shadow
-    private int skullRotation;
 
     public Direction skull$getRotation() {
         return null; //TODO

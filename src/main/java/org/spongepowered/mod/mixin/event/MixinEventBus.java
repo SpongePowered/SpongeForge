@@ -42,8 +42,11 @@ public abstract class MixinEventBus {
 
     private EventBus eventBus = (EventBus) (Object) this;
 
-    @Shadow private int busID;
-    @Shadow private IEventExceptionHandler exceptionHandler;
+    @Shadow
+    private int busID;
+
+    @Shadow
+    private IEventExceptionHandler exceptionHandler;
 
     @Overwrite
     public boolean post(Event event) {

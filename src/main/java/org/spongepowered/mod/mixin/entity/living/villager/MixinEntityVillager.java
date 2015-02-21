@@ -59,10 +59,17 @@ public abstract class MixinEntityVillager extends EntityAgeable implements Merch
         super(worldIn);
     }
 
-    @Shadow private boolean isPlaying;
-    @Shadow private EntityPlayer buyingPlayer;
-    @Shadow private int careerId;
-    @Shadow private MerchantRecipeList buyingList;
+    @Shadow
+    private boolean isPlaying;
+
+    @Shadow
+    private EntityPlayer buyingPlayer;
+
+    @Shadow
+    private int careerId;
+
+    @Shadow
+    private MerchantRecipeList buyingList;
 
     @Shadow
     public abstract int getProfession();

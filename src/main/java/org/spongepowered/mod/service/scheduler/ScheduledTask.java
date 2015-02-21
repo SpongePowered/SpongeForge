@@ -32,8 +32,10 @@ import org.spongepowered.api.service.scheduler.Task;
 import java.util.UUID;
 
 /**
- * <p>ScheduledTask is an internal representation of a Task created by the Plugin through
- * one of the Scheduler interfaces. </p>
+ * <p>
+ * ScheduledTask is an internal representation of a Task created by the Plugin
+ * through one of the Scheduler interfaces.
+ * </p>
  */
 public class ScheduledTask implements Task {
 
@@ -201,4 +203,3 @@ public class ScheduledTask implements Task {
         ASYNCHRONOUS
     }
 }
-

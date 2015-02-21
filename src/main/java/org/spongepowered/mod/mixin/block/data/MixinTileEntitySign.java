@@ -47,7 +47,7 @@ public abstract class MixinTileEntitySign extends TileEntity {
     public IChatComponent[] signText;
 
     public Message[] sign$getLines() {
-        return new Message[]{SpongeMessage.of(this.signText[0]), SpongeMessage.of(this.signText[1]), SpongeMessage.of(this.signText[2]),
+        return new Message[] {SpongeMessage.of(this.signText[0]), SpongeMessage.of(this.signText[1]), SpongeMessage.of(this.signText[2]),
                 SpongeMessage.of(this.signText[3])};
     }
 

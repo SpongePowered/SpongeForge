@@ -43,11 +43,20 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
 public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements PlayerPlaceBlockEvent {
 
-    @Shadow public EntityPlayer player;
-    @Shadow public ItemStack itemInHand;
-    @Shadow public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
-    @Shadow public IBlockState placedBlock;
-    @Shadow public IBlockState placedAgainst;
+    @Shadow
+    public EntityPlayer player;
+
+    @Shadow
+    public ItemStack itemInHand;
+
+    @Shadow
+    public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
+
+    @Shadow
+    public IBlockState placedBlock;
+
+    @Shadow
+    public IBlockState placedAgainst;
 
     public MixinEventPlayerPlaceBlock(World world, BlockPos pos, IBlockState state) {
         super(world, pos, state);
@@ -65,7 +74,7 @@ public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements P
 
     @Override
     public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, (Player) this.player, null));
+        return Optional.fromNullable(new Cause(null, this.player, null));
     }
 
     @Override

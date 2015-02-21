@@ -43,8 +43,11 @@ import java.net.InetSocketAddress;
 @Mixin(NetHandlerPlayServer.class)
 public abstract class MixinNetHandlerPlayServer implements PlayerConnection {
 
-    @Shadow public NetworkManager netManager;
-    @Shadow public EntityPlayerMP playerEntity;
+    @Shadow
+    public NetworkManager netManager;
+
+    @Shadow
+    public EntityPlayerMP playerEntity;
 
     @Shadow
     public abstract void sendPacket(final Packet packetIn);

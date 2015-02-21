@@ -25,7 +25,6 @@
 package org.spongepowered.mod.entity;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
 import org.spongepowered.api.entity.EntityType;

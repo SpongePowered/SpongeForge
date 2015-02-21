@@ -33,7 +33,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.entity.EntityInteractionType;
-import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.living.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -45,9 +44,14 @@ import org.spongepowered.mod.wrapper.BlockWrapper;
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
 public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implements PlayerInteractBlockEvent {
 
-    @Shadow public Action action;
-    @Shadow public World world;
-    @Shadow public BlockPos pos;
+    @Shadow
+    public Action action;
+
+    @Shadow
+    public World world;
+
+    @Shadow
+    public BlockPos pos;
 
     public MixinEventPlayerInteractBlock(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, World world) {
         super(player);
@@ -55,7 +59,7 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
 
     @Override
     public BlockLoc getBlock() {
-        return (BlockLoc) new BlockWrapper((org.spongepowered.api.world.World) this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
+        return new BlockWrapper((org.spongepowered.api.world.World) this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
     }
 
     @Override
@@ -71,16 +75,7 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
 
     @Override
     public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, (Player) this.entityPlayer, null));
+        return Optional.fromNullable(new Cause(null, this.entityPlayer, null));
     }
 
-    /*&@Override
-    public boolean isCancelled() {
-        return this.isCanceled();
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.setCanceled(cancelled);
-    }*/
 }

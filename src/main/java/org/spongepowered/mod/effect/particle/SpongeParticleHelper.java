@@ -44,9 +44,9 @@ import java.util.Random;
 public final class SpongeParticleHelper {
 
     /**
-     * Gets the list of packets that are needed to spawn the particle effect at the position.
-     * This method tries to minimize the amount of packets for better performance and
-     * lower bandwidth use.
+     * Gets the list of packets that are needed to spawn the particle effect at
+     * the position. This method tries to minimize the amount of packets for
+     * better performance and lower bandwidth use.
      *
      * @param effect The particle effect
      * @param position The position
@@ -99,7 +99,7 @@ public final class SpongeParticleHelper {
                 return Collections.emptyList();
             }
 
-            extra = new int[]{id, data};
+            extra = new int[] {id, data};
         }
 
         if (effect instanceof SpongeParticleEffect.Resized) {

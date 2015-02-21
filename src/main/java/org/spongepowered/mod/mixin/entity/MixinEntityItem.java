@@ -52,9 +52,6 @@ public abstract class MixinEntityItem extends Entity implements Item {
     private static final int MAGIC_INFINITE = -1;
 
     @Shadow
-    public abstract net.minecraft.item.ItemStack getEntityItem();
-
-    @Shadow
     private int delayBeforeCanPickup;
 
     @Shadow
@@ -62,6 +59,9 @@ public abstract class MixinEntityItem extends Entity implements Item {
 
     @Shadow
     public int lifespan;
+
+    @Shadow
+    public abstract net.minecraft.item.ItemStack getEntityItem();
 
     //
     // In the case where a Forge mod sets the delay to MAGIC_INFINITE_PICKUP_DELAY, but a plugin has
@@ -83,14 +83,16 @@ public abstract class MixinEntityItem extends Entity implements Item {
         super(worldIn);
     }
 
-    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityItem;delayBeforeCanPickup:I", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
+    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityItem;delayBeforeCanPickup:I",
+            opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
     private void onOnUpdate(CallbackInfo ci) {
         if (this.delayBeforeCanPickup == MAGIC_INFINITE_PICKUP_DELAY && !this.infinitePickupDelay && this.pluginPickupSet) {
             this.delayBeforeCanPickup--;
         }
     }
 
-    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityItem;age:I", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
+    @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityItem;age:I", opcode = Opcodes.PUTFIELD,
+            shift = At.Shift.AFTER))
     private void onOnUpdateAge(CallbackInfo ci) {
         if (this.delayBeforeCanPickup == MAGIC_INFINITE_DESPAWN_TIME && !this.infiniteDespawnDelay && this.pluginDespawnSet) {
             this.delayBeforeCanPickup--;
@@ -166,7 +168,5 @@ public abstract class MixinEntityItem extends Entity implements Item {
     public void setThrower(@Nullable User user) {
         throw new UnsupportedOperationException();
     }
-
-
 
 }

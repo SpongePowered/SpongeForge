@@ -38,9 +38,14 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
 public abstract class MixinEventPlayerChat extends Event implements PlayerChatEvent {
 
-    @Shadow public String message, username;
-    @Shadow public EntityPlayerMP player;
-    @Shadow public ChatComponentTranslation component;
+    @Shadow
+    public String message, username;
+
+    @Shadow
+    public EntityPlayerMP player;
+
+    @Shadow
+    public ChatComponentTranslation component;
 
     @Override
     public CommandSource getSource() {

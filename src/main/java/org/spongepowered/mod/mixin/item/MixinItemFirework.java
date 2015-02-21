@@ -42,8 +42,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(net.minecraft.item.ItemFirework.class)
 public class MixinItemFirework extends Item {
 
-    @Redirect(method = "onItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
-    private boolean onSpawnEntityInWorld(World world, Entity firework, ItemStack stack, EntityPlayer player, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
+    @Redirect(method = "onItemUse", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
+    private boolean onSpawnEntityInWorld(World world, Entity firework, ItemStack stack, EntityPlayer player, World worldIn, BlockPos pos,
+            EnumFacing side, float hitX, float hitY, float hitZ) {
         ((Firework) firework).setShooter((ProjectileSource) player);
         return world.spawnEntityInWorld(firework);
     }

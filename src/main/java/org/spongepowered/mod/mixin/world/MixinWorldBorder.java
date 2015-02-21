@@ -42,17 +42,23 @@ import java.util.List;
 @Implements(@Interface(iface = WorldBorder.class, prefix = "border$"))
 public abstract class MixinWorldBorder implements WorldBorder {
 
-    @Shadow private int warningTime;
+    @Shadow
+    private int warningTime;
 
-    @Shadow private int warningDistance;
+    @Shadow
+    private int warningDistance;
 
-    @Shadow private double startDiameter;
+    @Shadow
+    private double startDiameter;
 
-    @Shadow private double endDiameter;
+    @Shadow
+    private double endDiameter;
 
-    @Shadow private long endTime;
+    @Shadow
+    private long endTime;
 
-    @Shadow private long startTime;
+    @Shadow
+    private long startTime;
 
     @Shadow
     public abstract double getDamageBuffer();
@@ -139,7 +145,7 @@ public abstract class MixinWorldBorder implements WorldBorder {
 
     public double border$getDiameter() {
         if (this.getStatus() != EnumBorderStatus.STATIONARY) {
-            double time = (double) ((float) (System.currentTimeMillis() - this.startTime) / (float) (this.endTime - this.startTime));
+            double time = (float) (System.currentTimeMillis() - this.startTime) / (float) (this.endTime - this.startTime);
 
             if (time < 1.0D) {
                 return (this.startDiameter + (this.endDiameter - this.startDiameter) * time);

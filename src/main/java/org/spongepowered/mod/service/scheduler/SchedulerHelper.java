@@ -59,22 +59,30 @@ public class SchedulerHelper {
 
     /**
      * <p>
-     * Start a repeating Task with a period (interval) of Ticks.  The first occurrence
-     * will start after an initial delay.</p>
-     *
-     * <p>Example code to use the method:</p>
+     * Start a repeating Task with a period (interval) of Ticks. The first
+     * occurrence will start after an initial delay.
+     * </p>
      *
      * <p>
+     * Example code to use the method:
+     * </p>
+     *
+     * <p>
+     * 
+     * <pre>
      * <code>
      *     UUID myID;
      *     // ...
      *     Optional&lt;Task&gt; task;
      *     task = SyncScheduler.getInstance().getTaskById(myID);
      * </code>
+     * </pre>
+     * 
      * </p>
      *
      * @param id The UUID of the Task to find.
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the existing Task.
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a
+     *         reference to the existing Task.
      */
     protected Optional<Task> getTaskById(Map<UUID, ScheduledTask> taskMap, UUID id) {
         Optional<Task> resultTask = Optional.absent();
@@ -88,7 +96,9 @@ public class SchedulerHelper {
     }
 
     /**
-     * <p>Determine the Collection of Tasks that the TaskScheduler is aware of.</p>
+     * <p>
+     * Determine the Collection of Tasks that the TaskScheduler is aware of.
+     * </p>
      *
      * @return Collection&lt;Task&gt; of all known Tasks in the TaskScheduler
      */
@@ -101,14 +111,20 @@ public class SchedulerHelper {
     }
 
     /**
-     * <p>The query for Tasks owned by a target Plugin owner is found by testing
-     * the map of Tasks by testing the ID of each PluginContainer.</p>
+     * <p>
+     * The query for Tasks owned by a target Plugin owner is found by testing
+     * the map of Tasks by testing the ID of each PluginContainer.
+     * </p>
      *
-     * <p>If the PluginContainer passed to the method is not correct (invalid
-     * or null) then return a null reference.  Else, return a Collection of Tasks
-     * that are owned by the Plugin.</p>
+     * <p>
+     * If the PluginContainer passed to the method is not correct (invalid or
+     * null) then return a null reference. Else, return a Collection of Tasks
+     * that are owned by the Plugin.
+     * </p>
+     * 
      * @param plugin The plugin that may own the Tasks in the TaskScheduler
-     * @return Collection&lt;Task&gt; of Tasks owned by the PluginContainer plugin.
+     * @return Collection&lt;Task&gt; of Tasks owned by the PluginContainer
+     *         plugin.
      */
     protected Collection<Task> getScheduledTasks(Map<UUID, ScheduledTask> taskMap, Object plugin) {
 
@@ -148,8 +164,11 @@ public class SchedulerHelper {
     }
 
     /**
-     * <p>Get the UUID of the task by name.</p>
-     * @param name  The name of the task to search
+     * <p>
+     * Get the UUID of the task by name.
+     * </p>
+     * 
+     * @param name The name of the task to search
      * @return The Optional&lt;UUID&gt; result from the search by name.
      */
     protected Optional<UUID> getUuidOfTaskByName(Map<UUID, ScheduledTask> taskMap, String name) {
@@ -165,15 +184,23 @@ public class SchedulerHelper {
     }
 
     /**
-     * <p>Get a collection of UUIDs for tasks that match the Regular Expression
-     * pattern</p>
+     * <p>
+     * Get a collection of UUIDs for tasks that match the Regular Expression
+     * pattern
+     * </p>
      *
-     * <p>If no tasks match the pattern, the collection is Optional.absent()</p>
-     * <p>If there are Tasks that match the regular expression pattern, the
-     * Collection is not Optional.absent().</p>
+     * <p>
+     * If no tasks match the pattern, the collection is Optional.absent()
+     * </p>
+     * <p>
+     * If there are Tasks that match the regular expression pattern, the
+     * Collection is not Optional.absent().
+     * </p>
      *
-     * @param pattern The regular expression pattern applied to the name of tasks.
-     * @return An Optional&lt;UUID&gt; result of task UUIDs that match the pattern or Optional.absent() if none match.
+     * @param pattern The regular expression pattern applied to the name of
+     *        tasks.
+     * @return An Optional&lt;UUID&gt; result of task UUIDs that match the
+     *         pattern or Optional.absent() if none match.
      */
     protected Collection<Task> getfTasksByName(Map<UUID, ScheduledTask> taskMap, String pattern) {
 
@@ -262,4 +289,3 @@ public class SchedulerHelper {
     }
 
 }
-

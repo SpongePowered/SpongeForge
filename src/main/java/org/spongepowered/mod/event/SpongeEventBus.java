@@ -66,11 +66,14 @@ public class SpongeEventBus implements EventManager {
     /**
      * A cache of all the handlers for an event type for quick event posting.
      *
-     * <p>The cache is currently entirely invalidated if handlers are added
-     * or removed.</p>
+     * <p>
+     * The cache is currently entirely invalidated if handlers are added or
+     * removed.
+     * </p>
      */
     private final LoadingCache<Class<?>, HandlerCache> handlersCache =
             CacheBuilder.newBuilder().build(new CacheLoader<Class<?>, HandlerCache>() {
+
                 @Override
                 public HandlerCache load(Class<?> type) throws Exception {
                     return bakeHandlers(type);
@@ -129,7 +132,8 @@ public class SpongeEventBus implements EventManager {
         Class<?> type = object.getClass();
 
         for (Method method : type.getMethods()) {
-            @Nullable Subscribe subscribe = method.getAnnotation(Subscribe.class);
+            @Nullable
+            Subscribe subscribe = method.getAnnotation(Subscribe.class);
 
             if (subscribe != null) {
                 Class<?>[] paramTypes = method.getParameterTypes();
@@ -242,7 +246,7 @@ public class SpongeEventBus implements EventManager {
 
         for (IEventListener listener : listeners) {
             if (listener instanceof EventPriority) {
-                Order order = this.priorityMappings.get((EventPriority) listener);
+                Order order = this.priorityMappings.get(listener);
 
                 for (int orderIndex = 0; orderIndex <= order.ordinal(); orderIndex++) {
                     Order currentOrder = Order.values()[orderIndex];

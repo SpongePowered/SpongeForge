@@ -37,7 +37,8 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(net.minecraft.entity.item.EntityPainting.class)
 public abstract class MixinEntityPainting extends EntityHanging implements Painting {
 
-    @Shadow public EnumArt art;
+    @Shadow
+    public EnumArt art;
 
     public MixinEntityPainting(World worldIn) {
         super(worldIn);

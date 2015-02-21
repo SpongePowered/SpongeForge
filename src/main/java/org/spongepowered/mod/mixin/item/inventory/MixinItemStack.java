@@ -41,7 +41,8 @@ import java.util.Map;
 @Mixin(net.minecraft.item.ItemStack.class)
 public abstract class MixinItemStack implements ItemStack {
 
-    @Shadow public int stackSize;
+    @Shadow
+    public int stackSize;
 
     @Shadow(prefix = "shadow$")
     public abstract Item shadow$getItem();

@@ -43,11 +43,14 @@ import javax.annotation.Nullable;
 @Implements(@Interface(iface = Arrow.class, prefix = "arrow$"))
 public abstract class MixinEntityArrow extends Entity implements Arrow {
 
-    @Shadow public double damage;
+    @Shadow
+    public double damage;
 
-    @Shadow public int knockbackStrength;
+    @Shadow
+    public int knockbackStrength;
 
-    @Shadow public Entity shootingEntity;
+    @Shadow
+    public Entity shootingEntity;
 
     // Not all ProjectileSources are entities (e.g. BlockProjectileSource).
     // This field is used to store a ProjectileSource that isn't an entity.

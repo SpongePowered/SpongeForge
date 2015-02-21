@@ -38,10 +38,10 @@ import org.spongepowered.mod.wrapper.BlockWrapper;
 public abstract class MixinTileEntity implements TileEntity {
 
     @Shadow
-    public abstract BlockPos getPos();
+    protected net.minecraft.world.World worldObj;
 
     @Shadow
-    protected net.minecraft.world.World worldObj;
+    public abstract BlockPos getPos();
 
     @Override
     public BlockLoc getBlock() {

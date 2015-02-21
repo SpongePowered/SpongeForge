@@ -34,7 +34,8 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = net.minecraftforge.event.entity.EntityEvent.class, remap = false)
 public abstract class MixinEventEntity implements EntityEvent {
 
-    @Shadow public net.minecraft.entity.Entity entity;
+    @Shadow
+    public net.minecraft.entity.Entity entity;
 
     @Override
     public Entity getEntity() {

@@ -41,7 +41,8 @@ import java.util.List;
 @Mixin(net.minecraft.tileentity.TileEntityNote.class)
 public abstract class MixinTileEntityNote extends TileEntity {
 
-    @Shadow public byte note;
+    @Shadow
+    public byte note;
 
     public NotePitch note$getNote() {
         return ((List<NotePitch>) SpongeMod.instance.getGame().getRegistry().getNotePitches()).get(this.note);

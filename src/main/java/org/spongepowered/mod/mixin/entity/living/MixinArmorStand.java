@@ -39,17 +39,23 @@ import org.spongepowered.mod.util.VecHelper;
 @Implements(@Interface(iface = ArmorStand.class, prefix = "astand$"))
 public abstract class MixinArmorStand extends EntityLivingBase {
 
-    @Shadow private Rotations headRotation;
+    @Shadow
+    private Rotations headRotation;
 
-    @Shadow private Rotations bodyRotation;
+    @Shadow
+    private Rotations bodyRotation;
 
-    @Shadow private Rotations leftArmRotation;
+    @Shadow
+    private Rotations leftArmRotation;
 
-    @Shadow private Rotations rightArmRotation;
+    @Shadow
+    private Rotations rightArmRotation;
 
-    @Shadow private Rotations leftLegRotation;
+    @Shadow
+    private Rotations leftLegRotation;
 
-    @Shadow private Rotations rightLegRotation;
+    @Shadow
+    private Rotations rightLegRotation;
 
     @Shadow
     public abstract void setHeadRotation(Rotations p_175415_1_);

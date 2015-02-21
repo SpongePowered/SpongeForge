@@ -632,6 +632,7 @@ public class SpongeGameRegistry implements GameRegistry {
         }
 
         RegistryHelper.mapFields(BlockTypes.class, new Function<String, BlockType>() {
+
             @Override
             public BlockType apply(String fieldName) {
                 return getBlock(fieldName.toLowerCase()).get();
@@ -646,6 +647,7 @@ public class SpongeGameRegistry implements GameRegistry {
         }
 
         RegistryHelper.mapFields(ItemTypes.class, new Function<String, ItemType>() {
+
             @Override
             public ItemType apply(String fieldName) {
                 return getItem(fieldName.toLowerCase()).get();
@@ -692,6 +694,7 @@ public class SpongeGameRegistry implements GameRegistry {
             }
         }
         RegistryHelper.mapFields(PotionEffectTypes.class, new Function<String, PotionEffectType>() {
+
             @Override
             public PotionEffectType apply(String fieldName) {
                 return getPotion(fieldName.toLowerCase()).get();
@@ -701,6 +704,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     private void setArts() {
         RegistryHelper.mapFields(Arts.class, new Function<String, Art>() {
+
             @Override
             public Art apply(String fieldName) {
                 Art art = (Art) (Object) EnumArt.valueOf(fieldName);
@@ -799,6 +803,7 @@ public class SpongeGameRegistry implements GameRegistry {
         this.entityTypeMappings.put("COMPLEX_PART", new SpongeEntityType(-6, "ComplexPart", EntityDragonPart.class));
 
         RegistryHelper.mapFields(EntityTypes.class, new Function<String, EntityType>() {
+
             @Override
             public EntityType apply(String fieldName) {
                 if (fieldName.equals("UNKNOWN")) {
@@ -1003,6 +1008,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     private void setWeathers() {
         RegistryHelper.mapFields(Weathers.class, new Function<String, Weather>() {
+
             @Override
             public Weather apply(String fieldName) {
                 return new SpongeWeather();

@@ -92,13 +92,17 @@ public abstract class MixinWorld implements World, IMixinWorld {
     private boolean keepSpawnLoaded;
     public SpongeConfig worldConfig;
 
-    @Shadow public WorldProvider provider;
+    @Shadow
+    public WorldProvider provider;
 
-    @Shadow protected WorldInfo worldInfo;
+    @Shadow
+    protected WorldInfo worldInfo;
 
-    @Shadow public Random rand;
+    @Shadow
+    public Random rand;
 
-    @Shadow public List<net.minecraft.entity.Entity> loadedEntityList;
+    @Shadow
+    public List<net.minecraft.entity.Entity> loadedEntityList;
 
     @Shadow(prefix = "shadow$")
     public abstract net.minecraft.world.border.WorldBorder shadow$getWorldBorder();

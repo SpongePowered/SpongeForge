@@ -76,6 +76,7 @@ class HandlerClassFactory implements HandlerFactory {
             .weakValues()
             .build(
                     new CacheLoader<CacheKey, Class<?>>() {
+
                         @Override
                         public Class<?> load(CacheKey key) {
                             return createClass(key.type, key.method, key.ignoreCancelled);
@@ -85,7 +86,9 @@ class HandlerClassFactory implements HandlerFactory {
     /**
      * Creates a new class factory.
      *
-     * <p>Different instances of this class should use different packages.</p>
+     * <p>
+     * Different instances of this class should use different packages.
+     * </p>
      *
      * @param targetPackage The target package
      */
@@ -111,8 +114,7 @@ class HandlerClassFactory implements HandlerFactory {
     @SuppressWarnings("unchecked")
     private Class<? extends Handler> createClass(Class<?> type, Method method, boolean ignoreCancelled) {
         Class<?> eventClass = method.getParameterTypes()[0];
-        String
-                name =
+        String name =
                 this.targetPackage + "." + eventClass.getSimpleName() + "Handler_" + type.getSimpleName() + "_" + method.getName() + this.index
                         .incrementAndGet();
         byte[] bytes = generateClass(type, method, eventClass, ignoreCancelled, name);
@@ -129,7 +131,7 @@ class HandlerClassFactory implements HandlerFactory {
         String eventInternalName = Type.getInternalName(eventClass);
 
         cw.visit(Opcodes.V1_6, ACC_PUBLIC + ACC_SUPER, createdInternalName, null, "java/lang/Object",
-                new String[]{Type.getInternalName(Handler.class)});
+                new String[] {Type.getInternalName(Handler.class)});
 
         {
             fv = cw.visitField(ACC_PRIVATE + ACC_FINAL, "object", "L" + invokedInternalName + ";", null, null);

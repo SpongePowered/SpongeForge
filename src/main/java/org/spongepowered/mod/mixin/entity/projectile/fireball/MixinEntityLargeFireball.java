@@ -37,7 +37,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(net.minecraft.entity.projectile.EntityLargeFireball.class)
 public abstract class MixinEntityLargeFireball extends EntityFireball implements LargeFireball {
 
-    @Shadow public int field_92057_e = 1;
+    @Shadow
+    public int field_92057_e = 1;
 
     private float damage = 6.0f;
 

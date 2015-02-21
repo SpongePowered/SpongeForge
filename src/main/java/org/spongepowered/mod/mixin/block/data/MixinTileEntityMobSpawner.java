@@ -110,7 +110,7 @@ public abstract class MixinTileEntityMobSpawner extends TileEntity implements IU
     }
 
     public void mobspawner$setNextEntityToSpawn(WeightedRandomEntity entity) {
-        mobspawner$setPossibleEntitiesToSpawn(new WeightedRandomEntity[]{entity});
+        mobspawner$setPossibleEntitiesToSpawn(new WeightedRandomEntity[] {entity});
     }
 
     public void mobspawner$setPossibleEntitiesToSpawn(WeightedRandomEntity... entities) {

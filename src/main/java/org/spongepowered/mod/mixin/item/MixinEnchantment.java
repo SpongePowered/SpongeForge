@@ -39,7 +39,8 @@ import java.util.Map.Entry;
 @Mixin(net.minecraft.enchantment.Enchantment.class)
 public abstract class MixinEnchantment implements Enchantment {
 
-    @Shadow private static Map<ResourceLocation, net.minecraft.enchantment.Enchantment> field_180307_E;
+    @Shadow
+    private static Map<ResourceLocation, net.minecraft.enchantment.Enchantment> field_180307_E;
 
     @Shadow
     public abstract int getMinLevel();
@@ -59,7 +60,8 @@ public abstract class MixinEnchantment implements Enchantment {
     @Shadow
     public abstract boolean canApply(net.minecraft.item.ItemStack stack);
 
-    @Shadow(remap = false) // forge method
+    // forge method
+    @Shadow(remap = false)
     public abstract boolean isAllowedOnBooks();
 
     @Override

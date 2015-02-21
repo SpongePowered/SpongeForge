@@ -34,7 +34,6 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-
 @NonnullByDefault
 @Mixin(EntityCreeper.class)
 @Implements(@Interface(iface = Creeper.class, prefix = "creeper$"))

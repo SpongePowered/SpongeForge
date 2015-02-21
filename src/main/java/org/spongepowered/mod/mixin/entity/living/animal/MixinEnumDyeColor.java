@@ -35,7 +35,8 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(net.minecraft.item.EnumDyeColor.class)
 public class MixinEnumDyeColor implements DyeColor {
 
-    @Shadow private String field_176786_u;
+    @Shadow
+    private String field_176786_u;
 
     @Override
     public String getName() {

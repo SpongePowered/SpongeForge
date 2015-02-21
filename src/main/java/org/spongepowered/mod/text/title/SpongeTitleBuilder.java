@@ -31,7 +31,6 @@ import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.text.title.TitleBuilder;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
-
 @NonnullByDefault
 public class SpongeTitleBuilder implements TitleBuilder {
 

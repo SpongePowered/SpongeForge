@@ -30,7 +30,9 @@ import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.Minecart;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -39,9 +41,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityMinecart.class)
 public abstract class MixinEntityMinecart extends Entity implements Minecart {
 
-    @Shadow public abstract double getDragAir();
+    @Shadow
+    public abstract double getDragAir();
 
-    @Shadow public abstract double getMaxSpeed();
+    @Shadow
+    public abstract double getMaxSpeed();
 
     private double maxSpeed;
     private boolean slowWhenEmpty;
@@ -49,7 +53,7 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart {
     private Vector3d derailedMod;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(World world, CallbackInfo ci){
+    public void onConstructed(World world, CallbackInfo ci) {
         this.maxSpeed = 0.4D;
         this.slowWhenEmpty = true;
         this.airborneMod = new Vector3d(0.5D, 0.5D, 0.5D);

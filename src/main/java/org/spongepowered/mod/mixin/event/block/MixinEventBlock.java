@@ -40,8 +40,11 @@ import org.spongepowered.mod.wrapper.BlockWrapper;
 @Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)
 public abstract class MixinEventBlock extends Event implements BlockEvent {
 
-    @Shadow public BlockPos pos;
-    @Shadow public net.minecraft.world.World world;
+    @Shadow
+    public BlockPos pos;
+
+    @Shadow
+    public net.minecraft.world.World world;
 
     @Override
     public BlockLoc getBlock() {

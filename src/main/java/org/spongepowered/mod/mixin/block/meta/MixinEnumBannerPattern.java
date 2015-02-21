@@ -33,8 +33,11 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(net.minecraft.tileentity.TileEntityBanner.EnumBannerPattern.class)
 public class MixinEnumBannerPattern implements BannerPatternShape {
 
-    @Shadow private String field_177284_N; //name
-    @Shadow private String field_177285_O; //id
+    @Shadow
+    private String field_177284_N; //name
+
+    @Shadow
+    private String field_177285_O; //id
 
     @Override
     public String getName() {

@@ -39,7 +39,8 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(net.minecraft.entity.projectile.EntityFireball.class)
 public abstract class MixinEntityFireball extends Entity implements Fireball {
 
-    @Shadow public EntityLivingBase shootingEntity;
+    @Shadow
+    public EntityLivingBase shootingEntity;
 
     @Shadow
     protected abstract void onImpact(MovingObjectPosition p_70227_1_);

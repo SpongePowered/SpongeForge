@@ -35,7 +35,8 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = net.minecraftforge.common.util.BlockSnapshot.class, remap = false)
 public abstract class MixinBlockSnapshot implements BlockSnapshot {
 
-    @Shadow public transient IBlockState replacedBlock;
+    @Shadow
+    public transient IBlockState replacedBlock;
 
     @Override
     public BlockState getState() {

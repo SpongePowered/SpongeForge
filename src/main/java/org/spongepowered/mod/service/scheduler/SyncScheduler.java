@@ -36,9 +36,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
- * <p>Internal implementation of the SynchronousScheduler interface.</p>
+ * <p>
+ * Internal implementation of the SynchronousScheduler interface.
+ * </p>
  *
  * {@link org.spongepowered.api.service.scheduler.SynchronousScheduler}
  */
@@ -56,15 +57,19 @@ public class SyncScheduler implements SynchronousScheduler {
 
     /**
      * <p>
-     * We establish the SyncScheduler when the SyncScheduler is created.  This will
-     * happen once.  We simply initialize the first state in the SyncScheduler state
-     * machine and let the state machine execute.  Only calls to the SyncScheduler
-     * through the control interface (TBD) may control the behavior of the state machine itself.</p>
+     * We establish the SyncScheduler when the SyncScheduler is created. This
+     * will happen once. We simply initialize the first state in the
+     * SyncScheduler state machine and let the state machine execute. Only calls
+     * to the SyncScheduler through the control interface (TBD) may control the
+     * behavior of the state machine itself.
+     * </p>
      *
      * <p>
-     * The constructor of the Scheduler is private.  So to get the scheduler, user code calls game.getScheduler()
-     * or directly by SyncScheduler.getInstance().  In time access to the scheduler should be migrated into
-     * the Services Manager.</p>
+     * The constructor of the Scheduler is private. So to get the scheduler,
+     * user code calls game.getScheduler() or directly by
+     * SyncScheduler.getInstance(). In time access to the scheduler should be
+     * migrated into the Services Manager.
+     * </p>
      */
     private SyncScheduler() {
         this.schedulerHelper = new SchedulerHelper(ScheduledTask.TaskSynchroncity.SYNCHRONOUS);
@@ -106,14 +111,19 @@ public class SyncScheduler implements SynchronousScheduler {
     }
 
     /**
-     * <p>Returns the instance (handle) to the Synchronous TaskScheduler.</p>
+     * <p>
+     * Returns the instance (handle) to the Synchronous TaskScheduler.
+     * </p>
      *
-     * <p>A static reference to the Synchronous Scheduler singleton is returned by
-     * the function getInstance().</p>
+     * <p>
+     * A static reference to the Synchronous Scheduler singleton is returned by
+     * the function getInstance().
+     * </p>
      *
-     * <p>Singleton based on:
-     * <a href="http://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">
-     *     Initialization on Demand Idiom</a>
+     * <p>
+     * Singleton based on: <a href=
+     * "http://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">
+     * Initialization on Demand Idiom</a>
      * </p>
      *
      * @return The single interface to the Synchronous Scheduler
@@ -123,16 +133,24 @@ public class SyncScheduler implements SynchronousScheduler {
     }
 
     /**
-     * <p>The hook to update the Ticks known by the SyncScheduler.</p>
+     * <p>
+     * The hook to update the Ticks known by the SyncScheduler.
+     * </p>
      *
-     * <p>When a TickEvent occurs, the event handler onTick will accumulate a new value for
-     * the counter.  The Phase of the TickEvent used is the TickEvent.ServerTickEvent Phase.START.</p>
+     * <p>
+     * When a TickEvent occurs, the event handler onTick will accumulate a new
+     * value for the counter. The Phase of the TickEvent used is the
+     * TickEvent.ServerTickEvent Phase.START.
+     * </p>
      *
-     * <p>The counter is equivalent to a clock in that each new value represents a new
-     * tick event.  Use of delay (Task.offset), interval (Task.period), timestamp (Task.timestamp) all
-     * are based on the time unit of Ticks.  To make it easier to work with in in Plugins, the type
-     * is simply a @long but it's never negative.  A better representation would been Number (a cardinal
-     * value), but this is what we're using.</p>
+     * <p>
+     * The counter is equivalent to a clock in that each new value represents a
+     * new tick event. Use of delay (Task.offset), interval (Task.period),
+     * timestamp (Task.timestamp) all are based on the time unit of Ticks. To
+     * make it easier to work with in in Plugins, the type is simply a @long but
+     * it's never negative. A better representation would been Number (a
+     * cardinal value), but this is what we're using.
+     * </p>
      *
      * @param event The Forge ServerTickEvent observed by this object.
      */
@@ -201,27 +219,38 @@ public class SyncScheduler implements SynchronousScheduler {
     }
 
     /**
-     * <p>Runs a Task once immediately.</p>
+     * <p>
+     * Runs a Task once immediately.
+     * </p>
      *
      * <p>
-     * The runTask method is used to run a single Task just once.  The Task
-     * may persist for the life of the server, however the Task itself will never
-     * be restarted.  It has no delay offset.  The Scheduler will not wait before
-     * running the Task.</p>
-     *
-     * <p>Example code to obtain plugin container argument from User code:</p>
+     * The runTask method is used to run a single Task just once. The Task may
+     * persist for the life of the server, however the Task itself will never be
+     * restarted. It has no delay offset. The Scheduler will not wait before
+     * running the Task.
+     * </p>
      *
      * <p>
+     * Example code to obtain plugin container argument from User code:
+     * </p>
+     *
+     * <p>
+     * 
+     * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
+     * </pre>
+     * 
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or a reference to the new Task
+     * @param runnableTarget The Runnable object that implements a run() method
+     *        to execute the Task desired
+     * @return Optional&lt;Task&gt;&nbsp; Either Optional.absent() if invalid or
+     *         a reference to the new Task
      */
     @Override
     public Optional<Task> runTask(Object plugin, Runnable runnableTarget) {
@@ -244,31 +273,42 @@ public class SyncScheduler implements SynchronousScheduler {
     }
 
     /**
-     * <p>Runs a Task once after a specific delay offset.</p>
+     * <p>
+     * Runs a Task once after a specific delay offset.
+     * </p>
      *
      * <p>
-     * The runTask method is used to run a single Task just once.  The Task
-     * may persist for the life of the server, however the Task itself will never
-     * be restarted.  The Scheduler will not wait before running the Task.
-     * <b>The Task will be delayed artificially for delay Ticks.</b>  Because the time
-     * unit is in Ticks, this scheduled Task is synchronous (as possible) with the
-     * event of the Tick from the game.  Overhead, network and system latency not 
-     * withstanding the event will fire after the delay expires.</p>
-     *
-     * <p>Example code to obtain plugin container argument from User code:</p>
+     * The runTask method is used to run a single Task just once. The Task may
+     * persist for the life of the server, however the Task itself will never be
+     * restarted. The Scheduler will not wait before running the Task. <b>The
+     * Task will be delayed artificially for delay Ticks.</b> Because the time
+     * unit is in Ticks, this scheduled Task is synchronous (as possible) with
+     * the event of the Tick from the game. Overhead, network and system latency
+     * not withstanding the event will fire after the delay expires.
+     * </p>
      *
      * <p>
+     * Example code to obtain plugin container argument from User code:
+     * </p>
+     *
+     * <p>
+     * 
+     * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
+     * </pre>
+     * 
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @param delay  The offset in ticks before running the task.
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
+     * @param runnableTarget The Runnable object that implements a run() method
+     *        to execute the Task desired
+     * @param delay The offset in ticks before running the task.
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a
+     *         reference to the new Task
      */
     @Override
     public Optional<Task> runTaskAfter(Object plugin, Runnable runnableTarget, long delay) {
@@ -288,41 +328,58 @@ public class SyncScheduler implements SynchronousScheduler {
     }
 
     /**
-     * <p>Start a repeating Task with a period (interval) of Ticks.  The first occurrence will start immediately.</p>
+     * <p>
+     * Start a repeating Task with a period (interval) of Ticks. The first
+     * occurrence will start immediately.
+     * </p>
      *
      * <p>
-     * The runRepeatingTask method is used to run a Task that repeats.  The Task
-     * may persist for the life of the server. The Scheduler will not wait before running
-     * the first occurrence of the Task. The Scheduler will not allow a second occurrence of
-     * the task to start if the preceding occurrence is is still alive.  Be sure to end
-     * the Runnable Thread of the Task before anticipating the recurrence of the Task.</p>
-     *
-     * <p> 
-     * If the Scheduler detects that two tasks will overlap as such, the 2nd Task will not
-     * be started.  The next time the Task is due to run, the test will be made again to determine
-     * if the previous occurrence of the Task is still alive (running).  As long as a previous occurrence
-     * is running no new occurrences of that specific Task will start, although the Scheduler will
-     * never cease in trying to start it a 2nd time.</p>
+     * The runRepeatingTask method is used to run a Task that repeats. The Task
+     * may persist for the life of the server. The Scheduler will not wait
+     * before running the first occurrence of the Task. The Scheduler will not
+     * allow a second occurrence of the task to start if the preceding
+     * occurrence is is still alive. Be sure to end the Runnable Thread of the
+     * Task before anticipating the recurrence of the Task.
+     * </p>
      *
      * <p>
-     * Because the time unit is in Ticks, this scheduled Task is synchronous (as possible) with the
-     * event of the Tick from the game.  Overhead, network and system latency not 
-     * withstanding the Task will run (and re-run) after the delay expires.</p>
-     *
-     * <p>Example code to obtain plugin container argument from User code:</p>
+     * If the Scheduler detects that two tasks will overlap as such, the 2nd
+     * Task will not be started. The next time the Task is due to run, the test
+     * will be made again to determine if the previous occurrence of the Task is
+     * still alive (running). As long as a previous occurrence is running no new
+     * occurrences of that specific Task will start, although the Scheduler will
+     * never cease in trying to start it a 2nd time.
+     * </p>
      *
      * <p>
+     * Because the time unit is in Ticks, this scheduled Task is synchronous (as
+     * possible) with the event of the Tick from the game. Overhead, network and
+     * system latency not withstanding the Task will run (and re-run) after the
+     * delay expires.
+     * </p>
+     *
+     * <p>
+     * Example code to obtain plugin container argument from User code:
+     * </p>
+     *
+     * <p>
+     * 
+     * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
+     * </pre>
+     * 
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
+     * @param runnableTarget The Runnable object that implements a run() method
+     *        to execute the Task desired
      * @param interval The period in ticks of the repeating Task.
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a
+     *         reference to the new Task
      */
     @Override
     public Optional<Task> runRepeatingTask(Object plugin, Runnable runnableTarget, long interval) {
@@ -343,43 +400,58 @@ public class SyncScheduler implements SynchronousScheduler {
 
     /**
      * <p>
-     * Start a repeating Task with a period (interval) of Ticks.  
-     * The first occurrence will start after an initial delay.</p>
+     * Start a repeating Task with a period (interval) of Ticks. The first
+     * occurrence will start after an initial delay.
+     * </p>
      *
      * <p>
-     * The runRepeatingTask method is used to run a Task that repeats.  The Task
-     * may persist for the life of the server. The Scheduler <b>will wait</b> before running
-     * the first occurrence of the Task. The Scheduler will not allow a second occurrence of
-     * the task to start if the preceding occurrence is is still alive.  Be sure to end
-     * the Runnable Thread of the Task before anticipating the recurrence of the Task.</p>
-     *
-     * <p> 
-     * If the Scheduler detects that two tasks will overlap as such, the 2nd Task will not
-     * be started.  The next time the Task is due to run, the test will be made again to determine
-     * if the previous occurrence of the Task is still alive (running).  As long as a previous occurrence
-     * is running no new occurrences of that specific Task will start, although the Scheduler will
-     * never cease in trying to start it a 2nd time.</p>
+     * The runRepeatingTask method is used to run a Task that repeats. The Task
+     * may persist for the life of the server. The Scheduler <b>will wait</b>
+     * before running the first occurrence of the Task. The Scheduler will not
+     * allow a second occurrence of the task to start if the preceding
+     * occurrence is is still alive. Be sure to end the Runnable Thread of the
+     * Task before anticipating the recurrence of the Task.
+     * </p>
      *
      * <p>
-     * Because the time unit is in Ticks, this scheduled Task is synchronous (as possible) with the
-     * event of the Tick from the game.  Overhead, network and system latency not 
-     * withstanding the Task will run (and re-run) after the delay expires.</p>
-     *
-     * <p>Example code to obtain plugin container argument from User code:</p>
+     * If the Scheduler detects that two tasks will overlap as such, the 2nd
+     * Task will not be started. The next time the Task is due to run, the test
+     * will be made again to determine if the previous occurrence of the Task is
+     * still alive (running). As long as a previous occurrence is running no new
+     * occurrences of that specific Task will start, although the Scheduler will
+     * never cease in trying to start it a 2nd time.
+     * </p>
      *
      * <p>
+     * Because the time unit is in Ticks, this scheduled Task is synchronous (as
+     * possible) with the event of the Tick from the game. Overhead, network and
+     * system latency not withstanding the Task will run (and re-run) after the
+     * delay expires.
+     * </p>
+     *
+     * <p>
+     * Example code to obtain plugin container argument from User code:
+     * </p>
+     *
+     * <p>
+     * 
+     * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
      *     result = evt.getGame().getPluginManager().getPlugin("YOUR_PLUGIN");
      *     PluginContainer pluginContainer = result.get();
      * </code>
+     * </pre>
+     * 
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
-     * @param runnableTarget  The Runnable object that implements a run() method to execute the Task desired
-     * @param delay  The offset in ticks before running the task.
+     * @param runnableTarget The Runnable object that implements a run() method
+     *        to execute the Task desired
+     * @param delay The offset in ticks before running the task.
      * @param interval The offset in ticks before running the task.
-     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a reference to the new Task
+     * @return Optional&lt;Task&gt; Either Optional.absent() if invalid or a
+     *         reference to the new Task
      */
     @Override
     public Optional<Task> runRepeatingTaskAfter(Object plugin, Runnable runnableTarget, long interval, long delay) {
@@ -414,4 +486,3 @@ public class SyncScheduler implements SynchronousScheduler {
         return bRes;
     }
 }
-

@@ -53,8 +53,10 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
 
     @Shadow
     private ListMultimap<ModContainer, EntityRegistration> entityRegistrations;
+
     @Shadow
     private Map<String, ModContainer> entityNames;
+
     @Shadow
     private BiMap<Class<? extends Entity>, EntityRegistration> entityClassRegistrations;
 

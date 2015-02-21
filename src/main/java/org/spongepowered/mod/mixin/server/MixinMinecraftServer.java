@@ -85,7 +85,6 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     @Shadow
     public abstract void initiateShutdown();
 
-
     @Override
     public Collection<World> getWorlds() {
         List<World> worlds = new ArrayList<World>();
@@ -216,7 +215,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
 
     @Override
     public void shutdown(Message kickMessage) {
-        for(Player player : getOnlinePlayers()) {
+        for (Player player : getOnlinePlayers()) {
             ((EntityPlayerMP) player).playerNetServerHandler.kickPlayerFromServer(kickMessage.toLegacy()); //TODO update with the new Text API
         }
 

@@ -42,6 +42,7 @@ public abstract class MixinDimensionManager {
 
     @Shadow
     private static Hashtable<Integer, Class<? extends WorldProvider>> providers;
+
     @Shadow
     private static Hashtable<Integer, Boolean> spawnSettings;
 

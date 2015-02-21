@@ -56,11 +56,13 @@ import javax.annotation.Nullable;
 @Implements(@Interface(iface = Living.class, prefix = "living$"))
 public abstract class MixinEntityLivingBase extends Entity {
 
-    // TODO - currently not supported by Mixins
     private int maxAir = 300;
 
-    @Shadow protected float lastDamage;
-    @Shadow public int maxHurtResistantTime;
+    @Shadow
+    protected float lastDamage;
+
+    @Shadow
+    public int maxHurtResistantTime;
 
     @Shadow
     public abstract float getHealth();

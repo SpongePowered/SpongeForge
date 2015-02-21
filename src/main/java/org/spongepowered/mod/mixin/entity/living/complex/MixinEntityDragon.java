@@ -52,6 +52,7 @@ public abstract class MixinEntityDragon extends EntityLiving {
 
     @Shadow
     public EntityDragonPart[] dragonPartArray;
+
     @Shadow
     public EntityEnderCrystal healingEnderCrystal;
 

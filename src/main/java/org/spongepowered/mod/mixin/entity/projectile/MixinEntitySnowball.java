@@ -43,7 +43,8 @@ public abstract class MixinEntitySnowball extends EntityThrowable implements Sno
     private double damageAmount = 0;
     private boolean damageSet = false;
 
-    @ModifyArg(method = "onImpact(Lnet/minecraft/util/MovingObjectPosition;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
+    @ModifyArg(method = "onImpact(Lnet/minecraft/util/MovingObjectPosition;)V", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
     private float onAttackEntityFrom(float damage) {
         return this.damageSet ? (float) this.damageAmount : damage;
     }

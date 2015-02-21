@@ -217,22 +217,22 @@ public class SpongeConfig {
         @ConfigSerializable
         private class DebugCategory extends Category {
 
-            @Setting(value = SpongeConfig.DEBUG_THREAD_CONTENTION_MONITORING, comment = "Enable Java's thread contention monitoring for thread dumps")
+            @Setting(value = DEBUG_THREAD_CONTENTION_MONITORING, comment = "Enable Java's thread contention monitoring for thread dumps")
             public boolean enableThreadContentionMonitoring = false;
-            @Setting(value = SpongeConfig.DEBUG_DUMP_CHUNKS_ON_DEADLOCK, comment = "Dump chunks in the event of a deadlock")
+            @Setting(value = DEBUG_DUMP_CHUNKS_ON_DEADLOCK, comment = "Dump chunks in the event of a deadlock")
             public boolean dumpChunksOnDeadlock = false;
-            @Setting(value = SpongeConfig.DEBUG_DUMP_HEAP_ON_DEADLOCK, comment = "Dump the heap in the event of a deadlock")
+            @Setting(value = DEBUG_DUMP_HEAP_ON_DEADLOCK, comment = "Dump the heap in the event of a deadlock")
             public boolean dumpHeapOnDeadlock = false;
-            @Setting(value = SpongeConfig.DEBUG_DUMP_THREADS_ON_WARN, comment = "Dump the server thread on deadlock warning")
+            @Setting(value = DEBUG_DUMP_THREADS_ON_WARN, comment = "Dump the server thread on deadlock warning")
             public boolean dumpThreadsOnWarn = false;
         }
 
         @ConfigSerializable
         private class GeneralCategory extends Category {
 
-            @Setting(value = SpongeConfig.GENERAL_DISABLE_WARNINGS, comment = "Disable warning messages to server admins")
+            @Setting(value = GENERAL_DISABLE_WARNINGS, comment = "Disable warning messages to server admins")
             public boolean disableWarnings = false;
-            @Setting(value = SpongeConfig.GENERAL_CHUNK_LOAD_OVERRIDE,
+            @Setting(value = GENERAL_CHUNK_LOAD_OVERRIDE,
                     comment = "Forces Chunk Loading on provide requests (speedup for mods that don't check if a chunk is loaded)")
             public boolean chunkLoadOverride = false;
         }
@@ -240,15 +240,14 @@ public class SpongeConfig {
         @ConfigSerializable
         private class EntityCategory extends Category {
 
-            @Setting(value = SpongeConfig.ENTITY_MAX_BOUNDING_BOX_SIZE,
-                    comment = "Max size of an entity's bounding box before removing it. Set to 0 to disable")
+            @Setting(value = ENTITY_MAX_BOUNDING_BOX_SIZE, comment = "Max size of an entity's bounding box before removing it. Set to 0 to disable")
             public int maxBoundingBoxSize = 1000;
             @Setting(value = SpongeConfig.ENTITY_MAX_SPEED, comment = "Square of the max speed of an entity before removing it. Set to 0 to disable")
             public int maxSpeed = 100;
-            @Setting(value = SpongeConfig.ENTITY_COLLISION_WARN_SIZE,
+            @Setting(value = ENTITY_COLLISION_WARN_SIZE,
                     comment = "Number of colliding entities in one spot before logging a warning. Set to 0 to disable")
             public int maxCollisionSize = 200;
-            @Setting(value = SpongeConfig.ENTITY_COUNT_WARN_SIZE,
+            @Setting(value = ENTITY_COUNT_WARN_SIZE,
                     comment = "Number of entities in one dimension before logging a warning. Set to 0 to disable")
             public int maxCountWarnSize = 0;
         }
@@ -256,30 +255,30 @@ public class SpongeConfig {
         @ConfigSerializable
         private class LoggingCategory extends Category {
 
-            @Setting(value = SpongeConfig.LOGGING_CHUNK_LOAD, comment = "Log when chunks are loaded")
+            @Setting(value = LOGGING_CHUNK_LOAD, comment = "Log when chunks are loaded")
             public boolean chunkLoadLogging = false;
-            @Setting(value = SpongeConfig.LOGGING_CHUNK_UNLOAD, comment = "Log when chunks are unloaded")
+            @Setting(value = LOGGING_CHUNK_UNLOAD, comment = "Log when chunks are unloaded")
             public boolean chunkUnloadLogging = false;
-            @Setting(value = SpongeConfig.LOGGING_ENTITY_SPAWN, comment = "Log when living entities are spawned")
+            @Setting(value = LOGGING_ENTITY_SPAWN, comment = "Log when living entities are spawned")
             public boolean entitySpawnLogging = false;
-            @Setting(value = SpongeConfig.LOGGING_ENTITY_DESPAWN, comment = "Log when living entities are despawned")
+            @Setting(value = LOGGING_ENTITY_DESPAWN, comment = "Log when living entities are despawned")
             public boolean entityDespawnLogging = false;
-            @Setting(value = SpongeConfig.LOGGING_ENTITY_DEATH, comment = "Log when living entities are destroyed")
+            @Setting(value = LOGGING_ENTITY_DEATH, comment = "Log when living entities are destroyed")
             public boolean entityDeathLogging = false;
-            @Setting(value = SpongeConfig.LOGGING_STACKTRACES, comment = "Add stack traces to dev logging")
+            @Setting(value = LOGGING_STACKTRACES, comment = "Add stack traces to dev logging")
             public boolean logWithStackTraces = false;
-            @Setting(value = SpongeConfig.LOGGING_ENTITY_COLLISION_CHECKS, comment = "Whether to log entity collision/count checks")
+            @Setting(value = LOGGING_ENTITY_COLLISION_CHECKS, comment = "Whether to log entity collision/count checks")
             public boolean logEntityCollisionChecks = false;
-            @Setting(value = SpongeConfig.LOGGING_ENTITY_SPEED_REMOVAL, comment = "Whether to log entity removals due to speed")
+            @Setting(value = LOGGING_ENTITY_SPEED_REMOVAL, comment = "Whether to log entity removals due to speed")
             public boolean logEntitySpeedRemoval = false;
         }
 
         @ConfigSerializable
         private class WorldCategory extends Category {
 
-            @Setting(value = SpongeConfig.WORLD_INFINITE_WATER_SOURCE, comment = "Vanilla water source behavior - is infinite")
+            @Setting(value = WORLD_INFINITE_WATER_SOURCE, comment = "Vanilla water source behavior - is infinite")
             public boolean infiniteWaterSource = false;
-            @Setting(value = SpongeConfig.WORLD_FLOWING_LAVA_DECAY, comment = "Lava behaves like vanilla water when source block is removed")
+            @Setting(value = WORLD_FLOWING_LAVA_DECAY, comment = "Lava behaves like vanilla water when source block is removed")
             public boolean flowingLavaDecay = false;
         }
 

@@ -37,7 +37,6 @@ import net.minecraft.world.WorldServer;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.util.RelativePositions;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -55,7 +54,6 @@ import org.spongepowered.mod.util.SpongeHooks;
 
 import java.util.ArrayDeque;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -68,21 +66,50 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     private boolean teleporting;
     private net.minecraft.entity.Entity teleportVehicle;
 
-    @Shadow private UUID entityUniqueID;
-    @Shadow public net.minecraft.world.World worldObj;
-    @Shadow public double posX;
-    @Shadow public double posY;
-    @Shadow public double posZ;
-    @Shadow public float rotationYaw;
-    @Shadow public float rotationPitch;
-    @Shadow public float width;
-    @Shadow public float height;
-    @Shadow public boolean isDead;
-    @Shadow public boolean onGround;
-    @Shadow public int fireResistance;
-    @Shadow private int fire;
-    @Shadow public net.minecraft.entity.Entity riddenByEntity;
-    @Shadow public net.minecraft.entity.Entity ridingEntity;
+    @Shadow
+    private UUID entityUniqueID;
+
+    @Shadow
+    public net.minecraft.world.World worldObj;
+
+    @Shadow
+    public double posX;
+
+    @Shadow
+    public double posY;
+
+    @Shadow
+    public double posZ;
+
+    @Shadow
+    public float rotationYaw;
+
+    @Shadow
+    public float rotationPitch;
+
+    @Shadow
+    public float width;
+
+    @Shadow
+    public float height;
+
+    @Shadow
+    public boolean isDead;
+
+    @Shadow
+    public boolean onGround;
+
+    @Shadow
+    public int fireResistance;
+
+    @Shadow
+    private int fire;
+
+    @Shadow
+    public net.minecraft.entity.Entity riddenByEntity;
+
+    @Shadow
+    public net.minecraft.entity.Entity ridingEntity;
 
     @Shadow
     public abstract void setPosition(double x, double y, double z);
@@ -121,10 +148,10 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
             return false;
         }
 
-        Entity spongeEntity = (Entity) this;
+        Entity spongeEntity = this;
         net.minecraft.entity.Entity thisEntity = (net.minecraft.entity.Entity) spongeEntity;
 
-        // dettach passengers
+        // detach passengers
         net.minecraft.entity.Entity passenger = thisEntity.riddenByEntity;
         ArrayDeque<net.minecraft.entity.Entity> passengers = new ArrayDeque<net.minecraft.entity.Entity>();
         while (passenger != null) {
@@ -155,7 +182,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
             }
         }
 
-        // reattach passengers
+        // re-attach passengers
         net.minecraft.entity.Entity lastPassenger = thisEntity;
         while (!passengers.isEmpty()) {
             net.minecraft.entity.Entity passengerEntity = passengers.remove();
@@ -179,66 +206,68 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public boolean setLocationAndRotation(Location location, Vector3f rotation, EnumSet<RelativePositions> relativePositions) {
-        if(relativePositions.isEmpty()) {
+        if (relativePositions.isEmpty()) {
             //This is just a normal teleport that happens to set both.
-            if(setLocation(location)) {
+            if (setLocation(location)) {
                 setRotation(rotation);
                 return true;
             }
             return false;
         } else {
-            if(((Entity) this) instanceof EntityPlayerMP) {
+            Entity spongeEntity = this;
+            if (spongeEntity instanceof EntityPlayerMP) {
                 //Players use different logic, as they support real relative movement.
                 EnumSet relativeFlags = EnumSet.noneOf(EnumFlags.class);
 
-                if(relativePositions.contains(RelativePositions.X)) {
+                if (relativePositions.contains(RelativePositions.X)) {
                     relativeFlags.add(EnumFlags.X);
                 }
 
-                if(relativePositions.contains(RelativePositions.Y)) {
+                if (relativePositions.contains(RelativePositions.Y)) {
                     relativeFlags.add(EnumFlags.Y);
                 }
 
-                if(relativePositions.contains(RelativePositions.Z)) {
+                if (relativePositions.contains(RelativePositions.Z)) {
                     relativeFlags.add(EnumFlags.Z);
                 }
 
-                if(relativePositions.contains(RelativePositions.PITCH)) {
+                if (relativePositions.contains(RelativePositions.PITCH)) {
                     relativeFlags.add(EnumFlags.Y_ROT);
                 }
 
-                if(relativePositions.contains(RelativePositions.YAW)) {
+                if (relativePositions.contains(RelativePositions.YAW)) {
                     relativeFlags.add(EnumFlags.X_ROT);
                 }
 
-                ((EntityPlayerMP) (Entity) this).playerNetServerHandler.func_175089_a(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ(), rotation.getX(), rotation.getY(), relativeFlags);
+                ((EntityPlayerMP) (Entity) this).playerNetServerHandler.func_175089_a(location.getPosition().getX(), location.getPosition().getY(),
+                        location.getPosition().getZ(), rotation.getX(), rotation.getY(), relativeFlags);
                 return true;
             } else {
                 Location resultant = getLocation();
                 Vector3f resultantRotation = getRotation();
 
-                if(relativePositions.contains(RelativePositions.X)) {
+                if (relativePositions.contains(RelativePositions.X)) {
                     resultant.add(location.getPosition().getX(), 0, 0);
                 }
 
-                if(relativePositions.contains(RelativePositions.Y)) {
+                if (relativePositions.contains(RelativePositions.Y)) {
                     resultant.add(0, location.getPosition().getY(), 0);
                 }
 
-                if(relativePositions.contains(RelativePositions.Z)) {
+                if (relativePositions.contains(RelativePositions.Z)) {
                     resultant.add(0, 0, location.getPosition().getZ());
                 }
 
-                if(relativePositions.contains(RelativePositions.PITCH)) {
+                if (relativePositions.contains(RelativePositions.PITCH)) {
                     resultantRotation.add(rotation.getX(), 0, 0);
                 }
 
-                if(relativePositions.contains(RelativePositions.YAW)) {
+                if (relativePositions.contains(RelativePositions.YAW)) {
                     resultantRotation.add(0, rotation.getY(), 0);
                 }
 
                 //From here just a normal teleport is needed.
-                if(setLocation(resultant)) {
+                if (setLocation(resultant)) {
                     setRotation(resultantRotation);
                     return true;
                 }
@@ -270,7 +299,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @Override
     public Entity getBaseVehicle() {
         if (this.ridingEntity == null) {
-            return (Entity) this;
+            return this;
         }
 
         net.minecraft.entity.Entity baseVehicle = this.ridingEntity;
@@ -288,13 +317,13 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
                 return true;
             }
 
-            Entity thisEntity = (Entity) this;
+            Entity thisEntity = this;
             passenger.mountEntity((net.minecraft.entity.Entity) thisEntity);
         } else { // passenger already exists
             this.riddenByEntity.mountEntity(null); // eject current passenger
 
             if (passenger != null) {
-                Entity thisEntity = (Entity) this;
+                Entity thisEntity = this;
                 passenger.mountEntity((net.minecraft.entity.Entity) thisEntity);
             }
         }
@@ -369,7 +398,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         if (entity instanceof EntityPlayer) {
             fromWorld.getEntityTracker().removePlayerFromTrackers((EntityPlayerMP) entity);
             fromWorld.getPlayerManager().removePlayer((EntityPlayerMP) entity);
-            mcServer.getConfigurationManager().playerEntityList.remove((EntityPlayerMP) entity);
+            mcServer.getConfigurationManager().playerEntityList.remove(entity);
         } else {
             fromWorld.getEntityTracker().untrackEntity(entity);
         }

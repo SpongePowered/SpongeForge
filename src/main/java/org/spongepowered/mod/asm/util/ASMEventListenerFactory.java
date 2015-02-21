@@ -55,14 +55,18 @@ public class ASMEventListenerFactory {
     }
 
     /**
-     * Creates a listener that implements a given interface, to pass an event to.  
-     * A new class is created for each call to this method, unless the required class
-     * is in the cache.
+     * Creates a listener that implements a given interface, to pass an event
+     * to. A new class is created for each call to this method, unless the
+     * required class is in the cache.
      *
-     * @param interf the interface implemented by the listener for receiving the event
-     * @param input the invoke method, from interf, that the event should be passed to
-     * @param target the object which supports the output method that receives the event
-     * @param output the method, from target, that the listener should pass the event to
+     * @param interf the interface implemented by the listener for receiving the
+     *        event
+     * @param input the invoke method, from interf, that the event should be
+     *        passed to
+     * @param target the object which supports the output method that receives
+     *        the event
+     * @param output the method, from target, that the listener should pass the
+     *        event to
      * @param <T> the interface implemented by the listener
      * @return the listener
      */
@@ -95,7 +99,6 @@ public class ASMEventListenerFactory {
         }
         return null;
     }
-
 
     @SuppressWarnings("unchecked")
     private static <T> Class<T> createClass(Class<T> interf, Method input, Method output) {
@@ -143,7 +146,7 @@ public class ASMEventListenerFactory {
         // package org.spongepowered.mod.asm;
         // public class <className> extends java.lang.Object implements <interf>
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, classNameDesc, null, "java/lang/Object",
-                new String[]{interfaceInternalName});
+                new String[] {interfaceInternalName});
 
         // private final Object target
         cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, "target", "Ljava/lang/Object;", null, null);

@@ -52,8 +52,11 @@ import java.util.List;
 @Implements(@Interface(iface = org.spongepowered.api.block.data.Banner.class, prefix = "banner$"))
 public abstract class MixinTileEntityBanner extends TileEntity {
 
-    @Shadow private int baseColor;
-    @Shadow private NBTTagList field_175118_f;
+    @Shadow
+    private int baseColor;
+
+    @Shadow
+    private NBTTagList field_175118_f;
 
     private List<PatternLayer> patterns = Lists.newArrayList();
 

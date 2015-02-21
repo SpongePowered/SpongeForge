@@ -68,6 +68,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
 
     @Shadow
     private String translator;
+
     @Shadow
     public NetHandlerPlayServer playerNetServerHandler;
 
