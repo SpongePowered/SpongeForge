@@ -32,9 +32,10 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.configuration.ConfigSetting;
 import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.interfaces.IMixinWorldProvider;
@@ -99,8 +100,9 @@ public class CommandSponge extends CommandBase {
                     }
 
                     if (command.equalsIgnoreCase("conf")) {
-                        if (args.length < 4) {
-                            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Improper conf syntax detected.\n" + USAGE_CONF));
+                        if (args.length < 3) {
+                            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Improper conf syntax detected.\n"
+                                    + USAGE_CONF));
                             return;
                         }
 
@@ -125,7 +127,8 @@ public class CommandSponge extends CommandBase {
                                 config = ((IMixinWorldProvider) ((EntityPlayer) sender).worldObj.provider).getDimensionConfig();
                             } else {
                                 sender.addChatMessage(
-                                        new ChatComponentText(EnumChatFormatting.RED + "Console requires a valid dimension name.\n" + USAGE_CONF));
+                                        new ChatComponentText(EnumChatFormatting.RED + "Console requires a valid dimension name.\n"
+                                                + USAGE_CONF));
                                 return;
                             }
                         } else {
@@ -148,7 +151,8 @@ public class CommandSponge extends CommandBase {
                                 config = ((IMixinWorld) ((EntityPlayer) sender).worldObj).getWorldConfig();
                             } else {
                                 sender.addChatMessage(
-                                        new ChatComponentText(EnumChatFormatting.RED + "Console requires a valid world name.\n" + USAGE_CONF));
+                                        new ChatComponentText(EnumChatFormatting.RED + "Console requires a valid world name.\n"
+                                                + USAGE_CONF));
                                 return;
                             }
                         } else {
@@ -175,7 +179,8 @@ public class CommandSponge extends CommandBase {
                         config = SpongeMod.instance.getGlobalConfig();
                     } else {
                         sender.addChatMessage(new ChatComponentText(
-                                EnumChatFormatting.AQUA + flag + EnumChatFormatting.RED + " is not recognized as a valid flag.\n" + USAGE_CONF));
+                                EnumChatFormatting.AQUA + flag + EnumChatFormatting.RED + " is not recognized as a valid flag.\n"
+                                        + USAGE_CONF));
                         return;
                     }
 
@@ -199,19 +204,19 @@ public class CommandSponge extends CommandBase {
                                 EnumChatFormatting.GREEN + "Saved " + EnumChatFormatting.GOLD + config.getType() + EnumChatFormatting.GREEN
                                         + " configuration: " + EnumChatFormatting.AQUA + configName));
                     } else if (command.equalsIgnoreCase("reload")) {
-                        config.load();
+                        config.reload();
                         String configName = config.getConfigName();
                         if (name.equals("")) {
-                            config.load();
+                            config.reload();
                         } else if (name.equals("*") && config.getType() == SpongeConfig.Type.WORLD) {
                             for (WorldServer worldserver : DimensionManager.getWorlds()) {
                                 SpongeConfig worldConfig = ((IMixinWorld) worldserver).getWorldConfig();
-                                worldConfig.load();
+                                worldConfig.reload();
                             }
                             configName = "ALL";
                         } else if (name.equals("*") && config.getType() == SpongeConfig.Type.DIMENSION) {
                             for (SpongeConfig dimensionConfig : SpongeGameRegistry.dimensionConfigs.values()) {
-                                dimensionConfig.load();
+                                dimensionConfig.reload();
                             }
                             configName = "ALL";
                         }
@@ -222,7 +227,7 @@ public class CommandSponge extends CommandBase {
                     } else if (command.equalsIgnoreCase("chunks")) {
                         processChunks(config.getType(), world, dimensionType, sender, args);
                     } else {
-                        if (config.settings.containsKey(args[args.length - 1])) {
+                        if (config.getSetting(args[args.length - 1]) != null) {
                             getToggle(config, sender, args[args.length - 1]);
                         } else {
                             setToggle(config, sender, args[args.length - 2], args[args.length - 1]);
@@ -249,7 +254,8 @@ public class CommandSponge extends CommandBase {
                 }
             } else { // invalid command
                 sender.addChatMessage(new ChatComponentText("'" + EnumChatFormatting.RED + command + EnumChatFormatting.WHITE + "'"
-                        + " is not recognized as a valid command.\nAvailable commands are: \n" + EnumChatFormatting.GREEN + COMMANDS.toString()));
+                        + " is not recognized as a valid command.\nAvailable commands are: \n" + EnumChatFormatting.GREEN
+                        + COMMANDS.toString()));
                 return;
             }
         } else {
@@ -273,16 +279,16 @@ public class CommandSponge extends CommandBase {
                 sender.addChatMessage(new ChatComponentText(
                         EnumChatFormatting.GOLD + "Dimension: " + EnumChatFormatting.AQUA + worldserver.provider.getDimensionId() + "\n" +
                                 EnumChatFormatting.GOLD + " Loaded Chunks: " + EnumChatFormatting.GRAY + worldserver.theChunkProviderServer
-                                .getLoadedChunkCount() + "\n" +
+                                        .getLoadedChunkCount() + "\n" +
                                 EnumChatFormatting.GOLD + " Active Chunks: " + EnumChatFormatting.GRAY + worldserver.activeChunkSet.size() + "\n" +
                                 EnumChatFormatting.GOLD + " Entities: " + EnumChatFormatting.GRAY + worldserver.loadedEntityList.size() + "\n" +
                                 EnumChatFormatting.GOLD + " Tile Entities: " + EnumChatFormatting.GRAY + worldserver.loadedTileEntityList.size()
-                ));
+                        ));
                 sender.addChatMessage(new ChatComponentText(
                         EnumChatFormatting.GOLD + " Removed Entities: " + EnumChatFormatting.GRAY + worldserver.unloadedEntityList.size() + "\n" +
                                 EnumChatFormatting.GOLD + " Removed Tile Entities: " + EnumChatFormatting.GRAY + worldserver.tileEntitiesToBeRemoved
-                                .size()
-                ));
+                                        .size()
+                        ));
             }
         } else if (type == SpongeConfig.Type.WORLD) {
             sender.addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + "World stats: "));
@@ -290,32 +296,32 @@ public class CommandSponge extends CommandBase {
                     EnumChatFormatting.GOLD + "World: " + EnumChatFormatting.AQUA + (world.provider.getSaveFolder() == null ? "DIM0" :
                             world.provider.getSaveFolder()) + "\n" +
                             EnumChatFormatting.GOLD + " Loaded Chunks: " + EnumChatFormatting.GRAY + world.theChunkProviderServer
-                            .getLoadedChunkCount() + "\n" +
+                                    .getLoadedChunkCount() + "\n" +
                             EnumChatFormatting.GOLD + " Active Chunks: " + EnumChatFormatting.GRAY + world.activeChunkSet.size() + "\n" +
                             EnumChatFormatting.GOLD + " Entities: " + EnumChatFormatting.GRAY + world.loadedEntityList.size() + "\n" +
                             EnumChatFormatting.GOLD + " Tile Entities: " + EnumChatFormatting.GRAY + world.loadedTileEntityList.size()
-            ));
+                    ));
             sender.addChatMessage(new ChatComponentText(
                     EnumChatFormatting.GOLD + " Removed Entities: " + EnumChatFormatting.GRAY + world.unloadedEntityList.size() + "\n" +
                             EnumChatFormatting.GOLD + " Removed Tile Entities: " + EnumChatFormatting.GRAY + world.tileEntitiesToBeRemoved.size()
-            ));
+                    ));
         } else if (type == SpongeConfig.Type.DIMENSION) {
             for (net.minecraft.world.WorldServer worldserver : DimensionManager.getWorlds()) {
                 if (worldserver.provider.getClass() == dimensionType.getDimensionClass()) {
                     sender.addChatMessage(new ChatComponentText(
                             EnumChatFormatting.GOLD + "Dimension: " + EnumChatFormatting.AQUA + worldserver.provider.getDimensionId() + "\n" +
                                     EnumChatFormatting.GOLD + " Loaded Chunks: " + EnumChatFormatting.GRAY + worldserver.theChunkProviderServer
-                                    .getLoadedChunkCount() + "\n" +
+                                            .getLoadedChunkCount() + "\n" +
                                     EnumChatFormatting.GOLD + " Active Chunks: " + EnumChatFormatting.GRAY + worldserver.activeChunkSet.size() + "\n"
                                     +
                                     EnumChatFormatting.GOLD + " Entities: " + EnumChatFormatting.GRAY + worldserver.loadedEntityList.size() + "\n" +
                                     EnumChatFormatting.GOLD + " Tile Entities: " + EnumChatFormatting.GRAY + worldserver.loadedTileEntityList.size()
-                    ));
+                            ));
                     sender.addChatMessage(new ChatComponentText(
                             EnumChatFormatting.GOLD + " Removed Entities: " + EnumChatFormatting.GRAY + worldserver.unloadedEntityList.size() + "\n" +
                                     EnumChatFormatting.GOLD + " Removed Tile Entities: " + EnumChatFormatting.GRAY
                                     + worldserver.tileEntitiesToBeRemoved.size()
-                    ));
+                            ));
                 }
             }
         }
@@ -335,17 +341,16 @@ public class CommandSponge extends CommandBase {
 
     private boolean getToggle(SpongeConfig config, ICommandSender sender, String key) {
         try {
-            ConfigSetting toggle = config.settings.get(key);
-
-            if (toggle == null) {
+            if (config.getSetting(key).isVirtual()) {
                 sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Could not find option: " + key));
                 return false;
             }
 
-            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + key + " " + EnumChatFormatting.GREEN + toggle.getValue()));
-        } catch (Exception ex) {
+            CommentedConfigurationNode setting = config.getSetting(key);
+            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + key + " " + EnumChatFormatting.GREEN + setting.getValue()));
+        } catch (Exception e) {
             sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Usage: " + getCommandUsage(sender)));
-            ex.printStackTrace();
+            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
         }
 
         return true;
@@ -353,20 +358,18 @@ public class CommandSponge extends CommandBase {
 
     private boolean setToggle(SpongeConfig config, ICommandSender sender, String key, String value) {
         try {
-            ConfigSetting toggle = config.settings.get(key);
-
-            if (toggle == null) {
+            if (config.getSetting(key).isVirtual()) {
                 sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Could not find option: " + key));
                 return false;
             }
 
-            toggle.setValue(value);
-            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + key + " " + EnumChatFormatting.GREEN + toggle.getValue()));
+            CommentedConfigurationNode setting = config.getSetting(key).setValue(value);
+            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + key + " " + EnumChatFormatting.GREEN + setting.getValue()));
 
             config.save();
-        } catch (Exception ex) {
+        } catch (Exception e) {
             sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Usage: " + getCommandUsage(sender)));
-            ex.printStackTrace();
+            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
         }
         return true;
     }

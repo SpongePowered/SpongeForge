@@ -67,8 +67,10 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
     public static WorldProvider getProviderForDimension(int dimension) {
         WorldProvider provider = net.minecraftforge.common.DimensionManager.createProviderFor(dimension);
         if (!SpongeGameRegistry.dimensionConfigs.containsKey(provider.getClass())) {
-            SpongeConfig dimConfig = new SpongeConfig(SpongeConfig.Type.DIMENSION,
-                    provider.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "") + File.separator + "dimension.cfg");
+            String providerName = provider.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "");
+            SpongeConfig dimConfig =
+                    new SpongeConfig(SpongeConfig.Type.DIMENSION, new File(SpongeMod.instance.getConfigDir() + File.separator + providerName
+                            + File.separator, "dimension.conf"), "sponge");
             SpongeGameRegistry.dimensionConfigs.put(provider.getClass(), dimConfig);
             ((IMixinWorldProvider) provider).setDimensionConfig(dimConfig);
         }

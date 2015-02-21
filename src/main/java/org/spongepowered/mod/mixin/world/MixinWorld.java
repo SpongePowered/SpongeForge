@@ -44,6 +44,7 @@ import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.effect.particle.ParticleEffect;
@@ -66,6 +67,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
 import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
@@ -127,9 +129,11 @@ public abstract class MixinWorld implements World, IMixinWorld {
     public void onConstructed(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client,
             CallbackInfo ci) {
         if (!client) {
-            this.worldConfig = new SpongeConfig(SpongeConfig.Type.WORLD,
-                    providerIn.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "") + File.separator + (
-                            providerIn.getDimensionId() == 0 ? "dim0" : providerIn.getSaveFolder().toLowerCase()) + File.separator + "world.cfg");
+            String providerName = providerIn.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "");
+            this.worldConfig =
+                    new SpongeConfig(SpongeConfig.Type.WORLD, new File(SpongeMod.instance.getConfigDir() + File.separator + providerName
+                            + File.separator + (providerIn.getDimensionId() == 0 ? "dim0" : providerIn.getSaveFolder().toLowerCase()), "world.conf"),
+                            "sponge");
         }
     }
 
@@ -228,7 +232,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
             entity = ConstructorUtils.invokeConstructor(type.getEntityClass(), this);
             entity.setLocation(entity.getLocation().setPosition(position));
         } catch (Exception e) {
-            e.printStackTrace();
+            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
         }
         return Optional.fromNullable(entity);
     }
@@ -243,7 +247,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
             entity = ConstructorUtils.invokeConstructor(type.getEntityClass(), this);
             entity.setLocation(entity.getLocation().setPosition(position.toDouble()));
         } catch (Exception e) {
-            e.printStackTrace();
+            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
         }
         return Optional.fromNullable(entity);
     }
@@ -291,7 +295,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
             double z = position.getZ();
 
             for (Packet packet : packets) {
-                manager.sendToAllNear(x, y, z, (double) radius, this.provider.getDimensionId(), packet);
+                manager.sendToAllNear(x, y, z, radius, this.provider.getDimensionId(), packet);
             }
         }
     }
@@ -404,7 +408,8 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     @Override
     public Optional<Entity> getEntity(UUID uuid) {
-        if ((Object) this instanceof WorldServer) {
+        World spongeWorld = this;
+        if (spongeWorld instanceof WorldServer) {
             // TODO Should this be done in an override in a WorldServer mixin?
             return Optional.fromNullable((Entity) ((WorldServer) (Object) this).getEntityFromUuid(uuid));
         }

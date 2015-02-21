@@ -32,6 +32,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -39,6 +40,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
@@ -69,10 +71,10 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     private LoadController controller;
     private SpongeGameRegistry registry;
     private SpongeConfig globalConfig;
-    private File configFile;
+    private File spongeConfigDir = new File(Loader.instance().getConfigDir() + File.separator + "sponge" + File.separator);
 
-    // This is a special Mod, provided by the IFMLLoadingPlugin. It will be instantiated before FML scans the system
-    // For mods (or plugins)
+    // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
+    // instantiated before FML scans the system for mods (or plugins)
     public SpongeMod() {
         super(new ModMetadata());
         // Register our special instance creator with FML
@@ -117,8 +119,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         return this.globalConfig;
     }
 
-    public File getSuggestedConfigFile() {
-        return this.configFile;
+    public File getConfigDir() {
+        return this.spongeConfigDir;
     }
 
     @Override
@@ -134,8 +136,13 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
         // Add the SyncScheduler as a listener for ServerTickEvents
         FMLCommonHandler.instance().bus().register(this.getGame().getSyncScheduler());
-        this.configFile = e.getSuggestedConfigurationFile();
-        this.globalConfig = new SpongeConfig(SpongeConfig.Type.GLOBAL, "global.cfg");
+
+        try {
+            this.globalConfig = new SpongeConfig(SpongeConfig.Type.GLOBAL, new File(this.spongeConfigDir, "global.conf"), "sponge");
+        } catch (Throwable t) {
+            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(t));
+        }
+
         if (e.getSide() == Side.SERVER) {
             SpongeHooks.enableThreadContentionMonitoring();
         }
