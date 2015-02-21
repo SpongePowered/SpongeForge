@@ -99,6 +99,7 @@ public class SpongeTitle implements Title {
         return new SpongeTitleBuilder(this);
     }
 
+    @SuppressWarnings("rawtypes")
     public List<S45PacketTitle> getPackets() {
         List<S45PacketTitle> packets = Lists.newArrayList();
 

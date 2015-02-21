@@ -304,7 +304,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<ParticleType> getParticleType(String name) {
-        return Optional.fromNullable((ParticleType) this.particleByName.get(name));
+        return Optional.fromNullable(this.particleByName.get(name));
     }
 
     @Override

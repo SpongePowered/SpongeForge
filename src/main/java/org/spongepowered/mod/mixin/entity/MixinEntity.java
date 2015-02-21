@@ -30,7 +30,7 @@ import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.S07PacketRespawn;
-import net.minecraft.network.play.server.S08PacketPlayerPosLook;
+import net.minecraft.network.play.server.S08PacketPlayerPosLook.EnumFlags;
 import net.minecraft.network.play.server.S1FPacketSetExperience;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
@@ -176,6 +176,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         return true;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public boolean setLocationAndRotation(Location location, Vector3f rotation, EnumSet<RelativePositions> relativePositions) {
         if(relativePositions.isEmpty()) {
@@ -188,26 +189,26 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         } else {
             if(((Entity) this) instanceof EntityPlayerMP) {
                 //Players use different logic, as they support real relative movement.
-                EnumSet<S08PacketPlayerPosLook.EnumFlags> relativeFlags = EnumSet.noneOf(S08PacketPlayerPosLook.EnumFlags.class);
+                EnumSet relativeFlags = EnumSet.noneOf(EnumFlags.class);
 
                 if(relativePositions.contains(RelativePositions.X)) {
-                    relativeFlags.add(S08PacketPlayerPosLook.EnumFlags.X);
+                    relativeFlags.add(EnumFlags.X);
                 }
 
                 if(relativePositions.contains(RelativePositions.Y)) {
-                    relativeFlags.add(S08PacketPlayerPosLook.EnumFlags.Y);
+                    relativeFlags.add(EnumFlags.Y);
                 }
 
                 if(relativePositions.contains(RelativePositions.Z)) {
-                    relativeFlags.add(S08PacketPlayerPosLook.EnumFlags.Z);
+                    relativeFlags.add(EnumFlags.Z);
                 }
 
                 if(relativePositions.contains(RelativePositions.PITCH)) {
-                    relativeFlags.add(S08PacketPlayerPosLook.EnumFlags.Y_ROT);
+                    relativeFlags.add(EnumFlags.Y_ROT);
                 }
 
                 if(relativePositions.contains(RelativePositions.YAW)) {
-                    relativeFlags.add(S08PacketPlayerPosLook.EnumFlags.X_ROT);
+                    relativeFlags.add(EnumFlags.X_ROT);
                 }
 
                 ((EntityPlayerMP) (Entity) this).playerNetServerHandler.func_175089_a(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ(), rotation.getX(), rotation.getY(), relativeFlags);

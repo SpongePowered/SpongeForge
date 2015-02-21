@@ -83,6 +83,7 @@ public abstract class MixinEntityLivingBase extends Entity {
     @Shadow
     public abstract boolean isPotionActive(Potion potion);
 
+    @SuppressWarnings("rawtypes")
     @Shadow
     public abstract Collection getActivePotionEffects();
 

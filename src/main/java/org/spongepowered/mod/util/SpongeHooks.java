@@ -130,6 +130,7 @@ public class SpongeHooks {
         }
     }
 
+    @SuppressWarnings("unused")
     private static void logChunkLoadOverride(ChunkProviderServer provider, int x, int z) {
         logInfo(" Chunk Load Override: {0}, Dimension ID: {1}", provider.chunkLoadOverride, provider.worldObj.provider.getDimensionId());
     }
@@ -208,6 +209,7 @@ public class SpongeHooks {
     }
 
     // TODO - needs to be hooked
+    @SuppressWarnings("rawtypes")
     public static void logEntitySize(Entity entity, List list) {
         SpongeConfig config = getActiveConfig(entity.worldObj);
         if (!config.logEntityCollisionChecks.getProperty().getBoolean()) {

@@ -136,6 +136,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
         throw new UnsupportedOperationException(); // TODO
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void broadcastMessage(Message message) {
         getConfigurationManager().sendChatMsg(((SpongeMessage) message).getHandle());

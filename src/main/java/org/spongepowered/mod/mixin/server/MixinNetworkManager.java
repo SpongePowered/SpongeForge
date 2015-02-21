@@ -35,6 +35,7 @@ import org.spongepowered.mod.server.ConnectionInfo;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+@SuppressWarnings("rawtypes")
 @Mixin(NetworkManager.class)
 public abstract class MixinNetworkManager extends SimpleChannelInboundHandler implements ConnectionInfo {
 
