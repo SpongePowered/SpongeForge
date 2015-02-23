@@ -74,6 +74,10 @@ public abstract class MixinEntityLiving extends EntityLivingBase {
         return getLeashedToEntity() != null;
     }
 
+    public void agent$setLeashed(boolean leashed) {
+        // TODO
+    }
+
     public Optional<Entity> agent$getLeashHolder() {
         return Optional.fromNullable((Entity) getLeashedToEntity());
     }

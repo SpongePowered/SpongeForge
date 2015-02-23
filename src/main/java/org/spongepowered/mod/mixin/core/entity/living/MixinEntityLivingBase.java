@@ -253,4 +253,12 @@ public abstract class MixinEntityLivingBase extends Entity {
         setAlwaysRenderNameTag(visible);
     }
 
+    public boolean living$isInvisible() {
+        return this.getFlag(5);
+    }
+
+    public void living$setInvisible(boolean invisible) {
+        this.setFlag(5, invisible);
+    }
+
 }

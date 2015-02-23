@@ -48,7 +48,7 @@ public abstract class MixinEventBlock extends Event implements BlockEvent {
 
     @Override
     public BlockLoc getBlock() {
-        return new BlockWrapper((World) this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
+        return new BlockWrapper((World) this.world, this.pos);
     }
 
     @Override
