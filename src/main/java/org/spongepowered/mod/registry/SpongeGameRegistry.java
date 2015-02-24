@@ -70,6 +70,7 @@ import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.effect.sound.SoundType;
+import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
@@ -137,6 +138,7 @@ import org.spongepowered.mod.block.meta.SpongeSkullType;
 import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.effect.particle.SpongeParticleEffectBuilder;
 import org.spongepowered.mod.effect.particle.SpongeParticleType;
+import org.spongepowered.mod.effect.sound.SpongeSound;
 import org.spongepowered.mod.entity.SpongeCareer;
 import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
@@ -234,6 +236,7 @@ public class SpongeGameRegistry implements GameRegistry {
     private final Map<String, BannerPatternShape> bannerPatternShapeMappings = Maps.newHashMap();
     private final Map<String, BannerPatternShape> idToBannerPatternShapeMappings = Maps.newHashMap();
     private final Map<String, DyeColor> dyeColorMappings = Maps.newHashMap();
+    private final Map<String, SoundType> soundNames = Maps.newHashMap();
 
     @Override
     public Optional<BlockType> getBlock(String id) {
@@ -331,12 +334,12 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<SoundType> getSound(String name) {
-        throw new UnsupportedOperationException(); // TODO
+        return Optional.fromNullable(this.soundNames.get(name));
     }
 
     @Override
     public List<SoundType> getSounds() {
-        throw new UnsupportedOperationException(); // TODO
+        return ImmutableList.copyOf(this.soundNames.values());
     }
 
     @Override
@@ -1095,6 +1098,226 @@ public class SpongeGameRegistry implements GameRegistry {
         RegistryHelper.mapFields(GameModes.class, gameModeMappings);
     }
 
+    private void setSounds() {
+        final Map<String, String> soundMappings = Maps.newHashMap();
+        soundMappings.put("AMBIENCE_CAVE", "ambient.cave.cave");
+        soundMappings.put("AMBIENCE_RAIN", "ambient.weather.rain");
+        soundMappings.put("AMBIENCE_THUNDER", "ambient.weather.thunder");
+        soundMappings.put("ANVIL_BREAK", "random.anvil_break");
+        soundMappings.put("ANVIL_LAND", "random.anvil_land");
+        soundMappings.put("ANVIL_USE", "random.anvil_use");
+        soundMappings.put("ARROW_HIT", "random.bowhit");
+        soundMappings.put("BURP", "random.burp");
+        soundMappings.put("CHEST_CLOSE", "random.chestclosed");
+        soundMappings.put("CHEST_OPEN", "random.chestopen");
+        soundMappings.put("CLICK", "random.click");
+        soundMappings.put("DOOR_CLOSE", "random.door_close");
+        soundMappings.put("DOOR_OPEN", "random.door_open");
+        soundMappings.put("DRINK", "random.drink");
+        soundMappings.put("EAT", "random.eat");
+        soundMappings.put("EXPLODE", "random.explode");
+        soundMappings.put("FALL_BIG", "game.player.hurt.fall.big");
+        soundMappings.put("FALL_SMALL", "game.player.hurt.fall.small");
+        soundMappings.put("FIRE", "fire.fire");
+        soundMappings.put("FIRE_IGNITE", "fire.ignite");
+        soundMappings.put("FIZZ", "random.fizz");
+        soundMappings.put("FUSE", "game.tnt.primed");
+        soundMappings.put("GLASS", "dig.glass");
+        soundMappings.put("HURT_FLESH", "game.player.hurt");
+        soundMappings.put("ITEM_BREAK", "random.break");
+        soundMappings.put("ITEM_PICKUP", "random.pop");
+        soundMappings.put("LAVA", "liquid.lava");
+        soundMappings.put("LAVA_POP", "liquid.lavapop");
+        soundMappings.put("LEVEL_UP", "random.levelup");
+        soundMappings.put("MINECART_BASE", "minecart.base");
+        soundMappings.put("MINECART_INSIDE", "minecart.inside");
+        soundMappings.put("NOTE_BASS", "note.bass");
+        soundMappings.put("NOTE_PIANO", "note.harp");
+        soundMappings.put("NOTE_BASS_DRUM", "note.bd");
+        soundMappings.put("NOTE_STICKS", "note.hat");
+        soundMappings.put("NOTE_BASS_GUITAR", "note.bassattack");
+        soundMappings.put("NOTE_SNARE_DRUM", "note.snare");
+        soundMappings.put("NOTE_PLING", "note.pling");
+        soundMappings.put("ORB_PICKUP", "random.orb");
+        soundMappings.put("PISTON_EXTEND", "tile.piston.out");
+        soundMappings.put("PISTON_RETRACT", "tile.piston.in");
+        soundMappings.put("PORTAL", "portal.portal");
+        soundMappings.put("PORTAL_TRAVEL", "portal.travel");
+        soundMappings.put("PORTAL_TRIGGER", "portal.trigger");
+        soundMappings.put("SHOOT_ARROW", "random.bow");
+        soundMappings.put("SPLASH", "random.splash");
+        soundMappings.put("SPLASH2", "game.player.swim.splash");
+        soundMappings.put("STEP_GRASS", "step.grass");
+        soundMappings.put("STEP_GRAVEL", "step.gravel");
+        soundMappings.put("STEP_LADDER", "step.ladder");
+        soundMappings.put("STEP_SAND", "step.sand");
+        soundMappings.put("STEP_SNOW", "step.snow");
+        soundMappings.put("STEP_STONE", "step.stone");
+        soundMappings.put("STEP_WOOD", "step.wood");
+        soundMappings.put("STEP_WOOL", "step.cloth");
+        soundMappings.put("SWIM", "game.player.swim");
+        soundMappings.put("WATER", "liquid.water");
+        soundMappings.put("WOOD_CLICK", "random.wood_click");
+        soundMappings.put("BAT_DEATH", "mob.bat.death");
+        soundMappings.put("BAT_HURT", "mob.bat.hurt");
+        soundMappings.put("BAT_IDLE", "mob.bat.idle");
+        soundMappings.put("BAT_LOOP", "mob.bat.loop");
+        soundMappings.put("BAT_TAKEOFF", "mob.bat.takeoff");
+        soundMappings.put("BLAZE_BREATH", "mob.blaze.breathe");
+        soundMappings.put("BLAZE_DEATH", "mob.blaze.death");
+        soundMappings.put("BLAZE_HIT", "mob.blaze.hit");
+        soundMappings.put("CAT_HISS", "mob.cat.hiss");
+        soundMappings.put("CAT_HIT", "mob.cat.hitt");
+        soundMappings.put("CAT_MEOW", "mob.cat.meow");
+        soundMappings.put("CAT_PURR", "mob.cat.purr");
+        soundMappings.put("CAT_PURREOW", "mob.cat.purreow");
+        soundMappings.put("CHICKEN_IDLE", "mob.chicken.say");
+        soundMappings.put("CHICKEN_HURT", "mob.chicken.hurt");
+        soundMappings.put("CHICKEN_EGG_POP", "mob.chicken.plop");
+        soundMappings.put("CHICKEN_WALK", "mob.chicken.step");
+        soundMappings.put("COW_IDLE", "mob.cow.say");
+        soundMappings.put("COW_HURT", "mob.cow.hurt");
+        soundMappings.put("COW_WALK", "mob.cow.step");
+        soundMappings.put("CREEPER_HISS", "creeper.primed");
+        soundMappings.put("CREEPER_DEATH", "mob.creeper.death");
+        soundMappings.put("ENDERDRAGON_DEATH", "mob.enderdragon.end");
+        soundMappings.put("ENDERDRAGON_GROWL", "mob.enderdragon.growl");
+        soundMappings.put("ENDERDRAGON_HIT", "mob.enderdragon.hit");
+        soundMappings.put("ENDERDRAGON_WINGS", "mob.enderdragon.wings");
+        soundMappings.put("ENDERMAN_DEATH", "mob.endermen.death");
+        soundMappings.put("ENDERMAN_HIT", "mob.endermen.hit");
+        soundMappings.put("ENDERMAN_IDLE", "mob.endermen.idle");
+        soundMappings.put("ENDERMAN_TELEPORT", "mob.endermen.portal");
+        soundMappings.put("ENDERMAN_SCREAM", "mob.endermen.scream");
+        soundMappings.put("ENDERMAN_STARE", "mob.endermen.stare");
+        soundMappings.put("GHAST_SCREAM", "mob.ghast.scream");
+        soundMappings.put("GHAST_SCREAM2", "mob.ghast.affectionate_scream");
+        soundMappings.put("GHAST_CHARGE", "mob.ghast.charge");
+        soundMappings.put("GHAST_DEATH", "mob.ghast.death");
+        soundMappings.put("GHAST_FIREBALL", "mob.ghast.fireball");
+        soundMappings.put("GHAST_MOAN", "mob.ghast.moan");
+        soundMappings.put("GUARDIAN_IDLE", "mob.guardian.idle");
+        soundMappings.put("GUARDIAN_ELDER_IDLE", "mob.guardian.elder.idle");
+        soundMappings.put("GUARDIAN_LAND_IDLE", "mob.guardian.land.idle");
+        soundMappings.put("GUARDIAN_HIT", "mob.guardian.hit");
+        soundMappings.put("GUARDIAN_ELDER_HIT", "mob.guardian.elder.hit");
+        soundMappings.put("GUARDIAN_LAND_HIT", "mob.guardian.land.hit");
+        soundMappings.put("GUARDIAN_DEATH", "mob.guardian.death");
+        soundMappings.put("GUARDIAN_ELDER_DEATH", "mob.guardian.elder.death");
+        soundMappings.put("GUARDIAN_LAND_DEATH", "mob.guardian.land.death");
+        soundMappings.put("IRONGOLEM_DEATH", "mob.irongolem.death");
+        soundMappings.put("IRONGOLEM_HIT", "mob.irongolem.hit");
+        soundMappings.put("IRONGOLEM_THROW", "mob.irongolem.throw");
+        soundMappings.put("IRONGOLEM_WALK", "mob.irongolem.walk");
+        soundMappings.put("MAGMACUBE_WALK", "mob.magmacube.big");
+        soundMappings.put("MAGMACUBE_WALK2", "mob.magmacube.small");
+        soundMappings.put("MAGMACUBE_JUMP", "mob.magmacube.jump");
+        soundMappings.put("PIG_IDLE", "mob.pig.say");
+        soundMappings.put("PIG_DEATH", "mob.pig.death");
+        soundMappings.put("PIG_WALK", "mob.pig.step");
+        soundMappings.put("RABBIT_IDLE", "mob.rabbit.idle");
+        soundMappings.put("RABBIT_HURT", "mob.rabbit.hurt");
+        soundMappings.put("RABBIT_DEATH", "mob.rabbit.death");
+        soundMappings.put("SHEEP_IDLE", "mob.sheep.say");
+        soundMappings.put("SHEEP_SHEAR", "mob.sheep.shear");
+        soundMappings.put("SHEEP_WALK", "mob.sheep.step");
+        soundMappings.put("SILVERFISH_HIT", "mob.silverfish.hit");
+        soundMappings.put("SILVERFISH_KILL", "mob.silverfish.kill");
+        soundMappings.put("SILVERFISH_IDLE", "mob.silverfish.say");
+        soundMappings.put("SILVERFISH_WALK", "mob.silverfish.step");
+        soundMappings.put("SKELETON_IDLE", "mob.skeleton.say");
+        soundMappings.put("SKELETON_DEATH", "mob.skeleton.death");
+        soundMappings.put("SKELETON_HURT", "mob.skeleton.hurt");
+        soundMappings.put("SKELETON_WALK", "mob.skeleton.step");
+        soundMappings.put("SLIME_ATTACK", "mob.slime.attack");
+        soundMappings.put("SLIME_WALK", "mob.slime.small");
+        soundMappings.put("SLIME_WALK2", "mob.slime.big");
+        soundMappings.put("SPIDER_IDLE", "mob.spider.say");
+        soundMappings.put("SPIDER_DEATH", "mob.spider.death");
+        soundMappings.put("SPIDER_WALK", "mob.spider.step");
+        soundMappings.put("WITHER_DEATH", "mob.wither.death");
+        soundMappings.put("WITHER_HURT", "mob.wither.hurt");
+        soundMappings.put("WITHER_IDLE", "mob.wither.idle");
+        soundMappings.put("WITHER_SHOOT", "mob.wither.shoot");
+        soundMappings.put("WITHER_SPAWN", "mob.wither.spawn");
+        soundMappings.put("WOLF_BARK", "mob.wolf.bark");
+        soundMappings.put("WOLF_DEATH", "mob.wolf.death");
+        soundMappings.put("WOLF_GROWL", "mob.wolf.growl");
+        soundMappings.put("WOLF_HOWL", "mob.wolf.howl");
+        soundMappings.put("WOLF_HURT", "mob.wolf.hurt");
+        soundMappings.put("WOLF_PANT", "mob.wolf.panting");
+        soundMappings.put("WOLF_SHAKE", "mob.wolf.shake");
+        soundMappings.put("WOLF_WALK", "mob.wolf.step");
+        soundMappings.put("WOLF_WHINE", "mob.wolf.whine");
+        soundMappings.put("ZOMBIE_METAL", "mob.zombie.metal");
+        soundMappings.put("ZOMBIE_WOOD", "mob.zombie.wood");
+        soundMappings.put("ZOMBIE_WOODBREAK", "mob.zombie.woodbreak");
+        soundMappings.put("ZOMBIE_IDLE", "mob.zombie.say");
+        soundMappings.put("ZOMBIE_DEATH", "mob.zombie.death");
+        soundMappings.put("ZOMBIE_HURT", "mob.zombie.hurt");
+        soundMappings.put("ZOMBIE_INFECT", "mob.zombie.infect");
+        soundMappings.put("ZOMBIE_UNFECT", "mob.zombie.unfect");
+        soundMappings.put("ZOMBIE_REMEDY", "mob.zombie.remedy");
+        soundMappings.put("ZOMBIE_WALK", "mob.zombie.step");
+        soundMappings.put("ZOMBIE_PIG_IDLE", "mob.zombiepig.zpig");
+        soundMappings.put("ZOMBIE_PIG_ANGRY", "mob.zombiepig.zpigangry");
+        soundMappings.put("ZOMBIE_PIG_DEATH", "mob.zombiepig.zpigdeath");
+        soundMappings.put("ZOMBIE_PIG_HURT", "mob.zombiepig.zpighurt");
+        soundMappings.put("DIG_WOOL", "dig.cloth");
+        soundMappings.put("DIG_GRASS", "dig.grass");
+        soundMappings.put("DIG_GRAVEL", "dig.gravel");
+        soundMappings.put("DIG_SAND", "dig.sand");
+        soundMappings.put("DIG_SNOW", "dig.snow");
+        soundMappings.put("DIG_STONE", "dig.stone");
+        soundMappings.put("DIG_WOOD", "dig.wood");
+        soundMappings.put("FIREWORK_BLAST", "fireworks.blast");
+        soundMappings.put("FIREWORK_BLAST2", "fireworks.blast_far");
+        soundMappings.put("FIREWORK_LARGE_BLAST", "fireworks.largeBlast");
+        soundMappings.put("FIREWORK_LARGE_BLAST2", "fireworks.largeBlast_far");
+        soundMappings.put("FIREWORK_TWINKLE", "fireworks.twinkle");
+        soundMappings.put("FIREWORK_TWINKLE2", "fireworks.twinkle_far");
+        soundMappings.put("FIREWORK_LAUNCH", "fireworks.launch");
+        soundMappings.put("SUCCESSFUL_HIT", "random.successful_hit");
+        soundMappings.put("HORSE_ANGRY", "mob.horse.angry");
+        soundMappings.put("HORSE_ARMOR", "mob.horse.armor");
+        soundMappings.put("HORSE_BREATHE", "mob.horse.breathe");
+        soundMappings.put("HORSE_DEATH", "mob.horse.death");
+        soundMappings.put("HORSE_GALLOP", "mob.horse.gallop");
+        soundMappings.put("HORSE_HIT", "mob.horse.hit");
+        soundMappings.put("HORSE_IDLE", "mob.horse.idle");
+        soundMappings.put("HORSE_JUMP", "mob.horse.jump");
+        soundMappings.put("HORSE_LAND", "mob.horse.land");
+        soundMappings.put("HORSE_SADDLE", "mob.horse.leather");
+        soundMappings.put("HORSE_SOFT", "mob.horse.soft");
+        soundMappings.put("HORSE_WOOD", "mob.horse.wood");
+        soundMappings.put("DONKEY_ANGRY", "mob.horse.donkey.angry");
+        soundMappings.put("DONKEY_DEATH", "mob.horse.donkey.death");
+        soundMappings.put("DONKEY_HIT", "mob.horse.donkey.hit");
+        soundMappings.put("DONKEY_IDLE", "mob.horse.donkey.idle");
+        soundMappings.put("HORSE_SKELETON_DEATH", "mob.horse.skeleton.death");
+        soundMappings.put("HORSE_SKELETON_HIT", "mob.horse.skeleton.hit");
+        soundMappings.put("HORSE_SKELETON_IDLE", "mob.horse.skeleton.idle");
+        soundMappings.put("HORSE_ZOMBIE_DEATH", "mob.horse.zombie.death");
+        soundMappings.put("HORSE_ZOMBIE_HIT", "mob.horse.zombie.hit");
+        soundMappings.put("HORSE_ZOMBIE_IDLE", "mob.horse.zombie.idle");
+        soundMappings.put("VILLAGER_DEATH", "mob.villager.death");
+        soundMappings.put("VILLAGER_HAGGLE", "mob.villager.haggle");
+        soundMappings.put("VILLAGER_HIT", "mob.villager.hit");
+        soundMappings.put("VILLAGER_IDLE", "mob.villager.idle");
+        soundMappings.put("VILLAGER_NO", "mob.villager.no");
+        soundMappings.put("VILLAGER_YES", "mob.villager.yes");
+
+        RegistryHelper.mapFields(SoundTypes.class, new Function<String, SoundType>() {
+            @Override
+            public SoundType apply(String fieldName) {
+                String soundName = soundMappings.get(fieldName);
+                SoundType sound = new SpongeSound(soundName);
+                SpongeGameRegistry.this.soundNames.put(soundName, sound);
+                return sound;
+            }
+        });
+    }
+
     public void init() {
         setDimensionTypes();
         setEnchantments();
@@ -1113,6 +1336,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setNotePitches();
         setBannerPatternShapes();
         setGameModes();
+        setSounds();
     }
 
     public void postInit() {
