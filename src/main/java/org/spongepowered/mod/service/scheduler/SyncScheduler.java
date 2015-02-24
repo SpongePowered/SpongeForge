@@ -235,7 +235,7 @@ public class SyncScheduler implements SynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
@@ -243,7 +243,7 @@ public class SyncScheduler implements SynchronousScheduler {
      *     PluginContainer pluginContainer = result.get();
      * </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
@@ -292,7 +292,7 @@ public class SyncScheduler implements SynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
@@ -300,7 +300,7 @@ public class SyncScheduler implements SynchronousScheduler {
      *     PluginContainer pluginContainer = result.get();
      * </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
@@ -363,7 +363,7 @@ public class SyncScheduler implements SynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
@@ -371,7 +371,7 @@ public class SyncScheduler implements SynchronousScheduler {
      *     PluginContainer pluginContainer = result.get();
      * </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
@@ -434,7 +434,7 @@ public class SyncScheduler implements SynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
@@ -442,7 +442,7 @@ public class SyncScheduler implements SynchronousScheduler {
      *     PluginContainer pluginContainer = result.get();
      * </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task

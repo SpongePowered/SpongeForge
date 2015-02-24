@@ -28,11 +28,10 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.commented.SimpleCommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMapper;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.spongepowered.mod.SpongeMod;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,35 +106,27 @@ public class SpongeConfig {
             }
             if (!file.exists()) {
                 file.createNewFile();
+
+                this.loader = HoconConfigurationLoader.builder().setFile(file).build();
+                if (type == Type.GLOBAL) {
+                    this.configBase = new GlobalConfig();
+                    this.configName = "GLOBAL";
+                } else if (type == Type.DIMENSION) {
+                    this.configBase = new DimensionConfig();
+                    this.configName = file.getParentFile().getName().toUpperCase();
+                } else {
+                    this.configBase = new WorldConfig();
+                    this.configName = file.getParentFile().getName().toUpperCase();
+                }
+                this.configMapper = ObjectMapper.forObject(this.configBase);
+                this.configMapper.serialize(this.root.getNode(this.modId));
+                this.loader.save(this.root);
+            } else {
+                this.loader = HoconConfigurationLoader.builder().setFile(file).build();
+                this.root = this.loader.load();
             }
         } catch (Throwable t) {
-            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(t));
-        }
-
-        this.loader = HoconConfigurationLoader.builder().setFile(file).build();
-        try {
-            if (type == Type.GLOBAL) {
-                this.configBase = new GlobalConfig();
-                this.configName = "GLOBAL";
-            } else if (type == Type.DIMENSION) {
-                this.configBase = new DimensionConfig();
-                this.configName = file.getParentFile().getName().toUpperCase();
-            } else {
-                this.configBase = new WorldConfig();
-                this.configName = file.getParentFile().getName().toUpperCase();
-            }
-            this.configMapper = ObjectMapper.forObject(this.configBase);
-        } catch (ObjectMappingException e) {
-            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
-        }
-
-        try {
-            this.configMapper.serialize(this.root.getNode(this.modId));
-            this.loader.save(this.root);
-        } catch (IOException e) {
-            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
-        } catch (ObjectMappingException e) {
-            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
+            LogManager.getLogger().error(ExceptionUtils.getStackTrace(t));
         }
     }
 
@@ -143,7 +134,7 @@ public class SpongeConfig {
         try {
             this.loader.save(this.root);
         } catch (IOException e) {
-            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
+            LogManager.getLogger().error(ExceptionUtils.getStackTrace(e));
         }
     }
 
@@ -151,7 +142,7 @@ public class SpongeConfig {
         try {
             this.root = this.loader.load();
         } catch (IOException e) {
-            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
+            LogManager.getLogger().error(ExceptionUtils.getStackTrace(e));
         }
     }
 
@@ -181,6 +172,9 @@ public class SpongeConfig {
     }
 
     private class GlobalConfig extends ConfigBase {
+
+        @Setting(value = "modules")
+        public ModuleCategory mixins = new ModuleCategory();
     }
 
     private class DimensionConfig extends ConfigBase {
@@ -271,6 +265,10 @@ public class SpongeConfig {
             public boolean logEntityCollisionChecks = false;
             @Setting(value = LOGGING_ENTITY_SPEED_REMOVAL, comment = "Whether to log entity removals due to speed")
             public boolean logEntitySpeedRemoval = false;
+        }
+
+        @ConfigSerializable
+        protected class ModuleCategory extends Category {
         }
 
         @ConfigSerializable

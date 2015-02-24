@@ -41,10 +41,10 @@ import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.common.DimensionManager;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.interfaces.IMixinWorldProvider;
+import org.spongepowered.mod.mixin.plugin.CoreMixinPlugin;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -399,7 +399,7 @@ public class SpongeHooks {
     }
 
     public static void enableThreadContentionMonitoring() {
-        if (!SpongeMod.instance.getGlobalConfig().getRootNode().getNode("debug", SpongeConfig.DEBUG_THREAD_CONTENTION_MONITORING).getBoolean()) {
+        if (!CoreMixinPlugin.getGlobalConfig().getRootNode().getNode("debug", SpongeConfig.DEBUG_THREAD_CONTENTION_MONITORING).getBoolean()) {
             return;
         }
         java.lang.management.ThreadMXBean mbean = java.lang.management.ManagementFactory.getThreadMXBean();
@@ -414,7 +414,7 @@ public class SpongeHooks {
                 .getDimensionConfig().getRootNode().getNode(SpongeConfig.CONFIG_ENABLED).getBoolean()) {
             return ((IMixinWorldProvider) world.provider).getDimensionConfig();
         } else {
-            return SpongeMod.instance.getGlobalConfig();
+            return CoreMixinPlugin.getGlobalConfig();
         }
     }
 }

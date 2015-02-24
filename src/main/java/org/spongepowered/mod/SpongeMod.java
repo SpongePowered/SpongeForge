@@ -40,7 +40,6 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.Side;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
@@ -51,7 +50,6 @@ import org.spongepowered.api.service.ProviderExistsException;
 import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.mod.command.CommandSponge;
-import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
@@ -64,14 +62,13 @@ import java.io.File;
 public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     public static SpongeMod instance;
+    private static final Logger logger = LogManager.getLogger();
 
     private final Game game;
+    private final File spongeConfigDir = new File(Loader.instance().getConfigDir() + File.separator + "sponge" + File.separator);
     private Injector spongeInjector = Guice.createInjector(new SpongeGuiceModule());
-    private Logger logger = LogManager.getLogger("SpongeAPIMod");
     private LoadController controller;
     private SpongeGameRegistry registry;
-    private SpongeConfig globalConfig;
-    private File spongeConfigDir = new File(Loader.instance().getConfigDir() + File.separator + "sponge" + File.separator);
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
@@ -80,8 +77,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongePluginContainer.class);
 
-        this.getMetadata().name = "SpongeAPIMod";
-        this.getMetadata().modId = "SpongeAPIMod";
+        this.getMetadata().name = "Sponge";
+        this.getMetadata().modId = "Sponge";
         SpongeMod.instance = this;
         this.game = this.spongeInjector.getInstance(Game.class);
         this.registry = (SpongeGameRegistry) this.game.getRegistry();
@@ -90,7 +87,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             this.game.getServiceManager().setProvider(this, CommandService.class, commandService);
             ((SpongeEventBus) this.game.getEventManager()).register(this, commandService);
         } catch (ProviderExistsException e1) {
-            this.logger.warn("Non-Sponge CommandService already registered: " + e1.getLocalizedMessage());
+            logger.warn("Non-Sponge CommandService already registered: " + e1.getLocalizedMessage());
         }
     }
 
@@ -112,11 +109,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     }
 
     public Logger getLogger() {
-        return this.logger;
-    }
-
-    public SpongeConfig getGlobalConfig() {
-        return this.globalConfig;
+        return logger;
     }
 
     public File getConfigDir() {
@@ -136,12 +129,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
         // Add the SyncScheduler as a listener for ServerTickEvents
         FMLCommonHandler.instance().bus().register(this.getGame().getSyncScheduler());
-
-        try {
-            this.globalConfig = new SpongeConfig(SpongeConfig.Type.GLOBAL, new File(this.spongeConfigDir, "global.conf"), "sponge");
-        } catch (Throwable t) {
-            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(t));
-        }
 
         if (e.getSide() == Side.SERVER) {
             SpongeHooks.enableThreadContentionMonitoring();

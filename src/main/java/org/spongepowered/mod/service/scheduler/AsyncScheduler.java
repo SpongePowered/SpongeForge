@@ -303,7 +303,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
@@ -311,7 +311,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      *     PluginContainer pluginContainer = result.get();
      * </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
@@ -365,7 +365,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
@@ -373,7 +373,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      *     PluginContainer pluginContainer = result.get();
      * </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * <p>
@@ -381,14 +381,14 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      *     <code>
      *         // The task will run with a delay of 500 seconds.
      *         runTaskAfter(somePlugin, someRunnableTarget, TimeUnit.MILLISECONDS, 500);
      *     </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
@@ -454,7 +454,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
@@ -462,7 +462,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      *     PluginContainer pluginContainer = result.get();
      * </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * <p>
@@ -470,14 +470,14 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      *     <code>
      *         // The task will run with a period of 15 seconds.
      *         runRepeatingTask(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 15);
      *     </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * <p>
@@ -485,14 +485,14 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      *     <code>
      *         // The task will run with a period of 30 seconds
      *         runTaskAfter(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 30);
      *     </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
@@ -558,7 +558,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      * <code>
      *     Optional&lt;PluginContainer&gt; result;
@@ -566,7 +566,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      *     PluginContainer pluginContainer = result.get();
      * </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * <p>
@@ -574,14 +574,14 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      *     <code>
      *         // The task will run with a period of 15 seconds.
      *         runRepeatingTask(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 15);
      *     </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * <p>
@@ -589,24 +589,24 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      *     <code>
      *         // The task will run with a period of 120 milliseconds and delay of 302 milliseconds
      *         // (If the scales are the same for both arguments)
      *         runRepeatingTaskAfter(somePlugin, someRunnableTarget, TimeUnit.MILLISECONDS, 120, 302);
-     * 
+     *
      *         // If the two units are in different scales:
-     * 
+     *
      *         // The task will run with a period of 20 seconds and delay of 500 milliseconds:
      *         Either:
      *         runRepeatingTaskAfter(somePlugin, someRunnableTarget, TimeUnit.MILLISECONDS, TimeUnit.SECOND.toMillis(20), 500);
      *         // OR
      *         runRepeatingTaskAfter(somePlugin, someRunnableTarget, TimeUnit.SECONDS, 20, TimeUnit.MILLISECONDS.toSeconds(500));
-     * 
+     *
      *     </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param plugin The plugin container of the Plugin that initiated the Task
@@ -648,7 +648,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      * <code>
      *     UUID myID;
@@ -657,7 +657,7 @@ public class AsyncScheduler implements AsynchronousScheduler {
      *     task = AsyncScheduler.getInstance().getTaskById(myID);
      * </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param id The UUID of the Task to find.

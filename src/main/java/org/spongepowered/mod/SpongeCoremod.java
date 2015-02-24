@@ -34,15 +34,15 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
     public SpongeCoremod() {
         MixinBootstrap.init();
-        MixinEnvironment.getCurrentEnvironment().addConfiguration("mixins.sponge.json");
+        MixinEnvironment.getCurrentEnvironment().addConfiguration("mixins.sponge.core.json");
+        // Transformer exclusions
+        ((net.minecraft.launchwrapper.LaunchClassLoader) getClass().getClassLoader()).addTransformerExclusion("ninja.leaping.configurate");
     }
 
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
                 MixinBootstrap.TRANSFORMER_CLASS,
-        //"org.spongepowered.mod.asm.transformers.EventTransformer",
-        //"org.spongepowered.mod.asm.transformers.BaseEventTransformer"
         };
     }
 

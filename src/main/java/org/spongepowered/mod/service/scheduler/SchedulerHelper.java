@@ -68,7 +68,7 @@ public class SchedulerHelper {
      * </p>
      *
      * <p>
-     * 
+     *
      * <pre>
      * <code>
      *     UUID myID;
@@ -77,7 +77,7 @@ public class SchedulerHelper {
      *     task = SyncScheduler.getInstance().getTaskById(myID);
      * </code>
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param id The UUID of the Task to find.
@@ -121,7 +121,7 @@ public class SchedulerHelper {
      * null) then return a null reference. Else, return a Collection of Tasks
      * that are owned by the Plugin.
      * </p>
-     * 
+     *
      * @param plugin The plugin that may own the Tasks in the TaskScheduler
      * @return Collection&lt;Task&gt; of Tasks owned by the PluginContainer
      *         plugin.
@@ -167,7 +167,7 @@ public class SchedulerHelper {
      * <p>
      * Get the UUID of the task by name.
      * </p>
-     * 
+     *
      * @param name The name of the task to search
      * @return The Optional&lt;UUID&gt; result from the search by name.
      */

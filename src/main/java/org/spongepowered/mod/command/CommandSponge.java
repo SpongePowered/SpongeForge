@@ -39,6 +39,7 @@ import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.interfaces.IMixinWorldProvider;
+import org.spongepowered.mod.mixin.plugin.CoreMixinPlugin;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.util.SpongeHooks;
 
@@ -49,10 +50,12 @@ import java.util.List;
 
 public class CommandSponge extends CommandBase {
 
+    @SuppressWarnings("unused")
     private static final List<String> FLAGS = ImmutableList.of("-g", "-d", "-w");
     private static final List<String> FLAG_COMMANDS = ImmutableList.of("save", "chunks", "conf", "reload");
     private static final List<String> COMMANDS = ImmutableList.of("chunks", "conf", "heap", "help", "reload", "save", "version");
     private static final List<String> ALIASES = ImmutableList.of("sp");
+
     private static final String USAGE_CONF =
             EnumChatFormatting.WHITE + "Usage:\n" + EnumChatFormatting.GREEN + "/sponge conf [-g] [-d dim] [-w world] key value";
     private static final String USAGE_RELOAD =
@@ -87,7 +90,7 @@ public class CommandSponge extends CommandBase {
     public void processCommand(ICommandSender sender, String[] args) {
         if (args.length > 0) {
             String command = args[0];
-            SpongeConfig config = SpongeMod.instance.getGlobalConfig();
+            SpongeConfig config = CoreMixinPlugin.getGlobalConfig();
 
             if (COMMANDS.contains(command)) {
                 if (FLAG_COMMANDS.contains(command)) {
@@ -139,7 +142,7 @@ public class CommandSponge extends CommandBase {
                                     break;
                                 }
                             }
-                            if (config == SpongeMod.instance.getGlobalConfig()) {
+                            if (config == CoreMixinPlugin.getGlobalConfig()) {
                                 sender.addChatMessage(new ChatComponentText("Dimension '" + EnumChatFormatting.RED + name + EnumChatFormatting.WHITE
                                         + "' does not exist. Please enter a valid dimension."));
                                 return;
@@ -168,7 +171,7 @@ public class CommandSponge extends CommandBase {
                                     break;
                                 }
                             }
-                            if (config == SpongeMod.instance.getGlobalConfig()) {
+                            if (config == CoreMixinPlugin.getGlobalConfig()) {
                                 sender.addChatMessage(new ChatComponentText(
                                         EnumChatFormatting.RED + "World " + EnumChatFormatting.AQUA + name + EnumChatFormatting.RED
                                                 + " does not exist. Please enter a valid world."));
@@ -176,7 +179,7 @@ public class CommandSponge extends CommandBase {
                             }
                         }
                     } else if (flag.equalsIgnoreCase("-g")) {
-                        config = SpongeMod.instance.getGlobalConfig();
+                        config = CoreMixinPlugin.getGlobalConfig();
                     } else {
                         sender.addChatMessage(new ChatComponentText(
                                 EnumChatFormatting.AQUA + flag + EnumChatFormatting.RED + " is not recognized as a valid flag.\n"
@@ -385,4 +388,5 @@ public class CommandSponge extends CommandBase {
 
         return "";
     }
+
 }
