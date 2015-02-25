@@ -34,11 +34,14 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.ArmorEquipable;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 
 // All implementors of ArmorEquipable
 @Mixin({EntityArmorStand.class, EntityGiantZombie.class, EntitySkeleton.class, EntityPlayerMP.class, EntityZombie.class})
-public abstract class MixinArmorEquipable extends EntityLivingBase implements ArmorEquipable {
+@Implements(@Interface(iface = ArmorEquipable.class, prefix = "equipable$"))
+public abstract class MixinArmorEquipable extends EntityLivingBase {
 
     public MixinArmorEquipable(World worldIn) {
         super(worldIn);
@@ -49,54 +52,44 @@ public abstract class MixinArmorEquipable extends EntityLivingBase implements Ar
     private static final int SLOT_LEGGINGS = 2;
     private static final int SLOT_CHESTPLATE = 3;
     private static final int SLOT_HELMET = 4;
-
-    @Override
-    public Optional<ItemStack> getHelmet() {
+    
+    public Optional<ItemStack> equipable$getHelmet() {
         return Optional.fromNullable((ItemStack) this.getEquipmentInSlot(SLOT_HELMET));
     }
 
-    @Override
-    public void setHelmet(ItemStack helmet) {
+    public void equipable$setHelmet(ItemStack helmet) {
         this.setCurrentItemOrArmor(SLOT_HELMET, (net.minecraft.item.ItemStack) helmet);
     }
 
-    @Override
-    public Optional<ItemStack> getChestplate() {
+    public Optional<ItemStack> equipable$getChestplate() {
         return Optional.fromNullable((ItemStack) this.getEquipmentInSlot(SLOT_CHESTPLATE));
     }
 
-    @Override
-    public void setChestplate(ItemStack chestplate) {
+    public void equipable$setChestplate(ItemStack chestplate) {
         this.setCurrentItemOrArmor(SLOT_CHESTPLATE, (net.minecraft.item.ItemStack) chestplate);
     }
 
-    @Override
-    public Optional<ItemStack> getLeggings() {
+    public Optional<ItemStack> equipable$getLeggings() {
         return Optional.fromNullable((ItemStack) this.getEquipmentInSlot(SLOT_LEGGINGS));
     }
 
-    @Override
-    public void setLeggings(ItemStack leggings) {
+    public void equipable$setLeggings(ItemStack leggings) {
         this.setCurrentItemOrArmor(SLOT_LEGGINGS, (net.minecraft.item.ItemStack) leggings);
     }
 
-    @Override
-    public Optional<ItemStack> getBoots() {
+    public Optional<ItemStack> equipable$getBoots() {
         return Optional.fromNullable((ItemStack) this.getEquipmentInSlot(SLOT_BOOTS));
     }
 
-    @Override
-    public void setBoots(ItemStack boots) {
+    public void equipable$setBoots(ItemStack boots) {
         this.setCurrentItemOrArmor(SLOT_BOOTS, (net.minecraft.item.ItemStack) boots);
     }
 
-    @Override
-    public Optional<ItemStack> getItemInHand() {
+    public Optional<ItemStack> equipable$getItemInHand() {
         return Optional.fromNullable((ItemStack) this.getEquipmentInSlot(SLOT_HAND));
     }
 
-    @Override
-    public void setItemInHand(ItemStack itemInHand) {
+    public void equipable$setItemInHand(ItemStack itemInHand) {
         this.setCurrentItemOrArmor(SLOT_HAND, (net.minecraft.item.ItemStack) itemInHand);
     }
 }

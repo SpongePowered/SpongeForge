@@ -29,10 +29,12 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
+import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.text.message.SpongeMessage;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
@@ -53,8 +55,8 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
     }
 
     @Override
-    public String getMessage() {
-        return this.component.getUnformattedText();
+    public Message getMessage() {
+        return SpongeMessage.of(this.component);
     }
 
     @Override

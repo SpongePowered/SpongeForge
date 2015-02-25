@@ -56,6 +56,7 @@ import net.minecraft.world.WorldProviderHell;
 import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.common.registry.GameData;
+import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.BlockType;
@@ -100,6 +101,7 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStackBuilder;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
+import org.spongepowered.api.item.recipe.RecipeRegistry;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
@@ -562,6 +564,16 @@ public class SpongeGameRegistry implements GameRegistry {
     @Override
     public List<BannerPatternShape> getBannerPatternShapes() {
         return ImmutableList.copyOf(this.bannerPatternShapeMappings.values());
+    }
+
+    @Override
+    public GameDictionary getGameDictionary() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public RecipeRegistry getRecipeRegistry() {
+        throw new UnsupportedOperationException(); // TODO
     }
 
     public void registerEnvironment(DimensionType env) {

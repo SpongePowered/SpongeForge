@@ -115,7 +115,7 @@ public class SpongeTradeOfferBuilder implements TradeOfferBuilder {
     }
 
     @Override
-    public TradeOfferBuilder fromTradeOffer(TradeOffer offer) {
+    public TradeOfferBuilder from(TradeOffer offer) {
         checkNotNull(offer, "Trade offer cannot be null");
         // Assumes the offer's values don't need to be validated
         this.firstItem = offer.getFirstBuyingItem();

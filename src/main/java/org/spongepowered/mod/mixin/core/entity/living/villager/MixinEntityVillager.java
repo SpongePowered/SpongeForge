@@ -53,7 +53,7 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 @Mixin(net.minecraft.entity.passive.EntityVillager.class)
 @Implements(@Interface(iface = org.spongepowered.api.entity.living.villager.Villager.class, prefix = "villager$"))
-public abstract class MixinEntityVillager extends EntityAgeable implements Merchant {
+public abstract class MixinEntityVillager extends EntityAgeable {
 
     public MixinEntityVillager(World worldIn) {
         super(worldIn);
@@ -121,30 +121,25 @@ public abstract class MixinEntityVillager extends EntityAgeable implements Merch
         this.careerId = ((SpongeEntityMeta) career).type;
     }
 
-    @Override
-    public void setCustomer(@Nullable Human human) {
+    public void villager$setCustomer(@Nullable Human human) {
         this.setCustomer((EntityPlayer) human);
     }
 
-    @Override
-    public Optional<Human> getCustomer() {
+    public Optional<Human> villager$getCustomer() {
         return Optional.fromNullable((Human) this.shadow$getCustomer());
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public List<TradeOffer> getOffers() {
+    public List<TradeOffer> villager$getOffers() {
         return getRecipes(null);
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public void addOffer(TradeOffer offer) {
+    public void villager$addOffer(TradeOffer offer) {
         this.buyingList.add(offer);
     }
 
-    @Override
-    public void setOffers(List<TradeOffer> offers) {
+    public void villager$setOffers(List<TradeOffer> offers) {
         this.buyingList = (MerchantRecipeList) offers;
     }
 
