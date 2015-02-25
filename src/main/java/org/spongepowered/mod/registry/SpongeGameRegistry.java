@@ -573,7 +573,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public GameDictionary getGameDictionary() {
-        throw new UnsupportedOperationException(); // TODO
+        return SpongeGameDictionary.instance;
     }
 
     @Override
