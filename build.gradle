@@ -226,6 +226,7 @@ jar {
 }
 
 javadoc {
+    options.charSet = 'UTF-8'
     source = [
         project("Mixin").sourceSets.main.java,
         project("SpongeAPI").sourceSets.main.java,
