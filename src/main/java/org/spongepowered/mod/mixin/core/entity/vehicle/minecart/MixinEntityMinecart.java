@@ -41,10 +41,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityMinecart.class)
 public abstract class MixinEntityMinecart extends Entity implements Minecart {
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract double getDragAir();
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract double getMaxSpeed();
 
     private double maxSpeed;

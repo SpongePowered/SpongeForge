@@ -24,21 +24,28 @@
  */
 package org.spongepowered.mod.mixin.core.block;
 
+import com.google.common.base.Optional;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.item.ItemBlock;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.util.TranslationHelper;
 
 @NonnullByDefault
 @Mixin(Block.class)
 public abstract class MixinBlockType implements BlockType {
+
+    @Shadow
+    private boolean needsRandomTick;
 
     @Shadow(prefix = "shadow$")
     public abstract IBlockState shadow$getDefaultState();
@@ -105,6 +112,22 @@ public abstract class MixinBlockType implements BlockType {
     @Override
     public float getEmittedLight() {
         return 15F / getLightValue();
+    }
+
+    @Override
+    @Overwrite
+    public boolean getTickRandomly() {
+        return this.needsRandomTick;
+    }
+
+    @Override
+    public void setTickRandomly(boolean tickRandomly) {
+        this.needsRandomTick = tickRandomly;
+    }
+
+    @Override
+    public Optional<ItemBlock> getHeldItem() {
+        return Optional.fromNullable((ItemBlock) Item.getItemFromBlock((Block) (Object) this));
     }
 
 }

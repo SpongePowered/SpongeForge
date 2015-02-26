@@ -29,12 +29,15 @@ import net.minecraft.util.StatCollector;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.util.TranslationHelper;
 
 @NonnullByDefault
 @Mixin(Item.class)
+@Implements(@Interface(iface = ItemType.class, prefix = "item$"))
 public abstract class MixinItemType implements ItemType {
 
     @Shadow
@@ -45,6 +48,9 @@ public abstract class MixinItemType implements ItemType {
 
     @Shadow
     private int maxDamage;
+
+    @Shadow
+    private boolean hasSubtypes;
 
     @Override
     public String getId() {
@@ -67,5 +73,9 @@ public abstract class MixinItemType implements ItemType {
     @Override
     public int getMaxDamage() {
         return this.maxDamage;
+    }
+
+    public boolean item$isDamageable() {
+        return this.maxDamage > 0 && !this.hasSubtypes;
     }
 }

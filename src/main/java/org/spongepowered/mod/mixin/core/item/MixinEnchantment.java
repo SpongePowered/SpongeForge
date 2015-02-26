@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.item;
 
+import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.util.ResourceLocation;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemTypes;
@@ -31,16 +32,18 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
-import java.util.Map;
-import java.util.Map.Entry;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @NonnullByDefault
 @Mixin(net.minecraft.enchantment.Enchantment.class)
 public abstract class MixinEnchantment implements Enchantment {
 
+    private String id = "";
+
     @Shadow
-    private static Map<ResourceLocation, net.minecraft.enchantment.Enchantment> field_180307_E;
+    private int weight;
 
     @Shadow
     public abstract int getMinLevel();
@@ -64,14 +67,19 @@ public abstract class MixinEnchantment implements Enchantment {
     @Shadow(remap = false)
     public abstract boolean isAllowedOnBooks();
 
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onConstructed(int id, ResourceLocation resLoc, int weight, EnumEnchantmentType type, CallbackInfo ci) {
+        this.id = resLoc.toString();
+    }
+
     @Override
     public String getId() {
-        for (Entry<ResourceLocation, net.minecraft.enchantment.Enchantment> entry : field_180307_E.entrySet()) {
-            if (entry.getValue().equals(this)) {
-                return entry.getKey().toString();
-            }
-        }
-        return ""; //Should never be reached
+        return this.id;
+    }
+
+    @Override
+    public int getWeight() {
+        return this.weight;
     }
 
     @Override

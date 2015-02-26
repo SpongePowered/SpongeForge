@@ -414,7 +414,6 @@ public abstract class MixinWorld implements World, IMixinWorld {
     public Optional<Entity> getEntity(UUID uuid) {
         World spongeWorld = this;
         if (spongeWorld instanceof WorldServer) {
-            // TODO Should this be done in an override in a WorldServer mixin?
             return Optional.fromNullable((Entity) ((WorldServer) (Object) this).getEntityFromUuid(uuid));
         }
         for (net.minecraft.entity.Entity entity : this.loadedEntityList) {

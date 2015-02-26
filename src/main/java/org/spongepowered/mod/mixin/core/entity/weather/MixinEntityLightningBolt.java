@@ -48,6 +48,11 @@ public abstract class MixinEntityLightningBolt extends EntityWeatherEffect imple
         return this.effect;
     }
 
+    @Override
+    public void setEffect(boolean effect) {
+        this.effect = effect;
+    }
+
     @Inject(method = "onUpdate()V", at = {@At(value = "NEW", args = "class=net.minecraft.util.BlockPos"),
             @At(value = "NEW", args = "class=net.minecraft.util.AxisAlignedBB")}, cancellable = true)
     public void onOnUpdate(CallbackInfo ci) {

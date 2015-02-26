@@ -65,6 +65,8 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     private EntityType entityType;
     private boolean teleporting;
     private net.minecraft.entity.Entity teleportVehicle;
+    private float origWidth;
+    private float origHeight;
 
     @Shadow
     private UUID entityUniqueID;
@@ -123,6 +125,14 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, CallbackInfo ci) {
         this.entityType = ((SpongeGameRegistry) SpongeMod.instance.getGame().getRegistry()).entityClassToTypeMappings.get(this.getClass());
+    }
+
+    @Inject(method = "setSize", at = @At("RETURN"))
+    public void onSetSize(float width, float height, CallbackInfo ci) {
+        if (this.origWidth == 0 || this.origHeight == 0) {
+            this.origWidth = this.width;
+            this.origHeight = this.height;
+        }
     }
 
     @Inject(method = "moveEntity(DDD)V", at = @At("HEAD"), cancellable = true)
@@ -349,8 +359,13 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     @Override
     public float getScale() {
-        // TODO
-        return 0;
+        if (this.origWidth == 0 || this.origHeight == 0) {
+            this.origWidth = this.width;
+            this.origHeight = this.height;
+        }
+        double scaleW = this.width / this.origWidth;
+        double scaleH = this.height / this.origHeight;
+        return (float) (scaleH + scaleW) / 2;
     }
 
     @Override

@@ -493,12 +493,17 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<Rotation> getRotationFromDegree(int degrees) {
-        throw new UnsupportedOperationException(); // TODO
+        for (Rotation rotation : rotationMappings.values()) {
+            if (rotation.getAngle() == degrees) {
+                return Optional.of(rotation);
+            }
+        }
+        return Optional.absent();
     }
 
     @Override
     public List<Rotation> getRotations() {
-        throw new UnsupportedOperationException(); // TODO
+        return ImmutableList.copyOf(rotationMappings.values());
     }
 
     @Override
