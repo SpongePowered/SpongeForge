@@ -183,7 +183,7 @@ compileJava {
         "-AoutRefMapFile=${project.mixinRefMap.getCanonicalPath()}"
     ]
     options.deprecation = true
-    options.encoding = 'utf8'
+    options.encoding = 'UTF-8'
 }
 
 // set the reobf srg late
