@@ -84,6 +84,12 @@ public abstract class MixinArmorStand extends EntityLivingBase {
     @Shadow
     protected abstract void setNoBasePlate(boolean p_175426_1_);
 
+    @Shadow
+    public abstract boolean hasNoGravity();
+
+    @Shadow
+    protected abstract void setNoGravity(boolean p_175425_1_);
+
     public MixinArmorStand(net.minecraft.world.World worldIn) {
         super(worldIn);
     }
@@ -160,5 +166,13 @@ public abstract class MixinArmorStand extends EntityLivingBase {
 
     public void astand$setHasBasePlate(boolean baseplate) {
         this.setNoBasePlate(!baseplate);
+    }
+
+    public boolean astand$hasGravity() {
+        return !this.hasNoGravity();
+    }
+
+    public void astand$setGravity(boolean gravity) {
+        this.setNoGravity(!gravity);
     }
 }

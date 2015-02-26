@@ -45,7 +45,7 @@ public abstract class MixinTileEntity implements TileEntity {
 
     @Override
     public BlockLoc getBlock() {
-        return new BlockWrapper(getWorld(), getPos().getX(), getPos().getY(), getPos().getZ());
+        return new BlockWrapper(getWorld(), getPos());
     }
 
     @Override

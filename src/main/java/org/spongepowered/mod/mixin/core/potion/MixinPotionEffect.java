@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.potion;
 
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.potion.PotionEffect;
@@ -60,8 +61,8 @@ public abstract class MixinPotionEffect implements PotionEffect {
     }
 
     @Override
-    public void apply(Living ent) {
-        // TODO
+    public void apply(Living entity) {
+        ((EntityLivingBase) entity).addPotionEffect((net.minecraft.potion.PotionEffect) (Object) this);
     }
 
     public int potionEffect$getDuration() {

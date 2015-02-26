@@ -22,37 +22,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.block;
 
-import com.google.common.base.Optional;
-import net.minecraft.util.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import org.spongepowered.api.block.BlockLoc;
-import org.spongepowered.api.event.block.BlockEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.World;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.wrapper.BlockWrapper;
+package org.spongepowered.mod.registry;
 
-@NonnullByDefault
-@Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)
-public abstract class MixinEventBlock extends Event implements BlockEvent {
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import net.minecraft.item.Item;
+import net.minecraftforge.oredict.OreDictionary;
+import org.spongepowered.api.GameDictionary;
+import org.spongepowered.api.item.ItemType;
 
-    @Shadow
-    public BlockPos pos;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-    @Shadow
-    public net.minecraft.world.World world;
+public class SpongeGameDictionary implements GameDictionary {
 
-    @Override
-    public BlockLoc getBlock() {
-        return new BlockWrapper((World) this.world, this.pos);
+    public static final GameDictionary instance = new SpongeGameDictionary();
+
+    private SpongeGameDictionary() {
     }
 
     @Override
-    public Optional<Cause> getCause() {
-        return Optional.of(new Cause(null, getBlock(), null));
+    public void register(String key, ItemType type) {
+        OreDictionary.registerOre(key, (Item) type);
+    }
+
+    @Override
+    public Set<ItemType> get(String key) {
+        HashSet<ItemType> items = Sets.newHashSet();
+        for (net.minecraft.item.ItemStack itemStack : OreDictionary.getOres(key)) {
+            items.add((ItemType) itemStack.getItem());
+        }
+        return items;
+    }
+
+    @Override
+    public Map<String, Set<ItemType>> getAllItems() {
+        HashMap<String, Set<ItemType>> allItems = Maps.newHashMap();
+        for (String key : OreDictionary.getOreNames()) {
+            allItems.put(key, this.get(key));
+        }
+        return allItems;
     }
 }

@@ -29,14 +29,11 @@ import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.EnderCrystal;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(EntityEnderCrystal.class)
-@Implements(@Interface(iface = EnderCrystal.class, prefix = "endercrystal$"))
-public abstract class MixinEntityEnderCrystal extends Entity {
+public abstract class MixinEntityEnderCrystal extends Entity implements EnderCrystal {
 
     public MixinEntityEnderCrystal(World worldIn) {
         super(worldIn);
