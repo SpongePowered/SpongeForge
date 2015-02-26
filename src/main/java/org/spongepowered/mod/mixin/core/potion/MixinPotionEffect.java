@@ -60,11 +60,6 @@ public abstract class MixinPotionEffect implements PotionEffect {
         return (PotionEffectType) Potion.potionTypes[getPotionID()];
     }
 
-    @Override
-    public void apply(Living entity) {
-        ((EntityLivingBase) entity).addPotionEffect((net.minecraft.potion.PotionEffect) (Object) this);
-    }
-
     public int potionEffect$getDuration() {
         return this.duration;
     }
