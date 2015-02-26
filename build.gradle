@@ -1,3 +1,19 @@
+// Utility to catch those who have not initialized git submodules
+if (!file("Mixin/build.gradle").exists()) {
+    println "Error locating the Gradle subprojects. " +
+        "You most likely forgot to run 'git submodule update --init'. " +
+        "This usually doesn't happen to people who read the README ;)"
+    exec {
+        commandLine 'git', 'submodule', 'update', '--init', '--recursive'
+    }
+    copy {
+        from 'scripts'
+        include 'precommit'
+        into '.git/hooks'
+    }
+    throw new RuntimeException("Please run your gradle command again.")
+}
+
 // Gradle repositories and dependencies
 buildscript {
     repositories {
