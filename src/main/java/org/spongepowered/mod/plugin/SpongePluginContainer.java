@@ -117,13 +117,14 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
         Class<? extends FMLEvent> eventClass = event.getClass();
         Class<? extends Event> spongeEvent = (Class<? extends Event>) EventRegistry.getAPIClass(eventClass);
         if (this.stateEventHandlers.containsKey(spongeEvent)) {
+            Method method = null;
             try {
                 for (Method m : this.stateEventHandlers.get(spongeEvent)) {
+                    method = m;
                     m.invoke(getMod(), event);
                 }
             } catch (Throwable t) {
-                this.fmlController.errorOccurred(this, t);
-                Throwables.propagateIfPossible(t);
+                SpongeMod.instance.getLogger().error("[Plugin Class: " + this.pluginClassName + "][Handler: " + method.getName(), t);
             }
         }
     }
