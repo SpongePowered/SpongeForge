@@ -122,7 +122,6 @@
         "event.entity.MixinEventEntity",
         "event.entity.MixinEventEntityConstructing",
         "event.entity.MixinEventEntityJoinWorld",
-        "event.entity.item.MixinEntityItem",
         "event.player.MixinEventPlayer",
         "event.player.MixinEventPlayerBreakBlock",
         "event.player.MixinEventPlayerDropItem",
