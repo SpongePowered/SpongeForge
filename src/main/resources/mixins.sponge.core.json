@@ -124,6 +124,7 @@
         "event.entity.MixinEventEntityJoinWorld",
         "event.player.MixinEventPlayer",
         "event.player.MixinEventPlayerBreakBlock",
+        "event.player.MixinEventPlayerDropItem",
         "event.player.MixinEventPlayerChat",
         "event.player.MixinEventPlayerFML",
         "event.player.MixinEventPlayerInteractBlock",
