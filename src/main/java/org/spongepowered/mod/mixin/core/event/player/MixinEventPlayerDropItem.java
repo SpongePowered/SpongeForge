@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.Human;
@@ -41,17 +42,18 @@ import java.util.Collections;
 
 @NonnullByDefault
 @Mixin(ItemTossEvent.class)
-public abstract class MixinEventPlayerDropItem implements PlayerDropItemEvent {
+public abstract class MixinEventPlayerDropItem extends ItemEvent implements PlayerDropItemEvent {
+
+    public MixinEventPlayerDropItem(EntityItem itemEntity) {
+        super(itemEntity);
+    }
 
     @Shadow
     public EntityPlayer player;
 
-    @Shadow
-    public EntityItem entityItem;
-
     @Override
     public Collection<Item> getDroppedItems() {
-        return Collections.nCopies(1, (Item) entityItem);
+        return Collections.nCopies(1, (Item) this.entityItem);
     }
 
     @Override
