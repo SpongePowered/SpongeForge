@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.event.entity.item;
+package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -41,7 +41,7 @@ import java.util.Collections;
 
 @NonnullByDefault
 @Mixin(ItemTossEvent.class)
-public abstract class MixinEventItemToss implements PlayerDropItemEvent {
+public abstract class MixinEventPlayerDropItem implements PlayerDropItemEvent {
 
     @Shadow
     public EntityPlayer player;
