@@ -150,7 +150,6 @@
         "fml.MixinModContainer",
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",
-        "inventory.MixinContainer",
         "item.MixinEnchantment",
         "item.MixinItemBlock",
         "item.MixinItemEnderEye",
