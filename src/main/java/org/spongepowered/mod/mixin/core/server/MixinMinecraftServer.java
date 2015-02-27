@@ -213,6 +213,10 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
         }
     }
 
+    public boolean hasPermission(String permission) {
+        return true;
+    }
+
     @Override
     public void shutdown(Message kickMessage) {
         for (Player player : getOnlinePlayers()) {

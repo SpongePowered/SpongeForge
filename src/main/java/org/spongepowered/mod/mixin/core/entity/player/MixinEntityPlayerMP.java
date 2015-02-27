@@ -190,4 +190,9 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     public PlayerConnection playermp$getConnection() {
         return (PlayerConnection) this.playerNetServerHandler;
     }
+
+    public boolean hasPermission(String permission) {
+        //TODO implement.
+        return true;
+    }
 }
