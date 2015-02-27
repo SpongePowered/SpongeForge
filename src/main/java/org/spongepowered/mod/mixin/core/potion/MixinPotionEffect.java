@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.potion;
 
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.potion.PotionEffect;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

@@ -153,7 +153,7 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
                         (org.spongepowered.api.item.inventory.ItemStack) itemStack, (org.spongepowered.api.entity.Entity) this.caughtEntity, exp);
         byte b0 = 0;
         if (!SpongeMod.instance.getGame().getEventManager().post(event)) {
-            exp = (int) event.getExp();
+            exp = event.getExp();
             if (event.getCaughtEntity().isPresent()) {
                 this.caughtEntity = (Entity) event.getCaughtEntity().get();
 

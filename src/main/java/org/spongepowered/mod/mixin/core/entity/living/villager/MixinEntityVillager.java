@@ -32,7 +32,6 @@ import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.Human;
 import org.spongepowered.api.entity.living.villager.Career;
 import org.spongepowered.api.entity.living.villager.Profession;
-import org.spongepowered.api.item.merchant.Merchant;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;

@@ -29,8 +29,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import org.spongepowered.api.entity.Item;
-import org.spongepowered.api.entity.living.Human;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.living.player.PlayerDropItemEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

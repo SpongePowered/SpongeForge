@@ -124,7 +124,7 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
                     m.invoke(getMod(), event);
                 }
             } catch (Throwable t) {
-                SpongeMod.instance.getLogger().error("[Plugin Class: " + this.pluginClassName + "][Handler: " + method.getName(), t);
+                SpongeMod.instance.getLogger().error("[Plugin Class: " + this.pluginClassName + "][Handler: " + method.getName() + "]", t);
             }
         }
     }
