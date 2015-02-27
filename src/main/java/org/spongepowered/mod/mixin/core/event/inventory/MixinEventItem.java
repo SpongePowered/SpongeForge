@@ -22,51 +22,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.mixin.core.event.inventory;
 
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.item.ItemEvent;
-import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.EntityEvent;
 import org.spongepowered.api.entity.Item;
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.entity.living.player.PlayerDropItemEvent;
+import org.spongepowered.api.event.inventory.ItemEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.Collection;
-import java.util.Collections;
-
 @NonnullByDefault
-@Mixin(value = ItemTossEvent.class, remap = false)
-public abstract class MixinEventPlayerDropItem extends ItemEvent implements PlayerDropItemEvent {
-
-    public MixinEventPlayerDropItem(EntityItem itemEntity) {
-        super(itemEntity);
-    }
+@Mixin(net.minecraftforge.event.entity.item.ItemEvent.class)
+public abstract class MixinEventItem extends EntityEvent implements ItemEvent {
 
     @Shadow
-    public EntityPlayer player;
+    public EntityItem entityItem;
 
-    @Override
-    public Collection<Item> getDroppedItems() {
-        return Collections.nCopies(1, (Item) this.entityItem);
+    public MixinEventItem(net.minecraft.entity.Entity entity) {
+        super(entity);
     }
 
     @Override
-    public Player getPlayer() {
-        return (Player) this.player;
+    public Item getItem() {
+        return (Item) this.entityItem;
     }
 
     @Override
-    public Player getHuman() {
-        return (Player) this.player;
+    public Item getEntity() {
+        return (Item) this.entityItem;
     }
-
-    @Override
-    public Player getLiving() {
-        return (Player) this.player;
-    }
-
 }
