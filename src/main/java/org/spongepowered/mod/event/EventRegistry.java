@@ -26,6 +26,7 @@ package org.spongepowered.mod.event;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -38,6 +39,7 @@ import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.event.entity.living.player.PlayerJoinEvent;
 import org.spongepowered.api.event.entity.living.player.PlayerQuitEvent;
+import org.spongepowered.api.event.state.ConstructionEvent;
 import org.spongepowered.api.event.state.InitializationEvent;
 import org.spongepowered.api.event.state.LoadCompleteEvent;
 import org.spongepowered.api.event.state.PostInitializationEvent;
@@ -57,6 +59,7 @@ public class EventRegistry {
 
     static {
         // FML state events
+        register(FMLConstructionEvent.class, ConstructionEvent.class);
         register(FMLPreInitializationEvent.class, PreInitializationEvent.class);
         register(FMLInitializationEvent.class, InitializationEvent.class);
         register(FMLPostInitializationEvent.class, PostInitializationEvent.class);
