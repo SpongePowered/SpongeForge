@@ -191,6 +191,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         return (PlayerConnection) this.playerNetServerHandler;
     }
 
+    @Override
     public boolean hasPermission(String permission) {
         //TODO implement.
         return true;

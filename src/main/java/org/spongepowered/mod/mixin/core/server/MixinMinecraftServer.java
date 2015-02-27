@@ -213,6 +213,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
         }
     }
 
+    @Override
     public boolean hasPermission(String permission) {
         return true;
     }
