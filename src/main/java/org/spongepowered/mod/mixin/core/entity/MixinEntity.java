@@ -84,6 +84,15 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     public double posZ;
 
     @Shadow
+    public double motionX;
+
+    @Shadow
+    public double motionY;
+
+    @Shadow
+    public double motionZ;
+
+    @Shadow
     public float rotationYaw;
 
     @Shadow
@@ -294,6 +303,18 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @Override
     public void setRotation(Vector3f rotation) {
         shadow$setRotation(rotation.getX(), rotation.getY());
+    }
+
+    @Override
+    public Vector3d getVelocity() {
+        return new Vector3d(this.motionX, this.motionY, this.motionZ);
+    }
+
+    @Override
+    public void setVelocity(Vector3d velocity) {
+        this.motionX = velocity.getX();
+        this.motionY = velocity.getY();
+        this.motionZ = velocity.getZ();
     }
 
     @Override
