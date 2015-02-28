@@ -36,6 +36,7 @@
         "block.data.MixinTileEntitySkull",
         "block.meta.MixinEnumBannerPattern",
         "command.MixinCommandBlockLogic",
+        "command.MixinCommandExecuteAtSender",
         "entity.MixinEntity",
         "entity.MixinArmorEquipable",
         "entity.MixinEntityEnderCrystal",
