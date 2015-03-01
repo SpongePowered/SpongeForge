@@ -78,6 +78,8 @@ public abstract class MixinTileEntityBanner extends TileEntity {
     }
 
     private void updatePatterns() {
+        if(this.patterns == null) //TODO Find out why this is required.
+            patterns = Lists.newArrayList();
         this.patterns.clear();
         if (this.field_175118_f != null) {
             GameRegistry registry = SpongeMod.instance.getGame().getRegistry();
