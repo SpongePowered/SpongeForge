@@ -41,14 +41,14 @@ public class SpongeEntityType implements EntityType {
     public boolean sendsVelocityUpdates;
 
     public SpongeEntityType(int id, String name, Class<? extends Entity> clazz) {
-        this(id, name, "minecraft", clazz);
+        this(id, name.toLowerCase(), "minecraft", clazz);
     }
 
     public SpongeEntityType(int id, String name, String modId, Class<? extends Entity> clazz) {
         this.entityTypeId = id;
-        this.entityName = name;
+        this.entityName = name.toLowerCase();
         this.entityClass = clazz;
-        this.modId = modId;
+        this.modId = modId.toLowerCase();
     }
 
     public SpongeEntityType(EntityRegistration entityRegistration) {
