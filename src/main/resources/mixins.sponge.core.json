@@ -1,4 +1,6 @@
 {
+    "required": true,
+    "minVersion": "0.2",
     "package": "org.spongepowered.mod.mixin.core",
     "plugin" : "org.spongepowered.mod.mixin.plugin.CoreMixinPlugin",
     "refmap": "mixins.sponge.refmap.json",
