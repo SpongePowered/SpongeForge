@@ -114,7 +114,7 @@ public abstract class MixinItemStack implements ItemStack {
             for (int i = 0; i < nbttaglist.tagCount(); ++i) {
                 short short1 = nbttaglist.getCompoundTagAt(i).getShort("id");
                 short short2 = nbttaglist.getCompoundTagAt(i).getShort("lvl");
-                enchantments.put((Enchantment) net.minecraft.enchantment.Enchantment.func_180306_c(short1), (int) short2);
+                enchantments.put((Enchantment) net.minecraft.enchantment.Enchantment.getEnchantmentById(short1), (int) short2);
             }
         }
         return enchantments;

@@ -48,16 +48,16 @@ public abstract class MixinMerchantRecipe implements TradeOffer {
     public abstract net.minecraft.item.ItemStack getItemToSell();
 
     @Shadow
-    public abstract int func_180321_e();
+    public abstract int getToolUses();
 
     @Shadow
-    public abstract int func_180320_f();
+    public abstract int getMaxTradeUses();
 
     @Shadow
     public abstract boolean isRecipeDisabled();
 
     @Shadow
-    public abstract boolean func_180322_j();
+    public abstract boolean getRewardsExp();
 
     @Override
     public ItemStack getFirstBuyingItem() {
@@ -81,12 +81,12 @@ public abstract class MixinMerchantRecipe implements TradeOffer {
 
     @Override
     public int getUses() {
-        return func_180321_e();
+        return getToolUses();
     }
 
     @Override
     public int getMaxUses() {
-        return func_180320_f();
+        return getMaxTradeUses();
     }
 
     @Override
@@ -96,7 +96,7 @@ public abstract class MixinMerchantRecipe implements TradeOffer {
 
     @Override
     public boolean doesGrantExperience() {
-        return func_180322_j();
+        return getRewardsExp();
     }
 
 }

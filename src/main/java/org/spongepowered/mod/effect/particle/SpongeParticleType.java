@@ -46,7 +46,7 @@ public class SpongeParticleType implements ParticleType {
 
     @Override
     public String getName() {
-        return this.type.func_179346_b();
+        return this.type.getParticleName();
     }
 
     @Override

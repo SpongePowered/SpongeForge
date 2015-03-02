@@ -108,7 +108,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public Message playermp$getDisplayName() {
-        return new SpongeMessageText.SpongeMessageTextBuilder(getName()).build();
+        return new SpongeMessageText.SpongeMessageTextBuilder(getGameProfile().getName()).build();
     }
 
     public boolean playermp$getAllowFlight() {

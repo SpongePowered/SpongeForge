@@ -108,11 +108,11 @@ public abstract class MixinWorld implements World, IMixinWorld {
     public abstract net.minecraft.world.border.WorldBorder shadow$getWorldBorder();
 
     @Shadow
-    public abstract boolean spawnEntityInWorld(net.minecraft.entity.Entity p_72838_1_);
+    public abstract boolean spawnEntityInWorld(net.minecraft.entity.Entity entityIn);
 
     @Shadow
-    public abstract List<net.minecraft.entity.Entity> func_175644_a(Class<net.minecraft.entity.Entity> p_175644_1_,
-            Predicate<net.minecraft.entity.Entity> p_175644_2_);
+    public abstract List<net.minecraft.entity.Entity> getEntities(Class<net.minecraft.entity.Entity> entityType,
+            Predicate<net.minecraft.entity.Entity> filter);
 
     @Shadow
     public abstract void playSoundEffect(double x, double y, double z, String soundName, float volume, float pitch);
@@ -221,7 +221,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Entity> getEntities(Predicate<Entity> filter) {
-        return (Collection<Entity>) (Object) this.func_175644_a(net.minecraft.entity.Entity.class,
+        return (Collection<Entity>) (Object) this.getEntities(net.minecraft.entity.Entity.class,
                 (Predicate<net.minecraft.entity.Entity>) (Object) filter);
     }
 
@@ -319,8 +319,8 @@ public abstract class MixinWorld implements World, IMixinWorld {
     public long getRemainingDuration() {
         Weather weather = getWeather();
         if (weather.equals(Weathers.CLEAR)) {
-            if (this.worldInfo.func_176133_A() > 0) {
-                return this.worldInfo.func_176133_A();
+            if (this.worldInfo.getCleanWeatherTime() > 0) {
+                return this.worldInfo.getCleanWeatherTime();
             } else {
                 return Math.min(this.worldInfo.getThunderTime(), this.worldInfo.getRainTime());
             }
@@ -355,19 +355,19 @@ public abstract class MixinWorld implements World, IMixinWorld {
     @Override
     public void forecast(Weather weather, long duration) {
         if (weather.equals(Weathers.CLEAR)) {
-            this.worldInfo.func_176142_i((int) duration);
+            this.worldInfo.setCleanWeatherTime((int) duration);
             this.worldInfo.setRainTime(0);
             this.worldInfo.setThunderTime(0);
             this.worldInfo.setRaining(false);
             this.worldInfo.setThundering(false);
         } else if (weather.equals(Weathers.RAIN)) {
-            this.worldInfo.func_176142_i(0);
+            this.worldInfo.setCleanWeatherTime(0);
             this.worldInfo.setRainTime((int) duration);
             this.worldInfo.setThunderTime((int) duration);
             this.worldInfo.setRaining(true);
             this.worldInfo.setThundering(false);
         } else if (weather.equals(Weathers.THUNDER_STORM)) {
-            this.worldInfo.func_176142_i(0);
+            this.worldInfo.setCleanWeatherTime(0);
             this.worldInfo.setRainTime((int) duration);
             this.worldInfo.setThunderTime((int) duration);
             this.worldInfo.setRaining(true);

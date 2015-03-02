@@ -67,7 +67,7 @@ public final class VecHelper {
     // === Rotations --> Flow Vector ===
 
     public static Vector3f toVector(Rotations rotation) {
-        return new Vector3f(rotation.func_179415_b(), rotation.func_179416_c(), rotation.func_179413_d());
+        return new Vector3f(rotation.getX(), rotation.getY(), rotation.getZ());
     }
 
     // === MC Vec3i --> Flow Vector3i ===

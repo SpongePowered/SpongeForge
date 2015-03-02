@@ -42,22 +42,22 @@ import org.spongepowered.mod.entity.SpongeEntityMeta;
 @Implements(@Interface(iface = Rabbit.class, prefix = "rabbit$"))
 public abstract class MixinEntityRabbit extends EntityAnimal {
 
-    @Shadow
-    public abstract int func_175531_cl(); // getRabbitType
+    @Shadow(prefix = "shadow$")
+    public abstract int shadow$getRabbitType();
 
-    @Shadow
-    public abstract void func_175529_r(int type); // setRabbitType
+    @Shadow(prefix = "shadow$")
+    public abstract void shadow$setRabbitType(int type);
 
     public MixinEntityRabbit(World worldIn) {
         super(worldIn);
     }
 
     public RabbitType getRabbitType() {
-        return SpongeEntityConstants.RABBIT_IDMAP.get(this.func_175531_cl());
+        return SpongeEntityConstants.RABBIT_IDMAP.get(this.shadow$getRabbitType());
     }
 
     public void setRabbitType(RabbitType type) {
-        this.func_175529_r(((SpongeEntityMeta) type).type);
+        this.shadow$setRabbitType(((SpongeEntityMeta) type).type);
     }
 
 }

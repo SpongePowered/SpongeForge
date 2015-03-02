@@ -73,7 +73,7 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
     private int ticksCatchable;
 
     @Shadow
-    public abstract ItemStack func_146033_f();
+    public abstract ItemStack getFishingResult();
 
     @Nullable
     public ProjectileSource projectileSource;
@@ -144,7 +144,7 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
         ItemStack itemStack = null;
         int exp = 0;
         if (this.ticksCatchable > 0) {
-            itemStack = this.func_146033_f();
+            itemStack = this.getFishingResult();
             exp = this.rand.nextInt(6) + 1;
         }
 

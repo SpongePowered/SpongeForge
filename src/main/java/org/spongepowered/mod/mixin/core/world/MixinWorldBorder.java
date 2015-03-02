@@ -66,11 +66,11 @@ public abstract class MixinWorldBorder implements WorldBorder {
     @Shadow
     public abstract void setDamageBuffer(double buffer);
 
-    @Shadow
-    public abstract double func_177727_n(); // getDamageAmount
+    @Shadow(prefix = "shadow$")
+    public abstract double shadow$getDamageAmount();
 
-    @Shadow
-    public abstract void func_177744_c(double amount); // setDamageAmount
+    @Shadow(prefix = "shadow$")
+    public abstract void shadow$setDamageAmount(double amount);
 
     @Shadow
     public abstract int shadow$getWarningTime();
@@ -186,10 +186,10 @@ public abstract class MixinWorldBorder implements WorldBorder {
     }
 
     public int border$getDamageAmount() {
-        return ((int) func_177727_n());
+        return ((int) shadow$getDamageAmount());
     }
 
     public void border$setDamageAmount(int damage) {
-        func_177744_c(damage);
+        shadow$setDamageAmount(damage);
     }
 }

@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
 public abstract class MixinEntityMinecartCommandBlock extends EntityMinecart implements MinecartCommandBlock {
 
     @Shadow
-    private CommandBlockLogic field_145824_a;
+    private CommandBlockLogic commandBlockLogic;
 
     public MixinEntityMinecartCommandBlock(World worldIn) {
         super(worldIn);
@@ -49,17 +49,17 @@ public abstract class MixinEntityMinecartCommandBlock extends EntityMinecart imp
 
     @Override
     public String getCommand() {
-        return this.field_145824_a.getName();
+        return this.commandBlockLogic.getCommandSenderName();
     }
 
     @Override
     public void setCommand(@Nonnull String command) {
-        this.field_145824_a.setCommand(command);
+        this.commandBlockLogic.setCommand(command);
     }
 
     @Override
     public String getCommandName() {
-        return this.field_145824_a.getCustomName();
+        return this.commandBlockLogic.getCustomName();
     }
 
     @Override
@@ -67,7 +67,7 @@ public abstract class MixinEntityMinecartCommandBlock extends EntityMinecart imp
         if (name == null) {
             name = "@";
         }
-        this.field_145824_a.func_145754_b(name);
+        this.commandBlockLogic.setName(name);
     }
 
 }

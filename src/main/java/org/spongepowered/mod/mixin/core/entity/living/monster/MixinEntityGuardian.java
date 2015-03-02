@@ -40,7 +40,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public abstract class MixinEntityGuardian extends EntityMob {
 
     @Shadow
-    public abstract void func_175467_a(boolean elder); // setElder
+    public abstract void setElder(boolean elder);
 
     public MixinEntityGuardian(World worldIn) {
         super(worldIn);
@@ -51,6 +51,6 @@ public abstract class MixinEntityGuardian extends EntityMob {
     }
 
     public void guardian$setElder(boolean elder) {
-        this.func_175467_a(elder);
+        this.setElder(elder);
     }
 }

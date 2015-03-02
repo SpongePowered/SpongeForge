@@ -45,13 +45,13 @@ public abstract class MixinEntityFallingBlock extends Entity implements FallingB
     public int fallHurtMax;
 
     @Shadow
-    public IBlockState field_175132_d; // fallTile
+    public IBlockState fallTile;
 
     @Shadow
     public boolean shouldDropItem;
 
     @Shadow
-    public boolean field_145808_f; // canSetAsBlock
+    public boolean canSetAsBlock;
 
     public MixinEntityFallingBlock(World worldIn) {
         super(worldIn);
@@ -79,22 +79,22 @@ public abstract class MixinEntityFallingBlock extends Entity implements FallingB
 
     @Override
     public BlockState getBlockState() {
-        return (BlockState) this.field_175132_d.getBlock().getBlockState();
+        return (BlockState) this.fallTile.getBlock().getBlockState();
     }
 
     @Override
     public void setBlockState(BlockState blockState) {
-        this.field_175132_d = (net.minecraft.block.state.IBlockState) blockState;
+        this.fallTile = (net.minecraft.block.state.IBlockState) blockState;
     }
 
     @Override
     public boolean getCanPlaceAsBlock() {
-        return this.field_145808_f;
+        return this.canSetAsBlock;
     }
 
     @Override
     public void setCanPlaceAsBlock(boolean placeable) {
-        this.field_145808_f = placeable;
+        this.canSetAsBlock = placeable;
     }
 
     @Override

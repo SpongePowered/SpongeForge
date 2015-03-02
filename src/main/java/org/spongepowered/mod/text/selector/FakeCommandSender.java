@@ -51,7 +51,7 @@ class FakeCommandSender implements ICommandSender {
     }
 
     @Override
-    public String getName() {
+    public String getCommandSenderName() {
         return null;
     }
 
@@ -96,7 +96,7 @@ class FakeCommandSender implements ICommandSender {
     }
 
     @Override
-    public void func_174794_a(Type p_174794_1_, int p_174794_2_) {
+    public void setCommandStat(Type type, int amount) {
     }
 
 }

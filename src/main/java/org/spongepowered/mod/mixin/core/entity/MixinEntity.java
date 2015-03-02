@@ -258,7 +258,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
                     relativeFlags.add(EnumFlags.X_ROT);
                 }
 
-                ((EntityPlayerMP) (Entity) this).playerNetServerHandler.func_175089_a(location.getPosition().getX(), location.getPosition().getY(),
+                ((EntityPlayerMP) (Entity) this).playerNetServerHandler.setPlayerLocation(location.getPosition().getX(), location.getPosition().getY(),
                         location.getPosition().getZ(), rotation.getX(), rotation.getY(), relativeFlags);
                 return true;
             } else {
