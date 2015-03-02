@@ -114,7 +114,7 @@ public abstract class MixinChunk implements Chunk {
         }
 
         if (this.worldObj.provider.canRespawnHere() && DimensionManager.shouldLoadSpawn(this.worldObj.provider.getDimensionId())) {
-            if (this.worldObj.chunkExists(this.xPosition, this.zPosition)) {
+            if (this.worldObj.isSpawnChunk(this.xPosition, this.zPosition)) {
                 return false;
             }
         }

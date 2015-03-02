@@ -48,17 +48,17 @@ public abstract class MixinContainer {
 
     @SuppressWarnings("unchecked")
     @Overwrite
-    public void addCraftingToCrafters(ICrafting p_75132_1_) {
+    public void onCraftGuiOpened(ICrafting listener) {
         Container container = (Container) (Object) this;
-        if (this.crafters.contains(p_75132_1_)) {
+        if (this.crafters.contains(listener)) {
             // Sponge start - As we do not create a new player object on respawn, we need to update the client with changes if listener already exists
             //throw new IllegalArgumentException("Listener already listening");
-            p_75132_1_.sendContainerAndContentsToPlayer(container, this.getInventory());
+            listener.updateCraftingInventory(container, this.getInventory());
             container.detectAndSendChanges();
             // Sponge end
         } else {
-            this.crafters.add(p_75132_1_);
-            p_75132_1_.sendContainerAndContentsToPlayer(container, this.getInventory());
+            this.crafters.add(listener);
+            listener.updateCraftingInventory(container, this.getInventory());
             container.detectAndSendChanges();
         }
     }

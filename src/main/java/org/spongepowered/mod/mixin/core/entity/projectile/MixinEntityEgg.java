@@ -29,13 +29,16 @@ import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.projectile.Egg;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @NonnullByDefault
 @Mixin(EntityEgg.class)
-public abstract class MixinEntityEgg extends EntityThrowable implements Egg {
+@Implements(@Interface(iface = org.spongepowered.api.entity.projectile.Egg.class, prefix = "egg$"))
+public abstract class MixinEntityEgg extends EntityThrowable {
 
     public double damageAmount;
 
@@ -49,13 +52,11 @@ public abstract class MixinEntityEgg extends EntityThrowable implements Egg {
         return (float) this.damageAmount;
     }
 
-    @Override
-    public double getDamage() {
+    public double egg$getDamage() {
         return this.damageAmount;
     }
 
-    @Override
-    public void setDamage(double damage) {
+    public void egg$setDamage(double damage) {
         this.damageAmount = damage;
     }
 }

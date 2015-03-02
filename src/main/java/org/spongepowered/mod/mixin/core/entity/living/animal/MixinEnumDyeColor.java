@@ -36,11 +36,11 @@ import org.spongepowered.asm.mixin.Shadow;
 public class MixinEnumDyeColor implements DyeColor {
 
     @Shadow
-    private String field_176786_u;
+    private String name;
 
     @Override
     public String getName() {
-        return this.field_176786_u;
+        return this.name;
     }
 
     @Override

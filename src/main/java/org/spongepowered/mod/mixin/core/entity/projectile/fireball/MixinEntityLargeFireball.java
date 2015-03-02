@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 public abstract class MixinEntityLargeFireball extends EntityFireball implements LargeFireball {
 
     @Shadow
-    public int field_92057_e = 1;
+    public int explosionPower = 1;
 
     private float damage = 6.0f;
 
@@ -64,11 +64,11 @@ public abstract class MixinEntityLargeFireball extends EntityFireball implements
 
     @Override
     public int getExplosionPower() {
-        return this.field_92057_e;
+        return this.explosionPower;
     }
 
     @Override
     public void setExplosionPower(int explosionPower) {
-        this.field_92057_e = explosionPower;
+        this.explosionPower = explosionPower;
     }
 }

@@ -41,7 +41,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public abstract class MixinEntityZombie extends EntityMob {
 
     @Shadow
-    private static IAttribute field_110186_bp;
+    private static IAttribute reinforcementChance;
 
     @Shadow
     public abstract boolean isVillager();
@@ -53,7 +53,7 @@ public abstract class MixinEntityZombie extends EntityMob {
     public abstract void setChild(boolean childZombie);
 
     @Shadow
-    public abstract void func_146071_k(boolean isChild);
+    public abstract void setChildSize(boolean isChild);
 
     public MixinEntityZombie(World worldIn) {
         super(worldIn);
@@ -84,14 +84,14 @@ public abstract class MixinEntityZombie extends EntityMob {
     }
 
     public boolean zombie$canBreed() {
-        return this.getEntityAttribute(field_110186_bp).getAttributeValue() > 0;
+        return this.getEntityAttribute(reinforcementChance).getAttributeValue() > 0;
     }
 
     public void zombie$setBreeding(boolean breeding) {
-        this.getEntityAttribute(field_110186_bp).setBaseValue(breeding ? this.rand.nextDouble() * 0.10000000149011612D : 0);
+        this.getEntityAttribute(reinforcementChance).setBaseValue(breeding ? this.rand.nextDouble() * 0.10000000149011612D : 0);
     }
 
     public void zombie$setScaleForAge() {
-        this.func_146071_k(this.isChild());
+        this.setChildSize(this.isChild());
     }
 }

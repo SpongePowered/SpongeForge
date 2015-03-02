@@ -28,13 +28,16 @@ import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.projectile.Snowball;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.projectile.EntitySnowball.class)
-public abstract class MixinEntitySnowball extends EntityThrowable implements Snowball {
+@Implements(@Interface(iface = Snowball.class, prefix = "snowball$"))
+public abstract class MixinEntitySnowball extends EntityThrowable{
 
     public MixinEntitySnowball(World worldIn) {
         super(worldIn);
@@ -49,13 +52,11 @@ public abstract class MixinEntitySnowball extends EntityThrowable implements Sno
         return this.damageSet ? (float) this.damageAmount : damage;
     }
 
-    @Override
-    public double getDamage() {
+    public double snowball$getDamage() {
         return this.damageAmount;
     }
 
-    @Override
-    public void setDamage(double damage) {
+    public void snowball$setDamage(double damage) {
         this.damageSet = true;
         this.damageAmount = damage;
     }

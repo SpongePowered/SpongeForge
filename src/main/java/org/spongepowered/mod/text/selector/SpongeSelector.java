@@ -66,7 +66,7 @@ public class SpongeSelector implements Selector {
     @Override
     public List<Entity> resolve(Location location) throws IllegalArgumentException {
         checkArgument(!this.requiresLocation || location != null);
-        return PlayerSelector.func_179656_b(new FakeCommandSender(location), this.asString(), net.minecraft.entity.Entity.class);
+        return PlayerSelector.matchEntities(new FakeCommandSender(location), this.asString(), net.minecraft.entity.Entity.class);
     }
 
     @Override

@@ -31,6 +31,8 @@ import org.spongepowered.api.entity.projectile.ThrownPotion;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.potion.PotionEffect;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -38,7 +40,8 @@ import java.util.List;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.projectile.EntityPotion.class)
-public abstract class MixinEntityPotion extends EntityThrowable implements ThrownPotion {
+@Implements(@Interface(iface = ThrownPotion.class, prefix = "potion$"))
+public abstract class MixinEntityPotion extends EntityThrowable{
 
     public MixinEntityPotion(World worldIn) {
         super(worldIn);
@@ -47,19 +50,16 @@ public abstract class MixinEntityPotion extends EntityThrowable implements Throw
     @Shadow
     private net.minecraft.item.ItemStack potionDamage;
 
-    @Override
-    public ItemStack getItem() {
+    public ItemStack potion$getItem() {
         return (ItemStack) this.potionDamage;
     }
 
-    @Override
-    public void setItem(ItemStack item) {
+    public void potion$setItem(ItemStack item) {
         this.potionDamage = (net.minecraft.item.ItemStack) item;
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public List<PotionEffect> getPotionEffects() {
+    public List<PotionEffect> potion$getPotionEffects() {
         return Items.potionitem.getEffects(this.potionDamage);
     }
 

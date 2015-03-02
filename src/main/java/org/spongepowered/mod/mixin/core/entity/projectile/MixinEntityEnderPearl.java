@@ -30,13 +30,16 @@ import net.minecraft.world.World;
 import org.spongepowered.api.entity.projectile.EnderPearl;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @NonnullByDefault
 @Mixin(EntityEnderPearl.class)
-public abstract class MixinEntityEnderPearl extends EntityThrowable implements EnderPearl {
+@Implements(@Interface(iface = EnderPearl.class, prefix = "enderpearl$"))
+public abstract class MixinEntityEnderPearl extends EntityThrowable {
 
     public double damageAmount;
 
@@ -52,13 +55,11 @@ public abstract class MixinEntityEnderPearl extends EntityThrowable implements E
         return (float) this.damageAmount;
     }
 
-    @Override
-    public double getDamage() {
+    public double enderpearl$getDamage() {
         return this.damageAmount;
     }
 
-    @Override
-    public void setDamage(double damage) {
+    public void enderpearl$setDamage(double damage) {
         this.damageAmount = damage;
     }
 }

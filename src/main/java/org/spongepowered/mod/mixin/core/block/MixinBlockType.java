@@ -57,7 +57,7 @@ public abstract class MixinBlockType implements BlockType {
     public abstract String shadow$getUnlocalizedName();
 
     @Shadow
-    public abstract boolean isSolidFullCube();
+    public abstract boolean isFullCube();
 
     @Shadow
     public abstract boolean getEnableStats();
@@ -96,7 +96,7 @@ public abstract class MixinBlockType implements BlockType {
 
     @Override
     public boolean isSolidCube() {
-        return isSolidFullCube();
+        return isFullCube();
     }
 
     @Override

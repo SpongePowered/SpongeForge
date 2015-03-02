@@ -62,12 +62,12 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart {
 
     // this method overwrites the vanilla accessor for maximum speed
     @Overwrite
-    public double func_174898_m() {
+    public double getMaximumSpeed() {
         return this.maxSpeed;
     }
 
     // this method overwrites vanilla behavior to allow for a custom deceleration rate on all three axes when airborne
-    @Inject(method = "func_180459_n()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.onGround:Z", ordinal = 2))
+    @Inject(method = "moveDerailedMinecart()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.onGround:Z", ordinal = 2))
     public void implementCustomAirborneDeceleration(CallbackInfo ci) {
         if (!this.isOnGround()) {
             this.motionX /= this.getDragAir();
@@ -80,7 +80,7 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart {
     }
 
     // this method overwrites vanilla behavior to allow for a custom deceleration rate when derailed
-    @Inject(method = "func_180459_n()V", at = @At(value = "INVOKE", target = "net.minecraft.entity.Entity.moveEntity(DDD)V"))
+    @Inject(method = "moveDerailedMinecart()V", at = @At(value = "INVOKE", target = "net.minecraft.entity.Entity.moveEntity(DDD)V"))
     public void implementCustomDerailedDeceleration(CallbackInfo ci) {
         if (this.isOnGround()) {
             this.motionX /= 0.5D;

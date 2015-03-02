@@ -169,7 +169,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
 
     @Override
     public Optional<Player> getPlayer(UUID uniqueId) {
-        return Optional.fromNullable((Player) getConfigurationManager().func_177451_a(uniqueId));
+        return Optional.fromNullable((Player) getConfigurationManager().getPlayerByUUID(uniqueId));
     }
 
     @Override

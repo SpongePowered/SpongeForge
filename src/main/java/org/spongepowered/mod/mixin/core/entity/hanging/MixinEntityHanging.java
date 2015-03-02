@@ -40,7 +40,7 @@ import org.spongepowered.mod.registry.SpongeGameRegistry;
 public abstract class MixinEntityHanging extends Entity implements Hanging {
 
     @Shadow
-    public EnumFacing field_174860_b;
+    public EnumFacing facingDirection;
 
     @Shadow
     private int tickCounter1;
@@ -79,13 +79,13 @@ public abstract class MixinEntityHanging extends Entity implements Hanging {
 
     @Override
     public Direction getHangingDirection() {
-        return SpongeGameRegistry.directionMap.inverse().get(this.field_174860_b);
+        return SpongeGameRegistry.directionMap.inverse().get(this.facingDirection);
     }
 
     @Override
     public void setHangingDirection(Direction direction, boolean forced) {
         this.ignorePhysics = forced;
-        this.field_174860_b =
+        this.facingDirection =
                 SpongeGameRegistry.directionMap.get(direction) == null ? EnumFacing.NORTH : SpongeGameRegistry.directionMap.get(direction);
     }
 }

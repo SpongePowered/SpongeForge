@@ -61,11 +61,11 @@ public abstract class MixinTileEntityCommandBlock extends TileEntity {
     }
 
     public boolean command$doesTrackOutput() {
-        return getCommandBlockLogic().func_175571_m();
+        return getCommandBlockLogic().shouldTrackOutput();
     }
 
     public void command$shouldTrackOutput(boolean track) {
-        getCommandBlockLogic().func_175573_a(track);
+        getCommandBlockLogic().setTrackOutput(track);
     }
 
     public Optional<Message> command$getLastOutput() {
@@ -73,7 +73,7 @@ public abstract class MixinTileEntityCommandBlock extends TileEntity {
     }
 
     public void command$setLastOutput(Message message) {
-        getCommandBlockLogic().func_145750_b(((SpongeMessage) message).getHandle());
+        getCommandBlockLogic().setLastOutput(((SpongeMessage) message).getHandle());
     }
 
     void command$execute() {

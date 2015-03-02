@@ -28,11 +28,14 @@ import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.projectile.ThrownExpBottle;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.item.EntityExpBottle.class)
-public abstract class MixinEntityExpBottle extends EntityThrowable implements ThrownExpBottle {
+@Implements(@Interface(iface = ThrownExpBottle.class, prefix = "thrownexp$"))
+public abstract class MixinEntityExpBottle extends EntityThrowable{
 
     public MixinEntityExpBottle(World worldIn) {
         super(worldIn);
