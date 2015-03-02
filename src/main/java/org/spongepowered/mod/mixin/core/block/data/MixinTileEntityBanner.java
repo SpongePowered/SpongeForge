@@ -55,10 +55,10 @@ public abstract class MixinTileEntityBanner extends TileEntity {
     @Shadow
     private int baseColor;
 
-    @Shadow(prefix = "shadow$")
-    private NBTTagList shadow$patterns;
+    @Shadow
+    private NBTTagList patterns;
 
-    private List<PatternLayer> patterns = Lists.newArrayList();
+    private List<PatternLayer> patternLayers = Lists.newArrayList();
 
     @Inject(method = "setItemValues(Lnet/minecraft/item/ItemStack;)V", at = @At("RETURN"))
     private void onSetItemValues(ItemStack stack, CallbackInfo ci) {
@@ -78,14 +78,12 @@ public abstract class MixinTileEntityBanner extends TileEntity {
     }
 
     private void updatePatterns() {
-        if(this.patterns == null) //TODO Find out why this is required.
-            patterns = Lists.newArrayList();
-        this.patterns.clear();
-        if (this.shadow$patterns != null) {
+        this.patternLayers.clear();
+        if (this.patterns != null) {
             GameRegistry registry = SpongeMod.instance.getGame().getRegistry();
-            for (int i = 0; i < this.shadow$patterns.tagCount(); i++) {
-                NBTTagCompound tagCompound = this.shadow$patterns.getCompoundTagAt(i);
-                this.patterns.add(new SpongePatternLayer(registry.getBannerPatternShapeById(tagCompound.getString("Pattern")).get(),
+            for (int i = 0; i < this.patterns.tagCount(); i++) {
+                NBTTagCompound tagCompound = this.patterns.getCompoundTagAt(i);
+                this.patternLayers.add(new SpongePatternLayer(registry.getBannerPatternShapeById(tagCompound.getString("Pattern")).get(),
                         registry.getDye(EnumDyeColor.byDyeDamage(tagCompound.getInteger("Color")).getName()).get()));
             }
         }
@@ -93,7 +91,7 @@ public abstract class MixinTileEntityBanner extends TileEntity {
     }
 
     public DyeColor banner$getBaseColor() {
-        return DyeColor.class.cast(EnumDyeColor.byDyeDamage(this.baseColor));
+        return (DyeColor) (Object) EnumDyeColor.byDyeDamage(this.baseColor);
     }
 
     public void banner$setBaseColor(DyeColor color) {
@@ -102,14 +100,14 @@ public abstract class MixinTileEntityBanner extends TileEntity {
     }
 
     public List<PatternLayer> banner$getPatternList() {
-        return this.patterns;
+        return this.patternLayers;
     }
 
     public void banner$clearPattern() {
-        for (int i = this.shadow$patterns.tagCount() - 1; i >= 0; i--) {
-            this.shadow$patterns.removeTag(i);
+        for (int i = this.patterns.tagCount() - 1; i >= 0; i--) {
+            this.patterns.removeTag(i);
         }
-        this.patterns.clear();
+        this.patternLayers.clear();
         this.markDirtyAndUpdate();
     }
 
@@ -121,7 +119,7 @@ public abstract class MixinTileEntityBanner extends TileEntity {
         NBTTagCompound nbtPattern = new NBTTagCompound();
         nbtPattern.setInteger("Color", EnumDyeColor.valueOf(color.getName().toUpperCase()).getDyeDamage());
         nbtPattern.setString("Pattern", patternShape.getId());
-        this.shadow$patterns.appendTag(nbtPattern);
+        this.patterns.appendTag(nbtPattern);
         this.markDirtyAndUpdate();
     }
 

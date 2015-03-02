@@ -33,8 +33,6 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 
-import java.lang.reflect.Field;
-
 public class SpongeTradeOfferBuilder implements TradeOfferBuilder {
 
     private ItemStack firstItem;
@@ -43,16 +41,6 @@ public class SpongeTradeOfferBuilder implements TradeOfferBuilder {
     private int useCount;
     private int maxUses;
     private boolean allowsExperience;
-    private static final Field field_180323_f;
-
-    static {
-        try {
-            field_180323_f = MerchantRecipe.class.getDeclaredField("field_180323_f");
-            field_180323_f.setAccessible(true);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public SpongeTradeOfferBuilder() {
         reset();
@@ -106,11 +94,7 @@ public class SpongeTradeOfferBuilder implements TradeOfferBuilder {
         MerchantRecipe recipe =
                 new MerchantRecipe((net.minecraft.item.ItemStack) this.firstItem, (net.minecraft.item.ItemStack) this.secondItem,
                         (net.minecraft.item.ItemStack) this.sellingItem, this.useCount, this.maxUses);
-        try {
-            field_180323_f.setBoolean(recipe, this.allowsExperience);
-        } catch (Exception ignored) {
-            // No can do
-        }
+        recipe.rewardsExp = this.allowsExperience;
         return (TradeOffer) recipe;
     }
 

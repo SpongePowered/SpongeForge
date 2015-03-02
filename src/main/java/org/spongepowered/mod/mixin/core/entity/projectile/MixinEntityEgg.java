@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.core.entity.projectile;
 import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.world.World;
-import org.spongepowered.api.entity.projectile.Egg;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;

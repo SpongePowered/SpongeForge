@@ -46,7 +46,7 @@ public class MixinEnumBannerPattern implements BannerPatternShape {
 
     @Override
     public String getId() {
-        return this.patternName;
+        return this.patternID;
     }
 
 }

@@ -734,19 +734,8 @@ public class SpongeGameRegistry implements GameRegistry {
         });
     }
 
-    private Map<String, Integer> mcEntityNameToId = null;
-
     private SpongeEntityType newEntityTypeFromName(String spongeName, String mcName) {
-        if (this.mcEntityNameToId == null) {
-            try {
-                Field field_180126_g = EntityList.class.getDeclaredField("field_180126_g");
-                field_180126_g.setAccessible(true);
-                this.mcEntityNameToId = (Map<String, Integer>) field_180126_g.get(null);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return new SpongeEntityType(this.mcEntityNameToId.get(mcName), spongeName,
+        return new SpongeEntityType((Integer) EntityList.stringToIDMapping.get(mcName), spongeName,
                 (Class<? extends Entity>) EntityList.stringToClassMapping.get(mcName));
     }
 
