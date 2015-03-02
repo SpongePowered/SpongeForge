@@ -132,6 +132,7 @@ import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.api.world.DimensionTypes;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
+import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
@@ -167,6 +168,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -581,6 +583,16 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public RecipeRegistry getRecipeRegistry() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<Difficulty> getDifficulties() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<Difficulty> getDifficulty(String name) {
         throw new UnsupportedOperationException(); // TODO
     }
 

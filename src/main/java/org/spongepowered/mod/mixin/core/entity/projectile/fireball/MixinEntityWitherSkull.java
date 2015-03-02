@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.entity.projectile.fireball;
 
 import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.world.World;
-import org.spongepowered.api.entity.projectile.fireball.WitherSkull;
+import org.spongepowered.api.entity.projectile.explosive.WitherSkull;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
