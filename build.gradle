@@ -66,7 +66,7 @@ repositories {
 
 // MinecraftForge version
 minecraft {
-    version = "1.8-11.14.1.1306"
+    version = "1.8-11.14.1.1334"
     mappings = "snapshot_20150301"
 }
 

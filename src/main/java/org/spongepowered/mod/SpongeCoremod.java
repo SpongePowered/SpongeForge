@@ -38,6 +38,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         MixinEnvironment.getCurrentEnvironment().addConfiguration("mixins.sponge.entityactivation.json");
         // Transformer exclusions
         ((net.minecraft.launchwrapper.LaunchClassLoader) getClass().getClassLoader()).addTransformerExclusion("ninja.leaping.configurate");
+        ((net.minecraft.launchwrapper.LaunchClassLoader) getClass().getClassLoader()).addTransformerExclusion("org.apache.commons.lang3");
     }
 
     @Override
