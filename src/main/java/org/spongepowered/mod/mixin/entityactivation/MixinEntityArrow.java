@@ -22,27 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.mixin.entityactivation;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.projectile.EntityArrow;
+import org.spongepowered.api.entity.projectile.Arrow;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
-public interface IMixinEntity {
+@NonnullByDefault
+@Mixin(EntityArrow.class)
+@Implements(@Interface(iface = Arrow.class, prefix = "arrow$"))
+public abstract class MixinEntityArrow extends MixinEntity implements Arrow {
 
-    boolean isTeleporting();
+    @Shadow
+    private int ticksInGround;
 
-    void setIsTeleporting(boolean teleporting);
-
-    Entity getTeleportVehicle();
-
-    void setTeleportVehicle(Entity entity);
-
-    byte getActivationType();
-
-    long getActivatedTick();
-
-    boolean getDefaultActivationState();
-
-    void setActivatedTick(long tick);
-
-    void inactiveTick();
+    @Override
+    public void inactiveTick() {
+        if (this.onGround) {
+            this.ticksInGround += 1;
+        }
+        super.inactiveTick();
+    }
 }

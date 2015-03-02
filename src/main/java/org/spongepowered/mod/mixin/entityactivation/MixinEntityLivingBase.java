@@ -22,27 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.mixin.entityactivation;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import org.spongepowered.api.entity.living.Living;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
-public interface IMixinEntity {
+@NonnullByDefault
+@Mixin(EntityLivingBase.class)
+@Implements(@Interface(iface = Living.class, prefix = "living$"))
+public abstract class MixinEntityLivingBase extends MixinEntity {
 
-    boolean isTeleporting();
+    @Shadow
+    protected int entityAge;
 
-    void setIsTeleporting(boolean teleporting);
+    @Override
+    public void inactiveTick() {
+        super.inactiveTick();
+        ++this.entityAge;
+    }
 
-    Entity getTeleportVehicle();
-
-    void setTeleportVehicle(Entity entity);
-
-    byte getActivationType();
-
-    long getActivatedTick();
-
-    boolean getDefaultActivationState();
-
-    void setActivatedTick(long tick);
-
-    void inactiveTick();
 }

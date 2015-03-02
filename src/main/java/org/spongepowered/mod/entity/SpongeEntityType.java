@@ -63,6 +63,14 @@ public class SpongeEntityType implements EntityType {
         return this.modId + ":" + this.entityName;
     }
 
+    public String getEntityName() {
+        return this.entityName;
+    }
+
+    public String getModId() {
+        return this.modId;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Class<? extends org.spongepowered.api.entity.Entity> getEntityClass() {

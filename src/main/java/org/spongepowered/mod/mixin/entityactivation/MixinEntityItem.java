@@ -22,27 +22,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.mixin.entityactivation;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.world.World;
+import org.spongepowered.api.entity.Item;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.interfaces.IMixinWorld;
 
-public interface IMixinEntity {
+@NonnullByDefault
+@Mixin(EntityItem.class)
+public abstract class MixinEntityItem extends Entity implements Item {
 
-    boolean isTeleporting();
+    @Shadow
+    public abstract net.minecraft.item.ItemStack getEntityItem();
 
-    void setIsTeleporting(boolean teleporting);
+    @Shadow
+    private int delayBeforeCanPickup;
 
-    Entity getTeleportVehicle();
+    @Shadow
+    private int age;
 
-    void setTeleportVehicle(Entity entity);
+    @Shadow
+    public int lifespan;
 
-    byte getActivationType();
+    public MixinEntityItem(World worldIn) {
+        super(worldIn);
+    }
 
-    long getActivatedTick();
+    public void inactiveTick() {
+        if (this.delayBeforeCanPickup > 0 && this.delayBeforeCanPickup != 32767)
+        {
+            --this.delayBeforeCanPickup;
+        }
 
-    boolean getDefaultActivationState();
+        if (!this.worldObj.isRemote
+                && this.age >= ((IMixinWorld) this.worldObj).getWorldConfig().getRootNode().getNode("entity", "item-despawn-rate").getInt()) {
+            this.setDead();
+        }
+    }
 
-    void setActivatedTick(long tick);
-
-    void inactiveTick();
 }

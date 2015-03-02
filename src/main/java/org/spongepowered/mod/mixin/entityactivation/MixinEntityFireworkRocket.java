@@ -22,48 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
+package org.spongepowered.mod.mixin.entityactivation;
 
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import org.spongepowered.asm.launch.MixinBootstrap;
-import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.api.entity.projectile.Firework;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.Map;
+@NonnullByDefault
+@Mixin(net.minecraft.entity.item.EntityFireworkRocket.class)
+public abstract class MixinEntityFireworkRocket extends MixinEntity implements Firework {
 
-public class SpongeCoremod implements IFMLLoadingPlugin {
-
-    public SpongeCoremod() {
-        MixinBootstrap.init();
-        MixinEnvironment.getCurrentEnvironment().addConfiguration("mixins.sponge.core.json");
-        MixinEnvironment.getCurrentEnvironment().addConfiguration("mixins.sponge.entityactivation.json");
-        // Transformer exclusions
-        ((net.minecraft.launchwrapper.LaunchClassLoader) getClass().getClassLoader()).addTransformerExclusion("ninja.leaping.configurate");
-    }
+    @Shadow
+    private int fireworkAge;
 
     @Override
-    public String[] getASMTransformerClass() {
-        return new String[] {
-                MixinBootstrap.TRANSFORMER_CLASS,
-        };
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return "org.spongepowered.mod.SpongeMod";
-    }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return "org.spongepowered.mod.asm.transformers.SpongeAccessTransformer";
+    public void inactiveTick() {
+        this.fireworkAge += 1;
+        super.inactiveTick();
     }
 
 }

@@ -57,6 +57,12 @@ public class SpongeConfig {
     public static final String ENTITY_MAX_SPEED = "max-speed";
     public static final String ENTITY_COLLISION_WARN_SIZE = "collision-warn-size";
     public static final String ENTITY_COUNT_WARN_SIZE = "count-warn-size";
+    public static final String ENTITY_ITEM_DESPAWN_RATE = "item-despawn-rate";
+    public static final String ENTITY_ACTIVATION_RANGE_CREATURE = "creature-activation-range";
+    public static final String ENTITY_ACTIVATION_RANGE_MONSTER = "monster-activation-range";
+    public static final String ENTITY_ACTIVATION_RANGE_AQUATIC = "aquatic-activation-range";
+    public static final String ENTITY_ACTIVATION_RANGE_AMBIENT = "ambient-activation-range";
+    public static final String ENTITY_ACTIVATION_RANGE_MISC = "misc-activation-range";
 
     // GENERAL
     public static final String GENERAL_DISABLE_WARNINGS = "disable-warnings";
@@ -71,6 +77,9 @@ public class SpongeConfig {
     public static final String LOGGING_ENTITY_SPAWN = "entity-spawn";
     public static final String LOGGING_ENTITY_SPEED_REMOVAL = "entity-speed-removal";
     public static final String LOGGING_STACKTRACES = "log-stacktraces";
+
+    // MODULES
+    public static final String MODULE_ENTITY_ACTIVATION_RANGE = "entity-activation-range";
 
     // WORLD
     public static final String WORLD_INFINITE_WATER_SOURCE = "infinite-water-source";
@@ -194,13 +203,15 @@ public class SpongeConfig {
     private class ConfigBase {
 
         @Setting(
-                value = "config-enabled",
+                value = CONFIG_ENABLED,
                 comment = "Controls whether or not this config is enabled.\nNote: If enabled, World configs override Dimension and Global, Dimension configs override Global.")
         public boolean configEnabled = true;
         @Setting
         public DebugCategory debug = new DebugCategory();
         @Setting
         public EntityCategory entity = new EntityCategory();
+        @Setting(value = MODULE_ENTITY_ACTIVATION_RANGE)
+        public EntityActivationRangeCategory entityActivationRange = new EntityActivationRangeCategory();
         @Setting
         public GeneralCategory general = new GeneralCategory();
         @Setting
@@ -244,6 +255,23 @@ public class SpongeConfig {
             @Setting(value = ENTITY_COUNT_WARN_SIZE,
                     comment = "Number of entities in one dimension before logging a warning. Set to 0 to disable")
             public int maxCountWarnSize = 0;
+            @Setting(value = ENTITY_ITEM_DESPAWN_RATE, comment = "Controls the time in ticks for when an item despawns.")
+            public int itemDespawnRate = 6000;
+        }
+
+        @ConfigSerializable
+        private class EntityActivationRangeCategory extends Category {
+
+            @Setting(value = ENTITY_ACTIVATION_RANGE_CREATURE)
+            public int creatureActivationRange = 32;
+            @Setting(value = ENTITY_ACTIVATION_RANGE_MONSTER)
+            public int monsterActivationRange = 32;
+            @Setting(value = ENTITY_ACTIVATION_RANGE_AQUATIC)
+            public int aquaticActivationRange = 32;
+            @Setting(value = ENTITY_ACTIVATION_RANGE_AMBIENT)
+            public int ambientActivationRange = 32;
+            @Setting(value = ENTITY_ACTIVATION_RANGE_MISC)
+            public int miscActivationRange = 16;
         }
 
         @ConfigSerializable
@@ -269,6 +297,9 @@ public class SpongeConfig {
 
         @ConfigSerializable
         protected class ModuleCategory extends Category {
+
+            @Setting(value = MODULE_ENTITY_ACTIVATION_RANGE)
+            public boolean pluginEntityActivation = true;
         }
 
         @ConfigSerializable
