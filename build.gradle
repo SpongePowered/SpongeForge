@@ -43,7 +43,7 @@ ext.ciSystem = project.hasProperty("ciSystem") ? ciSystem : 'unknown'
 ext.commit = project.hasProperty("commit") ? commit : 'unknown'
 
 // Version -> Minecraft-MinecraftForge-Ours(If any?)
-version = '1.8-1306-1.1DEV-' + buildNumber
+version = '1.8-1334-1.1DEV-' + buildNumber
 
 // mixin variables
 ext.mixinSrg = new File(project.buildDir, "tmp/mixins/mixins.srg")
