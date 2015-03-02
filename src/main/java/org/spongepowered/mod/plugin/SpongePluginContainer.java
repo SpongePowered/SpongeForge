@@ -323,4 +323,9 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
     public String toString() {
         return "SpongePlugin:" + getName() + "{" + getVersion() + "}";
     }
+
+    @Override
+    public boolean shouldLoadInEnvironment() {
+        return true;
+    }
 }
