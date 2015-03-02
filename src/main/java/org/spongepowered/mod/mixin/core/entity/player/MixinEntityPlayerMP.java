@@ -41,16 +41,24 @@ import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.net.PlayerConnection;
+import org.spongepowered.api.service.ServiceReference;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectCollection;
+import org.spongepowered.api.service.permission.SubjectData;
+import org.spongepowered.api.service.permission.context.Context;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.text.title.Title;
+import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
 import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
 import org.spongepowered.mod.text.chat.SpongeChatType;
@@ -58,8 +66,10 @@ import org.spongepowered.mod.text.message.SpongeMessage;
 import org.spongepowered.mod.text.message.SpongeMessageText;
 import org.spongepowered.mod.text.title.SpongeTitle;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
@@ -71,6 +81,11 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
 
     @Shadow
     public NetHandlerPlayServer playerNetServerHandler;
+
+    private ServiceReference<PermissionService> permService =
+            SpongeMod.instance.getGame().getServiceManager().potentiallyProvide(PermissionService.class);
+
+    private Subject thisSubject = null;
 
     public MixinEntityPlayerMP(World worldIn, com.mojang.authlib.GameProfile gameprofile) {
         super(worldIn, gameprofile);
@@ -191,9 +206,109 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         return (PlayerConnection) this.playerNetServerHandler;
     }
 
+    private Subject internalSubject() {
+        if (this.thisSubject == null) {
+            Optional<PermissionService> service = this.permService.ref();
+            if (service.isPresent()) {
+                SubjectCollection userSubjects = service.get().getUserSubjects();
+                if (userSubjects != null) {
+                    return this.thisSubject = userSubjects.get(getUniqueID().toString());
+                }
+            }
+        }
+        return this.thisSubject;
+    }
+
+    @Override
+    public String getIdentifier() {
+        Subject subj = internalSubject();
+        return subj == null ? getUniqueID().toString() : subj.getIdentifier();
+    }
+
+    @Override
+    public Optional<CommandSource> getCommandSource() {
+        return Optional.<CommandSource>of(this);
+    }
+
+    @Override
+    public SubjectCollection getContainingCollection() {
+        Subject subj = internalSubject();
+        if (subj == null) {
+            throw new IllegalStateException("No subject present for player " + this);
+        } else {
+            return subj.getContainingCollection();
+        }
+    }
+
+    @Override
+    public SubjectData getData() {
+        Subject subj = internalSubject();
+        if (subj == null) {
+            throw new IllegalStateException("No subject present for player " + this);
+        } else {
+            return subj.getData();
+        }
+    }
+
+    @Override
+    public SubjectData getTransientData() {
+        Subject subj = internalSubject();
+        if (subj == null) {
+            throw new IllegalStateException("No subject present for player " + this);
+        } else {
+            return subj.getTransientData();
+        }
+    }
+
+    @Override
+    public boolean hasPermission(Set<Context> contexts, String permission) {
+        Subject subj = internalSubject();
+        return subj == null ? permDefault(permission) : subj.hasPermission(contexts, permission);
+    }
+
+    private boolean permDefault(String permission) {
+        return canCommandSenderUseCommand(4, permission);
+    }
+
     @Override
     public boolean hasPermission(String permission) {
-        //TODO implement.
-        return true;
+        Subject subj = internalSubject();
+        return subj == null ? permDefault(permission) : subj.hasPermission(permission);
+    }
+
+    @Override
+    public Tristate getPermissionValue(Set<Context> contexts, String permission) {
+        Subject subj = internalSubject();
+        return subj == null ? Tristate.UNDEFINED : subj.getPermissionValue(contexts, permission);
+    }
+
+    @Override
+    public boolean isChildOf(Subject parent) {
+        Subject subj = internalSubject();
+        return subj == null ? false : subj.isChildOf(parent);
+    }
+
+    @Override
+    public boolean isChildOf(Set<Context> contexts, Subject parent) {
+        Subject subj = internalSubject();
+        return subj == null ? false : subj.isChildOf(contexts, parent);
+    }
+
+    @Override
+    public List<Subject> getParents() {
+        Subject subj = internalSubject();
+        return subj == null ? Collections.<Subject>emptyList() : subj.getParents();
+    }
+
+    @Override
+    public List<Subject> getParents(Set<Context> contexts) {
+        Subject subj = internalSubject();
+        return subj == null ? Collections.<Subject>emptyList() : subj.getParents(contexts);
+    }
+
+    @Override
+    public Set<Context> getActiveContexts() {
+        Subject subj = internalSubject();
+        return subj == null ? Collections.<Context>emptySet() : subj.getActiveContexts();
     }
 }
