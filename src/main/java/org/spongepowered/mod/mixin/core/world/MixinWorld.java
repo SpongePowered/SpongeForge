@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.core.world;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
@@ -191,23 +192,33 @@ public abstract class MixinWorld implements World, IMixinWorld {
     }
 
     @Override
-    public BiomeType getBiome(Vector3i position) {
-        return (BiomeType) this.getBiomeGenForCoords(VecHelper.toBlockPos(position));
+    public BiomeType getBiome(Vector2i position) {
+        return getBiome(position.getX(), position.getY());
     }
 
     @Override
-    public void setBiome(Vector3i position, BiomeType biome) {
-        int x = position.getX() >> 4;
-        int z = position.getZ() >> 4;
+    public BiomeType getBiome(int x, int z) {
+        return (BiomeType) this.getBiomeGenForCoords(new BlockPos(x, 0, z));
+    }
+
+    @Override
+    public void setBiome(Vector2i position, BiomeType biome) {
+        setBiome(position.getX(), position.getY(), biome);
+    }
+
+    @Override
+    public void setBiome(int x, int z, BiomeType biome) {
+        int cx = x >> 4;
+        int cz = z >> 4;
         IChunkProvider chunkProvider = this.getChunkProvider();
-        if (!chunkProvider.chunkExists(x, z)) {
+        if (!chunkProvider.chunkExists(cx, cz)) {
             return;
         }
-        net.minecraft.world.chunk.Chunk chunk = chunkProvider.provideChunk(x, z);
+        net.minecraft.world.chunk.Chunk chunk = chunkProvider.provideChunk(cx, cz);
         byte[] biomeArray = chunk.getBiomeArray();
         // Taken from Chunk#getBiome
-        int i = position.getX() & 15;
-        int j = position.getZ() & 15;
+        int i = x & 15;
+        int j = z & 15;
         biomeArray[j << 4 | i] = (byte) (((BiomeGenBase) biome).biomeID & 255);
         chunk.setBiomeArray(biomeArray);
     }
