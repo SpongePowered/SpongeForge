@@ -104,6 +104,7 @@ shadowJar  {
         include(dependency('aopalliance:aopalliance'))
         include(dependency('ninja.leaping.configurate:configurate-hocon'))
         include(dependency('ninja.leaping.configurate:configurate-core'))
+        include(dependency('com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru'))
         include(project('SpongeAPI'))
         include(project('Mixin'))
     }
