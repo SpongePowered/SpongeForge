@@ -31,6 +31,7 @@ import org.spongepowered.api.entity.living.monster.Guardian;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -40,16 +41,21 @@ import org.spongepowered.asm.mixin.Shadow;
 public abstract class MixinEntityGuardian extends EntityMob {
 
     @Shadow
+    public abstract boolean isElder();
+    
+    @Shadow
     public abstract void setElder(boolean elder);
 
     public MixinEntityGuardian(World worldIn) {
         super(worldIn);
     }
 
+    @Intrinsic
     public boolean guardian$isElder() {
-        return (this.dataWatcher.getWatchableObjectInt(16) & 4) != 0;
+        return this.isElder();
     }
 
+    @Intrinsic
     public void guardian$setElder(boolean elder) {
         this.setElder(elder);
     }
