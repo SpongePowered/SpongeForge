@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.core.event.block;
 import com.google.common.base.Optional;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.event.block.BlockEvent;
 import org.spongepowered.api.event.cause.Cause;
@@ -34,6 +35,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
 @NonnullByDefault
@@ -55,4 +57,10 @@ public abstract class MixinEventBlock extends Event implements BlockEvent {
     public Optional<Cause> getCause() {
         return Optional.of(new Cause(null, getBlock(), null));
     }
+
+    @Override
+    public Game getGame() {
+        return SpongeMod.instance.getGame();
+    }
+
 }

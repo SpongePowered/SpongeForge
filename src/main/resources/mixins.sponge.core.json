@@ -146,6 +146,7 @@
         "event.state.MixinEventServerStarted",
         "event.state.MixinEventServerStopping",
         "event.state.MixinEventServerStopped",
+        "event.state.MixinEventState",
         "event.world.MixinEventChunk",
         "event.world.MixinEventChunkLoad",
         "event.world.MixinEventChunkUnload",

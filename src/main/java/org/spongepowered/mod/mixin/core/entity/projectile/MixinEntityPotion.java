@@ -41,7 +41,7 @@ import java.util.List;
 @NonnullByDefault
 @Mixin(net.minecraft.entity.projectile.EntityPotion.class)
 @Implements(@Interface(iface = ThrownPotion.class, prefix = "potion$"))
-public abstract class MixinEntityPotion extends EntityThrowable{
+public abstract class MixinEntityPotion extends EntityThrowable {
 
     public MixinEntityPotion(World worldIn) {
         super(worldIn);

@@ -24,15 +24,18 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
+import net.minecraftforge.fml.common.eventhandler.Event;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.event.world.WorldEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.SpongeMod;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.WorldEvent.class, remap = false)
-public abstract class MixinEventWorld implements WorldEvent {
+public abstract class MixinEventWorld extends Event implements WorldEvent {
 
     @Shadow
     public net.minecraft.world.World world;
@@ -42,4 +45,8 @@ public abstract class MixinEventWorld implements WorldEvent {
         return (World) this.world;
     }
 
+    @Override
+    public Game getGame() {
+        return SpongeMod.instance.getGame();
+    }
 }

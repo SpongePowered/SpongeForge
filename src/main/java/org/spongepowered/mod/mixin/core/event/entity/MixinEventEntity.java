@@ -24,15 +24,18 @@
  */
 package org.spongepowered.mod.mixin.core.event.entity;
 
+import net.minecraftforge.fml.common.eventhandler.Event;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.event.entity.EntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.SpongeMod;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.EntityEvent.class, remap = false)
-public abstract class MixinEventEntity implements EntityEvent {
+public abstract class MixinEventEntity extends Event implements EntityEvent {
 
     @Shadow
     public net.minecraft.entity.Entity entity;
@@ -40,5 +43,10 @@ public abstract class MixinEventEntity implements EntityEvent {
     @Override
     public Entity getEntity() {
         return (Entity) this.entity;
+    }
+
+    @Override
+    public Game getGame() {
+        return SpongeMod.instance.getGame();
     }
 }

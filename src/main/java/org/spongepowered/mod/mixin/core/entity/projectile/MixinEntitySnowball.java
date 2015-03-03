@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @NonnullByDefault
 @Mixin(net.minecraft.entity.projectile.EntitySnowball.class)
 @Implements(@Interface(iface = Snowball.class, prefix = "snowball$"))
-public abstract class MixinEntitySnowball extends EntityThrowable{
+public abstract class MixinEntitySnowball extends EntityThrowable {
 
     public MixinEntitySnowball(World worldIn) {
         super(worldIn);
