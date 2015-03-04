@@ -57,6 +57,7 @@
         "entity.living.MixinEntityLivingBase",
         "entity.living.MixinArmorStand",
         "entity.living.MixinEntityBat",
+        "entity.living.MixinEntityTameable",
         "entity.living.animal.MixinEntityAnimal",
         "entity.living.animal.MixinEntityChicken",
         "entity.living.animal.MixinEntityCow",

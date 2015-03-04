@@ -35,6 +35,7 @@ import org.spongepowered.api.entity.living.Human;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -149,12 +150,6 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
     }
 
     public String human$getName() {
-        return this.getName();
-    }
-
-    @Overwrite
-    public String getName() {
         return this.gameProfile.getName();
     }
-
 }

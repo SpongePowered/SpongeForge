@@ -22,76 +22,95 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.entity.living.animal;
+package org.spongepowered.mod.mixin.core.entity.living;
 
+import com.google.common.base.Optional;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAISit;
+import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
-import net.minecraft.entity.passive.EntityWolf;
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-
 import org.spongepowered.api.entity.Tamer;
-import org.spongepowered.api.entity.living.animal.DyeColor;
-import org.spongepowered.api.entity.living.animal.Wolf;
+import org.spongepowered.api.entity.living.Sittable;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.mixin.core.entity.living.MixinEntityTameable;
+
+import java.util.UUID;
 
 @NonnullByDefault
-@Mixin(EntityWolf.class)
-@Implements(@Interface(iface = Wolf.class, prefix = "wolf$"))
-public abstract class MixinEntityWolf extends MixinEntityTameable {
+@Mixin(EntityTameable.class)
+@Implements(@Interface(iface = Sittable.class, prefix = "sittable$"))
+public abstract class MixinEntityTameable extends EntityAnimal {
 
     @Shadow
-    public abstract EnumDyeColor getCollarColor();
+    public abstract boolean isTamed();
 
     @Shadow
-    public abstract void setCollarColor(EnumDyeColor p_175547_1_);
+    public abstract void setTamed(boolean tamed);
 
-    public MixinEntityWolf(World worldIn) {
+    @Shadow
+    public abstract boolean isSitting();
+
+    @Shadow
+    public abstract void setSitting(boolean sitting);
+
+    @Shadow
+    public abstract Entity getOwner();
+
+    @Shadow
+    public abstract void setOwnerId(String name);
+
+    @Shadow
+    public EntityAISit aiSit;
+
+    private Tamer tamer;
+
+    public MixinEntityTameable(World worldIn) {
         super(worldIn);
     }
 
-    public DyeColor wolf$getColor() {
-        return (DyeColor) (Object) this.getCollarColor();
-    }
-
-    public void wolf$setColor(DyeColor color) {
-        this.setCollarColor((EnumDyeColor) (Object) color);
+    @Intrinsic
+    public boolean sittable$isSitting() {
+        return this.isSitting();
     }
 
     @Intrinsic
-    public void wolf$setTamed(boolean tamed) {
+    public void sittable$setSitting(boolean sitting) {
+        this.setSitting(sitting);
+    }
+
+    @Intrinsic
+    public boolean sittable$isTamed() {
+        return this.isTamed();
+    }
+
+    @Intrinsic
+    public void sittable$setTamed(boolean tamed) {
         this.setTamed(tamed);
     }
 
-    public void wolf$setOwner(Tamer tamer) {
-        super.sittable$setOwner(tamer);
-        if (tamer != null) {
-            this.setTamed(true);
-            this.navigator.clearPathEntity();
-            this.setAttackTarget((EntityLivingBase) null);
-            this.aiSit.setSitting(true);
-            this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(20.0D);
-        } else {
-            this.setTamed(false);
-            this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(8.0D);
+    @Intrinsic(displace = true)
+    public Optional<Tamer> sittable$getOwner() {
+        if (this.getOwner() != null) {
+            return Optional.fromNullable((Tamer) this.getOwner());
         }
+        return Optional.fromNullable(this.tamer);
     }
 
-    /*public void wolf$setTamed(boolean tamed) {
-        super.setTamed(tamed);
-        System.out.println("Overridden");
-        if (tamed) {
-            this.navigator.clearPathEntity();
-            this.setAttackTarget((EntityLivingBase) null);
-            this.aiSit.setSitting(true);
+    public void sittable$setOwner(Tamer tamer) {
+        if (tamer instanceof EntityPlayer) {
+            this.setOwnerId(((EntityPlayer) tamer).getUniqueID().toString());
+            this.tamer = null;
+        } else {
+            this.setOwnerId(null);
+            this.tamer = tamer;
         }
-    }*/
+    }
 }
