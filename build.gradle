@@ -11,6 +11,7 @@ if (!file("Mixin/build.gradle").exists()) {
         include 'precommit'
         into '.git/hooks'
     }
+    throw new RuntimeException("Please run your gradle command again.")
 }
 
 // Gradle repositories and dependencies
