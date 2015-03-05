@@ -39,11 +39,7 @@ import net.minecraft.network.play.server.S45PacketTitle;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
-<<<<<<< HEAD:src/main/java/org/spongepowered/mod/mixin/core/entity/player/MixinEntityPlayerMP.java
-=======
-
 import net.minecraftforge.common.DimensionManager;
->>>>>>> Update implementation to match changes to SpongeAPI PR:src/main/java/org/spongepowered/mod/mixin/entity/player/MixinEntityPlayerMP.java
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
@@ -121,6 +117,14 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
 
     public Text playermp$getDisplayName() {
         return ((SpongeChatComponent) getDisplayName()).toText();
+    }
+
+    public boolean playermp$getAllowFlight() {
+        return this.capabilities.allowFlying;
+    }
+
+    public void playermp$setAllowFlight(boolean allowFlight) {
+        this.capabilities.allowFlying = allowFlight;
     }
 
     public Locale playermp$getLocale() {
