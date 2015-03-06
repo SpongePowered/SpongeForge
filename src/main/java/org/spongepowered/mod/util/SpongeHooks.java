@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.util;
 
+import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3f;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.gson.stream.JsonWriter;
 import gnu.trove.map.hash.TObjectIntHashMap;
@@ -43,6 +45,11 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.block.BlockState;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.spongepowered.api.entity.projectile.Projectile;
+import org.spongepowered.api.entity.projectile.source.ProjectileSource;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.interfaces.IMixinWorldProvider;
@@ -61,6 +68,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.management.MBeanServer;
 
 public class SpongeHooks {
@@ -436,5 +444,22 @@ public class SpongeHooks {
             // TODO: Need to figure out what is sensible for other BlockState implementing classes.
             throw new UnsupportedOperationException("Custom BlockState implementations are not supported");
         }
+    }
+    
+    public static Projectile launchProjectile(World world, Vector3d position, ProjectileSource source, Class<? extends Projectile> projectileClass, @Nullable Vector3f velocity) {
+
+        try {
+            Projectile entity = ConstructorUtils.invokeConstructor(projectileClass, world);
+            entity.setLocation(entity.getLocation().setPosition(position));
+            entity.setShooter(source);
+            if(velocity != null)
+                entity.setVelocity(velocity.toDouble());
+
+            return entity;
+        } catch(Exception e) {
+            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
+        }
+
+        return null;
     }
 }
