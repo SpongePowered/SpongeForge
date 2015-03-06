@@ -33,6 +33,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.entity.EntityInteractionType;
+import org.spongepowered.api.entity.EntityInteractionTypes;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.living.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -65,11 +66,11 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
     @Override
     public EntityInteractionType getInteractionType() {
         if (this.action == Action.LEFT_CLICK_BLOCK) {
-            return EntityInteractionType.LEFT_CLICK;
+            return EntityInteractionTypes.ATTACK;
         } else if (this.action == Action.RIGHT_CLICK_AIR || this.action == Action.RIGHT_CLICK_BLOCK) {
-            return EntityInteractionType.RIGHT_CLICK;
+            return EntityInteractionTypes.USE;
         } else {
-            return EntityInteractionType.MIDDLE_CLICK;
+            return EntityInteractionTypes.PICK_BLOCK;
         }
     }
 

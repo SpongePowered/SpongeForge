@@ -181,15 +181,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
         return Optional.fromNullable((Chunk) chunk);
     }
 
-    @Override
-    public BlockLoc getBlock(Vector3d position) {
-        return new BlockWrapper(this, VecHelper.toBlockPos(position));
-    }
-
-    @Override
-    public BlockLoc getBlock(int x, int y, int z) {
-        return new BlockWrapper(this, x, y, z);
-    }
+    // TODO: Add getBlock() methods again
 
     @Override
     public BiomeType getBiome(Vector2i position) {

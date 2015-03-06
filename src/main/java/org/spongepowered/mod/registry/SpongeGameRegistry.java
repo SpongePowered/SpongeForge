@@ -72,6 +72,7 @@ import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.effect.sound.SoundTypes;
+import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
@@ -593,6 +594,16 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<Difficulty> getDifficulty(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<EntityInteractionType> getEntityInteractionTypes() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<EntityInteractionType> getEntityInteractionType(String name) {
         throw new UnsupportedOperationException(); // TODO
     }
 
