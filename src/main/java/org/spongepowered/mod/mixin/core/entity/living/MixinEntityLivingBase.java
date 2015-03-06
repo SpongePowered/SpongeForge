@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living;
 
-import com.flowpowered.math.vector.Vector3f;
+import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -185,8 +185,8 @@ public abstract class MixinEntityLivingBase extends Entity {
         return getEyeHeight();
     }
 
-    public Vector3f living$getEyeLocation() {
-        return ((Living) this).getLocation().getPosition().add(0, getEyeHeight(), 0).toFloat();
+    public Vector3d living$getEyeLocation() {
+        return ((Living) this).getLocation().getPosition().add(0, getEyeHeight(), 0);
     }
 
     public int living$getRemainingAir() {

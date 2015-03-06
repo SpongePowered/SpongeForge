@@ -34,8 +34,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
-import net.minecraft.network.play.server.S45PacketTitle;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
@@ -47,10 +45,11 @@ import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.permission.context.Context;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.chat.ChatTypes;
-import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.text.title.Title;
+import org.spongepowered.api.text.title.Titles;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
@@ -61,9 +60,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
 import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
+import org.spongepowered.mod.text.SpongeChatComponent;
+import org.spongepowered.mod.text.SpongeText;
 import org.spongepowered.mod.text.chat.SpongeChatType;
-import org.spongepowered.mod.text.message.SpongeMessage;
-import org.spongepowered.mod.text.message.SpongeMessageText;
 import org.spongepowered.mod.text.title.SpongeTitle;
 
 import java.util.Collections;
@@ -107,67 +106,44 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         return Optional.of((Player) this);
     }
 
-    public Message playermp$getDisplayName() {
-        return new SpongeMessageText.SpongeMessageTextBuilder(getGameProfile().getName()).build();
+    public Text playermp$getDisplayName() {
+        return ((SpongeChatComponent) getDisplayName()).toText();
     }
 
     public Locale playermp$getLocale() {
         return new Locale(this.translator);
     }
 
-    public void playermp$sendMessage(String... messages) {
+    public void playermp$sendMessage(Text... messages) {
         playermp$sendMessage(ChatTypes.CHAT, messages);
     }
 
-    public void playermp$sendMessage(Message... messages) {
+    public void playermp$sendMessage(Iterable<Text> messages) {
         playermp$sendMessage(ChatTypes.CHAT, messages);
     }
 
-    public void playermp$sendMessage(Iterable<Message> messages) {
-        playermp$sendMessage(ChatTypes.CHAT, messages);
-    }
-
-    public void playermp$sendMessage(ChatType type, String... messages) {
-        for (String string : messages) {
-            ChatComponentTranslation component = new ChatComponentTranslation(string);
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(component, ((SpongeChatType) type).getId()));
+    public void playermp$sendMessage(ChatType type, Text... messages) {
+        for (Text text : messages) {
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(), ((SpongeChatType) type).getId()));
         }
     }
 
-    public void playermp$sendMessage(ChatType type, Message... messages) {
-        for (Message message : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage<?>) message).getHandle(), ((SpongeChatType) type).getId()));
-        }
-    }
-
-    public void playermp$sendMessage(ChatType type, Iterable<Message> messages) {
-        for (Message message : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeMessage<?>) message).getHandle(), ((SpongeChatType) type).getId()));
+    public void playermp$sendMessage(ChatType type, Iterable<Text> messages) {
+        for (Text text : messages) {
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(), ((SpongeChatType) type).getId()));
         }
     }
 
     public void playermp$sendTitle(Title title) {
-        SpongeTitle spongeTitle = (SpongeTitle) title;
-
-        for (S45PacketTitle packet : spongeTitle.getPackets()) {
-            this.playerNetServerHandler.sendPacket(packet);
-        }
+        ((SpongeTitle) title).send((EntityPlayerMP) (Object) this);
     }
 
     public void playermp$resetTitle() {
-        SpongeTitle title = new SpongeTitle(false, true, Optional.<Message>absent(), Optional.<Message>absent(),
-                Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<Integer>absent());
-        for (S45PacketTitle packet : title.getPackets()) {
-            this.playerNetServerHandler.sendPacket(packet);
-        }
+        playermp$sendTitle(Titles.RESET);
     }
 
     public void playermp$clearTitle() {
-        SpongeTitle title = new SpongeTitle(true, false, Optional.<Message>absent(), Optional.<Message>absent(),
-                Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<Integer>absent());
-        for (S45PacketTitle packet : title.getPackets()) {
-            this.playerNetServerHandler.sendPacket(packet);
-        }
+        playermp$sendTitle(Titles.CLEAR);
     }
 
     public void playermp$spawnParticles(ParticleEffect particleEffect, Vector3d position) {

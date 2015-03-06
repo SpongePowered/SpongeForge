@@ -26,17 +26,16 @@ package org.spongepowered.mod.mixin.core.command;
 
 import com.google.common.base.Optional;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.permission.context.Context;
-import org.spongepowered.api.text.message.Message;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.mod.text.message.SpongeMessage;
+import org.spongepowered.mod.text.SpongeText;
 
 import java.util.List;
 import java.util.Set;
@@ -46,23 +45,16 @@ import java.util.Set;
 public abstract class MixinCommandExecuteAtSender implements CommandSource, ICommandSender {
 
     @Override
-    public void sendMessage(String... messages) {
-        for (String message : messages) {
-            addChatMessage(new ChatComponentText(message));
+    public void sendMessage(Text... messages) {
+        for (Text message : messages) {
+            addChatMessage(((SpongeText) message).toComponent());
         }
     }
 
     @Override
-    public void sendMessage(Message... messages) {
-        for (Message message : messages) {
-            addChatMessage(((SpongeMessage<?>) message).getHandle());
-        }
-    }
-
-    @Override
-    public void sendMessage(Iterable<Message> messages) {
-        for (Message message : messages) {
-            addChatMessage(((SpongeMessage<?>) message).getHandle());
+    public void sendMessage(Iterable<Text> messages) {
+        for (Text message : messages) {
+            addChatMessage(((SpongeText) message).toComponent());
         }
     }
 

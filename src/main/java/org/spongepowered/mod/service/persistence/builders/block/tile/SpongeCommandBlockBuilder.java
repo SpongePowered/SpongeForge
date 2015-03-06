@@ -32,7 +32,7 @@ import org.spongepowered.api.block.data.CommandBlock;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
-import org.spongepowered.api.text.message.Messages;
+import org.spongepowered.api.text.Texts;
 
 public class SpongeCommandBlockBuilder extends AbstractTileBuilder<CommandBlock> {
 
@@ -55,7 +55,7 @@ public class SpongeCommandBlockBuilder extends AbstractTileBuilder<CommandBlock>
         commandblock.setSuccessCount(container.getInt(new DataQuery("SuccessCount")).get());
         commandblock.shouldTrackOutput(container.getBoolean(new DataQuery("DoesTrackOutput")).get());
         if (commandblock.doesTrackOutput()) {
-            commandblock.setLastOutput(Messages.fromLegacy(container.getString(new DataQuery("TrackedOutput")).get()));
+            commandblock.setLastOutput(Texts.fromLegacy(container.getString(new DataQuery("TrackedOutput")).get()));
         }
         ((TileEntityCommandBlock) commandblock).validate();
         return Optional.of(commandblock);

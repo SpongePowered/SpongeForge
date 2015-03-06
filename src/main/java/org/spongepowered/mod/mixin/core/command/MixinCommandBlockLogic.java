@@ -26,14 +26,13 @@ package org.spongepowered.mod.mixin.core.command;
 
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.server.CommandBlockLogic;
-import net.minecraft.util.ChatComponentText;
-import org.spongepowered.api.text.message.Message;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.source.CommandBlockSource;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.mod.text.message.SpongeMessage;
+import org.spongepowered.mod.text.SpongeText;
 import org.spongepowered.mod.util.VecHelper;
 
 @NonnullByDefault
@@ -41,23 +40,16 @@ import org.spongepowered.mod.util.VecHelper;
 public abstract class MixinCommandBlockLogic implements ICommandSender, CommandBlockSource {
 
     @Override
-    public void sendMessage(String... messages) {
-        for (String msg : messages) {
-            this.addChatMessage(new ChatComponentText(msg));
+    public void sendMessage(Text... messages) {
+        for (Text message : messages) {
+            addChatMessage(((SpongeText) message).toComponent());
         }
     }
 
     @Override
-    public void sendMessage(Message... messages) {
-        for (Message msg : messages) {
-            this.addChatMessage(((SpongeMessage<?>) msg).getHandle());
-        }
-    }
-
-    @Override
-    public void sendMessage(Iterable<Message> messages) {
-        for (Message msg : messages) {
-            this.addChatMessage(((SpongeMessage<?>) msg).getHandle());
+    public void sendMessage(Iterable<Text> messages) {
+        for (Text message : messages) {
+            addChatMessage(((SpongeText) message).toComponent());
         }
     }
 

@@ -25,7 +25,7 @@
 package org.spongepowered.mod.mixin.core.entity;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3f;
+import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -224,7 +224,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public boolean setLocationAndRotation(Location location, Vector3f rotation, EnumSet<RelativePositions> relativePositions) {
+    public boolean setLocationAndRotation(Location location, Vector3d rotation, EnumSet<RelativePositions> relativePositions) {
         if (relativePositions.isEmpty()) {
             //This is just a normal teleport that happens to set both.
             if (setLocation(location)) {
@@ -259,12 +259,11 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
                 }
 
                 ((EntityPlayerMP) (Entity) this).playerNetServerHandler.setPlayerLocation(location.getPosition().getX(), location.getPosition()
-                        .getY(),
-                        location.getPosition().getZ(), rotation.getX(), rotation.getY(), relativeFlags);
+                        .getY(), location.getPosition().getZ(), (float) rotation.getX(), (float) rotation.getY(), relativeFlags);
                 return true;
             } else {
                 Location resultant = getLocation();
-                Vector3f resultantRotation = getRotation();
+                Vector3d resultantRotation = getRotation();
 
                 if (relativePositions.contains(RelativePositions.X)) {
                     resultant.add(location.getPosition().getX(), 0, 0);
@@ -297,13 +296,13 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     }
 
     @Override
-    public Vector3f getRotation() {
-        return new Vector3f(this.rotationYaw, this.rotationPitch, 0);
+    public Vector3d getRotation() {
+        return new Vector3d(this.rotationYaw, this.rotationPitch, 0);
     }
 
     @Override
-    public void setRotation(Vector3f rotation) {
-        shadow$setRotation(rotation.getX(), rotation.getY());
+    public void setRotation(Vector3d rotation) {
+        shadow$setRotation((float) rotation.getX(), (float) rotation.getY());
     }
 
     @Override

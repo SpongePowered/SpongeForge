@@ -33,12 +33,13 @@ import net.minecraft.util.IChatComponent;
 import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.event.server.StatusPingEvent;
 import org.spongepowered.api.status.Favicon;
-import org.spongepowered.api.text.message.Message;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.status.SpongeFavicon;
-import org.spongepowered.mod.text.message.SpongeMessage;
+import org.spongepowered.mod.text.SpongeChatComponent;
+import org.spongepowered.mod.text.SpongeText;
 
 import java.io.IOException;
 
@@ -49,7 +50,7 @@ public abstract class MixinServerStatusResponse implements StatusPingEvent.Respo
 
     @Shadow
     private IChatComponent serverMotd;
-    private Message description;
+    private Text description;
 
     @Shadow
     private ServerStatusResponse.PlayerCountData playerCount;
@@ -63,20 +64,20 @@ public abstract class MixinServerStatusResponse implements StatusPingEvent.Respo
     private Favicon faviconHandle;
 
     @Override
-    public Message getDescription() {
+    public Text getDescription() {
         return this.description;
     }
 
     @Override
-    public void setDescription(Message description) {
+    public void setDescription(Text description) {
         this.description = checkNotNull(description, "description");
-        this.serverMotd = ((SpongeMessage<?>) description).getHandle();
+        this.serverMotd = ((SpongeText) description).toComponent();
     }
 
     @Overwrite
     public void setServerDescription(IChatComponent motd) {
         this.serverMotd = checkNotNull(motd, "motd");
-        this.description = SpongeMessage.of(motd);
+        this.description = ((SpongeChatComponent) motd).toText();
     }
 
     @Override

@@ -38,7 +38,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.util.TranslationHelper;
+import org.spongepowered.mod.text.translation.SpongeTranslation;
 
 @NonnullByDefault
 @Mixin(Block.class)
@@ -50,11 +50,8 @@ public abstract class MixinBlockType implements BlockType {
     @Shadow(prefix = "shadow$")
     public abstract IBlockState shadow$getDefaultState();
 
-    @Shadow(prefix = "shadow$")
-    public abstract String shadow$getLocalizedName();
-
-    @Shadow(prefix = "shadow$")
-    public abstract String shadow$getUnlocalizedName();
+    @Shadow
+    public abstract String getUnlocalizedName();
 
     @Shadow
     public abstract boolean isFullCube();
@@ -80,7 +77,7 @@ public abstract class MixinBlockType implements BlockType {
 
     @Override
     public Translation getTranslation() {
-        return TranslationHelper.createStaticTranslation(shadow$getUnlocalizedName(), shadow$getLocalizedName());
+        return new SpongeTranslation(getUnlocalizedName() + ".name");
     }
 
     @Override

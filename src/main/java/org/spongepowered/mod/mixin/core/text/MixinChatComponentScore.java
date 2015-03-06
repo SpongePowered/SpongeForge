@@ -22,35 +22,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.text.action;
+package org.spongepowered.mod.mixin.core.text;
 
-import org.spongepowered.api.text.action.ShiftClickAction;
+import net.minecraft.util.ChatComponentScore;
+import org.spongepowered.api.text.TextBuilder;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.asm.mixin.Mixin;
 
-public class SpongeShiftClickAction<R> implements ShiftClickAction<R> {
-
-    private final String id;
-    private final R result;
-
-    public SpongeShiftClickAction(String id, R result) {
-        this.id = id;
-        this.result = result;
-    }
+@Mixin(ChatComponentScore.class)
+public abstract class MixinChatComponentScore extends MixinChatComponentStyle {
 
     @Override
-    public String getId() {
-        return this.id;
+    protected TextBuilder createBuilder() {
+        return Texts.builder((Object) null); // TODO
     }
 
-    @Override
-    public R getResult() {
-        return this.result;
-    }
-
-    public static class InsertText extends SpongeShiftClickAction<String> implements ShiftClickAction.InsertText {
-
-        public InsertText(String id, String result) {
-            super(id, result);
-        }
-
-    }
 }

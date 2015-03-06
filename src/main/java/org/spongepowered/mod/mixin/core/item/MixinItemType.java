@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.item;
 
 import net.minecraft.item.Item;
-import net.minecraft.util.StatCollector;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -33,7 +32,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.util.TranslationHelper;
+import org.spongepowered.mod.text.translation.SpongeTranslation;
 
 @NonnullByDefault
 @Mixin(Item.class)
@@ -43,8 +42,8 @@ public abstract class MixinItemType implements ItemType {
     @Shadow
     public abstract int getItemStackLimit();
 
-    @Shadow(prefix = "shadow$")
-    public abstract String shadow$getUnlocalizedName();
+    @Shadow
+    public abstract String getUnlocalizedName();
 
     @Override
     public String getId() {
@@ -53,10 +52,7 @@ public abstract class MixinItemType implements ItemType {
 
     @Override
     public Translation getTranslation() {
-        String id = shadow$getUnlocalizedName();
-        String name = ("" + StatCollector.translateToLocal(id + ".name")).trim();
-
-        return TranslationHelper.createStaticTranslation(id, name);
+        return new SpongeTranslation(getUnlocalizedName());
     }
 
     @Override

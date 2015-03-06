@@ -41,6 +41,9 @@ class RegistryHelper {
                 continue;
             }
             try {
+                if (!mapping.containsKey(f.getName())) {
+                    continue;
+                }
                 f.set(null, mapping.get(f.getName()));
             } catch (Exception e) {
                 e.printStackTrace();

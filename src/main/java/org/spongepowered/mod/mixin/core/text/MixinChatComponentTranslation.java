@@ -22,15 +22,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package org.spongepowered.mod.mixin.core.text;
 
-package org.spongepowered.api.text.title;
+import net.minecraft.util.ChatComponentTranslation;
+import org.spongepowered.api.text.TextBuilder;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.translation.Translation;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
-import org.spongepowered.mod.text.title.SpongeTitleBuilder;
+@Mixin(ChatComponentTranslation.class)
+public abstract class MixinChatComponentTranslation extends MixinChatComponentStyle {
 
-public class SpongeTitleFactory implements TitleFactory {
+    @Shadow private String key;
+    @Shadow private Object[] formatArgs;
+
+    // TODO: Verify what is needed here
 
     @Override
-    public TitleBuilder createTitleBuilder() {
-        return new SpongeTitleBuilder();
+    protected TextBuilder createBuilder() {
+        return Texts.builder((Translation) null, this.formatArgs);
     }
+
 }

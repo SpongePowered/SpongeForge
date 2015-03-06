@@ -25,6 +25,7 @@
 package org.spongepowered.mod.block.meta;
 
 import org.spongepowered.api.block.meta.SkullType;
+import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @NonnullByDefault
@@ -48,4 +49,8 @@ public class SpongeSkullType implements SkullType {
         return this.name;
     }
 
+    @Override
+    public Translation getTranslation() {
+        return null;
+    }
 }

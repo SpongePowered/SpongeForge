@@ -25,7 +25,6 @@
 package org.spongepowered.mod.util;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3f;
 import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Rotations;
@@ -37,12 +36,6 @@ public final class VecHelper {
     // === Flow Vector3d --> BlockPos ===
 
     public static BlockPos toBlockPos(Vector3d vector) {
-        return new BlockPos(vector.getX(), vector.getY(), vector.getZ());
-    }
-
-    // === Flow Vector3f --> BlockPos ===
-
-    public static BlockPos toBlockPos(Vector3f vector) {
         return new BlockPos(vector.getX(), vector.getY(), vector.getZ());
     }
 
@@ -60,14 +53,14 @@ public final class VecHelper {
 
     // === Flow Vector --> Rotations ===
 
-    public static Rotations toRotation(Vector3f vector) {
-        return new Rotations(vector.getX(), vector.getY(), vector.getZ());
+    public static Rotations toRotation(Vector3d vector) {
+        return new Rotations((float) vector.getX(), (float) vector.getY(), (float) vector.getZ());
     }
 
     // === Rotations --> Flow Vector ===
 
-    public static Vector3f toVector(Rotations rotation) {
-        return new Vector3f(rotation.getX(), rotation.getY(), rotation.getZ());
+    public static Vector3d toVector(Rotations rotation) {
+        return new Vector3d(rotation.getX(), rotation.getY(), rotation.getZ());
     }
 
     // === MC Vec3i --> Flow Vector3i ===

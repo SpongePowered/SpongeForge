@@ -26,10 +26,8 @@ package org.spongepowered.mod.mixin.core.server;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
@@ -37,7 +35,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.text.message.Message;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.source.ConsoleSource;
 import org.spongepowered.api.world.World;
@@ -46,7 +44,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.text.message.SpongeMessage;
+import org.spongepowered.mod.text.SpongeText;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -137,8 +135,8 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void broadcastMessage(Message message) {
-        getConfigurationManager().sendChatMsg(((SpongeMessage) message).getHandle());
+    public void broadcastMessage(Text message) {
+        getConfigurationManager().sendChatMsg(((SpongeText) message).toComponent());
     }
 
     @Override
@@ -178,7 +176,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     }
 
     @Override
-    public Message.Text getMotd() {
+    public Text getMotd() {
         throw new UnsupportedOperationException();
     }
 
@@ -193,23 +191,16 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     }
 
     @Override
-    public void sendMessage(String... messages) {
-        for (String message : messages) {
-            addChatMessage(new ChatComponentText(message));
+    public void sendMessage(Text... messages) {
+        for (Text message : messages) {
+            addChatMessage(((SpongeText) message).toComponent());
         }
     }
 
     @Override
-    public void sendMessage(Message... messages) {
-        for (Message message : messages) {
-            addChatMessage(((SpongeMessage<?>) message).getHandle());
-        }
-    }
-
-    @Override
-    public void sendMessage(Iterable<Message> messages) {
-        for (Message message : messages) {
-            addChatMessage(((SpongeMessage<?>) message).getHandle());
+    public void sendMessage(Iterable<Text> messages) {
+        for (Text message : messages) {
+            addChatMessage(((SpongeText) message).toComponent());
         }
     }
 
@@ -220,10 +211,10 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource {
     }
 
     @Override
-    public void shutdown(Message kickMessage) {
-        for (Player player : getOnlinePlayers()) {
+    public void shutdown(Text kickMessage) {
+        /*for (Player player : getOnlinePlayers()) {
             ((EntityPlayerMP) player).playerNetServerHandler.kickPlayerFromServer(kickMessage.toLegacy()); //TODO update with the new Text API
-        }
+        }*/
 
         initiateShutdown();
     }

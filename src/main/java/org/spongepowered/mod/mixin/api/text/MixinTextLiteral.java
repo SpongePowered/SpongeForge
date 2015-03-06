@@ -22,37 +22,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.util;
+package org.spongepowered.mod.mixin.api.text;
 
-import org.spongepowered.api.text.translation.Translation;
+import net.minecraft.util.ChatComponentStyle;
+import net.minecraft.util.ChatComponentText;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
-public class TranslationHelper {
+@Mixin(value = Text.Literal.class, remap = false)
+public abstract class MixinTextLiteral extends MixinText {
 
-    /**
-     * Creates a static translation with the given id and name.
-     *
-     * @param id id of the translation
-     * @param name name of the translation
-     * @return The created translation
-     */
-    public static Translation createStaticTranslation(final String id, final String name) {
-        return new Translation() {
+    @Shadow protected String content;
 
-            @Override
-            public String getId() {
-                return id;
-            }
-
-            @Override
-            public String get() {
-                return name;
-            }
-
-            @Override
-            public String get(Object... args) {
-                return name;
-            }
-        };
+    @Override
+    protected ChatComponentStyle createComponent() {
+        return new ChatComponentText(this.content);
     }
 
 }

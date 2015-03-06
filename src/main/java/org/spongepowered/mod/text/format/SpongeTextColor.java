@@ -24,36 +24,24 @@
  */
 package org.spongepowered.mod.text.format;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import net.minecraft.util.EnumChatFormatting;
 import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import java.awt.Color;
 
+@NonnullByDefault
 public class SpongeTextColor implements TextColor.Base {
 
-    private Color color;
-    private String name;
-    private EnumChatFormatting handle;
+    private final EnumChatFormatting handle;
+    private final Color color;
 
-    public SpongeTextColor(Color color, EnumChatFormatting format) {
-        this.color = color;
-        this.handle = format;
-        this.name = format.getFriendlyName();
-    }
-
-    @Override
-    public Color getColor() {
-        return this.color;
-    }
-
-    @Override
-    public boolean isReset() {
-        return this.color == Color.WHITE;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
+    public SpongeTextColor(EnumChatFormatting handle, Color color) {
+        this.handle = checkNotNull(handle, "handle");
+        this.color = checkNotNull(color, "color");
     }
 
     public EnumChatFormatting getHandle() {
@@ -61,10 +49,27 @@ public class SpongeTextColor implements TextColor.Base {
     }
 
     @Override
-    @Deprecated
+    public String getName() {
+        return this.handle.name();
+    }
+
+    @Override
+    public Color getColor() {
+        return this.color;
+    }
+
+    @Override @Deprecated
     public char getCode() {
-        // TODO
-        return 0;
+        return this.handle.formattingCode;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    public static SpongeTextColor of(EnumChatFormatting color) {
+        return SpongeGameRegistry.enumChatColor.get(color);
     }
 
 }

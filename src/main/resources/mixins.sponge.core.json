@@ -181,6 +181,17 @@
         "status.MixinPingResponseHandler",
         "status.MixinPlayerCountData",
         "status.MixinServerStatusResponse",
+
+        "text.MixinChatComponentScore",
+        "text.MixinChatComponentSelector",
+        "text.MixinChatComponentStyle",
+        "text.MixinChatComponentText",
+        "text.MixinChatComponentTranslation",
+        "text.MixinChatStyle",
+        "text.MixinChatStyleRoot",
+        "text.MixinClickEvent",
+        "text.MixinHoverEvent",
+
         "world.MixinChunk",
         "world.MixinWorld",
         "world.MixinWorldBorder",

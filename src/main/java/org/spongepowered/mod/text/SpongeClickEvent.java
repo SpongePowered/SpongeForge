@@ -22,32 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.api.text.selector;
+package org.spongepowered.mod.text;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.text.action.ClickAction;
 
-import java.util.List;
+public interface SpongeClickEvent {
 
-@NonnullByDefault
-public class SpongeSelectorTypeFactory implements SelectorTypeFactory {
+    ClickAction<?> getHandle();
 
-    private final ImmutableMap<String, SelectorType> selectorTypes = new ImmutableMap.Builder<String, SelectorType>()
-            .put(SelectorTypes.ALL_ENTITIES.getId(), SelectorTypes.ALL_ENTITIES)
-            .put(SelectorTypes.ALL_PLAYERS.getId(), SelectorTypes.ALL_PLAYERS)
-            .put(SelectorTypes.NEAREST_PLAYER.getId(), SelectorTypes.NEAREST_PLAYER)
-            .put(SelectorTypes.RANDOM_PLAYER.getId(), SelectorTypes.RANDOM_PLAYER)
-            .build();
-
-    @Override
-    public Optional<SelectorType> getTypeFromName(String name) {
-        return Optional.fromNullable(this.selectorTypes.get(name));
-    }
-
-    @Override
-    public List<SelectorType> getTypes() {
-        return this.selectorTypes.values().asList();
-    }
+    void setHandle(ClickAction<?> handle);
 
 }

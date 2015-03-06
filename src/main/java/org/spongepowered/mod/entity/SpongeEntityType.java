@@ -28,6 +28,7 @@ import com.google.common.base.MoreObjects;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
 import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.text.translation.Translation;
 
 public class SpongeEntityType implements EntityType {
 
@@ -111,4 +112,8 @@ public class SpongeEntityType implements EntityType {
                 .toString();
     }
 
+    @Override
+    public Translation getTranslation() {
+        return null;
+    }
 }

@@ -25,7 +25,6 @@
 package org.spongepowered.mod.effect.particle;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3f;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -56,7 +55,7 @@ public final class SpongeParticleHelper {
         SpongeParticleType type = effect.getType();
         EnumParticleTypes internal = type.getInternalType();
 
-        Vector3f offset = effect.getOffset();
+        Vector3d offset = effect.getOffset();
 
         int count = effect.getCount();
         int[] extra = new int[0];
@@ -65,14 +64,14 @@ public final class SpongeParticleHelper {
         float py = (float) position.getY();
         float pz = (float) position.getZ();
 
-        float ox = offset.getX();
-        float oy = offset.getY();
-        float oz = offset.getZ();
+        double ox = offset.getX();
+        double oy = offset.getY();
+        double oz = offset.getZ();
 
         // The extra values, normal behavior offsetX, offsetY, offsetZ
-        float f0 = 0f;
-        float f1 = 0f;
-        float f2 = 0f;
+        double f0 = 0f;
+        double f1 = 0f;
+        double f2 = 0f;
 
         // Depends on behavior
         // Note: If the count > 0 -> speed = 0f else if count = 0 -> speed = 1f
@@ -114,7 +113,7 @@ public final class SpongeParticleHelper {
             }
 
             if (size == 0f) {
-                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, px, py, pz, ox, oy, oz, 0f, count, extra));
+                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, (float) px, (float) py, (float) pz, (float) ox, (float) oy, (float) oz, 0f, count, extra));
             }
 
             f0 = size;
@@ -123,7 +122,7 @@ public final class SpongeParticleHelper {
             Color color1 = ((SpongeParticleType.Colorable) type).getDefaultColor();
 
             if (color0.equals(color1)) {
-                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, px, py, pz, ox, oy, oz, 0f, count, extra));
+                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, (float) px, (float) py, (float) pz, (float) ox, (float) oy, (float) oz, 0f, count, extra));
             }
 
             f0 = color0.getRed() / 255f;
@@ -138,16 +137,16 @@ public final class SpongeParticleHelper {
             float note = ((SpongeParticleEffect.Note) effect).getNote();
 
             if (note == 0f) {
-                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, px, py, pz, ox, oy, oz, 0f, count, extra));
+                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, (float) px, (float) py, (float) pz, (float) ox, (float) oy, (float) oz, 0f, count, extra));
             }
 
             f0 = note / 24f;
         } else if (type.hasMotion()) {
-            Vector3f motion = effect.getMotion();
+            Vector3d motion = effect.getMotion();
 
-            float mx = motion.getX();
-            float my = motion.getY();
-            float mz = motion.getZ();
+            double mx = motion.getX();
+            double my = motion.getY();
+            double mz = motion.getZ();
 
             // The y value won't work for this effect, if the value isn't 0 the motion won't work
             if (internal == EnumParticleTypes.WATER_SPLASH) {
@@ -155,7 +154,7 @@ public final class SpongeParticleHelper {
             }
 
             if (mx == 0f && my == 0f && mz == 0f) {
-                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, px, py, pz, ox, oy, oz, 0f, count, extra));
+                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, (float) px, (float) py, (float) pz, (float) ox, (float) oy, (float) oz, 0f, count, extra));
             } else {
                 f0 = mx;
                 f1 = my;
@@ -165,24 +164,24 @@ public final class SpongeParticleHelper {
 
         // Is this check necessary?
         if (f0 == 0f && f1 == 0f && f2 == 0f) {
-            return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, px, py, pz, ox, oy, oz, 0f, count, extra));
+            return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, (float) px, (float) py, (float) pz, (float) ox, (float) oy, (float) oz, 0f, count, extra));
         }
 
         List<Packet> packets = Lists.newArrayList();
 
         if (ox == 0f && oy == 0f && oz == 0f) {
             for (int i = 0; i < count; i++) {
-                packets.add(new S2APacketParticles(internal, true, px, py, pz, f0, f1, f2, 1f, 0, extra));
+                packets.add(new S2APacketParticles(internal, true, (float) px, (float) py, (float) pz, (float) f0, (float) f1, (float) f2, 1f, 0, extra));
             }
         } else {
             Random random = new Random();
 
             for (int i = 0; i < count; i++) {
-                float px0 = (px + (random.nextFloat() * 2f - 1f) * ox);
-                float py0 = (py + (random.nextFloat() * 2f - 1f) * oy);
-                float pz0 = (pz + (random.nextFloat() * 2f - 1f) * oz);
+                double px0 = (px + (random.nextFloat() * 2f - 1f) * ox);
+                double py0 = (py + (random.nextFloat() * 2f - 1f) * oy);
+                double pz0 = (pz + (random.nextFloat() * 2f - 1f) * oz);
 
-                packets.add(new S2APacketParticles(internal, true, px0, py0, pz0, f0, f1, f2, 1f, 0, extra));
+                packets.add(new S2APacketParticles(internal, true, (float) px0, (float) py0, (float) pz0, (float) f0, (float) f1, (float) f2, 1f, 0, extra));
             }
         }
 

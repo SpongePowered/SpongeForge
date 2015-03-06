@@ -25,7 +25,13 @@
 package org.spongepowered.mod.entity.player.gamemode;
 
 import org.spongepowered.api.entity.player.gamemode.GameMode;
+import org.spongepowered.api.text.translation.Translation;
 
 public class SpongeGameMode implements GameMode {
+
+    @Override
+    public Translation getTranslation() {
+        return null;
+    }
 
 }

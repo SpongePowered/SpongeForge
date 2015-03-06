@@ -69,6 +69,10 @@ public abstract class MixinPlayerCountData implements StatusPingEvent.Response.P
     @Override
     @SuppressWarnings("unchecked")
     public List<org.spongepowered.api.GameProfile> getProfiles() {
+        if (this.profiles == null) {
+            this.profiles = Lists.newArrayList();
+        }
+
         return (List) this.profiles; // This cast should be always save
     }
 

@@ -26,8 +26,8 @@
 package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.event.entity.living.player.PlayerQuitEvent;
-import org.spongepowered.api.text.message.Message;
+import org.spongepowered.api.event.entity.player.PlayerQuitEvent;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -37,11 +37,11 @@ public abstract class MixinEventPlayerQuit implements PlayerQuitEvent {
 
     // TODO: This event actually fires after messages are displayed.
     @Override
-    public Message getQuitMessage() {
+    public Text getQuitMessage() {
         return null;
     }
 
     @Override
-    public void setQuitMessage(Message joinMessage) {
+    public void setQuitMessage(Text joinMessage) {
     }
 }

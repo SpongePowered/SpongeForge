@@ -25,6 +25,7 @@
 package org.spongepowered.mod.entity;
 
 import org.spongepowered.api.entity.living.villager.Profession;
+import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @NonnullByDefault
@@ -37,5 +38,10 @@ public class SpongeProfession extends SpongeEntityMeta implements Profession {
     @Override
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public Translation getTranslation() {
+        return null;
     }
 }

@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.effect.particle;
 
-import com.flowpowered.math.vector.Vector3f;
+import com.flowpowered.math.vector.Vector3d;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.item.inventory.ItemStack;
 
@@ -34,12 +34,12 @@ public class SpongeParticleEffect implements ParticleEffect {
 
     private SpongeParticleType type;
 
-    private Vector3f motion;
-    private Vector3f offset;
+    private Vector3d motion;
+    private Vector3d offset;
 
     private int count;
 
-    public SpongeParticleEffect(SpongeParticleType type, Vector3f motion, Vector3f offset, int count) {
+    public SpongeParticleEffect(SpongeParticleType type, Vector3d motion, Vector3d offset, int count) {
         this.motion = motion;
         this.offset = offset;
         this.count = count;
@@ -52,12 +52,12 @@ public class SpongeParticleEffect implements ParticleEffect {
     }
 
     @Override
-    public Vector3f getMotion() {
+    public Vector3d getMotion() {
         return this.motion;
     }
 
     @Override
-    public Vector3f getOffset() {
+    public Vector3d getOffset() {
         return this.offset;
     }
 
@@ -70,7 +70,7 @@ public class SpongeParticleEffect implements ParticleEffect {
 
         private Color color;
 
-        public Colored(SpongeParticleType type, Vector3f motion, Vector3f offset, Color color, int count) {
+        public Colored(SpongeParticleType type, Vector3d motion, Vector3d offset, Color color, int count) {
             super(type, motion, offset, count);
             this.color = color;
         }
@@ -86,7 +86,7 @@ public class SpongeParticleEffect implements ParticleEffect {
 
         private float size;
 
-        public Resized(SpongeParticleType type, Vector3f motion, Vector3f offset, float size, int count) {
+        public Resized(SpongeParticleType type, Vector3d motion, Vector3d offset, float size, int count) {
             super(type, motion, offset, count);
             this.size = size;
         }
@@ -102,7 +102,7 @@ public class SpongeParticleEffect implements ParticleEffect {
 
         private float note;
 
-        public Note(SpongeParticleType type, Vector3f motion, Vector3f offset, float note, int count) {
+        public Note(SpongeParticleType type, Vector3d motion, Vector3d offset, float note, int count) {
             super(type, motion, offset, count);
             this.note = note;
         }
@@ -118,7 +118,7 @@ public class SpongeParticleEffect implements ParticleEffect {
 
         private ItemStack item;
 
-        public Materialized(SpongeParticleType type, Vector3f motion, Vector3f offset, ItemStack item, int count) {
+        public Materialized(SpongeParticleType type, Vector3d motion, Vector3d offset, ItemStack item, int count) {
             super(type, motion, offset, count);
             this.item = item;
         }

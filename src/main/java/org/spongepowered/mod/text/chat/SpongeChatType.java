@@ -28,11 +28,9 @@ import org.spongepowered.api.text.chat.ChatType;
 
 public class SpongeChatType implements ChatType {
 
-    private String name;
-    private byte id;
+    private final byte id;
 
-    public SpongeChatType(String name, byte id) {
-        this.name = name;
+    public SpongeChatType(byte id) {
         this.id = id;
     }
 
@@ -40,7 +38,4 @@ public class SpongeChatType implements ChatType {
         return this.id;
     }
 
-    public String getName() {
-        return this.name;
-    }
 }

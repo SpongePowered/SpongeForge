@@ -26,10 +26,12 @@ package org.spongepowered.mod.text.translation;
 
 import net.minecraft.util.StatCollector;
 import org.spongepowered.api.text.translation.Translation;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 
+@NonnullByDefault
 public class SpongeTranslation implements Translation {
 
-    private String id;
+    private final String id;
 
     public SpongeTranslation(String id) {
         this.id = id;
@@ -47,7 +49,7 @@ public class SpongeTranslation implements Translation {
 
     @Override
     public String get(Object... args) {
-        return String.format(get());
+        return StatCollector.translateToLocalFormatted(this.id, args);
     }
 
 }

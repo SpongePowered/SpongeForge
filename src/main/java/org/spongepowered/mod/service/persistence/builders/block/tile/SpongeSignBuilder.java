@@ -32,7 +32,7 @@ import org.spongepowered.api.block.data.Sign;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
-import org.spongepowered.api.text.message.Messages;
+import org.spongepowered.api.text.Texts;
 
 public class SpongeSignBuilder extends AbstractTileBuilder<Sign> {
 
@@ -53,7 +53,7 @@ public class SpongeSignBuilder extends AbstractTileBuilder<Sign> {
         Sign sign = signOptional.get();
         int i = 0;
         for (String message : container.getStringList(new DataQuery("Lines")).get()) {
-            sign.setLine(i++, Messages.fromLegacy(message));
+            sign.setLine(i++, Texts.fromLegacy(message));
         }
         ((TileEntitySign) sign).validate();
         return Optional.of(sign);

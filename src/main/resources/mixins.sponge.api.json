@@ -1,0 +1,11 @@
+{
+    "package": "org.spongepowered.mod.mixin.api",
+    "refmap": "mixins.sponge.refmap.json",
+    "mixins": [
+        "text.MixinText",
+        "text.MixinTextLiteral",
+        "text.MixinTextScore",
+        "text.MixinTextSelector",
+        "text.MixinTextTranslatable"
+    ]
+}

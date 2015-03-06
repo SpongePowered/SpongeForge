@@ -22,23 +22,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.text.selector;
+package org.spongepowered.mod.text;
 
-import org.spongepowered.api.text.selector.SelectorType;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import net.minecraft.util.IChatComponent;
 
-@NonnullByDefault
-public class SpongeSelectorType implements SelectorType {
+import java.util.Iterator;
 
-    private final String id;
+public class ChatComponentIterable implements Iterable<IChatComponent> {
 
-    public SpongeSelectorType(String id) {
-        this.id = id;
+    private final IChatComponent component;
+
+    public ChatComponentIterable(IChatComponent component) {
+        this.component = component;
     }
 
     @Override
-    public String getId() {
-        return this.id;
+    public Iterator<IChatComponent> iterator() {
+        return new ChatComponentIterator(this.component);
     }
 
 }

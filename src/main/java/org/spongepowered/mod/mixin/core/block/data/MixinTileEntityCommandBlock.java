@@ -26,16 +26,18 @@ package org.spongepowered.mod.mixin.core.block.data;
 
 import com.google.common.base.Optional;
 import net.minecraft.command.server.CommandBlockLogic;
+import net.minecraft.util.IChatComponent;
 import org.spongepowered.api.block.data.CommandBlock;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.text.message.SpongeMessage;
+import org.spongepowered.mod.text.SpongeChatComponent;
+import org.spongepowered.mod.text.SpongeText;
 
 @NonnullByDefault
 @Implements(@Interface(iface = CommandBlock.class, prefix = "command$"))
@@ -69,12 +71,17 @@ public abstract class MixinTileEntityCommandBlock extends MixinTileEntity {
         getCommandBlockLogic().setTrackOutput(track);
     }
 
-    public Optional<Message> command$getLastOutput() {
-        return Optional.fromNullable(SpongeMessage.of(getCommandBlockLogic().getLastOutput()));
+    public Optional<Text> command$getLastOutput() {
+        IChatComponent output = getCommandBlockLogic().getLastOutput();
+        if (output != null) {
+            return Optional.of(((SpongeChatComponent) output).toText());
+        }
+
+        return Optional.absent();
     }
 
-    public void command$setLastOutput(Message message) {
-        getCommandBlockLogic().setLastOutput(((SpongeMessage) message).getHandle());
+    public void command$setLastOutput(Text message) {
+        getCommandBlockLogic().setLastOutput(((SpongeText) message).toComponent());
     }
 
     void command$execute() {
@@ -90,9 +97,9 @@ public abstract class MixinTileEntityCommandBlock extends MixinTileEntity {
         container.set(new DataQuery("CustomName"), this.getCommandBlockLogic().getCustomName());
         container.set(new DataQuery("DoesTrackOutput"), this.command$doesTrackOutput());
         if (this.command$doesTrackOutput()) {
-            Optional<Message> message = this.command$getLastOutput();
+            Optional<Text> message = this.command$getLastOutput();
             if (message.isPresent()) {
-                container.set(new DataQuery("TrackedOutput"), message.get().toLegacy());
+                container.set(new DataQuery("TrackedOutput"), message.get().toString());
             }
         }
         return container;

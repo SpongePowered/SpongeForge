@@ -22,107 +22,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package org.spongepowered.mod.text.title;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import net.minecraft.network.play.server.S45PacketTitle;
-import org.spongepowered.api.text.message.Message;
-import org.spongepowered.api.text.title.Title;
-import org.spongepowered.api.text.title.TitleBuilder;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.mod.text.message.SpongeMessage;
+import net.minecraft.entity.player.EntityPlayerMP;
 
-import java.util.List;
+public interface SpongeTitle {
 
-@NonnullByDefault
-public class SpongeTitle implements Title {
+    void send(EntityPlayerMP player);
 
-    private final boolean isClear;
-    private final boolean isReset;
-    private final Optional<Message> titleMessage;
-    private final Optional<Message> subtitleMessage;
-    private final Optional<Integer> fadeIn;
-    private final Optional<Integer> stay;
-    private final Optional<Integer> fadeOut;
-
-    public SpongeTitle(boolean isClear, boolean isReset, Optional<Message> titleMessage,
-            Optional<Message> subtitleMessage, Optional<Integer> fadeIn, Optional<Integer> stay,
-            Optional<Integer> fadeOut) {
-        this.isClear = isClear;
-        this.isReset = isReset;
-        this.titleMessage = titleMessage;
-        this.subtitleMessage = subtitleMessage;
-        this.fadeIn = fadeIn;
-        this.stay = stay;
-        this.fadeOut = fadeOut;
-    }
-
-    @Override
-    public Optional<Message> getTitle() {
-        return this.titleMessage;
-    }
-
-    @Override
-    public Optional<Message> getSubtitle() {
-        return this.subtitleMessage;
-    }
-
-    @Override
-    public Optional<Integer> getFadeIn() {
-        return this.fadeIn;
-    }
-
-    @Override
-    public Optional<Integer> getStay() {
-        return this.stay;
-    }
-
-    @Override
-    public Optional<Integer> getFadeOut() {
-        return this.fadeOut;
-    }
-
-    @Override
-    public boolean isClear() {
-        return this.isClear || this.isReset;
-    }
-
-    @Override
-    public boolean isReset() {
-        return this.isReset;
-    }
-
-    @Override
-    public TitleBuilder builder() {
-        return new SpongeTitleBuilder(this);
-    }
-
-    @SuppressWarnings("rawtypes")
-    public List<S45PacketTitle> getPackets() {
-        List<S45PacketTitle> packets = Lists.newArrayList();
-
-        if (this.isReset) {
-            packets.add(new S45PacketTitle(S45PacketTitle.Type.RESET, null));
-        } else if (this.isClear) {
-            packets.add(new S45PacketTitle(S45PacketTitle.Type.CLEAR, null));
-        }
-
-        if (this.fadeIn.isPresent() && this.stay.isPresent() && this.fadeOut.isPresent()) {
-            packets.add(new S45PacketTitle(this.fadeIn.get(), this.stay.get(), this.fadeOut.get()));
-        }
-
-        if (this.titleMessage.isPresent()) {
-            SpongeMessage message = (SpongeMessage) this.titleMessage.get();
-            packets.add(new S45PacketTitle(S45PacketTitle.Type.TITLE, message.getHandle()));
-        }
-
-        if (this.subtitleMessage.isPresent()) {
-            SpongeMessage message = (SpongeMessage) this.subtitleMessage.get();
-            packets.add(new S45PacketTitle(S45PacketTitle.Type.SUBTITLE, message.getHandle()));
-        }
-
-        return packets;
-    }
 }
