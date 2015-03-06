@@ -47,6 +47,7 @@ import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.block.BlockState;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.projectile.Projectile;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.mod.SpongeMod;
@@ -54,6 +55,7 @@ import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.interfaces.IMixinWorldProvider;
 import org.spongepowered.mod.mixin.plugin.CoreMixinPlugin;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -449,12 +451,12 @@ public class SpongeHooks {
     public static Projectile launchProjectile(World world, Vector3d position, ProjectileSource source, Class<? extends Projectile> projectileClass, @Nullable Vector3f velocity) {
 
         try {
-            Projectile entity = ConstructorUtils.invokeConstructor(projectileClass, world);
+            Projectile entity = (Projectile) ConstructorUtils.invokeConstructor(((SpongeGameRegistry)SpongeMod.instance.getGame().getRegistry()).getEntity(projectileClass).get().getEntityClass(), world);
             entity.setLocation(entity.getLocation().setPosition(position));
             entity.setShooter(source);
-            if(velocity != null)
+            if(velocity != null) {
                 entity.setVelocity(velocity.toDouble());
-
+            }
             return entity;
         } catch(Exception e) {
             SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
