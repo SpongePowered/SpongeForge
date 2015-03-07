@@ -26,7 +26,6 @@ package org.spongepowered.mod.wrapper;
 
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
@@ -40,6 +39,7 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
+import org.spongepowered.mod.util.SpongeHooks;
 import org.spongepowered.mod.util.VecHelper;
 
 import java.util.Collection;
@@ -112,13 +112,7 @@ public class BlockWrapper implements BlockLoc {
 
     @Override
     public void replaceWith(BlockState state) {
-        // 0 is no notify flag. For now not going to notify nearby blocks of update.
-        if (state instanceof IBlockState) {
-            this.handle.setBlockState(this.pos, (IBlockState) state, 0);
-        } else {
-            // TODO: Need to figure out what is sensible for other BlockState implementing classes.
-            throw new UnsupportedOperationException();
-        }
+        SpongeHooks.setBlockState(this.handle, this.pos, state);
     }
 
     @Override

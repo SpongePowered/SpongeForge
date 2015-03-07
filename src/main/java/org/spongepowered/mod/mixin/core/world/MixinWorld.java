@@ -48,6 +48,7 @@ import net.minecraft.world.storage.WorldInfo;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.spongepowered.api.block.BlockLoc;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.entity.Entity;
@@ -181,7 +182,35 @@ public abstract class MixinWorld implements World, IMixinWorld {
         return Optional.fromNullable((Chunk) chunk);
     }
 
-    // TODO: Add getBlock() methods again
+    @Override
+    public BlockState getBlock(Vector3i position) {
+        return getBlock(position.getX(), position.getY(), position.getZ());
+    }
+
+    @Override
+    public BlockState getBlock(int x, int y, int z) {
+        return (BlockState) ((net.minecraft.world.World) (Object) this).getBlockState(new BlockPos(x, y, z));
+    }
+
+    @Override
+    public void setBlock(Vector3i position, BlockState block) {
+        SpongeHooks.setBlockState(((net.minecraft.world.World) (Object) this), position, block);
+    }
+
+    @Override
+    public void setBlock(int x, int y, int z, BlockState block) {
+        SpongeHooks.setBlockState(((net.minecraft.world.World) (Object) this), x, y, z, block);
+    }
+
+    @Override
+    public BlockLoc getFullBlock(Vector3i position) {
+        return new BlockWrapper(this, VecHelper.toBlockPos(position));
+    }
+
+    @Override
+    public BlockLoc getFullBlock(int x, int y, int z) {
+        return new BlockWrapper(this, x, y, z);
+    }
 
     @Override
     public BiomeType getBiome(Vector2i position) {
