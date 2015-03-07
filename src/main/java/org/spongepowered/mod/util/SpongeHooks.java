@@ -28,6 +28,7 @@ import com.flowpowered.math.vector.Vector3i;
 import com.google.gson.stream.JsonWriter;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -41,6 +42,7 @@ import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.common.DimensionManager;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.interfaces.IMixinWorldProvider;
@@ -415,6 +417,24 @@ public class SpongeHooks {
             return ((IMixinWorldProvider) world.provider).getDimensionConfig();
         } else {
             return CoreMixinPlugin.getGlobalConfig();
+        }
+    }
+
+    public static void setBlockState(World world, Vector3i position, BlockState state) {
+        setBlockState(world, position.getX(), position.getY(), position.getZ(), state);
+    }
+
+    public static void setBlockState(World world, int x, int y, int z, BlockState state) {
+        setBlockState(world, new BlockPos(x, y, z), state);
+    }
+
+    public static void setBlockState(World world, BlockPos position, BlockState state) {
+        if (state instanceof IBlockState) {
+            // 0 is no notify flag. For now not going to notify nearby blocks of update.
+            world.setBlockState(position, (IBlockState) state, 0);
+        } else {
+            // TODO: Need to figure out what is sensible for other BlockState implementing classes.
+            throw new UnsupportedOperationException("Custom BlockState implementations are not supported");
         }
     }
 }
