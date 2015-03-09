@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.entity.player;
 
+import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3f;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.PlayerCapabilities;
@@ -31,11 +33,14 @@ import net.minecraft.inventory.Container;
 import net.minecraft.util.FoodStats;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.Human;
+import org.spongepowered.api.entity.projectile.Projectile;
+import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.util.SpongeHooks;
 
 @NonnullByDefault
 @Mixin(EntityPlayer.class)
@@ -142,5 +147,18 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
     public boolean human$isViewingInventory() {
         return this.openContainer != null;
     }
+
+    public <T extends Projectile> T humam$launchProjectile(Class<T> projectileClass) {
+        return human$launchProjectile(projectileClass, null);
+    }
+
+    public <T extends Projectile> T human$launchProjectile(Class<T> projectileClass, Vector3f velocity) {
+        double x = posX ;
+        double y = getEntityBoundingBox().minY + (double)(height / 3.0F) - posY;
+        double z = posZ;
+
+        return (T) SpongeHooks.launchProjectile(getEntityWorld(), new Vector3d(x, y, z), ((ProjectileSource) this), projectileClass, velocity);
+    }
+
 
 }

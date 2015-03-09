@@ -24,14 +24,19 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
+import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3f;
 import net.minecraft.entity.EntityFlying;
 import net.minecraft.entity.monster.EntityGhast;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Ghast;
+import org.spongepowered.api.entity.projectile.Projectile;
+import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.util.SpongeHooks;
 
 @NonnullByDefault
 @Mixin(EntityGhast.class)
@@ -42,4 +47,15 @@ public abstract class MixinEntityGhast extends EntityFlying {
         super(worldIn);
     }
 
+    public <T extends Projectile> T ghast$launchProjectile(Class<T> projectileClass) {
+        return ghast$launchProjectile(projectileClass, null);
+    }
+
+    public <T extends Projectile> T ghast$launchProjectile(Class<T> projectileClass, Vector3f velocity) {
+        double x = posX ;
+        double y = getEntityBoundingBox().minY + (double)(height / 2.0F);
+        double z = posZ;
+
+        return (T) SpongeHooks.launchProjectile(getEntityWorld(), new Vector3d(x, y, z), ((ProjectileSource) this), projectileClass, velocity);
+    }
 }

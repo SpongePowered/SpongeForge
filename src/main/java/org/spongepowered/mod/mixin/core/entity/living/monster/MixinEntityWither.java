@@ -24,17 +24,22 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
+import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.monster.Wither;
+import org.spongepowered.api.entity.projectile.Projectile;
+import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.util.SpongeHooks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,4 +85,17 @@ public abstract class MixinEntityWither extends EntityMob {
         }
         return watchedTargets;
     }
+
+    public <T extends Projectile> T skeleton$launchProjectile(Class<T> projectileClass) {
+        return skeleton$launchProjectile(projectileClass, null);
+    }
+
+    public <T extends Projectile> T skeleton$launchProjectile(Class<T> projectileClass, Vector3f velocity) {
+        double x = posX ;
+        double y = getEntityBoundingBox().minY + (double)(height / 3.0F) - posY;
+        double z = posZ;
+
+        return (T) SpongeHooks.launchProjectile(getEntityWorld(), new Vector3d(x, y, z), ((ProjectileSource) this), projectileClass, velocity);
+    }
+
 }
