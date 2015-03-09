@@ -24,9 +24,11 @@
  */
 package org.spongepowered.mod.mixin.core.entity.vehicle;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -127,10 +129,27 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
         super(worldIn);
     }
 
+    // The following code is copied from Vanilla's onUpdate method, with one major exception:
+
+    // Originally, maxLoop (called var4 in Vanilla) was incremented from 0 to 4 in a loop.
+    // Each time through the loop, maxLoop was used to calculate a larger bounding box,
+    // and increase another variable related to velocity.
+
+    // All that matters for determining if the boat is in water is that maximum size of the bounding box.
+    // Thus, the behavior of the final iteration through the loop is preserved, with unecessary
+    // lines removed.
     @Override
     public boolean isInWater() {
-        // TODO This only works when the boat is submerged
-        return this.inWater;
+        byte var1 = 5;
+        int maxLoop = 4;
+
+        double var5 = this.getEntityBoundingBox().minY + (this.getEntityBoundingBox().maxY - this.getEntityBoundingBox().minY) * (double)(maxLoop + 0) / (double)var1 - 0.125D;
+        double var7 = this.getEntityBoundingBox().minY + (this.getEntityBoundingBox().maxY - this.getEntityBoundingBox().minY) * (double)(maxLoop + 1) / (double)var1 - 0.125D;
+        AxisAlignedBB var9 = new AxisAlignedBB(this.getEntityBoundingBox().minX, var5, this.getEntityBoundingBox().minZ, this.getEntityBoundingBox().maxX, var7, this.getEntityBoundingBox().maxZ);
+        if(this.worldObj.isAABBInMaterial(var9, Material.water)) {
+            return true;
+        }
+        return false;
     }
 
     @Override
