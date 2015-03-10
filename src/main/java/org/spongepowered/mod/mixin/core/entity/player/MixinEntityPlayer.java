@@ -72,7 +72,7 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
     }
 
     public void human$setExhaustion(double exhaustion) {
-        this.foodStats.foodExhaustionLevel = exhaustion;
+        this.foodStats.foodExhaustionLevel = (float) exhaustion;
     }
 
     public double human$getSaturation() {
@@ -104,7 +104,7 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
     }
 
     public void human$setTotalExperience(int exp) {
-        this.experienceTotal = (int)exp;
+        this.experienceTotal = exp;
     }
 
     public boolean human$isFlying() {
