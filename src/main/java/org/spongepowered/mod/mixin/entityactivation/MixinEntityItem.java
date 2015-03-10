@@ -46,7 +46,7 @@ public abstract class MixinEntityItem extends Entity implements Item {
     @Shadow
     private int age;
 
-    @Shadow
+    @Shadow(remap = false)
     public int lifespan;
 
     public MixinEntityItem(World worldIn) {
