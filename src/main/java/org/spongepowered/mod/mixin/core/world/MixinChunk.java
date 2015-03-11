@@ -121,4 +121,9 @@ public abstract class MixinChunk implements Chunk {
         ((WorldServer) this.worldObj).theChunkProviderServer.dropChunk(this.xPosition, this.zPosition);
         return true;
     }
+
+    @Override
+    public org.spongepowered.api.world.World getWorld() {
+        return (org.spongepowered.api.world.World) this.worldObj;
+    }
 }
