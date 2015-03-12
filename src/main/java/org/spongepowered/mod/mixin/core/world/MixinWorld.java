@@ -92,7 +92,7 @@ import java.util.UUID;
 public abstract class MixinWorld implements World, IMixinWorld {
 
     private boolean keepSpawnLoaded;
-    public SpongeConfig worldConfig;
+    public SpongeConfig<SpongeConfig.WorldConfig> worldConfig;
 
     @Shadow
     public WorldProvider provider;
@@ -137,7 +137,9 @@ public abstract class MixinWorld implements World, IMixinWorld {
         if (!client) {
             String providerName = providerIn.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "");
             this.worldConfig =
-                    new SpongeConfig(SpongeConfig.Type.WORLD, new File(SpongeMod.instance.getConfigDir() + File.separator + providerName
+                    new SpongeConfig<SpongeConfig.WorldConfig>(SpongeConfig.Type.WORLD, new File(SpongeMod.instance.getConfigDir() +
+                            File
+                            .separator + providerName
                             + File.separator + (providerIn.getDimensionId() == 0 ? "dim0" : providerIn.getSaveFolder().toLowerCase()), "world.conf"),
                             "sponge");
         }
@@ -423,7 +425,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
     }
 
     @Override
-    public SpongeConfig getWorldConfig() {
+    public SpongeConfig<SpongeConfig.WorldConfig> getWorldConfig() {
         return this.worldConfig;
     }
 

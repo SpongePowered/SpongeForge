@@ -39,13 +39,15 @@ import java.util.Set;
 public class CoreMixinPlugin implements IMixinConfigPlugin {
 
     private List<String> mixins = new ArrayList<String>();
-    private static SpongeConfig GLOBAL_CONFIG;
+    private static SpongeConfig<SpongeConfig.GlobalConfig> GLOBAL_CONFIG;
     private static File SPONGE_CONFIG_DIR = new File("." + File.separator + "config" + File.separator + "sponge" + File.separator);
 
     @Override
     public void onLoad(String mixinPackage) {
         try {
-            GLOBAL_CONFIG = new SpongeConfig(SpongeConfig.Type.GLOBAL, new File(SPONGE_CONFIG_DIR, "global.conf"), "sponge");
+            GLOBAL_CONFIG = new SpongeConfig<SpongeConfig.GlobalConfig>(SpongeConfig.Type.GLOBAL, new File(SPONGE_CONFIG_DIR, "global" +
+                    ".conf"),
+                    "sponge");
         } catch (Throwable t) {
             LogManager.getLogger().error(ExceptionUtils.getStackTrace(t));
         }
@@ -81,7 +83,7 @@ public class CoreMixinPlugin implements IMixinConfigPlugin {
             String mixinClassName, IMixinInfo mixinInfo) {
     }
 
-    public static SpongeConfig getGlobalConfig() {
+    public static SpongeConfig<SpongeConfig.GlobalConfig> getGlobalConfig() {
         return GLOBAL_CONFIG;
     }
 

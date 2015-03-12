@@ -68,17 +68,6 @@ public class ActivationRange {
     static AxisAlignedBB monsterBB = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
     static AxisAlignedBB aquaticBB = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
     static AxisAlignedBB ambientBB = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
-    static final Object[] PATH_ACTIVATION_RANGE_CREATURE = new String[] {SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE,
-            SpongeConfig.ENTITY_ACTIVATION_RANGE_CREATURE};
-    static final Object[] PATH_ACTIVATION_RANGE_MONSTER = new String[] {SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE,
-            SpongeConfig.ENTITY_ACTIVATION_RANGE_MONSTER};
-    static final Object[] PATH_ACTIVATION_RANGE_AQUATIC = new String[] {SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE,
-            SpongeConfig.ENTITY_ACTIVATION_RANGE_AQUATIC};
-    static final Object[] PATH_ACTIVATION_RANGE_AMBIENT = new String[] {SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE,
-            SpongeConfig.ENTITY_ACTIVATION_RANGE_AMBIENT};
-    static final Object[] PATH_ACTIVATION_RANGE_MISC = new String[] {SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE,
-            SpongeConfig.ENTITY_ACTIVATION_RANGE_MISC};
-
     /**
      * Initializes an entities type on construction to specify what group this
      * entity is in for activation ranges.
@@ -108,24 +97,19 @@ public class ActivationRange {
      * These entities are excluded from Activation range checks.
      *
      * @param entity
-     * @param world
      * @return boolean If it should always tick.
      */
     public static boolean initializeEntityActivationState(Entity entity) {
         if (entity.worldObj.isRemote) {
             return true;
         }
-        SpongeConfig config = getActiveConfig(entity.worldObj);
+        SpongeConfig.EntityActivationRangeCategory config = getActiveConfig(entity.worldObj).getConfig().getEntityActivationRange();
 
-        if ((((IMixinEntity) entity).getActivationType() == 5 && config.getRootNode().getNode(PATH_ACTIVATION_RANGE_MISC).getInt() == 0)
-                || (((IMixinEntity) entity).getActivationType() == 4 && config.getRootNode().getNode(PATH_ACTIVATION_RANGE_AMBIENT)
-                        .getInt() == 0)
-                || (((IMixinEntity) entity).getActivationType() == 3 && config.getRootNode().getNode(PATH_ACTIVATION_RANGE_AQUATIC)
-                        .getInt() == 0)
-                || (((IMixinEntity) entity).getActivationType() == 2 && config.getRootNode().getNode(PATH_ACTIVATION_RANGE_CREATURE)
-                        .getInt() == 0)
-                || (((IMixinEntity) entity).getActivationType() == 1 && config.getRootNode().getNode(PATH_ACTIVATION_RANGE_MISC)
-                        .getInt() == 0)
+        if ((((IMixinEntity) entity).getActivationType() == 5 && config.getMiscActivationRange() == 0)
+                || (((IMixinEntity) entity).getActivationType() == 4 && config.getAmbientActivationRange() == 0)
+                || (((IMixinEntity) entity).getActivationType() == 3 && config.getAquaticActivationRange() == 0)
+                || (((IMixinEntity) entity).getActivationType() == 2 && config.getCreatureActivationRange() == 0)
+                || (((IMixinEntity) entity).getActivationType() == 1 && config.getMonsterActivationRange() == 0)
                 || (entity instanceof EntityPlayer && !(entity instanceof FakePlayer))
                 || entity instanceof EntityThrowable
                 || entity instanceof EntityDragon
@@ -169,17 +153,12 @@ public class ActivationRange {
      * @param world
      */
     public static void activateEntities(World world) {
-        SpongeConfig config = getActiveConfig(world);
-        final int miscActivationRange =
-                config.getRootNode().getNode(PATH_ACTIVATION_RANGE_MISC).getInt();
-        final int creatureActivationRange =
-                config.getRootNode().getNode(PATH_ACTIVATION_RANGE_CREATURE).getInt();
-        final int monsterActivationRange =
-                config.getRootNode().getNode(PATH_ACTIVATION_RANGE_MONSTER).getInt();
-        final int aquaticActivationRange =
-                config.getRootNode().getNode(PATH_ACTIVATION_RANGE_AQUATIC).getInt();
-        final int ambientActivationRange =
-                config.getRootNode().getNode(PATH_ACTIVATION_RANGE_AMBIENT).getInt();
+        SpongeConfig.EntityActivationRangeCategory config = getActiveConfig(world).getConfig().getEntityActivationRange();
+        final int miscActivationRange = config.getMiscActivationRange();
+        final int creatureActivationRange = config.getCreatureActivationRange();
+        final int monsterActivationRange = config.getMonsterActivationRange();
+        final int aquaticActivationRange = config.getAquaticActivationRange();
+        final int ambientActivationRange = config.getAmbientActivationRange();
 
         int[] ranges = {miscActivationRange, creatureActivationRange, monsterActivationRange, aquaticActivationRange, ambientActivationRange};
         int maxRange = 0;
@@ -231,7 +210,7 @@ public class ActivationRange {
 
             while (iterator.hasNext()) {
                 Entity entity = (Entity) iterator.next();
-                SpongeConfig config = getActiveConfig(entity.worldObj);
+                SpongeConfig<?> config = getActiveConfig(entity.worldObj);
                 SpongeEntityType type = (SpongeEntityType) ((org.spongepowered.api.entity.Entity) entity).getType();
                 if (entity.worldObj.getWorldInfo().getWorldTotalTime() > ((IMixinEntity) entity).getActivatedTick()) {
                     if (((IMixinEntity) entity).getDefaultActivationState()) {
@@ -328,7 +307,7 @@ public class ActivationRange {
     }
 
     public static void addEntityToConfig(World world, SpongeEntityType type, byte activationType) {
-        List<SpongeConfig> configs = new ArrayList<SpongeConfig>();
+        List<SpongeConfig<?>> configs = new ArrayList<SpongeConfig<?>>();
         configs.add(CoreMixinPlugin.getGlobalConfig());
         configs.add(((IMixinWorldProvider) world.provider).getDimensionConfig());
         configs.add(((IMixinWorld) world).getWorldConfig());
@@ -343,7 +322,7 @@ public class ActivationRange {
             entityType = "ambient";
         }
 
-        for (SpongeConfig config : configs) {
+        for (SpongeConfig<?> config : configs) {
             if (config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId()).isVirtual()) {
                 config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), "enabled").setValue(true);
             }
@@ -357,12 +336,12 @@ public class ActivationRange {
         }
     }
 
-    public static SpongeConfig getActiveConfig(World world) {
-        SpongeConfig config = ((IMixinWorld) world).getWorldConfig();
-        if (config.getRootNode().getNode(SpongeConfig.CONFIG_ENABLED).getBoolean()) {
+    public static SpongeConfig<?> getActiveConfig(World world) {
+        SpongeConfig<?> config = ((IMixinWorld) world).getWorldConfig();
+        if (config.getConfig().isConfigEnabled()) {
             return config;
         } else if (((IMixinWorldProvider) world.provider).getDimensionConfig() != null && ((IMixinWorldProvider) world.provider)
-                .getDimensionConfig().getRootNode().getNode(SpongeConfig.CONFIG_ENABLED).getBoolean()) {
+                .getDimensionConfig().getConfig().isConfigEnabled()) {
             return ((IMixinWorldProvider) world.provider).getDimensionConfig();
         } else {
             return CoreMixinPlugin.getGlobalConfig();

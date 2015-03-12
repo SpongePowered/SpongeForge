@@ -28,5 +28,5 @@ import org.spongepowered.mod.configuration.SpongeConfig;
 
 public interface IMixinWorld {
 
-    SpongeConfig getWorldConfig();
+    SpongeConfig<SpongeConfig.WorldConfig> getWorldConfig();
 }

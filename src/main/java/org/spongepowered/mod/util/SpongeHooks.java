@@ -82,8 +82,8 @@ public class SpongeHooks {
         MinecraftServer.getServer().logSevere(MessageFormat.format(msg, args));
     }
 
-    public static void logStack(SpongeConfig config) {
-        if (config.getRootNode().getNode("logging", SpongeConfig.LOGGING_STACKTRACES).getBoolean()) {
+    public static void logStack(SpongeConfig<?> config) {
+        if (config.getConfig().getLogging().logWithStackTraces()) {
             Throwable ex = new Throwable();
             ex.fillInStackTrace();
             ex.printStackTrace();
@@ -91,8 +91,8 @@ public class SpongeHooks {
     }
 
     public static void logEntityDeath(Entity entity) {
-        SpongeConfig config = getActiveConfig(entity.worldObj);
-        if (config.getRootNode().getNode("logging", SpongeConfig.LOGGING_ENTITY_DEATH).getBoolean()) {
+        SpongeConfig<?> config = getActiveConfig(entity.worldObj);
+        if (config.getConfig().getLogging().entityDeathLogging()) {
             logInfo("[" + config.getConfigName() + "] [" + config.getConfigName() + "] Dim: {0} setDead(): {1}",
                     entity.worldObj.provider.getDimensionId(), entity);
             logStack(config);
@@ -100,24 +100,24 @@ public class SpongeHooks {
     }
 
     public static void logEntityDespawn(Entity entity, String reason) {
-        SpongeConfig config = getActiveConfig(entity.worldObj);
-        if (config.getRootNode().getNode("logging", SpongeConfig.LOGGING_ENTITY_DESPAWN).getBoolean()) {
+        SpongeConfig<?> config = getActiveConfig(entity.worldObj);
+        if (config.getConfig().getLogging().entityDespawnLogging()) {
             logInfo("[" + config.getConfigName() + "] Dim: {0} Despawning ({1}): {2}", entity.worldObj.provider.getDimensionId(), reason, entity);
             logStack(config);
         }
     }
 
     public static void logEntitySpawn(Entity entity) {
-        SpongeConfig config = getActiveConfig(entity.worldObj);
-        if (config.getRootNode().getNode("logging", SpongeConfig.LOGGING_ENTITY_SPAWN).getBoolean()) {
+        SpongeConfig<?> config = getActiveConfig(entity.worldObj);
+        if (config.getConfig().getLogging().entitySpawnLogging()) {
             logInfo("[" + config.getConfigName() + "] Dim: {0} Spawning: {1}", entity.worldObj.provider.getDimensionId(), entity);
             logStack(config);
         }
     }
 
     public static void logChunkLoad(World world, Vector3i chunkPos) {
-        SpongeConfig config = getActiveConfig(world);
-        if (config.getRootNode().getNode("logging", SpongeConfig.LOGGING_CHUNK_LOAD).getBoolean()) {
+        SpongeConfig<?> config = getActiveConfig(world);
+        if (config.getConfig().getLogging().chunkLoadLogging()) {
             logInfo("[" + config.getConfigName() + "] Load Chunk At [{0}] ({1}, {2})", world.provider.getDimensionId(), chunkPos.getX(),
                     chunkPos.getZ());
             logStack(config);
@@ -125,8 +125,8 @@ public class SpongeHooks {
     }
 
     public static void logChunkUnload(World world, Vector3i chunkPos) {
-        SpongeConfig config = getActiveConfig(world);
-        if (config.getRootNode().getNode("logging", SpongeConfig.LOGGING_CHUNK_UNLOAD).getBoolean()) {
+        SpongeConfig<?> config = getActiveConfig(world);
+        if (config.getConfig().getLogging().chunkUnloadLogging()) {
             logInfo("[" + config.getConfigName() + "] Unload Chunk At [{0}] ({1}, {2})", world.provider.getDimensionId(), chunkPos.getX(),
                     chunkPos.getZ());
             logStack(config);
@@ -135,18 +135,18 @@ public class SpongeHooks {
 
     @SuppressWarnings("unused")
     private static void logChunkLoadOverride(ChunkProviderServer provider, int x, int z) {
-        SpongeConfig config = getActiveConfig(provider.worldObj);
+        SpongeConfig<?> config = getActiveConfig(provider.worldObj);
         logInfo("[" + config.getConfigName() + "]  Chunk Load Override: {0}, Dimension ID: {1}", provider.chunkLoadOverride,
                 provider.worldObj.provider.getDimensionId());
     }
 
     public static boolean checkBoundingBoxSize(Entity entity, AxisAlignedBB aabb) {
-        SpongeConfig config = getActiveConfig(entity.worldObj);
+        SpongeConfig<?> config = getActiveConfig(entity.worldObj);
         if (!(entity instanceof EntityLivingBase) || entity instanceof EntityPlayer) {
             return false; // only check living entities that are not players
         }
 
-        int maxBoundingBoxSize = config.getRootNode().getNode("entity", SpongeConfig.ENTITY_MAX_BOUNDING_BOX_SIZE).getInt();
+        int maxBoundingBoxSize = config.getConfig().getEntity().getMaxBoundingBoxSize();
         if (maxBoundingBoxSize <= 0) {
             return false;
         }
@@ -176,12 +176,12 @@ public class SpongeHooks {
     }
 
     public static boolean checkEntitySpeed(Entity entity, double x, double y, double z) {
-        SpongeConfig config = getActiveConfig(entity.worldObj);
-        int maxSpeed = config.getRootNode().getNode("entity", SpongeConfig.ENTITY_MAX_SPEED).getInt();
+        SpongeConfig<?> config = getActiveConfig(entity.worldObj);
+        int maxSpeed = config.getConfig().getEntity().getMaxSpeed();
         if (maxSpeed > 0) {
             double distance = x * x + z * z;
             if (distance > maxSpeed) {
-                if (config.getRootNode().getNode("logging", SpongeConfig.LOGGING_ENTITY_SPEED_REMOVAL).getBoolean()) {
+                if (config.getConfig().getLogging().logEntitySpeedRemoval()) {
                     logInfo("[" + config.getConfigName() + "] Speed violation: {0} was over {1} - Removing Entity: {2}", distance, maxSpeed, entity);
                     if (entity instanceof EntityLivingBase) {
                         EntityLivingBase livingBase = (EntityLivingBase) entity;
@@ -191,7 +191,7 @@ public class SpongeHooks {
                                 livingBase.moveStrafing, livingBase.moveForward);
                     }
 
-                    if (config.getRootNode().getNode("logging", SpongeConfig.LOGGING_STACKTRACES).getBoolean()) {
+                    if (config.getConfig().getLogging().logWithStackTraces()) {
                         logInfo("[" + config.getConfigName() + "] Move offset: ({0}, {1}, {2})", x, y, z);
                         logInfo("[" + config.getConfigName() + "] Motion: ({0}, {1}, {2})", entity.motionX, entity.motionY, entity.motionZ);
                         logInfo("[" + config.getConfigName() + "] Entity: {0}", entity);
@@ -218,11 +218,11 @@ public class SpongeHooks {
     // TODO - needs to be hooked
     @SuppressWarnings("rawtypes")
     public static void logEntitySize(Entity entity, List list) {
-        SpongeConfig config = getActiveConfig(entity.worldObj);
-        if (!config.getRootNode().getNode("logging", SpongeConfig.LOGGING_ENTITY_COLLISION_CHECKS).getBoolean()) {
+        SpongeConfig<?> config = getActiveConfig(entity.worldObj);
+        if (!config.getConfig().getLogging().logEntityCollisionChecks()) {
             return;
         }
-        int collisionWarnSize = config.getRootNode().getNode(SpongeConfig.ENTITY_COLLISION_WARN_SIZE).getInt();
+        int collisionWarnSize = config.getConfig().getEntity().getMaxCollisionSize();
 
         if (list == null) {
             return;
@@ -401,19 +401,19 @@ public class SpongeHooks {
     }
 
     public static void enableThreadContentionMonitoring() {
-        if (!CoreMixinPlugin.getGlobalConfig().getRootNode().getNode("debug", SpongeConfig.DEBUG_THREAD_CONTENTION_MONITORING).getBoolean()) {
+        if (!CoreMixinPlugin.getGlobalConfig().getConfig().getDebug().isEnableThreadContentionMonitoring()) {
             return;
         }
         java.lang.management.ThreadMXBean mbean = java.lang.management.ManagementFactory.getThreadMXBean();
         mbean.setThreadContentionMonitoringEnabled(true);
     }
 
-    public static SpongeConfig getActiveConfig(World world) {
-        SpongeConfig config = ((IMixinWorld) world).getWorldConfig();
-        if (config.getRootNode().getNode(SpongeConfig.CONFIG_ENABLED).getBoolean()) {
+    public static SpongeConfig<?> getActiveConfig(World world) {
+        SpongeConfig<?> config = ((IMixinWorld) world).getWorldConfig();
+        if (config.getConfig().isConfigEnabled()) {
             return config;
         } else if (((IMixinWorldProvider) world.provider).getDimensionConfig() != null && ((IMixinWorldProvider) world.provider)
-                .getDimensionConfig().getRootNode().getNode(SpongeConfig.CONFIG_ENABLED).getBoolean()) {
+                .getDimensionConfig().getConfig().isConfigEnabled()) {
             return ((IMixinWorldProvider) world.provider).getDimensionConfig();
         } else {
             return CoreMixinPlugin.getGlobalConfig();

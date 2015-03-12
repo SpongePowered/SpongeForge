@@ -44,7 +44,7 @@ import java.io.File;
 public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvider {
 
     private boolean allowPlayerRespawns;
-    private SpongeConfig dimensionConfig;
+    private SpongeConfig<SpongeConfig.DimensionConfig> dimensionConfig;
 
     @Shadow
     protected int dimensionId;
@@ -68,8 +68,10 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
         WorldProvider provider = net.minecraftforge.common.DimensionManager.createProviderFor(dimension);
         if (!SpongeGameRegistry.dimensionConfigs.containsKey(provider.getClass())) {
             String providerName = provider.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "");
-            SpongeConfig dimConfig =
-                    new SpongeConfig(SpongeConfig.Type.DIMENSION, new File(SpongeMod.instance.getConfigDir() + File.separator + providerName
+            SpongeConfig<SpongeConfig.DimensionConfig> dimConfig =
+                    new SpongeConfig<SpongeConfig.DimensionConfig>(SpongeConfig.Type.DIMENSION, new File(SpongeMod.instance.getConfigDir
+                            () + File
+                            .separator + providerName
                             + File.separator, "dimension.conf"), "sponge");
             SpongeGameRegistry.dimensionConfigs.put(provider.getClass(), dimConfig);
             ((IMixinWorldProvider) provider).setDimensionConfig(dimConfig);
@@ -126,12 +128,12 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
     }
 
     @Override
-    public void setDimensionConfig(SpongeConfig config) {
+    public void setDimensionConfig(SpongeConfig<SpongeConfig.DimensionConfig> config) {
         this.dimensionConfig = config;
     }
 
     @Override
-    public SpongeConfig getDimensionConfig() {
+    public SpongeConfig<SpongeConfig.DimensionConfig> getDimensionConfig() {
         return this.dimensionConfig;
     }
 }

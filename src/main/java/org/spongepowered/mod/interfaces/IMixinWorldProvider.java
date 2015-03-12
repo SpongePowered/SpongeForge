@@ -28,7 +28,7 @@ import org.spongepowered.mod.configuration.SpongeConfig;
 
 public interface IMixinWorldProvider {
 
-    void setDimensionConfig(SpongeConfig config);
+    void setDimensionConfig(SpongeConfig<SpongeConfig.DimensionConfig> config);
 
-    SpongeConfig getDimensionConfig();
+    SpongeConfig<SpongeConfig.DimensionConfig> getDimensionConfig();
 }

@@ -90,7 +90,7 @@ public class CommandSponge extends CommandBase {
     public void processCommand(ICommandSender sender, String[] args) {
         if (args.length > 0) {
             String command = args[0];
-            SpongeConfig config = CoreMixinPlugin.getGlobalConfig();
+            SpongeConfig<?> config = CoreMixinPlugin.getGlobalConfig();
 
             if (COMMANDS.contains(command)) {
                 if (FLAG_COMMANDS.contains(command)) {
@@ -198,7 +198,7 @@ public class CommandSponge extends CommandBase {
                             }
                             configName = "ALL";
                         } else if (name.equals("*") && config.getType() == SpongeConfig.Type.DIMENSION) {
-                            for (SpongeConfig dimensionConfig : SpongeGameRegistry.dimensionConfigs.values()) {
+                            for (SpongeConfig<?> dimensionConfig : SpongeGameRegistry.dimensionConfigs.values()) {
                                 dimensionConfig.save();
                             }
                             configName = "ALL";
@@ -213,12 +213,12 @@ public class CommandSponge extends CommandBase {
                             config.reload();
                         } else if (name.equals("*") && config.getType() == SpongeConfig.Type.WORLD) {
                             for (WorldServer worldserver : DimensionManager.getWorlds()) {
-                                SpongeConfig worldConfig = ((IMixinWorld) worldserver).getWorldConfig();
+                                SpongeConfig<?> worldConfig = ((IMixinWorld) worldserver).getWorldConfig();
                                 worldConfig.reload();
                             }
                             configName = "ALL";
                         } else if (name.equals("*") && config.getType() == SpongeConfig.Type.DIMENSION) {
-                            for (SpongeConfig dimensionConfig : SpongeGameRegistry.dimensionConfigs.values()) {
+                            for (SpongeConfig<?> dimensionConfig : SpongeGameRegistry.dimensionConfigs.values()) {
                                 dimensionConfig.reload();
                             }
                             configName = "ALL";
@@ -342,7 +342,7 @@ public class CommandSponge extends CommandBase {
         sender.addChatMessage(new ChatComponentText("Chunk info complete"));
     }
 
-    private boolean getToggle(SpongeConfig config, ICommandSender sender, String key) {
+    private boolean getToggle(SpongeConfig<?> config, ICommandSender sender, String key) {
         try {
             if (config.getSetting(key).isVirtual()) {
                 sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Could not find option: " + key));
@@ -359,7 +359,7 @@ public class CommandSponge extends CommandBase {
         return true;
     }
 
-    private boolean setToggle(SpongeConfig config, ICommandSender sender, String key, String value) {
+    private boolean setToggle(SpongeConfig<?> config, ICommandSender sender, String key, String value) {
         try {
             if (config.getSetting(key).isVirtual()) {
                 sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Could not find option: " + key));
