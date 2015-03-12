@@ -122,6 +122,7 @@
         "event.MixinEvent",
         "event.MixinEventBus",
         "event.block.MixinEventBlock",
+        "event.block.MixinBlockUpdateEvent",
         "event.entity.MixinEventEntity",
         "event.entity.MixinEventEntityConstructing",
         "event.entity.MixinEventEntityJoinWorld",

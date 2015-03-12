@@ -45,23 +45,24 @@ import java.util.Set;
 public abstract class MixinBlockUpdateEvent extends BlockEvent implements BlockUpdateEvent {
 
     @Shadow
-    private final EnumSet<EnumFacing> notifiedSides = null;
+    private final EnumSet<EnumFacing> notifiedSides;
 
     private final Set<BlockLoc> affectedBlocks;
 
-    public MixinBlockUpdateEvent(World world, BlockPos pos, IBlockState state) {
+    public MixinBlockUpdateEvent(World world, BlockPos pos, IBlockState state, EnumSet<EnumFacing> notifiedSides) {
         super(world, pos, state);
 
-        affectedBlocks = new HashSet<BlockLoc>();
+        this.affectedBlocks = new HashSet<BlockLoc>();
         for(EnumFacing notifiedSide : notifiedSides) {
             BlockPos offset = pos.offset(notifiedSide);
-            affectedBlocks.add(((org.spongepowered.api.world.World) world).getFullBlock(offset.getX(), offset.getY(), offset.getZ()));
+            this.affectedBlocks.add(((org.spongepowered.api.world.World) world).getFullBlock(offset.getX(), offset.getY(), offset.getZ()));
         }
+        this.notifiedSides = notifiedSides;
     }
 
     @Override
     public Collection<BlockLoc> getAffectedBlocks() {
-        return affectedBlocks;
+        return this.affectedBlocks;
     }
 
 }
