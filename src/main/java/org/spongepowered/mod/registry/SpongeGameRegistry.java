@@ -182,7 +182,8 @@ public class SpongeGameRegistry implements GameRegistry {
     private final Map<String, BiomeType> biomeTypeMappings = Maps.newHashMap();
     public static final Map<String, SpongeTextColor> textColorMappings = Maps.newHashMap();
     public static final Map<TextColor, EnumChatFormatting> textColorToEnumMappings = Maps.newHashMap();
-    public static final Map<Class<? extends WorldProvider>, SpongeConfig> dimensionConfigs = Maps.newHashMap();
+    public static final Map<Class<? extends WorldProvider>, SpongeConfig<SpongeConfig.DimensionConfig>> dimensionConfigs = Maps
+            .newHashMap();
     public static final ImmutableMap<String, TextStyle.Base> textStyleMappings = new ImmutableMap.Builder<String, TextStyle.Base>()
             .put("OBFUSCATED", new TextStyle.Base("OBFUSCATED", 'k'))
             .put("BOLD", new TextStyle.Base("BOLD", 'l'))

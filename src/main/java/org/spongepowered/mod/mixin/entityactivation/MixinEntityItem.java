@@ -60,7 +60,7 @@ public abstract class MixinEntityItem extends Entity implements Item {
         }
 
         if (!this.worldObj.isRemote
-                && this.age >= ((IMixinWorld) this.worldObj).getWorldConfig().getRootNode().getNode("entity", "item-despawn-rate").getInt()) {
+                && this.age >= ((IMixinWorld) this.worldObj).getWorldConfig().getConfig().getEntity().getItemDespawnRate()) {
             this.setDead();
         }
     }
