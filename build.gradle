@@ -94,6 +94,7 @@ shadowJar  {
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
     exclude 'GradleStart**'
+    exclude 'log4j2.xml'
     dependencies {
         include(dependency('org.slf4j:slf4j-api'))
         include(dependency('org.apache.logging.log4j:log4j-slf4j-impl'))
@@ -144,6 +145,7 @@ license {
     exclude "**/*.info"
     exclude "**/*.json"
     exclude "**/*_at.cfg"
+    exclude "**/log4j2.xml"
     exclude "assets/**"
     header new File(project("SpongeAPI").getProjectDir(), "HEADER.txt")
     sourceSets = project.sourceSets
@@ -222,6 +224,9 @@ jar {
 
     // JAR manifest configuration
     manifest.mainAttributes(manifestEntries)
+
+    // Ignore dev-time logging config
+    exclude 'log4j2.xml'
 
     // classifier
     classifier = 'release'
