@@ -183,6 +183,7 @@
         "world.MixinWorld",
         "world.MixinWorldBorder",
         "world.MixinWorldProvider",
-        "world.biome.MixinBiomeGenBase"
+        "world.biome.MixinBiomeGenBase",
+        "world.difficulty.MixinEnumDifficulty"
     ]
 }

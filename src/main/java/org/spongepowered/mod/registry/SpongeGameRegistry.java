@@ -50,6 +50,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldProviderHell;
@@ -133,6 +134,7 @@ import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.api.world.DimensionTypes;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
+import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.api.world.weather.Weather;
@@ -219,6 +221,12 @@ public class SpongeGameRegistry implements GameRegistry {
             .put("CREATIVE", new SpongeGameMode())
             .put("ADVENTURE", new SpongeGameMode())
             .put("SPECTATOR", new SpongeGameMode())
+            .build();
+    private static final ImmutableMap<String, Difficulty> difficultyMappings = new ImmutableMap.Builder<String, Difficulty>()
+            .put("PEACEFUL", (Difficulty) (Object) EnumDifficulty.PEACEFUL)
+            .put("EASY", (Difficulty) (Object) EnumDifficulty.EASY)
+            .put("NORMAL", (Difficulty) (Object) EnumDifficulty.NORMAL)
+            .put("HARD", (Difficulty) (Object) EnumDifficulty.HARD)
             .build();
     private final Map<String, Art> artMappings = Maps.newHashMap();
     private final Map<String, EntityType> entityTypeMappings = Maps.newHashMap();
@@ -589,12 +597,12 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Collection<Difficulty> getDifficulties() {
-        throw new UnsupportedOperationException(); // TODO
+        return difficultyMappings.values();
     }
 
     @Override
     public Optional<Difficulty> getDifficulty(String name) {
-        throw new UnsupportedOperationException(); // TODO
+        return Optional.fromNullable(difficultyMappings.get(name));
     }
 
     @Override
@@ -1348,6 +1356,10 @@ public class SpongeGameRegistry implements GameRegistry {
         });
     }
 
+    private void setDifficulties() {
+        RegistryHelper.mapFields(Difficulties.class, difficultyMappings);
+    }
+    
     public void init() {
         setDimensionTypes();
         setEnchantments();
@@ -1367,6 +1379,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setBannerPatternShapes();
         setGameModes();
         setSounds();
+        setDifficulties();
     }
 
     public void postInit() {
