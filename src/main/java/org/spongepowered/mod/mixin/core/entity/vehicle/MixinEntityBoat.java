@@ -140,16 +140,12 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
     // lines removed.
     @Override
     public boolean isInWater() {
-        byte var1 = 5;
         int maxLoop = 4;
 
-        double var5 = this.getEntityBoundingBox().minY + (this.getEntityBoundingBox().maxY - this.getEntityBoundingBox().minY) * (double)(maxLoop + 0) / (double)var1 - 0.125D;
-        double var7 = this.getEntityBoundingBox().minY + (this.getEntityBoundingBox().maxY - this.getEntityBoundingBox().minY) * (double)(maxLoop + 1) / (double)var1 - 0.125D;
-        AxisAlignedBB var9 = new AxisAlignedBB(this.getEntityBoundingBox().minX, var5, this.getEntityBoundingBox().minZ, this.getEntityBoundingBox().maxX, var7, this.getEntityBoundingBox().maxZ);
-        if(this.worldObj.isAABBInMaterial(var9, Material.water)) {
-            return true;
-        }
-        return false;
+        double y1 = this.getEntityBoundingBox().minY + (this.getEntityBoundingBox().maxY - this.getEntityBoundingBox().minY) * (double)(maxLoop + 0) / (double)4.875;
+        double z2 = this.getEntityBoundingBox().minY + (this.getEntityBoundingBox().maxY - this.getEntityBoundingBox().minY) * (double)(maxLoop + 1) / (double)4.875;
+        AxisAlignedBB var9 = new AxisAlignedBB(this.getEntityBoundingBox().minX, 5, this.getEntityBoundingBox().minZ, this.getEntityBoundingBox().maxX, z2, this.getEntityBoundingBox().maxZ);
+        return this.worldObj.isAABBInMaterial(var9, Material.water);
     }
 
     @Override
