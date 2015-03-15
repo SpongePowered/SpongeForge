@@ -144,8 +144,8 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
 
         double y1 = this.getEntityBoundingBox().minY + (this.getEntityBoundingBox().maxY - this.getEntityBoundingBox().minY) * (double)(maxLoop + 0) / (double)4.875;
         double z2 = this.getEntityBoundingBox().minY + (this.getEntityBoundingBox().maxY - this.getEntityBoundingBox().minY) * (double)(maxLoop + 1) / (double)4.875;
-        AxisAlignedBB var9 = new AxisAlignedBB(this.getEntityBoundingBox().minX, 5, this.getEntityBoundingBox().minZ, this.getEntityBoundingBox().maxX, z2, this.getEntityBoundingBox().maxZ);
-        return this.worldObj.isAABBInMaterial(var9, Material.water);
+        AxisAlignedBB aabb = new AxisAlignedBB(this.getEntityBoundingBox().minX, 5, this.getEntityBoundingBox().minZ, this.getEntityBoundingBox().maxX, z2, this.getEntityBoundingBox().maxZ);
+        return this.worldObj.isAABBInMaterial(aabb, Material.water);
     }
 
     @Override
