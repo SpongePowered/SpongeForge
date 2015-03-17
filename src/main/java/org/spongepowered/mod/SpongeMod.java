@@ -62,7 +62,7 @@ import java.io.File;
 public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     public static SpongeMod instance;
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger("Sponge");
 
     private final Game game;
     private final File spongeConfigDir = new File(Loader.instance().getConfigDir() + File.separator + "sponge" + File.separator);
