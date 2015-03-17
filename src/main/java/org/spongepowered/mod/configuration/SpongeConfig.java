@@ -24,10 +24,12 @@
  */
 package org.spongepowered.mod.configuration;
 
+import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.commented.SimpleCommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMapper;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -35,13 +37,21 @@ import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-public class SpongeConfig {
+public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
 
     public enum Type {
-        GLOBAL,
-        DIMENSION,
-        WORLD
+        GLOBAL(GlobalConfig.class),
+        DIMENSION(DimensionConfig.class),
+        WORLD(WorldConfig.class);
+
+        private final Class<? extends ConfigBase> type;
+
+        Type(Class<? extends ConfigBase> type) {
+            this.type = type;
+        }
     }
 
     public static final String CONFIG_ENABLED = "config-enabled";
@@ -95,14 +105,16 @@ public class SpongeConfig {
 
     private Type type;
     private HoconConfigurationLoader loader;
-    private CommentedConfigurationNode root = SimpleCommentedConfigurationNode.root();
-    private ObjectMapper<ConfigBase>.BoundInstance configMapper;
-    private ConfigBase configBase;
+    private CommentedConfigurationNode root = SimpleCommentedConfigurationNode.root(ConfigurationOptions.defaults()
+            .setHeader(HEADER));
+    private ObjectMapper<T>.BoundInstance configMapper;
+    private T configBase;
     private String modId;
     private String configName;
     @SuppressWarnings("unused")
     private File file;
 
+    @SuppressWarnings("unchecked")
     public SpongeConfig(Type type, File file, String modId) {
 
         this.type = type;
@@ -113,44 +125,50 @@ public class SpongeConfig {
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
+
             if (!file.exists()) {
                 file.createNewFile();
-
-                this.loader = HoconConfigurationLoader.builder().setFile(file).build();
-                if (type == Type.GLOBAL) {
-                    this.configBase = new GlobalConfig();
-                    this.configName = "GLOBAL";
-                } else if (type == Type.DIMENSION) {
-                    this.configBase = new DimensionConfig();
-                    this.configName = file.getParentFile().getName().toUpperCase();
-                } else {
-                    this.configBase = new WorldConfig();
-                    this.configName = file.getParentFile().getName().toUpperCase();
-                }
-                this.configMapper = ObjectMapper.forObject(this.configBase);
-                this.configMapper.serialize(this.root.getNode(this.modId));
-                this.loader.save(this.root);
-            } else {
-                this.loader = HoconConfigurationLoader.builder().setFile(file).build();
-                this.root = this.loader.load();
             }
+
+            this.loader = HoconConfigurationLoader.builder().setFile(file).build();
+            if (type == Type.GLOBAL) {
+                this.configName = "GLOBAL";
+            } else {
+                this.configName = file.getParentFile().getName().toUpperCase();
+            }
+
+            this.configMapper = (ObjectMapper.BoundInstance) ObjectMapper.forClass(this.type.type).bindToNew();
+
+            reload();
+            this.loader.save(this.root);
         } catch (Throwable t) {
             LogManager.getLogger().error(ExceptionUtils.getStackTrace(t));
         }
     }
 
+    public T getConfig() {
+        return configBase;
+    }
+
     public void save() {
         try {
+            this.configMapper.serialize(this.root.getNode(this.modId));
             this.loader.save(this.root);
         } catch (IOException e) {
+            LogManager.getLogger().error(ExceptionUtils.getStackTrace(e));
+        } catch (ObjectMappingException e) {
             LogManager.getLogger().error(ExceptionUtils.getStackTrace(e));
         }
     }
 
     public void reload() {
         try {
-            this.root = this.loader.load();
+            this.root = this.loader.load(ConfigurationOptions.defaults()
+                    .setHeader(HEADER));
+            this.configBase = this.configMapper.populate(this.root.getNode(this.modId));
         } catch (IOException e) {
+            LogManager.getLogger().error(ExceptionUtils.getStackTrace(e));
+        } catch (ObjectMappingException e) {
             LogManager.getLogger().error(ExceptionUtils.getStackTrace(e));
         }
     }
@@ -180,139 +198,408 @@ public class SpongeConfig {
         return this.type;
     }
 
-    private class GlobalConfig extends ConfigBase {
+    public static class GlobalConfig extends ConfigBase {
+
+        @Setting
+        private SqlCategory sql = new SqlCategory();
 
         @Setting(value = "modules")
-        public ModuleCategory mixins = new ModuleCategory();
+        private ModuleCategory mixins = new ModuleCategory();
+
+        public SqlCategory getSql() {
+            return sql;
+        }
+
+        public ModuleCategory getModules() {
+            return mixins;
+        }
     }
 
-    private class DimensionConfig extends ConfigBase {
+    public static class DimensionConfig extends ConfigBase {
 
         public DimensionConfig() {
             this.configEnabled = false;
         }
     }
 
-    private class WorldConfig extends ConfigBase {
+    public static class WorldConfig extends ConfigBase {
 
         public WorldConfig() {
             this.configEnabled = false;
         }
     }
 
-    private class ConfigBase {
+    public static class ConfigBase {
 
         @Setting(
                 value = CONFIG_ENABLED,
                 comment = "Controls whether or not this config is enabled.\nNote: If enabled, World configs override Dimension and Global, Dimension configs override Global.")
-        public boolean configEnabled = true;
+        protected boolean configEnabled = true;
         @Setting
-        public DebugCategory debug = new DebugCategory();
+        private DebugCategory debug = new DebugCategory();
         @Setting
-        public EntityCategory entity = new EntityCategory();
+        private EntityCategory entity = new EntityCategory();
         @Setting(value = MODULE_ENTITY_ACTIVATION_RANGE)
-        public EntityActivationRangeCategory entityActivationRange = new EntityActivationRangeCategory();
+        private EntityActivationRangeCategory entityActivationRange = new EntityActivationRangeCategory();
         @Setting
-        public GeneralCategory general = new GeneralCategory();
+        private GeneralCategory general = new GeneralCategory();
         @Setting
-        public LoggingCategory logging = new LoggingCategory();
+        private LoggingCategory logging = new LoggingCategory();
         @Setting
-        public WorldCategory world = new WorldCategory();
+        private WorldCategory world = new WorldCategory();
 
-        @ConfigSerializable
-        private class DebugCategory extends Category {
-
-            @Setting(value = DEBUG_THREAD_CONTENTION_MONITORING, comment = "Enable Java's thread contention monitoring for thread dumps")
-            public boolean enableThreadContentionMonitoring = false;
-            @Setting(value = DEBUG_DUMP_CHUNKS_ON_DEADLOCK, comment = "Dump chunks in the event of a deadlock")
-            public boolean dumpChunksOnDeadlock = false;
-            @Setting(value = DEBUG_DUMP_HEAP_ON_DEADLOCK, comment = "Dump the heap in the event of a deadlock")
-            public boolean dumpHeapOnDeadlock = false;
-            @Setting(value = DEBUG_DUMP_THREADS_ON_WARN, comment = "Dump the server thread on deadlock warning")
-            public boolean dumpThreadsOnWarn = false;
+        public boolean isConfigEnabled() {
+            return configEnabled;
         }
 
-        @ConfigSerializable
-        private class GeneralCategory extends Category {
-
-            @Setting(value = GENERAL_DISABLE_WARNINGS, comment = "Disable warning messages to server admins")
-            public boolean disableWarnings = false;
-            @Setting(value = GENERAL_CHUNK_LOAD_OVERRIDE,
-                    comment = "Forces Chunk Loading on provide requests (speedup for mods that don't check if a chunk is loaded)")
-            public boolean chunkLoadOverride = false;
+        public void setConfigEnabled(boolean configEnabled) {
+            this.configEnabled = configEnabled;
         }
 
-        @ConfigSerializable
-        private class EntityCategory extends Category {
-
-            @Setting(value = ENTITY_MAX_BOUNDING_BOX_SIZE, comment = "Max size of an entity's bounding box before removing it. Set to 0 to disable")
-            public int maxBoundingBoxSize = 1000;
-            @Setting(value = SpongeConfig.ENTITY_MAX_SPEED, comment = "Square of the max speed of an entity before removing it. Set to 0 to disable")
-            public int maxSpeed = 100;
-            @Setting(value = ENTITY_COLLISION_WARN_SIZE,
-                    comment = "Number of colliding entities in one spot before logging a warning. Set to 0 to disable")
-            public int maxCollisionSize = 200;
-            @Setting(value = ENTITY_COUNT_WARN_SIZE,
-                    comment = "Number of entities in one dimension before logging a warning. Set to 0 to disable")
-            public int maxCountWarnSize = 0;
-            @Setting(value = ENTITY_ITEM_DESPAWN_RATE, comment = "Controls the time in ticks for when an item despawns.")
-            public int itemDespawnRate = 6000;
+        public DebugCategory getDebug() {
+            return debug;
         }
 
-        @ConfigSerializable
-        private class EntityActivationRangeCategory extends Category {
-
-            @Setting(value = ENTITY_ACTIVATION_RANGE_CREATURE)
-            public int creatureActivationRange = 32;
-            @Setting(value = ENTITY_ACTIVATION_RANGE_MONSTER)
-            public int monsterActivationRange = 32;
-            @Setting(value = ENTITY_ACTIVATION_RANGE_AQUATIC)
-            public int aquaticActivationRange = 32;
-            @Setting(value = ENTITY_ACTIVATION_RANGE_AMBIENT)
-            public int ambientActivationRange = 32;
-            @Setting(value = ENTITY_ACTIVATION_RANGE_MISC)
-            public int miscActivationRange = 16;
+        public EntityCategory getEntity() {
+            return entity;
         }
 
-        @ConfigSerializable
-        private class LoggingCategory extends Category {
-
-            @Setting(value = LOGGING_CHUNK_LOAD, comment = "Log when chunks are loaded")
-            public boolean chunkLoadLogging = false;
-            @Setting(value = LOGGING_CHUNK_UNLOAD, comment = "Log when chunks are unloaded")
-            public boolean chunkUnloadLogging = false;
-            @Setting(value = LOGGING_ENTITY_SPAWN, comment = "Log when living entities are spawned")
-            public boolean entitySpawnLogging = false;
-            @Setting(value = LOGGING_ENTITY_DESPAWN, comment = "Log when living entities are despawned")
-            public boolean entityDespawnLogging = false;
-            @Setting(value = LOGGING_ENTITY_DEATH, comment = "Log when living entities are destroyed")
-            public boolean entityDeathLogging = false;
-            @Setting(value = LOGGING_STACKTRACES, comment = "Add stack traces to dev logging")
-            public boolean logWithStackTraces = false;
-            @Setting(value = LOGGING_ENTITY_COLLISION_CHECKS, comment = "Whether to log entity collision/count checks")
-            public boolean logEntityCollisionChecks = false;
-            @Setting(value = LOGGING_ENTITY_SPEED_REMOVAL, comment = "Whether to log entity removals due to speed")
-            public boolean logEntitySpeedRemoval = false;
+        public EntityActivationRangeCategory getEntityActivationRange() {
+            return entityActivationRange;
         }
 
-        @ConfigSerializable
-        protected class ModuleCategory extends Category {
-
-            @Setting(value = MODULE_ENTITY_ACTIVATION_RANGE)
-            public boolean pluginEntityActivation = true;
+        public GeneralCategory getGeneral() {
+            return general;
         }
 
-        @ConfigSerializable
-        private class WorldCategory extends Category {
-
-            @Setting(value = WORLD_INFINITE_WATER_SOURCE, comment = "Vanilla water source behavior - is infinite")
-            public boolean infiniteWaterSource = false;
-            @Setting(value = WORLD_FLOWING_LAVA_DECAY, comment = "Lava behaves like vanilla water when source block is removed")
-            public boolean flowingLavaDecay = false;
+        public LoggingCategory getLogging() {
+            return logging;
         }
 
-        @ConfigSerializable
-        private class Category {
+        public WorldCategory getWorld() {
+            return world;
         }
+    }
+
+    @ConfigSerializable
+    public static class SqlCategory extends Category {
+        @Setting
+        private Map<String, String> aliases = new HashMap<String, String>();
+
+        public Map<String, String> getAliases() {
+            return aliases;
+        }
+    }
+
+    @ConfigSerializable
+    public static class DebugCategory extends Category {
+
+        @Setting(value = DEBUG_THREAD_CONTENTION_MONITORING, comment = "Enable Java's thread contention monitoring for thread dumps")
+        private boolean enableThreadContentionMonitoring = false;
+        @Setting(value = DEBUG_DUMP_CHUNKS_ON_DEADLOCK, comment = "Dump chunks in the event of a deadlock")
+        private boolean dumpChunksOnDeadlock = false;
+        @Setting(value = DEBUG_DUMP_HEAP_ON_DEADLOCK, comment = "Dump the heap in the event of a deadlock")
+        private boolean dumpHeapOnDeadlock = false;
+        @Setting(value = DEBUG_DUMP_THREADS_ON_WARN, comment = "Dump the server thread on deadlock warning")
+        private boolean dumpThreadsOnWarn = false;
+
+        public boolean isEnableThreadContentionMonitoring() {
+            return enableThreadContentionMonitoring;
+        }
+
+        public void setEnableThreadContentionMonitoring(boolean enableThreadContentionMonitoring) {
+            this.enableThreadContentionMonitoring = enableThreadContentionMonitoring;
+        }
+
+        public boolean dumpChunksOnDeadlock() {
+            return dumpChunksOnDeadlock;
+        }
+
+        public void setDumpChunksOnDeadlock(boolean dumpChunksOnDeadlock) {
+            this.dumpChunksOnDeadlock = dumpChunksOnDeadlock;
+        }
+
+        public boolean dumpHeapOnDeadlock() {
+            return dumpHeapOnDeadlock;
+        }
+
+        public void setDumpHeapOnDeadlock(boolean dumpHeapOnDeadlock) {
+            this.dumpHeapOnDeadlock = dumpHeapOnDeadlock;
+        }
+
+        public boolean dumpThreadsOnWarn() {
+            return dumpThreadsOnWarn;
+        }
+
+        public void setDumpThreadsOnWarn(boolean dumpThreadsOnWarn) {
+            this.dumpThreadsOnWarn = dumpThreadsOnWarn;
+        }
+    }
+
+    @ConfigSerializable
+    public static class GeneralCategory extends Category {
+
+        @Setting(value = GENERAL_DISABLE_WARNINGS, comment = "Disable warning messages to server admins")
+        private boolean disableWarnings = false;
+        @Setting(value = GENERAL_CHUNK_LOAD_OVERRIDE,
+                comment = "Forces Chunk Loading on provide requests (speedup for mods that don't check if a chunk is loaded)")
+        private boolean chunkLoadOverride = false;
+
+        public boolean disableWarnings() {
+            return disableWarnings;
+        }
+
+        public void setDisableWarnings(boolean disableWarnings) {
+            this.disableWarnings = disableWarnings;
+        }
+
+        public boolean chunkLoadOverride() {
+            return chunkLoadOverride;
+        }
+
+        public void setChunkLoadOverride(boolean chunkLoadOverride) {
+            this.chunkLoadOverride = chunkLoadOverride;
+        }
+    }
+
+    @ConfigSerializable
+    public static class EntityCategory extends Category {
+
+        @Setting(value = ENTITY_MAX_BOUNDING_BOX_SIZE, comment = "Max size of an entity's bounding box before removing it. Set to 0 to disable")
+        private int maxBoundingBoxSize = 1000;
+        @Setting(value = SpongeConfig.ENTITY_MAX_SPEED, comment = "Square of the max speed of an entity before removing it. Set to 0 to disable")
+        private int maxSpeed = 100;
+        @Setting(value = ENTITY_COLLISION_WARN_SIZE,
+                comment = "Number of colliding entities in one spot before logging a warning. Set to 0 to disable")
+        private int maxCollisionSize = 200;
+        @Setting(value = ENTITY_COUNT_WARN_SIZE,
+                comment = "Number of entities in one dimension before logging a warning. Set to 0 to disable")
+        private int maxCountWarnSize = 0;
+        @Setting(value = ENTITY_ITEM_DESPAWN_RATE, comment = "Controls the time in ticks for when an item despawns.")
+        private int itemDespawnRate = 6000;
+
+        public int getMaxBoundingBoxSize() {
+            return maxBoundingBoxSize;
+        }
+
+        public void setMaxBoundingBoxSize(int maxBoundingBoxSize) {
+            this.maxBoundingBoxSize = maxBoundingBoxSize;
+        }
+
+        public int getMaxSpeed() {
+            return maxSpeed;
+        }
+
+        public void setMaxSpeed(int maxSpeed) {
+            this.maxSpeed = maxSpeed;
+        }
+
+        public int getMaxCollisionSize() {
+            return maxCollisionSize;
+        }
+
+        public void setMaxCollisionSize(int maxCollisionSize) {
+            this.maxCollisionSize = maxCollisionSize;
+        }
+
+        public int getMaxCountWarnSize() {
+            return maxCountWarnSize;
+        }
+
+        public void setMaxCountWarnSize(int maxCountWarnSize) {
+            this.maxCountWarnSize = maxCountWarnSize;
+        }
+
+        public int getItemDespawnRate() {
+            return itemDespawnRate;
+        }
+
+        public void setItemDespawnRate(int itemDespawnRate) {
+            this.itemDespawnRate = itemDespawnRate;
+        }
+    }
+
+    @ConfigSerializable
+    public static class EntityActivationRangeCategory extends Category {
+
+        @Setting(value = ENTITY_ACTIVATION_RANGE_CREATURE)
+        private int creatureActivationRange = 32;
+        @Setting(value = ENTITY_ACTIVATION_RANGE_MONSTER)
+        private int monsterActivationRange = 32;
+        @Setting(value = ENTITY_ACTIVATION_RANGE_AQUATIC)
+        private int aquaticActivationRange = 32;
+        @Setting(value = ENTITY_ACTIVATION_RANGE_AMBIENT)
+        private int ambientActivationRange = 32;
+        @Setting(value = ENTITY_ACTIVATION_RANGE_MISC)
+        private int miscActivationRange = 16;
+
+        public int getCreatureActivationRange() {
+            return creatureActivationRange;
+        }
+
+        public void setCreatureActivationRange(int creatureActivationRange) {
+            this.creatureActivationRange = creatureActivationRange;
+        }
+
+        public int getMonsterActivationRange() {
+            return monsterActivationRange;
+        }
+
+        public void setMonsterActivationRange(int monsterActivationRange) {
+            this.monsterActivationRange = monsterActivationRange;
+        }
+
+        public int getAquaticActivationRange() {
+            return aquaticActivationRange;
+        }
+
+        public void setAquaticActivationRange(int aquaticActivationRange) {
+            this.aquaticActivationRange = aquaticActivationRange;
+        }
+
+        public int getAmbientActivationRange() {
+            return ambientActivationRange;
+        }
+
+        public void setAmbientActivationRange(int ambientActivationRange) {
+            this.ambientActivationRange = ambientActivationRange;
+        }
+
+        public int getMiscActivationRange() {
+            return miscActivationRange;
+        }
+
+        public void setMiscActivationRange(int miscActivationRange) {
+            this.miscActivationRange = miscActivationRange;
+        }
+    }
+
+    @ConfigSerializable
+    public static class LoggingCategory extends Category {
+
+        @Setting(value = LOGGING_CHUNK_LOAD, comment = "Log when chunks are loaded")
+        private boolean chunkLoadLogging = false;
+        @Setting(value = LOGGING_CHUNK_UNLOAD, comment = "Log when chunks are unloaded")
+        private boolean chunkUnloadLogging = false;
+        @Setting(value = LOGGING_ENTITY_SPAWN, comment = "Log when living entities are spawned")
+        private boolean entitySpawnLogging = false;
+        @Setting(value = LOGGING_ENTITY_DESPAWN, comment = "Log when living entities are despawned")
+        private boolean entityDespawnLogging = false;
+        @Setting(value = LOGGING_ENTITY_DEATH, comment = "Log when living entities are destroyed")
+        private boolean entityDeathLogging = false;
+        @Setting(value = LOGGING_STACKTRACES, comment = "Add stack traces to dev logging")
+        private boolean logWithStackTraces = false;
+        @Setting(value = LOGGING_ENTITY_COLLISION_CHECKS, comment = "Whether to log entity collision/count checks")
+        private boolean logEntityCollisionChecks = false;
+        @Setting(value = LOGGING_ENTITY_SPEED_REMOVAL, comment = "Whether to log entity removals due to speed")
+        private boolean logEntitySpeedRemoval = false;
+
+        public boolean chunkLoadLogging() {
+            return chunkLoadLogging;
+        }
+
+        public void setChunkLoadLogging(boolean chunkLoadLogging) {
+            this.chunkLoadLogging = chunkLoadLogging;
+        }
+
+        public boolean chunkUnloadLogging() {
+            return chunkUnloadLogging;
+        }
+
+        public void setChunkUnloadLogging(boolean chunkUnloadLogging) {
+            this.chunkUnloadLogging = chunkUnloadLogging;
+        }
+
+        public boolean entitySpawnLogging() {
+            return entitySpawnLogging;
+        }
+
+        public void setEntitySpawnLogging(boolean entitySpawnLogging) {
+            this.entitySpawnLogging = entitySpawnLogging;
+        }
+
+        public boolean entityDespawnLogging() {
+            return entityDespawnLogging;
+        }
+
+        public void setEntityDespawnLogging(boolean entityDespawnLogging) {
+            this.entityDespawnLogging = entityDespawnLogging;
+        }
+
+        public boolean entityDeathLogging() {
+            return entityDeathLogging;
+        }
+
+        public void setEntityDeathLogging(boolean entityDeathLogging) {
+            this.entityDeathLogging = entityDeathLogging;
+        }
+
+        public boolean logWithStackTraces() {
+            return logWithStackTraces;
+        }
+
+        public void setLogWithStackTraces(boolean logWithStackTraces) {
+            this.logWithStackTraces = logWithStackTraces;
+        }
+
+        public boolean logEntityCollisionChecks() {
+            return logEntityCollisionChecks;
+        }
+
+        public void setLogEntityCollisionChecks(boolean logEntityCollisionChecks) {
+            this.logEntityCollisionChecks = logEntityCollisionChecks;
+        }
+
+        public boolean logEntitySpeedRemoval() {
+            return logEntitySpeedRemoval;
+        }
+
+        public void setLogEntitySpeedRemoval(boolean logEntitySpeedRemoval) {
+            this.logEntitySpeedRemoval = logEntitySpeedRemoval;
+        }
+    }
+
+    @ConfigSerializable
+    public static class ModuleCategory extends Category {
+
+        @Setting(value = MODULE_ENTITY_ACTIVATION_RANGE)
+        private boolean pluginEntityActivation = true;
+
+        public boolean usePluginEntityActivation() {
+            return pluginEntityActivation;
+        }
+
+        public void setPluginEntityActivation(boolean pluginEntityActivation) {
+            this.pluginEntityActivation = pluginEntityActivation;
+        }
+    }
+
+    @ConfigSerializable
+    public static class WorldCategory extends Category {
+
+        @Setting(value = WORLD_INFINITE_WATER_SOURCE, comment = "Vanilla water source behavior - is infinite")
+        private boolean infiniteWaterSource = false;
+        @Setting(value = WORLD_FLOWING_LAVA_DECAY, comment = "Lava behaves like vanilla water when source block is removed")
+        private boolean flowingLavaDecay = false;
+
+        public boolean hasInfiniteWaterSource() {
+            return infiniteWaterSource;
+        }
+
+        public void setInfiniteWaterSource(boolean infiniteWaterSource) {
+            this.infiniteWaterSource = infiniteWaterSource;
+        }
+
+        public boolean hasFlowingLavaDecay() {
+            return flowingLavaDecay;
+        }
+
+        public void setFlowingLavaDecay(boolean flowingLavaDecay) {
+            this.flowingLavaDecay = flowingLavaDecay;
+        }
+    }
+
+    @ConfigSerializable
+    private static class Category {
     }
 }
