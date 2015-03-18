@@ -56,9 +56,9 @@ public class SpongePatternLayer implements PatternLayer {
         return null;
     }
 
-    @Override
+    /*@Override
     public void serialize(DataSource source) {
         // TODO
-    }
+    }*/
 
 }

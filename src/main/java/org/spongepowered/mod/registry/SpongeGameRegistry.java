@@ -60,6 +60,10 @@ import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.attribute.Attribute;
+import org.spongepowered.api.attribute.AttributeBuilder;
+import org.spongepowered.api.attribute.AttributeModifierBuilder;
+import org.spongepowered.api.attribute.Operation;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.meta.BannerPatternShape;
@@ -613,6 +617,36 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<EntityInteractionType> getEntityInteractionType(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<Attribute> getAttribute(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<Attribute> getAttributes() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<Operation> getOperation(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<Operation> getOperations() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public AttributeModifierBuilder getAttributeModifierBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public AttributeBuilder getAttributeBuilder() {
         throw new UnsupportedOperationException(); // TODO
     }
 

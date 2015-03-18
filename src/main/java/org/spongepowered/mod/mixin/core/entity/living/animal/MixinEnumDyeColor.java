@@ -48,10 +48,4 @@ public class MixinEnumDyeColor implements DyeColor {
         // TODO Auto-generated method stub
         return null;
     }
-
-    @Override
-    public void serialize(DataSource source) {
-        // TODO Auto-generated method stub
-    }
-
 }
