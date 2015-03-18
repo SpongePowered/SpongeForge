@@ -22,41 +22,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.block.data;
 
+package org.spongepowered.mod.service.persistence.builders.block.tile;
+
+import com.google.common.base.Optional;
+import net.minecraft.tileentity.TileEntityNote;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.block.data.Note;
 import org.spongepowered.api.block.meta.NotePitch;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.api.service.persistence.data.DataView;
 
 import java.util.List;
 
-@NonnullByDefault
-@Implements(@Interface(iface = Note.class, prefix = "note$"))
-@Mixin(net.minecraft.tileentity.TileEntityNote.class)
-public abstract class MixinTileEntityNote extends MixinTileEntity {
+public class SpongeNoteBuilder extends AbstractTileBuilder<Note> {
 
-    @Shadow
-    public byte note;
-
-    public NotePitch note$getNote() {
-        return ((List<NotePitch>) SpongeMod.instance.getGame().getRegistry().getNotePitches()).get(this.note);
-    }
-
-    public void note$setNote(NotePitch pitch) {
-        this.note = pitch.getId();
+    public SpongeNoteBuilder(Game game) {
+        super(game);
     }
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        container.set(new DataQuery("Note"), this.note);
-        return container;
+    @SuppressWarnings("unchecked")
+    public Optional<Note> build(DataView container) throws InvalidDataException {
+        Optional<Note> noteOptional = super.build(container);
+        if (!noteOptional.isPresent()) {
+            throw new InvalidDataException("The container had insufficient data to create a Note tile entity!");
+        }
+        if (!container.contains(new DataQuery("Note"))) {
+            throw new InvalidDataException("The container had insufficient data to create a Note tile entity!");
+        }
+        Note note = noteOptional.get();
+        NotePitch pitch = ((List<NotePitch>) this.game.getRegistry().getNotePitches()).get(container.getInt(new DataQuery("Note")).get());
+        note.setNote(pitch);
+        ((TileEntityNote) note).validate();
+        return Optional.of(note);
     }
 }

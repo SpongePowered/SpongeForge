@@ -29,6 +29,9 @@ import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.block.data.Skull;
 import org.spongepowered.api.block.meta.SkullType;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
+import org.spongepowered.api.service.persistence.data.DataView;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -42,7 +45,7 @@ import java.util.List;
 @NonnullByDefault
 @Implements(@Interface(iface = Skull.class, prefix = "skull$"))
 @Mixin(net.minecraft.tileentity.TileEntitySkull.class)
-public abstract class MixinTileEntitySkull extends TileEntity {
+public abstract class MixinTileEntitySkull extends MixinTileEntity {
 
     @Shadow
     private int skullRotation;
@@ -84,4 +87,16 @@ public abstract class MixinTileEntitySkull extends TileEntity {
         setType(type.getId());
     }
 
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(new DataQuery("Type"), this.getSkullType());
+        container.set(new DataQuery("Rotation"), this.skull$getRotation().ordinal());
+        if (this.skull$getPlayer().isPresent()) {
+            DataView ownerView = container.createView(new DataQuery("Owner"));
+            ownerView.set(new DataQuery("UniqueId"), this.skull$getPlayer().get().getUniqueId().toString());
+            ownerView.set(new DataQuery("UserName"), this.skull$getPlayer().get().getName());
+        }
+        return container;
+    }
 }

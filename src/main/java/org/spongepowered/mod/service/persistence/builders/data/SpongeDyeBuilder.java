@@ -22,29 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.block.data;
 
-import org.spongepowered.api.block.data.EnchantmentTable;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+package org.spongepowered.mod.service.persistence.builders.data;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.base.Optional;
+import net.minecraft.item.EnumDyeColor;
+import org.spongepowered.api.entity.living.animal.DyeColor;
+import org.spongepowered.api.service.persistence.DataSerializableBuilder;
+import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.api.service.persistence.data.DataView;
 
-@NonnullByDefault
-@Implements(@Interface(iface = EnchantmentTable.class, prefix = "enchanting$"))
-@Mixin(net.minecraft.tileentity.TileEntityEnchantmentTable.class)
-public abstract class MixinTileEntityEnchantmentTable extends MixinTileEntity {
-
-    @Shadow
-    private String customName;
+public class SpongeDyeBuilder implements DataSerializableBuilder<DyeColor> {
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        container.set(new DataQuery("CustomName"), this.customName);
-        return container;
+    public Optional<DyeColor> build(DataView container) throws InvalidDataException {
+        checkNotNull(container);
+        if (!container.contains(new DataQuery("id")) || !container.contains(new DataQuery("name"))) {
+            throw new InvalidDataException("The container does not have data pertaining to Dyecolor!");
+        }
+        int id = container.getInt(new DataQuery("id")).get();
+        return Optional.of((DyeColor) (Object) EnumDyeColor.byDyeDamage(id));
     }
 }

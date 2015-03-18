@@ -29,7 +29,6 @@ import net.minecraft.nbt.NBTTagList;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.service.persistence.DataSource;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -149,11 +148,7 @@ public abstract class MixinItemStack implements ItemStack {
 
     @Override
     public DataContainer toContainer() {
-        throw new UnsupportedOperationException(); // TODO
+        throw new UnsupportedOperationException(); // TODO Pending Items API merge
     }
 
-    /*@Override
-    public void serialize(DataSource source) {
-        throw new UnsupportedOperationException(); // TODO
-    }*/
 }

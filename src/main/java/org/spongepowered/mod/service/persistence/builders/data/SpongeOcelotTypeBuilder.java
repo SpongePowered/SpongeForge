@@ -22,29 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.block.data;
 
-import org.spongepowered.api.block.data.EnchantmentTable;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+package org.spongepowered.mod.service.persistence.builders.data;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.base.Optional;
+import org.spongepowered.api.entity.living.animal.OcelotType;
+import org.spongepowered.api.service.persistence.DataSerializableBuilder;
+import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.api.service.persistence.data.DataView;
+import org.spongepowered.mod.entity.SpongeEntityConstants;
 
-@NonnullByDefault
-@Implements(@Interface(iface = EnchantmentTable.class, prefix = "enchanting$"))
-@Mixin(net.minecraft.tileentity.TileEntityEnchantmentTable.class)
-public abstract class MixinTileEntityEnchantmentTable extends MixinTileEntity {
-
-    @Shadow
-    private String customName;
+public class SpongeOcelotTypeBuilder implements DataSerializableBuilder<OcelotType> {
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        container.set(new DataQuery("CustomName"), this.customName);
-        return container;
+    public Optional<OcelotType> build(DataView container) throws InvalidDataException {
+        checkNotNull(container);
+        if (!container.contains(new DataQuery("id")) || !container.contains(new DataQuery("name"))) {
+            throw new InvalidDataException("The container does not have data pertaining to OcelotType!");
+        }
+        int id = container.getInt(new DataQuery("id")).get();
+        OcelotType ocelotType = SpongeEntityConstants.OCELOT_IDMAP.get(id);
+        if (ocelotType == null) {
+            throw new InvalidDataException("The container has an invalid OcelotType id!");
+        }
+        return Optional.of(ocelotType);
     }
 }

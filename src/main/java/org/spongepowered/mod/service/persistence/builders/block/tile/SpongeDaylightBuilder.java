@@ -22,29 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.block.data;
 
-import org.spongepowered.api.block.data.EnchantmentTable;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+package org.spongepowered.mod.service.persistence.builders.block.tile;
 
-@NonnullByDefault
-@Implements(@Interface(iface = EnchantmentTable.class, prefix = "enchanting$"))
-@Mixin(net.minecraft.tileentity.TileEntityEnchantmentTable.class)
-public abstract class MixinTileEntityEnchantmentTable extends MixinTileEntity {
+import com.google.common.base.Optional;
+import net.minecraft.tileentity.TileEntityDaylightDetector;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.block.data.DaylightDetector;
+import org.spongepowered.api.service.persistence.InvalidDataException;
+import org.spongepowered.api.service.persistence.data.DataView;
 
-    @Shadow
-    private String customName;
+public class SpongeDaylightBuilder extends AbstractTileBuilder<DaylightDetector> {
+
+    public SpongeDaylightBuilder(Game game) {
+        super(game);
+    }
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        container.set(new DataQuery("CustomName"), this.customName);
-        return container;
+    @SuppressWarnings("unchecked")
+    public Optional<DaylightDetector> build(DataView container) throws InvalidDataException {
+        Optional<DaylightDetector> daylightdetectorOptional = super.build(container);
+        if (!daylightdetectorOptional.isPresent()) {
+            throw new InvalidDataException("The container had insufficient data to create a DaylightDetector tile entity!");
+        }
+        ((TileEntityDaylightDetector) daylightdetectorOptional.get()).validate();
+        return Optional.of(daylightdetectorOptional.get());
     }
 }

@@ -27,8 +27,9 @@ package org.spongepowered.mod.block.meta;
 import org.spongepowered.api.block.data.Banner.PatternLayer;
 import org.spongepowered.api.block.meta.BannerPatternShape;
 import org.spongepowered.api.entity.living.animal.DyeColor;
-import org.spongepowered.api.service.persistence.DataSource;
 import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
+import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
 public class SpongePatternLayer implements PatternLayer {
 
@@ -52,13 +53,10 @@ public class SpongePatternLayer implements PatternLayer {
 
     @Override
     public DataContainer toContainer() {
-        // TODO
-        return null;
+        DataContainer container = new MemoryDataContainer();
+        container.set(new DataQuery("id"), id.getId());
+        container.set(new DataQuery("color"), color.getName());
+        return container;
     }
-
-    /*@Override
-    public void serialize(DataSource source) {
-        // TODO
-    }*/
 
 }

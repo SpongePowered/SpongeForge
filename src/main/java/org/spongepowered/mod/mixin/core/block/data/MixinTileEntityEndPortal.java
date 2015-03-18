@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.api.block.data.EndPortal;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -34,6 +33,6 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Implements(@Interface(iface = EndPortal.class, prefix = "endportal$"))
 @Mixin(net.minecraft.tileentity.TileEntityEndPortal.class)
-public abstract class MixinTileEntityEndPortal extends TileEntity {
+public abstract class MixinTileEntityEndPortal extends MixinTileEntity {
 
 }

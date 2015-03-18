@@ -53,6 +53,7 @@ import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.sql.SqlService;
+import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.mod.command.CommandSponge;
 import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.event.SpongeEventHooks;
@@ -62,6 +63,7 @@ import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.service.scheduler.AsyncScheduler;
 import org.spongepowered.mod.service.scheduler.SyncScheduler;
 import org.spongepowered.mod.service.sql.SqlServiceImpl;
+import org.spongepowered.mod.service.persistence.SpongeSerializationService;
 import org.spongepowered.mod.util.SpongeHooks;
 
 import java.io.File;
@@ -109,6 +111,12 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             logger.error("Non-Sponge scheduler has been registered. Cannot continue!");
             FMLCommonHandler.instance().exitJava(1, false);
         }
+        try {
+            SerializationService serializationService = new SpongeSerializationService();
+            this.game.getServiceManager().setProvider(this, SerializationService.class, serializationService);
+        } catch (ProviderExistsException e2) {
+            logger.warn("Non-Sponge SerializationService already registered: " + e2.getLocalizedMessage());
+        }
     }
 
     @Override
@@ -153,6 +161,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         if (e.getSide() == Side.SERVER) {
             SpongeHooks.enableThreadContentionMonitoring();
         }
+        this.registry.preInit();
     }
 
     @Subscribe
@@ -163,6 +172,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onInitialization(FMLPostInitializationEvent e) {
         this.registry.postInit();
+        SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
+        ((SpongeSerializationService) service).completeRegistration();
     }
 
     @Subscribe

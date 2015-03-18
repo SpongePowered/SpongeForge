@@ -24,8 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.tileentity.TileEntityLockable;
 import org.spongepowered.api.block.data.Dispenser;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -35,6 +33,6 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Implements(@Interface(iface = Dispenser.class, prefix = "dispenser$"))
 @Mixin(net.minecraft.tileentity.TileEntityDispenser.class)
-public abstract class MixinTileEntityDispenser extends TileEntityLockable implements IInventory {
+public abstract class MixinTileEntityDispenser extends MixinTileEntityLockable {
 
 }

@@ -34,6 +34,10 @@ import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.data.Banner.PatternLayer;
 import org.spongepowered.api.block.meta.BannerPatternShape;
 import org.spongepowered.api.entity.living.animal.DyeColor;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
+import org.spongepowered.api.service.persistence.data.DataView;
+import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -50,7 +54,7 @@ import java.util.List;
 @NonnullByDefault
 @Mixin(net.minecraft.tileentity.TileEntityBanner.class)
 @Implements(@Interface(iface = org.spongepowered.api.block.data.Banner.class, prefix = "banner$"))
-public abstract class MixinTileEntityBanner extends TileEntity {
+public abstract class MixinTileEntityBanner extends MixinTileEntity {
 
     @Shadow
     private int baseColor;
@@ -71,7 +75,7 @@ public abstract class MixinTileEntityBanner extends TileEntity {
     }
 
     public void markDirtyAndUpdate() {
-        super.markDirty();
+        this.markDirty();
         if (this.worldObj != null) {
             this.worldObj.markBlockForUpdate(this.getPos());
         }
@@ -121,6 +125,14 @@ public abstract class MixinTileEntityBanner extends TileEntity {
         nbtPattern.setString("Pattern", patternShape.getId());
         this.patterns.appendTag(nbtPattern);
         this.markDirtyAndUpdate();
+    }
+
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(new DataQuery("Patterns"), Lists.newArrayList(this.patternLayers));
+        container.set(new DataQuery("Base"), this.baseColor);
+        return container;
     }
 
 }

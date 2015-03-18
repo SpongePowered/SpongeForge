@@ -24,10 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import net.minecraft.server.gui.IUpdatePlayerListBox;
-import net.minecraft.tileentity.IHopper;
-import net.minecraft.tileentity.TileEntityLockable;
 import org.spongepowered.api.block.data.Hopper;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -37,12 +36,29 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Implements(@Interface(iface = Hopper.class, prefix = "hopper$"))
 @Mixin(net.minecraft.tileentity.TileEntityHopper.class)
-public abstract class MixinTileEntityHopper extends TileEntityLockable implements IHopper, IUpdatePlayerListBox {
+public abstract class MixinTileEntityHopper extends MixinTileEntityLockable {
 
     @Shadow
-    private int transferCooldown = -1;
+    private int transferCooldown;
+
+    @Shadow
+    private String customName;
 
     public int hopper$getTransferCooldown() {
         return this.transferCooldown;
+    }
+
+    public void hopper$setTransferCooldown(int time) {
+        this.transferCooldown = time;
+    }
+
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(new DataQuery("TransferCooldown"), this.transferCooldown);
+        if (this.customName != null) {
+            container.set(new DataQuery("CustomName"), this.customName);
+        }
+        return container;
     }
 }

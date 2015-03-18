@@ -24,9 +24,11 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.animal;
 
+import net.minecraft.item.EnumDyeColor;
 import org.spongepowered.api.entity.living.animal.DyeColor;
-import org.spongepowered.api.service.persistence.DataSource;
 import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
+import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -45,7 +47,10 @@ public class MixinEnumDyeColor implements DyeColor {
 
     @Override
     public DataContainer toContainer() {
-        // TODO Auto-generated method stub
-        return null;
+        DataContainer container = new MemoryDataContainer();
+        container.set(new DataQuery("name"), this.name);
+        container.set(new DataQuery("id"), ((EnumDyeColor) (Object) this).getDyeDamage());
+        return container;
     }
+
 }
