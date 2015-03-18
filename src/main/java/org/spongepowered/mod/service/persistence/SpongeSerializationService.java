@@ -22,53 +22,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.entity;
 
-import com.google.common.base.MoreObjects;
-import org.spongepowered.api.service.persistence.DataSource;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+package org.spongepowered.mod.service.persistence;
 
-public class SpongeEntityMeta {
+import static com.google.common.base.Preconditions.checkNotNull;
 
-    public final int type;
-    public final String name;
+import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
+import org.spongepowered.api.service.persistence.DataSerializable;
+import org.spongepowered.api.service.persistence.DataSerializableBuilder;
+import org.spongepowered.api.service.persistence.SerializationService;
 
-    public SpongeEntityMeta(int type, String name) {
-        this.type = type;
-        this.name = name;
-    }
+import java.util.Map;
 
-    public String getName() {
-        return this.name;
+public class SpongeSerializationService implements SerializationService {
+
+    private final Map<Class<?>, DataSerializableBuilder<?>> builders = Maps.newHashMap();
+
+
+    @Override
+    public <T extends DataSerializable> void registerBuilder(Class<T> clazz, DataSerializableBuilder<T> builder) {
+        checkNotNull(clazz);
+        checkNotNull(builder);
+        if (!this.builders.containsKey(clazz)) {
+            this.builders.put(clazz, builder);
+        }
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
+    @SuppressWarnings("unchecked")
+    public <T extends DataSerializable> Optional<DataSerializableBuilder<T>> getBuilder(Class<T> clazz) {
+        checkNotNull(clazz);
+        if (this.builders.containsKey(clazz)) {
+            return Optional.of((DataSerializableBuilder<T>) this.builders.get(clazz));
+        } else {
+            return Optional.absent();
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        SpongeEntityMeta other = (SpongeEntityMeta) obj;
-        if (this.type != other.type) {
-            return false;
-        } else if (this.name != other.name) {
-            return false;
-        }
-        return true;
-    }
-
-    public DataContainer toContainer() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("type", this.type)
-                .add("name", this.name)
-                .toString();
     }
 }

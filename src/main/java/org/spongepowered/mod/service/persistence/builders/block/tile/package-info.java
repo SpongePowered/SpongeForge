@@ -22,53 +22,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.entity;
 
-import com.google.common.base.MoreObjects;
-import org.spongepowered.api.service.persistence.DataSource;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-
-public class SpongeEntityMeta {
-
-    public final int type;
-    public final String name;
-
-    public SpongeEntityMeta(int type, String name) {
-        this.type = type;
-        this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        SpongeEntityMeta other = (SpongeEntityMeta) obj;
-        if (this.type != other.type) {
-            return false;
-        } else if (this.name != other.name) {
-            return false;
-        }
-        return true;
-    }
-
-    public DataContainer toContainer() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("type", this.type)
-                .add("name", this.name)
-                .toString();
-    }
-}
+@org.spongepowered.api.util.annotation.NonnullByDefault
+package org.spongepowered.mod.service.persistence.builders.block.tile;

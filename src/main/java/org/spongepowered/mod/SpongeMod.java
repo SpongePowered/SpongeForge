@@ -45,6 +45,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.block.data.Banner;
+import org.spongepowered.api.entity.living.animal.DyeColor;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.ProviderExistsException;
@@ -53,6 +55,7 @@ import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.sql.SqlService;
+import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.mod.command.CommandSponge;
 import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.event.SpongeEventHooks;
@@ -62,6 +65,10 @@ import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.service.scheduler.AsyncScheduler;
 import org.spongepowered.mod.service.scheduler.SyncScheduler;
 import org.spongepowered.mod.service.sql.SqlServiceImpl;
+import org.spongepowered.mod.service.persistence.SpongeSerializationService;
+import org.spongepowered.mod.service.persistence.builders.block.data.SpongePatternLayerBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeBannerBuilder;
+import org.spongepowered.mod.service.persistence.builders.data.SpongeDyeBuilder;
 import org.spongepowered.mod.util.SpongeHooks;
 
 import java.io.File;
@@ -109,6 +116,20 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             logger.error("Non-Sponge scheduler has been registered. Cannot continue!");
             FMLCommonHandler.instance().exitJava(1, false);
         }
+        try {
+            SerializationService serializationService = new SpongeSerializationService();
+            this.game.getServiceManager().setProvider(this, SerializationService.class, serializationService);
+            setupSerialization();
+        } catch (ProviderExistsException e2) {
+            logger.warn("Non-Sponge SerializationService already registered: " + e2.getLocalizedMessage());
+        }
+    }
+
+    private void setupSerialization() {
+        SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
+        service.registerBuilder(Banner.class, new SpongeBannerBuilder(this.game));
+        service.registerBuilder(Banner.PatternLayer.class, new SpongePatternLayerBuilder(this.game));
+        service.registerBuilder(DyeColor.class, new SpongeDyeBuilder());
     }
 
     @Override

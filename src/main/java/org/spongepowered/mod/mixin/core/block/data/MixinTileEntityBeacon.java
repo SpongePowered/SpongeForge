@@ -31,6 +31,8 @@ import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntityLockable;
 import org.spongepowered.api.block.data.Beacon;
 import org.spongepowered.api.potion.PotionEffectType;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -40,13 +42,11 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Implements(@Interface(iface = Beacon.class, prefix = "beacon$"))
 @Mixin(net.minecraft.tileentity.TileEntityBeacon.class)
-public abstract class MixinTileEntityBeacon extends TileEntityLockable implements IUpdatePlayerListBox, IInventory {
+public abstract class MixinTileEntityBeacon extends MixinTileEntity {
 
-    @Override
     @Shadow
     public abstract int getField(int id);
 
-    @Override
     @Shadow
     public abstract void setField(int id, int value);
 
@@ -75,4 +75,11 @@ public abstract class MixinTileEntityBeacon extends TileEntityLockable implement
         return getField(0);
     }
 
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(new DataQuery("effect1"), getField(1));
+        container.set(new DataQuery("effect2"), getField(2));
+        return container;
+    }
 }

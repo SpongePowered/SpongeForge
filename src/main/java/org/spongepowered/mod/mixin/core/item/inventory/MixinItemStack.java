@@ -152,8 +152,4 @@ public abstract class MixinItemStack implements ItemStack {
         throw new UnsupportedOperationException(); // TODO
     }
 
-    /*@Override
-    public void serialize(DataSource source) {
-        throw new UnsupportedOperationException(); // TODO
-    }*/
 }

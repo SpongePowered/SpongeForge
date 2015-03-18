@@ -22,53 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.entity;
 
-import com.google.common.base.MoreObjects;
-import org.spongepowered.api.service.persistence.DataSource;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+package org.spongepowered.mod.service.persistence.builders.data;
 
-public class SpongeEntityMeta {
+import static com.google.common.base.Preconditions.checkNotNull;
 
-    public final int type;
-    public final String name;
+import com.google.common.base.Optional;
+import net.minecraft.item.EnumDyeColor;
+import org.spongepowered.api.entity.living.animal.DyeColor;
+import org.spongepowered.api.service.persistence.DataSerializableBuilder;
+import org.spongepowered.api.service.persistence.InvalidDataException;
+import org.spongepowered.api.service.persistence.data.DataQuery;
+import org.spongepowered.api.service.persistence.data.DataView;
 
-    public SpongeEntityMeta(int type, String name) {
-        this.type = type;
-        this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
-    }
+public class SpongeDyeBuilder implements DataSerializableBuilder<DyeColor> {
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
+    public Optional<DyeColor> build(DataView container) throws InvalidDataException {
+        checkNotNull(container);
+        if (!container.contains(new DataQuery("id")) || !container.contains(new DataQuery("name"))) {
+            throw new InvalidDataException("The container does not have data pertaining to Dyecolor!");
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        SpongeEntityMeta other = (SpongeEntityMeta) obj;
-        if (this.type != other.type) {
-            return false;
-        } else if (this.name != other.name) {
-            return false;
-        }
-        return true;
-    }
-
-    public DataContainer toContainer() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("type", this.type)
-                .add("name", this.name)
-                .toString();
+        int id = container.getInt(new DataQuery("id")).get();
+        return Optional.of((DyeColor) (Object) EnumDyeColor.byDyeDamage(id));
     }
 }
