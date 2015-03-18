@@ -230,7 +230,9 @@ public class SchedulerHelper {
         if (plugin == null) {
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_NULL_WARNING);
             return null;
-        } else if (!PluginContainer.class.isAssignableFrom(plugin.getClass())) {
+        }
+        Optional<PluginContainer> container = SpongeMod.instance.getGame().getPluginManager().fromInstance(plugin);
+        if (!container.isPresent()) {
             // Owner is not a PluginContainer derived class
             SpongeMod.instance.getLogger().warn(SchedulerLogMessages.PLUGIN_CONTAINER_INVALID_WARNING);
             return null;
@@ -238,7 +240,7 @@ public class SchedulerHelper {
 
         // The default name of the task is derived from the Plugin ID that owns the Task
         // and a sequence number.
-        String pluginId = ((PluginContainer) plugin).getId();
+        String pluginId = container.get().getId();
         String taskName;
 
         this.sequenceNumber++;
@@ -265,9 +267,6 @@ public class SchedulerHelper {
             return null;
         }
 
-        // plugin is a PluginContainer
-        PluginContainer plugincontainer = (PluginContainer) plugin;
-
         // The caller provided a valid PluginContainer owner and a valid Runnable task.
         // Convert the arguments and store the Task for execution the next time the task
         // map is checked. (this task is firing immediately)
@@ -280,7 +279,7 @@ public class SchedulerHelper {
         //    ScheduledTask is a Period interface intentionally so that
 
         ScheduledTask tmpTask = new ScheduledTask(offset, period, this.syncType)
-                .setPluginContainer(plugincontainer)
+                .setPluginContainer(container.get())
                 .setRunnableBody(runnableTarget);
 
         tmpTask.setName(taskName);
