@@ -1,15 +1,11 @@
 sudo: false
 language: java
 jdk:
-  #- openjdk6 TODO: For some reason, JDK6 fails on Javadoc on the new container infrastructure.
-  # That's why we have to run it on the old infrastructure for now
+  - openjdk6
   - openjdk7
   - oraclejdk7
   - oraclejdk8
-matrix:
-  include:
-    - jdk: openjdk6
-      sudo: true
+env: GRADLE_OPTS="-Xms1g -Xmx3g"
 install: gradle setupCIWorkspace
 script: gradle build
 notifications:

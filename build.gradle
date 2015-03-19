@@ -242,6 +242,7 @@ jar {
 javadoc {
     options.encoding = 'UTF-8'
     options.charSet = 'UTF-8'
+    options.jFlags('-Xms256m', '-Xmx512m')
     source = [
         project("Mixin").sourceSets.main.java,
         project("SpongeAPI").sourceSets.main.java,
