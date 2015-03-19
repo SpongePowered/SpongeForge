@@ -127,13 +127,10 @@ public abstract class MixinTileEntityBanner extends MixinTileEntity {
         this.markDirtyAndUpdate();
     }
 
-    public DataContainer banner$toContainer() {
+    @Override
+    public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        List<DataView> patterns = Lists.newArrayList();
-        for (PatternLayer shape : this.patternLayers) {
-            patterns.add(shape.toContainer());
-        }
-        container.set(new DataQuery("Patterns"), patterns);
+        container.set(new DataQuery("Patterns"), Lists.newArrayList(this.patternLayers));
         container.set(new DataQuery("Base"), this.baseColor);
         return container;
     }

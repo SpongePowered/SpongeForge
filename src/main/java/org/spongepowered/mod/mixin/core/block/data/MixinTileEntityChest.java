@@ -24,9 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
-import net.minecraft.tileentity.TileEntityLockable;
 import org.spongepowered.api.block.data.Chest;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -36,6 +33,6 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Implements(@Interface(iface = Chest.class, prefix = "chest$"))
 @Mixin(net.minecraft.tileentity.TileEntityChest.class)
-public abstract class MixinTileEntityChest extends TileEntityLockable implements IUpdatePlayerListBox, IInventory {
+public abstract class MixinTileEntityChest extends MixinTileEntityLockable {
 
 }

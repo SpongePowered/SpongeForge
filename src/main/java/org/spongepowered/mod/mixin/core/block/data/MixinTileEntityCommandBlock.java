@@ -26,8 +26,9 @@ package org.spongepowered.mod.mixin.core.block.data;
 
 import com.google.common.base.Optional;
 import net.minecraft.command.server.CommandBlockLogic;
-import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.api.block.data.CommandBlock;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -39,7 +40,7 @@ import org.spongepowered.mod.text.message.SpongeMessage;
 @NonnullByDefault
 @Implements(@Interface(iface = CommandBlock.class, prefix = "command$"))
 @Mixin(net.minecraft.tileentity.TileEntityCommandBlock.class)
-public abstract class MixinTileEntityCommandBlock extends TileEntity {
+public abstract class MixinTileEntityCommandBlock extends MixinTileEntity {
 
     @Shadow
     public abstract CommandBlockLogic getCommandBlockLogic();
@@ -77,7 +78,23 @@ public abstract class MixinTileEntityCommandBlock extends TileEntity {
     }
 
     void command$execute() {
-        getCommandBlockLogic().trigger(getWorld());
+        getCommandBlockLogic().trigger((net.minecraft.world.World) getWorld());
     }
 
+    @Override
+    @SuppressWarnings("deprecated")
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(new DataQuery("StoredCommand"), this.command$getStoredCommand());
+        container.set(new DataQuery("SuccessCount"), this.command$getSuccessCount());
+        container.set(new DataQuery("CustomName"), this.getCommandBlockLogic().getCustomName());
+        container.set(new DataQuery("DoesTrackOutput"), this.command$doesTrackOutput());
+        if (this.command$doesTrackOutput()) {
+            Optional<Message> message = this.command$getLastOutput();
+            if (message.isPresent()) {
+                container.set(new DataQuery("TrackedOutput"), message.get().toLegacy());
+            }
+        }
+        return container;
+    }
 }

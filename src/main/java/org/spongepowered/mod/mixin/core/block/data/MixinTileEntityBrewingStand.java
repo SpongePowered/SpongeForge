@@ -24,10 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
-import net.minecraft.tileentity.TileEntityLockable;
 import org.spongepowered.api.block.data.BrewingStand;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -37,13 +36,11 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Implements(@Interface(iface = BrewingStand.class, prefix = "brewingstand$"))
 @Mixin(net.minecraft.tileentity.TileEntityBrewingStand.class)
-public abstract class MixinTileEntityBrewingStand extends TileEntityLockable implements IUpdatePlayerListBox, ISidedInventory {
+public abstract class MixinTileEntityBrewingStand extends MixinTileEntityLockable {
 
-    @Override
     @Shadow
     public abstract int getField(int id);
 
-    @Override
     @Shadow
     public abstract void setField(int id, int value);
 
@@ -53,5 +50,12 @@ public abstract class MixinTileEntityBrewingStand extends TileEntityLockable imp
 
     public void brewingstand$setRemainingBrewTime(int time) {
         setField(0, time);
+    }
+
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(new DataQuery("BrewTime"), this.brewingstand$getRemainingBrewTime());
+        return container;
     }
 }

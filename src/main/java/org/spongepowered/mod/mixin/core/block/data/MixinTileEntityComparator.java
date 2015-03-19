@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.api.block.data.Comparator;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -34,6 +33,6 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Implements(@Interface(iface = Comparator.class, prefix = "comparator$"))
 @Mixin(net.minecraft.tileentity.TileEntityComparator.class)
-public abstract class MixinTileEntityComparator extends TileEntity {
+public abstract class MixinTileEntityComparator extends MixinTileEntity {
 
 }

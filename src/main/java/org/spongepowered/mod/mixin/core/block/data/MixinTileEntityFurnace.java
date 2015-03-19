@@ -24,10 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
-import net.minecraft.tileentity.TileEntityLockable;
 import org.spongepowered.api.block.data.Furnace;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -37,13 +36,11 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Implements(@Interface(iface = Furnace.class, prefix = "furnace$"))
 @Mixin(net.minecraft.tileentity.TileEntityFurnace.class)
-public abstract class MixinTileEntityFurnace extends TileEntityLockable implements IUpdatePlayerListBox, ISidedInventory {
+public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable {
 
-    @Override
     @Shadow
     public abstract int getField(int id);
 
-    @Override
     @Shadow
     public abstract void setField(int id, int value);
 
@@ -63,4 +60,12 @@ public abstract class MixinTileEntityFurnace extends TileEntityLockable implemen
         setField(2, getField(3) - time);
     }
 
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(new DataQuery("BurnTime"), this.furnace$getRemainingBurnTime());
+        container.set(new DataQuery("CookTime"), this.furnace$getRemainingCookTime());
+        container.set(new DataQuery("CookTimeTotal"), this.getField(3));
+        return container;
+    }
 }

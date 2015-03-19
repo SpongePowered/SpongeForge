@@ -27,9 +27,12 @@ package org.spongepowered.mod.mixin.core.block.data;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
 
+import com.google.common.collect.Lists;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IChatComponent;
 import org.spongepowered.api.block.data.Sign;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.text.message.Message;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -38,10 +41,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.text.message.SpongeMessage;
 
+import java.util.List;
+
 @NonnullByDefault
 @Implements(@Interface(iface = Sign.class, prefix = "sign$"))
 @Mixin(net.minecraft.tileentity.TileEntitySign.class)
-public abstract class MixinTileEntitySign extends TileEntity {
+public abstract class MixinTileEntitySign extends MixinTileEntity {
 
     @Shadow
     public IChatComponent[] signText;
@@ -70,4 +75,14 @@ public abstract class MixinTileEntitySign extends TileEntity {
         this.signText[index] = ((SpongeMessage) text).getHandle();
     }
 
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        List<String> lines = Lists.newArrayListWithExpectedSize(4);
+        for (Message message: this.sign$getLines()) {
+            lines.add(message.toLegacy());
+        }
+        container.set(new DataQuery("Lines"), lines);
+        return container;
+    }
 }

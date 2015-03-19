@@ -28,14 +28,26 @@ import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IInteractionObject;
 import org.spongepowered.api.block.data.EnchantmentTable;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Implements(@Interface(iface = EnchantmentTable.class, prefix = "enchanting$"))
 @Mixin(net.minecraft.tileentity.TileEntityEnchantmentTable.class)
-public abstract class MixinTileEntityEnchantmentTable extends TileEntity implements IUpdatePlayerListBox, IInteractionObject {
+public abstract class MixinTileEntityEnchantmentTable extends MixinTileEntity {
 
+    @Shadow
+    private String customName;
+
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(new DataQuery("CustomName"), this.customName);
+        return container;
+    }
 }

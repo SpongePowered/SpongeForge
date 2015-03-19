@@ -25,10 +25,7 @@
 
 package org.spongepowered.mod.service.persistence.builders.block.tile;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.Optional;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityBanner;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.data.Banner;
@@ -63,9 +60,9 @@ public class SpongeBannerBuilder extends AbstractTileBuilder<Banner> {
             throw new InvalidDataException("The provided container has an invalid dye color entry!");
         }
         banner.setBaseColor(colorOptional.get());
-        List<DataView> patternsList = (List<DataView>) container.getList(new DataQuery("Patterns")).get();
-        for (DataView pattern : patternsList) {
-            banner.addPatternLayer(service.getBuilder(Banner.PatternLayer.class).get().build(pattern).get());
+        List<Banner.PatternLayer> patternsList = container.getSerializableList(new DataQuery("Patterns"), Banner.PatternLayer.class, service).get();
+        for (Banner.PatternLayer pattern : patternsList) {
+            banner.addPatternLayer(pattern);
         }
         ((TileEntityBanner) banner).validate();
         return Optional.of(banner);

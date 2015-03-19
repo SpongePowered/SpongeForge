@@ -24,8 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import net.minecraft.server.gui.IUpdatePlayerListBox;
-import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.api.block.data.DaylightDetector;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -35,6 +33,6 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Implements(@Interface(iface = DaylightDetector.class, prefix = "daylightdetector$"))
 @Mixin(net.minecraft.tileentity.TileEntityDaylightDetector.class)
-public abstract class MixinTileEntityDaylightDetector extends TileEntity implements IUpdatePlayerListBox {
+public abstract class MixinTileEntityDaylightDetector extends MixinTileEntity {
 
 }

@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import net.minecraft.tileentity.TileEntityDispenser;
 import org.spongepowered.api.block.data.Dropper;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -34,6 +33,6 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Implements(@Interface(iface = Dropper.class, prefix = "dropper$"))
 @Mixin(net.minecraft.tileentity.TileEntityDropper.class)
-public abstract class MixinTileEntityDropper extends TileEntityDispenser {
+public abstract class MixinTileEntityDropper extends MixinTileEntityLockable {
 
 }

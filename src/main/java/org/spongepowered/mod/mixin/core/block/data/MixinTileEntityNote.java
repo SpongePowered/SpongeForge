@@ -24,9 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.api.block.data.Note;
 import org.spongepowered.api.block.meta.NotePitch;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -39,7 +40,7 @@ import java.util.List;
 @NonnullByDefault
 @Implements(@Interface(iface = Note.class, prefix = "note$"))
 @Mixin(net.minecraft.tileentity.TileEntityNote.class)
-public abstract class MixinTileEntityNote extends TileEntity {
+public abstract class MixinTileEntityNote extends MixinTileEntity {
 
     @Shadow
     public byte note;
@@ -52,4 +53,10 @@ public abstract class MixinTileEntityNote extends TileEntity {
         this.note = pitch.getId();
     }
 
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(new DataQuery("Note"), this.note);
+        return container;
+    }
 }
