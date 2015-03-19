@@ -37,9 +37,6 @@ import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.mixin.plugin.CoreMixinPlugin;
 
-import javax.annotation.Nonnull;
-import javax.sql.DataSource;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.sql.DriverManager;
@@ -50,11 +47,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.sql.DataSource;
+
 
 /**
  * Implementation of a SQL-using service.
- * <p>
- * This implementation does a few interesting things<br>
+ *
+ * <p>This implementation does a few interesting things<br>
  *     - It's thread-safe
  *     - It allows applying additional driver-specific connection
  *     properties -- this allows us to do some light performance tuning in
@@ -120,19 +121,27 @@ public class SqlServiceImpl implements SqlService, Closeable {
 
     @Override
     public void close() throws IOException {
-        connectionCache.invalidateAll();
+        this.connectionCache.invalidateAll();
     }
 
     public static class ConnectionInfo {
 
         private static final Pattern URL_REGEX = Pattern.compile("(?:jdbc:)?([^:]+):(//)?(?:([^:]+)(?::([^@]+))?@)?(.*)");
-        private final String user;
-        private final String password;
+        @Nullable private final String user;
+        @Nullable private final String password;
         private final String driverClassName;
         private final String authlessUrl;
         private final String fullUrl;
 
-        public ConnectionInfo(String user, String password, String driverClassName, String authlessUrl, String fullUrl) {
+        /**
+         * Create a new ConnectionInfo with the give parameters
+         * @param user The username to use when connecting to th database
+         * @param password The password to connect with. If user is not null, password must not be null
+         * @param driverClassName The class name of the driver to use for this connection
+         * @param authlessUrl A JDBC url for this driver not containing authentication information
+         * @param fullUrl The full jdbc url containing user, password, and database info
+         */
+        public ConnectionInfo(@Nullable String user, @Nullable String password, String driverClassName, String authlessUrl, String fullUrl) {
             this.user = user;
             this.password = password;
             this.driverClassName = driverClassName;
@@ -140,10 +149,12 @@ public class SqlServiceImpl implements SqlService, Closeable {
             this.fullUrl = fullUrl;
         }
 
+        @Nullable
         public String getUser() {
             return this.user;
         }
 
+        @Nullable
         public String getPassword() {
             return this.password;
         }
@@ -160,6 +171,13 @@ public class SqlServiceImpl implements SqlService, Closeable {
             return this.fullUrl;
         }
 
+        /**
+         * Extracts the connection info from a JDBC url with additional authentication information as specified in {@link SqlService}.
+         *
+         * @param fullUrl The full JDBC URL as specified in SqlService
+         * @return A constructed ConnectionInfo object using the info from the provided URL
+         * @throws SQLException If the driver for the given URL is not present
+         */
         public static ConnectionInfo fromUrl(String fullUrl) throws SQLException {
             Matcher match = URL_REGEX.matcher(fullUrl);
             if (!match.matches()) {

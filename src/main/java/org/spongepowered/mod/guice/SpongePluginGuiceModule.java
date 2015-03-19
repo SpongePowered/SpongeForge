@@ -42,7 +42,7 @@ import java.lang.annotation.Annotation;
 import javax.inject.Inject;
 
 /**
- * Guice module that contains injections for a single plugin
+ * Guice module that contains injections for a single plugin.
  */
 public class SpongePluginGuiceModule extends AbstractModule {
 
@@ -113,9 +113,9 @@ public class SpongePluginGuiceModule extends AbstractModule {
 
         @Override
         public String toString() {
-            return "@org.spongepowered.api.service.config.Config(" +
-                    "sharedRoot=" + this.shared +
-                    ')';
+            return "@org.spongepowered.api.service.config.Config("
+                    + "sharedRoot=" + this.shared
+                    + ')';
         }
     }
 

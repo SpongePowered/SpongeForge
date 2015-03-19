@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
 
     public enum Type {
@@ -95,7 +96,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
     public static final String WORLD_INFINITE_WATER_SOURCE = "infinite-water-source";
     public static final String WORLD_FLOWING_LAVA_DECAY = "flowing-lava-decay";
 
-    private final String HEADER = "1.0\n"
+    private static final String HEADER = "1.0\n"
             + "\n"
             + "# If you need help with the configuration or have any questions related to Sponge,\n"
             + "# join us at the IRC or drop by our forums and leave a post.\n"
@@ -147,7 +148,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
     }
 
     public T getConfig() {
-        return configBase;
+        return this.configBase;
     }
 
     public void save() {
@@ -180,8 +181,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
     public CommentedConfigurationNode getSetting(String key) {
         if (key.equalsIgnoreCase(SpongeConfig.CONFIG_ENABLED)) {
             return getRootNode().getNode(key);
-        }
-        else if (!key.contains(".") || key.indexOf('.') == key.length() - 1) {
+        } else if (!key.contains(".") || key.indexOf('.') == key.length() - 1) {
             return null;
         } else {
             String category = key.substring(0, key.indexOf('.'));
@@ -207,11 +207,11 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         private ModuleCategory mixins = new ModuleCategory();
 
         public SqlCategory getSql() {
-            return sql;
+            return this.sql;
         }
 
         public ModuleCategory getModules() {
-            return mixins;
+            return this.mixins;
         }
     }
 
@@ -229,11 +229,13 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public static class ConfigBase {
 
         @Setting(
                 value = CONFIG_ENABLED,
-                comment = "Controls whether or not this config is enabled.\nNote: If enabled, World configs override Dimension and Global, Dimension configs override Global.")
+                comment = "Controls whether or not this config is enabled.\n"
+                        + "Note: If enabled, World configs override Dimension and Global, Dimension configs override Global.")
         protected boolean configEnabled = true;
         @Setting
         private DebugCategory debug = new DebugCategory();
@@ -249,7 +251,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         private WorldCategory world = new WorldCategory();
 
         public boolean isConfigEnabled() {
-            return configEnabled;
+            return this.configEnabled;
         }
 
         public void setConfigEnabled(boolean configEnabled) {
@@ -257,27 +259,27 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public DebugCategory getDebug() {
-            return debug;
+            return this.debug;
         }
 
         public EntityCategory getEntity() {
-            return entity;
+            return this.entity;
         }
 
         public EntityActivationRangeCategory getEntityActivationRange() {
-            return entityActivationRange;
+            return this.entityActivationRange;
         }
 
         public GeneralCategory getGeneral() {
-            return general;
+            return this.general;
         }
 
         public LoggingCategory getLogging() {
-            return logging;
+            return this.logging;
         }
 
         public WorldCategory getWorld() {
-            return world;
+            return this.world;
         }
     }
 
@@ -287,10 +289,11 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         private Map<String, String> aliases = new HashMap<String, String>();
 
         public Map<String, String> getAliases() {
-            return aliases;
+            return this.aliases;
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     @ConfigSerializable
     public static class DebugCategory extends Category {
 
@@ -304,7 +307,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         private boolean dumpThreadsOnWarn = false;
 
         public boolean isEnableThreadContentionMonitoring() {
-            return enableThreadContentionMonitoring;
+            return this.enableThreadContentionMonitoring;
         }
 
         public void setEnableThreadContentionMonitoring(boolean enableThreadContentionMonitoring) {
@@ -312,7 +315,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean dumpChunksOnDeadlock() {
-            return dumpChunksOnDeadlock;
+            return this.dumpChunksOnDeadlock;
         }
 
         public void setDumpChunksOnDeadlock(boolean dumpChunksOnDeadlock) {
@@ -320,7 +323,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean dumpHeapOnDeadlock() {
-            return dumpHeapOnDeadlock;
+            return this.dumpHeapOnDeadlock;
         }
 
         public void setDumpHeapOnDeadlock(boolean dumpHeapOnDeadlock) {
@@ -328,7 +331,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean dumpThreadsOnWarn() {
-            return dumpThreadsOnWarn;
+            return this.dumpThreadsOnWarn;
         }
 
         public void setDumpThreadsOnWarn(boolean dumpThreadsOnWarn) {
@@ -346,7 +349,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         private boolean chunkLoadOverride = false;
 
         public boolean disableWarnings() {
-            return disableWarnings;
+            return this.disableWarnings;
         }
 
         public void setDisableWarnings(boolean disableWarnings) {
@@ -354,7 +357,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean chunkLoadOverride() {
-            return chunkLoadOverride;
+            return this.chunkLoadOverride;
         }
 
         public void setChunkLoadOverride(boolean chunkLoadOverride) {
@@ -379,7 +382,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         private int itemDespawnRate = 6000;
 
         public int getMaxBoundingBoxSize() {
-            return maxBoundingBoxSize;
+            return this.maxBoundingBoxSize;
         }
 
         public void setMaxBoundingBoxSize(int maxBoundingBoxSize) {
@@ -387,7 +390,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public int getMaxSpeed() {
-            return maxSpeed;
+            return this.maxSpeed;
         }
 
         public void setMaxSpeed(int maxSpeed) {
@@ -395,7 +398,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public int getMaxCollisionSize() {
-            return maxCollisionSize;
+            return this.maxCollisionSize;
         }
 
         public void setMaxCollisionSize(int maxCollisionSize) {
@@ -403,7 +406,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public int getMaxCountWarnSize() {
-            return maxCountWarnSize;
+            return this.maxCountWarnSize;
         }
 
         public void setMaxCountWarnSize(int maxCountWarnSize) {
@@ -411,7 +414,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public int getItemDespawnRate() {
-            return itemDespawnRate;
+            return this.itemDespawnRate;
         }
 
         public void setItemDespawnRate(int itemDespawnRate) {
@@ -434,7 +437,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         private int miscActivationRange = 16;
 
         public int getCreatureActivationRange() {
-            return creatureActivationRange;
+            return this.creatureActivationRange;
         }
 
         public void setCreatureActivationRange(int creatureActivationRange) {
@@ -442,7 +445,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public int getMonsterActivationRange() {
-            return monsterActivationRange;
+            return this.monsterActivationRange;
         }
 
         public void setMonsterActivationRange(int monsterActivationRange) {
@@ -450,7 +453,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public int getAquaticActivationRange() {
-            return aquaticActivationRange;
+            return this.aquaticActivationRange;
         }
 
         public void setAquaticActivationRange(int aquaticActivationRange) {
@@ -458,7 +461,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public int getAmbientActivationRange() {
-            return ambientActivationRange;
+            return this.ambientActivationRange;
         }
 
         public void setAmbientActivationRange(int ambientActivationRange) {
@@ -466,7 +469,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public int getMiscActivationRange() {
-            return miscActivationRange;
+            return this.miscActivationRange;
         }
 
         public void setMiscActivationRange(int miscActivationRange) {
@@ -495,7 +498,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         private boolean logEntitySpeedRemoval = false;
 
         public boolean chunkLoadLogging() {
-            return chunkLoadLogging;
+            return this.chunkLoadLogging;
         }
 
         public void setChunkLoadLogging(boolean chunkLoadLogging) {
@@ -503,7 +506,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean chunkUnloadLogging() {
-            return chunkUnloadLogging;
+            return this.chunkUnloadLogging;
         }
 
         public void setChunkUnloadLogging(boolean chunkUnloadLogging) {
@@ -511,7 +514,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean entitySpawnLogging() {
-            return entitySpawnLogging;
+            return this.entitySpawnLogging;
         }
 
         public void setEntitySpawnLogging(boolean entitySpawnLogging) {
@@ -519,7 +522,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean entityDespawnLogging() {
-            return entityDespawnLogging;
+            return this.entityDespawnLogging;
         }
 
         public void setEntityDespawnLogging(boolean entityDespawnLogging) {
@@ -527,7 +530,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean entityDeathLogging() {
-            return entityDeathLogging;
+            return this.entityDeathLogging;
         }
 
         public void setEntityDeathLogging(boolean entityDeathLogging) {
@@ -535,7 +538,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean logWithStackTraces() {
-            return logWithStackTraces;
+            return this.logWithStackTraces;
         }
 
         public void setLogWithStackTraces(boolean logWithStackTraces) {
@@ -543,7 +546,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean logEntityCollisionChecks() {
-            return logEntityCollisionChecks;
+            return this.logEntityCollisionChecks;
         }
 
         public void setLogEntityCollisionChecks(boolean logEntityCollisionChecks) {
@@ -551,7 +554,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean logEntitySpeedRemoval() {
-            return logEntitySpeedRemoval;
+            return this.logEntitySpeedRemoval;
         }
 
         public void setLogEntitySpeedRemoval(boolean logEntitySpeedRemoval) {
@@ -566,7 +569,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         private boolean pluginEntityActivation = true;
 
         public boolean usePluginEntityActivation() {
-            return pluginEntityActivation;
+            return this.pluginEntityActivation;
         }
 
         public void setPluginEntityActivation(boolean pluginEntityActivation) {
@@ -583,7 +586,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         private boolean flowingLavaDecay = false;
 
         public boolean hasInfiniteWaterSource() {
-            return infiniteWaterSource;
+            return this.infiniteWaterSource;
         }
 
         public void setInfiniteWaterSource(boolean infiniteWaterSource) {
@@ -591,7 +594,7 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         }
 
         public boolean hasFlowingLavaDecay() {
-            return flowingLavaDecay;
+            return this.flowingLavaDecay;
         }
 
         public void setFlowingLavaDecay(boolean flowingLavaDecay) {

@@ -69,8 +69,8 @@ class ConfigDirAnnotation implements ConfigDir {
 
     @Override
     public String toString() {
-        return "@org.spongepowered.api.service.config.ConfigDir(" +
-                "sharedRoot=" + this.shared +
-                ')';
+        return "@org.spongepowered.api.service.config.ConfigDir("
+                + "sharedRoot=" + this.shared +
+                + ')';
     }
 }
