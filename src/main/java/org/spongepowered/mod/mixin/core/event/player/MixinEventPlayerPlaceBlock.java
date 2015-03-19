@@ -58,6 +58,8 @@ public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements P
     @Shadow
     public IBlockState placedAgainst;
 
+    private net.minecraftforge.common.util.BlockSnapshot replacementBlock;
+
     public MixinEventPlayerPlaceBlock(World world, BlockPos pos, IBlockState state) {
         super(world, pos, state);
     }
@@ -69,7 +71,10 @@ public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements P
 
     @Override
     public BlockSnapshot getReplacementBlock() {
-        return (BlockSnapshot) this.blockSnapshot;
+        if (this.replacementBlock == null) {
+            this.replacementBlock = new net.minecraftforge.common.util.BlockSnapshot(world, pos, this.placedBlock);
+        }
+        return (BlockSnapshot) this.replacementBlock;
     }
 
     @Override
