@@ -26,24 +26,32 @@
 package org.spongepowered.mod.service.persistence;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import org.spongepowered.api.service.persistence.DataSerializable;
 import org.spongepowered.api.service.persistence.DataSerializableBuilder;
 import org.spongepowered.api.service.persistence.SerializationService;
+import org.spongepowered.mod.SpongeMod;
 
 import java.util.Map;
 
 public class SpongeSerializationService implements SerializationService {
 
     private final Map<Class<?>, DataSerializableBuilder<?>> builders = Maps.newHashMap();
+    private boolean registrationComplete = false;
 
+    public void completeRegistration() {
+        checkState(!registrationComplete);
+        this.registrationComplete = true;
+    }
 
     @Override
     public <T extends DataSerializable> void registerBuilder(Class<T> clazz, DataSerializableBuilder<T> builder) {
         checkNotNull(clazz);
         checkNotNull(builder);
+        checkState(!registrationComplete);
         if (!this.builders.containsKey(clazz)) {
             this.builders.put(clazz, builder);
         }
