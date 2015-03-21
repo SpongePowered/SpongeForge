@@ -23,5 +23,34 @@
  * THE SOFTWARE.
  */
 
-@org.spongepowered.api.util.annotation.NonnullByDefault
 package org.spongepowered.mod.service.persistence.builders.block.tile;
+
+import com.google.common.base.Optional;
+import net.minecraft.tileentity.TileEntityDispenser;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.block.data.Dispenser;
+import org.spongepowered.api.service.persistence.InvalidDataException;
+import org.spongepowered.api.service.persistence.data.DataQuery;
+import org.spongepowered.api.service.persistence.data.DataView;
+
+public class SpongeDispenserBuilder extends SpongeLockableBuilder<Dispenser> {
+
+    public SpongeDispenserBuilder(Game game) {
+        super(game);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Optional<Dispenser> build(DataView container) throws InvalidDataException {
+        Optional<Dispenser> dispenserOptional = super.build(container);
+        if (!dispenserOptional.isPresent()) {
+            throw new InvalidDataException("The container had insufficient data to create a Dispenser tile entity!");
+        }
+        Dispenser dispenser = dispenserOptional.get();
+        if (container.contains(new DataQuery("CustomName"))) {
+            ((TileEntityDispenser) dispenser).setCustomName(container.getString(new DataQuery("CustomName")).get());
+        }
+        ((TileEntityDispenser) dispenser).validate();
+        return Optional.of(dispenser);
+    }
+}

@@ -57,6 +57,7 @@ import net.minecraft.world.WorldProviderHell;
 import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.common.registry.GameData;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.GameRegistry;
@@ -66,6 +67,23 @@ import org.spongepowered.api.attribute.AttributeModifierBuilder;
 import org.spongepowered.api.attribute.Operation;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.data.Banner;
+import org.spongepowered.api.block.data.BrewingStand;
+import org.spongepowered.api.block.data.Chest;
+import org.spongepowered.api.block.data.CommandBlock;
+import org.spongepowered.api.block.data.Comparator;
+import org.spongepowered.api.block.data.DaylightDetector;
+import org.spongepowered.api.block.data.Dispenser;
+import org.spongepowered.api.block.data.Dropper;
+import org.spongepowered.api.block.data.EnchantmentTable;
+import org.spongepowered.api.block.data.EndPortal;
+import org.spongepowered.api.block.data.EnderChest;
+import org.spongepowered.api.block.data.Furnace;
+import org.spongepowered.api.block.data.Hopper;
+import org.spongepowered.api.block.data.MobSpawner;
+import org.spongepowered.api.block.data.Note;
+import org.spongepowered.api.block.data.Sign;
+import org.spongepowered.api.block.data.Skull;
 import org.spongepowered.api.block.meta.BannerPatternShape;
 import org.spongepowered.api.block.meta.BannerPatternShapes;
 import org.spongepowered.api.block.meta.NotePitch;
@@ -109,9 +127,11 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStackBuilder;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.item.recipe.RecipeRegistry;
+import org.spongepowered.api.potion.PotionEffect;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
+import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.api.status.Favicon;
 import org.spongepowered.api.text.action.SpongeTextActionFactory;
 import org.spongepowered.api.text.action.TextActions;
@@ -143,6 +163,7 @@ import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.block.meta.SpongeNotePitch;
 import org.spongepowered.mod.block.meta.SpongeSkullType;
 import org.spongepowered.mod.configuration.SpongeConfig;
@@ -159,6 +180,30 @@ import org.spongepowered.mod.item.SpongeItemStackBuilder;
 import org.spongepowered.mod.item.merchant.SpongeTradeOfferBuilder;
 import org.spongepowered.mod.potion.SpongePotionBuilder;
 import org.spongepowered.mod.rotation.SpongeRotation;
+import org.spongepowered.mod.service.persistence.builders.block.data.SpongePatternLayerBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeBannerBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeBrewingStandBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeChestBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeCommandBlockBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeComparatorBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeDaylightBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeDispenserBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeDropperBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeEnchantmentTableBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeEndPortalBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeEnderChestBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeFurnaceBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeHopperBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeMobSpawnerBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeNoteBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeSignBuilder;
+import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeSkullBuilder;
+import org.spongepowered.mod.service.persistence.builders.data.SpongeDyeBuilder;
+import org.spongepowered.mod.service.persistence.builders.data.SpongeHorseColorBuilder;
+import org.spongepowered.mod.service.persistence.builders.data.SpongeHorseStyleBuilder;
+import org.spongepowered.mod.service.persistence.builders.data.SpongeHorseVariantBuilder;
+import org.spongepowered.mod.service.persistence.builders.data.SpongeOcelotTypeBuilder;
+import org.spongepowered.mod.service.persistence.builders.potion.SpongePotionEffectBuilder;
 import org.spongepowered.mod.status.SpongeFavicon;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
@@ -1393,6 +1438,45 @@ public class SpongeGameRegistry implements GameRegistry {
 
     private void setDifficulties() {
         RegistryHelper.mapFields(Difficulties.class, difficultyMappings);
+    }
+
+    private void setupSerialization() {
+        Game game = SpongeMod.instance.getGame();
+        SerializationService service = game.getServiceManager().provide(SerializationService.class).get();
+        // TileEntities
+        service.registerBuilder(Banner.class, new SpongeBannerBuilder(game));
+        service.registerBuilder(Banner.PatternLayer.class, new SpongePatternLayerBuilder(game));
+        service.registerBuilder(BrewingStand.class, new SpongeBrewingStandBuilder(game));
+        service.registerBuilder(Chest.class, new SpongeChestBuilder(game));
+        service.registerBuilder(CommandBlock.class, new SpongeCommandBlockBuilder(game));
+        service.registerBuilder(Comparator.class, new SpongeComparatorBuilder(game));
+        service.registerBuilder(DaylightDetector.class, new SpongeDaylightBuilder(game));
+        service.registerBuilder(Dispenser.class, new SpongeDispenserBuilder(game));
+        service.registerBuilder(Dropper.class, new SpongeDropperBuilder(game));
+        service.registerBuilder(EnchantmentTable.class, new SpongeEnchantmentTableBuilder(game));
+        service.registerBuilder(EnderChest.class, new SpongeEnderChestBuilder(game));
+        service.registerBuilder(EndPortal.class, new SpongeEndPortalBuilder(game));
+        service.registerBuilder(Furnace.class, new SpongeFurnaceBuilder(game));
+        service.registerBuilder(Hopper.class, new SpongeHopperBuilder(game));
+        service.registerBuilder(MobSpawner.class, new SpongeMobSpawnerBuilder(game));
+        service.registerBuilder(Note.class, new SpongeNoteBuilder(game));
+        service.registerBuilder(Sign.class, new SpongeSignBuilder(game));
+        service.registerBuilder(Skull.class, new SpongeSkullBuilder(game));
+
+        // Meta
+        service.registerBuilder(DyeColor.class, new SpongeDyeBuilder());
+        service.registerBuilder(HorseColor.class, new SpongeHorseColorBuilder());
+        service.registerBuilder(HorseStyle.class, new SpongeHorseStyleBuilder());
+        service.registerBuilder(HorseVariant.class, new SpongeHorseVariantBuilder());
+        service.registerBuilder(OcelotType.class, new SpongeOcelotTypeBuilder());
+        service.registerBuilder(PotionEffect.class, new SpongePotionEffectBuilder());
+
+        // User
+        // TODO someone needs to write a User implementation...
+    }
+
+    public void preInit() {
+        setupSerialization();
     }
     
     public void init() {

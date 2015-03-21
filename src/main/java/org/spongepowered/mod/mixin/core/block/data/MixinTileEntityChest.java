@@ -25,14 +25,28 @@
 package org.spongepowered.mod.mixin.core.block.data;
 
 import org.spongepowered.api.block.data.Chest;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Implements(@Interface(iface = Chest.class, prefix = "chest$"))
 @Mixin(net.minecraft.tileentity.TileEntityChest.class)
 public abstract class MixinTileEntityChest extends MixinTileEntityLockable {
 
+    @Shadow
+    public String customName;
+
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        if (this.customName != null) {
+            container.set(new DataQuery("CustomName"), this.customName);
+        }
+        return container;
+    }
 }

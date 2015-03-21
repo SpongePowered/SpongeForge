@@ -23,5 +23,29 @@
  * THE SOFTWARE.
  */
 
-@org.spongepowered.api.util.annotation.NonnullByDefault
-package org.spongepowered.mod.service.persistence;
+package org.spongepowered.mod.service.persistence.builders.block.tile;
+
+import com.google.common.base.Optional;
+import net.minecraft.tileentity.TileEntityDaylightDetector;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.block.data.DaylightDetector;
+import org.spongepowered.api.service.persistence.InvalidDataException;
+import org.spongepowered.api.service.persistence.data.DataView;
+
+public class SpongeDaylightBuilder extends AbstractTileBuilder<DaylightDetector> {
+
+    public SpongeDaylightBuilder(Game game) {
+        super(game);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Optional<DaylightDetector> build(DataView container) throws InvalidDataException {
+        Optional<DaylightDetector> daylightdetectorOptional = super.build(container);
+        if (!daylightdetectorOptional.isPresent()) {
+            throw new InvalidDataException("The container had insufficient data to create a DaylightDetector tile entity!");
+        }
+        ((TileEntityDaylightDetector) daylightdetectorOptional.get()).validate();
+        return Optional.of(daylightdetectorOptional.get());
+    }
+}

@@ -44,6 +44,9 @@ public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable {
     @Shadow
     public abstract void setField(int id, int value);
 
+    @Shadow
+    private String furnaceCustomName;
+
     public int furnace$getRemainingBurnTime() {
         return getField(0);
     }
@@ -66,6 +69,9 @@ public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable {
         container.set(new DataQuery("BurnTime"), this.furnace$getRemainingBurnTime());
         container.set(new DataQuery("CookTime"), this.furnace$getRemainingCookTime());
         container.set(new DataQuery("CookTimeTotal"), this.getField(3));
+        if (this.furnaceCustomName != null) {
+            container.set(new DataQuery("CustomName"), this.furnaceCustomName);
+        }
         return container;
     }
 }

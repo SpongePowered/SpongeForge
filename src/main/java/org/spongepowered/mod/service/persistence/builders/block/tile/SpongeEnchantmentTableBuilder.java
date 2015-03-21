@@ -22,29 +22,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.block.data;
 
+package org.spongepowered.mod.service.persistence.builders.block.tile;
+
+import com.google.common.base.Optional;
+import net.minecraft.tileentity.TileEntityEnchantmentTable;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.block.data.EnchantmentTable;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.api.service.persistence.data.DataView;
 
-@NonnullByDefault
-@Implements(@Interface(iface = EnchantmentTable.class, prefix = "enchanting$"))
-@Mixin(net.minecraft.tileentity.TileEntityEnchantmentTable.class)
-public abstract class MixinTileEntityEnchantmentTable extends MixinTileEntity {
+public class SpongeEnchantmentTableBuilder extends AbstractTileBuilder<EnchantmentTable> {
 
-    @Shadow
-    private String customName;
+    public SpongeEnchantmentTableBuilder(Game game) {
+        super(game);
+    }
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        container.set(new DataQuery("CustomName"), this.customName);
-        return container;
+    @SuppressWarnings("unchecked")
+    public Optional<EnchantmentTable> build(DataView container) throws InvalidDataException {
+        Optional<EnchantmentTable> enchantmenttableOptional = super.build(container);
+        if (!enchantmenttableOptional.isPresent()) {
+            throw new InvalidDataException("The container had insufficient data to create a EnchantmentTable tile entity!");
+        }
+        EnchantmentTable enchantmenttable = enchantmenttableOptional.get();
+        if (container.contains(new DataQuery("CustomName"))) {
+            ((TileEntityEnchantmentTable) enchantmenttable).setCustomName(container.getString(new DataQuery("CustomName")).get());
+        }
+        ((TileEntityEnchantmentTable) enchantmenttable).validate();
+        return Optional.of(enchantmenttable);
     }
 }

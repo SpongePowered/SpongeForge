@@ -22,29 +22,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.block.data;
 
-import org.spongepowered.api.block.data.EnchantmentTable;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+package org.spongepowered.mod.service.persistence.builders.block.tile;
+
+import com.google.common.base.Optional;
+import net.minecraft.tileentity.TileEntityDropper;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.block.data.Dropper;
+import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.api.service.persistence.data.DataView;
 
-@NonnullByDefault
-@Implements(@Interface(iface = EnchantmentTable.class, prefix = "enchanting$"))
-@Mixin(net.minecraft.tileentity.TileEntityEnchantmentTable.class)
-public abstract class MixinTileEntityEnchantmentTable extends MixinTileEntity {
+public class SpongeDropperBuilder extends SpongeLockableBuilder<Dropper> {
 
-    @Shadow
-    private String customName;
+    public SpongeDropperBuilder(Game game) {
+        super(game);
+    }
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        container.set(new DataQuery("CustomName"), this.customName);
-        return container;
+    @SuppressWarnings("unchecked")
+    public Optional<Dropper> build(DataView container) throws InvalidDataException {
+        Optional<Dropper> dropperOptional = super.build(container);
+        if (!dropperOptional.isPresent()) {
+            throw new InvalidDataException("The container had insufficient data to create a Dropper tile entity!");
+        }
+        Dropper dropper = dropperOptional.get();
+        if (container.contains(new DataQuery("CustomName"))) {
+            ((TileEntityDropper) dropper).setCustomName(container.getString(new DataQuery("CustomName")).get());
+        }
+        ((TileEntityDropper) dropper).validate();
+        return Optional.of(dropper);
     }
 }

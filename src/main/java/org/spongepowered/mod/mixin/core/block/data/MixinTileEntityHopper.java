@@ -41,6 +41,9 @@ public abstract class MixinTileEntityHopper extends MixinTileEntityLockable {
     @Shadow
     private int transferCooldown;
 
+    @Shadow
+    private String customName;
+
     public int hopper$getTransferCooldown() {
         return this.transferCooldown;
     }
@@ -53,6 +56,9 @@ public abstract class MixinTileEntityHopper extends MixinTileEntityLockable {
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
         container.set(new DataQuery("TransferCooldown"), this.transferCooldown);
+        if (this.customName != null) {
+            container.set(new DataQuery("CustomName"), this.customName);
+        }
         return container;
     }
 }

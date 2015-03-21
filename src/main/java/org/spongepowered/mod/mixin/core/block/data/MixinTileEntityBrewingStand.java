@@ -39,6 +39,9 @@ import org.spongepowered.asm.mixin.Shadow;
 public abstract class MixinTileEntityBrewingStand extends MixinTileEntityLockable {
 
     @Shadow
+    private String customName;
+
+    @Shadow
     public abstract int getField(int id);
 
     @Shadow
@@ -56,6 +59,9 @@ public abstract class MixinTileEntityBrewingStand extends MixinTileEntityLockabl
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
         container.set(new DataQuery("BrewTime"), this.brewingstand$getRemainingBrewTime());
+        if (this.customName != null) {
+            container.set(new DataQuery("CustomName"), this.customName);
+        }
         return container;
     }
 }

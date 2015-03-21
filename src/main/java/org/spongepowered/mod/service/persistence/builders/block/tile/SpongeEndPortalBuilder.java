@@ -23,5 +23,29 @@
  * THE SOFTWARE.
  */
 
-@org.spongepowered.api.util.annotation.NonnullByDefault
-package org.spongepowered.mod.service.persistence.builders.block.data;
+package org.spongepowered.mod.service.persistence.builders.block.tile;
+
+import com.google.common.base.Optional;
+import net.minecraft.tileentity.TileEntityEndPortal;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.block.data.EndPortal;
+import org.spongepowered.api.service.persistence.InvalidDataException;
+import org.spongepowered.api.service.persistence.data.DataView;
+
+public class SpongeEndPortalBuilder extends AbstractTileBuilder<EndPortal> {
+
+    public SpongeEndPortalBuilder(Game game) {
+        super(game);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Optional<EndPortal> build(DataView container) throws InvalidDataException {
+        Optional<EndPortal> endportalOptional = super.build(container);
+        if (!endportalOptional.isPresent()) {
+            throw new InvalidDataException("The container had insufficient data to create a EndPortal tile entity!");
+        }
+        ((TileEntityEndPortal) endportalOptional.get()).validate();
+        return Optional.of(endportalOptional.get());
+    }
+}

@@ -42,7 +42,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Implements(@Interface(iface = Beacon.class, prefix = "beacon$"))
 @Mixin(net.minecraft.tileentity.TileEntityBeacon.class)
-public abstract class MixinTileEntityBeacon extends MixinTileEntity {
+public abstract class MixinTileEntityBeacon extends MixinTileEntityLockable {
 
     @Shadow
     public abstract int getField(int id);
