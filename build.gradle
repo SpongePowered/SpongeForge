@@ -55,10 +55,6 @@ targetCompatibility = '1.6'
 
 repositories {
     mavenCentral()
-    maven {
-        name = 'sonatype-nexus'
-        url = 'https://oss.sonatype.org/content/groups/public/'
-    }
 
     // Add Sponge repo for custom checkstyle implementation to fix some wrong warnings
     maven { url 'http://repo.spongepowered.org/maven' }
@@ -109,7 +105,6 @@ shadowJar  {
         include(dependency('aopalliance:aopalliance'))
         include(dependency('ninja.leaping.configurate:configurate-hocon'))
         include(dependency('ninja.leaping.configurate:configurate-core'))
-        include(dependency('com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru'))
         include(dependency('com.zaxxer:HikariCP-java6'))
         include(dependency('org.mariadb.jdbc:mariadb-java-client'))
         include(dependency('com.h2database:h2'))
