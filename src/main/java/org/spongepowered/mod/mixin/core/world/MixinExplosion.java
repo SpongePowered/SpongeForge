@@ -29,7 +29,6 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.LogManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -59,16 +58,9 @@ public class MixinExplosion implements IMixinExplosion {
         this.explosionYield = 1.0F / explosionSize;
     }
 
-    @ModifyArg(
-            method = "doExplosionB(Z)V",
-            at = @At(
-                    value = "INVOKE",
-                    target =
-                    "Lnet/minecraft/block/Block;dropBlockAsItemWithChance(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;FI)V"))
-    private
-            float onExplosionB(float yield) {
-        LogManager.getLogger().info("Explosion getYield: " + this.getYield());
-        LogManager.getLogger().info("Explosion yield: " + this.explosionYield);
+    @ModifyArg(method = "doExplosionB(Z)V", at = @At(value = "INVOKE", target =
+            "Lnet/minecraft/block/Block;dropBlockAsItemWithChance(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;FI)V"))
+    private float onExplosionB(float yield) {
         return this.getYield();
     }
 
