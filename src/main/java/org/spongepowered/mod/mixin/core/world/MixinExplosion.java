@@ -27,8 +27,6 @@ package org.spongepowered.mod.mixin.core.world;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -50,9 +48,7 @@ public class MixinExplosion implements IMixinExplosion {
 
     private float explosionYield;
 
-    //TODO: Make this work on client
-    @SideOnly(Side.SERVER)
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;DDDFZZ)V", at = @At("RETURN"))
     public void onConstructed(World worldIn, Entity exploder, double explosionX, double explosionY, double explosionZ,
             float explosionSize, boolean isFlaming, boolean isSmoking, CallbackInfo ci) {
         this.explosionYield = 1.0F / explosionSize;
