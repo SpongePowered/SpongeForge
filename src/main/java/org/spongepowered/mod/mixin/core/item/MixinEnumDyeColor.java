@@ -22,28 +22,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package org.spongepowered.mod.mixin.core.item;
 
-package org.spongepowered.mod.service.persistence.builders.data;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Optional;
 import net.minecraft.item.EnumDyeColor;
 import org.spongepowered.api.item.DyeColor;
-import org.spongepowered.api.service.persistence.DataSerializableBuilder;
-import org.spongepowered.api.service.persistence.InvalidDataException;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
+import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
-public class SpongeDyeBuilder implements DataSerializableBuilder<DyeColor> {
+import java.awt.Color;
+
+@NonnullByDefault
+@Mixin(net.minecraft.item.EnumDyeColor.class)
+public class MixinEnumDyeColor implements DyeColor {
+
+    @Shadow
+    private String name;
 
     @Override
-    public Optional<DyeColor> build(DataView container) throws InvalidDataException {
-        checkNotNull(container);
-        if (!container.contains(new DataQuery("id")) || !container.contains(new DataQuery("name"))) {
-            throw new InvalidDataException("The container does not have data pertaining to Dyecolor!");
-        }
-        int id = container.getInt(new DataQuery("id")).get();
-        return Optional.of((DyeColor) (Object) EnumDyeColor.byDyeDamage(id));
+    public String getName() {
+        return this.name;
     }
+
+    @Override
+    public Color getColor() {
+        return new Color(((EnumDyeColor) (Object) this).getMapColor().colorValue);
+    }
+
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = new MemoryDataContainer();
+        container.set(new DataQuery("name"), this.name);
+        container.set(new DataQuery("id"), ((EnumDyeColor) (Object) this).getDyeDamage());
+        return container;
+    }
+
 }

@@ -25,7 +25,6 @@
 package org.spongepowered.mod.entity;
 
 import com.google.common.base.MoreObjects;
-import org.spongepowered.api.service.persistence.DataSource;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
@@ -55,7 +54,7 @@ public class SpongeEntityMeta {
         SpongeEntityMeta other = (SpongeEntityMeta) obj;
         if (this.type != other.type) {
             return false;
-        } else if (this.name.equals(other.name)) {
+        } else if (!this.name.equals(other.name)) {
             return false;
         }
         return true;

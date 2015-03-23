@@ -26,7 +26,7 @@ package org.spongepowered.mod.block.meta;
 
 import org.spongepowered.api.block.data.Banner.PatternLayer;
 import org.spongepowered.api.block.meta.BannerPatternShape;
-import org.spongepowered.api.entity.living.animal.DyeColor;
+import org.spongepowered.api.item.DyeColor;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;

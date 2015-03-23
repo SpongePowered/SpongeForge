@@ -44,6 +44,7 @@ import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.ItemFishFood;
 import net.minecraft.potion.Potion;
 import net.minecraft.tileentity.TileEntityBanner.EnumBannerPattern;
 import net.minecraft.util.EnumChatFormatting;
@@ -100,8 +101,12 @@ import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
 import org.spongepowered.api.entity.hanging.art.Arts;
-import org.spongepowered.api.entity.living.animal.DyeColor;
-import org.spongepowered.api.entity.living.animal.DyeColors;
+import org.spongepowered.api.item.CoalType;
+import org.spongepowered.api.item.CoalTypes;
+import org.spongepowered.api.item.CookedFish;
+import org.spongepowered.api.item.CookedFishes;
+import org.spongepowered.api.item.DyeColor;
+import org.spongepowered.api.item.DyeColors;
 import org.spongepowered.api.entity.living.animal.HorseColor;
 import org.spongepowered.api.entity.living.animal.HorseColors;
 import org.spongepowered.api.entity.living.animal.HorseStyle;
@@ -122,6 +127,11 @@ import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.entity.player.gamemode.GameModes;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
+import org.spongepowered.api.item.FireworkEffect;
+import org.spongepowered.api.item.FireworkEffectBuilder;
+import org.spongepowered.api.item.Fish;
+import org.spongepowered.api.item.Fishes;
+import org.spongepowered.api.item.GoldenApple;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStackBuilder;
@@ -163,6 +173,7 @@ import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
+import org.spongepowered.mod.SpongeGame;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.block.meta.SpongeNotePitch;
 import org.spongepowered.mod.block.meta.SpongeSkullType;
@@ -176,6 +187,8 @@ import org.spongepowered.mod.entity.SpongeEntityMeta;
 import org.spongepowered.mod.entity.SpongeEntityType;
 import org.spongepowered.mod.entity.SpongeProfession;
 import org.spongepowered.mod.entity.player.gamemode.SpongeGameMode;
+import org.spongepowered.mod.item.SpongeCoalType;
+import org.spongepowered.mod.item.SpongeFireworkBuilder;
 import org.spongepowered.mod.item.SpongeItemStackBuilder;
 import org.spongepowered.mod.item.merchant.SpongeTradeOfferBuilder;
 import org.spongepowered.mod.potion.SpongePotionBuilder;
@@ -199,6 +212,7 @@ import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeNoteB
 import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeSignBuilder;
 import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeSkullBuilder;
 import org.spongepowered.mod.service.persistence.builders.data.SpongeDyeBuilder;
+import org.spongepowered.mod.service.persistence.builders.data.SpongeFireworkDataBuilder;
 import org.spongepowered.mod.service.persistence.builders.data.SpongeHorseColorBuilder;
 import org.spongepowered.mod.service.persistence.builders.data.SpongeHorseStyleBuilder;
 import org.spongepowered.mod.service.persistence.builders.data.SpongeHorseVariantBuilder;
@@ -225,6 +239,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 @SuppressWarnings("unchecked")
 @NonnullByDefault
@@ -300,6 +316,10 @@ public class SpongeGameRegistry implements GameRegistry {
     private final Map<String, BannerPatternShape> idToBannerPatternShapeMappings = Maps.newHashMap();
     private final Map<String, DyeColor> dyeColorMappings = Maps.newHashMap();
     private final Map<String, SoundType> soundNames = Maps.newHashMap();
+    private final Map<String, CoalType> coaltypeMappings = Maps.newHashMap();
+    private final Map<String, Fish> fishMappings = Maps.newHashMap();
+    private final Map<String, CookedFish> cookedFishMappings = Maps.newHashMap();
+    private final Map<String, GoldenApple> goldenAppleMappings = Maps.newHashMap();
 
     @Override
     public Optional<BlockType> getBlock(String id) {
@@ -693,6 +713,51 @@ public class SpongeGameRegistry implements GameRegistry {
     @Override
     public AttributeBuilder getAttributeBuilder() {
         throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<CoalType> getCoalType(String name) {
+        return Optional.fromNullable(this.coaltypeMappings.get(name));
+    }
+
+    @Override
+    public Collection<CoalType> getCoalTypes() {
+        return ImmutableList.copyOf(this.coaltypeMappings.values());
+    }
+
+    @Override
+    public Optional<Fish> getFishType(String name) {
+        return Optional.fromNullable(this.fishMappings.get(name));
+    }
+
+    @Override
+    public Collection<Fish> getFishTypes() {
+        return ImmutableList.copyOf(this.fishMappings.values());
+    }
+
+    @Override
+    public Optional<CookedFish> getCookedFishType(String name) {
+        return Optional.fromNullable(this.cookedFishMappings.get(name));
+    }
+
+    @Override
+    public Collection<CookedFish> getCookedFishTypes() {
+        return ImmutableList.copyOf(this.cookedFishMappings.values());
+    }
+
+    @Override
+    public Optional<GoldenApple> getGoldenAppleType(String name) {
+        return null;
+    }
+
+    @Override
+    public Collection<GoldenApple> getGoldenAppleTypes() {
+        return null;
+    }
+
+    @Override
+    public FireworkEffectBuilder getFireworkEffectBuilder() {
+        return new SpongeFireworkBuilder();
     }
 
     public void registerEnvironment(DimensionType env) {
@@ -1122,6 +1187,40 @@ public class SpongeGameRegistry implements GameRegistry {
         });
     }
 
+    private void setFishes() {
+        RegistryHelper.mapFields(Fishes.class, new Function<String, Fish>() {
+            @Override
+            public Fish apply(String input) {
+                Fish fish = Fish.class.cast(ItemFishFood.FishType.valueOf(input));
+                if (fish != null) {
+                    SpongeGameRegistry.this.fishMappings.put(fish.getId(), fish);
+                    return fish;
+                } else {
+                    return null;
+                }
+            }
+        });
+
+        RegistryHelper.mapFields(CookedFishes.class, new Function<String, CookedFish>() {
+            @Override
+            public CookedFish apply(String input) {
+                CookedFish fish = CookedFish.class.cast(ItemFishFood.FishType.valueOf(input));
+                if (fish != null) {
+                    SpongeGameRegistry.this.cookedFishMappings.put(fish.getId(), fish);
+                    return fish;
+                } else
+                    return null;
+            }
+        });
+    }
+
+    private void setCoal() {
+        // Because Minecraft doesn't have any enum stuff for this....
+        this.coaltypeMappings.put("COAL", new SpongeCoalType(0, "COAL"));
+        this.coaltypeMappings.put("CHARCOAL", new SpongeCoalType(1, "CHARCOAL"));
+        RegistryHelper.mapFields(CoalTypes.class, this.coaltypeMappings);
+    }
+
     private void setRotations() {
         RegistryHelper.mapFields(Rotations.class, rotationMappings);
     }
@@ -1470,6 +1569,7 @@ public class SpongeGameRegistry implements GameRegistry {
         service.registerBuilder(HorseVariant.class, new SpongeHorseVariantBuilder());
         service.registerBuilder(OcelotType.class, new SpongeOcelotTypeBuilder());
         service.registerBuilder(PotionEffect.class, new SpongePotionEffectBuilder());
+        service.registerBuilder(FireworkEffect.class, new SpongeFireworkDataBuilder());
 
         // User
         // TODO someone needs to write a User implementation...
@@ -1478,7 +1578,7 @@ public class SpongeGameRegistry implements GameRegistry {
     public void preInit() {
         setupSerialization();
     }
-    
+
     public void init() {
         setDimensionTypes();
         setEnchantments();
@@ -1507,5 +1607,7 @@ public class SpongeGameRegistry implements GameRegistry {
         setPotionTypes();
         setEntityTypes();
         setBiomeTypes();
+        setFishes();
+        setCoal();
     }
 }

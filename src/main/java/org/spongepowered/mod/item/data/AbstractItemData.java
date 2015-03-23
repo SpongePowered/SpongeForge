@@ -22,28 +22,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-package org.spongepowered.mod.service.persistence.builders.data;
+package org.spongepowered.mod.item.data;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Optional;
-import net.minecraft.item.EnumDyeColor;
-import org.spongepowered.api.item.DyeColor;
-import org.spongepowered.api.service.persistence.DataSerializableBuilder;
-import org.spongepowered.api.service.persistence.InvalidDataException;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
+import net.minecraft.item.ItemStack;
+import org.spongepowered.api.item.ItemDataTransactionResult;
+import org.spongepowered.api.item.ItemType;
 
-public class SpongeDyeBuilder implements DataSerializableBuilder<DyeColor> {
+public abstract class AbstractItemData {
 
-    @Override
-    public Optional<DyeColor> build(DataView container) throws InvalidDataException {
-        checkNotNull(container);
-        if (!container.contains(new DataQuery("id")) || !container.contains(new DataQuery("name"))) {
-            throw new InvalidDataException("The container does not have data pertaining to Dyecolor!");
-        }
-        int id = container.getInt(new DataQuery("id")).get();
-        return Optional.of((DyeColor) (Object) EnumDyeColor.byDyeDamage(id));
+    protected ItemType owner;
+
+    protected AbstractItemData(ItemType owner) {
+        checkNotNull(owner);
+        this.owner = owner;
     }
+
+    public void setOwner(ItemType owner) {
+        checkNotNull(owner);
+        this.owner = owner;
+    }
+
+    public ItemType getOwner() {
+        return this.owner;
+    }
+
+    public abstract ItemDataTransactionResult putData(ItemStack stack);
 }

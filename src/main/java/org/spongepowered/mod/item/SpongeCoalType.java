@@ -22,35 +22,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.entity.living.animal;
 
-import net.minecraft.item.EnumDyeColor;
-import org.spongepowered.api.entity.living.animal.DyeColor;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+package org.spongepowered.mod.item;
 
-@NonnullByDefault
-@Mixin(net.minecraft.item.EnumDyeColor.class)
-public class MixinEnumDyeColor implements DyeColor {
+import org.spongepowered.api.item.CoalType;
+import org.spongepowered.mod.entity.SpongeEntityMeta;
 
-    @Shadow
-    private String name;
+public class SpongeCoalType extends SpongeEntityMeta implements CoalType {
 
-    @Override
-    public String getName() {
-        return this.name;
+    public SpongeCoalType(int type, String name) {
+        super(type, name);
     }
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = new MemoryDataContainer();
-        container.set(new DataQuery("name"), this.name);
-        container.set(new DataQuery("id"), ((EnumDyeColor) (Object) this).getDyeDamage());
-        return container;
+    public String getId() {
+        return this.getName();
     }
-
 }

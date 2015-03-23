@@ -23,27 +23,29 @@
  * THE SOFTWARE.
  */
 
-package org.spongepowered.mod.service.persistence.builders.data;
+package org.spongepowered.mod.item.data;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Optional;
-import net.minecraft.item.EnumDyeColor;
-import org.spongepowered.api.item.DyeColor;
-import org.spongepowered.api.service.persistence.DataSerializableBuilder;
-import org.spongepowered.api.service.persistence.InvalidDataException;
+import org.spongepowered.api.item.Enchantment;
+import org.spongepowered.api.service.persistence.DataSerializable;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
+import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
-public class SpongeDyeBuilder implements DataSerializableBuilder<DyeColor> {
+public class SpongeEnchantment implements DataSerializable {
+
+    public final Enchantment enchantment;
+    public final int level;
+
+    public SpongeEnchantment(Enchantment enchantment, int level) {
+        this.enchantment = enchantment;
+        this.level = level;
+    }
 
     @Override
-    public Optional<DyeColor> build(DataView container) throws InvalidDataException {
-        checkNotNull(container);
-        if (!container.contains(new DataQuery("id")) || !container.contains(new DataQuery("name"))) {
-            throw new InvalidDataException("The container does not have data pertaining to Dyecolor!");
-        }
-        int id = container.getInt(new DataQuery("id")).get();
-        return Optional.of((DyeColor) (Object) EnumDyeColor.byDyeDamage(id));
+    public DataContainer toContainer() {
+        DataContainer container = new MemoryDataContainer();
+        container.set(new DataQuery("Enchantment"), this.enchantment.getId());
+        container.set(new DataQuery("Level"), this.level);
+        return container;
     }
 }

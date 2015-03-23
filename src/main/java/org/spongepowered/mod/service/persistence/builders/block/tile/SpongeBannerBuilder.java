@@ -29,7 +29,7 @@ import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntityBanner;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.data.Banner;
-import org.spongepowered.api.entity.living.animal.DyeColor;
+import org.spongepowered.api.item.DyeColor;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.api.service.persistence.data.DataQuery;

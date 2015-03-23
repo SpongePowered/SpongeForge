@@ -24,18 +24,25 @@
  */
 package org.spongepowered.mod.mixin.core.item.inventory;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagList;
-import org.spongepowered.api.item.Enchantment;
+import net.minecraft.nbt.NBTTagCompound;
+import org.spongepowered.api.item.ItemDataTransactionResult;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.data.ItemData;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.properties.ItemProperty;
 import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.service.persistence.data.DataQuery;
+import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.item.ItemsHelper;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
+import java.util.List;
 
 @SuppressWarnings("serial")
 @NonnullByDefault
@@ -58,27 +65,11 @@ public abstract class MixinItemStack implements ItemStack {
     public abstract int getMaxStackSize();
 
     @Shadow
-    public abstract NBTTagList getEnchantmentTagList();
-
-    @Shadow
-    public abstract boolean isItemEnchanted();
-
-    @Shadow
-    public abstract void addEnchantment(net.minecraft.enchantment.Enchantment ench, int level);
+    public abstract NBTTagCompound getTagCompound();
 
     @Override
     public ItemType getItem() {
         return (ItemType) shadow$getItem();
-    }
-
-    @Override
-    public short getDamage() {
-        return (short) getItemDamage();
-    }
-
-    @Override
-    public void setDamage(short damage) {
-        setItemDamage(damage);
     }
 
     @Override
@@ -106,49 +97,61 @@ public abstract class MixinItemStack implements ItemStack {
     }
 
     @Override
-    public Map<Enchantment, Integer> getEnchantments() {
-        NBTTagList nbttaglist = getEnchantmentTagList();
-        Map<Enchantment, Integer> enchantments = new HashMap<Enchantment, Integer>(nbttaglist.tagCount());
-        if (nbttaglist != null) {
-            for (int i = 0; i < nbttaglist.tagCount(); ++i) {
-                short short1 = nbttaglist.getCompoundTagAt(i).getShort("id");
-                short short2 = nbttaglist.getCompoundTagAt(i).getShort("lvl");
-                enchantments.put((Enchantment) net.minecraft.enchantment.Enchantment.getEnchantmentById(short1), (int) short2);
-            }
-        }
-        return enchantments;
-    }
-
-    @Override
-    public boolean isEnchanted() {
-        return isItemEnchanted();
-    }
-
-    @Override
-    public void setEnchantment(Enchantment enchant, int level) {
-        addEnchantment((net.minecraft.enchantment.Enchantment) enchant, level);
-    }
-
-    @Override
-    public void removeEnchantment(Enchantment enchant) {
-        NBTTagList nbttaglist = getEnchantmentTagList();
-        if (nbttaglist != null) {
-            for (int i = 0; i < nbttaglist.tagCount(); ++i) {
-                if (nbttaglist.getCompoundTagAt(i).getShort("id") == (short) ((net.minecraft.enchantment.Enchantment) enchant).effectId) {
-                    nbttaglist.removeTag(i);
-                }
-            }
+    public <T extends ItemData<T>> ItemDataTransactionResult setItemData(T itemData) {
+        // TODO actually implement this....
+        ItemDataTransactionResult result = ItemsHelper.validateData(this.getItem(), itemData);
+        if (result.getType() != ItemDataTransactionResult.Type.SUCCESS) {
+            return result;
+        } else {
+            result = ItemsHelper.setData(this, itemData);
+            return result;
         }
     }
 
     @Override
-    public int getEnchantment(Enchantment enchant) {
-        return getEnchantments().get(enchant);
+    public <T extends ItemData<T>> Optional<T> getOrCreateItemData(Class<T> dataClass) {
+        return null;
+    }
+
+    @Override
+    public Collection<ItemProperty<?, ?>> getProperties() {
+        return null;
+    }
+
+    @Override
+    public Collection<ItemData<?>> getItemData() {
+        return null;
+    }
+
+    public <T extends ItemProperty<?, ?>> Optional<T> getProperty(Class<T> property) {
+
+        return Optional.absent();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> getData(Class<T> dataClass) {
+        if (ItemData.class.isAssignableFrom(dataClass)) {
+            return (Optional<T>) getOrCreateItemData((Class) dataClass);
+        } else if (ItemProperty.class.isAssignableFrom(dataClass)) {
+            return (Optional<T>) getProperty((Class) dataClass);
+        } else {
+            return Optional.absent(); // Because fuck you, that's why
+        }
     }
 
     @Override
     public DataContainer toContainer() {
-        throw new UnsupportedOperationException(); // TODO Pending Items API merge
+        DataContainer container = new MemoryDataContainer();
+        container.set(new DataQuery("ItemType"), this.getItem().getId());
+        container.set(new DataQuery("Quantity"), this.getQuantity());
+        List<DataContainer> containerList = Lists.newArrayList();
+        for (ItemData<?> itemData : getItemData()) {
+            containerList.add(itemData.toContainer());
+        }
+
+
+        return container;
     }
 
 }

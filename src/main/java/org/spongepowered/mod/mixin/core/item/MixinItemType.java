@@ -46,12 +46,6 @@ public abstract class MixinItemType implements ItemType {
     @Shadow(prefix = "shadow$")
     public abstract String shadow$getUnlocalizedName();
 
-    @Shadow
-    private int maxDamage;
-
-    @Shadow
-    private boolean hasSubtypes;
-
     @Override
     public String getId() {
         return Item.itemRegistry.getNameForObject(this).toString();
@@ -68,14 +62,5 @@ public abstract class MixinItemType implements ItemType {
     @Override
     public int getMaxStackQuantity() {
         return getItemStackLimit();
-    }
-
-    @Override
-    public int getMaxDamage() {
-        return this.maxDamage;
-    }
-
-    public boolean item$isDamageable() {
-        return this.maxDamage > 0 && !this.hasSubtypes;
     }
 }

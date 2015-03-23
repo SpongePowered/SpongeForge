@@ -23,27 +23,37 @@
  * THE SOFTWARE.
  */
 
-package org.spongepowered.mod.service.persistence.builders.data;
+package org.spongepowered.mod.service.persistence.data;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.spongepowered.mod.service.persistence.DataTranslator.containerToCompound;
+import static org.spongepowered.mod.service.persistence.DataTranslator.getViewFromCompound;
 
 import com.google.common.base.Optional;
-import net.minecraft.item.EnumDyeColor;
-import org.spongepowered.api.item.DyeColor;
+import net.minecraft.nbt.NBTTagCompound;
+import org.junit.Test;
+import org.mockito.Mockito;
 import org.spongepowered.api.service.persistence.DataSerializableBuilder;
-import org.spongepowered.api.service.persistence.InvalidDataException;
+import org.spongepowered.api.service.persistence.SerializationService;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
+import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
-public class SpongeDyeBuilder implements DataSerializableBuilder<DyeColor> {
+public class NBTTranslationTest {
 
-    @Override
-    public Optional<DyeColor> build(DataView container) throws InvalidDataException {
-        checkNotNull(container);
-        if (!container.contains(new DataQuery("id")) || !container.contains(new DataQuery("name"))) {
-            throw new InvalidDataException("The container does not have data pertaining to Dyecolor!");
-        }
-        int id = container.getInt(new DataQuery("id")).get();
-        return Optional.of((DyeColor) (Object) EnumDyeColor.byDyeDamage(id));
+    @Test
+    public void testContainerToNBT() {
+        SerializationService service = Mockito.mock(SerializationService.class);
+        DataSerializableBuilder<FakeSerializable> builder = new FakeBuilder();
+        Mockito.stub(service.getBuilder(FakeSerializable.class)).toReturn(Optional.of(builder));
+        DataContainer container = new MemoryDataContainer();
+        container.set(new DataQuery("foo"), "bar");
+        FakeSerializable temp = new FakeSerializable("bar", 7, 10.0D, "nested");
+        container.set(new DataQuery("myFake"), temp);
+        NBTTagCompound compound = containerToCompound(container);
+        DataView translatedContainer = getViewFromCompound(compound);
+        // assertTrue(container.equals(translatedContainer)); // TODO We need to push the fix for MemoryDataView
     }
+
 }

@@ -65,17 +65,8 @@ public abstract class MixinPotionEffect implements PotionEffect {
         return this.duration;
     }
 
-    public void potionEffect$setDuration(int duration) {
-        this.duration = duration;
-    }
-
     public int potionEffect$getAmplifier() {
         return this.amplifier;
-    }
-
-    @Override
-    public void setAmplifier(int amplifier) {
-        this.amplifier = amplifier;
     }
 
     @Override
@@ -84,18 +75,8 @@ public abstract class MixinPotionEffect implements PotionEffect {
     }
 
     @Override
-    public void setAmbient(boolean ambient) {
-        this.isAmbient = ambient;
-    }
-
-    @Override
     public boolean getShowParticles() {
         return this.showParticles;
-    }
-
-    @Override
-    public void setShowParticles(boolean showParticles) {
-        this.showParticles = showParticles;
     }
 
     @Override
