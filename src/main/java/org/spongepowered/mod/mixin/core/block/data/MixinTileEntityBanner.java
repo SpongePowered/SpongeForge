@@ -70,8 +70,9 @@ public abstract class MixinTileEntityBanner extends MixinTileEntity {
         updatePatterns();
     }
 
-    @Inject(method = "readFromNBT(Lnet/minecraft/nbt/NBTTagCompound;)V", at = @At("RETURN"))
-    private void onReadFromNBT(NBTTagCompound tagCompound, CallbackInfo ci) {
+    @Override
+    public void readFromNbt(NBTTagCompound compound) {
+        super.readFromNbt(compound);
         updatePatterns();
     }
 
