@@ -26,6 +26,8 @@ package org.spongepowered.mod.registry;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
@@ -160,12 +162,12 @@ import org.spongepowered.api.item.inventory.ItemStackBuilder;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.item.recipe.RecipeRegistry;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
 import org.spongepowered.api.resourcepack.ResourcePack;
 import org.spongepowered.api.scoreboard.ScoreboardBuilder;
+import org.spongepowered.api.scoreboard.Team;
 import org.spongepowered.api.scoreboard.TeamBuilder;
 import org.spongepowered.api.scoreboard.Visibility;
 import org.spongepowered.api.scoreboard.critieria.Criterion;
@@ -191,7 +193,11 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.text.selector.ArgumentHolder;
+import org.spongepowered.api.text.selector.ArgumentType;
+import org.spongepowered.api.text.selector.ArgumentTypes;
 import org.spongepowered.api.text.selector.SelectorType;
+import org.spongepowered.api.text.selector.Selectors;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.text.translation.locale.Locales;
 import org.spongepowered.api.util.Direction;
@@ -210,7 +216,6 @@ import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
 import org.spongepowered.api.world.gen.PopulatorFactory;
-import org.spongepowered.api.world.gen.WorldGenerator;
 import org.spongepowered.api.world.gen.WorldGeneratorModifier;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.api.world.weather.Weather;
@@ -258,6 +263,8 @@ import org.spongepowered.mod.text.SpongeTextFactory;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 import org.spongepowered.mod.text.format.SpongeTextStyle;
+import org.spongepowered.mod.text.selector.SpongeArgumentHolder;
+import org.spongepowered.mod.text.selector.SpongeSelectorFactory;
 import org.spongepowered.mod.text.translation.SpongeTranslation;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
@@ -534,6 +541,7 @@ public class SpongeGameRegistry implements GameRegistry {
     private final Map<Integer, String> worldFolderDimensionIdMappings = Maps.newHashMap();
     public final Map<UUID, String> worldFolderUniqueIdMappings = Maps.newHashMap();
     private final Map<String, GeneratorType> generatorTypeMappings = Maps.newHashMap();
+    private final Map<String, SelectorType> selectorMappings = Maps.newHashMap();
 
     private final Map<Class<? extends CatalogType>, Map<String, ? extends CatalogType>> catalogTypeMap =
             ImmutableMap.<Class<? extends CatalogType>, Map<String, ? extends CatalogType>>builder()
@@ -583,7 +591,7 @@ public class SpongeGameRegistry implements GameRegistry {
             .put(RailDirection.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(Rotation.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(SandstoneType.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(SelectorType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(SelectorType.class, this.selectorMappings)
             .put(SkeletonType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(SkullType.class, this.skullTypeMappings)
             .put(SlabType.class, ImmutableMap.<String, CatalogType>of()) // TODO
@@ -1406,20 +1414,69 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     private void setSelectors() {
-        /*
-         * try { SelectorTypes.class.getDeclaredField("ALL_PLAYERS").set(null,
-         * new SpongeSelectorType("a"));
-         * SelectorTypes.class.getDeclaredField("ALL_ENTITIES").set(null, new
-         * SpongeSelectorType("e"));
-         * SelectorTypes.class.getDeclaredField("NEAREST_PLAYER").set(null, new
-         * SpongeSelectorType("p"));
-         * SelectorTypes.class.getDeclaredField("RANDOM_PLAYER").set(null, new
-         * SpongeSelectorType("r")); } catch (Exception e) {
-         * e.printStackTrace(); } RegistryHelper.setFactory(SelectorTypes.class,
-         * new SpongeSelectorTypeFactory());
-         * RegistryHelper.setFactory(Selectors.class, new
-         * SpongeSelectorFactory());
-         */
+        RegistryHelper.mapFields(SelectorType.class, this.selectorMappings);
+        SpongeSelectorFactory factory = new SpongeSelectorFactory();
+        try {
+            // POSITION
+            ArgumentType<Integer> x = factory.createArgumentType("x", Integer.class);
+            ArgumentType<Integer> y = factory.createArgumentType("y", Integer.class);
+            ArgumentType<Integer> z = factory.createArgumentType("z", Integer.class);
+            ArgumentHolder.Vector3<Vector3i, Integer> position = new SpongeArgumentHolder.SpongeVector3<Vector3i, Integer>(x, y, z, Vector3i.class);
+            ArgumentTypes.class.getDeclaredField("POSITION").set(null, position);
+
+            // RADIUS
+            ArgumentType<Integer> rmin = factory.createArgumentType("rm", Integer.class);
+            ArgumentType<Integer> rmax = factory.createArgumentType("r", Integer.class);
+            ArgumentHolder.Limit<ArgumentType<Integer>> radius = new SpongeArgumentHolder.SpongeLimit<ArgumentType<Integer>>(rmin, rmax);
+            ArgumentTypes.class.getDeclaredField("RADIUS").set(null, radius);
+
+            // GAME_MODE
+            ArgumentTypes.class.getDeclaredField("GAME_MODE").set(null, factory.createArgumentType("m", GameMode.class));
+
+            // COUNT
+            ArgumentTypes.class.getDeclaredField("COUNT").set(null, factory.createArgumentType("c", Integer.class));
+
+            // LEVEL
+            ArgumentType<Integer> lmin = factory.createArgumentType("lm", Integer.class);
+            ArgumentType<Integer> lmax = factory.createArgumentType("l", Integer.class);
+            ArgumentHolder.Limit<ArgumentType<Integer>> level = new SpongeArgumentHolder.SpongeLimit<ArgumentType<Integer>>(lmin, lmax);
+            ArgumentTypes.class.getDeclaredField("LEVEL").set(null, level);
+
+            // TEAM
+            ArgumentTypes.class.getDeclaredField("TEAM").set(null, factory.createInvertibleArgumentType("team", Team.class));
+
+            // NAME
+            ArgumentTypes.class.getDeclaredField("NAME").set(null, factory.createInvertibleArgumentType("name", String.class));
+
+            // DIMENSION
+            ArgumentType<Integer> dx = factory.createArgumentType("dx", Integer.class);
+            ArgumentType<Integer> dy = factory.createArgumentType("dy", Integer.class);
+            ArgumentType<Integer> dz = factory.createArgumentType("dz", Integer.class);
+            ArgumentHolder.Vector3<Vector3i, Integer> dimension =
+                    new SpongeArgumentHolder.SpongeVector3<Vector3i, Integer>(dx, dy, dz, Vector3i.class);
+            ArgumentTypes.class.getDeclaredField("DIMENSION").set(null, dimension);
+
+            // ROTATION
+            ArgumentType<Double> rotxmin = factory.createArgumentType("rxm", Double.class);
+            ArgumentType<Double> rotymin = factory.createArgumentType("rym", Double.class);
+            ArgumentType<Double> rotzmin = factory.createArgumentType("rzm", Double.class);
+            ArgumentHolder.Vector3<Vector3d, Double> rotmin =
+                    new SpongeArgumentHolder.SpongeVector3<Vector3d, Double>(rotxmin, rotymin, rotzmin, Vector3d.class);
+            ArgumentType<Double> rotxmax = factory.createArgumentType("rx", Double.class);
+            ArgumentType<Double> rotymax = factory.createArgumentType("ry", Double.class);
+            ArgumentType<Double> rotzmax = factory.createArgumentType("rz", Double.class);
+            ArgumentHolder.Vector3<Vector3d, Double> rotmax =
+                    new SpongeArgumentHolder.SpongeVector3<Vector3d, Double>(rotxmax, rotymax, rotzmax, Vector3d.class);
+            ArgumentHolder.Limit<ArgumentHolder.Vector3<Vector3d, Double>> rot =
+                    new SpongeArgumentHolder.SpongeLimit<ArgumentHolder.Vector3<Vector3d, Double>>(rotmin, rotmax);
+            ArgumentTypes.class.getDeclaredField("ROTATION").set(null, rot);
+
+            // ENTITY_TYPE
+            ArgumentTypes.class.getDeclaredField("ENTITY_TYPE").set(null, factory.createInvertibleArgumentType("type", EntityType.class));
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        RegistryHelper.setFactory(Selectors.class, factory);
     }
 
     private void setTitleFactory() {
