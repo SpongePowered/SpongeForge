@@ -47,21 +47,23 @@ public abstract class MixinBlockUpdateEvent extends BlockEvent implements BlockU
     @Shadow
     private final EnumSet<EnumFacing> notifiedSides;
 
-    private final Set<BlockLoc> affectedBlocks;
+    private Set<BlockLoc> affectedBlocks;
 
     public MixinBlockUpdateEvent(World world, BlockPos pos, IBlockState state, EnumSet<EnumFacing> notifiedSides) {
         super(world, pos, state);
 
-        this.affectedBlocks = new HashSet<BlockLoc>();
-        for(EnumFacing notifiedSide : notifiedSides) {
-            BlockPos offset = pos.offset(notifiedSide);
-            this.affectedBlocks.add(((org.spongepowered.api.world.World) world).getFullBlock(offset.getX(), offset.getY(), offset.getZ()));
-        }
         this.notifiedSides = notifiedSides;
     }
 
     @Override
     public Collection<BlockLoc> getAffectedBlocks() {
+        if(this.affectedBlocks == null) {
+            this.affectedBlocks = new HashSet<BlockLoc>();
+            for(EnumFacing notifiedSide : notifiedSides) {
+                BlockPos offset = pos.offset(notifiedSide);
+                this.affectedBlocks.add(((org.spongepowered.api.world.World) world).getFullBlock(offset.getX(), offset.getY(), offset.getZ()));
+            }
+        }
         return this.affectedBlocks;
     }
 
