@@ -59,7 +59,7 @@ __Client__
 |     Property      | Value                                     |
 |:-----------------:|:------------------------------------------|
 |    Main class     | GradleStart                               |
-|    VM options     | -Djava.library.path="../../build/natives" -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
+|    VM options     | -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
 | Working directory | ./run/client (Included in project)        |
 | Module classpath  | Sponge (IntelliJ Only)                    |
 
