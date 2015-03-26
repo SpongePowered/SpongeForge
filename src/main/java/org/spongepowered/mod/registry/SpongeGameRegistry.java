@@ -1386,6 +1386,7 @@ public class SpongeGameRegistry implements GameRegistry {
         addTextColor(EnumChatFormatting.LIGHT_PURPLE, new Color(0xFF55FF));
         addTextColor(EnumChatFormatting.YELLOW, new Color(0xFFFF55));
         addTextColor(EnumChatFormatting.WHITE, Color.WHITE);
+        addTextColor(EnumChatFormatting.RESET, Color.WHITE);
 
         RegistryHelper.mapFields(TextColors.class, textColorMappings);
         RegistryHelper.mapFields(ChatTypes.class, chatTypeMappings);
