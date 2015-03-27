@@ -1,0 +1,21 @@
+{
+    "package": "org.spongepowered.granite.mixin",
+    "refmap": "mixins.vanilla.refmap.json",
+    "server": [
+        "MixinGameProfile",
+        "block.state.MixinBlockState",
+        "entity.player.MixinEntityPlayerMP",
+        "management.MixinItemInWorldManager",
+        "server.MixinDedicatedServer",
+        "server.MixinMinecraftServer",
+        "server.MixinNetHandlerHandshakeTCP",
+        "server.MixinNetworkManager",
+        "server.MixinServerCommandManager",
+        "status.MixinMinecraftProtocolVersionIdentifier",
+        "status.MixinNetHandlerStatusServer",
+        "status.MixinPingResponseHandler",
+        "status.MixinPlayerCountData",
+        "status.MixinServerStatusResponse",
+        "world.MixinWorld"
+    ]
+}

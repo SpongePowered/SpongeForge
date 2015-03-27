@@ -1,0 +1,21 @@
+dependencies {
+    compile project(':SpongeAPI')
+    compile('org.spongepowered:mixin:0.2-SNAPSHOT') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+    }
+
+    compile('com.zaxxer:HikariCP-java6:2.3.5') {
+        exclude module: 'slf4j-api'
+    }
+
+    runtime 'org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9'
+    runtime 'org.mariadb.jdbc:mariadb-java-client:1.1.8'
+    runtime 'com.h2database:h2:1.4.186'
+    runtime 'org.xerial:sqlite-jdbc:3.8.7'
+}
+
+// Add Javadocs for example sources
+javadoc {
+    source 'src/example/java'
+}

@@ -1,335 +1,421 @@
-// Gradle repositories and dependencies
 buildscript {
     repositories {
         mavenCentral()
-        maven {
-            name = 'sonatype-nexus-public'
-            url = 'https://oss.sonatype.org/content/repositories/public/'
-        }
-        maven {
-            name = 'forge-repo'
-            url = 'http://files.minecraftforge.net/maven/'
-        }
         jcenter()
+        maven {
+            name = 'forge'
+            url = 'http://files.minecraftforge.net/maven'
+        }
+        maven {
+            name = 'sonatype'
+            url = 'https://oss.sonatype.org/content/groups/public'
+        }
+        maven {
+            name = 'minecrell-snapshots'
+            url = 'http://repo.minecrell.net/snapshots'
+        }
     }
+
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
-        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.0'
+        classpath 'net.minecrell:VanillaGradle:1.0.1-SNAPSHOT'
+        classpath('nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0') {
+            exclude module: 'guava'
+        }
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
     }
 }
-
-// for multiproject fun
-evaluationDependsOn('Mixin')
-evaluationDependsOn('SpongeAPI')
 
 // Default tasks
-defaultTasks 'build', 'licenseFormat'
+defaultTasks 'licenseFormat', 'build'
 
-// Apply plugin
-apply plugin: 'forge'
-apply plugin: 'license'
-apply plugin: 'maven'
-apply plugin: 'checkstyle'
-apply plugin: 'com.github.johnrengelman.shadow'
+// Load SpongeAPI first
+evaluationDependsOn ':SpongeAPI'
 
-// Basic project information
-group = 'org.spongepowered'
-archivesBaseName = 'sponge'
+// Define the projects we want to configure
+def vanilla = [project(':Common'), project(':Vanilla')]
+def mc = vanilla + project(':Forge')
+def implementations = [project(':Vanilla'), project(':Forge')]
+def projects = mc + project
 
-// Define variables
-ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
-ext.ciSystem = project.hasProperty("ciSystem") ? ciSystem : 'unknown'
-ext.commit = project.hasProperty("commit") ? commit : 'unknown'
+// Add Eclipse and IDEA plugin for root project
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 
-// Version -> Minecraft-MinecraftForge-Ours(If any?)
-version = '1.8-1341-1.1DEV-' + buildNumber
+// Set general properties
+configure(projects) {
+    apply plugin: 'base'
 
-// mixin variables
-ext.mixinSrg = new File(project.buildDir, "tmp/mixins/mixins.srg")
-ext.mixinRefMap = new File(project.buildDir, "tmp/mixins/mixins.sponge.refmap.json")
+    group = 'org.spongepowered'
+    version = '2.0-SNAPSHOT' // TODO: For a unified JAR we also need a unified version (at least for the JAR itself)
 
-// Minimum version of Java required
-sourceCompatibility = '1.6'
-targetCompatibility = '1.6'
-
-repositories {
-    mavenCentral()
-
-    // Add Sponge repo for custom checkstyle implementation to fix some wrong warnings
-    maven { url 'http://repo.spongepowered.org/maven' }
-}
-
-// MinecraftForge version
-minecraft {
-    version = "1.8-11.14.1.1341"
-    mappings = "snapshot_20150301"
-}
-
-configurations {
-    deployerJars // maven deployment
-}
-
-// Project dependencies
-dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.7'
-    compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9'
-    compile 'com.google.inject:guice:4.0-beta5'
-    compile 'com.zaxxer:HikariCP-java6:2.1.0'
-    compile 'org.mariadb.jdbc:mariadb-java-client:1.1.8'
-    compile 'com.h2database:h2:1.4.186'
-    compile 'org.xerial:sqlite-jdbc:3.8.+'
-    compile project('Mixin')
-    compile project('SpongeAPI')
-    
-    testCompile 'junit:junit:4.11'
-    testCompile 'org.mockito:mockito-core:1.9.0'
-
-    checkstyle 'org.spongepowered:checkstyle:6.1.1-sponge1'
-
-    deployerJars 'org.apache.maven.wagon:wagon-ftp:2.7'
-}
-
-shadowJar  {
-    exclude 'META-INF/*.DSA'
-    exclude 'META-INF/*.RSA'
-    exclude 'GradleStart**'
-    exclude 'log4j2.xml'
-    dependencies {
-        include(dependency('org.slf4j:slf4j-api'))
-        include(dependency('org.apache.logging.log4j:log4j-slf4j-impl'))
-        include(dependency('com.google.inject:guice'))
-        include(dependency('javax.inject:javax.inject'))
-        include(dependency('org.slf4j:slf4j-api'))
-        include(dependency('com.flowpowered:flow-math'))
-        include(dependency('aopalliance:aopalliance'))
-        include(dependency('ninja.leaping.configurate:configurate-hocon'))
-        include(dependency('ninja.leaping.configurate:configurate-core'))
-        include(dependency('com.zaxxer:HikariCP-java6'))
-        include(dependency('org.mariadb.jdbc:mariadb-java-client'))
-        include(dependency('com.h2database:h2'))
-        include(dependency('org.xerial:sqlite-jdbc'))
-        include(dependency('org.javassist:javassist'))
-        include(project('SpongeAPI'))
-        include(project('Mixin'))
-    }
-    classifier = ''
-    
-    from project.mixinRefMap
-}
-build.dependsOn(shadowJar)
-
-// Filter, process, and include resources
-processResources {
-    inputs.property "version", version
-    inputs.property "mcversion", project.minecraft.version
-
-    // Include in final JAR
-    from 'LICENSE.txt'
-
-    // Replace variables
-    from('src/main/resources/mcmod.info') {
-        expand 'modid': project.name.toLowerCase(),
-                'name': project.name,
-                'description': project.description,
-                'version': version,
-                'buildNumber': buildNumber,
-                'mcversion': minecraft.version,
-                'url': url,
-                'authorList': organization
+    ext {
+        buildNumber = project.hasProperty('buildNumber') ? buildNumber : '0'
+        ciSystem = project.hasProperty('ciSystem') ? ciSystem : 'unknown'
+        commit = project.hasProperty('commit') ? commit : 'unknown'
     }
 }
 
-// License header formatting
-license {
-    ext.name = project.name
-    ext.organization = project.organization
-    ext.url = project.url
-    ext.year = project.inceptionYear
-    exclude "**/*.info"
-    exclude "**/*.json"
-    exclude "**/*_at.cfg"
-    exclude "**/log4j2.xml"
-    exclude "assets/**"
-    header new File(project("SpongeAPI").getProjectDir(), "HEADER.txt")
-    sourceSets = project.sourceSets
-    ignoreFailures false
-    strictCheck true
-    mapping {
-        java = 'SLASHSTAR_STYLE'
-    }
-}
-
-checkstyle {
-    configFile = project('SpongeAPI').file('checkstyle.xml')
-    configProperties = [
-            "name" : project.name,
-            "organization" : project.organization,
-            "url" : project.url,
-            "year" : project.inceptionYear,
-            "basedir": project.projectDir,
-            "severity": 'warning'
-    ]
-}
-tasks.jar.dependsOn "check"
-
-reobf {
-    reobf.addExtraSrgFile project.mixinSrg
-    
-    reobf(shadowJar) { spec ->
-        spec.classpath = configurations.compile
-    }
-}
-
-// Source compiler configuration
-compileJava {
-    options.compilerArgs += [ 
-        '-Xlint:all', 
-        '-Xlint:-path',
-        '-Xlint:-processing',
-        "-AoutSrgFile=${project.mixinSrg.getCanonicalPath()}",
-        "-AoutRefMapFile=${project.mixinRefMap.getCanonicalPath()}",
-        "-AreobfSrgFile=${project.file('build/srgs/mcp-srg.srg').getCanonicalPath()}"
-    ]
-    options.deprecation = true
-    options.encoding = 'UTF-8'
-}
-
-// Copy the current srgs to the build dir so the user doesn't have to go hunting for them
-task copySrgs(type: Copy, dependsOn: "genSrgs") {
-    // using some FG hacks here
-    from plugins.getPlugin("forge").delayedFile("{SRG_DIR}")    
-    include '**/*.srg'
-    into 'build/srgs'
-
-    doLast {
-        def file = project.file('build/srgs/mcp-srg.srg')
-        file.text = file.text + "\n" + project.file("extraSrg.srg").text
-    }
-}
-setupDecompWorkspace.dependsOn copySrgs
-setupDevWorkspace.dependsOn copySrgs
-compileJava.dependsOn copySrgs
-
-def manifestEntries = [
-    "Built-By": System.properties['user.name'],
-    "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
-    "Implementation-Title": name,
-    "Implementation-Version": version + "+" + ciSystem + "-b" + buildNumber + ".git-" + commit,
-    "Implementation-Vendor": url,
-    "FMLCorePlugin": "org.spongepowered.mod.SpongeCoremod",
-    "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
-    "TweakOrder": "10000"
-    ]
-
-jar {
-    // Jar shading and packaging configuration
-    from project("Mixin").sourceSets.main.output
-    from project("SpongeAPI").sourceSets.main.output
-
-    // JAR manifest configuration
-    manifest.mainAttributes(manifestEntries)
-
-    // Ignore dev-time logging config
-    exclude 'log4j2.xml'
-
-    // classifier
-    classifier = 'release'
-}
-
-javadoc {
-    options.encoding = 'UTF-8'
-    options.charSet = 'UTF-8'
-    options.jFlags('-Xms256m', '-Xmx512m')
-    source = [
-        project("Mixin").sourceSets.main.java,
-        project("SpongeAPI").sourceSets.main.java,
-        sourceSets.main.java,
-        "src/example/java"
-    ]
-}
-
-if (JavaVersion.current().isJava8Compatible()) {
-    tasks.withType(Javadoc) {
-        // disable the crazy super-strict doclint tool in Java 8
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
-}
-
-task deobfJar(type: Jar) {
-    from project("Mixin").sourceSets.main.output
-    from project("SpongeAPI").sourceSets.main.output
-    from sourceSets.main.output
-}
-
-task sourceJar(type: Jar, dependsOn: sourceMainJava) {
-    from "build/sources/java"
-    from "build/resources/main/java"
-    from project("Mixin").sourceSets.main.java
-    from project("Mixin").sourceSets.main.resources
-    from project("SpongeAPI").sourceSets.main.java
-    from project("SpongeAPI").sourceSets.main.resources
-    classifier = "sources"
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    from javadoc.destinationDir
-    from project("Mixin").tasks.javadoc.destinationDir
-    from project("SpongeAPI").tasks.javadoc.destinationDir
-    classifier = "javadoc"
-    dependsOn "Mixin:javadoc"
-    dependsOn "SpongeAPI:javadoc"
-}
-
-artifacts {
-    archives deobfJar
-    archives sourceJar
-    archives javadocJar
-}
-
-uploadArchives {
-    dependsOn reobf
+// Configure implementation before loading ForgeGradle plugin
+configure(mc) {
     repositories {
-        mavenDeployer {
-            configuration = configurations.deployerJars
+        mavenCentral()
+        maven {
+            name = 'sponge'
+            url = 'http://repo.spongepowered.org/maven'
+        }
+        maven {
+            name = 'sonatype-snapshots'
+            url = 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
+    }
 
-            if (project.hasProperty("chRepo"))
-            {
-                repository(url: project.chRepo) {
-                    authentication(userName: project.chUsername, password: project.chPassword)
+    archivesBaseName = "${rootProject.name.toLowerCase()}-${project.name.toLowerCase()}"
+
+    // Mixins
+    ext {
+        mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
+        mixinRefMap = new File(project.buildDir, "tmp/mixins/mixins.${project.name.toLowerCase()}.refmap.json")
+    }
+}
+
+project(':Common') {
+    apply plugin: 'net.minecrell.vanilla.base'
+    ext.minecraftPlugin = plugins.getPlugin('net.minecrell.vanilla.base')
+}
+
+project(':Vanilla') {
+    apply plugin: 'net.minecrell.vanilla'
+    ext.minecraftPlugin = plugins.getPlugin('net.minecrell.vanilla')
+}
+
+// Configure VanillaGradle
+configure(vanilla) {
+    minecraft {
+        version = '1.8'
+    }
+}
+
+// Configure ForgeGradle
+project(':Forge') {
+    apply plugin: 'forge'
+    ext.minecraftPlugin = plugins.getPlugin('forge')
+
+    minecraft {
+        version = '1.8-11.14.1.1334'
+    }
+}
+
+configure(mc) {
+    // Set mappings version
+    minecraft {
+        mappings = 'snapshot_20150328'
+    }
+
+    // Set Java version
+    sourceCompatibility = '1.6'
+    targetCompatibility = '1.6'
+
+    // Testing dependencies
+    dependencies {
+        testCompile 'junit:junit:4.12'
+        testCompile 'org.mockito:mockito-core:1.10.19'
+    }
+
+    // Compile options
+    compileJava {
+        options.compilerArgs += [
+                '-Xlint:all',
+                '-Xlint:-path',
+                '-Xlint:-processing',
+                "-AoutSrgFile=${project.mixinSrg.canonicalPath}",
+                "-AoutRefMapFile=${project.mixinRefMap.canonicalPath}",
+                "-AreobfSrgFile=${project.file('build/srgs/mcp-srg.srg').canonicalPath}"
+        ]
+
+        options.deprecation = true
+        options.encoding = 'UTF-8'
+    }
+
+    // Copy the current srgs to the build dir so the user doesn't have to go hunting for them
+    task copySrgs(type: Copy, dependsOn: 'genSrgs') {
+        from minecraftPlugin.delayedFile('{SRG_DIR}')
+
+        include '**/*.srg'
+        into 'build/srgs'
+    }
+
+    setupDecompWorkspace.dependsOn copySrgs
+    setupDevWorkspace.dependsOn copySrgs
+    compileJava.dependsOn copySrgs
+
+    // Configure reobfuscation for mixins
+    reobf.doFirst {
+        if (project.mixinSrg.exists()) {
+            addExtraSrgFile project.mixinSrg
+        }
+    }
+
+    // Javadoc settings
+    javadoc {
+        options.encoding = 'UTF-8'
+        options.charSet = 'UTF-8'
+        options.jFlags('-Xms256m', '-Xmx512m')
+    }
+
+    if (JavaVersion.current().isJava8Compatible()) {
+        tasks.withType(Javadoc) {
+            // Disable the crazy super-strict doclint tool in Java 8
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+
+    // Set manifest entries
+    jar {
+        from project.mixinRefMap
+
+        manifest {
+            attributes(
+                    'Specification-Name': project(':SpongeAPI').name,
+                    'Specification-Version': project(':SpongeAPI').version,
+                    'Specification-Vendor': project(':SpongeAPI').url,
+                    'Implementation-Name': rootProject.name,
+                    'Implementation-Version': project.version,
+                    'Implementation-Vendor': url,
+            )
+        }
+    }
+
+    // Apply code style plugins
+    apply plugin: 'license'
+    apply plugin: 'checkstyle'
+
+    dependencies {
+        // Add custom checkstyle dependency (fixes a few wrong warnings about imports and @param tags in annotations)
+        checkstyle 'org.spongepowered:checkstyle:6.1.1-sponge1'
+    }
+
+    // License header formatting
+    license {
+        ext {
+            name = project.name
+            organization = project.organization
+            url = project.url
+            year = project.inceptionYear
+        }
+
+        header project(':SpongeAPI').file('HEADER.txt')
+        include '**/*.java'
+
+        ignoreFailures false
+        strictCheck true
+
+        mapping {
+            java = 'SLASHSTAR_STYLE'
+        }
+    }
+
+    // Checkstyle settings
+    checkstyle {
+        configFile = project(':SpongeAPI').file('checkstyle.xml')
+        configProperties = [
+                'name' : project.name,
+                'organization' : project.organization,
+                'url' : project.url,
+                'year' : project.inceptionYear,
+                'basedir': rootProject.projectDir,
+                'severity': 'warning'
+        ]
+    }
+}
+
+configure(implementations) {
+    // Apply shadow plugin
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    dependencies {
+        compile project(':Common')
+    }
+
+    // Eclipse is too stupid to order the classpath correctly unfortunately...
+    // Put Common last
+    eclipse {
+        classpath {
+            file {
+                whenMerged { classpath ->
+                    def lib = classpath.entries.find { it.path == '/Common' }
+                    def others = classpath.entries.findAll { it != lib }
+                    classpath.entries = others + lib
                 }
             }
+        }
+    }
 
-            pom {
-                groupId = project.group
-                version = project.version
-                artifactId = project.archivesBaseName
-                project {
-                    name project.archivesBaseName
-                    packaging 'jar'
-                    description 'Sponge'
-                    url 'http://www.spongepowered.org/'
+    jar {
+        classifier = 'release'
+    }
 
-                    scm {
-                        url 'https://github.com/SpongePowered/SpongeAPI'
-                        connection 'scm:git:git://github.com/SpongePowered/Sponge.git'
-                        developerConnection 'scm:git:git@github.com:SpongePowered/Sponge.git'
+    shadowJar {
+        classifier = ''
+
+        exclude 'GradleStart**'
+        exclude 'net/minecraftforge/**'
+
+        from project.mixinRefMap
+
+        dependencies {
+            // Common
+            include project(':Common')
+            include dependency('org.spongepowered:mixin')
+
+            // SpongeAPI
+            include project(':SpongeAPI')
+
+            include dependency('org.slf4j:slf4j-api')
+            include dependency('org.apache.logging.log4j:log4j-slf4j-impl')
+
+            include dependency('com.google.inject:guice')
+            include dependency('javax.inject:javax.inject')
+            include dependency('aopalliance:aopalliance')
+
+            include dependency('com.flowpowered:flow-math')
+
+            include dependency('ninja.leaping.configurate:configurate-core')
+            include dependency('ninja.leaping.configurate:configurate-hocon')
+
+            include dependency('com.zaxxer:HikariCP-java6')
+            include dependency('org.javassist:javassist')
+
+            include dependency('org.mariadb.jdbc:mariadb-java-client')
+            include dependency('com.h2database:h2')
+            include dependency('org.xerial:sqlite-jdbc')
+        }
+    }
+
+    // Run shadowJar on build
+    assemble.dependsOn shadowJar
+
+    reobf {
+        reobf(shadowJar) { spec ->
+            spec.classpath = configurations.compile
+        }
+    }
+
+    apply plugin: 'maven'
+
+    configurations {
+        deployerJars // Maven deployment
+    }
+
+    dependencies {
+        deployerJars 'org.apache.maven.wagon:wagon-ftp:2.7'
+    }
+
+    task deobfJar(type: Jar, dependsOn: [classes, ':SpongeAPI:classes', ':Common:classes']) {
+        from project(':SpongeAPI').sourceSets.main.output
+        from project(':Common').sourceSets.main.output
+        from sourceSets.main.output
+    }
+
+    task sourceJar(type: Jar) {
+        classifier = 'sources'
+
+        from project(':SpongeAPI').sourceSets.main.allSource
+        from project(':Common').sourceSets.main.allSource
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: [javadoc, ':Common:javadoc', ':SpongeAPI:javadoc']) {
+        classifier = 'javadoc'
+
+        from project(':SpongeAPI').tasks.javadoc.destinationDir
+        from project(':Common').tasks.javadoc.destinationDir
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives deobfJar
+        archives sourceJar
+        archives javadocJar
+    }
+
+    uploadArchives {
+        dependsOn reobf
+        repositories {
+            mavenDeployer {
+                //configuration = configurations.deployerJars
+
+                repository(url: "file://localhost/tmp/repo/")
+
+                if (project.hasProperty("chRepo")) {
+                    repository(url: project.chRepo) {
+                        authentication(userName: project.chUsername, password: project.chPassword)
                     }
+                }
 
-                    issueManagement {
-                        system 'youtrack'
-                        url 'https://issues.spongepowered.org/'
-                    }
+                pom {
+                    groupId = project.group
+                    version = project.version
+                    artifactId = project.archivesBaseName
 
-                    licenses {
-                        license {
-                            name 'MIT license'
-                            url 'http://opensource.org/licenses/MIT'
-                            distribution 'repo'
+                    project {
+                        name project.archivesBaseName
+                        packaging 'jar'
+                        description 'Sponge'
+                        url 'http://www.spongepowered.org/'
+
+                        scm {
+                            url 'https://github.com/SpongePowered/SpongeAPI'
+                            connection 'scm:git:https://github.com/SpongePowered/Sponge.git'
+                            developerConnection 'scm:git:git@github.com:SpongePowered/Sponge.git'
+                        }
+
+                        issueManagement {
+                            system 'youtrack'
+                            url 'https://issues.spongepowered.org/'
+                        }
+
+                        licenses {
+                            license {
+                                name 'MIT license'
+                                url 'http://opensource.org/licenses/MIT'
+                                distribution 'repo'
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+mc.each {
+    evaluationDependsOn it.path
+}
+
+configure(implementations) {
+    // Add common access transformer
+    project(':Common').sourceSets.main.resources.files.each {
+        if (it.name.endsWith('_at.cfg')) {
+            logger.lifecycle("Found AccessTransformer in dependency resources: $it.name")
+            tasks.deobfBinJar.addTransformer(it)
+            tasks.deobfuscateJar.addTransformer(it)
+        }
+    }
+}
+
+/*task jar(type: Jar) {
+    duplicatesStrategy 'exclude'
+
+    implementations.each {
+        dependsOn it.tasks.build
+        from zipTree(it.tasks.shadowJar.archivePath)
+        manifest.from it.tasks.shadowJar.manifest
+    }
+}
+
+tasks.assemble.dependsOn 'jar'*/
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
 }

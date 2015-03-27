@@ -16,25 +16,24 @@ A Forge implementation of the Sponge API. It is licensed under the [MIT License]
 
 ## Clone
 The following steps will ensure your project is cloned properly.  
-1. `git clone git@github.com:SpongePowered/Sponge.git`  
-2. `cd Sponge`  
-3. `git submodule update --init --recursive`  
-4. `cp scripts/pre-commit .git/hooks`
+1. `git clone --recursive https://github.com/SpongePowered/Sponge.git
+2. `cd Sponge`
+3. `cp scripts/pre-commit .git/hooks`
 
 ## Setup
 __Note:__ If you do not have [Gradle] installed then use ./gradlew for Unix systems or Git Bash and gradlew.bat for Windows systems in place of any 'gradle' command.
 
 __For [Eclipse]__  
   1. Run `gradle setupDecompWorkspace --refresh-dependencies`  
-  2. Make sure you have the Gradle plugin installed (Help > Eclipse Marketplace > Gradle Integration Plugin)  
-  3. Import Sponge as a Gradle project (File > Import)
-  4. Select the root folder for Sponge and click **Build Model**
+  2. Run `gradle eclipse`
+  3. Import Sponge as an existing project (File > Import > General)
+  4. Select the root folder for Sponge and make sure `Search for nested projects` is enabled
   5. Check Sponge when it finishes building and click **Finish**
 
 __For [IntelliJ]__  
   1. Run `gradle setupDecompWorkspace --refresh-dependencies`  
   2. Make sure you have the Gradle plugin enabled (File > Settings > Plugins).  
-  3. Click File > Import Module and select the **build.gradle** file for Sponge.
+  3. Click File > New > Project from Existing Sources > Gradle and select the root folder for Sponge.
 
 ## Running
 __Note:__ The following is aimed to help you setup run configurations for Eclipse and IntelliJ, if you do not want to be able to run Sponge directly from your IDE then you can skip this.  
@@ -43,40 +42,51 @@ __For [Eclipse]__
   1. Go to **Run > Run Configurations**.  
   2. Right-click **Java Application** and select **New**.  
   3. Set the current project.  
-  4. Set the name as `Sponge (Client)` and apply the information for Client below.  
-  5. Repeat step 1 through 4, then set the name as `Sponge (Server)` and apply the information for Server below.  
+  4. Set the name as `Forge (Client)` and apply the information for Client below.  
+  5. Repeat step 1 through 4 for `Forge (Server)` and `Vanilla (Server)` and apply the information below.
   6. When launching the server for the first time, it will shutdown by itself. You will need to modify the server.properties to set onlinemode=false and modify the eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server)
 
 __For [IntelliJ]__  
   1. Go to **Run > Edit Configurations**.  
   2. Click the green + button and select **Application**.  
-  3. Set the name as `Sponge (Client)` and apply the information for Client below.  
-  4. Repeat step 2 and set the name as `Sponge (Server)` and apply the information for Server below.  
+  3. Set the name as `Forge (Client)` and apply the information for Client below.  
+  4. Repeat step 2 for `Forge (Server)` and `Vanilla (Server)` and apply the information below.  
   5. When launching the server for the first time, it will shutdown by itself. You will need to modify the server.properties to set onlinemode=false and modify the eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
 
-__Client__
+__Forge (Client)__
 
 |     Property      | Value                                     |
 |:-----------------:|:------------------------------------------|
 |    Main class     | GradleStart                               |
 |    VM options     | -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
-| Working directory | ./run/client (Included in project)        |
-| Module classpath  | Sponge (IntelliJ Only)                    |
+| Working directory | ./Forge/run/client (Included in project)  |
+| Module classpath  | Forge (IntelliJ Only)                     |
 
-__Server__
+__Forge (Server)__
 
 |     Property      | Value                              |
 |:-----------------:|:-----------------------------------|
 |    Main class     | GradleStartServer                  |
 |    VM Options     | -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
-| Working directory | ./run/server (Included in project) |
-| Module classpath  | Sponge (IntelliJ Only)             |
+| Working directory | ./Forge/run/server (Included in project) |
+| Module classpath  | Forge (IntelliJ Only)             |
 
+__Vanilla (Server)__
+
+|     Property      | Value                       |
+|:-----------------:|:----------------------------|
+|    Main class     | GradleStartServer           |
+| Program arguments | --noCoreSearch              |
+| Working directory | ./Vanilla/run/server (Included in project) |
+| Module classpath  | Vanilla (IntelliJ Only)     |
 
 ## Building
 __Note:__ If you do not have [Gradle] installed then use ./gradlew for Unix systems or Git Bash and gradlew.bat for Windows systems in place of any 'gradle' command.
 
-In order to build Sponge you simply need to run the `gradle` command. You can find the compiled JAR file in `./build/libs` labeled similarly to 'sponge-x.x.x-SNAPSHOT.jar'.
+In order to build Sponge you simply need to run the `gradle` command.
+
+- The Forge mod will be in `./Forge/build/libs` labeled similarly to 'sponge-forge-x.x-SNAPSHOT.jar'.
+- The Vanilla implementation will be in `./Vanilla/build/libs` labeled similarly to 'sponge-vanilla-x.x-SNAPSHOT.jar'.
 
 ## Contributing
 Are you a talented programmer looking to contribute some code? We'd love the help!

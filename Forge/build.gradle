@@ -1,0 +1,20 @@
+jar {
+    exclude 'log4j2.xml'
+
+    manifest {
+        attributes(
+                'FMLCorePlugin': 'org.spongepowered.mod.SpongeCoremod',
+                'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+                'TweakOrder': '10000'
+        )
+    }
+}
+
+shadowJar {
+    exclude 'log4j2.xml'
+}
+
+copySrgs << {
+    def file = project.file('build/srgs/mcp-srg.srg')
+    file.append project.file('extraSrg.srg').text
+}
