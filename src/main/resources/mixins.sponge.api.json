@@ -1,5 +1,7 @@
 {
-    "package": "org.spongepowered.mod.mixin.api",
+    "required": true,
+    "minVersion": "0.2",
+    "package": "org.spongepowered.common.mixin.api",
     "refmap": "mixins.sponge.refmap.json",
     "mixins": [
         "text.MixinText",

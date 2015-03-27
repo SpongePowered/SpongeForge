@@ -1,0 +1,108 @@
+ext.common = project(':Sponge')
+
+apply from: common.file('gradle/minecraft.gradle')
+
+// Apply shadow plugin
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    compile common
+}
+
+// Eclipse is too stupid to order the classpath correctly unfortunately...
+// Put Common last
+eclipse {
+    classpath {
+        file {
+            whenMerged { classpath ->
+                def lib = classpath.entries.find { it.path == '/Sponge' }
+                def others = classpath.entries.findAll { it != lib }
+                classpath.entries = others + lib
+            }
+        }
+    }
+}
+
+jar {
+    classifier = 'release'
+}
+
+shadowJar {
+    classifier = ''
+
+    exclude 'GradleStart**'
+    exclude 'net/minecraftforge/**'
+
+    from project.mixinRefMap
+
+    dependencies {
+        // Common
+        include project(':Sponge')
+        include dependency('org.spongepowered:mixin')
+
+        // SpongeAPI
+        include project(api.path)
+
+        include dependency('org.slf4j:slf4j-api')
+        include dependency('org.apache.logging.log4j:log4j-slf4j-impl')
+
+        include dependency('com.google.inject:guice')
+        include dependency('javax.inject:javax.inject')
+        include dependency('aopalliance:aopalliance')
+
+        include dependency('com.flowpowered:flow-math')
+
+        include dependency('ninja.leaping.configurate:configurate-core')
+        include dependency('ninja.leaping.configurate:configurate-hocon')
+
+        include dependency('com.zaxxer:HikariCP-java6')
+        include dependency('org.javassist:javassist')
+
+        include dependency('org.mariadb.jdbc:mariadb-java-client')
+        include dependency('com.h2database:h2')
+        include dependency('org.xerial:sqlite-jdbc')
+    }
+}
+
+// Run shadowJar on build
+assemble.dependsOn shadowJar
+
+reobf {
+    reobf(shadowJar) { spec ->
+        spec.classpath = configurations.compile
+    }
+}
+
+evaluationDependsOn common.path
+
+// Add Common access transformer
+common.sourceSets.main.resources.files.each {
+    if (it.name.endsWith('_at.cfg')) {
+        logger.lifecycle("Found AccessTransformer in dependency resources: $it.name")
+        tasks.deobfBinJar.addTransformer(it)
+        tasks.deobfuscateJar.addTransformer(it)
+    }
+}
+
+// Deployment stuff
+task deobfJar(type: Jar, dependsOn: [classes, api.tasks.classes, common.tasks.classes]) {
+    from api.sourceSets.main.output
+    from common.sourceSets.main.output
+    from sourceSets.main.output
+}
+
+sourceJar {
+    from api.sourceSets.main.allSource
+    from common.sourceSets.main.allSource
+}
+
+javadocJar {
+    dependsOn api.tasks.javadoc
+    dependsOn common.tasks.javadoc
+    from api.tasks.javadoc.destinationDir
+    from common.tasks.javadoc.destinationDir
+}
+
+artifacts {
+    archives deobfJar
+}

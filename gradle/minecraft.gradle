@@ -1,0 +1,68 @@
+ext.api = common.project('SpongeAPI')
+
+apply from: api.file('gradle/java.gradle')
+
+evaluationDependsOn api.path
+
+// Mixins
+ext {
+    mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
+    mixinRefMap = new File(project.buildDir, "tmp/mixins/mixins.${project.name.toLowerCase()}.refmap.json")
+}
+
+minecraft {
+    if (project.ext.has('versionSuffix')) {
+        version = "1.8-$versionSuffix"
+    } else {
+        version = '1.8'
+    }
+
+    mappings = 'snapshot_20150402'
+}
+
+// Compile options
+compileJava {
+    options.compilerArgs += [
+            '-Xlint:-processing',
+            "-AoutSrgFile=${project.mixinSrg.canonicalPath}",
+            "-AoutRefMapFile=${project.mixinRefMap.canonicalPath}",
+            "-AreobfSrgFile=${project.file('build/srgs/mcp-srg.srg').canonicalPath}"
+    ]
+}
+
+// Copy the current srgs to the build dir so the user doesn't have to go hunting for them
+task copySrgs(type: Copy, dependsOn: 'genSrgs') {
+    from minecraftPlugin.delayedFile('{SRG_DIR}')
+
+    include '**/*.srg'
+    into 'build/srgs'
+}
+
+setupDecompWorkspace.dependsOn copySrgs
+setupDevWorkspace.dependsOn copySrgs
+compileJava.dependsOn copySrgs
+
+// Configure reobfuscation for mixins
+reobf.doFirst {
+    if (project.mixinSrg.exists()) {
+        addExtraSrgFile project.mixinSrg
+    }
+}
+
+// Set manifest entries
+jar {
+    from project.mixinRefMap
+
+    manifest {
+        attributes(
+                'Specification-Name': api.name,
+                'Specification-Version': api.version,
+                'Specification-Vendor': api.url
+        )
+    }
+}
+
+// Use checkstyle suppressions from Common
+checkstyle {
+    configProperties['suppressions'] = common.file('checkstyle-suppressions.xml')
+}

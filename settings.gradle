@@ -1,3 +1,2 @@
-rootProject.name = theName
-include "Mixin"
-include "SpongeAPI"
+rootProject.name = name
+include 'SpongeAPI'
