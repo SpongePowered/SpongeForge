@@ -28,7 +28,8 @@ package org.spongepowered.mod.service.persistence.builders.block.tile;
 import com.google.common.base.Optional;
 import net.minecraft.inventory.IInventory;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.block.data.Lockable;
+import org.spongepowered.api.block.tile.carrier.TileEntityCarrier;
+import org.spongepowered.api.block.tile.data.LockableData;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.SerializationService;
@@ -37,7 +38,7 @@ import org.spongepowered.api.service.persistence.data.DataView;
 
 import java.util.List;
 
-public class SpongeLockableBuilder<T extends Lockable> extends AbstractTileBuilder<T> {
+public class SpongeLockableBuilder<T extends TileEntityCarrier> extends AbstractTileBuilder<T> {
 
     public SpongeLockableBuilder(Game game) {
         super(game);
@@ -50,7 +51,7 @@ public class SpongeLockableBuilder<T extends Lockable> extends AbstractTileBuild
         if (!lockOptional.isPresent()) {
             throw new InvalidDataException("The container had insufficient data to create a lockable tile entity!");
         }
-        Lockable lockable = lockOptional.get();
+        TileEntityCarrier lockable = lockOptional.get();
         if (!container.contains(new DataQuery("Contents"))) {
             throw new InvalidDataException("The provided container does not contain the data to make a lockable tile entity!");
         }
@@ -60,9 +61,11 @@ public class SpongeLockableBuilder<T extends Lockable> extends AbstractTileBuild
             net.minecraft.item.ItemStack stack = (net.minecraft.item.ItemStack) content.getSerializable(new DataQuery("Item"), ItemStack.class, service).get();
             ((IInventory) lockable).setInventorySlotContents(content.getInt(new DataQuery("Slot")).get(), stack);
         }
-        if (container.contains(new DataQuery("Lock"))) {
-            lockable.setLockToken(container.getString(new DataQuery("Lock")).get());
-        }
+        // TODO
+//        if (container.contains(new DataQuery("Lock"))) {
+//            LockableData lock = new SpongeLocableData
+//            lockable.setLockableData(container.getString(new DataQuery("Lock")).get());
+//        }
         return Optional.of((T) lockable);
     }
 }

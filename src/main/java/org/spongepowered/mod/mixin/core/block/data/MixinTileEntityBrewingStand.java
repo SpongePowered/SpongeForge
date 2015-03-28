@@ -24,7 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import org.spongepowered.api.block.data.BrewingStand;
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
+import org.spongepowered.api.block.tile.carrier.BrewingStand;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -58,9 +60,9 @@ public abstract class MixinTileEntityBrewingStand extends MixinTileEntityLockabl
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(new DataQuery("BrewTime"), this.brewingstand$getRemainingBrewTime());
+        container.set(of("BrewTime"), this.brewingstand$getRemainingBrewTime());
         if (this.customName != null) {
-            container.set(new DataQuery("CustomName"), this.customName);
+            container.set(of("CustomName"), this.customName);
         }
         return container;
     }

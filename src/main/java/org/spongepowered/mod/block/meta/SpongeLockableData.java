@@ -22,59 +22,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.block.data;
+package org.spongepowered.mod.block.meta;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
-import com.google.common.collect.Lists;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.LockCode;
-import org.spongepowered.api.block.tile.carrier.TileEntityCarrier;
+import com.google.common.base.Optional;
+import org.spongepowered.api.block.tile.TileEntity;
+import org.spongepowered.api.block.tile.data.LockableData;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataView;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.List;
+public class SpongeLockableData implements LockableData {
 
-@NonnullByDefault
-@Implements(@Interface(iface = TileEntityCarrier.class, prefix = "lockable$"))
-@Mixin(net.minecraft.tileentity.TileEntityLockable.class)
-public abstract class MixinTileEntityLockable extends MixinTileEntity implements IInventory {
+    private String lockToken;
 
-    @Shadow
-    private LockCode code;
-
-    public String getLockToken() {
-        return this.code.getLock();
+    public SpongeLockableData() {
     }
 
+    @Override
+    public String getLockToken() {
+        return this.lockToken;
+    }
+
+    @Override
     public void setLockToken(String token) {
-        this.code = new LockCode(token);
+        checkNotNull(token);
+        this.lockToken = token;
+    }
+
+    @Override
+    public Optional<TileEntity> getTileEntity() {
+        return Optional.absent();
+    }
+
+    @Override
+    public int compareTo(LockableData o) {
+        return this.lockToken.compareTo(o.getLockToken());
     }
 
     @Override
     public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        if (this.code != null) {
-            container.set(of("Lock"), this.code.getLock());
-        }
-        List<DataView> items = Lists.newArrayList();
-        for (int i = 0; i < getSizeInventory(); i++) {
-            ItemStack stack = getStackInSlot(i);
-            if (stack != null) {
-                DataContainer stackView = new MemoryDataContainer();
-                stackView.set(of("Slot"), i);
-                stackView.set(of("Item"), ((org.spongepowered.api.item.inventory.ItemStack) stack).toContainer());
-                items.add(stackView);
-            }
-        }
-        container.set(of("Contents"), items);
+        DataContainer container = new MemoryDataContainer();
+        container.set(of("Lock"), this.lockToken);
         return container;
     }
 }

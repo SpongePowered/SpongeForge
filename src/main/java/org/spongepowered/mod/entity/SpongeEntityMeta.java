@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.entity;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import com.google.common.base.MoreObjects;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
@@ -62,8 +64,8 @@ public class SpongeEntityMeta {
 
     public DataContainer toContainer() {
         DataContainer container = new MemoryDataContainer();
-        container.set(new DataQuery("id"), this.type);
-        container.set(new DataQuery("name"), this.name);
+        container.set(of("id"), this.type);
+        container.set(of("name"), this.name);
         return container;
     }
 

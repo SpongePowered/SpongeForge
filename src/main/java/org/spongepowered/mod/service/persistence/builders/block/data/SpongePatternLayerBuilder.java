@@ -26,11 +26,12 @@
 package org.spongepowered.mod.service.persistence.builders.block.data;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.base.Optional;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.block.data.Banner;
-import org.spongepowered.api.block.meta.BannerPatternShape;
+import org.spongepowered.api.block.tile.data.BannerData.PatternLayer;
+import org.spongepowered.api.block.tile.data.BannerPatternShape;
 import org.spongepowered.api.item.DyeColor;
 import org.spongepowered.api.service.persistence.DataSerializableBuilder;
 import org.spongepowered.api.service.persistence.InvalidDataException;
@@ -39,8 +40,10 @@ import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
 import org.spongepowered.mod.block.meta.SpongePatternLayer;
 
-public class SpongePatternLayerBuilder implements DataSerializableBuilder<Banner.PatternLayer> {
+public class SpongePatternLayerBuilder implements DataSerializableBuilder<PatternLayer> {
 
+    private static final DataQuery ID = of("id");
+    private static final DataQuery COLOR = of("color");
     private final Game game;
 
     public SpongePatternLayerBuilder(Game game) {
@@ -48,21 +51,21 @@ public class SpongePatternLayerBuilder implements DataSerializableBuilder<Banner
     }
 
     @Override
-    public Optional<Banner.PatternLayer> build(final DataView container) throws InvalidDataException {
+    public Optional<PatternLayer> build(final DataView container) throws InvalidDataException {
         checkNotNull(container);
-        if (!container.contains(new DataQuery("id")) || !container.contains(new DataQuery("color"))) {
+        if (!container.contains(ID) || !container.contains(COLOR)) {
             throw new InvalidDataException("The provided container does not contain the data to make a PatternLayer!");
         }
-        String id = container.getString(new DataQuery("id")).get();
+        String id = container.getString(ID).get();
         Optional<BannerPatternShape> shapeOptional = this.game.getRegistry().getBannerPatternShape(id);
         if (!shapeOptional.isPresent()) {
             throw new InvalidDataException("The provided container has an invalid banner pattern shape entry!");
         }
         SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
-        Optional<DyeColor> colorOptional = container.getSerializable(new DataQuery("color"), DyeColor.class, service);
+        Optional<DyeColor> colorOptional = container.getSerializable(COLOR, DyeColor.class, service);
         if (!colorOptional.isPresent()) {
             throw new InvalidDataException("The provided container has an invalid dye color entry!");
         }
-        return Optional.<Banner.PatternLayer>of(new SpongePatternLayer(shapeOptional.get(), colorOptional.get()));
+        return Optional.<PatternLayer>of(new SpongePatternLayer(shapeOptional.get(), colorOptional.get()));
     }
 }

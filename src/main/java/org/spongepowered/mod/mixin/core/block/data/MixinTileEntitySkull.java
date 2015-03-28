@@ -24,11 +24,13 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.api.GameProfile;
-import org.spongepowered.api.block.data.Skull;
-import org.spongepowered.api.block.meta.SkullType;
+import org.spongepowered.api.block.tile.Skull;
+import org.spongepowered.api.block.tile.data.SkullType;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
@@ -90,12 +92,12 @@ public abstract class MixinTileEntitySkull extends MixinTileEntity {
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(new DataQuery("Type"), this.getSkullType());
-        container.set(new DataQuery("Rotation"), this.skull$getRotation().ordinal());
+        container.set(of("Type"), this.getSkullType());
+        container.set(of("Rotation"), this.skull$getRotation().ordinal());
         if (this.skull$getPlayer().isPresent()) {
-            DataView ownerView = container.createView(new DataQuery("Owner"));
-            ownerView.set(new DataQuery("UniqueId"), this.skull$getPlayer().get().getUniqueId().toString());
-            ownerView.set(new DataQuery("UserName"), this.skull$getPlayer().get().getName());
+            DataView ownerView = container.createView(of("Owner"));
+            ownerView.set(of("UniqueId"), this.skull$getPlayer().get().getUniqueId().toString());
+            ownerView.set(of("UserName"), this.skull$getPlayer().get().getName());
         }
         return container;
     }

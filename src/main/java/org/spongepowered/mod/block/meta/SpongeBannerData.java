@@ -22,44 +22,74 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.item;
+package org.spongepowered.mod.block.meta;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
-import net.minecraft.item.EnumDyeColor;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import org.spongepowered.api.block.tile.Banner;
+import org.spongepowered.api.block.tile.data.BannerData;
+import org.spongepowered.api.block.tile.data.BannerPatternShape;
 import org.spongepowered.api.item.DyeColor;
+import org.spongepowered.api.item.DyeColors;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
-import java.awt.Color;
+import java.util.List;
 
-@NonnullByDefault
-@Mixin(net.minecraft.item.EnumDyeColor.class)
-public class MixinEnumDyeColor implements DyeColor {
+public class SpongeBannerData implements BannerData {
 
-    @Shadow
-    private String name;
+    private DyeColor base = DyeColors.WHITE;
+    private List<PatternLayer> patterns = Lists.newArrayList();
 
     @Override
-    public String getName() {
-        return this.name;
+    public DyeColor getBaseColor() {
+        return this.base;
     }
 
     @Override
-    public Color getColor() {
-        return new Color(((EnumDyeColor) (Object) this).getMapColor().colorValue);
+    public void setBaseColor(DyeColor color) {
+        this.base = checkNotNull(color);
+    }
+
+    @Override
+    public List<PatternLayer> getPatternList() {
+        return ImmutableList.copyOf(this.patterns);
+    }
+
+    @Override
+    public void clearPattern() {
+        this.patterns.clear();
+    }
+
+    @Override
+    public void addPatternLayer(PatternLayer pattern) {
+        this.patterns.add(checkNotNull(pattern));
+    }
+
+    @Override
+    public void addPatternLayer(BannerPatternShape patternShape, DyeColor color) {
+        this.patterns.add(new SpongePatternLayer(checkNotNull(patternShape), checkNotNull(color)));
+    }
+
+    @Override
+    public Optional<Banner> getTileEntity() {
+        return Optional.absent();
+    }
+
+    @Override
+    public int compareTo(BannerData o) {
+        return this.base.getName().compareTo(o.getBaseColor().toString());
     }
 
     @Override
     public DataContainer toContainer() {
         DataContainer container = new MemoryDataContainer();
-        container.set(of("name"), this.name);
-        container.set(of("id"), ((EnumDyeColor) (Object) this).getDyeDamage());
+        container.set(of("Base"), this.base);
+        container.set(of("Patterns"), this.patterns);
         return container;
     }
-
 }

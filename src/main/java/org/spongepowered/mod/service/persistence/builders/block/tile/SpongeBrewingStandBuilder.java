@@ -29,7 +29,7 @@ import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntityBeacon;
 import net.minecraft.tileentity.TileEntityBrewingStand;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.block.data.BrewingStand;
+import org.spongepowered.api.block.tile.carrier.BrewingStand;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
@@ -54,7 +54,7 @@ public class SpongeBrewingStandBuilder extends SpongeLockableBuilder<BrewingStan
         if (container.contains(new DataQuery("CustomName"))) {
             ((TileEntityBeacon) beacon).setName(container.getString(new DataQuery("CustomName")).get());
         }
-        beacon.setRemainingBrewTime(container.getInt(new DataQuery("BrewTime")).get());
+//        beacon.setRemainingBrewTime(container.getInt(new DataQuery("BrewTime")).get());
         ((TileEntityBrewingStand) beacon).validate();
         return Optional.of(beacon);
     }

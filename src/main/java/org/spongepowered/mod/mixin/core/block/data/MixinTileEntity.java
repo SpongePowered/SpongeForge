@@ -24,9 +24,11 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import net.minecraft.util.BlockPos;
 import org.spongepowered.api.block.BlockLoc;
-import org.spongepowered.api.block.data.TileEntity;
+import org.spongepowered.api.block.tile.TileEntity;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
@@ -51,22 +53,17 @@ public abstract class MixinTileEntity implements TileEntity {
 
     @Override
     public BlockLoc getBlock() {
-        return new BlockWrapper(getWorld(), getPos());
-    }
-
-    @Override
-    public World getWorld() {
-        return (World) this.worldObj;
+        return new BlockWrapper((World) this.worldObj, getPos());
     }
 
     @Override
     public DataContainer toContainer() {
         DataContainer container = new MemoryDataContainer();
-        container.set(new DataQuery("world"), this.getWorld().getName());
-        container.set(new DataQuery("x"), this.getPos().getX());
-        container.set(new DataQuery("y"), this.getPos().getY());
-        container.set(new DataQuery("z"), this.getPos().getZ());
-        container.set(new DataQuery("tileType"), net.minecraft.tileentity.TileEntity.classToNameMap.get(this.getClass()));
+        container.set(of("world"), ((World) this.worldObj).getName());
+        container.set(of("x"), this.getPos().getX());
+        container.set(of("y"), this.getPos().getY());
+        container.set(of("z"), this.getPos().getZ());
+        container.set(of("tileType"), net.minecraft.tileentity.TileEntity.classToNameMap.get(this.getClass()));
         return container;
     }
 }

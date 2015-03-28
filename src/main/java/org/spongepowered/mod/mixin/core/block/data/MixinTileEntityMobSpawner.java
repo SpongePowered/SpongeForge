@@ -24,9 +24,11 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import com.google.common.collect.Lists;
 import net.minecraft.tileentity.MobSpawnerBaseLogic;
-import org.spongepowered.api.block.data.MobSpawner;
+import org.spongepowered.api.block.tile.MobSpawner;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
@@ -146,21 +148,21 @@ public abstract class MixinTileEntityMobSpawner extends MixinTileEntity {
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(new DataQuery("Delay"), this.mobspawner$getRemainingDelay());
-        container.set(new DataQuery("MinimumDelay"), this.mobspawner$getMinimumSpawnDelay());
-        container.set(new DataQuery("MaximumDelay"), this.mobspawner$getMaximumSpawnDelay());
-        container.set(new DataQuery("SpawnCount"), this.mobspawner$getSpawnCount());
-        container.set(new DataQuery("MaxNearbyEntities"), this.mobspawner$getMaximumNearbyEntities());
-        container.set(new DataQuery("RequiredPlayerRange"), this.mobspawner$getRequiredPlayerRange());
-        container.set(new DataQuery("SpawnRange"), this.mobspawner$getSpawnRange());
+        container.set(of("Delay"), this.mobspawner$getRemainingDelay());
+        container.set(of("MinimumDelay"), this.mobspawner$getMinimumSpawnDelay());
+        container.set(of("MaximumDelay"), this.mobspawner$getMaximumSpawnDelay());
+        container.set(of("SpawnCount"), this.mobspawner$getSpawnCount());
+        container.set(of("MaxNearbyEntities"), this.mobspawner$getMaximumNearbyEntities());
+        container.set(of("RequiredPlayerRange"), this.mobspawner$getRequiredPlayerRange());
+        container.set(of("SpawnRange"), this.mobspawner$getSpawnRange());
         List<DataView> views = Lists.newArrayList();
         for (WeightedRandomEntity entity : this.mobspawner$getPossibleEntitiesToSpawn()) {
             DataContainer entityContainer = new MemoryDataContainer();
-            entityContainer.set(new DataQuery("EntityType"), entity.getEntityType().getId());
-            entityContainer.set(new DataQuery("Weight"), entity.getWeight());
-            entityContainer.set(new DataQuery("EntityData"), entity.getAdditionalProperties());
+            entityContainer.set(of("EntityType"), entity.getEntityType().getId());
+            entityContainer.set(of("Weight"), entity.getWeight());
+            entityContainer.set(of("EntityData"), entity.getAdditionalProperties());
         }
-        container.set(new DataQuery("WeightedEntities"), views);
+        container.set(of("WeightedEntities"), views);
         return container;
     }
 }

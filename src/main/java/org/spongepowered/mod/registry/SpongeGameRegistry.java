@@ -68,29 +68,31 @@ import org.spongepowered.api.attribute.AttributeModifierBuilder;
 import org.spongepowered.api.attribute.Operation;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.block.data.Banner;
-import org.spongepowered.api.block.data.BrewingStand;
-import org.spongepowered.api.block.data.Chest;
-import org.spongepowered.api.block.data.CommandBlock;
-import org.spongepowered.api.block.data.Comparator;
-import org.spongepowered.api.block.data.DaylightDetector;
-import org.spongepowered.api.block.data.Dispenser;
-import org.spongepowered.api.block.data.Dropper;
-import org.spongepowered.api.block.data.EnchantmentTable;
-import org.spongepowered.api.block.data.EndPortal;
-import org.spongepowered.api.block.data.EnderChest;
-import org.spongepowered.api.block.data.Furnace;
-import org.spongepowered.api.block.data.Hopper;
-import org.spongepowered.api.block.data.MobSpawner;
-import org.spongepowered.api.block.data.Note;
-import org.spongepowered.api.block.data.Sign;
-import org.spongepowered.api.block.data.Skull;
-import org.spongepowered.api.block.meta.BannerPatternShape;
-import org.spongepowered.api.block.meta.BannerPatternShapes;
-import org.spongepowered.api.block.meta.NotePitch;
-import org.spongepowered.api.block.meta.NotePitches;
-import org.spongepowered.api.block.meta.SkullType;
-import org.spongepowered.api.block.meta.SkullTypes;
+import org.spongepowered.api.block.tile.Banner;
+import org.spongepowered.api.block.tile.CommandBlock;
+import org.spongepowered.api.block.tile.Comparator;
+import org.spongepowered.api.block.tile.DaylightDetector;
+import org.spongepowered.api.block.tile.EnchantmentTable;
+import org.spongepowered.api.block.tile.EndPortal;
+import org.spongepowered.api.block.tile.EnderChest;
+import org.spongepowered.api.block.tile.TileEntityType;
+import org.spongepowered.api.block.tile.carrier.Furnace;
+import org.spongepowered.api.block.tile.carrier.Hopper;
+import org.spongepowered.api.block.tile.MobSpawner;
+import org.spongepowered.api.block.tile.Note;
+import org.spongepowered.api.block.tile.Sign;
+import org.spongepowered.api.block.tile.Skull;
+import org.spongepowered.api.block.tile.carrier.BrewingStand;
+import org.spongepowered.api.block.tile.carrier.Chest;
+import org.spongepowered.api.block.tile.carrier.Dispenser;
+import org.spongepowered.api.block.tile.carrier.Dropper;
+import org.spongepowered.api.block.tile.data.BannerData;
+import org.spongepowered.api.block.tile.data.BannerPatternShape;
+import org.spongepowered.api.block.tile.data.BannerPatternShapes;
+import org.spongepowered.api.block.tile.data.NotePitch;
+import org.spongepowered.api.block.tile.data.NotePitches;
+import org.spongepowered.api.block.tile.data.SkullType;
+import org.spongepowered.api.block.tile.data.SkullTypes;
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.effect.particle.ParticleTypes;
@@ -540,6 +542,16 @@ public class SpongeGameRegistry implements GameRegistry {
     @Override
     public List<ItemType> getItems() {
         return ImmutableList.copyOf(this.itemList);
+    }
+
+    @Override
+    public Optional<TileEntityType> getTileEntityType(String id) {
+        return Optional.absent();
+    }
+
+    @Override
+    public Collection<TileEntityType> getTileEntityTypes() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -1767,7 +1779,7 @@ public class SpongeGameRegistry implements GameRegistry {
         SerializationService service = game.getServiceManager().provide(SerializationService.class).get();
         // TileEntities
         service.registerBuilder(Banner.class, new SpongeBannerBuilder(game));
-        service.registerBuilder(Banner.PatternLayer.class, new SpongePatternLayerBuilder(game));
+        service.registerBuilder(BannerData.PatternLayer.class, new SpongePatternLayerBuilder(game));
         service.registerBuilder(BrewingStand.class, new SpongeBrewingStandBuilder(game));
         service.registerBuilder(Chest.class, new SpongeChestBuilder(game));
         service.registerBuilder(CommandBlock.class, new SpongeCommandBlockBuilder(game));

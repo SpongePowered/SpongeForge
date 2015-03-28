@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.block.meta;
 
-import org.spongepowered.api.block.meta.NotePitch;
+import org.spongepowered.api.block.tile.data.NotePitch;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @NonnullByDefault

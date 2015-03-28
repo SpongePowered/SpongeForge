@@ -25,6 +25,8 @@
 
 package org.spongepowered.mod.mixin.core.item;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import net.minecraft.item.ItemFishFood;
 import org.spongepowered.api.item.CookedFish;
 import org.spongepowered.api.service.persistence.data.DataContainer;
@@ -47,7 +49,7 @@ public class MixinCookedFish implements CookedFish {
     @Override
     public DataContainer toContainer() {
         DataContainer container = new MemoryDataContainer();
-        container.set(new DataQuery("CookedFish"), this.getId());
+        container.set(of("CookedFish"), this.getId());
         return container;
     }
 }

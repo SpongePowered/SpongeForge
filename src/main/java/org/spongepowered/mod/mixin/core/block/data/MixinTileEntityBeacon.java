@@ -24,12 +24,14 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import com.google.common.base.Optional;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntityLockable;
-import org.spongepowered.api.block.data.Beacon;
+import org.spongepowered.api.block.tile.carrier.Beacon;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
@@ -78,8 +80,8 @@ public abstract class MixinTileEntityBeacon extends MixinTileEntityLockable {
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(new DataQuery("effect1"), getField(1));
-        container.set(new DataQuery("effect2"), getField(2));
+        container.set(of("effect1"), getField(1));
+        container.set(of("effect2"), getField(2));
         return container;
     }
 }

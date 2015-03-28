@@ -28,8 +28,8 @@ package org.spongepowered.mod.service.persistence.builders.block.tile;
 import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntityNote;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.block.data.Note;
-import org.spongepowered.api.block.meta.NotePitch;
+import org.spongepowered.api.block.tile.Note;
+import org.spongepowered.api.block.tile.data.NotePitch;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
@@ -54,7 +54,8 @@ public class SpongeNoteBuilder extends AbstractTileBuilder<Note> {
         }
         Note note = noteOptional.get();
         NotePitch pitch = ((List<NotePitch>) this.game.getRegistry().getNotePitches()).get(container.getInt(new DataQuery("Note")).get());
-        note.setNote(pitch);
+        // TODO Write NoteData
+//        note.setNoteData(pitch);
         ((TileEntityNote) note).validate();
         return Optional.of(note);
     }

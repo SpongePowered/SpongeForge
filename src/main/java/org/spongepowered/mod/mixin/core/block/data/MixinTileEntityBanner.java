@@ -24,14 +24,16 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import com.google.common.collect.Lists;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.spongepowered.api.GameRegistry;
-import org.spongepowered.api.block.data.Banner.PatternLayer;
-import org.spongepowered.api.block.meta.BannerPatternShape;
+import org.spongepowered.api.block.tile.data.BannerData.PatternLayer;
+import org.spongepowered.api.block.tile.data.BannerPatternShape;
 import org.spongepowered.api.item.DyeColor;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
@@ -50,7 +52,7 @@ import java.util.List;
 
 @NonnullByDefault
 @Mixin(net.minecraft.tileentity.TileEntityBanner.class)
-@Implements(@Interface(iface = org.spongepowered.api.block.data.Banner.class, prefix = "banner$"))
+@Implements(@Interface(iface = org.spongepowered.api.block.tile.Banner.class, prefix = "banner$"))
 public abstract class MixinTileEntityBanner extends MixinTileEntity {
 
     @Shadow
@@ -127,8 +129,8 @@ public abstract class MixinTileEntityBanner extends MixinTileEntity {
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(new DataQuery("Patterns"), Lists.newArrayList(this.patternLayers));
-        container.set(new DataQuery("Base"), this.baseColor);
+        container.set(of("Patterns"), Lists.newArrayList(this.patternLayers));
+        container.set(of("Base"), this.baseColor);
         return container;
     }
 

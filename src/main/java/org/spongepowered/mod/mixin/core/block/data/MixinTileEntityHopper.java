@@ -24,7 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import org.spongepowered.api.block.data.Hopper;
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
+import org.spongepowered.api.block.tile.carrier.Hopper;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -55,9 +57,9 @@ public abstract class MixinTileEntityHopper extends MixinTileEntityLockable {
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(new DataQuery("TransferCooldown"), this.transferCooldown);
+        container.set(of("TransferCooldown"), this.transferCooldown);
         if (this.customName != null) {
-            container.set(new DataQuery("CustomName"), this.customName);
+            container.set(of("CustomName"), this.customName);
         }
         return container;
     }

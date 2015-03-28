@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.block.meta;
 
-import org.spongepowered.api.block.meta.BannerPatternShape;
+import org.spongepowered.api.block.tile.data.BannerPatternShape;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

@@ -24,7 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import org.spongepowered.api.block.data.Furnace;
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
+import org.spongepowered.api.block.tile.carrier.Furnace;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -66,11 +68,11 @@ public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable {
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(new DataQuery("BurnTime"), this.furnace$getRemainingBurnTime());
-        container.set(new DataQuery("CookTime"), this.furnace$getRemainingCookTime());
-        container.set(new DataQuery("CookTimeTotal"), this.getField(3));
+        container.set(of("BurnTime"), this.furnace$getRemainingBurnTime());
+        container.set(of("CookTime"), this.furnace$getRemainingCookTime());
+        container.set(of("CookTimeTotal"), this.getField(3));
         if (this.furnaceCustomName != null) {
-            container.set(new DataQuery("CustomName"), this.furnaceCustomName);
+            container.set(of("CustomName"), this.furnaceCustomName);
         }
         return container;
     }

@@ -24,11 +24,12 @@
  */
 package org.spongepowered.mod.block.meta;
 
-import org.spongepowered.api.block.data.Banner.PatternLayer;
-import org.spongepowered.api.block.meta.BannerPatternShape;
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
+import org.spongepowered.api.block.tile.data.BannerData.PatternLayer;
+import org.spongepowered.api.block.tile.data.BannerPatternShape;
 import org.spongepowered.api.item.DyeColor;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
 public class SpongePatternLayer implements PatternLayer {
@@ -54,8 +55,8 @@ public class SpongePatternLayer implements PatternLayer {
     @Override
     public DataContainer toContainer() {
         DataContainer container = new MemoryDataContainer();
-        container.set(new DataQuery("id"), id.getId());
-        container.set(new DataQuery("color"), color.getName());
+        container.set(of("id"), id.getId());
+        container.set(of("color"), color.getName());
         return container;
     }
 

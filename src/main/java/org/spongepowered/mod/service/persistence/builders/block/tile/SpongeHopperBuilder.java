@@ -28,7 +28,7 @@ package org.spongepowered.mod.service.persistence.builders.block.tile;
 import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntityHopper;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.block.data.Hopper;
+import org.spongepowered.api.block.tile.carrier.Hopper;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
@@ -53,7 +53,8 @@ public class SpongeHopperBuilder extends SpongeLockableBuilder<Hopper> {
         if (!container.contains(new DataQuery("TransferCooldown"))) {
             throw new InvalidDataException("The provided container does not contain the data to make a Hopper!");
         }
-        hopper.setTransferCooldown(container.getInt(new DataQuery("TransferCooldown")).get());
+        // TODO
+//        hopper.setTransferCooldown(container.getInt(new DataQuery("TransferCooldown")).get());
         ((TileEntityHopper) hopper).validate();
         return Optional.of(hopper);
     }

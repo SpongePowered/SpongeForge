@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.block.meta;
 
-import org.spongepowered.api.block.meta.SkullType;
+import org.spongepowered.api.block.tile.data.SkullType;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 

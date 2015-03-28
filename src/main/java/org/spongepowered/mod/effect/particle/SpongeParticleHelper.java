@@ -113,7 +113,8 @@ public final class SpongeParticleHelper {
             }
 
             if (size == 0f) {
-                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, (float) px, (float) py, (float) pz, (float) ox, (float) oy, (float) oz, 0f, count, extra));
+                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, px, py, pz, (float) ox, (float) oy, (float) oz, 0f, count,
+                        extra));
             }
 
             f0 = size;
@@ -122,7 +123,8 @@ public final class SpongeParticleHelper {
             Color color1 = ((SpongeParticleType.Colorable) type).getDefaultColor();
 
             if (color0.equals(color1)) {
-                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, (float) px, (float) py, (float) pz, (float) ox, (float) oy, (float) oz, 0f, count, extra));
+                return Lists.<Packet>newArrayList(new S2APacketParticles(internal, true, px, py, pz, (float) ox, (float) oy, (float) oz, 0f, count,
+                        extra));
             }
 
             f0 = color0.getRed() / 255f;

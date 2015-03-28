@@ -25,6 +25,8 @@
 
 package org.spongepowered.mod.item;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.spongepowered.api.item.FireworkEffect;
@@ -80,19 +82,19 @@ public class SpongeFireworkMeta implements FireworkEffect {
     @Override
     public DataContainer toContainer() {
         DataContainer container = new MemoryDataContainer();
-        container.set(new DataQuery("Type"), this.shape.getId());
+        container.set(of("Type"), this.shape.getId());
         List<Integer> colors = Lists.newArrayList();
         for (Color color : this.colors) {
             colors.add(color.getRGB());
         }
-        container.set(new DataQuery("Colors"), colors);
+        container.set(of("Colors"), colors);
         List<Integer> fades = Lists.newArrayList();
         for (Color color : this.fades) {
             fades.add(color.getRGB());
         }
-        container.set(new DataQuery("Fades"), fades);
-        container.set(new DataQuery("Trails"), this.trails);
-        container.set(new DataQuery("Flickers"), this.flicker);
+        container.set(of("Fades"), fades);
+        container.set(of("Trails"), this.trails);
+        container.set(of("Flickers"), this.flicker);
         return container;
     }
 }

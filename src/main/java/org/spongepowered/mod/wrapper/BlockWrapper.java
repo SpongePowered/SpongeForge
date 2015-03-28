@@ -33,6 +33,7 @@ import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
@@ -127,6 +128,11 @@ public class BlockWrapper implements BlockLoc {
     }
 
     @Override
+    public void remove() {
+        replaceWith(BlockTypes.AIR);
+    }
+
+    @Override
     public void interact() {
         throw new UnsupportedOperationException();
     }
@@ -144,6 +150,11 @@ public class BlockWrapper implements BlockLoc {
     @Override
     public BlockState getState() {
         return (BlockState) this.handle.getBlockState(this.pos);
+    }
+
+    @Override
+    public boolean hasTileEntity() {
+        return false; // TODO
     }
 
     @Override

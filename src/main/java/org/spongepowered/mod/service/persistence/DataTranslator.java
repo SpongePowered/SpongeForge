@@ -25,6 +25,8 @@
 
 package org.spongepowered.mod.service.persistence;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import com.google.common.collect.Lists;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
@@ -140,21 +142,21 @@ public final class DataTranslator {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static void setInternal(NBTBase base, byte type, DataView view, String key) {
         if (type == 1) {
-            view.set(new DataQuery(key), ((NBTBase.NBTPrimitive) base).getByte());
+            view.set(of(key), ((NBTBase.NBTPrimitive) base).getByte());
         } else if (type == 2) {
-            view.set(new DataQuery(key), ((NBTBase.NBTPrimitive) base).getShort());
+            view.set(of(key), ((NBTBase.NBTPrimitive) base).getShort());
         } else if (type == 3) {
-            view.set(new DataQuery(key), ((NBTBase.NBTPrimitive) base).getInt());
+            view.set(of(key), ((NBTBase.NBTPrimitive) base).getInt());
         } else if (type == 4) {
-            view.set(new DataQuery(key), ((NBTBase.NBTPrimitive) base).getLong());
+            view.set(of(key), ((NBTBase.NBTPrimitive) base).getLong());
         } else if (type == 5) {
-            view.set(new DataQuery(key), ((NBTBase.NBTPrimitive) base).getFloat());
+            view.set(of(key), ((NBTBase.NBTPrimitive) base).getFloat());
         } else if (type == 6) {
-            view.set(new DataQuery(key), ((NBTBase.NBTPrimitive) base).getDouble());
+            view.set(of(key), ((NBTBase.NBTPrimitive) base).getDouble());
         } else if (type == 7) {
-            view.set(new DataQuery(key), ((NBTTagByteArray) base).getByteArray());
+            view.set(of(key), ((NBTTagByteArray) base).getByteArray());
         } else if (type == 8) {
-            view.set(new DataQuery(key), ((NBTTagString) base).getString());
+            view.set(of(key), ((NBTTagString) base).getString());
         } else if (type == 9) {
             NBTTagList list = (NBTTagList) base;
             byte listType = (byte) list.getTagType();
@@ -163,9 +165,9 @@ public final class DataTranslator {
             for (int i = 0; i < count; i++) {
                 objectList.add(fromTagBase(list.get(i), listType));
             }
-            view.set(new DataQuery(key), objectList);
+            view.set(of(key), objectList);
         } else if (type == 10) {
-            DataView internalView = view.createView(new DataQuery(key));
+            DataView internalView = view.createView(of(key));
             NBTTagCompound compound = (NBTTagCompound) base;
             for (String internalKey : (Set<String>) compound.getKeySet()) {
                 NBTBase internalBase = compound.getTag(internalKey);
@@ -177,7 +179,7 @@ public final class DataTranslator {
                 setInternal(internalBase, internalType, internalView, internalKey);
             }
         } else if (type == 11) {
-            view.set(new DataQuery(key), ((NBTTagIntArray) base).getIntArray());
+            view.set(of(key), ((NBTTagIntArray) base).getIntArray());
         }
     }
 

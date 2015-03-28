@@ -24,8 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import org.spongepowered.api.block.data.Note;
-import org.spongepowered.api.block.meta.NotePitch;
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
+import org.spongepowered.api.block.tile.Note;
+import org.spongepowered.api.block.tile.data.NotePitch;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -56,7 +58,7 @@ public abstract class MixinTileEntityNote extends MixinTileEntity {
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(new DataQuery("Note"), this.note);
+        container.set(of("Note"), this.note);
         return container;
     }
 }

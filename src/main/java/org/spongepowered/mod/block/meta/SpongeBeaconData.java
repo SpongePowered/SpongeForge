@@ -22,34 +22,65 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package org.spongepowered.mod.block.meta;
 
-package org.spongepowered.mod.mixin.core.item;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
-
-import net.minecraft.item.ItemFishFood;
-import org.spongepowered.api.item.Fish;
+import com.google.common.base.Optional;
+import org.spongepowered.api.block.tile.carrier.Beacon;
+import org.spongepowered.api.block.tile.data.BeaconData;
+import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(ItemFishFood.FishType.class)
-public class MixinFishType implements Fish {
+import javax.annotation.Nullable;
 
-    @Shadow
-    private String unlocalizedName;
+public class SpongeBeaconData implements BeaconData {
+
+    @Nullable
+    private PotionEffectType primary;
+
+    @Nullable
+    private PotionEffectType secondary;
 
     @Override
-    public String getId() {
-        return "raw." + this.unlocalizedName;
+    public Optional<PotionEffectType> getPrimaryEffect() {
+        return Optional.fromNullable(this.primary);
+    }
+
+    @Override
+    public void setPrimaryEffect(PotionEffectType effect) {
+        this.primary = checkNotNull(effect);
+    }
+
+    @Override
+    public Optional<PotionEffectType> getSecondaryEffect() {
+        return Optional.fromNullable(this.secondary);
+    }
+
+    @Override
+    public void setSecondaryEffect(PotionEffectType effect) {
+        this.secondary = checkNotNull(effect);
+    }
+
+    @Override
+    public void clearEffects() {
+        this.primary = null;
+        this.secondary = null;
+    }
+
+    @Override
+    public Optional<Beacon> getTileEntity() {
+        return Optional.absent();
+    }
+
+    @Override
+    public int compareTo(BeaconData o) {
+        return 0;
     }
 
     @Override
     public DataContainer toContainer() {
-        DataContainer container = new MemoryDataContainer();
-        container.set(of("FishType"), this.unlocalizedName);
-        return container;
+        return new MemoryDataContainer();
     }
 }

@@ -25,6 +25,8 @@
 
 package org.spongepowered.mod.item.data;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.service.persistence.DataSerializable;
 import org.spongepowered.api.service.persistence.data.DataContainer;
@@ -44,8 +46,8 @@ public class SpongeEnchantment implements DataSerializable {
     @Override
     public DataContainer toContainer() {
         DataContainer container = new MemoryDataContainer();
-        container.set(new DataQuery("Enchantment"), this.enchantment.getId());
-        container.set(new DataQuery("Level"), this.level);
+        container.set(of("Enchantment"), this.enchantment.getId());
+        container.set(of("Level"), this.level);
         return container;
     }
 }

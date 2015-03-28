@@ -28,7 +28,7 @@ package org.spongepowered.mod.service.persistence.builders.block.tile;
 import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntityFurnace;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.block.data.Furnace;
+import org.spongepowered.api.block.tile.carrier.Furnace;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
@@ -53,8 +53,9 @@ public class SpongeFurnaceBuilder extends SpongeLockableBuilder<Furnace> {
         if (!container.contains(new DataQuery("BurnTime")) || !container.contains(new DataQuery("CookTime")) || !container.contains(new DataQuery("CookTimeTotal"))) {
             throw new InvalidDataException("The provided container does not contain the data to make a Hopper!");
         }
-        furnace.setRemainingBurnTime(container.getInt(new DataQuery("BurnTime")).get());
-        furnace.setRemainingCookTime(container.getInt(new DataQuery("CookTime")).get());
+        // TODO Write FurnaceData
+//        furnace.setRemainingBurnTime(container.getInt(new DataQuery("BurnTime")).get());
+//        furnace.setRemainingCookTime(container.getInt(new DataQuery("CookTime")).get());
         ((TileEntityFurnace) furnace).setField(3, container.getInt(new DataQuery("CookTimeTotal")).get());
         ((TileEntityFurnace) furnace).validate();
         return Optional.of(furnace);

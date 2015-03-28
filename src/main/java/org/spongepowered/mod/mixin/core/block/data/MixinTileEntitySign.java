@@ -25,10 +25,11 @@
 package org.spongepowered.mod.mixin.core.block.data;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.collect.Lists;
 import net.minecraft.util.IChatComponent;
-import org.spongepowered.api.block.data.Sign;
+import org.spongepowered.api.block.tile.Sign;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.text.Text;
@@ -81,7 +82,7 @@ public abstract class MixinTileEntitySign extends MixinTileEntity {
         for (Text message: this.sign$getLines()) {
             lines.add(message.toString());
         }
-        container.set(new DataQuery("Lines"), lines);
+        container.set(of("Lines"), lines);
         return container;
     }
 }

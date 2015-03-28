@@ -26,6 +26,7 @@
 package org.spongepowered.mod.service.persistence.builders.block.tile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
@@ -55,7 +56,6 @@ import net.minecraft.util.BlockPos;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.service.persistence.DataSerializable;
 import org.spongepowered.api.service.persistence.DataSerializableBuilder;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
@@ -64,11 +64,17 @@ import org.spongepowered.api.world.World;
 
 import java.util.Map;
 
-public abstract class AbstractTileBuilder<T extends org.spongepowered.api.block.data.TileEntity & DataSerializable> implements DataSerializableBuilder<T> {
+public abstract class AbstractTileBuilder<T extends org.spongepowered.api.block.tile.TileEntity> implements
+        DataSerializableBuilder<T> {
 
     private static final Map<Class<? extends TileEntity>, BlockType> classToTypeMap = Maps.newHashMap();
-
     protected final Game game;
+
+    private static final DataQuery TILE_TYPE = of("tileType");
+    private static final DataQuery WORLD = of("world");
+    private static final DataQuery X_POS = of("x");
+    private static final DataQuery Y_POS = of("y");
+    private static final DataQuery Z_POS = of("z");
 
     protected AbstractTileBuilder(Game game) {
         this.game = game;
@@ -108,25 +114,20 @@ public abstract class AbstractTileBuilder<T extends org.spongepowered.api.block.
     @SuppressWarnings("unchecked")
     public Optional<T> build(DataView container) throws InvalidDataException {
         checkNotNull(container);
-        DataQuery worldQuery = new DataQuery("world");
-        DataQuery xPosQuery = new DataQuery("x");
-        DataQuery yPosQuery = new DataQuery("y");
-        DataQuery zPosQuery = new DataQuery("z");
-        DataQuery tileTypeQuery = new DataQuery("tileType");
-        if (!container.contains(tileTypeQuery) || !container.contains(worldQuery) || !container.contains(xPosQuery) || !container.contains(yPosQuery)
-            || !container.contains(zPosQuery)) {
+        if (!container.contains(TILE_TYPE) || !container.contains(WORLD) || !container.contains(X_POS) || !container.contains(Y_POS)
+            || !container.contains(Z_POS)) {
             throw new InvalidDataException("The provided container does not contain the data to make a TileEntity!");
         }
-        String worldName = container.getString(worldQuery).get();
+        String worldName = container.getString(WORLD).get();
         Optional<World> worldOptional = this.game.getServer().get().getWorld(worldName);
         if (!worldOptional.isPresent()) {
             throw new InvalidDataException("The provided container references a world that does not exist!");
         }
-        int x = container.getInt(xPosQuery).get();
-        int y = container.getInt(yPosQuery).get();
-        int z = container.getInt(zPosQuery).get();
+        int x = container.getInt(X_POS).get();
+        int y = container.getInt(Y_POS).get();
+        int z = container.getInt(Z_POS).get();
         // TODO find a better way to do this... Hopefully with API PR #475
-        Class<? extends TileEntity> clazz = (Class<? extends TileEntity>) TileEntity.nameToClassMap.get(container.getString(tileTypeQuery).get());
+        Class<? extends TileEntity> clazz = (Class<? extends TileEntity>) TileEntity.nameToClassMap.get(container.getString(TILE_TYPE).get());
         if (clazz == null) {
             return Optional.absent(); // TODO throw exception maybe?
         }

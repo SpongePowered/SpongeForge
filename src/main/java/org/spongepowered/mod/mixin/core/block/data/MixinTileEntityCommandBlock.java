@@ -24,10 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
+import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
 import com.google.common.base.Optional;
 import net.minecraft.command.server.CommandBlockLogic;
 import net.minecraft.util.IChatComponent;
-import org.spongepowered.api.block.data.CommandBlock;
+import org.spongepowered.api.block.tile.CommandBlock;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
@@ -85,21 +87,21 @@ public abstract class MixinTileEntityCommandBlock extends MixinTileEntity {
     }
 
     void command$execute() {
-        getCommandBlockLogic().trigger((net.minecraft.world.World) getWorld());
+        getCommandBlockLogic().trigger(this.worldObj);
     }
 
     @Override
     @SuppressWarnings("deprecated")
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(new DataQuery("StoredCommand"), this.command$getStoredCommand());
-        container.set(new DataQuery("SuccessCount"), this.command$getSuccessCount());
-        container.set(new DataQuery("CustomName"), this.getCommandBlockLogic().getCustomName());
-        container.set(new DataQuery("DoesTrackOutput"), this.command$doesTrackOutput());
+        container.set(of("StoredCommand"), this.command$getStoredCommand());
+        container.set(of("SuccessCount"), this.command$getSuccessCount());
+        container.set(of("CustomName"), this.getCommandBlockLogic().getCustomName());
+        container.set(of("DoesTrackOutput"), this.command$doesTrackOutput());
         if (this.command$doesTrackOutput()) {
             Optional<Text> message = this.command$getLastOutput();
             if (message.isPresent()) {
-                container.set(new DataQuery("TrackedOutput"), message.get().toString());
+                container.set(of("TrackedOutput"), message.get().toString());
             }
         }
         return container;

@@ -28,7 +28,7 @@ package org.spongepowered.mod.service.persistence.builders.block.tile;
 import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntityEndPortal;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.block.data.EndPortal;
+import org.spongepowered.api.block.tile.EndPortal;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataView;
 
