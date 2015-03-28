@@ -109,6 +109,7 @@ shadowJar  {
         include(dependency('org.mariadb.jdbc:mariadb-java-client'))
         include(dependency('com.h2database:h2'))
         include(dependency('org.xerial:sqlite-jdbc'))
+        include(dependency('org.javassist:javassist'))
         include(project('SpongeAPI'))
         include(project('Mixin'))
     }
