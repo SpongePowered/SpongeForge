@@ -30,7 +30,6 @@ import net.minecraft.util.BlockPos;
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.block.tile.TileEntity;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;

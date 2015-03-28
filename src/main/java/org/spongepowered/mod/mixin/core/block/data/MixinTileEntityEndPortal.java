@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import org.spongepowered.api.block.data.EndPortal;
+import org.spongepowered.api.block.tile.EndPortal;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
