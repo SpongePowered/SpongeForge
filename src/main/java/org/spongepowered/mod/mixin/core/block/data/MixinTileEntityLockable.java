@@ -50,14 +50,6 @@ public abstract class MixinTileEntityLockable extends MixinTileEntity implements
     @Shadow
     private LockCode code;
 
-    public String getLockToken() {
-        return this.code.getLock();
-    }
-
-    public void setLockToken(String token) {
-        this.code = new LockCode(token);
-    }
-
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();

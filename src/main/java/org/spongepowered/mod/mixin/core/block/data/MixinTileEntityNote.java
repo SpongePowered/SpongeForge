@@ -47,14 +47,6 @@ public abstract class MixinTileEntityNote extends MixinTileEntity {
     @Shadow
     public byte note;
 
-    public NotePitch note$getNote() {
-        return ((List<NotePitch>) SpongeMod.instance.getGame().getRegistry().getNotePitches()).get(this.note);
-    }
-
-    public void note$setNote(NotePitch pitch) {
-        this.note = pitch.getId();
-    }
-
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();

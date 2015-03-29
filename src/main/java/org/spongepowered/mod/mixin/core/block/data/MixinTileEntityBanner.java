@@ -32,6 +32,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.block.tile.TileEntityType;
+import org.spongepowered.api.block.tile.TileEntityTypes;
 import org.spongepowered.api.block.tile.data.BannerData.PatternLayer;
 import org.spongepowered.api.block.tile.data.BannerPatternShape;
 import org.spongepowered.api.item.DyeColor;
@@ -93,37 +95,9 @@ public abstract class MixinTileEntityBanner extends MixinTileEntity {
         this.markDirtyAndUpdate();
     }
 
-    public DyeColor banner$getBaseColor() {
-        return (DyeColor) (Object) EnumDyeColor.byDyeDamage(this.baseColor);
-    }
-
-    public void banner$setBaseColor(DyeColor color) {
-        this.baseColor = EnumDyeColor.valueOf(color.getName().toUpperCase()).getDyeDamage();
-        this.markDirtyAndUpdate();
-    }
-
-    public List<PatternLayer> banner$getPatternList() {
-        return this.patternLayers;
-    }
-
-    public void banner$clearPattern() {
-        for (int i = this.patterns.tagCount() - 1; i >= 0; i--) {
-            this.patterns.removeTag(i);
-        }
-        this.patternLayers.clear();
-        this.markDirtyAndUpdate();
-    }
-
-    public void banner$addPatternLayer(PatternLayer pattern) {
-        banner$addPatternLayer(pattern.getId(), pattern.getColor());
-    }
-
-    public void banner$addPatternLayer(BannerPatternShape patternShape, DyeColor color) {
-        NBTTagCompound nbtPattern = new NBTTagCompound();
-        nbtPattern.setInteger("Color", EnumDyeColor.valueOf(color.getName().toUpperCase()).getDyeDamage());
-        nbtPattern.setString("Pattern", patternShape.getId());
-        this.patterns.appendTag(nbtPattern);
-        this.markDirtyAndUpdate();
+    @Override
+    public TileEntityType getType() {
+        return TileEntityTypes.BANNER;
     }
 
     @Override

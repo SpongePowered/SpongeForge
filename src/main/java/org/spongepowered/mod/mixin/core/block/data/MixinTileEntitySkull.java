@@ -64,41 +64,9 @@ public abstract class MixinTileEntitySkull extends MixinTileEntity {
     @Shadow
     public abstract int getSkullType();
 
-    public Direction skull$getRotation() {
-        return null; //TODO
-    }
-
-    public void skull$setRotation(Direction rotation) {
-        //TODO
-    }
-
-    public Optional<GameProfile> skull$getPlayer() {
-        return Optional.fromNullable((GameProfile) getPlayerProfile());
-    }
-
-    public void skull$setPlayer(GameProfile player) {
-        setPlayerProfile((com.mojang.authlib.GameProfile) player);
-    }
-
-    public SkullType skull$getType() {
-        // TODO: Fix GameRegistry for API changes
-        return ((List<SkullType>) SpongeMod.instance.getGame().getRegistry().getSkullTypes()).get(getSkullType());
-    }
-
-    public void skull$setType(SkullType type) {
-        setType(type.getId());
-    }
-
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(of("Type"), this.getSkullType());
-        container.set(of("Rotation"), this.skull$getRotation().ordinal());
-        if (this.skull$getPlayer().isPresent()) {
-            DataView ownerView = container.createView(of("Owner"));
-            ownerView.set(of("UniqueId"), this.skull$getPlayer().get().getUniqueId().toString());
-            ownerView.set(of("UserName"), this.skull$getPlayer().get().getName());
-        }
         return container;
     }
 }

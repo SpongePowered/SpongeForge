@@ -49,43 +49,6 @@ public abstract class MixinTileEntityCommandBlock extends MixinTileEntity {
     @Shadow
     public abstract CommandBlockLogic getCommandBlockLogic();
 
-    public String command$getStoredCommand() {
-        return getCommandBlockLogic().commandStored;
-    }
-
-    public void command$setStoredCommand(String command) {
-        getCommandBlockLogic().setCommand(command);
-    }
-
-    public int command$getSuccessCount() {
-        return getCommandBlockLogic().getSuccessCount();
-    }
-
-    public void command$setSuccessCount(int count) {
-        getCommandBlockLogic().successCount = count;
-    }
-
-    public boolean command$doesTrackOutput() {
-        return getCommandBlockLogic().shouldTrackOutput();
-    }
-
-    public void command$shouldTrackOutput(boolean track) {
-        getCommandBlockLogic().setTrackOutput(track);
-    }
-
-    public Optional<Text> command$getLastOutput() {
-        IChatComponent output = getCommandBlockLogic().getLastOutput();
-        if (output != null) {
-            return Optional.of(((SpongeChatComponent) output).toText());
-        }
-
-        return Optional.absent();
-    }
-
-    public void command$setLastOutput(Text message) {
-        getCommandBlockLogic().setLastOutput(((SpongeText) message).toComponent());
-    }
-
     void command$execute() {
         getCommandBlockLogic().trigger(this.worldObj);
     }
@@ -94,15 +57,15 @@ public abstract class MixinTileEntityCommandBlock extends MixinTileEntity {
     @SuppressWarnings("deprecated")
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(of("StoredCommand"), this.command$getStoredCommand());
-        container.set(of("SuccessCount"), this.command$getSuccessCount());
+        container.set(of("StoredCommand"), this.getCommandBlockLogic().commandStored);
+        container.set(of("SuccessCount"), this.getCommandBlockLogic().successCount);
         container.set(of("CustomName"), this.getCommandBlockLogic().getCustomName());
-        container.set(of("DoesTrackOutput"), this.command$doesTrackOutput());
-        if (this.command$doesTrackOutput()) {
-            Optional<Text> message = this.command$getLastOutput();
-            if (message.isPresent()) {
-                container.set(of("TrackedOutput"), message.get().toString());
-            }
+        container.set(of("DoesTrackOutput"), this.getCommandBlockLogic().shouldTrackOutput());
+        if (this.getCommandBlockLogic().shouldTrackOutput()) {
+//            Optional<Text> message = this.getCommandBlockLogic().getLastOutput();
+//            if (message.isPresent()) {
+//                container.set(of("TrackedOutput"), message.get().toString());
+//            }
         }
         return container;
     }

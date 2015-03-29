@@ -31,6 +31,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntityLockable;
+import org.spongepowered.api.block.tile.TileEntityType;
+import org.spongepowered.api.block.tile.TileEntityTypes;
 import org.spongepowered.api.block.tile.carrier.Beacon;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.service.persistence.data.DataContainer;
@@ -52,29 +54,9 @@ public abstract class MixinTileEntityBeacon extends MixinTileEntityLockable {
     @Shadow
     public abstract void setField(int id, int value);
 
-    public Optional<PotionEffectType> beacon$getPrimaryEffect() {
-        return Optional.fromNullable((PotionEffectType) Potion.potionTypes[getField(1)]);
-    }
-
-    public void beacon$setPrimaryEffect(PotionEffectType effect) {
-        setField(1, ((Potion) effect).getId());
-    }
-
-    public Optional<PotionEffectType> beacon$getSecondaryEffect() {
-        return Optional.fromNullable((PotionEffectType) Potion.potionTypes[getField(2)]);
-    }
-
-    void beacon$setSecondaryEffect(PotionEffectType effect) {
-        setField(2, ((Potion) effect).getId());
-    }
-
-    void beacon$clearEffects() {
-        setField(1, 0);
-        setField(2, 0);
-    }
-
-    int beacon$getCompletedLevels() {
-        return getField(0);
+    @Override
+    public TileEntityType getType() {
+        return TileEntityTypes.BEACON;
     }
 
     @Override

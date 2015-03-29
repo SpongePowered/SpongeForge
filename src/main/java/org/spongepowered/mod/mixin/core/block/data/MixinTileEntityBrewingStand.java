@@ -49,18 +49,10 @@ public abstract class MixinTileEntityBrewingStand extends MixinTileEntityLockabl
     @Shadow
     public abstract void setField(int id, int value);
 
-    public int brewingstand$getRemainingBrewTime() {
-        return getField(0);
-    }
-
-    public void brewingstand$setRemainingBrewTime(int time) {
-        setField(0, time);
-    }
-
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(of("BrewTime"), this.brewingstand$getRemainingBrewTime());
+        container.set(of("BrewTime"), this.getField(0));
         if (this.customName != null) {
             container.set(of("CustomName"), this.customName);
         }

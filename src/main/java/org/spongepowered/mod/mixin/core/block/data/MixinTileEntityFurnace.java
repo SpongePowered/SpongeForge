@@ -49,27 +49,11 @@ public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable {
     @Shadow
     private String furnaceCustomName;
 
-    public int furnace$getRemainingBurnTime() {
-        return getField(0);
-    }
-
-    public void furnace$setRemainingBurnTime(int time) {
-        setField(0, time);
-    }
-
-    public int furnace$getRemainingCookTime() {
-        return getField(3) - getField(2);
-    }
-
-    public void furnace$setRemainingCookTime(int time) {
-        setField(2, getField(3) - time);
-    }
-
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
-        container.set(of("BurnTime"), this.furnace$getRemainingBurnTime());
-        container.set(of("CookTime"), this.furnace$getRemainingCookTime());
+        container.set(of("BurnTime"), this.getField(0));
+        container.set(of("CookTime"), this.getField(3) - this.getField(2));
         container.set(of("CookTimeTotal"), this.getField(3));
         if (this.furnaceCustomName != null) {
             container.set(of("CustomName"), this.furnaceCustomName);

@@ -54,83 +54,6 @@ public abstract class MixinTileEntityMobSpawner extends MixinTileEntity {
     @Shadow
     public abstract MobSpawnerBaseLogic getSpawnerBaseLogic();
 
-    public short mobspawner$getRemainingDelay() {
-        return (short) getSpawnerBaseLogic().spawnDelay;
-    }
-
-    public void mobspawner$setRemainingDelay(short delay) {
-        getSpawnerBaseLogic().spawnDelay = delay;
-    }
-
-    public short mobspawner$getMinimumSpawnDelay() {
-        return (short) getSpawnerBaseLogic().minSpawnDelay;
-    }
-
-    public void mobspawner$setMinimumSpawnDelay(short delay) {
-        getSpawnerBaseLogic().minSpawnDelay = delay;
-    }
-
-    public short mobspawner$getMaximumSpawnDelay() {
-        return (short) getSpawnerBaseLogic().maxSpawnDelay;
-    }
-
-    public void mobspawner$setMaximumSpawnDelay(short delay) {
-        getSpawnerBaseLogic().maxSpawnDelay = delay;
-    }
-
-    public short mobspawner$getSpawnCount() {
-        return (short) getSpawnerBaseLogic().spawnCount;
-    }
-
-    public void mobspawner$setSpawnCount(short count) {
-        getSpawnerBaseLogic().spawnCount = count;
-    }
-
-    public short mobspawner$getMaximumNearbyEntities() {
-        return (short) getSpawnerBaseLogic().maxNearbyEntities;
-    }
-
-    public void mobspawner$setMaximumNearbyEntities(short count) {
-        getSpawnerBaseLogic().maxNearbyEntities = count;
-    }
-
-    public short mobspawner$getRequiredPlayerRange() {
-        return (short) getSpawnerBaseLogic().activatingRangeFromPlayer;
-    }
-
-    public void mobspawner$setRequiredPlayerRange(short range) {
-        getSpawnerBaseLogic().activatingRangeFromPlayer = range;
-    }
-
-    public short mobspawner$getSpawnRange() {
-        return (short) getSpawnerBaseLogic().spawnRange;
-    }
-
-    public void mobspawner$setSpawnRange(short range) {
-        getSpawnerBaseLogic().spawnRange = range;
-    }
-
-    public void mobspawner$setNextEntityToSpawn(EntityType type, @Nullable DataContainer additionalProperties) {
-        //TODO
-    }
-
-    public void mobspawner$setNextEntityToSpawn(WeightedRandomEntity entity) {
-        mobspawner$setPossibleEntitiesToSpawn(new WeightedRandomEntity[] {entity});
-    }
-
-    public void mobspawner$setPossibleEntitiesToSpawn(WeightedRandomEntity... entities) {
-        //TODO
-    }
-
-    public void mobspawner$setPossibleEntitiesToSpawn(Collection<WeightedRandomEntity> entities) {
-        mobspawner$setPossibleEntitiesToSpawn(entities.toArray(new WeightedRandomEntity[entities.size()]));
-    }
-
-    public Collection<WeightedRandomEntity> mobspawner$getPossibleEntitiesToSpawn() {
-        //TODO
-        return null;
-    }
-
     public void mobspawner$spawnEntityBatchImmediately(boolean force) {
         if (force) {
             short oldMaxNearby = (short) getSpawnerBaseLogic().maxNearbyEntities;
@@ -145,24 +68,24 @@ public abstract class MixinTileEntityMobSpawner extends MixinTileEntity {
         }
     }
 
-    @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        container.set(of("Delay"), this.mobspawner$getRemainingDelay());
-        container.set(of("MinimumDelay"), this.mobspawner$getMinimumSpawnDelay());
-        container.set(of("MaximumDelay"), this.mobspawner$getMaximumSpawnDelay());
-        container.set(of("SpawnCount"), this.mobspawner$getSpawnCount());
-        container.set(of("MaxNearbyEntities"), this.mobspawner$getMaximumNearbyEntities());
-        container.set(of("RequiredPlayerRange"), this.mobspawner$getRequiredPlayerRange());
-        container.set(of("SpawnRange"), this.mobspawner$getSpawnRange());
-        List<DataView> views = Lists.newArrayList();
-        for (WeightedRandomEntity entity : this.mobspawner$getPossibleEntitiesToSpawn()) {
-            DataContainer entityContainer = new MemoryDataContainer();
-            entityContainer.set(of("EntityType"), entity.getEntityType().getId());
-            entityContainer.set(of("Weight"), entity.getWeight());
-            entityContainer.set(of("EntityData"), entity.getAdditionalProperties());
-        }
-        container.set(of("WeightedEntities"), views);
-        return container;
-    }
+//    @Override
+//    public DataContainer toContainer() {
+//        DataContainer container = super.toContainer();
+//        container.set(of("Delay"), this.mobspawner$getRemainingDelay());
+//        container.set(of("MinimumDelay"), this.mobspawner$getMinimumSpawnDelay());
+//        container.set(of("MaximumDelay"), this.mobspawner$getMaximumSpawnDelay());
+//        container.set(of("SpawnCount"), this.mobspawner$getSpawnCount());
+//        container.set(of("MaxNearbyEntities"), this.mobspawner$getMaximumNearbyEntities());
+//        container.set(of("RequiredPlayerRange"), this.mobspawner$getRequiredPlayerRange());
+//        container.set(of("SpawnRange"), this.mobspawner$getSpawnRange());
+//        List<DataView> views = Lists.newArrayList();
+//        for (WeightedRandomEntity entity : this.mobspawner$getPossibleEntitiesToSpawn()) {
+//            DataContainer entityContainer = new MemoryDataContainer();
+//            entityContainer.set(of("EntityType"), entity.getEntityType().getId());
+//            entityContainer.set(of("Weight"), entity.getWeight());
+//            entityContainer.set(of("EntityData"), entity.getAdditionalProperties());
+//        }
+//        container.set(of("WeightedEntities"), views);
+//        return container;
+//    }
 }
