@@ -26,7 +26,9 @@ package org.spongepowered.mod.mixin.core.block.data;
 
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
+import net.minecraftforge.common.util.Constants;
 import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.block.tile.TileEntity;
 import org.spongepowered.api.service.persistence.data.DataContainer;
@@ -35,6 +37,9 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
 @NonnullByDefault
@@ -50,6 +55,9 @@ public abstract class MixinTileEntity implements TileEntity {
     @Shadow
     public abstract void markDirty();
 
+    @Shadow(remap = false)
+    public abstract NBTTagCompound getTileData();
+
     @Override
     public BlockLoc getBlock() {
         return new BlockWrapper((World) this.worldObj, getPos());
@@ -64,5 +72,73 @@ public abstract class MixinTileEntity implements TileEntity {
         container.set(of("z"), this.getPos().getZ());
         container.set(of("tileType"), net.minecraft.tileentity.TileEntity.classToNameMap.get(this.getClass()));
         return container;
+    }
+
+    /**
+     * Hooks into vanilla's writeToNBT to call {@link #writeToNbt}.
+     *
+     * <p>
+     * This makes it easier for other entity mixins to override writeToNBT
+     * without having to specify the <code>@Inject</code> annotation.
+     * </p>
+     *
+     * @param compound The compound vanilla writes to (unused because we write
+     *        to SpongeData)
+     * @param ci (Unused) callback info
+     */
+    @Inject(method = "Lnet/minecraft/tileentity/TileEntity;writeToNBT(Lnet/minecraft/nbt/NBTTagCompound;)V", at = @At("HEAD"))
+    public void onWriteToNBT(NBTTagCompound compound, CallbackInfo ci) {
+        this.writeToNbt(this.getSpongeData());
+    }
+
+    /**
+     * Hooks into vanilla's readFromNBT to call {@link #readFromNbt}.
+     *
+     * <p>
+     * This makes it easier for other entity mixins to override readFromNbt
+     * without having to specify the <code>@Inject</code> annotation.
+     * </p>
+     *
+     * @param compound The compound vanilla reads from (unused because we read
+     *        from SpongeData)
+     * @param ci (Unused) callback info
+     */
+    @Inject(method = "Lnet/minecraft/tileentity/TileEntity;readFromNBT(Lnet/minecraft/nbt/NBTTagCompound;)V", at = @At("RETURN"))
+    public void onReadFromNBT(NBTTagCompound compound, CallbackInfo ci) {
+        this.readFromNbt(this.getSpongeData());
+    }
+
+    /**
+     * Gets the SpongeData NBT tag, used for additional data not stored in the
+     * vanilla tag.
+     *
+     * <p>
+     * Modifying this tag will affect the data stored.
+     * </p>
+     *
+     * @return The data tag
+     */
+    public final NBTTagCompound getSpongeData() {
+        NBTTagCompound data = this.getTileData();
+        if (!data.hasKey("SpongeData", Constants.NBT.TAG_COMPOUND)) {
+            data.setTag("SpongeData", new NBTTagCompound());
+        }
+        return data.getCompoundTag("SpongeData");
+    }
+
+    /**
+     * Read extra data (SpongeData) from the tile entity's NBT tag.
+     *
+     * @param compound The SpongeData compound to read from
+     */
+    public void readFromNbt(NBTTagCompound compound) {
+    }
+
+    /**
+     * Write extra data (SpongeData) to the tile entity's NBT tag.
+     *
+     * @param compound The SpongeData compound to write to
+     */
+    public void writeToNbt(NBTTagCompound compound) {
     }
 }
