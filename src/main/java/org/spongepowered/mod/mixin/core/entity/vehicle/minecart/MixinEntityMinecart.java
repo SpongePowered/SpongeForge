@@ -27,19 +27,24 @@ package org.spongepowered.mod.mixin.core.entity.vehicle.minecart;
 import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.Minecart;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.SoftOverride;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.util.VectorSerializer;
 
 @NonnullByDefault
 @Mixin(EntityMinecart.class)
 public abstract class MixinEntityMinecart extends Entity implements Minecart {
+
+    private MixinEntityMinecart super$;
 
     @Shadow(remap = false)
     public abstract double getDragAir();
@@ -47,18 +52,10 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart {
     @Shadow(remap = false)
     public abstract double getMaxSpeed();
 
-    private double maxSpeed;
-    private boolean slowWhenEmpty;
-    private Vector3d airborneMod;
-    private Vector3d derailedMod;
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(World world, CallbackInfo ci) {
-        this.maxSpeed = 0.4D;
-        this.slowWhenEmpty = true;
-        this.airborneMod = new Vector3d(0.5D, 0.5D, 0.5D);
-        this.derailedMod = new Vector3d(0.5D, 0.5D, 0.5D);
-    }
+    private double maxSpeed = 0.4D;
+    private boolean slowWhenEmpty = true;
+    private Vector3d airborneMod = new Vector3d(0.5D, 0.5D, 0.5D);
+    private Vector3d derailedMod = new Vector3d(0.5D, 0.5D, 0.5D);
 
     // this method overwrites the vanilla accessor for maximum speed
     @Overwrite
@@ -155,4 +152,31 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart {
     public void setDerailedVelocityMod(Vector3d derailedVelocityMod) {
         this.derailedMod = derailedVelocityMod;
     }
+
+    @SoftOverride
+    public void readFromNbt(NBTTagCompound compound) {
+        this.super$.readFromNbt(compound);
+        if (compound.hasKey("maxSpeed")) {
+            this.maxSpeed = compound.getDouble("maxSpeed");
+        }
+        if (compound.hasKey("slowWhenEmpty")) {
+            this.slowWhenEmpty = compound.getBoolean("slowWhenEmpty");
+        }
+        if (compound.hasKey("airborneModifier")) {
+            this.airborneMod = VectorSerializer.fromNbt(compound.getCompoundTag("airborneModifier"));
+        }
+        if (compound.hasKey("derailedModifier")) {
+            this.derailedMod = VectorSerializer.fromNbt(compound.getCompoundTag("derailedModifier"));
+        }
+    }
+
+    @SoftOverride
+    public void writeToNbt(NBTTagCompound compound) {
+        this.super$.writeToNbt(compound);
+        compound.setDouble("maxSpeed", this.maxSpeed);
+        compound.setBoolean("slowWhenEmpty", this.slowWhenEmpty);
+        compound.setTag("airborneModifier", VectorSerializer.toNbt(this.airborneMod));
+        compound.setTag("derailedModifier", VectorSerializer.toNbt(this.derailedMod));
+    }
+
 }

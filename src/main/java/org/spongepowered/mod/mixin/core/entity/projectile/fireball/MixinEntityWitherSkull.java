@@ -24,8 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.projectile.fireball;
 
-import net.minecraft.entity.projectile.EntityFireball;
-import net.minecraft.world.World;
+import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.entity.projectile.explosive.WitherSkull;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,14 +33,10 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.projectile.EntityWitherSkull.class)
-public abstract class MixinEntityWitherSkull extends EntityFireball implements WitherSkull {
+public abstract class MixinEntityWitherSkull extends MixinEntityFireball implements WitherSkull {
 
     private float damage = 0.0f;
     private boolean damageSet = false;
-
-    public MixinEntityWitherSkull(World worldIn) {
-        super(worldIn);
-    }
 
     @ModifyArg(method = "onImpact(Lnet/minecraft/util/MovingObjectPosition;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
@@ -66,6 +61,25 @@ public abstract class MixinEntityWitherSkull extends EntityFireball implements W
     public void setDamage(double damage) {
         this.damageSet = true;
         this.damage = (float) damage;
+    }
+
+    @Override
+    public void readFromNbt(NBTTagCompound compound) {
+        super.readFromNbt(compound);
+        if (compound.hasKey("damageAmount")) {
+            this.damage = compound.getFloat("damageAmount");
+            this.damageSet = true;
+        }
+    }
+
+    @Override
+    public void writeToNbt(NBTTagCompound compound) {
+        super.writeToNbt(compound);
+        if (this.damageSet) {
+            compound.setFloat("damageAmount", this.damage);
+        } else {
+            compound.removeTag("damageAmount");
+        }
     }
 
 }

@@ -29,11 +29,13 @@ import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.S07PacketRespawn;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook.EnumFlags;
 import net.minecraft.network.play.server.S1FPacketSetExperience;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.Constants;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
@@ -62,7 +64,7 @@ import javax.annotation.Nullable;
 @Mixin(net.minecraft.entity.Entity.class)
 public abstract class MixinEntity implements Entity, IMixinEntity {
 
-    private EntityType entityType;
+    private EntityType entityType = ((SpongeGameRegistry) SpongeMod.instance.getGame().getRegistry()).entityClassToTypeMappings.get(this.getClass());
     private boolean teleporting;
     private net.minecraft.entity.Entity teleportVehicle;
     private float origWidth;
@@ -131,10 +133,8 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @Shadow
     public abstract void mountEntity(net.minecraft.entity.Entity entityIn);
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(net.minecraft.world.World world, CallbackInfo ci) {
-        this.entityType = ((SpongeGameRegistry) SpongeMod.instance.getGame().getRegistry()).entityClassToTypeMappings.get(this.getClass());
-    }
+    @Shadow(remap = false)
+    public abstract NBTTagCompound getEntityData();
 
     @Inject(method = "setSize", at = @At("RETURN"))
     public void onSetSize(float width, float height, CallbackInfo ci) {
@@ -522,5 +522,73 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @Override
     public UUID getUniqueId() {
         return this.entityUniqueID;
+    }
+
+    /**
+     * Hooks into vanilla's writeToNBT to call {@link #writeToNbt}.
+     *
+     * <p>
+     * This makes it easier for other entity mixins to override writeToNBT
+     * without having to specify the <code>@Inject</code> annotation.
+     * </p>
+     *
+     * @param compound The compound vanilla writes to (unused because we write
+     *        to SpongeData)
+     * @param ci (Unused) callback info
+     */
+    @Inject(method = "Lnet/minecraft/entity/Entity;writeToNBT(Lnet/minecraft/nbt/NBTTagCompound;)V", at = @At("HEAD"))
+    public void onWriteToNBT(NBTTagCompound compound, CallbackInfo ci) {
+        this.writeToNbt(this.getSpongeData());
+    }
+
+    /**
+     * Hooks into vanilla's readFromNBT to call {@link #readFromNbt}.
+     *
+     * <p>
+     * This makes it easier for other entity mixins to override readFromNbt
+     * without having to specify the <code>@Inject</code> annotation.
+     * </p>
+     *
+     * @param compound The compound vanilla reads from (unused because we read
+     *        from SpongeData)
+     * @param ci (Unused) callback info
+     */
+    @Inject(method = "Lnet/minecraft/entity/Entity;readFromNBT(Lnet/minecraft/nbt/NBTTagCompound;)V", at = @At("RETURN"))
+    public void onReadFromNBT(NBTTagCompound compound, CallbackInfo ci) {
+        this.readFromNbt(this.getSpongeData());
+    }
+
+    /**
+     * Gets the SpongeData NBT tag, used for additional data not stored in the
+     * vanilla tag.
+     *
+     * <p>
+     * Modifying this tag will affect the data stored.
+     * </p>
+     *
+     * @return The data tag
+     */
+    public final NBTTagCompound getSpongeData() {
+        NBTTagCompound data = this.getEntityData();
+        if (!data.hasKey("SpongeData", Constants.NBT.TAG_COMPOUND)) {
+            data.setTag("SpongeData", new NBTTagCompound());
+        }
+        return data.getCompoundTag("SpongeData");
+    }
+
+    /**
+     * Read extra data (SpongeData) from the entity's NBT tag.
+     *
+     * @param compound The SpongeData compound to read from
+     */
+    public void readFromNbt(NBTTagCompound compound) {
+    }
+
+    /**
+     * Write extra data (SpongeData) to the entity's NBT tag.
+     *
+     * @param compound The SpongeData compound to write to
+     */
+    public void writeToNbt(NBTTagCompound compound) {
     }
 }

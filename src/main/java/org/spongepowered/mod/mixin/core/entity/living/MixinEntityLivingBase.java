@@ -32,6 +32,7 @@ import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
@@ -44,6 +45,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.SoftOverride;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,6 +57,8 @@ import javax.annotation.Nullable;
 @Mixin(EntityLivingBase.class)
 @Implements(@Interface(iface = Living.class, prefix = "living$"))
 public abstract class MixinEntityLivingBase extends Entity {
+
+    private MixinEntityLivingBase super$;
 
     private int maxAir = 300;
 
@@ -259,6 +263,20 @@ public abstract class MixinEntityLivingBase extends Entity {
 
     public void living$setInvisible(boolean invisible) {
         this.setFlag(5, invisible);
+    }
+
+    @SoftOverride
+    public void readFromNbt(NBTTagCompound compound) {
+        this.super$.readFromNbt(compound);
+        if (compound.hasKey("maxAir")) {
+            this.maxAir = compound.getInteger("maxAir");
+        }
+    }
+
+    @SoftOverride
+    public void writeToNbt(NBTTagCompound compound) {
+        this.super$.writeToNbt(compound);
+        compound.setInteger("maxAir", this.maxAir);
     }
 
 }

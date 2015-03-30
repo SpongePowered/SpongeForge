@@ -27,11 +27,13 @@ package org.spongepowered.mod.mixin.core.entity.vehicle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.SoftOverride;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -40,26 +42,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EntityBoat.class)
 public abstract class MixinEntityBoat extends Entity implements Boat {
 
+    private MixinEntityBoat super$;
+
     @Shadow
     private double speedMultiplier;
 
-    private double maxSpeed;
-    private boolean moveOnLand;
-    private double occupiedDecelerationSpeed;
-    private double unoccupiedDecelerationSpeed;
+    private double maxSpeed = 0.35D;
+    private boolean moveOnLand = false;
+    private double occupiedDecelerationSpeed = 0D;
+    private double unoccupiedDecelerationSpeed = 0.8D;
 
     private double tempMotionX;
     private double tempMotionZ;
     private double tempSpeedMultiplier;
     private double initialDisplacement;
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(World world, CallbackInfo ci) {
-        this.maxSpeed = 0.35;
-        this.moveOnLand = false;
-        this.occupiedDecelerationSpeed = 0f;
-        this.unoccupiedDecelerationSpeed = 0.8f;
-    }
 
     @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "net.minecraft.entity.Entity.moveEntity(DDD)V"))
     public void implementLandBoats(CallbackInfo ci) {
@@ -171,5 +167,31 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
     @Override
     public void setUnoccupiedDeceleration(double unoccupiedDeceleration) {
         this.unoccupiedDecelerationSpeed = unoccupiedDeceleration;
+    }
+
+    @SoftOverride
+    public void readFromNbt(NBTTagCompound compound) {
+        this.super$.readFromNbt(compound);
+        if (compound.hasKey("maxSpeed")) {
+            this.maxSpeed = compound.getDouble("maxSpeed");
+        }
+        if (compound.hasKey("moveOnLand")) {
+            this.moveOnLand = compound.getBoolean("moveOnLand");
+        }
+        if (compound.hasKey("occupiedDecelerationSpeed")) {
+            this.occupiedDecelerationSpeed = compound.getDouble("occupiedDecelerationSpeed");
+        }
+        if (compound.hasKey("unoccupiedDecelerationSpeed")) {
+            this.unoccupiedDecelerationSpeed = compound.getDouble("unoccupiedDecelerationSpeed");
+        }
+    }
+
+    @SoftOverride
+    public void writeToNbt(NBTTagCompound compound) {
+        this.super$.writeToNbt(compound);
+        compound.setDouble("maxSpeed", this.maxSpeed);
+        compound.setBoolean("moveOnLand", this.moveOnLand);
+        compound.setDouble("occupiedDecelerationSpeed", this.occupiedDecelerationSpeed);
+        compound.setDouble("unoccupiedDecelerationSpeed", this.unoccupiedDecelerationSpeed);
     }
 }

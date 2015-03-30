@@ -24,22 +24,19 @@
  */
 package org.spongepowered.mod.mixin.core.entity.projectile;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
+import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.entity.projectile.Firework;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.entity.projectile.source.UnknownProjectileSource;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.entity.projectile.ProjectileSourceSerializer;
+import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.item.EntityFireworkRocket.class)
-public abstract class MixinEntityFireworkRocket extends Entity implements Firework {
-
-    public MixinEntityFireworkRocket(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityFireworkRocket extends MixinEntity implements Firework {
 
     @Shadow
     private int lifetime;
@@ -72,6 +69,18 @@ public abstract class MixinEntityFireworkRocket extends Entity implements Firewo
     @Override
     public void setShooter(ProjectileSource shooter) {
         this.projectileSource = shooter;
+    }
+
+    @Override
+    public void readFromNbt(NBTTagCompound compound) {
+        super.readFromNbt(compound);
+        ProjectileSourceSerializer.readSourceFromNbt(compound, this);
+    }
+
+    @Override
+    public void writeToNbt(NBTTagCompound compound) {
+        super.writeToNbt(compound);
+        ProjectileSourceSerializer.writeSourceToNbt(compound, this.projectileSource, null);
     }
 
 }

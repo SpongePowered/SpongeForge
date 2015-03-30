@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.entity.hanging;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.hanging.Hanging;
@@ -33,11 +34,14 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.SoftOverride;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.EntityHanging.class)
 public abstract class MixinEntityHanging extends Entity implements Hanging {
+
+    private MixinEntityHanging super$;
 
     @Shadow
     public EnumFacing facingDirection;
@@ -88,4 +92,19 @@ public abstract class MixinEntityHanging extends Entity implements Hanging {
         this.facingDirection =
                 SpongeGameRegistry.directionMap.get(direction) == null ? EnumFacing.NORTH : SpongeGameRegistry.directionMap.get(direction);
     }
+
+    @SoftOverride
+    public void writeToNbt(NBTTagCompound compound) {
+        this.super$.writeToNbt(compound);
+        compound.setBoolean("ignorePhysics", this.ignorePhysics);
+    }
+
+    @SoftOverride
+    public void readFromNbt(NBTTagCompound compound) {
+        this.super$.readFromNbt(compound);
+        if (compound.hasKey("ignorePhysics")) {
+            this.ignorePhysics = compound.getBoolean("ignorePhysics");
+        }
+    }
+
 }

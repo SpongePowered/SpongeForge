@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.entity.projectile;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.EntityArrow;
-import net.minecraft.world.World;
+import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.entity.projectile.Arrow;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.entity.projectile.source.UnknownProjectileSource;
@@ -35,13 +35,15 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.entity.projectile.ProjectileSourceSerializer;
+import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityArrow.class)
 @Implements(@Interface(iface = Arrow.class, prefix = "arrow$"))
-public abstract class MixinEntityArrow extends Entity implements Arrow {
+public abstract class MixinEntityArrow extends MixinEntity implements Arrow {
 
     @Shadow
     public double damage;
@@ -65,9 +67,9 @@ public abstract class MixinEntityArrow extends Entity implements Arrow {
 
     @Override
     public ProjectileSource getShooter() {
-        if (this.projectileSource != null && this.projectileSource instanceof ProjectileSource) {
+        if (this.projectileSource instanceof ProjectileSource) {
             return this.projectileSource;
-        } else if (this.shootingEntity != null && this.shootingEntity instanceof ProjectileSource) {
+        } else if (this.shootingEntity instanceof ProjectileSource) {
             return (ProjectileSource) this.shootingEntity;
         }
         return new UnknownProjectileSource();
@@ -111,7 +113,15 @@ public abstract class MixinEntityArrow extends Entity implements Arrow {
         this.setIsCritical(critical);
     }
 
-    public MixinEntityArrow(World worldIn) {
-        super(worldIn);
+    @Override
+    public void readFromNbt(NBTTagCompound compound) {
+        super.readFromNbt(compound);
+        ProjectileSourceSerializer.readSourceFromNbt(compound, this);
+    }
+
+    @Override
+    public void writeToNbt(NBTTagCompound compound) {
+        super.writeToNbt(compound);
+        ProjectileSourceSerializer.writeSourceToNbt(compound, this.projectileSource, this.shootingEntity);
     }
 }

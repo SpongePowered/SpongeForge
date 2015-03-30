@@ -24,8 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.projectile;
 
-import net.minecraft.entity.projectile.EntityThrowable;
-import net.minecraft.world.World;
+import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.entity.projectile.Snowball;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -37,11 +36,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @NonnullByDefault
 @Mixin(net.minecraft.entity.projectile.EntitySnowball.class)
 @Implements(@Interface(iface = Snowball.class, prefix = "snowball$"))
-public abstract class MixinEntitySnowball extends EntityThrowable {
-
-    public MixinEntitySnowball(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntitySnowball extends MixinEntityThrowable {
 
     private double damageAmount = 0;
     private boolean damageSet = false;
@@ -60,4 +55,24 @@ public abstract class MixinEntitySnowball extends EntityThrowable {
         this.damageSet = true;
         this.damageAmount = damage;
     }
+
+    @Override
+    public void readFromNbt(NBTTagCompound compound) {
+        super.readFromNbt(compound);
+        if (compound.hasKey("damageAmount")) {
+            this.damageAmount = compound.getDouble("damageAmount");
+            this.damageSet = true;
+        }
+    }
+
+    @Override
+    public void writeToNbt(NBTTagCompound compound) {
+        super.writeToNbt(compound);
+        if (this.damageSet) {
+            compound.setDouble("damageAmount", this.damageAmount);
+        } else {
+            compound.removeTag("damageAmount");
+        }
+    }
+
 }
