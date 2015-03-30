@@ -90,6 +90,9 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     @Shadow
     public NetHandlerPlayServer playerNetServerHandler;
 
+    @Shadow
+    public int lastExperience;
+
     private ServiceReference<PermissionService> permService =
             SpongeMod.instance.getGame().getServiceManager().potentiallyProvide(PermissionService.class);
 
@@ -112,7 +115,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public Optional<Player> playermp$getPlayer() {
-        return Optional.of((Player) this);
+        return Optional.of((Player)this);
     }
 
     public Text playermp$getDisplayName() {
@@ -189,6 +192,16 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
 
     public PlayerConnection playermp$getConnection() {
         return (PlayerConnection) this.playerNetServerHandler;
+    }
+
+    public void playermp$setBedLocation(@Nullable Location location) {
+        super.spawnChunk = location != null ? VecHelper.toBlockPos(location.getPosition()) : null;
+    }
+
+    // this needs to be overridden from EntityPlayer so we can force a resend of the experience level
+    public void playermp$setLevel(int level) {
+        this.experienceLevel = level;
+        this.lastExperience = -1;
     }
 
     private Subject internalSubject() {
@@ -296,8 +309,4 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         Subject subj = internalSubject();
         return subj == null ? Collections.<Context>emptySet() : subj.getActiveContexts();
 	}
-
-    public void playermp$setBedLocation(@Nullable Location location) {
-        super.spawnChunk = location != null ? VecHelper.toBlockPos(location.getPosition()) : null;
-    }
 }

@@ -49,9 +49,6 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
     public Container openContainer;
 
     @Shadow
-    protected FoodStats foodStats;
-
-    @Shadow
     public int experienceLevel;
 
     @Shadow
@@ -63,32 +60,61 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
     @Shadow
     public abstract int xpBarCap();
 
+    @Shadow
+    public abstract FoodStats getFoodStats();
+
     public MixinEntityPlayer(World worldIn) {
         super(worldIn);
     }
 
     public double human$getExhaustion() {
-        return this.foodStats.foodExhaustionLevel;
+        return this.getFoodStats().foodExhaustionLevel;
     }
 
     public void human$setExhaustion(double exhaustion) {
-        this.foodStats.foodExhaustionLevel = (float) exhaustion;
+        this.getFoodStats().foodExhaustionLevel = (float) exhaustion;
     }
 
     public double human$getSaturation() {
-        return this.foodStats.getSaturationLevel();
+        return this.getFoodStats().getSaturationLevel();
     }
 
     public void human$setSaturation(double saturation) {
-        this.foodStats.setFoodSaturationLevel((float) saturation);
+        this.getFoodStats().setFoodSaturationLevel((float)saturation);
     }
 
     public double human$getFoodLevel() {
-        return this.foodStats.getFoodLevel();
+        return this.getFoodStats().getFoodLevel();
     }
 
     public void human$setFoodLevel(double hunger) {
-        this.foodStats.setFoodLevel((int)hunger);
+        this.getFoodStats().setFoodLevel((int)hunger);
+    }
+
+    // utility method for getting the total experience at an arbitrary level
+    // the formulas here are basically (slightly modified) integrals of those of EntityPlayer#xpBarCap()
+    private static int human$xpAtLevel(int level) {
+        if (level > 30) {
+            return (int)(4.5 * Math.pow(level, 2) - 162.5 * level + 2220);
+        }
+        else if (level > 15) {
+            return (int)(2.5 * Math.pow(level, 2) - 40.5 * level + 360);
+        }
+        else {
+            return (int)(Math.pow(level, 2) + 6 * level);
+        }
+    }
+
+    public int human$getExperienceSinceLevel() {
+        return this.human$getTotalExperience() - human$xpAtLevel(this.human$getLevel());
+    }
+
+    public void human$setExperienceSinceLevel(int experience) {
+        this.human$setTotalExperience(human$xpAtLevel(this.experienceLevel) + experience);
+    }
+
+    public int human$getExperienceBetweenLevels() {
+        return this.xpBarCap();
     }
 
     public int human$getLevel() {
@@ -115,24 +141,8 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
         this.capabilities.isFlying = flying;
     }
 
-    public double human$getFlySpeed() {
-        return this.capabilities.getFlySpeed();
-    }
-
-    public void human$setFlySpeed(double speed) {
-        this.capabilities.setFlySpeed((float)speed);
-    }
-
-    public double human$getWalkSpeed() {
-        return this.capabilities.getWalkSpeed();
-    }
-
-    public void human$setWalkSpeed(double speed) {
-        this.capabilities.setPlayerWalkSpeed((float)speed);
-    }
-
     public boolean human$isViewingInventory() {
-        return this.openContainer == this.inventoryContainer;
+        return this.openContainer != null;
     }
 
 }
