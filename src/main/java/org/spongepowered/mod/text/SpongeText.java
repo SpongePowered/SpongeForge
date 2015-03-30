@@ -28,7 +28,7 @@ import net.minecraft.util.IChatComponent;
 
 public interface SpongeText {
 
-    char COLOR_CHAR = '§';
+    char COLOR_CHAR = '\247';
 
     IChatComponent toComponent();
 
