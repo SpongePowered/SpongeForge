@@ -28,13 +28,18 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
+import net.minecraft.network.play.server.S45PacketTitle;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
@@ -53,6 +58,7 @@ import org.spongepowered.api.text.title.Titles;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
@@ -64,11 +70,14 @@ import org.spongepowered.mod.text.SpongeChatComponent;
 import org.spongepowered.mod.text.SpongeText;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.title.SpongeTitle;
+import org.spongepowered.mod.util.VecHelper;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
@@ -80,6 +89,9 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
 
     @Shadow
     public NetHandlerPlayServer playerNetServerHandler;
+
+    @Shadow
+    public int lastExperience;
 
     private ServiceReference<PermissionService> permService =
             SpongeMod.instance.getGame().getServiceManager().potentiallyProvide(PermissionService.class);
@@ -103,11 +115,19 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public Optional<Player> playermp$getPlayer() {
-        return Optional.of((Player) this);
+        return Optional.of((Player)this);
     }
 
     public Text playermp$getDisplayName() {
         return ((SpongeChatComponent) getDisplayName()).toText();
+    }
+
+    public boolean playermp$getAllowFlight() {
+        return this.capabilities.allowFlying;
+    }
+
+    public void playermp$setAllowFlight(boolean allowFlight) {
+        this.capabilities.allowFlying = allowFlight;
     }
 
     public Locale playermp$getLocale() {
@@ -172,6 +192,16 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
 
     public PlayerConnection playermp$getConnection() {
         return (PlayerConnection) this.playerNetServerHandler;
+    }
+
+    public void playermp$setBedLocation(@Nullable Location location) {
+        super.spawnChunk = location != null ? VecHelper.toBlockPos(location.getPosition()) : null;
+    }
+
+    // this needs to be overridden from EntityPlayer so we can force a resend of the experience level
+    public void playermp$setLevel(int level) {
+        this.experienceLevel = level;
+        this.lastExperience = -1;
     }
 
     private Subject internalSubject() {
@@ -278,5 +308,5 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     public Set<Context> getActiveContexts() {
         Subject subj = internalSubject();
         return subj == null ? Collections.<Context>emptySet() : subj.getActiveContexts();
-    }
+	}
 }
