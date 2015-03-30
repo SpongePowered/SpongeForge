@@ -188,27 +188,28 @@ compileJava {
         '-Xlint:-path',
         '-Xlint:-processing',
         "-AoutSrgFile=${project.mixinSrg.getCanonicalPath()}",
-        "-AoutRefMapFile=${project.mixinRefMap.getCanonicalPath()}"
+        "-AoutRefMapFile=${project.mixinRefMap.getCanonicalPath()}",
+        "-AreobfSrgFile=${project.file('build/srgs/mcp-srg.srg').getCanonicalPath()}"
     ]
     options.deprecation = true
     options.encoding = 'UTF-8'
 }
 
-// set the reobf srg late
-afterEvaluate {
-    tasks.compileJava.options.compilerArgs += "-AreobfSrgFile=${tasks.reobf.srg}"
-}
-
 // Copy the current srgs to the build dir so the user doesn't have to go hunting for them
 task copySrgs(type: Copy, dependsOn: "genSrgs") {
     // using some FG hacks here
-    from plugins.getPlugin("forge").delayedFile("{SRG_DIR}")
-    
+    from plugins.getPlugin("forge").delayedFile("{SRG_DIR}")    
     include '**/*.srg'
     into 'build/srgs'
+
+    doLast {
+        def file = project.file('build/srgs/mcp-srg.srg')
+        file.text = file.text + "\n" + project.file("extraSrg.srg").text
+    }
 }
 setupDecompWorkspace.dependsOn copySrgs
 setupDevWorkspace.dependsOn copySrgs
+compileJava.dependsOn copySrgs
 
 def manifestEntries = [
     "Built-By": System.properties['user.name'],
