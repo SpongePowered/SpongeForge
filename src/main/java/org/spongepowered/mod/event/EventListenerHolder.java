@@ -28,7 +28,7 @@ public abstract class EventListenerHolder<T> {
 
     protected PriorityEventListener<T>[] listeners;
 
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected EventListenerHolder() {
         this.listeners = new PriorityEventListener[0];
     }
@@ -43,7 +43,7 @@ public abstract class EventListenerHolder<T> {
         }
         listener.setHolder(this);
 
-        @SuppressWarnings({"unchecked"})
+        @SuppressWarnings({"unchecked", "rawtypes"})
         PriorityEventListener<T>[] newListeners = new PriorityEventListener[this.listeners.length + 1];
         int i;
         for (i = 0; i < this.listeners.length; i++) {
@@ -63,7 +63,7 @@ public abstract class EventListenerHolder<T> {
         if (listener.getHolder() != this) {
             throw new IllegalArgumentException("EventListenerHolder does not contain event");
         }
-        @SuppressWarnings({"unchecked"})
+        @SuppressWarnings({"unchecked", "rawtypes"})
         PriorityEventListener<T>[] newListeners = new PriorityEventListener[this.listeners.length - 1];
         int i = 0;
         int j = 0;

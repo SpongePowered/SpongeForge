@@ -73,9 +73,9 @@ public class ProjectileSourceSerializer {
         return new UnknownProjectileSource();
     }
 
-    public static void writeSourceToNbt(NBTTagCompound compound, ProjectileSource projectileSource, net.minecraft.entity.Entity potentalEntitySource) {
-        if (projectileSource == null && potentalEntitySource instanceof ProjectileSource) {
-            projectileSource = (ProjectileSource) potentalEntitySource;
+    public static void writeSourceToNbt(NBTTagCompound compound, ProjectileSource projectileSource, net.minecraft.entity.Entity potentialEntity) {
+        if (projectileSource == null && potentialEntity instanceof ProjectileSource) {
+            projectileSource = (ProjectileSource) potentialEntity;
         }
         NBTBase projectileNbt = toNbt(projectileSource);
         if (projectileNbt != null) {

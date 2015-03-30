@@ -57,9 +57,9 @@ public abstract class MixinBlockUpdateEvent extends BlockEvent implements BlockU
 
     @Override
     public Collection<Location> getAffectedBlocks() {
-        if(this.affectedBlocks == null) {
+        if (this.affectedBlocks == null) {
             this.affectedBlocks = new HashSet<Location>();
-            for(EnumFacing notifiedSide : notifiedSides) {
+            for (EnumFacing notifiedSide : this.notifiedSides) {
                 BlockPos offset = pos.offset(notifiedSide);
                 this.affectedBlocks.add(((org.spongepowered.api.world.World) world).getFullBlock(offset.getX(), offset.getY(), offset.getZ()));
             }

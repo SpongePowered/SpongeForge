@@ -38,13 +38,26 @@ public abstract class MixinChatStyle implements SpongeChatStyle {
 
     @Shadow private ChatStyle parentStyle;
 
-    @Shadow public abstract EnumChatFormatting getColor();
-    @Shadow public abstract boolean getBold();
-    @Shadow public abstract boolean getItalic();
-    @Shadow public abstract boolean getStrikethrough();
-    @Shadow public abstract boolean getUnderlined();
-    @Shadow public abstract boolean getObfuscated();
-    @Shadow public abstract boolean isEmpty();
+    @Shadow
+    public abstract EnumChatFormatting getColor();
+
+    @Shadow
+    public abstract boolean getBold();
+
+    @Shadow
+    public abstract boolean getItalic();
+
+    @Shadow
+    public abstract boolean getStrikethrough();
+
+    @Shadow
+    public abstract boolean getUnderlined();
+
+    @Shadow
+    public abstract boolean getObfuscated();
+
+    @Shadow
+    public abstract boolean isEmpty();
 
     @Override
     public char[] asFormattingCode() {

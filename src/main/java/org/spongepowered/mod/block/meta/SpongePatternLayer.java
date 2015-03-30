@@ -55,8 +55,8 @@ public class SpongePatternLayer implements PatternLayer {
     @Override
     public DataContainer toContainer() {
         DataContainer container = new MemoryDataContainer();
-        container.set(of("id"), id.getId());
-        container.set(of("color"), color.getName());
+        container.set(of("id"), this.id.getId());
+        container.set(of("color"), this.color.getName());
         return container;
     }
 

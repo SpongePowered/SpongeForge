@@ -41,7 +41,8 @@ public abstract class MixinEntityEgg extends MixinEntityThrowable {
     public double damageAmount;
 
     @ModifyArg(method = "onImpact(Lnet/minecraft/util/MovingObjectPosition;)V", at =
-            @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
+            @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z")
+        )
     private float onAttackEntityFrom(float damage) {
         return (float) this.damageAmount;
     }

@@ -96,8 +96,7 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart {
             this.motionX *= 1.0D;
             this.motionY *= 0.0D;
             this.motionZ *= 1.0D;
-        }
-        else {
+        } else {
             this.motionX *= 0.96D;
             this.motionY *= 0.0D;
             this.motionZ *= 0.96D;

@@ -157,6 +157,7 @@ public abstract class MixinServerCommandManager extends CommandHandler implement
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public List getTabCompletionOptions(ICommandSender sender, String input, BlockPos pos) {
         CommandService service = SpongeMod.instance.getGame().getCommandDispatcher();
         CommandSource source = (CommandSource) sender;

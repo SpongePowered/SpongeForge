@@ -41,7 +41,10 @@ import org.spongepowered.mod.text.SpongeChatComponent;
 public abstract class MixinEventPlayerChat extends Event implements PlayerChatEvent {
 
     @Shadow
-    public String message, username;
+    public String message;
+
+    @Shadow
+    public String username;
 
     @Shadow
     public EntityPlayerMP player;

@@ -54,13 +54,11 @@ public abstract class MixinEntityItem extends Entity implements Item {
     }
 
     public void inactiveTick() {
-        if (this.delayBeforeCanPickup > 0 && this.delayBeforeCanPickup != 32767)
-        {
+        if (this.delayBeforeCanPickup > 0 && this.delayBeforeCanPickup != 32767) {
             --this.delayBeforeCanPickup;
         }
 
-        if (!this.worldObj.isRemote
-                && this.age >= ((IMixinWorld) this.worldObj).getWorldConfig().getConfig().getEntity().getItemDespawnRate()) {
+        if (!this.worldObj.isRemote && this.age >= ((IMixinWorld) this.worldObj).getWorldConfig().getConfig().getEntity().getItemDespawnRate()) {
             this.setDead();
         }
     }

@@ -34,12 +34,12 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.mod.service.permission.base.SpongeSubjectCollection;
 
+import java.util.UUID;
 import javax.annotation.Nullable;
 
-import java.util.UUID;
 
 /**
- * User collection keeping track of opped users
+ * User collection keeping track of opped users.
  */
 public class UserCollection extends SpongeSubjectCollection {
     private final SpongePermissionService service;
@@ -51,7 +51,7 @@ public class UserCollection extends SpongeSubjectCollection {
 
     @Override
     public Subject get(String identifier) {
-        UUID uid = identToUUID(identifier);
+        UUID uid = identToUuid(identifier);
         if (uid == null) {
             throw new IllegalArgumentException("Provided identifier must be a uuid, was " + identifier);
         }
@@ -75,7 +75,7 @@ public class UserCollection extends SpongeSubjectCollection {
 
     @Override
     public boolean hasRegistered(String identifier) {
-        UUID uid = identToUUID(identifier);
+        UUID uid = identToUuid(identifier);
         if (uid == null) {
             return false;
         }
@@ -83,7 +83,7 @@ public class UserCollection extends SpongeSubjectCollection {
         return SpongePermissionService.getOps().getEntry(profile) != null;
     }
 
-    private UUID identToUUID(String identifier) {
+    private UUID identToUuid(String identifier) {
         try {
             return UUID.fromString(identifier);
         } catch (IllegalArgumentException e) {

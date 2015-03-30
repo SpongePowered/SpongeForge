@@ -71,9 +71,8 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
         if (!SpongeGameRegistry.dimensionConfigs.containsKey(provider.getClass())) {
             String providerName = provider.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "");
             SpongeConfig<SpongeConfig.DimensionConfig> dimConfig =
-                    new SpongeConfig<SpongeConfig.DimensionConfig>(SpongeConfig.Type.DIMENSION, new File(SpongeMod.instance.getConfigDir
-                            () + File
-                            .separator + providerName
+                    new SpongeConfig<SpongeConfig.DimensionConfig>(SpongeConfig.Type.DIMENSION, new File(SpongeMod.instance.getConfigDir()
+                            + File.separator + providerName
                             + File.separator, "dimension.conf"), "sponge");
             SpongeGameRegistry.dimensionConfigs.put(provider.getClass(), dimConfig);
             ((IMixinWorldProvider) provider).setDimensionConfig(dimConfig);
@@ -141,9 +140,9 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
 
     @Override
     public Context getContext() {
-        if (dimContext == null) {
-            dimContext = new Context(Context.DIMENSION_KEY, getName());
+        if (this.dimContext == null) {
+            this.dimContext = new Context(Context.DIMENSION_KEY, getName());
         }
-        return dimContext;
+        return this.dimContext;
     }
 }

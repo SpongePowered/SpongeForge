@@ -160,6 +160,26 @@ public class SpongeEventBus implements EventManager {
         return registerAll(Lists.newArrayList(subscriber), container);
     }
 
+    public void register(PluginContainer container, Object object) {
+        checkNotNull(container, "plugin");
+        checkNotNull(object, "object");
+
+        registerAll(findAllSubscribers(object), container);
+    }
+
+    @Override
+    public void register(Object plugin, Object object) {
+        checkNotNull(plugin, "plugin");
+        checkNotNull(object, "object");
+
+        Optional<PluginContainer> container = this.pluginManager.fromInstance(plugin);
+        if (!container.isPresent()) {
+            throw new IllegalArgumentException("The specified object is not a plugin object");
+        }
+
+        registerAll(findAllSubscribers(object), container.get());
+    }
+
     private boolean registerAll(List<Subscriber> subscribers, PluginContainer container) {
         synchronized (this.lock) {
             boolean changed = false;
@@ -186,6 +206,12 @@ public class SpongeEventBus implements EventManager {
         return unregisterAll(Lists.newArrayList(subscriber));
     }
 
+    @Override
+    public void unregister(Object object) {
+        checkNotNull(object, "object");
+        unregisterAll(findAllSubscribers(object));
+    }
+
     public boolean unregisterAll(List<Subscriber> subscribers) {
         synchronized (this.lock) {
             boolean changed = false;
@@ -210,32 +236,6 @@ public class SpongeEventBus implements EventManager {
         } catch (Throwable t) {
             SpongeMod.instance.getLogger().warn("A handler raised an error when handling an event", t);
         }
-    }
-
-    public void register(PluginContainer container, Object object) {
-        checkNotNull(container, "plugin");
-        checkNotNull(object, "object");
-
-        registerAll(findAllSubscribers(object), container);
-    }
-
-    @Override
-    public void register(Object plugin, Object object) {
-        checkNotNull(plugin, "plugin");
-        checkNotNull(object, "object");
-
-        Optional<PluginContainer> container = this.pluginManager.fromInstance(plugin);
-        if (!container.isPresent()) {
-            throw new IllegalArgumentException("The specified object is not a plugin object");
-        }
-
-        registerAll(findAllSubscribers(object), container.get());
-    }
-
-    @Override
-    public void unregister(Object object) {
-        checkNotNull(object, "object");
-        unregisterAll(findAllSubscribers(object));
     }
 
     public boolean post(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, IEventListener[] listeners) {
@@ -270,7 +270,7 @@ public class SpongeEventBus implements EventManager {
             }
         }
 
-        return (forgeEvent.isCancelable() ? forgeEvent.isCanceled() : false);
+        return forgeEvent.isCancelable() && forgeEvent.isCanceled();
     }
 
     @Override

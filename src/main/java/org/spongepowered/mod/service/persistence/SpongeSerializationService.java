@@ -33,7 +33,6 @@ import com.google.common.collect.Maps;
 import org.spongepowered.api.service.persistence.DataSerializable;
 import org.spongepowered.api.service.persistence.DataSerializableBuilder;
 import org.spongepowered.api.service.persistence.SerializationService;
-import org.spongepowered.mod.SpongeMod;
 
 import java.util.Map;
 
@@ -43,7 +42,7 @@ public class SpongeSerializationService implements SerializationService {
     private boolean registrationComplete = false;
 
     public void completeRegistration() {
-        checkState(!registrationComplete);
+        checkState(!this.registrationComplete);
         this.registrationComplete = true;
     }
 
@@ -51,7 +50,7 @@ public class SpongeSerializationService implements SerializationService {
     public <T extends DataSerializable> void registerBuilder(Class<T> clazz, DataSerializableBuilder<T> builder) {
         checkNotNull(clazz);
         checkNotNull(builder);
-        checkState(!registrationComplete);
+        checkState(!this.registrationComplete);
         if (!this.builders.containsKey(clazz)) {
             this.builders.put(clazz, builder);
         }

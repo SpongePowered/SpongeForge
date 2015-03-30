@@ -37,7 +37,7 @@ import org.spongepowered.mod.text.SpongeChatComponent;
 import org.spongepowered.mod.text.SpongeText;
 
 /**
- * Wrapper around a CommandSource that is not part of the base game to allow it to access MC commands
+ * Wrapper around a CommandSource that is not part of the base game to allow it to access MC commands.
  */
 public class WrapperICommandSender implements ICommandSender {
     private final CommandSource source;
@@ -48,12 +48,12 @@ public class WrapperICommandSender implements ICommandSender {
 
     @Override
     public String getCommandSenderName() {
-        return source.getName();
+        return this.source.getName();
     }
 
     @Override
     public IChatComponent getDisplayName() {
-        return ((SpongeText) Texts.of(source.getName())).toComponent();
+        return ((SpongeText) Texts.of(this.source.getName())).toComponent();
     }
 
     @Override
@@ -63,7 +63,7 @@ public class WrapperICommandSender implements ICommandSender {
 
     @Override
     public boolean canCommandSenderUseCommand(int permLevel, String commandName) {
-        return source.hasPermission(commandName);
+        return this.source.hasPermission(commandName);
     }
 
     @Override

@@ -63,72 +63,72 @@ public abstract class MixinCommandExecuteAtSender implements CommandSource, ICom
 
     @Override
     public String getName() {
-        return ((CommandSource) field_174802_b).getIdentifier();
+        return ((CommandSource) this.field_174802_b).getIdentifier();
     }
 
     @Override
     public String getIdentifier() {
-        return ((CommandSource) field_174802_b).getIdentifier();
+        return ((CommandSource) this.field_174802_b).getIdentifier();
     }
 
     @Override
     public Optional<CommandSource> getCommandSource() {
-        return ((CommandSource) field_174802_b).getCommandSource();
+        return ((CommandSource) this.field_174802_b).getCommandSource();
     }
 
     @Override
     public SubjectCollection getContainingCollection() {
-        return ((CommandSource) field_174802_b).getContainingCollection();
+        return ((CommandSource) this.field_174802_b).getContainingCollection();
     }
 
     @Override
     public SubjectData getData() {
-        return ((CommandSource) field_174802_b).getData();
+        return ((CommandSource) this.field_174802_b).getData();
     }
 
     @Override
     public SubjectData getTransientData() {
-        return ((CommandSource) field_174802_b).getTransientData();
+        return ((CommandSource) this.field_174802_b).getTransientData();
     }
 
     @Override
     public boolean hasPermission(Set<Context> contexts, String permission) {
-        return ((CommandSource) field_174802_b).hasPermission(contexts, permission);
+        return ((CommandSource) this.field_174802_b).hasPermission(contexts, permission);
     }
 
     @Override
     public boolean hasPermission(String permission) {
-        return ((CommandSource) field_174802_b).hasPermission(permission);
+        return ((CommandSource) this.field_174802_b).hasPermission(permission);
     }
 
     @Override
     public Tristate getPermissionValue(Set<Context> contexts, String permission) {
-        return ((CommandSource) field_174802_b).getPermissionValue(contexts, permission);
+        return ((CommandSource) this.field_174802_b).getPermissionValue(contexts, permission);
     }
 
     @Override
     public boolean isChildOf(Subject parent) {
-        return ((CommandSource) field_174802_b).isChildOf(parent);
+        return ((CommandSource) this.field_174802_b).isChildOf(parent);
     }
 
     @Override
     public boolean isChildOf(Set<Context> contexts, Subject parent) {
-        return ((CommandSource) field_174802_b).isChildOf(contexts, parent);
+        return ((CommandSource) this.field_174802_b).isChildOf(contexts, parent);
     }
 
     @Override
     public List<Subject> getParents() {
-        return ((CommandSource) field_174802_b).getParents();
+        return ((CommandSource) this.field_174802_b).getParents();
     }
 
     @Override
     public List<Subject> getParents(Set<Context> contexts) {
-        return ((CommandSource) field_174802_b).getParents(contexts);
+        return ((CommandSource) this.field_174802_b).getParents(contexts);
     }
 
     @Override
     public Set<Context> getActiveContexts() {
-        return ((CommandSource) field_174802_b).getActiveContexts();
+        return ((CommandSource) this.field_174802_b).getActiveContexts();
     }
 
 }

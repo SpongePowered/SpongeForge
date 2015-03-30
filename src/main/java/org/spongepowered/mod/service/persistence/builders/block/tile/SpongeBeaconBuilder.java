@@ -55,11 +55,11 @@ public class SpongeBeaconBuilder extends SpongeLockableBuilder<Beacon> {
         if (!beaconOptional.isPresent()) {
             throw new InvalidDataException("The container had insufficient data to create a Banner tile entity!");
         }
-        Beacon beacon = beaconOptional.get();
+        final Beacon beacon = beaconOptional.get();
         if (!container.contains(PRIMARY) || !container.contains(SECONDARY)) {
             throw new InvalidDataException("The provided container does not contain the data to make a Banner!");
         }
-        BeaconData beaconData = new SpongeBeaconData();
+        final BeaconData beaconData = new SpongeBeaconData();
         beaconData.setPrimaryEffect((PotionEffectType) Potion.potionTypes[container.getInt(PRIMARY).get()]);
         beaconData.setSecondaryEffect((PotionEffectType) Potion.potionTypes[container.getInt(SECONDARY).get()]);
         beacon.setBeaconData(beaconData);

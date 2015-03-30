@@ -32,9 +32,9 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Mixin;
 
 /**
- * Make FML mod containers our mod containers
+ * Make FML mod containers our mod containers.
  *
- * This might need to be occasionally updated to mixin to other implementaions
+ * <p>This might need to be occasionally updated to mixin to other implementaions
  * of ModContainer
  */
 @Mixin({FMLModContainer.class, DummyModContainer.class, InjectedModContainer.class})

@@ -31,5 +31,6 @@ import org.spongepowered.api.util.Tristate;
  */
 public interface Subjectable {
     String getSubjectCollectionIdentifier();
+
     Tristate permDefault(String permission);
 }

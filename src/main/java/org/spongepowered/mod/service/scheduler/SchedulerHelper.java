@@ -143,7 +143,7 @@ public class SchedulerHelper {
         // else return a Collection of Tasks.
 
         PluginContainer testedOwner = (PluginContainer) plugin;
-        String testOwnerID = testedOwner.getId();
+        String testOwnerId = testedOwner.getId();
         Collection<Task> subsetCollection;
 
         synchronized (taskMap) {
@@ -155,7 +155,7 @@ public class SchedulerHelper {
         while (it.hasNext()) {
             String pluginId = ((PluginContainer) it.next()).getId();
 
-            if (!testOwnerID.equals(pluginId)) {
+            if (!testOwnerId.equals(pluginId)) {
                 it.remove();
             }
         }
@@ -172,14 +172,14 @@ public class SchedulerHelper {
      * @return The Optional&lt;UUID&gt; result from the search by name.
      */
     protected Optional<UUID> getUuidOfTaskByName(Map<UUID, ScheduledTask> taskMap, String name) {
-        Optional<UUID> resultUUID = Optional.absent();
+        Optional<UUID> resultUuid = Optional.absent();
 
         for (ScheduledTask t : taskMap.values()) {
             if (name.equals(t.name)) {
                 return Optional.of(t.id);
             }
         }
-        return resultUUID;
+        return resultUuid;
 
     }
 

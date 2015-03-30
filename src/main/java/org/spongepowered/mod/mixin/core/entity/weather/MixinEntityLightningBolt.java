@@ -58,7 +58,8 @@ public abstract class MixinEntityLightningBolt extends EntityWeatherEffect imple
     }
 
     @Inject(method = "onUpdate()V", at = {@At(value = "NEW", args = "class=net.minecraft.util.BlockPos"),
-            @At(value = "NEW", args = "class=net.minecraft.util.AxisAlignedBB")}, cancellable = true)
+            @At(value = "NEW", args = "class=net.minecraft.util.AxisAlignedBB")}, cancellable = true
+        )
     public void onOnUpdate(CallbackInfo ci) {
         if (this.effect) {
             ci.cancel();
