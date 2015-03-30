@@ -31,6 +31,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.text.SpongeText;
 
 @Mixin(value = Text.Translatable.class, remap = false)
 public abstract class MixinTextTranslatable extends MixinText {
@@ -40,7 +41,20 @@ public abstract class MixinTextTranslatable extends MixinText {
 
     @Override
     protected ChatComponentStyle createComponent() {
-        return new ChatComponentTranslation(this.translation.getId(), this.arguments.toArray());
+        return new ChatComponentTranslation(this.translation.getId(), unwrapArguments(this.arguments));
+    }
+
+    private Object[] unwrapArguments(ImmutableList<Object> args) {
+        Object[] ret = new Object[args.size()];
+        for (int i = 0; i < args.size(); ++i) {
+            final Object arg = args.get(i);
+            if (arg instanceof SpongeText) {
+                ret[i] = ((SpongeText) arg).toComponent();
+            } else {
+                ret[i] = arg;
+            }
+        }
+        return ret;
     }
 
 }
