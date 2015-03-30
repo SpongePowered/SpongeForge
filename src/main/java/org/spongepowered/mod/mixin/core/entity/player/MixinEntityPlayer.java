@@ -93,7 +93,7 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
 
     // utility method for getting the total experience at an arbitrary level
     // the formulas here are basically (slightly modified) integrals of those of EntityPlayer#xpBarCap()
-    private static int human$xpAtLevel(int level) {
+    private int xpAtLevel(int level) {
         if (level > 30) {
             return (int) (4.5 * Math.pow(level, 2) - 162.5 * level + 2220);
         }
@@ -106,11 +106,11 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
     }
 
     public int human$getExperienceSinceLevel() {
-        return this.human$getTotalExperience() - human$xpAtLevel(this.human$getLevel());
+        return this.human$getTotalExperience() - xpAtLevel(this.human$getLevel());
     }
 
     public void human$setExperienceSinceLevel(int experience) {
-        this.human$setTotalExperience(human$xpAtLevel(this.experienceLevel) + experience);
+        this.human$setTotalExperience(xpAtLevel(this.experienceLevel) + experience);
     }
 
     public int human$getExperienceBetweenLevels() {

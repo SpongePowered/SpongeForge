@@ -117,14 +117,6 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         return ((SpongeChatComponent) getDisplayName()).toText();
     }
 
-    public boolean playermp$getAllowFlight() {
-        return this.capabilities.allowFlying;
-    }
-
-    public void playermp$setAllowFlight(boolean allowFlight) {
-        this.capabilities.allowFlying = allowFlight;
-    }
-
     public Locale playermp$getLocale() {
         return new Locale(this.translator);
     }
