@@ -119,7 +119,8 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
     }
 
     @Redirect(method = "onUpdate()V", at =
-            @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"))
+            @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z")
+        )
     public boolean onAttackEntityFrom(Entity this$0, DamageSource damageSource, float damage) {
         PlayerHookedEntityEvent event = SpongeEventFactory.createPlayerHookedEntityEvent(SpongeMod.instance.getGame(), (Player) this.angler, this,
                 (org.spongepowered.api.entity.Entity) this$0);

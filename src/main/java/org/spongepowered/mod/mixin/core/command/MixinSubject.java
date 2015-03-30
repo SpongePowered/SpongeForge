@@ -52,7 +52,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
- * Mixin to provvide a common implementation of subject that refers to the installed permissions service for a subject
+ * Mixin to provide a common implementation of subject that refers to the installed permissions service for a subject.
  */
 @NonnullByDefault
 @Mixin({EntityPlayerMP.class, CommandBlockLogic.class, MinecraftServer.class})

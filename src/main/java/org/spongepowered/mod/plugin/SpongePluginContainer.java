@@ -115,7 +115,7 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
     @SuppressWarnings("unchecked")
     public void handleModStateEvent(FMLStateEvent event) {
         Class<? extends FMLEvent> eventClass = event.getClass();
-        Class<? extends Event> spongeEvent = (Class<? extends Event>) EventRegistry.getAPIClass(eventClass);
+        Class<? extends Event> spongeEvent = (Class<? extends Event>) EventRegistry.getApiClass(eventClass);
         if (this.stateEventHandlers.containsKey(spongeEvent)) {
             Method method = null;
             try {

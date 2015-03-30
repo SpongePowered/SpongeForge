@@ -50,7 +50,9 @@ public class SpongeFurnaceBuilder extends SpongeLockableBuilder<Furnace> {
         if (container.contains(new DataQuery("CustomName"))) {
             ((TileEntityFurnace) furnace).setCustomInventoryName(container.getString(new DataQuery("CustomName")).get());
         }
-        if (!container.contains(new DataQuery("BurnTime")) || !container.contains(new DataQuery("CookTime")) || !container.contains(new DataQuery("CookTimeTotal"))) {
+        if (!container.contains(new DataQuery("BurnTime"))
+                || !container.contains(new DataQuery("CookTime"))
+                || !container.contains(new DataQuery("CookTimeTotal"))) {
             throw new InvalidDataException("The provided container does not contain the data to make a Hopper!");
         }
         // TODO Write FurnaceData

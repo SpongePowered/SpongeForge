@@ -58,7 +58,8 @@ public class SpongeTextColor implements TextColor.Base {
         return this.color;
     }
 
-    @Override @Deprecated
+    @Override
+    @Deprecated
     public char getCode() {
         return this.handle.formattingCode;
     }

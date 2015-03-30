@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.entity;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -429,8 +428,8 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @SuppressWarnings("unchecked")
     private void teleportEntity(net.minecraft.entity.Entity entity, Location location, int currentDim, int targetDim) {
         MinecraftServer mcServer = MinecraftServer.getServer();
-        WorldServer fromWorld = mcServer.worldServerForDimension(currentDim);
-        WorldServer toWorld = mcServer.worldServerForDimension(targetDim);
+        final WorldServer fromWorld = mcServer.worldServerForDimension(currentDim);
+        final WorldServer toWorld = mcServer.worldServerForDimension(targetDim);
         if (entity instanceof EntityPlayer) {
             fromWorld.getEntityTracker().removePlayerFromTrackers((EntityPlayerMP) entity);
             fromWorld.getPlayerManager().removePlayer((EntityPlayerMP) entity);

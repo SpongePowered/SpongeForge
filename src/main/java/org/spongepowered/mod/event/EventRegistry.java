@@ -84,7 +84,7 @@ public class EventRegistry {
         return eventMap.inverse().get(apiClass);
     }
 
-    public static Class<?> getAPIClass(Class<?> implementingClass) {
+    public static Class<?> getApiClass(Class<?> implementingClass) {
         return eventMap.get(implementingClass);
     }
 

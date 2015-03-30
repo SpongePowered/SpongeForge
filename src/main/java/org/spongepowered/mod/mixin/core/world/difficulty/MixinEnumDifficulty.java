@@ -24,10 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.world.difficulty;
 
-import org.spongepowered.asm.mixin.Mixin;
-
-import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.difficulty.Difficulty;
+
+import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.EnumDifficulty.class)

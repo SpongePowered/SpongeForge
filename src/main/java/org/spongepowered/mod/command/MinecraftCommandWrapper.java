@@ -45,7 +45,7 @@ import org.spongepowered.mod.SpongeMod;
 import java.util.List;
 
 /**
- * Wrapper around ICommands so they fit into the Sponge command system
+ * Wrapper around ICommands so they fit into the Sponge command system.
  */
 public class MinecraftCommandWrapper implements CommandCallable {
     private static final String

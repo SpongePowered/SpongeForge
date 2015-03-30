@@ -96,11 +96,9 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
     private int xpAtLevel(int level) {
         if (level > 30) {
             return (int) (4.5 * Math.pow(level, 2) - 162.5 * level + 2220);
-        }
-        else if (level > 15) {
+        } else if (level > 15) {
             return (int) (2.5 * Math.pow(level, 2) - 40.5 * level + 360);
-        }
-        else {
+        } else {
             return (int) (Math.pow(level, 2) + 6 * level);
         }
     }

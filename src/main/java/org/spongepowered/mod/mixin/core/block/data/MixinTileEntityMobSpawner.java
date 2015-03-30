@@ -56,7 +56,7 @@ public abstract class MixinTileEntityMobSpawner extends MixinTileEntity {
 
     public void mobspawner$spawnEntityBatchImmediately(boolean force) {
         if (force) {
-            short oldMaxNearby = (short) getSpawnerBaseLogic().maxNearbyEntities;
+            final short oldMaxNearby = (short) getSpawnerBaseLogic().maxNearbyEntities;
             getSpawnerBaseLogic().maxNearbyEntities = Short.MAX_VALUE;
 
             getSpawnerBaseLogic().spawnDelay = 0;

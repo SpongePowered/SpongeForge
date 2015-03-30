@@ -141,8 +141,9 @@ public class SpongeTextFactory implements TextFactory {
 
     @Override
     public Text.Literal parseLegacyMessage(String text, char code) {
-        if (text.length() <= 1)
+        if (text.length() <= 1) {
             return Texts.of(text);
+        }
 
         Matcher matcher = (code == SpongeText.COLOR_CHAR ? FORMATTING_PATTERN :
                 Pattern.compile(code + "([0-9A-FK-OR])", CASE_INSENSITIVE)).matcher(text);

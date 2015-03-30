@@ -48,7 +48,9 @@ public class SpongeCommandBlockBuilder extends AbstractTileBuilder<CommandBlock>
             throw new InvalidDataException("The container had insufficient data to create a CommandBlock tile entity!");
         }
         CommandBlock commandblock = commandblockOptional.get();
-        if (!container.contains(new DataQuery("StoredCommand")) || !container.contains(new DataQuery("SuccessCount")) || !container.contains(new DataQuery("DoesTrackOutput"))) {
+        if (!container.contains(new DataQuery("StoredCommand"))
+                || !container.contains(new DataQuery("SuccessCount"))
+                || !container.contains(new DataQuery("DoesTrackOutput"))) {
             throw new InvalidDataException("The provided container does not contain the data to make a CommandBlock!");
         }
         // TODO Write CommandBlockData

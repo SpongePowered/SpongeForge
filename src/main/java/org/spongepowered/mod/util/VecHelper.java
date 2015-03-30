@@ -51,11 +51,6 @@ public final class VecHelper {
         return new Vector3i(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    // === Flow Vector --> Rotations ===
-
-    public static Rotations toRotation(Vector3d vector) {
-        return new Rotations((float) vector.getX(), (float) vector.getY(), (float) vector.getZ());
-    }
 
     // === Rotations --> Flow Vector ===
 
@@ -87,4 +82,8 @@ public final class VecHelper {
         return new Vec3(vector.getX(), vector.getY(), vector.getZ());
     }
 
+    // === Flow Vector --> Rotations ===
+    public static Rotations toRotation(Vector3d vector) {
+        return new Rotations((float) vector.getX(), (float) vector.getY(), (float) vector.getZ());
+    }
 }

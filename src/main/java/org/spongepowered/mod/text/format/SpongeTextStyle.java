@@ -49,6 +49,7 @@ public class SpongeTextStyle extends TextStyle.Base {
     }
 
     @Override
+    @Deprecated
     public char getCode() {
         return this.handle.formattingCode;
     }

@@ -3,4 +3,5 @@
 
 <suppressions>
     <suppress checks="(JavadocMethod|(Method|Member|Parameter|LocalVariable)Name)" files="^src[\\/](main|test)[\\/]java"/>
+    <suppress checks="AbbreviationAsWordInName" files="^src[\\/]main[\\/]java[\\/]org[\\/]spongepowered[\\/]mod[\\/]mixin"/>
 </suppressions>

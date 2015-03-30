@@ -57,11 +57,11 @@ public class SpongeBannerBuilder extends AbstractTileBuilder<Banner> {
         if (!bannerOptional.isPresent()) {
             throw new InvalidDataException("The container had insufficient data to create a Banner tile entity!");
         }
-        Banner banner = bannerOptional.get();
+        final Banner banner = bannerOptional.get();
         if (!container.contains(BASE) || !container.contains(PATTERNS)) {
             throw new InvalidDataException("The provided container does not contain the data to make a Banner!");
         }
-        SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
+        final SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
         Optional<DyeColor> colorOptional = container.getSerializable(BASE, DyeColor.class, service);
         if (!colorOptional.isPresent()) {
             throw new InvalidDataException("The provided container has an invalid dye color entry!");

@@ -48,7 +48,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
-                MixinBootstrap.TRANSFORMER_CLASS,
+            MixinBootstrap.TRANSFORMER_CLASS,
         };
     }
 

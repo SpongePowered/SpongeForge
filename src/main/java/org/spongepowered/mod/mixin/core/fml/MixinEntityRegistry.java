@@ -89,7 +89,7 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
     @Override
     public void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
             int updateFrequency, boolean sendsVelocityUpdates) {
-        ModContainer activeModContainer = Loader.instance().activeModContainer();
+        final ModContainer activeModContainer = Loader.instance().activeModContainer();
         String modId = "unknown";
         // fixup bad entity names from mods
         if (entityName.contains(".")) {

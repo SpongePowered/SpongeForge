@@ -48,7 +48,8 @@ public class ChatComponentIterator extends UnmodifiableIterator<IChatComponent> 
         return this.children == null || (this.currentChildIterator != null && this.currentChildIterator.hasNext()) || this.children.hasNext();
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     public IChatComponent next() {
         if (!hasNext()) {
             throw new NoSuchElementException();

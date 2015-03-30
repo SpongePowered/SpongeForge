@@ -52,25 +52,25 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.ProviderExistsException;
 import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.command.SimpleCommandService;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.sql.SqlService;
-import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.mod.command.CommandSponge;
-import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.interfaces.IMixinServerCommandManager;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
+import org.spongepowered.mod.service.permission.SpongeContextCalculator;
+import org.spongepowered.mod.service.permission.SpongePermissionService;
+import org.spongepowered.mod.service.persistence.SpongeSerializationService;
 import org.spongepowered.mod.service.scheduler.AsyncScheduler;
 import org.spongepowered.mod.service.scheduler.SyncScheduler;
 import org.spongepowered.mod.service.sql.SqlServiceImpl;
-import org.spongepowered.mod.service.persistence.SpongeSerializationService;
 import org.spongepowered.mod.util.SpongeHooks;
-import org.spongepowered.mod.service.permission.SpongePermissionService;
-import org.spongepowered.mod.service.permission.SpongeContextCalculator;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,13 +106,13 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             logger.warn("Non-Sponge CommandService already registered: " + e.getLocalizedMessage());
         }
         try {
-            game.getServiceManager().setProvider(this, SqlService.class, new SqlServiceImpl());
+            this.game.getServiceManager().setProvider(this, SqlService.class, new SqlServiceImpl());
         } catch (ProviderExistsException e) {
             logger.warn("Non-Sponge SqlService already registered: " + e.getLocalizedMessage());
         }
         try {
-            game.getServiceManager().setProvider(this, SynchronousScheduler.class, SyncScheduler.getInstance());
-            game.getServiceManager().setProvider(this, AsynchronousScheduler.class, AsyncScheduler.getInstance());
+            this.game.getServiceManager().setProvider(this, SynchronousScheduler.class, SyncScheduler.getInstance());
+            this.game.getServiceManager().setProvider(this, AsynchronousScheduler.class, AsyncScheduler.getInstance());
         } catch (ProviderExistsException e) {
             logger.error("Non-Sponge scheduler has been registered. Cannot continue!");
             FMLCommonHandler.instance().exitJava(1, false);
@@ -162,23 +162,27 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     @Subscribe
     public void onPreInit(FMLPreInitializationEvent e) {
-        MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
+        try {
+            MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 
-        game.getServiceManager().potentiallyProvide(PermissionService.class).executeWhenPresent(new Predicate<PermissionService>() {
-            @Override
-            public boolean apply(PermissionService input) {
-                input.registerContextCalculator(new SpongeContextCalculator());
-                return true;
+            this.game.getServiceManager().potentiallyProvide(PermissionService.class).executeWhenPresent(new Predicate<PermissionService>() {
+                @Override
+                public boolean apply(PermissionService input) {
+                    input.registerContextCalculator(new SpongeContextCalculator());
+                    return true;
+                }
+            });
+
+            // Add the SyncScheduler as a listener for ServerTickEvents
+            FMLCommonHandler.instance().bus().register(this.getGame().getSyncScheduler());
+
+            if (e.getSide() == Side.SERVER) {
+                SpongeHooks.enableThreadContentionMonitoring();
             }
-        });
-
-        // Add the SyncScheduler as a listener for ServerTickEvents
-        FMLCommonHandler.instance().bus().register(this.getGame().getSyncScheduler());
-
-        if (e.getSide() == Side.SERVER) {
-            SpongeHooks.enableThreadContentionMonitoring();
+            this.registry.preInit();
+        } catch (Throwable t) {
+            this.controller.errorOccurred(this, t);
         }
-        this.registry.preInit();
     }
 
     @Subscribe
@@ -189,10 +193,11 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
                 try {
                     this.game.getServiceManager().setProvider(this, PermissionService.class, new SpongePermissionService());
                 } catch (ProviderExistsException e1) {
+                    // It's a fallback, ignore
                 }
             }
         } catch (Throwable t) {
-            logger.error("On init", t);
+            this.controller.errorOccurred(this, t);
         }
     }
 
@@ -205,19 +210,28 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
             ((SpongeSerializationService) service).completeRegistration();
         } catch (Throwable t) {
-            logger.error("On Sponge post init", t);
+            this.controller.errorOccurred(this, t);
         }
     }
 
     @Subscribe
     public void onServerStarting(FMLServerStartingEvent e) {
-        e.registerServerCommand(new CommandSponge());
+        try {
+            e.registerServerCommand(new CommandSponge());
+        } catch (Throwable t) {
+            this.controller.errorOccurred(this, t);
+        }
     }
 
     @Subscribe
     public void onServerStopped(FMLServerStoppedEvent e) throws IOException {
-        ((SqlServiceImpl) getGame().getServiceManager().provideUnchecked(SqlService.class)).close();
+        try {
+            ((SqlServiceImpl) getGame().getServiceManager().provideUnchecked(SqlService.class)).close();
+        } catch (Throwable t) {
+            this.controller.errorOccurred(this, t);
+        }
     }
+
     @Override
     public String getId() {
         return getModId();

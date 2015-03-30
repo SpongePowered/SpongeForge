@@ -45,8 +45,7 @@ public class CoreMixinPlugin implements IMixinConfigPlugin {
     @Override
     public void onLoad(String mixinPackage) {
         try {
-            GLOBAL_CONFIG = new SpongeConfig<SpongeConfig.GlobalConfig>(SpongeConfig.Type.GLOBAL, new File(SPONGE_CONFIG_DIR, "global" +
-                    ".conf"),
+            GLOBAL_CONFIG = new SpongeConfig<SpongeConfig.GlobalConfig>(SpongeConfig.Type.GLOBAL, new File(SPONGE_CONFIG_DIR, "global" + ".conf"),
                     "sponge");
         } catch (Throwable t) {
             LogManager.getLogger().error(ExceptionUtils.getStackTrace(t));

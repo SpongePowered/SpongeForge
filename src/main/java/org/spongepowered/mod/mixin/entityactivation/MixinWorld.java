@@ -76,7 +76,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
             canUpdate = event.canUpdate;
         }
 
-        if (!isForcedChunk && !canUpdate && !ActivationRange.checkIfActive(entity)) { // ignore if forge event forced update or entity is in forced chunk
+        if (!isForcedChunk && !canUpdate && !ActivationRange.checkIfActive(entity)) { // ignore if forced by forge event update or entity's chunk
             entity.ticksExisted++;
             ((IMixinEntity) entity).inactiveTick();
             return;

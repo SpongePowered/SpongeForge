@@ -72,13 +72,14 @@ public class ActivationRange {
      * Initializes an entities type on construction to specify what group this
      * entity is in for activation ranges.
      *
-     * @param entity
+     * @param entity Entity to get type for
      * @return group id
      */
     public static byte initializeEntityActivationType(Entity entity) {
 
         // account for entities that dont extend EntityMob, EntityAmbientCreature, EntityCreature
-        if (((IMob.class.isAssignableFrom(entity.getClass()) || IRangedAttackMob.class.isAssignableFrom(entity.getClass())) && (entity.getClass() != EntityMob.class))
+        if (((IMob.class.isAssignableFrom(entity.getClass())
+                || IRangedAttackMob.class.isAssignableFrom(entity.getClass())) && (entity.getClass() != EntityMob.class))
                 || entity.isCreatureType(EnumCreatureType.MONSTER, false)) {
             return 1; // Monster
         } else if (((EntityAnimal.class.isAssignableFrom(entity.getClass()) && !entity.isCreatureType(EnumCreatureType.AMBIENT, false)) || entity
@@ -96,7 +97,7 @@ public class ActivationRange {
     /**
      * These entities are excluded from Activation range checks.
      *
-     * @param entity
+     * @param entity Entity to check
      * @return boolean If it should always tick.
      */
     public static boolean initializeEntityActivationState(Entity entity) {
@@ -130,14 +131,13 @@ public class ActivationRange {
      * Utility method to grow an AABB without creating a new AABB or touching
      * the pool, so we can re-use ones we have.
      *
-     * @param target
-     * @param source
-     * @param x
-     * @param y
-     * @param z
+     * @param target The AABB to modify
+     * @param source The AABB to get initial coordinates from
+     * @param x The x value to expand by
+     * @param y The y value to expand by
+     * @param z The z value to expand by
      */
-    public static void growBB(AxisAlignedBB target, AxisAlignedBB source, int x, int y, int z)
-    {
+    public static void growBb(AxisAlignedBB target, AxisAlignedBB source, int x, int y, int z) {
         target.minX = source.minX - x;
         target.minY = source.minY - y;
         target.minZ = source.minZ - z;
@@ -150,7 +150,7 @@ public class ActivationRange {
      * Find what entities are in range of the players in the world and set
      * active if in range.
      *
-     * @param world
+     * @param world The world to perform activation checks in
      */
     public static void activateEntities(World world) {
         SpongeConfig.EntityActivationRangeCategory config = getActiveConfig(world).getConfig().getEntityActivationRange();
@@ -175,12 +175,12 @@ public class ActivationRange {
 
             Entity player = (Entity) entity;
             ((IMixinEntity) player).setActivatedTick(world.getWorldInfo().getWorldTotalTime());
-            growBB(maxBB, player.getEntityBoundingBox(), maxRange, 256, maxRange);
-            growBB(miscBB, player.getEntityBoundingBox(), miscActivationRange, 256, miscActivationRange);
-            growBB(creatureBB, player.getEntityBoundingBox(), creatureActivationRange, 256, creatureActivationRange);
-            growBB(monsterBB, player.getEntityBoundingBox(), monsterActivationRange, 256, monsterActivationRange);
-            growBB(aquaticBB, player.getEntityBoundingBox(), aquaticActivationRange, 256, aquaticActivationRange);
-            growBB(ambientBB, player.getEntityBoundingBox(), ambientActivationRange, 256, ambientActivationRange);
+            growBb(maxBB, player.getEntityBoundingBox(), maxRange, 256, maxRange);
+            growBb(miscBB, player.getEntityBoundingBox(), miscActivationRange, 256, miscActivationRange);
+            growBb(creatureBB, player.getEntityBoundingBox(), creatureActivationRange, 256, creatureActivationRange);
+            growBb(monsterBB, player.getEntityBoundingBox(), monsterActivationRange, 256, monsterActivationRange);
+            growBb(aquaticBB, player.getEntityBoundingBox(), aquaticActivationRange, 256, aquaticActivationRange);
+            growBb(ambientBB, player.getEntityBoundingBox(), ambientActivationRange, 256, ambientActivationRange);
 
             int i = MathHelper.floor_double(maxBB.minX / 16.0D);
             int j = MathHelper.floor_double(maxBB.maxX / 16.0D);
@@ -201,15 +201,14 @@ public class ActivationRange {
     /**
      * Checks for the activation state of all entities in this chunk.
      *
-     * @param chunk
+     * @param chunk Chunk to check for activation
      */
     @SuppressWarnings("rawtypes")
     private static void activateChunkEntities(Chunk chunk) {
         for (int i = 0; i < chunk.getEntityLists().length; ++i) {
-            Iterator iterator = chunk.getEntityLists()[i].iterator();
 
-            while (iterator.hasNext()) {
-                Entity entity = (Entity) iterator.next();
+            for (Object o : chunk.getEntityLists()[i]) {
+                Entity entity = (Entity) o;
                 SpongeConfig<?> config = getActiveConfig(entity.worldObj);
                 SpongeEntityType type = (SpongeEntityType) ((org.spongepowered.api.entity.Entity) entity).getType();
                 if (entity.worldObj.getWorldInfo().getWorldTotalTime() > ((IMixinEntity) entity).getActivatedTick()) {
@@ -219,8 +218,8 @@ public class ActivationRange {
                     }
                     if (!config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), "enabled").getBoolean()
                             || !config.getRootNode()
-                                    .getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), "entities", type.getEntityName())
-                                    .getBoolean()) {
+                            .getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), "entities", type.getEntityName())
+                            .getBoolean()) {
                         continue;
                     }
                     switch (((IMixinEntity) entity).getActivationType()) {
@@ -259,8 +258,8 @@ public class ActivationRange {
      * If an entity is not in range, do some more checks to see if we should
      * give it a shot.
      *
-     * @param entity
-     * @return
+     * @param entity Entity to check
+     * @return Whether entity should still be maintained active
      */
     public static boolean checkEntityImmunities(Entity entity) {
         return false;
@@ -269,8 +268,8 @@ public class ActivationRange {
     /**
      * Checks if the entity is active for this tick.
      *
-     * @param entity
-     * @return
+     * @param entity The entity to check for activity
+     * @return Whether the given entity should be active
      */
     public static boolean checkIfActive(Entity entity) {
         if (entity.worldObj.isRemote) {

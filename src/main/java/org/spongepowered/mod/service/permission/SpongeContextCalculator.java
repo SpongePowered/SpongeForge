@@ -25,21 +25,18 @@
 package org.spongepowered.mod.service.permission;
 
 import com.google.common.base.Optional;
-import net.minecraftforge.event.world.NoteBlockEvent;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.context.Context;
 import org.spongepowered.api.service.permission.context.ContextCalculator;
 import org.spongepowered.api.util.command.CommandSource;
-import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.extent.Extent;
-import org.spongepowered.mod.command.CommandSponge;
 
 import java.util.Set;
 
 /**
- * A context calculator handling world contexts
+ * A context calculator handling world contexts.
  */
 public class SpongeContextCalculator implements ContextCalculator {
     @Override

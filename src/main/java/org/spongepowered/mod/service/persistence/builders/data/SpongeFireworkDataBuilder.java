@@ -53,7 +53,11 @@ public class SpongeFireworkDataBuilder implements DataSerializableBuilder<Firewo
     @Override
     public Optional<FireworkEffect> build(DataView container) throws InvalidDataException {
         checkNotNull(container);
-        if (!container.contains(TYPE) || !container.contains(COLORS) || !container.contains(FADES) || !container.contains(TRAILS) || !container.contains(FLICKERS)) {
+        if (!container.contains(TYPE)
+                || !container.contains(COLORS)
+                || !container.contains(FADES)
+                || !container.contains(TRAILS)
+                || !container.contains(FLICKERS)) {
             throw new InvalidDataException("The container does not have data pertaining to FireworkEffect!");
         }
         String type = container.getString(TYPE).get();
