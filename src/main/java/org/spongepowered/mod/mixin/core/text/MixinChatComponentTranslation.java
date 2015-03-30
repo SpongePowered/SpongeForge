@@ -30,6 +30,7 @@ import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.text.translation.SpongeTranslation;
 
 @Mixin(ChatComponentTranslation.class)
 public abstract class MixinChatComponentTranslation extends MixinChatComponentStyle {
@@ -37,11 +38,9 @@ public abstract class MixinChatComponentTranslation extends MixinChatComponentSt
     @Shadow private String key;
     @Shadow private Object[] formatArgs;
 
-    // TODO: Verify what is needed here
-
     @Override
     protected TextBuilder createBuilder() {
-        return Texts.builder((Translation) null, this.formatArgs);
+        return Texts.builder(new SpongeTranslation(this.key), this.formatArgs);
     }
 
 }
