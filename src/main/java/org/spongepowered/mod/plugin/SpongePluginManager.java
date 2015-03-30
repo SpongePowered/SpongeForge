@@ -27,6 +27,8 @@ package org.spongepowered.mod.plugin;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.MinecraftDummyContainer;
+import net.minecraftforge.fml.common.ModContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -38,6 +40,7 @@ import java.util.List;
 
 @NonnullByDefault
 public class SpongePluginManager implements PluginManager {
+    private static final PluginContainer MINECRAFT_CONTAINER = new WrappedModContainer(Loader.instance().getMinecraftModContainer());
 
     @Override
     public Optional<PluginContainer> getPlugin(String s) {
@@ -59,6 +62,10 @@ public class SpongePluginManager implements PluginManager {
     public Optional<PluginContainer> fromInstance(Object instance) {
         if (instance instanceof PluginContainer) {
             return Optional.of((PluginContainer) instance);
+        } else if (instance instanceof MinecraftDummyContainer) {
+            return Optional.of(MINECRAFT_CONTAINER);
+        } else if (instance instanceof ModContainer) { // For coremods that don't get to be mixed in
+            return getPlugin(((ModContainer) instance).getModId());
         }
         return Optional.fromNullable((PluginContainer) Loader.instance().getReversedModObjectList().get(instance));
     }

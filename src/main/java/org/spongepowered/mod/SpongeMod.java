@@ -29,6 +29,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -60,6 +61,7 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
+import org.spongepowered.mod.interfaces.IMixinServerCommandManager;
 import org.spongepowered.mod.plugin.SpongePluginContainer;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.service.scheduler.AsyncScheduler;
@@ -121,6 +123,9 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         } catch (ProviderExistsException e2) {
             logger.warn("Non-Sponge SerializationService already registered: " + e2.getLocalizedMessage());
         }
+
+        // Register vanilla-style commands
+        ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerEarlyCommands(this.game);
     }
 
     @Override
@@ -192,10 +197,16 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     }
 
     @Subscribe
-    public void onInitialization(FMLPostInitializationEvent e) {
-        this.registry.postInit();
-        SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
-        ((SpongeSerializationService) service).completeRegistration();
+    public void onPostInitialization(FMLPostInitializationEvent e) {
+        try {
+            this.registry.postInit();
+            // Register MC commands
+            ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
+            SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
+            ((SpongeSerializationService) service).completeRegistration();
+        } catch (Throwable t) {
+            logger.error("On Sponge post init", t);
+        }
     }
 
     @Subscribe
