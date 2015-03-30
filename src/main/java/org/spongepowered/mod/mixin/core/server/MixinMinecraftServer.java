@@ -228,6 +228,11 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
     }
 
     @Override
+    public ConsoleSource getConsole() {
+        return this;
+    }
+
+    @Override
     public void shutdown(Text kickMessage) {
         /*for (Player player : getOnlinePlayers()) {
             ((EntityPlayerMP) player).playerNetServerHandler.kickPlayerFromServer(kickMessage.toLegacy()); //TODO update with the new Text API
