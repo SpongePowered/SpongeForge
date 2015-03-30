@@ -41,12 +41,6 @@ import org.spongepowered.asm.mixin.Shadow;
 public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable {
 
     @Shadow
-    public abstract int getField(int id);
-
-    @Shadow
-    public abstract void setField(int id, int value);
-
-    @Shadow
     private String furnaceCustomName;
 
     @Override

@@ -48,12 +48,6 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(net.minecraft.tileentity.TileEntityBeacon.class)
 public abstract class MixinTileEntityBeacon extends MixinTileEntityLockable {
 
-    @Shadow
-    public abstract int getField(int id);
-
-    @Shadow
-    public abstract void setField(int id, int value);
-
     @Override
     public TileEntityType getType() {
         return TileEntityTypes.BEACON;

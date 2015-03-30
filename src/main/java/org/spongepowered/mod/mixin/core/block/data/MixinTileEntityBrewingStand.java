@@ -43,12 +43,6 @@ public abstract class MixinTileEntityBrewingStand extends MixinTileEntityLockabl
     @Shadow
     private String customName;
 
-    @Shadow
-    public abstract int getField(int id);
-
-    @Shadow
-    public abstract void setField(int id, int value);
-
     @Override
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
