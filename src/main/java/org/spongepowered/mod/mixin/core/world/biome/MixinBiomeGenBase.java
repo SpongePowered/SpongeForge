@@ -27,10 +27,62 @@ package org.spongepowered.mod.mixin.core.world.biome;
 import net.minecraft.world.biome.BiomeGenBase;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.biome.BiomeType;
+import org.spongepowered.api.world.gen.Populator;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(BiomeGenBase.class)
 public abstract class MixinBiomeGenBase implements BiomeType {
+
+    @Shadow
+    public String biomeName;
+
+    @Shadow
+    public float temperature;
+
+    @Shadow
+    public float rainfall;
+
+    @Shadow
+    public float minHeight;
+
+    @Shadow
+    public float maxHeight;
+
+    private final List<Populator> populators = new ArrayList<Populator>();
+
+    @Override
+    public String getName() {
+        return this.biomeName;
+    }
+
+    @Override
+    public double getTemperature() {
+        return this.temperature;
+    }
+
+    @Override
+    public double getHumidity() {
+        return this.rainfall;
+    }
+
+    @Override
+    public float getMinHeight() {
+        return this.minHeight;
+    }
+
+    @Override
+    public float getMaxHeight() {
+        return this.maxHeight;
+    }
+
+    @Override
+    public List<Populator> getPopulators() {
+        return this.populators;
+    }
 
 }

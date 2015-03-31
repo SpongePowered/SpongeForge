@@ -31,7 +31,9 @@ import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.network.Packet;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
@@ -41,6 +43,7 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.WorldChunkManager;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.storage.ISaveHandler;
@@ -61,6 +64,10 @@ import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldBorder;
 import org.spongepowered.api.world.biome.BiomeType;
+import org.spongepowered.api.world.gen.BiomeGenerator;
+import org.spongepowered.api.world.gen.GeneratorPopulator;
+import org.spongepowered.api.world.gen.Populator;
+import org.spongepowered.api.world.gen.WorldGenerator;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
 import org.spongepowered.asm.mixin.Mixin;
@@ -76,6 +83,9 @@ import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.util.SpongeHooks;
 import org.spongepowered.mod.util.VecHelper;
+import org.spongepowered.mod.world.gen.CustomChunkProviderGenerate;
+import org.spongepowered.mod.world.gen.CustomWorldChunkManager;
+import org.spongepowered.mod.world.gen.SpongeWorldGenerator;
 import org.spongepowered.mod.wrapper.BlockWrapper;
 
 import java.io.File;
@@ -93,6 +103,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     private boolean keepSpawnLoaded;
     public SpongeConfig<SpongeConfig.WorldConfig> worldConfig;
+    private ImmutableList<Populator> populators = ImmutableList.of();
 
     @Shadow
     public WorldProvider provider;
@@ -130,6 +141,9 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     @Shadow
     public abstract IChunkProvider getChunkProvider();
+
+    @Shadow
+    public abstract WorldChunkManager getWorldChunkManager();
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client,
@@ -481,17 +495,6 @@ public abstract class MixinWorld implements World, IMixinWorld {
         return ruleMap;
     }
 
-    @Override
-    public long getWorldSeed() {
-        return this.getSeed();
-    }
-
-    @Override
-    public void setSeed(long seed) {
-        this.worldInfo.randomSeed = seed;
-        this.rand.setSeed(seed);
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public Iterable<Chunk> getLoadedChunks() {
@@ -504,5 +507,44 @@ public abstract class MixinWorld implements World, IMixinWorld {
             return false;
         }
         return chunk.unloadChunk();
+    }
+
+    @Override
+    public void setWorldGenerator(WorldGenerator worldGenerator) {
+        Preconditions.checkNotNull(worldGenerator, "worldGenerator");
+ 
+        // Replace seed
+        this.setSeed(worldGenerator.getSeed());
+
+        // Replace biome generator
+        BiomeGenerator biomeGenerator = worldGenerator.getBiomeGenerator();
+        WorldServer thisWorld = (WorldServer) (Object) this;
+        thisWorld.provider.worldChunkMgr = CustomWorldChunkManager.of(biomeGenerator);
+
+        // Replace generator populator
+        GeneratorPopulator generatorPopulator = worldGenerator.getGeneratorPopulator();
+        replaceChunkGenerator(CustomChunkProviderGenerate.of(thisWorld, generatorPopulator, biomeGenerator));
+
+        // Replace populators
+        this.populators = ImmutableList.copyOf(worldGenerator.getPopulators());
+    }
+
+    private void replaceChunkGenerator(IChunkProvider provider) {
+        ChunkProviderServer chunkProviderServer = (ChunkProviderServer) this.getChunkProvider();
+        chunkProviderServer.serverChunkGenerator = provider;
+    }
+
+    private void setSeed(long seed) {
+        this.worldInfo.randomSeed = seed;
+        this.rand.setSeed(seed);
+    }
+
+    @Override
+    public WorldGenerator getWorldGenerator() {
+        // We have to create a new instance every time to satisfy the contract
+        // of this method, namely that changing the state of the returned
+        // instance does not affect the world without setWorldGenerator being
+        // called
+        return new SpongeWorldGenerator((WorldServer) (Object) this, this.populators);
     }
 }

@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.gen.WorldGenerator;
+import org.spongepowered.api.world.gen.WorldGeneratorProvider;
 
 import java.util.Collection;
 import java.util.List;
@@ -66,5 +68,14 @@ public class SpongePluginManager implements PluginManager {
     @Override
     public boolean isLoaded(String s) {
         return Loader.isModLoaded(s);
+    }
+
+    @Override
+    public void modifyWorldGenerator(PluginContainer plugin, String worldName, String settings, WorldGenerator worldGenerator) {
+        Object pluginInstance = plugin.getInstance();
+        if (pluginInstance instanceof WorldGeneratorProvider) {
+            WorldGeneratorProvider worldGeneratorProvider = (WorldGeneratorProvider) pluginInstance;
+            worldGeneratorProvider.modifyWorldGenerator(worldName, settings, worldGenerator);
+        }
     }
 }
