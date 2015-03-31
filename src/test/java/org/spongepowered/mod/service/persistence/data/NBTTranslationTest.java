@@ -26,8 +26,6 @@
 package org.spongepowered.mod.service.persistence.data;
 
 import static org.junit.Assert.assertTrue;
-import static org.spongepowered.mod.service.persistence.DataTranslator.containerToCompound;
-import static org.spongepowered.mod.service.persistence.DataTranslator.getViewFromCompound;
 
 import com.google.common.base.Optional;
 import net.minecraft.nbt.NBTTagCompound;
@@ -39,6 +37,7 @@ import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.mod.service.persistence.NbtTranslator;
 
 public class NBTTranslationTest {
 
@@ -51,9 +50,9 @@ public class NBTTranslationTest {
         container.set(new DataQuery("foo"), "bar");
         FakeSerializable temp = new FakeSerializable("bar", 7, 10.0D, "nested");
         container.set(new DataQuery("myFake"), temp);
-        NBTTagCompound compound = containerToCompound(container);
-        DataView translatedContainer = getViewFromCompound(compound);
-        // assertTrue(container.equals(translatedContainer)); // TODO We need to push the fix for MemoryDataView
+        NBTTagCompound compound = NbtTranslator.getInstance().translateData(container);
+        DataView translatedContainer = NbtTranslator.getInstance().translateFrom(compound);
+        assertTrue(container.equals(translatedContainer));
     }
 
 }

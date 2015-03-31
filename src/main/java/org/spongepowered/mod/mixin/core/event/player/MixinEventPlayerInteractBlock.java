@@ -31,15 +31,15 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
-import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.EntityInteractionTypes;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.wrapper.BlockWrapper;
+import org.spongepowered.mod.util.VecHelper;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
@@ -59,8 +59,8 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
     }
 
     @Override
-    public BlockLoc getBlock() {
-        return new BlockWrapper((org.spongepowered.api.world.World) this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
+    public Location getBlock() {
+        return new Location((org.spongepowered.api.world.World) this.world, VecHelper.toVector(this.pos).toDouble());
     }
 
     @Override

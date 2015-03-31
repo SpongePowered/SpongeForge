@@ -43,6 +43,7 @@ import net.minecraft.nbt.NBTTagString;
 import org.spongepowered.api.service.persistence.DataSerializable;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
+import org.spongepowered.api.service.persistence.data.DataTranslator;
 import org.spongepowered.api.service.persistence.data.DataView;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
@@ -50,17 +51,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class DataTranslator {
+public final class NbtTranslator implements DataTranslator<NBTTagCompound> {
 
-    private DataTranslator() { } // #NOPE
+    private static final NbtTranslator instance = new NbtTranslator();
 
-    public static NBTTagCompound containerToCompound(final DataView container) {
+    public static NbtTranslator getInstance() {
+        return instance;
+    }
+
+    private NbtTranslator() { } // #NOPE
+
+    private static NBTTagCompound containerToCompound(final DataView container) {
         NBTTagCompound compound = new NBTTagCompound();
         containerToCompound(container, compound);
         return compound;
     }
 
-    public static void containerToCompound(final DataView container, final NBTTagCompound compound) {
+    private static void containerToCompound(final DataView container, final NBTTagCompound compound) {
         // We don't need to get deep values since all nested DataViews will be found
         // from the instance of checks.
         for (Map.Entry<DataQuery, Object> entry : container.getValues(false).entrySet()) {
@@ -116,8 +123,8 @@ public final class DataTranslator {
             return list;
         } else if (value instanceof Map) {
             NBTTagCompound compound = new NBTTagCompound();
-            for (Map.Entry<String, Object> entry : ((Map<String, Object>) value).entrySet()) {
-                compound.setTag(entry.getKey(), getBaseFromObject(entry.getValue()));
+            for (Map.Entry<DataQuery, Object> entry : ((Map<DataQuery, Object>) value).entrySet()) {
+                compound.setTag(entry.getKey().asString('.'), getBaseFromObject(entry.getValue()));
             }
             return compound;
         } else if (value instanceof DataSerializable) {
@@ -129,7 +136,7 @@ public final class DataTranslator {
     }
 
     @SuppressWarnings("unchecked")
-    public static DataView getViewFromCompound(NBTTagCompound compound) {
+    private static DataView getViewFromCompound(NBTTagCompound compound) {
         DataContainer container = new MemoryDataContainer();
         for (String key : (Set<String>) compound.getKeySet()) {
             NBTBase base = compound.getTag(key);
@@ -142,21 +149,21 @@ public final class DataTranslator {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static void setInternal(NBTBase base, byte type, DataView view, String key) {
         if (type == 1) {
-            view.set(of(key), ((NBTBase.NBTPrimitive) base).getByte());
+            view.set(of('.', key), ((NBTBase.NBTPrimitive) base).getByte());
         } else if (type == 2) {
-            view.set(of(key), ((NBTBase.NBTPrimitive) base).getShort());
+            view.set(of('.', key), ((NBTBase.NBTPrimitive) base).getShort());
         } else if (type == 3) {
-            view.set(of(key), ((NBTBase.NBTPrimitive) base).getInt());
+            view.set(of('.', key), ((NBTBase.NBTPrimitive) base).getInt());
         } else if (type == 4) {
-            view.set(of(key), ((NBTBase.NBTPrimitive) base).getLong());
+            view.set(of('.', key), ((NBTBase.NBTPrimitive) base).getLong());
         } else if (type == 5) {
-            view.set(of(key), ((NBTBase.NBTPrimitive) base).getFloat());
+            view.set(of('.', key), ((NBTBase.NBTPrimitive) base).getFloat());
         } else if (type == 6) {
-            view.set(of(key), ((NBTBase.NBTPrimitive) base).getDouble());
+            view.set(of('.', key), ((NBTBase.NBTPrimitive) base).getDouble());
         } else if (type == 7) {
-            view.set(of(key), ((NBTTagByteArray) base).getByteArray());
+            view.set(of('.', key), ((NBTTagByteArray) base).getByteArray());
         } else if (type == 8) {
-            view.set(of(key), ((NBTTagString) base).getString());
+            view.set(of('.', key), ((NBTTagString) base).getString());
         } else if (type == 9) {
             NBTTagList list = (NBTTagList) base;
             byte listType = (byte) list.getTagType();
@@ -165,9 +172,9 @@ public final class DataTranslator {
             for (int i = 0; i < count; i++) {
                 objectList.add(fromTagBase(list.get(i), listType));
             }
-            view.set(of(key), objectList);
+            view.set(of('.', key), objectList);
         } else if (type == 10) {
-            DataView internalView = view.createView(of(key));
+            DataView internalView = view.createView(of('.', key));
             NBTTagCompound compound = (NBTTagCompound) base;
             for (String internalKey : (Set<String>) compound.getKeySet()) {
                 NBTBase internalBase = compound.getTag(internalKey);
@@ -179,7 +186,7 @@ public final class DataTranslator {
                 setInternal(internalBase, internalType, internalView, internalKey);
             }
         } else if (type == 11) {
-            view.set(of(key), ((NBTTagIntArray) base).getIntArray());
+            view.set(of('.', key), ((NBTTagIntArray) base).getIntArray());
         }
     }
 
@@ -219,5 +226,20 @@ public final class DataTranslator {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public NBTTagCompound translateData(DataView container) {
+        return NbtTranslator.containerToCompound(container);
+    }
+
+    @Override
+    public void translateContainerToData(NBTTagCompound node, DataView container) {
+        NbtTranslator.containerToCompound(container, node);
+    }
+
+    @Override
+    public DataView translateFrom(NBTTagCompound node) {
+        return NbtTranslator.getViewFromCompound(node);
     }
 }

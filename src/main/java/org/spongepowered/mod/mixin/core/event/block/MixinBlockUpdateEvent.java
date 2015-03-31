@@ -29,9 +29,9 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
-import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.event.block.BlockUpdateEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -47,7 +47,7 @@ public abstract class MixinBlockUpdateEvent extends BlockEvent implements BlockU
     @Shadow
     private final EnumSet<EnumFacing> notifiedSides;
 
-    private Set<BlockLoc> affectedBlocks;
+    private Set<Location> affectedBlocks;
 
     public MixinBlockUpdateEvent(World world, BlockPos pos, IBlockState state, EnumSet<EnumFacing> notifiedSides) {
         super(world, pos, state);
@@ -56,9 +56,9 @@ public abstract class MixinBlockUpdateEvent extends BlockEvent implements BlockU
     }
 
     @Override
-    public Collection<BlockLoc> getAffectedBlocks() {
+    public Collection<Location> getAffectedBlocks() {
         if(this.affectedBlocks == null) {
-            this.affectedBlocks = new HashSet<BlockLoc>();
+            this.affectedBlocks = new HashSet<Location>();
             for(EnumFacing notifiedSide : notifiedSides) {
                 BlockPos offset = pos.offset(notifiedSide);
                 this.affectedBlocks.add(((org.spongepowered.api.world.World) world).getFullBlock(offset.getX(), offset.getY(), offset.getZ()));

@@ -29,18 +29,18 @@ import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.common.util.Constants;
-import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.block.tile.TileEntity;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.mod.wrapper.BlockWrapper;
+import org.spongepowered.mod.util.VecHelper;
 
 @NonnullByDefault
 @Mixin(net.minecraft.tileentity.TileEntity.class)
@@ -59,8 +59,8 @@ public abstract class MixinTileEntity implements TileEntity {
     public abstract NBTTagCompound getTileData();
 
     @Override
-    public BlockLoc getBlock() {
-        return new BlockWrapper((World) this.worldObj, getPos());
+    public Location getBlock() {
+        return new Location((World) this.worldObj, VecHelper.toVector(this.getPos()).toDouble());
     }
 
     @Override

@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.item;
 
-import static org.spongepowered.mod.service.persistence.DataTranslator.containerToCompound;
+import static org.spongepowered.mod.service.persistence.NbtTranslator.getInstance;
 
 import com.google.common.base.Optional;
 import net.minecraft.block.Block;
@@ -106,7 +106,7 @@ public final class ItemsHelper {
         if (data instanceof AbstractItemData) {
             return ((AbstractItemData) data).putData((net.minecraft.item.ItemStack) stack);
         } else {
-            containerToCompound(data.toContainer(), compound);
+            getInstance().translateContainerToData(compound, data.toContainer());
             return SUCCESS_NO_REPLACEMENTS;
         }
     }

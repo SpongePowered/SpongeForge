@@ -28,15 +28,15 @@ import com.google.common.base.Optional;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.event.block.BlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.wrapper.BlockWrapper;
+import org.spongepowered.mod.util.VecHelper;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)
@@ -49,8 +49,8 @@ public abstract class MixinEventBlock extends Event implements BlockEvent {
     public net.minecraft.world.World world;
 
     @Override
-    public BlockLoc getBlock() {
-        return new BlockWrapper((World) this.world, this.pos);
+    public Location getBlock() {
+        return new Location((World) this.world, VecHelper.toVector(this.pos).toDouble());
     }
 
     @Override

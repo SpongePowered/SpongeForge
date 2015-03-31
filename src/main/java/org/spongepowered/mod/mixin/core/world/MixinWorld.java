@@ -47,7 +47,6 @@ import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
-import org.spongepowered.api.block.BlockLoc;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.sound.SoundType;
@@ -58,6 +57,7 @@ import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Dimension;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldBorder;
 import org.spongepowered.api.world.biome.BiomeType;
@@ -75,8 +75,6 @@ import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
 import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.util.SpongeHooks;
-import org.spongepowered.mod.util.VecHelper;
-import org.spongepowered.mod.wrapper.BlockWrapper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -205,13 +203,13 @@ public abstract class MixinWorld implements World, IMixinWorld {
     }
 
     @Override
-    public BlockLoc getFullBlock(Vector3i position) {
-        return new BlockWrapper(this, VecHelper.toBlockPos(position));
+    public Location getFullBlock(Vector3i position) {
+        return new Location(this, position.toDouble());
     }
 
     @Override
-    public BlockLoc getFullBlock(int x, int y, int z) {
-        return new BlockWrapper(this, x, y, z);
+    public Location getFullBlock(int x, int y, int z) {
+        return new Location(this, new Vector3d(x, y, z));
     }
 
     @Override
