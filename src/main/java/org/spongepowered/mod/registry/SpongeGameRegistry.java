@@ -75,17 +75,17 @@ import org.spongepowered.api.block.tile.DaylightDetector;
 import org.spongepowered.api.block.tile.EnchantmentTable;
 import org.spongepowered.api.block.tile.EndPortal;
 import org.spongepowered.api.block.tile.EnderChest;
-import org.spongepowered.api.block.tile.TileEntityType;
-import org.spongepowered.api.block.tile.carrier.Furnace;
-import org.spongepowered.api.block.tile.carrier.Hopper;
 import org.spongepowered.api.block.tile.MobSpawner;
 import org.spongepowered.api.block.tile.Note;
 import org.spongepowered.api.block.tile.Sign;
 import org.spongepowered.api.block.tile.Skull;
+import org.spongepowered.api.block.tile.TileEntityType;
 import org.spongepowered.api.block.tile.carrier.BrewingStand;
 import org.spongepowered.api.block.tile.carrier.Chest;
 import org.spongepowered.api.block.tile.carrier.Dispenser;
 import org.spongepowered.api.block.tile.carrier.Dropper;
+import org.spongepowered.api.block.tile.carrier.Furnace;
+import org.spongepowered.api.block.tile.carrier.Hopper;
 import org.spongepowered.api.block.tile.data.BannerData;
 import org.spongepowered.api.block.tile.data.BannerPatternShape;
 import org.spongepowered.api.block.tile.data.BannerPatternShapes;
@@ -103,12 +103,6 @@ import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
 import org.spongepowered.api.entity.hanging.art.Arts;
-import org.spongepowered.api.item.CoalType;
-import org.spongepowered.api.item.CoalTypes;
-import org.spongepowered.api.item.CookedFish;
-import org.spongepowered.api.item.CookedFishes;
-import org.spongepowered.api.item.DyeColor;
-import org.spongepowered.api.item.DyeColors;
 import org.spongepowered.api.entity.living.animal.HorseColor;
 import org.spongepowered.api.entity.living.animal.HorseColors;
 import org.spongepowered.api.entity.living.animal.HorseStyle;
@@ -127,6 +121,12 @@ import org.spongepowered.api.entity.living.villager.Profession;
 import org.spongepowered.api.entity.living.villager.Professions;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.entity.player.gamemode.GameModes;
+import org.spongepowered.api.item.CoalType;
+import org.spongepowered.api.item.CoalTypes;
+import org.spongepowered.api.item.CookedFish;
+import org.spongepowered.api.item.CookedFishes;
+import org.spongepowered.api.item.DyeColor;
+import org.spongepowered.api.item.DyeColors;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.FireworkEffect;
@@ -143,7 +143,23 @@ import org.spongepowered.api.potion.PotionEffect;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
+import org.spongepowered.api.resourcepack.ResourcePack;
 import org.spongepowered.api.service.persistence.SerializationService;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.stats.BlockStatistic;
+import org.spongepowered.api.stats.EntityStatistic;
+import org.spongepowered.api.stats.ItemStatistic;
+import org.spongepowered.api.stats.Statistic;
+import org.spongepowered.api.stats.StatisticBuilder;
+import org.spongepowered.api.stats.StatisticBuilder.BlockStatisticBuilder;
+import org.spongepowered.api.stats.StatisticBuilder.EntityStatisticBuilder;
+import org.spongepowered.api.stats.StatisticBuilder.ItemStatisticBuilder;
+import org.spongepowered.api.stats.StatisticBuilder.TeamStatisticBuilder;
+import org.spongepowered.api.stats.StatisticFormat;
+import org.spongepowered.api.stats.StatisticGroup;
+import org.spongepowered.api.stats.TeamStatistic;
+import org.spongepowered.api.stats.achievement.Achievement;
+import org.spongepowered.api.stats.achievement.AchievementBuilder;
 import org.spongepowered.api.status.Favicon;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.chat.ChatType;
@@ -863,22 +879,22 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<SelectorType> getSelectorType(String name) {
-        return null;
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
     public Collection<ArgumentType<?>> getArgumentTypes() {
-        return null;
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
     public Optional<ArgumentType<?>> getArgumentType(String name) {
-        return null;
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
     public Collection<SelectorType> getSelectorTypes() {
-        return null;
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
@@ -983,12 +999,12 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<GoldenApple> getGoldenAppleType(String name) {
-        return null;
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
     public Collection<GoldenApple> getGoldenAppleTypes() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -998,7 +1014,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public AttributeCalculator getAttributeCalculator() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public void registerEnvironment(DimensionType env) {
@@ -1424,6 +1440,7 @@ public class SpongeGameRegistry implements GameRegistry {
 
     private void setFishes() {
         RegistryHelper.mapFields(Fishes.class, new Function<String, Fish>() {
+
             @Override
             public Fish apply(String input) {
                 Fish fish = Fish.class.cast(ItemFishFood.FishType.valueOf(input));
@@ -1437,14 +1454,16 @@ public class SpongeGameRegistry implements GameRegistry {
         });
 
         RegistryHelper.mapFields(CookedFishes.class, new Function<String, CookedFish>() {
+
             @Override
             public CookedFish apply(String input) {
                 CookedFish fish = CookedFish.class.cast(ItemFishFood.FishType.valueOf(input));
                 if (fish != null) {
                     SpongeGameRegistry.this.cookedFishMappings.put(fish.getId(), fish);
                     return fish;
-                } else
+                } else {
                     return null;
+                }
             }
         });
     }
@@ -1848,6 +1867,101 @@ public class SpongeGameRegistry implements GameRegistry {
 
         // User
         // TODO someone needs to write a User implementation...
+    }
+
+    @Override
+    public Optional<Statistic> getStatistic(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<EntityStatistic> getEntityStatistic(StatisticGroup statisticGroup, EntityType entityType) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<ItemStatistic> getItemStatistic(StatisticGroup statisticGroup, ItemType itemType) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<BlockStatistic> getBlockStatistic(StatisticGroup statisticGroup, BlockType blockType) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<TeamStatistic> getTeamStatistic(StatisticGroup statisticGroup, TextColor teamColor) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<Statistic> getStatistics(StatisticGroup statisticGroup) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<Statistic> getStatistics() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public StatisticBuilder getStatisticBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public EntityStatisticBuilder getEntityStatisticBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public BlockStatisticBuilder getBlockStatisticBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public ItemStatisticBuilder getItemStatisticBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public TeamStatisticBuilder getTeamStatisticBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public void registerStatistic(Statistic stat) {
+        // TODO
+    }
+
+    @Override
+    public Optional<StatisticFormat> getStatisticFormat(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<StatisticFormat> getStatisticFormats() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<Achievement> getAchievement(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<Achievement> getAchievements() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public AchievementBuilder getAchievementBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<ResourcePack> getById(String id) {
+        throw new UnsupportedOperationException(); // TODO
     }
 
     public void preInit() {
