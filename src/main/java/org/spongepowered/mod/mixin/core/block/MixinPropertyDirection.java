@@ -47,12 +47,6 @@ public abstract class MixinPropertyDirection extends PropertyEnum implements Blo
         super("dummyPropertyDirection", Object.class, new ArrayList());
     }
 
-    // TODO: mixin, methods with same name and return type in mcp names
-    //@Override
-    //public String getName() {
-    //    return null;
-    //}
-
     @Override
     @SuppressWarnings("unchecked")
     public Collection<Direction> getValidValues() {

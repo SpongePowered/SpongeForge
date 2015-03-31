@@ -32,6 +32,9 @@ import net.minecraft.block.properties.PropertyHelper;
 import net.minecraft.block.properties.PropertyInteger;
 import org.spongepowered.api.block.BlockProperty;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.Collection;
@@ -39,27 +42,24 @@ import java.util.Collection;
 @NonnullByDefault
 @Mixin(PropertyHelper.class)
 @SuppressWarnings("rawtypes")
-public abstract class MixinPropertyHelper implements BlockProperty, IProperty {
+@Implements(@Interface(iface = BlockProperty.class, prefix = "blockProperty$"))
+public abstract class MixinPropertyHelper implements IProperty {
 
-    // TODO: mixin, methods with same name and return type in mcp names
-    //@Override
-    //public String getName() {
-    //    return null;
-    //}
+    @Intrinsic
+    public String blockProperty$getName() {
+        return this.getName();
+    }
 
-    @Override
-    public Collection getValidValues() {
+    public Collection blockProperty$getValidValues() {
         return getAllowedValues();
     }
 
-    @Override
-    public String getNameForValue(Comparable value) {
+    public String blockProperty$getNameForValue(Comparable value) {
         return getName(value);
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    public Optional getValueForName(String name) {
+    public Optional blockProperty$getValueForName(String name) {
         for (Comparable o : (Collection<Comparable>) getAllowedValues()) {
             if (getName(o).equals(name)) {
                 return Optional.fromNullable(o);
@@ -71,7 +71,7 @@ public abstract class MixinPropertyHelper implements BlockProperty, IProperty {
 
     // These don't need any special methods, as those are done in the PropertyHelper mixin.
     @Mixin(PropertyBool.class)
-    public abstract static class MixinPropertyBool extends PropertyHelper implements BooleanProperty {
+    public abstract static class MixinPropertyBool extends PropertyHelper implements BlockProperty.BooleanProperty {
 
         private MixinPropertyBool() {
             super("dummyPropertyBool", Object.class);
@@ -79,7 +79,7 @@ public abstract class MixinPropertyHelper implements BlockProperty, IProperty {
     }
 
     @Mixin(PropertyEnum.class)
-    public abstract static class MixinPropertyEnum extends PropertyHelper implements EnumProperty {
+    public abstract static class MixinPropertyEnum extends PropertyHelper implements BlockProperty.EnumProperty {
 
         private MixinPropertyEnum() {
             super("dummyPropertyEnum", Object.class);
@@ -87,7 +87,7 @@ public abstract class MixinPropertyHelper implements BlockProperty, IProperty {
     }
 
     @Mixin(PropertyInteger.class)
-    public abstract static class MixinPropertyInteger extends PropertyHelper implements IntegerProperty {
+    public abstract static class MixinPropertyInteger extends PropertyHelper implements BlockProperty.IntegerProperty {
 
         private MixinPropertyInteger() {
             super("dummyPropertyInteger", Object.class);
