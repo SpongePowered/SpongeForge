@@ -78,6 +78,17 @@ import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.item.recipe.RecipeRegistry;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
+import org.spongepowered.api.resourcepack.ResourcePack;
+import org.spongepowered.api.scoreboard.ScoreboardBuilder;
+import org.spongepowered.api.scoreboard.TeamBuilder;
+import org.spongepowered.api.scoreboard.Visibility;
+import org.spongepowered.api.scoreboard.critieria.Criterion;
+import org.spongepowered.api.scoreboard.displayslot.DisplaySlot;
+import org.spongepowered.api.scoreboard.objective.ObjectiveBuilder;
+import org.spongepowered.api.scoreboard.objective.displaymode.ObjectiveDisplayMode;
+import org.spongepowered.api.stats.*;
+import org.spongepowered.api.stats.achievement.Achievement;
+import org.spongepowered.api.stats.achievement.AchievementBuilder;
 import org.spongepowered.api.status.Favicon;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.format.TextColor;
@@ -93,9 +104,6 @@ import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
-import org.spongepowered.granite.text.chat.GraniteChatType;
-import org.spongepowered.granite.text.format.GraniteTextColor;
-import org.spongepowered.granite.text.format.GraniteTextStyle;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -122,7 +130,7 @@ public class GraniteGameRegistry implements GameRegistry {
     //public static final Map<Class<? extends WorldProvider>, SpongeConfig<SpongeConfig.DimensionConfig>> dimensionConfigs = Maps.newHashMap();
 
     public static final Map<String, TextColor> textColorMappings = Maps.newHashMap();
-    public static final Map<EnumChatFormatting, GraniteTextColor> enumChatColor = Maps.newEnumMap(EnumChatFormatting.class);
+    /*public static final Map<EnumChatFormatting, GraniteTextColor> enumChatColor = Maps.newEnumMap(EnumChatFormatting.class);
 
     public static final ImmutableMap<String, TextStyle> textStyleMappings = new ImmutableMap.Builder<String, TextStyle>()
             .put("BOLD", GraniteTextStyle.of(EnumChatFormatting.BOLD))
@@ -136,7 +144,7 @@ public class GraniteGameRegistry implements GameRegistry {
             .put("CHAT", new GraniteChatType("CHAT", (byte) 0))
             .put("SYSTEM", new GraniteChatType("SYSTEM", (byte) 1))
             .put("ACTION_BAR", new GraniteChatType("ACTION_BAR", (byte) 2))
-            .build();
+            .build();*/
     private static final ImmutableMap<String, Locale> localeCodeMappings = ImmutableMap.<String, Locale>builder()
             .put("af_ZA", new Locale("af", "ZA"))
             .put("ar_SA", new Locale("ar", "SA"))
@@ -484,6 +492,96 @@ public class GraniteGameRegistry implements GameRegistry {
     }
 
     @Override
+    public Optional<Statistic> getStatistic(String name) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<EntityStatistic> getEntityStatistic(StatisticGroup statisticGroup, EntityType entityType) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<ItemStatistic> getItemStatistic(StatisticGroup statisticGroup, ItemType itemType) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<BlockStatistic> getBlockStatistic(StatisticGroup statisticGroup, BlockType blockType) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<TeamStatistic> getTeamStatistic(StatisticGroup statisticGroup, TextColor teamColor) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Collection<Statistic> getStatistics(StatisticGroup statisticGroup) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Collection<Statistic> getStatistics() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public StatisticBuilder getStatisticBuilder() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public StatisticBuilder.EntityStatisticBuilder getEntityStatisticBuilder() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public StatisticBuilder.BlockStatisticBuilder getBlockStatisticBuilder() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public StatisticBuilder.ItemStatisticBuilder getItemStatisticBuilder() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public StatisticBuilder.TeamStatisticBuilder getTeamStatisticBuilder() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public void registerStatistic(Statistic stat) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<StatisticFormat> getStatisticFormat(String name) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Collection<StatisticFormat> getStatisticFormats() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<Achievement> getAchievement(String name) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Collection<Achievement> getAchievements() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public AchievementBuilder getAchievementBuilder() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
     public Optional<Art> getArt(String id) {
         return Optional.fromNullable(this.artMappings.get(id));
     }
@@ -614,6 +712,21 @@ public class GraniteGameRegistry implements GameRegistry {
     }
 
     @Override
+    public ObjectiveBuilder getObjectiveBuilder() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public TeamBuilder getTeamBuilder() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public ScoreboardBuilder getScoreboardBuilder() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
     public Optional<Enchantment> getEnchantment(String id) {
         return Optional.fromNullable((Enchantment) net.minecraft.enchantment.Enchantment.getEnchantmentByLocation(id));
     }
@@ -741,6 +854,26 @@ public class GraniteGameRegistry implements GameRegistry {
 
     @Override
     public Optional<TextStyle> getTextStyle(String name) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Collection<TextStyle> getTextStyles() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<ChatType> getChatType(String name) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Collection<ChatType> getChatTypes() {
+        throw new NotImplementedException("TODO");
+    }
+
+    /*@Override
+    public Optional<TextStyle> getTextStyle(String name) {
         return Optional.fromNullable(textStyleMappings.get(name));
     }
 
@@ -757,7 +890,7 @@ public class GraniteGameRegistry implements GameRegistry {
     @Override
     public Collection<ChatType> getChatTypes() {
         return Collections.unmodifiableCollection(chatTypeMappings.values());
-    }
+    }*/
 
     @Override
     public Optional<SelectorType> getSelectorType(String name) {
@@ -798,6 +931,56 @@ public class GraniteGameRegistry implements GameRegistry {
     public Optional<Translation> getTranslationById(String id) {
         //return Optional.<Translation>of(new SpongeTranslation(id));
         return null;
+    }
+
+    @Override
+    public Optional<ResourcePack> getById(String id) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<DisplaySlot> getDisplaySlot(String name) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<DisplaySlot> getDisplaySlotForColor(TextColor color) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Collection<DisplaySlot> getDisplaySlots() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<Visibility> getVisibility(String name) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Collection<Visibility> getVisibilities() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<Criterion> getCriterion(String name) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Collection<Criterion> getCriteria() {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Optional<ObjectiveDisplayMode> getObjectiveDisplayMode(String name) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public Collection<ObjectiveDisplayMode> getObjectiveDisplayModes() {
+        throw new NotImplementedException("TODO");
     }
 
     @Override

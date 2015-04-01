@@ -28,17 +28,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S23PacketBlockChange;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
-import org.spongepowered.api.event.SpongeEventFactory;
+import org.apache.commons.lang3.NotImplementedException;
 import org.spongepowered.api.event.block.BlockBreakEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.granite.block.GraniteBlockSnapshot;
-import org.spongepowered.granite.wrapper.BlockWrapper;
 
 public class GraniteHooks {
 
@@ -77,7 +72,8 @@ public class GraniteHooks {
 
         // Post the block break event
         // TODO Cause/Reason
-        BlockBreakEvent event = SpongeEventFactory.createBlockBreak(Granite.instance.getGame(), new Cause(null, pos, null), new BlockWrapper((org
+        throw new NotImplementedException("TODO");
+        /*BlockBreakEvent event = SpongeEventFactory.createBlockBreak(Granite.instance.getGame(), new Cause(null, pos, null), new BlockWrapper((org
                 .spongepowered.api.world.World) world, pos), new GraniteBlockSnapshot(world, pos), 0);
         event.setCancelled(preCancelEvent);
         Granite.instance.getGame().getEventManager().post(event);
@@ -95,7 +91,7 @@ public class GraniteHooks {
                 }
             }
         }
-        return event;
+        return event;*/
     }
 
 }

@@ -4,7 +4,6 @@
     "server": [
         "MixinGameProfile",
         "block.state.MixinBlockState",
-        "entity.player.MixinEntityPlayerMP",
         "management.MixinItemInWorldManager",
         "server.MixinDedicatedServer",
         "server.MixinMinecraftServer",
