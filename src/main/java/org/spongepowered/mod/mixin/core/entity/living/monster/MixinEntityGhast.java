@@ -47,11 +47,11 @@ public abstract class MixinEntityGhast extends EntityFlying {
         super(worldIn);
     }
 
-    public <T extends Projectile> T ghast$launchProjectile(Class<T> projectileClass) {
-        return ghast$launchProjectile(projectileClass, null);
+    public <T extends Projectile> T launchProjectile(Class<T> projectileClass) {
+        return launchProjectile(projectileClass, null);
     }
 
-    public <T extends Projectile> T ghast$launchProjectile(Class<T> projectileClass, Vector3f velocity) {
+    public <T extends Projectile> T launchProjectile(Class<T> projectileClass, Vector3f velocity) {
         double x = posX ;
         double y = getEntityBoundingBox().minY + (double)(height / 2.0F);
         double z = posZ;

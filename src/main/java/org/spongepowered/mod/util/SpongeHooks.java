@@ -457,6 +457,7 @@ public class SpongeHooks {
             if(velocity != null) {
                 entity.setVelocity(velocity.toDouble());
             }
+            world.spawnEntityInWorld((net.minecraft.entity.Entity) entity);
             return entity;
         } catch(Exception e) {
             SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));

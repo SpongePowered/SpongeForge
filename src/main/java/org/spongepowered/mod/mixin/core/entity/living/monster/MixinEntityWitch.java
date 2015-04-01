@@ -59,11 +59,11 @@ public abstract class MixinEntityWitch extends EntityMob {
         this.getDataWatcher().updateObject(21, (byte) (aggressive ? 1 : 0));
     }
 
-    public <T extends Projectile> T witch$launchProjectile(Class<T> projectileClass) {
-        return witch$launchProjectile(projectileClass, null);
+    public <T extends Projectile> T launchProjectile(Class<T> projectileClass) {
+        return launchProjectile(projectileClass, null);
     }
 
-    public <T extends Projectile> T witch$launchProjectile(Class<T> projectileClass, Vector3f velocity) {
+    public <T extends Projectile> T launchProjectile(Class<T> projectileClass, Vector3f velocity) {
         double x = posX ;
         double y = getEntityBoundingBox().minY + (double)(height / 3.0F) - posY;
         double z = posZ;

@@ -62,11 +62,11 @@ public abstract class MixinEntitySkeleton extends EntityMob {
         this.setSkeletonType(((SpongeEntityMeta) skeletonType).type);
     }
 
-    public <T extends Projectile> T skeleton$launchProjectile(Class<T> projectileClass) {
-        return skeleton$launchProjectile(projectileClass, null);
+    public <T extends Projectile> T launchProjectile(Class<T> projectileClass) {
+        return launchProjectile(projectileClass, null);
     }
 
-    public <T extends Projectile> T skeleton$launchProjectile(Class<T> projectileClass, Vector3f velocity) {
+    public <T extends Projectile> T launchProjectile(Class<T> projectileClass, Vector3f velocity) {
         double x = posX ;
         double y = getEntityBoundingBox().minY + (double)(height / 3.0F) - posY;
         double z = posZ;

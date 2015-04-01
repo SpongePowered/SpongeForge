@@ -63,11 +63,11 @@ public abstract class MixinEntityBlaze extends EntityMob {
         this.func_70844_e(onFire);
     }
 
-    public <T extends Projectile> T blaze$launchProjectile(Class<T> projectileClass) {
-        return blaze$launchProjectile(projectileClass, null);
+    public <T extends Projectile> T launchProjectile(Class<T> projectileClass) {
+        return launchProjectile(projectileClass, null);
     }
 
-    public <T extends Projectile> T blaze$launchProjectile(Class<T> projectileClass, Vector3f velocity) {
+    public <T extends Projectile> T launchProjectile(Class<T> projectileClass, Vector3f velocity) {
         double x = posX ;
         double y = getEntityBoundingBox().minY + (double)(height / 2.0F);
         double z = posZ;
