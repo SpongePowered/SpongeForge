@@ -167,6 +167,7 @@ public abstract class MixinSubject implements CommandSource, ICommandSender {
         return subj == null ? Collections.<Context>emptySet() : subj.getActiveContexts();
     }
 
+    @Override
     public boolean canCommandSenderUseCommand(int permissionLevel, String commandName) {
         Optional<? extends CommandMapping> mapping = SpongeMod.instance.getGame().getCommandDispatcher().get(commandName);
         if (mapping.isPresent()) {

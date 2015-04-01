@@ -50,6 +50,7 @@ public abstract class SpongeSubject implements Subject {
         return getData();
     }
 
+    @Override
     public abstract MemorySubjectData getData();
 
     @Override

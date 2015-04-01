@@ -125,7 +125,9 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         }
 
         // Register vanilla-style commands
-        ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerEarlyCommands(this.game);
+        if (FMLCommonHandler.instance().getSide() == Side.SERVER) {
+            ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerEarlyCommands(this.game);
+        }
     }
 
     @Override
@@ -166,6 +168,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 
             this.game.getServiceManager().potentiallyProvide(PermissionService.class).executeWhenPresent(new Predicate<PermissionService>() {
+
                 @Override
                 public boolean apply(PermissionService input) {
                     input.registerContextCalculator(new SpongeContextCalculator());
@@ -206,7 +209,9 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         try {
             this.registry.postInit();
             // Register MC commands
-            ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
+            if (FMLCommonHandler.instance().getSide() == Side.SERVER) {
+                ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
+            }
             SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
             ((SpongeSerializationService) service).completeRegistration();
         } catch (Throwable t) {

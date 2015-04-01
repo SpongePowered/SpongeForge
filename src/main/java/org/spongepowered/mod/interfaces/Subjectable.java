@@ -30,6 +30,7 @@ import org.spongepowered.api.util.Tristate;
  * Interface going with IMixinSubject-shared mixins (what am I even saying?).
  */
 public interface Subjectable {
+
     String getSubjectCollectionIdentifier();
 
     Tristate permDefault(String permission);
