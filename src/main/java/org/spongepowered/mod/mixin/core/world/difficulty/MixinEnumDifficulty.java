@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.core.world.difficulty;
 
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.difficulty.Difficulty;
-
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault

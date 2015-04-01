@@ -27,17 +27,12 @@ package org.spongepowered.mod.mixin.core.block.data;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import org.spongepowered.api.block.tile.Note;
-import org.spongepowered.api.block.tile.data.NotePitch;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
-
-import java.util.List;
 
 @NonnullByDefault
 @Implements(@Interface(iface = Note.class, prefix = "note$"))

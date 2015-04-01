@@ -32,7 +32,6 @@ import com.google.common.collect.Lists;
 import org.spongepowered.api.item.FireworkEffect;
 import org.spongepowered.api.item.FireworkShape;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
 import java.awt.Color;

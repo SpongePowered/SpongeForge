@@ -57,7 +57,6 @@ import org.spongepowered.mod.interfaces.IMixinWorldProvider;
 import org.spongepowered.mod.mixin.plugin.CoreMixinPlugin;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ActivationRange {

@@ -24,25 +24,13 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
-
-import com.google.common.base.Optional;
-import net.minecraft.tileentity.TileEntity;
-import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.block.tile.Skull;
-import org.spongepowered.api.block.tile.data.SkullType;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
-import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
-
-import java.util.List;
 
 @NonnullByDefault
 @Implements(@Interface(iface = Skull.class, prefix = "skull$"))

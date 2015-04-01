@@ -28,7 +28,6 @@ import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import org.spongepowered.api.block.tile.carrier.Hopper;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;

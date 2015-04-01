@@ -26,22 +26,14 @@ package org.spongepowered.mod.mixin.core.block.data;
 
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
-import com.google.common.base.Optional;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.potion.Potion;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
-import net.minecraft.tileentity.TileEntityLockable;
 import org.spongepowered.api.block.tile.TileEntityType;
 import org.spongepowered.api.block.tile.TileEntityTypes;
 import org.spongepowered.api.block.tile.carrier.Beacon;
-import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Implements(@Interface(iface = Beacon.class, prefix = "beacon$"))

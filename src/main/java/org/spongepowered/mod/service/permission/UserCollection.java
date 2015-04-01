@@ -35,6 +35,7 @@ import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.mod.service.permission.base.SpongeSubjectCollection;
 
 import java.util.UUID;
+
 import javax.annotation.Nullable;
 
 

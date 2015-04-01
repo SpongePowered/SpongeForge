@@ -39,7 +39,6 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.data.EnchantmentData;
 import org.spongepowered.api.item.data.ItemData;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 

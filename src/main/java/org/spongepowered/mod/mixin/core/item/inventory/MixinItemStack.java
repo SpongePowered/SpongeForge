@@ -36,7 +36,6 @@ import org.spongepowered.api.item.data.ItemData;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.properties.ItemProperty;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;

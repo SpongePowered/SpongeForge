@@ -39,7 +39,6 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.data.DurabilityData;
 import org.spongepowered.api.item.data.ItemData;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
 import java.util.Collection;

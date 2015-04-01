@@ -28,7 +28,6 @@ import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.base.MoreObjects;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
 public class SpongeEntityMeta {

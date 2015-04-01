@@ -24,27 +24,13 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
-
-import com.google.common.collect.Lists;
 import net.minecraft.tileentity.MobSpawnerBaseLogic;
 import org.spongepowered.api.block.tile.MobSpawner;
-import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
-import org.spongepowered.api.util.WeightedRandomEntity;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Implements(@Interface(iface = MobSpawner.class, prefix = "mobspawner$"))

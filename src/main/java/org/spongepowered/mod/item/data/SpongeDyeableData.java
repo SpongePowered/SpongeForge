@@ -44,7 +44,6 @@ import org.spongepowered.api.item.data.DyeableItemData;
 import org.spongepowered.api.item.data.ItemData;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 
-import java.awt.Color;
 import java.util.Collection;
 
 public class SpongeDyeableData extends AbstractItemData implements DyeableItemData {

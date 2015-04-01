@@ -145,7 +145,6 @@ import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
 import org.spongepowered.api.resourcepack.ResourcePack;
 import org.spongepowered.api.service.persistence.SerializationService;
-import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.stats.BlockStatistic;
 import org.spongepowered.api.stats.EntityStatistic;
 import org.spongepowered.api.stats.ItemStatistic;

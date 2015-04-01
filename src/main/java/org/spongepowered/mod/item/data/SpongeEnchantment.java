@@ -30,7 +30,6 @@ import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.service.persistence.DataSerializable;
 import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
 public class SpongeEnchantment implements DataSerializable {

@@ -32,7 +32,6 @@ import org.spongepowered.api.block.tile.Sign;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.data.DataQuery;
 import org.spongepowered.api.service.persistence.data.DataView;
-import org.spongepowered.api.text.Texts;
 
 public class SpongeSignBuilder extends AbstractTileBuilder<Sign> {
 

@@ -44,7 +44,6 @@ import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.command.MinecraftCommandWrapper;
 import org.spongepowered.mod.interfaces.Subjectable;
 
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
