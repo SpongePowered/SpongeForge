@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-package org.spongepowered.mod.world.gen;
+package org.spongepowered.mod.util.gen;
 
 import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.block.Block;
@@ -39,22 +39,13 @@ import java.util.Arrays;
  * Makes a {@link ChunkPrimer} useable as a {@link MutableBlockBuffer}.
  *
  */
-final class ChunkPrimerBuffer implements MutableBlockBuffer {
+public final class ChunkPrimerBuffer extends AbstractChunkBuffer {
 
     private final ChunkPrimer chunkPrimer;
-    private final int chunkX;
-    private final int chunkZ;
 
     public ChunkPrimerBuffer(ChunkPrimer chunkPrimer, int chunkX, int chunkZ) {
+        super(chunkX, chunkZ);
         this.chunkPrimer = chunkPrimer;
-        this.chunkX = chunkX;
-        this.chunkZ = chunkZ;
-    }
-
-    private void checkRange(int x, int y, int z) {
-        if ((x >> 4) != this.chunkX || (z >> 4) != this.chunkZ || (y >> 8) != 0) {
-            throw new IndexOutOfBoundsException("Outside chunk: " + new Vector3i(x, y, z));
-        }
     }
 
     @Override
@@ -83,21 +74,6 @@ final class ChunkPrimerBuffer implements MutableBlockBuffer {
     }
 
     @Override
-    public Vector3i getMaxBound() {
-        return getMinBound().add(getSize());
-    }
-
-    @Override
-    public Vector3i getMinBound() {
-        return new Vector3i(this.chunkX * 16, 0, this.chunkZ * 16);
-    }
-
-    @Override
-    public Vector3i getSize() {
-        return new Vector3i(16, 256, 16);
-    }
-
-    @Override
     public void setBlock(int x, int y, int z, BlockState block) {
         checkRange(x, y, z);
         this.chunkPrimer.setBlockState(x & 0xf, y, z & 0xF, (IBlockState) block);
@@ -106,20 +82,6 @@ final class ChunkPrimerBuffer implements MutableBlockBuffer {
     @Override
     public void setBlock(Vector3i position, BlockState block) {
         setBlock(position.getX(), position.getY(), position.getZ(), block);
-    }
-
-    @Override
-    public void setHorizontalLayer(int startY, int height, BlockState block) {
-        IBlockState blockState = (IBlockState) block;
-        int endY = startY + height;
-
-        for (int xInChunk = 0; xInChunk < 16; xInChunk++) {
-            for (int zInChunk = 0; zInChunk < 16; zInChunk++) {
-                for (int yInChunk = startY; yInChunk < endY; yInChunk++) {
-                    this.chunkPrimer.setBlockState(xInChunk, yInChunk, zInChunk, blockState);
-                }
-            }
-        }
     }
 
 }

@@ -56,7 +56,7 @@ public final class SpongeBiomeGenerator implements BiomeGenerator {
     }
 
     @Override
-    public void getBiomesForArea(MutableBiomeArea buffer) {
+    public void generateBiomes(MutableBiomeArea buffer) {
         Vector2i min = buffer.getMinBound();
         Vector2i size = buffer.getSize();
         int xStart = min.getX();

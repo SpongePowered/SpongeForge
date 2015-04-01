@@ -27,70 +27,54 @@ package org.spongepowered.mod.util.gen;
 
 import com.flowpowered.math.vector.Vector2i;
 import com.google.common.base.Preconditions;
-import net.minecraft.world.biome.BiomeGenBase;
 import org.spongepowered.api.util.gen.BiomeBuffer;
-import org.spongepowered.api.world.biome.BiomeType;
-import org.spongepowered.api.world.biome.BiomeTypes;
 
 /**
- * Base class for biome areas backed by byte arrays.
+ * Base class for biome areas. This class provides methods for retrieving the
+ * size and for range checking.
  *
  */
-class AbstractBiomeArea implements BiomeBuffer {
+abstract class AbstractBiomeArea implements BiomeBuffer {
 
-    protected final BiomeGenBase[] biomeById = BiomeGenBase.getBiomeGenArray();
+    protected Vector2i start;
+    protected Vector2i size;
+    protected Vector2i end;
 
-    protected final byte[] biomes;
-    protected int startX;
-    protected int startZ;
-    protected int sizeX;
-    protected int sizeZ;
+    AbstractBiomeArea(Vector2i start, Vector2i size) {
+        this.start = Preconditions.checkNotNull(start, "start");
+        this.size = Preconditions.checkNotNull(size, "size");
 
-    AbstractBiomeArea(byte[] biomes, int startX, int startZ, int sizeX, int sizeZ) {
-        Preconditions.checkArgument(biomes.length >= sizeX * sizeZ);
-        Preconditions.checkArgument(sizeX > 0);
-        Preconditions.checkArgument(sizeZ > 0);
+        Preconditions.checkArgument(size.getX() > 0);
+        Preconditions.checkArgument(size.getY() > 0);
 
-        this.biomes = biomes;
-
-        this.startX = startX;
-        this.startZ = startZ;
-        this.sizeX = sizeX;
-        this.sizeZ = sizeZ;
+        this.end = this.start.add(this.size).sub(Vector2i.ONE);
     }
 
     protected final void checkRange(int x, int z) {
-        if (x < this.startX || x >= (this.startX + this.sizeX)
-                || z < this.startZ || z >= (this.startZ + this.sizeZ)) {
-            throw new IndexOutOfBoundsException("Position " + new Vector2i(x, z) + " out of bounds for " + this);
+        if (x < this.start.getX() || x > this.end.getX()
+                || z < this.start.getY() || z > this.end.getY()) {
+            throw new IndexOutOfBoundsException("Position (" + new Vector2i(x, z) + " out of bounds for " + this);
         }
     }
 
     @Override
-    public BiomeType getBiome(Vector2i position) {
-        return getBiome(position.getX(), position.getY());
-    }
-
-    @Override
-    public BiomeType getBiome(int x, int z) {
-        checkRange(x, z);
-        BiomeType biomeType = (BiomeType) this.biomeById[(x - this.startX) | (z - this.startZ) << 4];
-        return biomeType == null ? BiomeTypes.OCEAN : biomeType;
-    }
-
-    @Override
     public Vector2i getMinBound() {
-        return new Vector2i(this.startX, this.startZ);
+        return this.start;
     }
 
     @Override
     public Vector2i getMaxBound() {
-        return getMinBound().add(getSize());
+        return this.end;
     }
 
     @Override
     public Vector2i getSize() {
-        return new Vector2i(this.sizeX, this.sizeZ);
+        return this.size;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "(min = " + this.getMinBound() + ", max = " + this.getMaxBound() + ")";
     }
 
 }

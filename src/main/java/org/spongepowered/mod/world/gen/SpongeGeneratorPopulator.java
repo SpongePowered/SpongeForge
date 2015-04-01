@@ -33,7 +33,7 @@ import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.util.gen.ImmutableBiomeArea;
+import org.spongepowered.api.util.gen.BiomeBuffer;
 import org.spongepowered.api.util.gen.MutableBlockBuffer;
 import org.spongepowered.api.world.gen.GeneratorPopulator;
 
@@ -68,7 +68,7 @@ public class SpongeGeneratorPopulator implements GeneratorPopulator {
     }
 
     @Override
-    public void populate(MutableBlockBuffer buffer, ImmutableBiomeArea biomes) {
+    public void populate(MutableBlockBuffer buffer, BiomeBuffer biomes) {
 
         // Empty the buffer
         buffer.fill(BlockTypes.AIR.getDefaultState());
@@ -98,11 +98,11 @@ public class SpongeGeneratorPopulator implements GeneratorPopulator {
         Vector3i minBound = buffer.getMinBound();
         Vector3i maxBound = buffer.getMaxBound();
         int xInChunkStart = Math.max(0, minBound.getX() - xOffset);
-        int yInChunkStart = Math.max(0, minBound.getY());
+        int yStart = Math.max(0, minBound.getY());
         int zInChunkStart = Math.max(0, minBound.getZ() - zOffset);
-        int xInChunkEnd = Math.min(16, maxBound.getX() - xOffset);
-        int yInChunkEnd = Math.min(255, maxBound.getY());
-        int zInChunkEnd = Math.min(16, maxBound.getZ() - zOffset);
+        int xInChunkEnd = Math.min(15, maxBound.getX() - xOffset);
+        int yEnd = Math.min(255, maxBound.getY());
+        int zInChunkEnd = Math.min(15, maxBound.getZ() - zOffset);
 
         // Copy the right blocks in
         ExtendedBlockStorage[] blockStorage = chunk.getBlockStorageArray();
@@ -113,9 +113,11 @@ public class SpongeGeneratorPopulator implements GeneratorPopulator {
             }
 
             int yOffset = miniChunk.getYLocation();
-            for (int xInChunk = xInChunkStart; xInChunk < xInChunkEnd; xInChunk++) {
-                for (int yInChunk = yInChunkStart; yInChunk < yInChunkEnd; yInChunk++) {
-                    for (int zInChunk = zInChunkStart; zInChunk < zInChunkEnd; zInChunk++) {
+            int yInChunkStart = Math.max(yOffset, yStart);
+            int yInChunkEnd = Math.min(yOffset + 15, yEnd);
+            for (int xInChunk = xInChunkStart; xInChunk <= xInChunkEnd; xInChunk++) {
+                for (int yInChunk = yInChunkStart; yInChunk <= yInChunkEnd; yInChunk++) {
+                    for (int zInChunk = zInChunkStart; zInChunk <= zInChunkEnd; zInChunk++) {
                         buffer.setBlock(xOffset + xInChunk, yOffset + yInChunk, zOffset + zInChunk,
                                 (BlockState) miniChunk.get(xInChunk, yInChunk, zInChunk));
                     }

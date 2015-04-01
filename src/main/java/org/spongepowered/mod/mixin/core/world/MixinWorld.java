@@ -103,7 +103,8 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     private boolean keepSpawnLoaded;
     public SpongeConfig<SpongeConfig.WorldConfig> worldConfig;
-    private ImmutableList<Populator> populators = ImmutableList.of();
+    private ImmutableList<Populator> populators;
+    private ImmutableList<GeneratorPopulator> generatorPopulators;
 
     @Shadow
     public WorldProvider provider;
@@ -522,11 +523,28 @@ public abstract class MixinWorld implements World, IMixinWorld {
         thisWorld.provider.worldChunkMgr = CustomWorldChunkManager.of(biomeGenerator);
 
         // Replace generator populator
-        GeneratorPopulator generatorPopulator = worldGenerator.getGeneratorPopulator();
+        GeneratorPopulator generatorPopulator = worldGenerator.getBaseGeneratorPopulator();
         replaceChunkGenerator(CustomChunkProviderGenerate.of(thisWorld, generatorPopulator, biomeGenerator));
 
         // Replace populators
         this.populators = ImmutableList.copyOf(worldGenerator.getPopulators());
+        this.generatorPopulators = ImmutableList.copyOf(worldGenerator.getGeneratorPopulators());
+    }
+
+    @Override
+    public ImmutableList<Populator> getPopulators() {
+        if (this.populators == null) {
+            this.populators = ImmutableList.of();
+        }
+        return this.populators;
+    }
+
+    @Override
+    public ImmutableList<GeneratorPopulator> getGeneratorPopulators() {
+        if (this.generatorPopulators == null) {
+            this.generatorPopulators = ImmutableList.of();
+        }
+        return this.generatorPopulators;
     }
 
     private void replaceChunkGenerator(IChunkProvider provider) {
@@ -545,6 +563,6 @@ public abstract class MixinWorld implements World, IMixinWorld {
         // of this method, namely that changing the state of the returned
         // instance does not affect the world without setWorldGenerator being
         // called
-        return new SpongeWorldGenerator((WorldServer) (Object) this, this.populators);
+        return new SpongeWorldGenerator((WorldServer) (Object) this);
     }
 }

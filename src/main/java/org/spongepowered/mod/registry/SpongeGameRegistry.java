@@ -75,17 +75,17 @@ import org.spongepowered.api.block.tile.DaylightDetector;
 import org.spongepowered.api.block.tile.EnchantmentTable;
 import org.spongepowered.api.block.tile.EndPortal;
 import org.spongepowered.api.block.tile.EnderChest;
-import org.spongepowered.api.block.tile.TileEntityType;
-import org.spongepowered.api.block.tile.carrier.Furnace;
-import org.spongepowered.api.block.tile.carrier.Hopper;
 import org.spongepowered.api.block.tile.MobSpawner;
 import org.spongepowered.api.block.tile.Note;
 import org.spongepowered.api.block.tile.Sign;
 import org.spongepowered.api.block.tile.Skull;
+import org.spongepowered.api.block.tile.TileEntityType;
 import org.spongepowered.api.block.tile.carrier.BrewingStand;
 import org.spongepowered.api.block.tile.carrier.Chest;
 import org.spongepowered.api.block.tile.carrier.Dispenser;
 import org.spongepowered.api.block.tile.carrier.Dropper;
+import org.spongepowered.api.block.tile.carrier.Furnace;
+import org.spongepowered.api.block.tile.carrier.Hopper;
 import org.spongepowered.api.block.tile.data.BannerData;
 import org.spongepowered.api.block.tile.data.BannerPatternShape;
 import org.spongepowered.api.block.tile.data.BannerPatternShapes;
@@ -103,12 +103,6 @@ import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.art.Art;
 import org.spongepowered.api.entity.hanging.art.Arts;
-import org.spongepowered.api.item.CoalType;
-import org.spongepowered.api.item.CoalTypes;
-import org.spongepowered.api.item.CookedFish;
-import org.spongepowered.api.item.CookedFishes;
-import org.spongepowered.api.item.DyeColor;
-import org.spongepowered.api.item.DyeColors;
 import org.spongepowered.api.entity.living.animal.HorseColor;
 import org.spongepowered.api.entity.living.animal.HorseColors;
 import org.spongepowered.api.entity.living.animal.HorseStyle;
@@ -127,6 +121,12 @@ import org.spongepowered.api.entity.living.villager.Profession;
 import org.spongepowered.api.entity.living.villager.Professions;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.entity.player.gamemode.GameModes;
+import org.spongepowered.api.item.CoalType;
+import org.spongepowered.api.item.CoalTypes;
+import org.spongepowered.api.item.CookedFish;
+import org.spongepowered.api.item.CookedFishes;
+import org.spongepowered.api.item.DyeColor;
+import org.spongepowered.api.item.DyeColors;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.FireworkEffect;
@@ -139,6 +139,7 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStackBuilder;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.item.recipe.RecipeRegistry;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.potion.PotionEffect;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
@@ -168,9 +169,9 @@ import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
+import org.spongepowered.api.world.gen.WorldGeneratorModifier;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
-import org.spongepowered.mod.SpongeGame;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.block.meta.SpongeNotePitch;
 import org.spongepowered.mod.block.meta.SpongeSkullType;
@@ -223,6 +224,7 @@ import org.spongepowered.mod.text.format.SpongeTextStyle;
 import org.spongepowered.mod.text.translation.SpongeTranslation;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
+import org.spongepowered.mod.world.gen.WorldGeneratorRegistry;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -476,6 +478,7 @@ public class SpongeGameRegistry implements GameRegistry {
     private final Map<String, Fish> fishMappings = Maps.newHashMap();
     private final Map<String, CookedFish> cookedFishMappings = Maps.newHashMap();
     private final Map<String, GoldenApple> goldenAppleMappings = Maps.newHashMap();
+    private final WorldGeneratorRegistry worldGeneratorRegistry = new WorldGeneratorRegistry();
 
     @Override
     public Optional<BlockType> getBlock(String id) {
@@ -1845,5 +1848,20 @@ public class SpongeGameRegistry implements GameRegistry {
         setBiomeTypes();
         setFishes();
         setCoal();
+    }
+
+    @Override
+    public Optional<WorldGeneratorModifier> getWorldGeneratorModifier(String id) {
+        return this.worldGeneratorRegistry.getModifier(id);
+    }
+
+    @Override
+    public Collection<WorldGeneratorModifier> getWorldGeneratorModifiers() {
+        return this.worldGeneratorRegistry.getModifiers();
+    }
+
+    @Override
+    public void registerWorldGeneratorModifier(PluginContainer plugin, String id, WorldGeneratorModifier modifier) {
+        this.worldGeneratorRegistry.registerModifier(plugin, id, modifier);
     }
 }

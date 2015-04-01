@@ -31,6 +31,7 @@ import net.minecraft.world.biome.BiomeGenBase;
 import org.spongepowered.api.util.gen.ImmutableBiomeArea;
 import org.spongepowered.api.util.gen.MutableBiomeArea;
 import org.spongepowered.api.world.biome.BiomeType;
+import org.spongepowered.api.world.biome.BiomeTypes;
 
 import java.util.Arrays;
 
@@ -40,18 +41,22 @@ import java.util.Arrays;
  * <p>Using {@link #detach()} the underlying byte array can be accessed. Both
  * the sizeX and sizeZ will be set to 0 by that method, preventing further
  * access to the byte array. The byte array can then be reused by calling
- * {@link #reuse(int, int)}.</p>
+ * {@link #reuse(Vector2i)}.</p>
  */
-public final class SpongeMutableBiomeArea extends AbstractBiomeArea implements MutableBiomeArea {
+public final class ByteArrayMutableBiomeArea extends AbstractBiomeArea implements MutableBiomeArea {
 
     private boolean detached;
+    private final byte[] biomes;
+
+    private final BiomeGenBase[] biomeById = BiomeGenBase.getBiomeGenArray();
 
     private void checkOpen() {
         Preconditions.checkState(!this.detached, "trying to use buffer after it's closed");
     }
 
-    public SpongeMutableBiomeArea(int startX, int startZ, int sizeX, int sizeZ) {
-        super(new byte[sizeX * sizeZ], startX, startZ, sizeX, sizeZ);
+    public ByteArrayMutableBiomeArea(Vector2i start, Vector2i size) {
+        super(start, size);
+        this.biomes = new byte[size.getX() * size.getY()];
     }
 
     @Override
@@ -69,7 +74,7 @@ public final class SpongeMutableBiomeArea extends AbstractBiomeArea implements M
         checkRange(x, z);
         checkOpen();
 
-        this.biomes[(x - this.startX) | (z - this.startZ) << 4] = (byte) ((BiomeGenBase) biome).biomeID;
+        this.biomes[(x - this.start.getX()) | (z - this.start.getY()) << 4] = (byte) ((BiomeGenBase) biome).biomeID;
     }
 
     @Override
@@ -80,12 +85,12 @@ public final class SpongeMutableBiomeArea extends AbstractBiomeArea implements M
     @Override
     public ImmutableBiomeArea getImmutableClone() {
         checkOpen();
-        return new SpongeImmutableBiomeArea(biomes, startX, startZ, sizeX, sizeZ);
+        return new ByteArrayImmutableBiomeArea(this.biomes, this.start, this.size);
     }
 
     /**
      * Gets the internal byte array, and prevents further of it through this
-     * object uses until {@link #reuse(int, int)} is called.
+     * object uses until {@link #reuse(Vector2i)} is called.
      *
      * @return The internal byte array.
      */
@@ -97,20 +102,52 @@ public final class SpongeMutableBiomeArea extends AbstractBiomeArea implements M
     }
 
     /**
+     * Gets whether this biome area is currently detached. When detached,
+     * this object is available for reuse using {@link #reuse(Vector2i)}.
+     * @return Whether this biome area is detached
+     */
+    public boolean isDetached() {
+        return this.detached;
+    }
+
+    /**
      * Changes the bounds of this biome area, so that it can be reused for
      * another chunk.
      *
-     * @param startX New start x.
-     * @param startZ New start z.
+     * @param start New start position.
      */
-    public void reuse(int startX, int startZ) {
+    public void reuse(Vector2i start) {
         Preconditions.checkState(this.detached, "Cannot reuse while still in use");
 
-        this.startX = startX;
-        this.startZ = startZ;
+        this.start = Preconditions.checkNotNull(start, "start");
+        this.end = this.start.add(this.size).sub(Vector2i.ONE);
         Arrays.fill(this.biomes, (byte) 0);
 
         this.detached = false;
+    }
+
+    @Override
+    public Vector2i getBiomeMin() {
+        return this.start;
+    }
+
+    @Override
+    public Vector2i getBiomeMax() {
+        return this.end;
+    }
+
+    @Override
+    public BiomeType getBiome(Vector2i position) {
+        return getBiome(position.getX(), position.getY());
+    }
+
+    @Override
+    public BiomeType getBiome(int x, int z) {
+        checkOpen();
+
+        byte biomeId = this.biomes[(x - this.start.getX()) | (z - this.start.getY()) << 4];
+        BiomeType biomeType = (BiomeType) this.biomeById[biomeId & 0xff];
+        return biomeType == null ? BiomeTypes.OCEAN : biomeType;
     }
 
 }

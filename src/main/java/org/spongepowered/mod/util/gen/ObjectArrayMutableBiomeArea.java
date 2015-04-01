@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-package org.spongepowered.mod.world.gen;
+package org.spongepowered.mod.util.gen;
 
 import com.flowpowered.math.vector.Vector2i;
 import com.google.common.base.Preconditions;
@@ -31,51 +31,35 @@ import net.minecraft.world.biome.BiomeGenBase;
 import org.spongepowered.api.util.gen.ImmutableBiomeArea;
 import org.spongepowered.api.util.gen.MutableBiomeArea;
 import org.spongepowered.api.world.biome.BiomeType;
-import org.spongepowered.mod.util.gen.SpongeImmutableBiomeArea;
-import org.spongepowered.mod.util.gen.SpongeMutableBiomeArea;
 
 import java.util.Arrays;
 
 /**
- * Mutable biome area, similar to {@link SpongeMutableBiomeArea}. This biome
- * area is backed by an array of {@link BiomeGenBase}. This is normally less
- * efficient, but when an array of {@link BiomeGenBase} is required by a
- * contract of Minecraft (for example for the
- * {@link CustomWorldChunkManager#getBiomeGenAt(BiomeGenBase[], int, int, int, int, boolean)
- * getBiomeGenAt} method), it becomes more efficient.
+ * Mutable view of a {@link BiomeGenBase} array.
  *
+ * <p>Normally, the {@link ByteArrayMutableBiomeArea} class uses memory more
+ * efficiently, but when the {@link BiomeGenBase} array is already created (for
+ * example for a contract specified by Minecraft) this implementation becomes
+ * more efficient.</p>
  */
-final class BiomePrimerBuffer implements MutableBiomeArea {
+public final class ObjectArrayMutableBiomeArea extends AbstractBiomeArea implements MutableBiomeArea {
 
     private final BiomeGenBase[] biomes;
-    private final int startX;
-    private final int startZ;
-    private final int sizeX;
-    private final int sizeZ;
 
-    public BiomePrimerBuffer(BiomeGenBase[] oldArrayToReuse, int startX, int startZ, int sizeX, int sizeZ) {
-        // Check, clear and use old array
-        Preconditions.checkNotNull(oldArrayToReuse);
-        Preconditions.checkArgument(oldArrayToReuse.length >= sizeX * sizeZ);
-        Arrays.fill(oldArrayToReuse, BiomeGenBase.ocean);
-        this.biomes = oldArrayToReuse;
+    /**
+     * Creates a new instance.
+     *
+     * @param biomes The biome array. The array is not copied, so changes made
+     *        by this object will write through.
+     * @param start The start position
+     * @param size The size
+     */
+    public ObjectArrayMutableBiomeArea(BiomeGenBase[] biomes, Vector2i start, Vector2i size) {
+        super(start, size);
 
-        this.startX = startX;
-        this.startZ = startZ;
-        this.sizeX = sizeX;
-        this.sizeZ = sizeZ;
-    }
-
-    private void checkRange(int x, int z) {
-        if (x < this.startX || x >= (this.startX + this.sizeX)
-                || z < this.startZ || z >= (this.startZ + this.sizeZ)) {
-            throw new IndexOutOfBoundsException("Position " + new Vector2i(x, z) + " out of bounds for " + this);
-        }
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "(min: " + getMinBound() + ", size: " + getSize() + ")";
+        Preconditions.checkNotNull(biomes);
+        Preconditions.checkArgument(biomes.length >= size.getX() * size.getY());
+        this.biomes = biomes;
     }
 
     @Override
@@ -86,22 +70,17 @@ final class BiomePrimerBuffer implements MutableBiomeArea {
     @Override
     public BiomeType getBiome(int x, int z) {
         checkRange(x, z);
-        return (BiomeType) this.biomes[(x - this.startX) | (z - this.startZ) << 4];
+        return (BiomeType) this.biomes[(x - this.start.getX()) | (z - this.start.getY()) << 4];
     }
 
     @Override
-    public Vector2i getMinBound() {
-        return new Vector2i(this.startX, this.startZ);
+    public Vector2i getBiomeMin() {
+        return this.start;
     }
 
     @Override
-    public Vector2i getMaxBound() {
-        return getMinBound().add(getSize());
-    }
-
-    @Override
-    public Vector2i getSize() {
-        return new Vector2i(this.sizeX, this.sizeZ);
+    public Vector2i getBiomeMax() {
+        return this.end;
     }
 
     @Override
@@ -113,7 +92,7 @@ final class BiomePrimerBuffer implements MutableBiomeArea {
     public void setBiome(int x, int z, BiomeType biome) {
         Preconditions.checkNotNull(biome, "biome");
         checkRange(x, z);
-        this.biomes[(x - this.startX) | (z - this.startZ) << 4] = (BiomeGenBase) biome;
+        this.biomes[(x - this.start.getX()) | (z - this.start.getY()) << 4] = (BiomeGenBase) biome;
     }
 
     @Override
@@ -123,7 +102,12 @@ final class BiomePrimerBuffer implements MutableBiomeArea {
 
     @Override
     public ImmutableBiomeArea getImmutableClone() {
-        return new SpongeImmutableBiomeArea(this.biomes, this.startX, this.startZ, this.sizeX, this.sizeZ);
+        return new ByteArrayImmutableBiomeArea(this.biomes, this.start, this.size);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(min: " + getMinBound() + ", size: " + getSize() + ")";
     }
 
 }

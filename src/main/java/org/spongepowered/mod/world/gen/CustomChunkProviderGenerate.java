@@ -25,6 +25,9 @@
 
 package org.spongepowered.mod.world.gen;
 
+import org.spongepowered.mod.util.gen.ChunkPrimerBuffer;
+
+import com.flowpowered.math.vector.Vector2i;
 import com.google.common.base.Preconditions;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.entity.EnumCreatureType;
@@ -41,7 +44,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GeneratorPopulator;
-import org.spongepowered.mod.util.gen.SpongeMutableBiomeArea;
+import org.spongepowered.mod.util.gen.ByteArrayMutableBiomeArea;
 
 import java.util.List;
 import java.util.Random;
@@ -52,10 +55,12 @@ import java.util.Random;
  */
 public final class CustomChunkProviderGenerate implements IChunkProvider {
 
+    private static final Vector2i CHUNK_AREA = new Vector2i(16, 16);
+
     final GeneratorPopulator generatorPopulator;
     final BiomeGenerator biomeGenerator;
     private final World world;
-    private final SpongeMutableBiomeArea cachedBiomes;
+    private final ByteArrayMutableBiomeArea cachedBiomes;
 
     /**
      * Gets the chunk generator from the given generator populator and biome
@@ -83,7 +88,7 @@ public final class CustomChunkProviderGenerate implements IChunkProvider {
         this.biomeGenerator = Preconditions.checkNotNull(biomeGenerator);
 
         // Make initially empty biome cache
-        this.cachedBiomes = new SpongeMutableBiomeArea(0, 0, 16, 16);
+        this.cachedBiomes = new ByteArrayMutableBiomeArea(Vector2i.ZERO, CHUNK_AREA);
         this.cachedBiomes.detach();
     }
 
@@ -128,8 +133,8 @@ public final class CustomChunkProviderGenerate implements IChunkProvider {
     public Chunk provideChunk(int chunkX, int chunkZ) {
 
         // Generate biomes
-        this.cachedBiomes.reuse(chunkX * 16, chunkZ * 16);
-        this.biomeGenerator.getBiomesForArea(this.cachedBiomes);
+        this.cachedBiomes.reuse(new Vector2i(chunkX * 16, chunkZ * 16));
+        this.biomeGenerator.generateBiomes(this.cachedBiomes);
 
         // Generate blocks
         ChunkPrimer chunkprimer = new ChunkPrimer();
