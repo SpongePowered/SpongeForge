@@ -22,21 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.mixin.core.world;
 
-import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.world.gen.GeneratorPopulator;
-import org.spongepowered.api.world.gen.Populator;
-import net.minecraft.world.storage.WorldInfo;
-import org.spongepowered.mod.configuration.SpongeConfig;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.chunk.storage.AnvilChunkLoader;
+import net.minecraft.world.chunk.storage.IChunkLoader;
+import net.minecraft.world.storage.SaveHandler;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 
-public interface IMixinWorld {
+import java.io.File;
 
-    SpongeConfig<SpongeConfig.WorldConfig> getWorldConfig();
+@NonnullByDefault
+@Mixin(net.minecraft.world.chunk.storage.AnvilSaveHandler.class)
+public class MixinAnvilSaveHandler extends SaveHandler {
 
-    ImmutableList<Populator> getPopulators();
+    public MixinAnvilSaveHandler(File savesDirectory, String directoryName, boolean playersDirectoryIn) {
+        super(savesDirectory, directoryName, playersDirectoryIn);
+    }
 
-    ImmutableList<GeneratorPopulator> getGeneratorPopulators();
-
-    void setWorldInfo(WorldInfo worldInfo);
+    @Override
+    @Overwrite
+    public IChunkLoader getChunkLoader(WorldProvider provider) {
+        // To workaround the issue of every world having a seperate savehandler
+        // we won't be generating a DIMXX folder for chunk loaders since this name is already generated
+        // for the world container with provider.getSaveFolder().
+        // This allows users to remove our mod and maintain world compatibility.
+        return new AnvilChunkLoader(this.getWorldDirectory());
+    }
 }

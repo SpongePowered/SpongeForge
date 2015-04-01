@@ -24,19 +24,33 @@
  */
 package org.spongepowered.mod.interfaces;
 
-import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.world.gen.GeneratorPopulator;
-import org.spongepowered.api.world.gen.Populator;
-import net.minecraft.world.storage.WorldInfo;
-import org.spongepowered.mod.configuration.SpongeConfig;
+import net.minecraft.nbt.NBTTagCompound;
+import org.spongepowered.api.world.DimensionType;
+import org.spongepowered.api.world.GeneratorType;
 
-public interface IMixinWorld {
+import java.util.UUID;
 
-    SpongeConfig<SpongeConfig.WorldConfig> getWorldConfig();
+public interface IMixinWorldInfo {
 
-    ImmutableList<Populator> getPopulators();
+    NBTTagCompound getSpongeRootLevelNbt();
 
-    ImmutableList<GeneratorPopulator> getGeneratorPopulators();
+    NBTTagCompound getSpongeNbt();
 
-    void setWorldInfo(WorldInfo worldInfo);
+    int getDimensionId();
+
+    void setDimensionId(int id);;
+
+    void setSpongeRootLevelNBT(NBTTagCompound nbt);
+
+    void setUUID(UUID uuid);
+
+    void setDimensionType(DimensionType type);
+
+    void setType(GeneratorType type);
+
+    void setSeed(long seed);
+
+    void setWorldName(String name);
+
+    void readSpongeNbt(NBTTagCompound spongeNbt);
 }

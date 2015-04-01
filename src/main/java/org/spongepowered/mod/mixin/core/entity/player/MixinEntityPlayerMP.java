@@ -34,6 +34,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
+import net.minecraft.util.CombatTracker;
+import net.minecraft.util.FoodStats;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.LocaleUtils;
 import org.spongepowered.api.GameProfile;
@@ -56,6 +58,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
 import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
+import org.spongepowered.mod.interfaces.IMixinEntityPlayerMP;
 import org.spongepowered.mod.interfaces.Subjectable;
 import org.spongepowered.mod.text.SpongeChatComponent;
 import org.spongepowered.mod.text.SpongeText;
@@ -71,7 +74,12 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
 @Implements(@Interface(iface = Player.class, prefix = "playermp$"))
-public abstract class MixinEntityPlayerMP extends EntityPlayer implements CommandSource, Subjectable {
+public abstract class MixinEntityPlayerMP extends EntityPlayer implements CommandSource, Subjectable, IMixinEntityPlayerMP {
+
+    public int newExperience = 0;
+    public int newLevel = 0;
+    public int newTotalExperience = 0;
+    public boolean keepsLevel = false;
 
     @Shadow
     private String translator;
@@ -195,4 +203,39 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         return Tristate.FALSE;
     }
 
+    @Override
+    public void reset() {
+        float experience = 0;
+        boolean keepInventory = this.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+
+        if (this.keepsLevel || keepInventory) {
+            experience = this.experience;
+            this.newTotalExperience = this.experienceTotal;
+            this.newLevel = this.experienceLevel;
+        }
+
+        this.clearActivePotions();
+        this._combatTracker = new CombatTracker(this);
+        this.deathTime = 0;
+        this.experience = 0;
+        this.experienceLevel = this.newLevel;
+        this.experienceTotal = this.newTotalExperience;
+        this.fire = 0;
+        this.fallDistance = 0;
+        this.foodStats = new FoodStats();
+        this.potionsNeedUpdate = true;
+        this.openContainer = this.inventoryContainer;
+        this.attackingPlayer = null;
+        this.entityLivingToAttack = null;
+        this.lastExperience = -1;
+        this.setHealth(this.getMaxHealth());
+
+        if (this.keepsLevel || keepInventory) {
+            this.experience = experience;
+        } else {
+            this.addExperience(this.newExperience);
+        }
+
+        this.keepsLevel = false;
+    }
 }

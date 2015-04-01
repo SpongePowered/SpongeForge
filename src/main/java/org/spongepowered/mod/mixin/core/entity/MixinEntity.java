@@ -29,18 +29,27 @@ import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.server.S05PacketSpawnPosition;
 import net.minecraft.network.play.server.S07PacketRespawn;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook.EnumFlags;
-import net.minecraft.network.play.server.S1FPacketSetExperience;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.network.ForgeMessage;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
+import net.minecraftforge.fml.common.network.FMLOutboundHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.RelativePositions;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Dimension;
+import org.spongepowered.api.world.DimensionTypes;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.asm.mixin.Mixin;
@@ -52,9 +61,12 @@ import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEntity;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.util.SpongeHooks;
+import org.spongepowered.mod.util.VecHelper;
+import org.spongepowered.mod.world.SpongeDimensionType;
 
 import java.util.ArrayDeque;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -162,13 +174,33 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     @Override
     public void setLocation(Location location) {
+        setLocation(location, true);
+    }
+
+    @Override
+    public boolean setLocationSafely(Location location) {
+        return setLocation(location, false);
+    }
+
+    public boolean setLocation(Location location, boolean forced) {
         if (isRemoved()) {
-            return;
+            return false;
         }
 
         Entity spongeEntity = this;
         net.minecraft.entity.Entity thisEntity = (net.minecraft.entity.Entity) spongeEntity;
 
+        Optional<Location> safeLocation = Optional.absent();
+        if (!forced) {
+            // Validate
+            TeleportHelper teleportHelper = SpongeMod.instance.getGame().getTeleportHelper();
+            safeLocation = teleportHelper.getSafeLocation(location);
+            if (!safeLocation.isPresent()) {
+                return false;
+            } else {
+                location = safeLocation.get();
+            }
+        }
         // detach passengers
         net.minecraft.entity.Entity passenger = thisEntity.riddenByEntity;
         ArrayDeque<net.minecraft.entity.Entity> passengers = new ArrayDeque<net.minecraft.entity.Entity>();
@@ -186,16 +218,27 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         }
 
         net.minecraft.world.World nmsWorld = null;
-        if (location.getExtent() instanceof World && ((net.minecraft.world.World) location.getExtent() != this.worldObj)) {
-            if (!(thisEntity instanceof EntityPlayer)) {
-                nmsWorld = (net.minecraft.world.World) location.getExtent();
-                teleportEntity(thisEntity, location, thisEntity.dimension, nmsWorld.provider.getDimensionId());
+        if (location.getExtent() instanceof World && ((World) location.getExtent()).getUniqueId() != ((World) this.worldObj).getUniqueId()) {
+            nmsWorld = (net.minecraft.world.World) location.getExtent();
+            if (thisEntity instanceof EntityPlayerMP) {
+                // register dimension on client-side
+                FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
+                serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
+                serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(thisEntity);
+                serverChannel.writeOutbound(new ForgeMessage.DimensionRegisterMessage(nmsWorld.provider.getDimensionId(),
+                        ((SpongeDimensionType) ((Dimension) nmsWorld.provider).getType()).getDimensionTypeId()));
+                teleportEntity(thisEntity, location, thisEntity.dimension, nmsWorld.provider.getDimensionId(), forced);
+                //((IMixinServerConfigurationManager)MinecraftServer.getServer().getConfigurationManager()).respawnPlayer((EntityPlayerMP)thisEntity, ((net.minecraft.world.World)location.getExtent()).provider.getDimensionId(), false, location);
+            } else {
+                teleportEntity(thisEntity, location, thisEntity.dimension, nmsWorld.provider.getDimensionId(), forced);
             }
         } else {
-            setPosition(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ());
             if (thisEntity instanceof EntityPlayerMP) {
-                ((EntityPlayerMP) thisEntity).playerNetServerHandler.setPlayerLocation(location.getPosition().getX(), location.getPosition().getY(),
-                        location.getPosition().getZ(), thisEntity.rotationYaw, thisEntity.rotationPitch);
+                ((EntityPlayerMP) thisEntity).playerNetServerHandler
+                        .setPlayerLocation(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ(),
+                                thisEntity.rotationYaw, thisEntity.rotationPitch);
+            } else {
+                setPosition(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ());
             }
         }
 
@@ -204,12 +247,11 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         while (!passengers.isEmpty()) {
             net.minecraft.entity.Entity passengerEntity = passengers.remove();
             if (nmsWorld != null) {
-                teleportEntity(passengerEntity, location, passengerEntity.dimension, nmsWorld.provider.getDimensionId());
+                teleportEntity(passengerEntity, location, passengerEntity.dimension, nmsWorld.provider.getDimensionId(), true);
             }
 
             if (passengerEntity instanceof EntityPlayerMP && !this.worldObj.isRemote) {
-                // The actual mount is handled in our event as mounting must be
-                // set after client fully loads.
+                // The actual mount is handled in our event as mounting must be set after client fully loads.
                 ((IMixinEntity) passengerEntity).setIsTeleporting(true);
                 ((IMixinEntity) passengerEntity).setTeleportVehicle(lastPassenger);
             } else {
@@ -217,20 +259,21 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
             }
             lastPassenger = passengerEntity;
         }
+
+        return true;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void setLocationAndRotation(Location location, Vector3d rotation, EnumSet<RelativePositions> relativePositions) {
         if (relativePositions.isEmpty()) {
-            // This is just a normal teleport that happens to set both.
+            //This is just a normal teleport that happens to set both.
             setLocation(location);
             setRotation(rotation);
         } else {
             Entity spongeEntity = this;
             if (spongeEntity instanceof EntityPlayerMP) {
-                // Players use different logic, as they support real relative
-                // movement.
+                //Players use different logic, as they support real relative movement.
                 EnumSet relativeFlags = EnumSet.noneOf(EnumFlags.class);
 
                 if (relativePositions.contains(RelativePositions.X)) {
@@ -279,11 +322,33 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
                     resultantRotation.add(0, rotation.getY(), 0);
                 }
 
-                // From here just a normal teleport is needed.
+                //From here just a normal teleport is needed.
                 setLocation(resultant);
                 setRotation(resultantRotation);
             }
         }
+    }
+
+    @Override
+    public boolean transferToWorld(String worldName, Vector3d position) {
+        for (WorldServer worldserver : DimensionManager.getWorlds()) {
+            if (worldserver.getWorldInfo().getWorldName().equalsIgnoreCase(worldName)) {
+                Vector3d pos = VecHelper.toVector3d(worldserver.getSpawnPoint());
+                Location location = new Location((World) worldserver, pos);
+                setLocationSafely(location);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean transferToWorld(UUID uuid, Vector3d position) {
+        String worldFolder = SpongeMod.instance.getSpongeRegistry().getWorldFolder(uuid);
+        if (worldFolder != null) {
+            return transferToWorld(worldFolder, position);
+        }
+        return false;
     }
 
     @Override
@@ -418,7 +483,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     // for sponge internal use only
     @SuppressWarnings("unchecked")
-    private void teleportEntity(net.minecraft.entity.Entity entity, Location location, int currentDim, int targetDim) {
+    private boolean teleportEntity(net.minecraft.entity.Entity entity, Location location, int currentDim, int targetDim, boolean forced) {
         MinecraftServer mcServer = MinecraftServer.getServer();
         final WorldServer fromWorld = mcServer.worldServerForDimension(currentDim);
         final WorldServer toWorld = mcServer.worldServerForDimension(targetDim);
@@ -434,19 +499,34 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         entity.dimension = targetDim;
         entity.setWorld(toWorld);
         entity.isDead = false;
-        entity.setPosition(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ());
-        toWorld.theChunkProviderServer.loadChunk((int) entity.posX >> 4, (int) entity.posZ >> 4);
-        while (!toWorld.getCollidingBoundingBoxes(entity, entity.getEntityBoundingBox()).isEmpty() && entity.posY < 256.0D) {
-            entity.setPosition(entity.posX, entity.posY + 1.0D, entity.posZ);
+        entity.setPositionAndRotation(location.getX(), location.getY(), location.getZ(), 0, 0);
+        if (forced) {
+            while (!toWorld.getCollidingBoundingBoxes(entity, entity.getEntityBoundingBox()).isEmpty() && entity.posY < 256.0D) {
+                entity.setPosition(entity.posX, entity.posY + 1.0D, entity.posZ);
+            }
         }
+
+        toWorld.theChunkProviderServer.loadChunk((int) entity.posX >> 4, (int) entity.posZ >> 4);
 
         if (entity instanceof EntityPlayer) {
             EntityPlayerMP entityplayermp1 = (EntityPlayerMP) entity;
-            entityplayermp1.isDead = false;
-            entityplayermp1.playerNetServerHandler.sendPacket(new S07PacketRespawn(targetDim, toWorld.getDifficulty(), toWorld.getWorldInfo()
-                    .getTerrainType(), entityplayermp1.theItemInWorldManager.getGameType()));
-            entityplayermp1.playerNetServerHandler.sendPacket(new S1FPacketSetExperience(entityplayermp1.experience, entityplayermp1.experienceTotal,
-                    entityplayermp1.experienceLevel));
+            boolean fmlClient = entityplayermp1.playerNetServerHandler.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
+            // Support vanilla clients teleporting to custom dimensions
+            if (!fmlClient) {
+                if (((Dimension) toWorld.provider).getType().equals(DimensionTypes.NETHER)) {
+                    targetDim = -1;
+                } else if (((Dimension) toWorld.provider).getType().equals(DimensionTypes.END)) {
+                    targetDim = 1;
+                } else {
+                    targetDim = 0;
+                }
+            }
+
+            entityplayermp1.playerNetServerHandler.sendPacket(
+                    new S07PacketRespawn(targetDim, toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
+                            entityplayermp1.theItemInWorldManager.getGameType()));
+            entityplayermp1.playerNetServerHandler.setPlayerLocation(entityplayermp1.posX, entityplayermp1.posY, entityplayermp1.posZ,
+                    entityplayermp1.rotationYaw, entityplayermp1.rotationPitch);
             entityplayermp1.setSneaking(false);
             mcServer.getConfigurationManager().updateTimeAndWeatherForPlayer(entityplayermp1, toWorld);
             toWorld.getPlayerManager().addPlayer(entityplayermp1);
@@ -455,12 +535,14 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
             entityplayermp1.theItemInWorldManager.setWorld(toWorld);
             entityplayermp1.addSelfToInternalCraftingInventory();
             entityplayermp1.setHealth(entityplayermp1.getHealth());
+            net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerChangedDimensionEvent(entityplayermp1, currentDim, targetDim);
         } else {
             toWorld.spawnEntityInWorld(entity);
         }
 
         fromWorld.resetUpdateEntityTick();
         toWorld.resetUpdateEntityTick();
+        return true;
     }
 
     @Override
@@ -517,10 +599,8 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     /**
      * Hooks into vanilla's writeToNBT to call {@link #writeToNbt}.
      *
-     * <p>
-     * This makes it easier for other entity mixins to override writeToNBT
-     * without having to specify the <code>@Inject</code> annotation.
-     * </p>
+     * <p> This makes it easier for other entity mixins to override writeToNBT
+     * without having to specify the <code>@Inject</code> annotation. </p>
      *
      * @param compound The compound vanilla writes to (unused because we write
      *        to SpongeData)
@@ -534,10 +614,8 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     /**
      * Hooks into vanilla's readFromNBT to call {@link #readFromNbt}.
      *
-     * <p>
-     * This makes it easier for other entity mixins to override readFromNbt
-     * without having to specify the <code>@Inject</code> annotation.
-     * </p>
+     * <p> This makes it easier for other entity mixins to override readFromNbt
+     * without having to specify the <code>@Inject</code> annotation. </p>
      *
      * @param compound The compound vanilla reads from (unused because we read
      *        from SpongeData)
@@ -552,9 +630,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
      * Gets the SpongeData NBT tag, used for additional data not stored in the
      * vanilla tag.
      *
-     * <p>
-     * Modifying this tag will affect the data stored.
-     * </p>
+     * <p> Modifying this tag will affect the data stored. </p>
      *
      * @return The data tag
      */

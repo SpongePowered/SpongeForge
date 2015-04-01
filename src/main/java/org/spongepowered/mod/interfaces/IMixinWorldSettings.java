@@ -24,19 +24,18 @@
  */
 package org.spongepowered.mod.interfaces;
 
-import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.world.gen.GeneratorPopulator;
-import org.spongepowered.api.world.gen.Populator;
-import net.minecraft.world.storage.WorldInfo;
-import org.spongepowered.mod.configuration.SpongeConfig;
+import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.world.DimensionType;
 
-public interface IMixinWorld {
+public interface IMixinWorldSettings {
 
-    SpongeConfig<SpongeConfig.WorldConfig> getWorldConfig();
+    void setDimensionType(DimensionType type);
 
-    ImmutableList<Populator> getPopulators();
+    void setEnabled(boolean isWorldEnabled);
 
-    ImmutableList<GeneratorPopulator> getGeneratorPopulators();
+    void setGeneratorSettings(DataContainer generatorSettings);
 
-    void setWorldInfo(WorldInfo worldInfo);
+    void setLoadOnStartup(boolean loadOnStartup);
+
+    void setKeepSpawnLoaded(boolean keepSpawnLoaded);
 }

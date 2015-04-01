@@ -29,7 +29,10 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -40,6 +43,7 @@ import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
@@ -59,6 +63,8 @@ import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.api.util.command.CommandMapping;
+import org.spongepowered.api.world.Dimension;
+import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.mod.command.CommandSponge;
 import org.spongepowered.mod.command.MinecraftCommandWrapper;
 import org.spongepowered.mod.event.SpongeEventBus;
@@ -74,9 +80,13 @@ import org.spongepowered.mod.service.scheduler.AsyncScheduler;
 import org.spongepowered.mod.service.scheduler.SyncScheduler;
 import org.spongepowered.mod.service.sql.SqlServiceImpl;
 import org.spongepowered.mod.util.SpongeHooks;
+import org.spongepowered.mod.world.SpongeDimensionType;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
+import java.util.UUID;
 
 public class SpongeMod extends DummyModContainer implements PluginContainer {
 
@@ -214,6 +224,11 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     }
 
     @Subscribe
+    public void onServerAboutToStart(FMLServerAboutToStartEvent e) {
+        registerAllEnabledWorlds();
+    }
+
+    @Subscribe
     public void onServerStarting(FMLServerStartingEvent e) {
         try {
             // Register vanilla-style commands (if necessary -- not necessary on client)
@@ -257,5 +272,64 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Override
     public Object getInstance() {
         return getMod();
+    }
+
+    public SpongeGameRegistry getSpongeRegistry() {
+        return this.registry;
+    }
+
+    public void registerAllEnabledWorlds() {
+        File[] directoryListing = DimensionManager.getCurrentSaveRootDirectory().listFiles();
+        if (directoryListing == null) {
+            return;
+        }
+
+        for (File child : directoryListing) {
+            File levelData = new File(child, "level_sponge.dat");
+            if (!child.isDirectory() || !levelData.exists()) {
+                continue;
+            }
+
+            try {
+                NBTTagCompound nbt = CompressedStreamTools.readCompressed(new FileInputStream(levelData));
+                if (nbt.hasKey(getModId())) {
+                    NBTTagCompound spongeData = nbt.getCompoundTag(getModId());
+                    boolean enabled = spongeData.getBoolean("enabled");
+                    boolean loadOnStartup = spongeData.getBoolean("loadOnStartup");
+                    int dimensionId = spongeData.getInteger("dimensionId");
+                    if (!(dimensionId == -1) && !(dimensionId == 0) && !(dimensionId == 1)) {
+                        if (!enabled) {
+                            getLogger().info("World "+ child.getName() + " is currently disabled. Skipping world load...");
+                            continue;
+                        }
+                        if (!loadOnStartup) {
+                            getLogger().info("World "+ child.getName() + " 'loadOnStartup' is disabled.. Skipping world load...");
+                            continue;
+                        }
+                    }
+                    if (spongeData.hasKey("uuid_most") && spongeData.hasKey("uuid_least")) {
+                        UUID uuid = new UUID(spongeData.getLong("uuid_most"), spongeData.getLong("uuid_least"));
+                        this.registry.registerWorldUniqueId(uuid, child.getName());
+                    }
+                    if (spongeData.hasKey("dimensionId") && spongeData.getBoolean("enabled")) {
+                        int dimension = spongeData.getInteger("dimensionId");
+                        for (Map.Entry<Class<? extends Dimension>, DimensionType> mapEntry : getSpongeRegistry().dimensionClassMappings
+                                .entrySet()) {
+                            if (mapEntry.getKey().getCanonicalName().equalsIgnoreCase(spongeData.getString("dimensionType"))) {
+                                this.registry.registerWorldDimensionId(dimension, child.getName());
+                                if (!DimensionManager.isDimensionRegistered(dimension)) {
+                                    DimensionManager.registerDimension(dimension,
+                                            ((SpongeDimensionType) mapEntry.getValue()).getDimensionTypeId());
+                                }
+                            }
+                        }
+                    } else {
+                        logger.info("World " + child.getName() + " is disabled! Skipping world registration...");
+                    }
+                }
+            } catch (Throwable t) {
+                logger.error("Error during world registration.", t);
+            }
+        }
     }
 }

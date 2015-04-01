@@ -51,6 +51,11 @@ public final class VecHelper {
         return new Vector3i(pos.getX(), pos.getY(), pos.getZ());
     }
 
+    // === MC BlockPos --> Flow Vector3d ==
+
+    public static Vector3d toVector3d(BlockPos pos) {
+        return new Vector3d(pos.getX(), pos.getY(), pos.getZ());
+    }
 
     // === Rotations --> Flow Vector ===
 
