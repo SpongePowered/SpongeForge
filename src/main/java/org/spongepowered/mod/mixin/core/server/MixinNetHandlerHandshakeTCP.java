@@ -47,4 +47,8 @@ public abstract class MixinNetHandlerHandshakeTCP {
         info.setVirtualHost(packetIn.ip, packetIn.port);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

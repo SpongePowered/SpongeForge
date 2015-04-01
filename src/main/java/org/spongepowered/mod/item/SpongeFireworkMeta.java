@@ -29,6 +29,7 @@ import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
 import org.spongepowered.api.item.FireworkEffect;
 import org.spongepowered.api.item.FireworkShape;
 import org.spongepowered.api.service.persistence.data.DataContainer;
@@ -52,6 +53,11 @@ public class SpongeFireworkMeta implements FireworkEffect {
         this.colors = ImmutableList.copyOf(colors);
         this.fades = ImmutableList.copyOf(fades);
         this.shape = shape;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     @Override

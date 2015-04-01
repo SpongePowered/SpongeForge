@@ -35,4 +35,9 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(net.minecraft.tileentity.TileEntityDaylightDetector.class)
 public abstract class MixinTileEntityDaylightDetector extends MixinTileEntity {
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

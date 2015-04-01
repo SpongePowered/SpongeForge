@@ -62,4 +62,8 @@ public abstract class MixinEntityEnderman extends EntityMob {
     public void enderman$setScreaming(boolean screaming) {
         this.dataWatcher.updateObject(18, (byte) (screaming ? 1 : 0));
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

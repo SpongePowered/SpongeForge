@@ -52,4 +52,8 @@ public abstract class MixinEntityDragonPart extends Entity {
         return (EnderDragon) this.entityDragonObj;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

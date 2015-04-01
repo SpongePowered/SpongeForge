@@ -59,4 +59,8 @@ public class SpongeSignBuilder extends AbstractTileBuilder<Sign> {
         ((TileEntitySign) sign).validate();
         return Optional.of(sign);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

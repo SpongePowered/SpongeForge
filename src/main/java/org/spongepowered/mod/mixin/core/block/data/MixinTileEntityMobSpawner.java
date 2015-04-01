@@ -27,7 +27,9 @@ package org.spongepowered.mod.mixin.core.block.data;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.collect.Lists;
+
 import net.minecraft.tileentity.MobSpawnerBaseLogic;
+
 import org.spongepowered.api.block.tile.MobSpawner;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.service.persistence.data.DataContainer;
@@ -66,6 +68,11 @@ public abstract class MixinTileEntityMobSpawner extends MixinTileEntity {
         } else {
             getSpawnerBaseLogic().spawnDelay = 0;
         }
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
 //    @Override

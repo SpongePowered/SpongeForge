@@ -81,6 +81,10 @@ public class SyncScheduler implements SynchronousScheduler {
         return this.schedulerHelper.getTaskById(this.taskMap, id);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Optional<UUID> getUuidOfTaskByName(String name) {
 

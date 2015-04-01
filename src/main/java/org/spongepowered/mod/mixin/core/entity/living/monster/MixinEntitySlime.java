@@ -56,4 +56,8 @@ public abstract class MixinEntitySlime extends EntityLiving {
     public void slime$setSize(int size) {
         setSlimeSize(size);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

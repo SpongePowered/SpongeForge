@@ -25,8 +25,10 @@
 package org.spongepowered.mod.entity;
 
 import com.google.common.base.MoreObjects;
+
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
+
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.text.translation.Translation;
 
@@ -115,5 +117,10 @@ public class SpongeEntityType implements EntityType {
     @Override
     public Translation getTranslation() {
         return null;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

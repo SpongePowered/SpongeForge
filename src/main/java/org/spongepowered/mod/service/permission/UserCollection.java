@@ -49,6 +49,10 @@ public class UserCollection extends SpongeSubjectCollection {
         this.service = service;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Subject get(String identifier) {
         UUID uid = identToUuid(identifier);

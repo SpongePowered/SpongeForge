@@ -49,4 +49,9 @@ public class MixinEnumBannerPattern implements BannerPatternShape {
         return this.patternID;
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

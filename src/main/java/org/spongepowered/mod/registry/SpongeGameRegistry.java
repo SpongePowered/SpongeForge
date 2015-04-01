@@ -260,6 +260,10 @@ import java.util.UUID;
 @NonnullByDefault
 public class SpongeGameRegistry implements GameRegistry {
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private final Map<String, BiomeType> biomeTypeMappings = Maps.newHashMap();
 
     public static final Map<Class<? extends WorldProvider>, SpongeConfig<SpongeConfig.DimensionConfig>> dimensionConfigs = Maps.newHashMap();

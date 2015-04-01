@@ -32,4 +32,8 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(net.minecraft.world.EnumDifficulty.class)
 public class MixinEnumDifficulty implements Difficulty {
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

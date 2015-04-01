@@ -59,4 +59,8 @@ public abstract class MixinItemType implements ItemType {
     public int getMaxStackQuantity() {
         return getItemStackLimit();
     }
+
+    public boolean isFlowerPot() {
+        return !getUnlocalizedName().equals("FlowerPot");
+    }
 }

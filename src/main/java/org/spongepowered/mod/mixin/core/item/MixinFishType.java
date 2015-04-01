@@ -52,4 +52,8 @@ public class MixinFishType implements Fish {
         container.set(of("FishType"), this.unlocalizedName);
         return container;
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

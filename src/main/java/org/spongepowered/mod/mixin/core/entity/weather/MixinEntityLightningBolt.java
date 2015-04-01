@@ -47,6 +47,10 @@ public abstract class MixinEntityLightningBolt extends EntityWeatherEffect imple
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean isEffect() {
         return this.effect;

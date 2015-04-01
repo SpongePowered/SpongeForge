@@ -42,4 +42,8 @@ public abstract class MixinEntityMagmaCube extends EntitySlime {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

@@ -47,6 +47,10 @@ public abstract class MixinChatStyle implements SpongeChatStyle {
     @Shadow
     public abstract boolean getItalic();
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Shadow
     public abstract boolean getStrikethrough();
 

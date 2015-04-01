@@ -52,4 +52,8 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(GameRegistry.class).to(SpongeGameRegistry.class).in(Scopes.SINGLETON);
         bind(File.class).annotatedWith(new ConfigDirAnnotation(true)).toInstance(Loader.instance().getConfigDir());
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

@@ -27,7 +27,9 @@ package org.spongepowered.mod.mixin.core.block.data;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.base.Optional;
+
 import net.minecraft.tileentity.TileEntity;
+
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.block.tile.Skull;
 import org.spongepowered.api.block.tile.data.SkullType;
@@ -68,5 +70,10 @@ public abstract class MixinTileEntitySkull extends MixinTileEntity {
     public DataContainer toContainer() {
         DataContainer container = super.toContainer();
         return container;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

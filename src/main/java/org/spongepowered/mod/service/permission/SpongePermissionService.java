@@ -57,6 +57,10 @@ public class SpongePermissionService implements PermissionService {
         }
     };
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private final ConcurrentMap<String, SubjectCollection> subjects = new ConcurrentHashMap<String, SubjectCollection>();
     private final MemorySubjectData defaultData;
 

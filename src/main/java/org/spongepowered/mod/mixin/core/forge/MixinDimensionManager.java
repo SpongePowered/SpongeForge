@@ -46,6 +46,10 @@ public abstract class MixinDimensionManager {
     @Shadow
     private static Hashtable<Integer, Boolean> spawnSettings;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Overwrite
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded) {
         if (providers.containsKey(id)) {

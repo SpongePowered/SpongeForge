@@ -66,6 +66,10 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Inject(method = "onUpdate()V", at = @At(value = "INVOKE", target = "java.lang.Math.sqrt(D)D", ordinal = 0))
     public void beforeModifyMotion(CallbackInfo ci) {
         this.initialDisplacement = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);

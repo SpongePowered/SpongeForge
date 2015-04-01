@@ -42,4 +42,8 @@ public abstract class MixinEntitySnowman extends EntityGolem {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

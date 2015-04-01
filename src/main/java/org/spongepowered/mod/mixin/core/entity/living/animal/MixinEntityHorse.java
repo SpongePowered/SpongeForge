@@ -97,6 +97,10 @@ public abstract class MixinEntityHorse extends EntityAnimal {
         return Optional.fromNullable((ItemStack) this.horseChest.getStackInSlot(0));
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public void setSaddle(@Nullable ItemStack itemStack) {
         net.minecraft.item.ItemStack nmsStack = (net.minecraft.item.ItemStack) itemStack;
         if (nmsStack != null && nmsStack.getItem() == Items.saddle) {

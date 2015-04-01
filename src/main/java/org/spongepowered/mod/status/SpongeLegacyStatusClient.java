@@ -46,6 +46,10 @@ public class SpongeLegacyStatusClient implements StatusClient {
         this.virtualHost = Optional.fromNullable(virtualHost);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public InetSocketAddress getAddress() {
         return this.address;

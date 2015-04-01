@@ -65,6 +65,10 @@ public abstract class MixinEntityEnderEye extends MixinEntity implements EyeOfEn
         this.targetZ = vector3d.getZ();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean doesShatterOnDrop() {
         return !this.shatterOrDrop;

@@ -53,4 +53,8 @@ public class SpongeDispenserBuilder extends SpongeLockableBuilder<Dispenser> {
         ((TileEntityDispenser) dispenser).validate();
         return Optional.of(dispenser);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

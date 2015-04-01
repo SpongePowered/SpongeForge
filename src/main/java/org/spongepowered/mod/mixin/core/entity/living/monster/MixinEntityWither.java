@@ -65,6 +65,10 @@ public abstract class MixinEntityWither extends EntityMob {
         this.setInvulTime(invulnerableTicks);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public List<Living> wither$getTargets() {
         List<Living> watchedTargets = new ArrayList<Living>();
         for (int i = 0; i < 2; ++i) {

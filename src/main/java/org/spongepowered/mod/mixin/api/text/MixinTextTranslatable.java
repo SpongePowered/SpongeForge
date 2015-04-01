@@ -57,4 +57,8 @@ public abstract class MixinTextTranslatable extends MixinText {
         return ret;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

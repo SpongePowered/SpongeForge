@@ -27,10 +27,12 @@ package org.spongepowered.mod.item;
 import static org.spongepowered.mod.service.persistence.NbtTranslator.getInstance;
 
 import com.google.common.base.Optional;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
+
 import org.spongepowered.api.item.ItemBlock;
 import org.spongepowered.api.item.ItemDataTransactionResult;
 import org.spongepowered.api.item.ItemType;
@@ -61,6 +63,11 @@ public final class ItemsHelper {
         @Override
         public Optional<Collection<ItemData<?>>> getReplacedData() {
             return Optional.absent();
+        }
+
+        @Override
+        public boolean isFlowerPot() {
+            return false;
         }
     };
 

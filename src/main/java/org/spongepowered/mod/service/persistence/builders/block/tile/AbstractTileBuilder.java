@@ -80,6 +80,10 @@ public abstract class AbstractTileBuilder<T extends org.spongepowered.api.block.
         this.game = game;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     static {
         // These are our known block types. We need to find a way to support the mod ones
         addBlockMapping(TileEntityDropper.class, BlockTypes.DROPPER);

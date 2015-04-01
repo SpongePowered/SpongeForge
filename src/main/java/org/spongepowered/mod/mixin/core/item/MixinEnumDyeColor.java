@@ -62,4 +62,8 @@ public class MixinEnumDyeColor implements DyeColor {
         return container;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

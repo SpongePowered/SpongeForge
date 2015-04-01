@@ -34,4 +34,8 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(value = FMLPreInitializationEvent.class, remap = false)
 public abstract class MixinEventPreInit extends FMLStateEvent implements PreInitializationEvent {
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

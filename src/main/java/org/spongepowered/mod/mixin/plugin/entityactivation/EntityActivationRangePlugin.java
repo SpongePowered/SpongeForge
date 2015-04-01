@@ -55,6 +55,10 @@ public class EntityActivationRangePlugin implements IMixinConfigPlugin {
         return true;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {
     }

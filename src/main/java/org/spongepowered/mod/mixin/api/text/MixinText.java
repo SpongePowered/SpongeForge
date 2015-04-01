@@ -61,6 +61,10 @@ public abstract class MixinText implements SpongeText {
         throw new UnsupportedOperationException();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private void initializeComponent() {
         if (this.component == null) {
             this.component = createComponent();

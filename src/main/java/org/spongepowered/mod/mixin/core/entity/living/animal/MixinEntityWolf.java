@@ -42,4 +42,8 @@ public abstract class MixinEntityWolf extends EntityTameable {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

@@ -27,10 +27,12 @@ package org.spongepowered.mod.mixin.core.block.data;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.collect.Lists;
+
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.tile.TileEntityType;
 import org.spongepowered.api.block.tile.TileEntityTypes;
@@ -107,6 +109,11 @@ public abstract class MixinTileEntityBanner extends MixinTileEntity {
         container.set(of("Patterns"), Lists.newArrayList(this.patternLayers));
         container.set(of("Base"), this.baseColor);
         return container;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
 }

@@ -48,4 +48,8 @@ public class SpongeComparatorBuilder extends AbstractTileBuilder<Comparator> {
         ((TileEntityComparator) comparatorOptional.get()).validate();
         return Optional.of(comparatorOptional.get());
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

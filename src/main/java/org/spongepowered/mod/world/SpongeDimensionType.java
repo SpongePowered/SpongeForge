@@ -51,6 +51,10 @@ public class SpongeDimensionType implements DimensionType {
         return this.name;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Class<? extends Dimension> getDimensionClass() {

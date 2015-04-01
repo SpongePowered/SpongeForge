@@ -57,6 +57,10 @@ public abstract class MixinEntityWitherSkull extends MixinEntityFireball impleme
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void setDamage(double damage) {
         this.damageSet = true;

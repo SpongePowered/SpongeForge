@@ -46,4 +46,8 @@ public final class SchedulerLogMessages {
 
         return "SchedulerLogMessage";
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

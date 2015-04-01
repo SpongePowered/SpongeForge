@@ -64,6 +64,10 @@ public class SpongeTextColor implements TextColor.Base {
         return this.handle.formattingCode;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public String toString() {
         return getName();

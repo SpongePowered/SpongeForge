@@ -39,4 +39,8 @@ public abstract class MixinEntityMinecartMobSpawner extends EntityMinecart imple
         super(worldIn);
     }
 
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

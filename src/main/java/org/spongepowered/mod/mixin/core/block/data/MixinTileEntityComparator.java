@@ -35,4 +35,9 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(net.minecraft.tileentity.TileEntityComparator.class)
 public abstract class MixinTileEntityComparator extends MixinTileEntity {
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

@@ -42,4 +42,8 @@ public abstract class MixinEntityGiantZombie extends EntityMob {
         super(worldIn);
     }
 
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

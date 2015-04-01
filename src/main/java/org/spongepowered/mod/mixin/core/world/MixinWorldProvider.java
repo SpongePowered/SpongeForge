@@ -65,6 +65,10 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
     @Shadow
     public abstract boolean getHasNoSky();
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Overwrite
     public static WorldProvider getProviderForDimension(int dimension) {
         WorldProvider provider = net.minecraftforge.common.DimensionManager.createProviderFor(dimension);

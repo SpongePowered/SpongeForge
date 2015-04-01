@@ -74,6 +74,10 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Optional<Cause> getCause() {
         return Optional.fromNullable(new Cause(null, this.entityPlayer, null));

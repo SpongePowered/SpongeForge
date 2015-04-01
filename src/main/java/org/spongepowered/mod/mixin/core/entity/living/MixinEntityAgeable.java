@@ -52,6 +52,10 @@ public abstract class MixinEntityAgeable extends EntityCreature {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public int ageable$getAge() {
         return getGrowingAge();
     }

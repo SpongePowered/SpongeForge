@@ -39,4 +39,9 @@ public class SpongeSound implements SoundType {
     public String getName() {
         return this.name;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

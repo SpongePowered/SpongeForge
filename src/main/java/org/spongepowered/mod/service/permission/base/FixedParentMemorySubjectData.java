@@ -54,6 +54,10 @@ public class FixedParentMemorySubjectData extends GlobalMemorySubjectData {
         return ImmutableList.<Subject>builder().add(this.forcedParent).addAll(super.getParents(contexts)).build();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean addParent(Set<Context> contexts, Subject parent) {
         if (Objects.equal(this.forcedParent, parent) && GLOBAL_CONTEXT.equals(contexts)) {

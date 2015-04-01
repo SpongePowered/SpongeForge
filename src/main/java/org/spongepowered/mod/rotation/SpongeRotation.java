@@ -38,4 +38,8 @@ public class SpongeRotation implements Rotation {
     public int getAngle() {
         return this.angle;
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

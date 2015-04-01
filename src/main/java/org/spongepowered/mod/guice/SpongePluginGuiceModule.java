@@ -72,6 +72,10 @@ public class SpongePluginGuiceModule extends AbstractModule {
                 .toProvider(PluginPrivateHoconConfigProvider.class); // loader for plugin-private directory config file
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     // This is strange, but required for Guice and annotations with values.
     private static class ConfigFileAnnotation implements DefaultConfig {
 

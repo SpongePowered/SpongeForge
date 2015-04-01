@@ -42,4 +42,8 @@ public abstract class MixinEntityCaveSpider extends EntitySpider {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

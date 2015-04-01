@@ -46,6 +46,10 @@ public abstract class MixinPlayerCountData implements StatusPingEvent.Response.P
     @Shadow
     private int maxPlayers;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public int getOnline() {
         return this.onlinePlayerCount;

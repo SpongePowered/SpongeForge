@@ -58,6 +58,10 @@ public abstract class MixinPropertyDirection extends PropertyEnum implements Blo
         return getName(getFacing(value));
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Optional<Direction> getValueForName(String name) {

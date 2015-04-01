@@ -42,4 +42,8 @@ public abstract class MixinEntityMob extends EntityCreature {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

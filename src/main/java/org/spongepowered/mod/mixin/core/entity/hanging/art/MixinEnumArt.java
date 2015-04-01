@@ -56,4 +56,9 @@ public class MixinEnumArt implements Art {
     public String getName() {
         return this.title;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

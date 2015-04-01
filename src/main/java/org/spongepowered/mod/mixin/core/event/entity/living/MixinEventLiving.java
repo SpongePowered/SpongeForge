@@ -51,4 +51,8 @@ public abstract class MixinEventLiving extends EntityEvent implements LivingEven
     public Living getEntity() {
         return (Living) this.entityLiving;
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

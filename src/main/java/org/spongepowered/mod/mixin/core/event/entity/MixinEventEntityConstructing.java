@@ -37,4 +37,8 @@ public abstract class MixinEventEntityConstructing extends EntityEvent implement
     public MixinEventEntityConstructing(Entity entity) {
         super(entity);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

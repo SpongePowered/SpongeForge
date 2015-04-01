@@ -68,6 +68,10 @@ public abstract class MixinServerCommandManager extends CommandHandler implement
         this.earlyRegisterCommands = Lists.newArrayList();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public int executeCommand(ICommandSender sender, String command) {
         command = command.trim();

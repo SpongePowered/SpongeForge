@@ -43,6 +43,10 @@ public abstract class MixinChatComponentTranslation extends MixinChatComponentSt
         return Texts.builder(new SpongeTranslation(this.key), wrapFormatArgs(this.formatArgs));
     }
 
+
+    public boolean isFlowerPot() {
+        return false;
+    }
     private static Object[] wrapFormatArgs(Object... formatArgs) {
         Object[] ret = new Object[formatArgs.length];
         for (int i = 0; i < formatArgs.length; ++i) {

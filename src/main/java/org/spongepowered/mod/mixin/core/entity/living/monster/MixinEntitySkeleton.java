@@ -57,4 +57,8 @@ public abstract class MixinEntitySkeleton extends EntityMob {
         this.setSkeletonType(((SpongeEntityMeta) skeletonType).type);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

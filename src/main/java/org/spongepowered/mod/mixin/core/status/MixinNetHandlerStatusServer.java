@@ -45,6 +45,10 @@ public abstract class MixinNetHandlerStatusServer {
     @Shadow
     private NetworkManager networkManager;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Overwrite
     public void processServerQuery(C00PacketServerQuery packetIn) {
         // Clone the response

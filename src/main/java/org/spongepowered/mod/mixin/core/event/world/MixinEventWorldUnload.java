@@ -38,4 +38,8 @@ public abstract class MixinEventWorldUnload extends WorldEvent implements WorldU
         super(world);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

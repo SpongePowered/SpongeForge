@@ -49,4 +49,9 @@ public abstract class MixinTileEntityEnchantmentTable extends MixinTileEntity {
         container.set(of("CustomName"), this.customName);
         return container;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

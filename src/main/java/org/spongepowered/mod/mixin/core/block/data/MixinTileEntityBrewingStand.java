@@ -52,4 +52,9 @@ public abstract class MixinTileEntityBrewingStand extends MixinTileEntityLockabl
         }
         return container;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

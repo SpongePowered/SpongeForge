@@ -58,6 +58,10 @@ public abstract class SpongeSubjectCollection implements SubjectCollection {
         return Collections.unmodifiableMap(ret);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Map<Subject, Boolean> getAllWithPermission(Set<Context> contexts, String permission) {
         final Map<Subject, Boolean> ret = new HashMap<Subject, Boolean>();

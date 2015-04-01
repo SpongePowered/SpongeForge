@@ -27,8 +27,8 @@ package org.spongepowered.mod.item.merchant;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-
 import net.minecraft.village.MerchantRecipe;
+
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
@@ -44,6 +44,11 @@ public class SpongeTradeOfferBuilder implements TradeOfferBuilder {
 
     public SpongeTradeOfferBuilder() {
         reset();
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     @Override

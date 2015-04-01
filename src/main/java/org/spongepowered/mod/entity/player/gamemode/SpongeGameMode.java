@@ -34,4 +34,9 @@ public class SpongeGameMode implements GameMode {
         return null;
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

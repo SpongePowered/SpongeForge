@@ -44,4 +44,8 @@ public abstract class MixinEventPlayerQuit implements PlayerQuitEvent {
     @Override
     public void setQuitMessage(Text joinMessage) {
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

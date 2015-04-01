@@ -59,4 +59,8 @@ public class SpongeNoteBuilder extends AbstractTileBuilder<Note> {
         ((TileEntityNote) note).validate();
         return Optional.of(note);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

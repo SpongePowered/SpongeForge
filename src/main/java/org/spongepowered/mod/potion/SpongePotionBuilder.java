@@ -44,6 +44,10 @@ public class SpongePotionBuilder implements PotionEffectBuilder {
         reset();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public PotionEffectBuilder potionType(PotionEffectType potionEffectType) {
         checkNotNull(potionEffectType, "Potion effect type cannot be null");

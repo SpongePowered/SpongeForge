@@ -48,6 +48,10 @@ public class SpongeBeaconBuilder extends SpongeLockableBuilder<Beacon> {
         super(game);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Optional<Beacon> build(DataView container) throws InvalidDataException {

@@ -42,6 +42,10 @@ import java.util.ListIterator;
 
 public class BaseEventTransformer implements IClassTransformer {
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
 

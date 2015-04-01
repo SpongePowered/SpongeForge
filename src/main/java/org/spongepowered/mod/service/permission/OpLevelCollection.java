@@ -64,6 +64,10 @@ public class OpLevelCollection extends SpongeSubjectCollection {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean hasRegistered(String identifier) {
         return this.levels.containsKey(identifier);

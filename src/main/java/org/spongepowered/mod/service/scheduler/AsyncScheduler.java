@@ -121,6 +121,10 @@ public class AsyncScheduler implements AsynchronousScheduler {
         }).start();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private void stateMachineBody() {
         this.executor = Executors.newCachedThreadPool();
         this.lastProcessingTimestamp = System.currentTimeMillis();

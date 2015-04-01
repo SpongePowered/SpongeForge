@@ -62,4 +62,8 @@ public class SpongeFurnaceBuilder extends SpongeLockableBuilder<Furnace> {
         ((TileEntityFurnace) furnace).validate();
         return Optional.of(furnace);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

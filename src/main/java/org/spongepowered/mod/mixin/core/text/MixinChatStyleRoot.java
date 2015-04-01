@@ -37,4 +37,8 @@ public abstract class MixinChatStyleRoot extends ChatStyle implements SpongeChat
         return ArrayUtils.EMPTY_CHAR_ARRAY;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

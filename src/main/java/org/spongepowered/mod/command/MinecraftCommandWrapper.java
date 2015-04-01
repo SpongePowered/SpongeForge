@@ -25,6 +25,7 @@
 package org.spongepowered.mod.command;
 
 import com.google.common.collect.ImmutableList;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.command.CommandResultStats;
@@ -34,6 +35,7 @@ import net.minecraft.command.PlayerSelector;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.ModContainer;
+
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
@@ -154,5 +156,10 @@ public class MinecraftCommandWrapper implements CommandCallable {
     @SuppressWarnings("unchecked")
     public List<String> getNames() {
         return ImmutableList.<String>builder().add(this.command.getCommandName()).addAll(this.command.getCommandAliases()).build();
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

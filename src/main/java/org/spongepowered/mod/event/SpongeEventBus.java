@@ -37,8 +37,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
+
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
+
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.event.EventManager;
@@ -293,6 +295,11 @@ public class SpongeEventBus implements EventManager {
         }
 
         return event instanceof Cancellable && ((Cancellable) event).isCancelled();
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
 }

@@ -44,4 +44,8 @@ public abstract class MixinEventChunkLoad extends ChunkEvent {
     public Chunk chunkload$getChunk() {
         return (Chunk) getChunk();
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

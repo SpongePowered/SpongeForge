@@ -54,6 +54,10 @@ public class SpongeTextFactory implements TextFactory {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Text parseJsonLenient(String json) throws IllegalArgumentException {
         return parseJson(json); // TODO

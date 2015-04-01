@@ -57,6 +57,10 @@ public abstract class MixinNetHandlerPlayServer implements PlayerConnection {
         return (Player) this.playerEntity;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public InetSocketAddress getAddress() {
         return ((ConnectionInfo) this.netManager).getAddress();

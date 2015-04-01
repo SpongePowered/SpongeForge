@@ -48,4 +48,9 @@ public class SpongeNotePitch implements NotePitch {
         return this.name;
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

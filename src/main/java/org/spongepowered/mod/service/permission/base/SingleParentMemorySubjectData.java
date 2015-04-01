@@ -52,6 +52,10 @@ public class SingleParentMemorySubjectData extends GlobalMemorySubjectData {
         return GLOBAL_CONTEXT.equals(contexts) && parent != null ? Collections.singletonList(parent) : Collections.<Subject>emptyList();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean addParent(Set<Context> contexts, Subject parent) {
         if (!(parent instanceof OpLevelCollection.OpLevelSubject)) {

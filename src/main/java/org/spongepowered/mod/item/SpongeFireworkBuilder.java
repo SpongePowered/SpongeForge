@@ -28,6 +28,7 @@ package org.spongepowered.mod.item;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Lists;
+
 import org.spongepowered.api.item.FireworkEffect;
 import org.spongepowered.api.item.FireworkEffectBuilder;
 import org.spongepowered.api.item.FireworkShape;
@@ -125,5 +126,10 @@ public class SpongeFireworkBuilder implements FireworkEffectBuilder {
         this.fades = Lists.newArrayList();
         this.shape = FireworkShapes.BALL;
         return this;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

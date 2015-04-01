@@ -53,6 +53,10 @@ class RegistryHelper {
         return mappingSuccess;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public static boolean mapFields(Class<?> apiClass, Function<String, ?> mapFunction) {
         boolean mappingSuccess = true;
         for (Field f : apiClass.getDeclaredFields()) {

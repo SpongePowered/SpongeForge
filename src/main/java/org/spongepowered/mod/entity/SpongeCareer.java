@@ -53,4 +53,9 @@ public class SpongeCareer extends SpongeEntityMeta implements Career {
     public Translation getTranslation() {
         return null;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

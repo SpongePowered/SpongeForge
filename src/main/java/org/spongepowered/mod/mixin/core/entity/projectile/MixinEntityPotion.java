@@ -63,4 +63,8 @@ public abstract class MixinEntityPotion extends EntityThrowable {
         return Items.potionitem.getEffects(this.potionDamage);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

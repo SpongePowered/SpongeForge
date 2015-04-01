@@ -54,4 +54,8 @@ public abstract class MixinEntityPigZombie extends EntityZombie {
         this.angerLevel = angerLevel;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

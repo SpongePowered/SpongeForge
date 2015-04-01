@@ -52,6 +52,10 @@ public class GlobalMemorySubjectData extends MemorySubjectData {
         return ImmutableMap.of(GLOBAL_CONTEXT, getParents(GLOBAL_CONTEXT));
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean setPermission(Set<Context> contexts, String permission, Tristate value) {
         if (!GLOBAL_CONTEXT.equals(contexts)) {

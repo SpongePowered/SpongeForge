@@ -38,4 +38,8 @@ public abstract class MixinEventWorldLoad extends WorldEvent implements WorldLoa
         super(world);
     }
 
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

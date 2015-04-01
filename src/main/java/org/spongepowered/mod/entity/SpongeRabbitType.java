@@ -32,4 +32,9 @@ public class SpongeRabbitType extends SpongeEntityMeta implements RabbitType {
         super(type, name);
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

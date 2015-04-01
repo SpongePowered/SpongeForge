@@ -35,4 +35,9 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(net.minecraft.tileentity.TileEntityEnderChest.class)
 public abstract class MixinTileEntityEnderChest extends MixinTileEntity {
 
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

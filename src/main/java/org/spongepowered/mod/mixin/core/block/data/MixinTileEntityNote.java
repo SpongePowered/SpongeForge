@@ -53,4 +53,9 @@ public abstract class MixinTileEntityNote extends MixinTileEntity {
         container.set(of("Note"), this.note);
         return container;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

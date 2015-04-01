@@ -42,4 +42,8 @@ public abstract class MixinEntityFireworkRocket extends MixinEntity implements F
         super.inactiveTick();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

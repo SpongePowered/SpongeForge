@@ -53,4 +53,9 @@ public class SpongeSkullType implements SkullType {
     public Translation getTranslation() {
         return null;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

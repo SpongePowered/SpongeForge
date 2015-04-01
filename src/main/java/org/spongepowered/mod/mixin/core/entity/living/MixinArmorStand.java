@@ -25,9 +25,11 @@
 package org.spongepowered.mod.mixin.core.entity.living;
 
 import com.flowpowered.math.vector.Vector3d;
+
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.util.Rotations;
+
 import org.spongepowered.api.entity.living.ArmorStand;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -116,6 +118,10 @@ public abstract class MixinArmorStand extends EntityLivingBase {
 
     public void astand$setLeftArmDirection(Vector3d direction) {
         setLeftArmRotation(VecHelper.toRotation(direction));
+    }
+
+    public boolean isFlowerPot() {
+        return false;
     }
 
     public Vector3d astand$getRightArmDirection() {

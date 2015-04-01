@@ -46,4 +46,8 @@ public class SpongeDyeBuilder implements DataSerializableBuilder<DyeColor> {
         int id = container.getInt(new DataQuery("id")).get();
         return Optional.of((DyeColor) (Object) EnumDyeColor.byDyeDamage(id));
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

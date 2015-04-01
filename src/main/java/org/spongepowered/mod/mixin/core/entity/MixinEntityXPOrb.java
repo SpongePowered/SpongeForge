@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.core.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.world.World;
+
 import org.spongepowered.api.entity.ExperienceOrb;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,6 +52,11 @@ public abstract class MixinEntityXPOrb extends Entity implements ExperienceOrb {
     @Override
     public void setExperience(int experience) {
         this.xpValue = experience;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
 }

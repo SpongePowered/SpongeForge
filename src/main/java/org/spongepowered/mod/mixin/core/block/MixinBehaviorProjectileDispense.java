@@ -51,4 +51,8 @@ public class MixinBehaviorProjectileDispense extends BehaviorDefaultDispenseItem
         return world.spawnEntityInWorld(entity);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

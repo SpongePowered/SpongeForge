@@ -45,6 +45,10 @@ public abstract class MixinClickEvent implements SpongeClickEvent {
     private ClickAction<?> handle;
     private boolean initialized;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public ClickAction<?> getHandle() {
         if (!this.initialized) {

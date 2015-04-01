@@ -53,4 +53,8 @@ public class SpongeDropperBuilder extends SpongeLockableBuilder<Dropper> {
         ((TileEntityDropper) dropper).validate();
         return Optional.of(dropper);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

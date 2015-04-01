@@ -38,4 +38,9 @@ public class SpongeCoalType extends SpongeEntityMeta implements CoalType {
     public String getId() {
         return this.getName();
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

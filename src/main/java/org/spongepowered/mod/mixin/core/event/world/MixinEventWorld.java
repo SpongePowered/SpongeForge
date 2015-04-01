@@ -49,4 +49,8 @@ public abstract class MixinEventWorld extends Event implements WorldEvent {
     public Game getGame() {
         return SpongeMod.instance.getGame();
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

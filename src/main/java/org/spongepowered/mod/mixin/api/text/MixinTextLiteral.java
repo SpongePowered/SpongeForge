@@ -40,4 +40,8 @@ public abstract class MixinTextLiteral extends MixinText {
         return new ChatComponentText(this.content);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

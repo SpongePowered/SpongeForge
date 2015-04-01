@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.core.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.world.World;
+
 import org.spongepowered.api.entity.EnderCrystal;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,5 +38,10 @@ public abstract class MixinEntityEnderCrystal extends Entity implements EnderCry
 
     public MixinEntityEnderCrystal(World worldIn) {
         super(worldIn);
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

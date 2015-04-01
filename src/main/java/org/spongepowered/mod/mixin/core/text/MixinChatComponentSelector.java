@@ -41,4 +41,8 @@ public abstract class MixinChatComponentSelector extends MixinChatComponentStyle
         return Texts.builder(Selectors.parse(this.selector));
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

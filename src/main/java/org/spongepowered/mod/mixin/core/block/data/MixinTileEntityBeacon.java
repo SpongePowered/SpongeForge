@@ -27,10 +27,12 @@ package org.spongepowered.mod.mixin.core.block.data;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.base.Optional;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntityLockable;
+
 import org.spongepowered.api.block.tile.TileEntityType;
 import org.spongepowered.api.block.tile.TileEntityTypes;
 import org.spongepowered.api.block.tile.carrier.Beacon;
@@ -59,5 +61,10 @@ public abstract class MixinTileEntityBeacon extends MixinTileEntityLockable {
         container.set(of("effect1"), getField(1));
         container.set(of("effect2"), getField(2));
         return container;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

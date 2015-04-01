@@ -62,4 +62,8 @@ public abstract class MixinContainer {
             container.detectAndSendChanges();
         }
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

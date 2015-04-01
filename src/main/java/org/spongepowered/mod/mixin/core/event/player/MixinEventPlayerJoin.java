@@ -44,4 +44,8 @@ public abstract class MixinEventPlayerJoin implements PlayerJoinEvent {
     @Override
     public void setJoinMessage(Text joinMessage) {
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

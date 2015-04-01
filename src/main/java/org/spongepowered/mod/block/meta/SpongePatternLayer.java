@@ -60,4 +60,9 @@ public class SpongePatternLayer implements PatternLayer {
         return container;
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

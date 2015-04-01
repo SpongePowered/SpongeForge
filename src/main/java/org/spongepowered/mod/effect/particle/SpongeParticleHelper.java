@@ -194,6 +194,10 @@ public final class SpongeParticleHelper {
         return packets;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private SpongeParticleHelper() {
     }
 }

@@ -49,6 +49,10 @@ public abstract class MixinTitle implements SpongeTitle {
 
     private S45PacketTitle[] packets;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void send(EntityPlayerMP player) {
         if (this.packets == null) {

@@ -25,6 +25,7 @@
 package org.spongepowered.mod;
 
 import com.google.common.base.MoreObjects;
+
 import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
@@ -94,5 +95,10 @@ public class SpongeMinecraftVersion implements ProtocolMinecraftVersion {
                 .add("name", this.name)
                 .add("protocol", this.protocol)
                 .toString();
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

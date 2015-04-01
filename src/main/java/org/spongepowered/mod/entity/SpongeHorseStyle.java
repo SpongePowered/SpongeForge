@@ -32,4 +32,9 @@ public class SpongeHorseStyle extends SpongeEntityMeta implements HorseStyle {
         super(style, name);
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

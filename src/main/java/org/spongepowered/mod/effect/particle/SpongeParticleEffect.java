@@ -25,6 +25,7 @@
 package org.spongepowered.mod.effect.particle;
 
 import com.flowpowered.math.vector.Vector3d;
+
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.item.inventory.ItemStack;
 
@@ -66,6 +67,11 @@ public class SpongeParticleEffect implements ParticleEffect {
         return this.count;
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public static class Colored extends SpongeParticleEffect implements ParticleEffect.Colorable {
 
         private Color color;
@@ -78,6 +84,11 @@ public class SpongeParticleEffect implements ParticleEffect {
         @Override
         public Color getColor() {
             return this.color;
+        }
+
+        @Override
+        public boolean isFlowerPot() {
+            return false;
         }
 
     }
@@ -96,6 +107,11 @@ public class SpongeParticleEffect implements ParticleEffect {
             return this.size;
         }
 
+        @Override
+        public boolean isFlowerPot() {
+            return false;
+        }
+
     }
 
     public static class Note extends SpongeParticleEffect implements ParticleEffect.Note {
@@ -112,6 +128,11 @@ public class SpongeParticleEffect implements ParticleEffect {
             return this.note;
         }
 
+        @Override
+        public boolean isFlowerPot() {
+            return false;
+        }
+
     }
 
     public static class Materialized extends SpongeParticleEffect implements ParticleEffect.Material {
@@ -126,6 +147,11 @@ public class SpongeParticleEffect implements ParticleEffect {
         @Override
         public ItemStack getItem() {
             return this.item;
+        }
+
+        @Override
+        public boolean isFlowerPot() {
+            return false;
         }
 
     }

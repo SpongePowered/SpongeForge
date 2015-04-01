@@ -50,4 +50,9 @@ public class SpongeEnchantment implements DataSerializable {
         container.set(of("Level"), this.level);
         return container;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

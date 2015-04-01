@@ -62,6 +62,10 @@ public abstract class MixinWorld implements World, IMixinWorld {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Overwrite
     public void updateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate) {
         int i = MathHelper.floor_double(entity.posX);

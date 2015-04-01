@@ -60,4 +60,8 @@ public abstract class MixinEntityRabbit extends EntityAnimal {
         this.shadow$setRabbitType(((SpongeEntityMeta) type).type);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

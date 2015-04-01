@@ -48,6 +48,10 @@ public abstract class MixinEntitySmallFireball extends MixinEntityFireball imple
         return this.damage;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void setDamage(double damage) {
         this.damage = (float) damage;

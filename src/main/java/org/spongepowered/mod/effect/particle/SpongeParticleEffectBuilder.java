@@ -28,7 +28,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.math.vector.Vector3d;
+
 import net.minecraft.item.Item;
+
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -74,6 +76,11 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         return new SpongeParticleEffect(this.type, this.motion, this.offset, this.count);
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public static class BuilderColorable extends SpongeParticleEffectBuilder implements ParticleEffectBuilder.Colorable {
 
         private Color color;
@@ -108,6 +115,11 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         @Override
         public SpongeParticleEffect.Colored build() {
             return new SpongeParticleEffect.Colored(this.type, this.motion, this.offset, this.color, this.count);
+        }
+
+        @Override
+        public boolean isFlowerPot() {
+            return false;
         }
 
     }
@@ -148,6 +160,11 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
             return new SpongeParticleEffect.Resized(this.type, this.motion, this.offset, this.size, this.count);
         }
 
+        @Override
+        public boolean isFlowerPot() {
+            return false;
+        }
+
     }
 
     public static class BuilderNote extends SpongeParticleEffectBuilder implements ParticleEffectBuilder.Note {
@@ -184,6 +201,11 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         @Override
         public SpongeParticleEffect.Note build() {
             return new SpongeParticleEffect.Note(this.type, this.motion, this.offset, this.note, this.count);
+        }
+
+        @Override
+        public boolean isFlowerPot() {
+            return false;
         }
 
     }
@@ -229,6 +251,11 @@ public class SpongeParticleEffectBuilder implements ParticleEffectBuilder {
         @Override
         public SpongeParticleEffect.Materialized build() {
             return new SpongeParticleEffect.Materialized(this.type, this.motion, this.offset, this.item, this.count);
+        }
+
+        @Override
+        public boolean isFlowerPot() {
+            return false;
         }
 
     }

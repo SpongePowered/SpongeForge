@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.base.Optional;
+
 import org.spongepowered.api.block.tile.TileEntity;
 import org.spongepowered.api.block.tile.data.LockableData;
 import org.spongepowered.api.service.persistence.data.DataContainer;
@@ -66,5 +67,10 @@ public class SpongeLockableData implements LockableData {
         DataContainer container = new MemoryDataContainer();
         container.set(of("Lock"), this.lockToken);
         return container;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

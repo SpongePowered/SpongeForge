@@ -62,6 +62,10 @@ public class ScheduledTask implements Task {
     private ScheduledTask() {
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     // This c'tor is OK for internal Sponge use. APIs do not expose the c'tor.
     protected ScheduledTask(long x, long t, TaskSynchroncity syncType) {
         // All tasks begin waiting.

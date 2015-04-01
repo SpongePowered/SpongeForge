@@ -60,6 +60,10 @@ public abstract class MixinBlockState extends BlockStateBase implements org.spon
         return this.properties;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Collection<String> getPropertyNames() {

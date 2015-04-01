@@ -47,4 +47,8 @@ public class MixinItemEnderEye extends Item {
         return world.spawnEntityInWorld(enderEye);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

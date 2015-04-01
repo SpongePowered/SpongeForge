@@ -59,6 +59,10 @@ public abstract class MixinEntityZombie extends EntityMob {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public boolean zombie$isVillagerZombie() {
         return this.isVillager();
     }

@@ -65,6 +65,10 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
         return (Player) this.player;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public BlockSnapshot getReplacementBlock() {
         return (BlockSnapshot) this.blockSnapshot;

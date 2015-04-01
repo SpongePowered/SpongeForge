@@ -62,6 +62,10 @@ public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements P
         super(world, pos, state);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Player getPlayer() {
         return (Player) this.player;

@@ -64,6 +64,10 @@ public abstract class MixinEventPlayerDropItem extends ItemEvent implements Play
         return (Player) this.player;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Player getLiving() {
         return (Player) this.player;

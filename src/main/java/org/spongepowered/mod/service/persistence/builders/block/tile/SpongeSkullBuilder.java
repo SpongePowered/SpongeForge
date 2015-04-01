@@ -54,4 +54,8 @@ public class SpongeSkullBuilder extends AbstractTileBuilder<Skull> {
         ((TileEntitySkull) skull).validate();
         return Optional.of(skull);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

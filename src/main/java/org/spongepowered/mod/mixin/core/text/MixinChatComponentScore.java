@@ -37,4 +37,8 @@ public abstract class MixinChatComponentScore extends MixinChatComponentStyle {
         return Texts.builder((Object) null); // TODO
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

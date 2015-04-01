@@ -42,4 +42,8 @@ public abstract class MixinEntityGhast extends EntityFlying {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

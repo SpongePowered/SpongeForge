@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
+
 import net.minecraft.block.BlockColored;
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.init.Items;
@@ -37,6 +38,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+
 import org.spongepowered.api.item.DyeColor;
 import org.spongepowered.api.item.ItemDataTransactionResult;
 import org.spongepowered.api.item.ItemType;
@@ -65,6 +67,11 @@ public class SpongeDyeableData extends AbstractItemData implements DyeableItemDa
     public void set(DyeColor value) {
         checkNotNull(value);
         this.color = value;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     @Override
@@ -147,6 +154,11 @@ public class SpongeDyeableData extends AbstractItemData implements DyeableItemDa
             @Override
             public Optional<Collection<ItemData<?>>> getReplacedData() {
                 return Optional.absent();
+            }
+
+            @Override
+            public boolean isFlowerPot() {
+                return false;
             }
         };
     }

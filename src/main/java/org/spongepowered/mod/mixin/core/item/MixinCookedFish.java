@@ -52,4 +52,8 @@ public class MixinCookedFish implements CookedFish {
         container.set(of("CookedFish"), this.getId());
         return container;
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

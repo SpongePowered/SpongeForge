@@ -40,6 +40,10 @@ public class SpongeLegacyMinecraftVersion implements MinecraftVersion {
         this.latestVersion = latestVersion;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public SpongeLegacyMinecraftVersion(SpongeLegacyMinecraftVersion base, int version) {
         this.name = base.name;
         this.latestVersion = version;

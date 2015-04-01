@@ -28,6 +28,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+
 import org.spongepowered.api.entity.hanging.Hanging;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -57,6 +58,11 @@ public abstract class MixinEntityHanging extends Entity implements Hanging {
 
     public MixinEntityHanging(World worldIn) {
         super(worldIn);
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     private boolean ignorePhysics = false;

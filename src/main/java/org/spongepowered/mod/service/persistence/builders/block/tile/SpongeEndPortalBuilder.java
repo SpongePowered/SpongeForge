@@ -48,4 +48,8 @@ public class SpongeEndPortalBuilder extends AbstractTileBuilder<EndPortal> {
         ((TileEntityEndPortal) endportalOptional.get()).validate();
         return Optional.of(endportalOptional.get());
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

@@ -30,6 +30,7 @@ import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
 import org.spongepowered.api.block.tile.Banner;
 import org.spongepowered.api.block.tile.data.BannerData;
 import org.spongepowered.api.block.tile.data.BannerPatternShape;
@@ -91,5 +92,10 @@ public class SpongeBannerData implements BannerData {
         container.set(of("Base"), this.base);
         container.set(of("Patterns"), this.patterns);
         return container;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

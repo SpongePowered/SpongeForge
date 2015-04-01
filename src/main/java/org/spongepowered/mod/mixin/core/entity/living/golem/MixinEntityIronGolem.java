@@ -56,4 +56,8 @@ public abstract class MixinEntityIronGolem extends EntityGolem {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

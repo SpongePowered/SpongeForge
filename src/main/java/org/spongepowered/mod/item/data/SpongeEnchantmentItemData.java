@@ -32,7 +32,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+
 import net.minecraft.item.ItemStack;
+
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemDataTransactionResult;
 import org.spongepowered.api.item.ItemType;
@@ -64,6 +66,11 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
         public Optional<Collection<ItemData<?>>> getReplacedData() {
             return Optional.absent();
         }
+
+        @Override
+        public boolean isFlowerPot() {
+            return false;
+        }
     };
     private Map<Enchantment, Integer> enchantments = Maps.newHashMap();
 
@@ -77,6 +84,11 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             this.setUnsafe(entry.getKey(), entry.getValue());
         }
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     @Override
@@ -225,6 +237,11 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
             public Optional<Collection<ItemData<?>>> getReplacedData() {
                 return Optional.absent();
             }
+
+            @Override
+            public boolean isFlowerPot() {
+                return false;
+            }
         };
     }
 
@@ -245,6 +262,11 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
             public Optional<Collection<ItemData<?>>> getReplacedData() {
                 return Optional.absent();
             }
+
+            @Override
+            public boolean isFlowerPot() {
+                return false;
+            }
         };
     }
 
@@ -264,6 +286,11 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
             public Optional<Collection<ItemData<?>>> getReplacedData() {
                 return Optional.<Collection<ItemData<?>>>of(set);
             }
+
+            @Override
+            public boolean isFlowerPot() {
+                return false;
+            }
         };
     }
 
@@ -282,6 +309,11 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
             @Override
             public Optional<Collection<ItemData<?>>> getReplacedData() {
                 return Optional.<Collection<ItemData<?>>>of(build);
+            }
+
+            @Override
+            public boolean isFlowerPot() {
+                return false;
             }
         };
     }

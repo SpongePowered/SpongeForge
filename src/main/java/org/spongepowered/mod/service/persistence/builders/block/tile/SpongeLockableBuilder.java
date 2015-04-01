@@ -69,4 +69,8 @@ public class SpongeLockableBuilder<T extends TileEntityCarrier> extends Abstract
 //        }
         return Optional.of((T) lockable);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

@@ -58,6 +58,10 @@ public class SpongeGameDictionary implements GameDictionary {
         return items;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Map<String, Set<ItemType>> getAllItems() {
         HashMap<String, Set<ItemType>> allItems = Maps.newHashMap();

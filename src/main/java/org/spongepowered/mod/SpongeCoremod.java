@@ -52,6 +52,10 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         };
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public String getModContainerClass() {
         return "org.spongepowered.mod.SpongeMod";

@@ -31,7 +31,9 @@ import static org.spongepowered.mod.item.ItemsHelper.validateData;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
+
 import net.minecraft.item.Item;
+
 import org.spongepowered.api.item.ItemDataTransactionResult;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.data.ItemData;
@@ -123,6 +125,11 @@ public class SpongeItemStackBuilder implements ItemStackBuilder {
         this.maxQuantity = 64;
         this.itemDataSet = Sets.newHashSet();
         return this;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     @Override

@@ -56,6 +56,10 @@ public abstract class MixinEvent implements GameEvent, CauseTracked, Cancellable
         return Optional.fromNullable(new Cause(null, Optional.absent(), null));
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean isCancelled() {
         return isCanceled();

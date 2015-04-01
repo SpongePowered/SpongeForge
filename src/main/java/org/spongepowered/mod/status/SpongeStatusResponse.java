@@ -60,6 +60,10 @@ public final class SpongeStatusResponse {
         return response;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private static ServerStatusResponse call(ServerStatusResponse response, StatusClient client) {
         if (!SpongeMod.instance.getGame().getEventManager().post(SpongeEventFactory.createStatusPing(SpongeMod.instance.getGame(), client,
                 (StatusPingEvent.Response) response))) {

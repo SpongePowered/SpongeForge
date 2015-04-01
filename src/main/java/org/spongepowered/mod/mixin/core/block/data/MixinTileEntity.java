@@ -55,9 +55,6 @@ public abstract class MixinTileEntity implements TileEntity {
     @Shadow
     public abstract void markDirty();
 
-    @Shadow(remap = false)
-    public abstract NBTTagCompound getTileData();
-
     @Override
     public Location getBlock() {
         return new Location((World) this.worldObj, VecHelper.toVector(this.getPos()).toDouble());
@@ -119,7 +116,7 @@ public abstract class MixinTileEntity implements TileEntity {
      * @return The data tag
      */
     public final NBTTagCompound getSpongeData() {
-        NBTTagCompound data = this.getTileData();
+        NBTTagCompound data = null;
         if (!data.hasKey("SpongeData", Constants.NBT.TAG_COMPOUND)) {
             data.setTag("SpongeData", new NBTTagCompound());
         }
