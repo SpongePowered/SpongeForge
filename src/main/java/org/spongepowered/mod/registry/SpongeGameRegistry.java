@@ -144,6 +144,13 @@ import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
 import org.spongepowered.api.resourcepack.ResourcePack;
+import org.spongepowered.api.scoreboard.ScoreboardBuilder;
+import org.spongepowered.api.scoreboard.TeamBuilder;
+import org.spongepowered.api.scoreboard.Visibility;
+import org.spongepowered.api.scoreboard.critieria.Criterion;
+import org.spongepowered.api.scoreboard.displayslot.DisplaySlot;
+import org.spongepowered.api.scoreboard.objective.ObjectiveBuilder;
+import org.spongepowered.api.scoreboard.objective.displaymode.ObjectiveDisplayMode;
 import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.api.stats.BlockStatistic;
 import org.spongepowered.api.stats.EntityStatistic;
@@ -1959,6 +1966,66 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<ResourcePack> getById(String id) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public ObjectiveBuilder getObjectiveBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public TeamBuilder getTeamBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public ScoreboardBuilder getScoreboardBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<DisplaySlot> getDisplaySlot(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<DisplaySlot> getDisplaySlotForColor(TextColor color) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<DisplaySlot> getDisplaySlots() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<Visibility> getVisibility(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<Visibility> getVisibilities() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<Criterion> getCriterion(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<Visibility> getCriteria() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<ObjectiveDisplayMode> getObjectiveDisplayMode(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<ObjectiveDisplayMode> getObjectiveDisplayModes() {
         throw new UnsupportedOperationException(); // TODO
     }
 
