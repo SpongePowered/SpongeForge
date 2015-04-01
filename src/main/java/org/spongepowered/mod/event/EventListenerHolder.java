@@ -37,6 +37,10 @@ public abstract class EventListenerHolder<T> {
         return this.listeners.length == 0;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public void add(PriorityEventListener<T> listener) {
         if (listener.getHolder() != null) {
             throw new IllegalArgumentException("Listener already contained in a listener holder");

@@ -69,6 +69,10 @@ public abstract class MixinEntityCreeper extends EntityMob {
         this.ignite();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public void creeper$ignite(int fuseTicks) {
         this.timeSinceIgnited = 0;
         this.fuseTime = fuseTicks;

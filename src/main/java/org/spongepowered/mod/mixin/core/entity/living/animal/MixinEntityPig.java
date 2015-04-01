@@ -53,4 +53,8 @@ public abstract class MixinEntityPig extends EntityAnimal {
             this.dataWatcher.updateObject(16, (byte) 0);
         }
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

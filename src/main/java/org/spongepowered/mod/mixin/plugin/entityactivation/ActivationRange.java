@@ -94,6 +94,10 @@ public class ActivationRange {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     /**
      * These entities are excluded from Activation range checks.
      *

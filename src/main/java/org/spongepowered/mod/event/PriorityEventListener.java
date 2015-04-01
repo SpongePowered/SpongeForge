@@ -45,6 +45,10 @@ public class PriorityEventListener<T> implements EventListener<T>, Comparable<Pr
         this.holder = holder;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void invoke(T event) {
         this.listener.invoke(event);

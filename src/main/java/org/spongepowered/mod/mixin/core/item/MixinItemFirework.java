@@ -50,4 +50,8 @@ public class MixinItemFirework extends Item {
         return world.spawnEntityInWorld(firework);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

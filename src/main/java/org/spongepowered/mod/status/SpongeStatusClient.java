@@ -52,6 +52,10 @@ public class SpongeStatusClient implements StatusClient {
         return this.connection.getVersion();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Optional<InetSocketAddress> getVirtualHost() {
         return Optional.fromNullable(this.connection.getVirtualHost());

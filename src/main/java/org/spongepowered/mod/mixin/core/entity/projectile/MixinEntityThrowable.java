@@ -66,6 +66,10 @@ public abstract class MixinEntityThrowable extends MixinEntity implements Projec
         return new UnknownProjectileSource();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void setShooter(ProjectileSource shooter) {
         if (shooter instanceof EntityLivingBase) {

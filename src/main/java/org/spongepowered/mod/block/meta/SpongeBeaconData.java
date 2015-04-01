@@ -27,6 +27,7 @@ package org.spongepowered.mod.block.meta;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
+
 import org.spongepowered.api.block.tile.carrier.Beacon;
 import org.spongepowered.api.block.tile.data.BeaconData;
 import org.spongepowered.api.potion.PotionEffectType;
@@ -82,5 +83,10 @@ public class SpongeBeaconData implements BeaconData {
     @Override
     public DataContainer toContainer() {
         return new MemoryDataContainer();
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

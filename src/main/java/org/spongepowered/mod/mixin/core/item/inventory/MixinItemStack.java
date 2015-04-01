@@ -98,6 +98,10 @@ public abstract class MixinItemStack implements ItemStack {
         shadow$getItem().setMaxStackSize(quantity);
     }
 
+    public boolean isFlowerPot() {
+        return !getItem().isFlowerPot();
+    }
+
     @Override
     public <T extends ItemData<T>> ItemDataTransactionResult setItemData(T itemData) {
         // TODO actually implement this....

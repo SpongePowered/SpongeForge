@@ -47,4 +47,8 @@ public abstract class MixinEntityArrow extends MixinEntity implements Arrow {
         }
         super.inactiveTick();
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

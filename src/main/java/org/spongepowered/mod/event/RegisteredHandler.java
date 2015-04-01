@@ -44,6 +44,10 @@ class RegisteredHandler implements Comparable<RegisteredHandler> {
         return new RegisteredHandler(handler, null, null);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public Handler getHandler() {
         return this.handler;
     }

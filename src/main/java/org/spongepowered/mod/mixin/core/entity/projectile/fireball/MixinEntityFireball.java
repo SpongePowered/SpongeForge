@@ -61,6 +61,10 @@ public abstract class MixinEntityFireball extends MixinEntity implements Firebal
         return this.projectileSource;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void setShooter(ProjectileSource shooter) {
         this.projectileSource = shooter;

@@ -55,6 +55,10 @@ public abstract class MixinEntityAgeable extends EntityCreature {
     @Shadow
     public abstract void setScaleForAge(boolean baby);
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @SoftOverride
     public void inactiveTick() {
         this.super$.inactiveTick();

@@ -58,6 +58,10 @@ public class SpongePluginManager implements PluginManager {
         return ImmutableSet.copyOf((List) Loader.instance().getActiveModList());
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Optional<PluginContainer> fromInstance(Object instance) {
         if (instance instanceof PluginContainer) {

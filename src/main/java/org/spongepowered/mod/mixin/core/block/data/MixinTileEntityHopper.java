@@ -55,4 +55,9 @@ public abstract class MixinTileEntityHopper extends MixinTileEntityLockable {
         }
         return container;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return transferCooldown == 0;
+    }
 }

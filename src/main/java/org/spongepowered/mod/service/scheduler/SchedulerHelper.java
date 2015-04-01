@@ -57,6 +57,10 @@ public class SchedulerHelper {
         return resultTask;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     /**
      * <p>
      * Start a repeating Task with a period (interval) of Ticks. The first

@@ -62,6 +62,10 @@ class ConfigDirAnnotation implements ConfigDir {
         return sharedRoot() == that.sharedRoot();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public int hashCode() {
         return (127 * "sharedRoot".hashCode()) ^ Boolean.valueOf(sharedRoot()).hashCode();

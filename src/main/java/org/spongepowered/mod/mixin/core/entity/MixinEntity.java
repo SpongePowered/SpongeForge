@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.entity;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -35,6 +36,7 @@ import net.minecraft.network.play.server.S1FPacketSetExperience;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
+
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
@@ -71,6 +73,11 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     @Shadow
     private UUID entityUniqueID;
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 
     @Shadow
     public net.minecraft.world.World worldObj;

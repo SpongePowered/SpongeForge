@@ -29,11 +29,13 @@ import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
+
 import org.spongepowered.api.item.ItemDataTransactionResult;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.data.DurabilityData;
@@ -61,6 +63,11 @@ public class SpongeDurabilityData extends AbstractItemData implements Durability
         this.durability = stack.getItemDamage();
         this.maxDurability = stack.getItem().getMaxDamage();
         this.breakable = stack.isItemStackDamageable();
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     @Override
@@ -123,6 +130,11 @@ public class SpongeDurabilityData extends AbstractItemData implements Durability
             public Optional<Collection<ItemData<?>>> getReplacedData() {
                 return Optional.<Collection<ItemData<?>>>of(ImmutableSet.<ItemData<?>>of(new SpongeDurabilityData(stack)));
             }
+
+            @Override
+            public boolean isFlowerPot() {
+                return false;
+            }
         };
     }
 
@@ -141,6 +153,11 @@ public class SpongeDurabilityData extends AbstractItemData implements Durability
             @Override
             public Optional<Collection<ItemData<?>>> getReplacedData() {
                 return Optional.absent();
+            }
+
+            @Override
+            public boolean isFlowerPot() {
+                return false;
             }
         };
     }

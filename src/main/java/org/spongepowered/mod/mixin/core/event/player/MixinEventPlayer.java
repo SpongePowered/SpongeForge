@@ -64,4 +64,8 @@ public abstract class MixinEventPlayer extends LivingEvent implements PlayerEven
         return (Player) this.entityPlayer;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

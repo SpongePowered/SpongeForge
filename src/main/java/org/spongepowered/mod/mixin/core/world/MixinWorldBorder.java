@@ -51,6 +51,10 @@ public abstract class MixinWorldBorder implements WorldBorder {
     @Shadow
     private double startDiameter;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Shadow
     private double endDiameter;
 

@@ -28,7 +28,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.collect.Lists;
+
 import net.minecraft.util.IChatComponent;
+
 import org.spongepowered.api.block.tile.Sign;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
@@ -62,5 +64,10 @@ public abstract class MixinTileEntitySign extends MixinTileEntity {
 //        }
         container.set(of("Lines"), lines);
         return container;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

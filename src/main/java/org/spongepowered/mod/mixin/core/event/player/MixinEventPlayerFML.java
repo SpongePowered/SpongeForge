@@ -62,6 +62,10 @@ public abstract class MixinEventPlayerFML extends Event implements PlayerEvent {
         return (Player) this.player;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Player getEntity() {
         return (Player) this.player;

@@ -133,6 +133,10 @@ public abstract class MixinEntityVillager extends EntityAgeable {
         return getRecipes(null);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @SuppressWarnings("unchecked")
     public void villager$addOffer(TradeOffer offer) {
         this.buyingList.add(offer);

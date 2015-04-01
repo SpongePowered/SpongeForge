@@ -78,4 +78,8 @@ public abstract class MixinEntityDragon extends EntityLiving {
         this.healingEnderCrystal = (EntityEnderCrystal) crystal;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

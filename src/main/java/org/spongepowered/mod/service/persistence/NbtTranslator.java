@@ -67,6 +67,10 @@ public final class NbtTranslator implements DataTranslator<NBTTagCompound> {
         return compound;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private static void containerToCompound(final DataView container, final NBTTagCompound compound) {
         // We don't need to get deep values since all nested DataViews will be found
         // from the instance of checks.

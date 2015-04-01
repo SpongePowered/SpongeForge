@@ -50,4 +50,8 @@ public class SpongeMobSpawnerBuilder extends AbstractTileBuilder<MobSpawner> {
         ((TileEntityMobSpawner) mobspawnerOptional.get()).validate();
         return Optional.of(mobspawnerOptional.get());
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

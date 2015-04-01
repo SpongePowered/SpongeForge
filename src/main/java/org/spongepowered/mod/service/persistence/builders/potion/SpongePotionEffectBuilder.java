@@ -71,4 +71,8 @@ public class SpongePotionEffectBuilder implements DataSerializableBuilder<Potion
                                   .ambience(ambience)
                                   .build());
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

@@ -49,6 +49,10 @@ public abstract class MixinEntityBat extends EntityAmbientCreature {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public boolean bat$isAwake() {
         return !getIsBatHanging();
     }

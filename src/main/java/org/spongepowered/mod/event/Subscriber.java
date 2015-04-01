@@ -52,6 +52,10 @@ class Subscriber {
         return this.eventClass;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public Handler getHandler() {
         return this.handler;
     }

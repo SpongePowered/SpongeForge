@@ -45,4 +45,8 @@ public abstract class MixinTextScore extends MixinText {
         }
         return component;
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

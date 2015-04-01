@@ -58,4 +58,8 @@ public class SpongeHopperBuilder extends SpongeLockableBuilder<Hopper> {
         ((TileEntityHopper) hopper).validate();
         return Optional.of(hopper);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

@@ -43,4 +43,8 @@ public abstract class MixinBlockSnapshot implements BlockSnapshot {
         return (BlockState) this.replacedBlock;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

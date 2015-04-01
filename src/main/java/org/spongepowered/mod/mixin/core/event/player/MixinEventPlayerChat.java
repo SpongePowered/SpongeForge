@@ -62,6 +62,10 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
         return ((SpongeChatComponent) this.component).toText();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Player getPlayer() {
         return (Player) this.player;

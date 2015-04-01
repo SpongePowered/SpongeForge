@@ -50,6 +50,10 @@ public class SpongeBannerBuilder extends AbstractTileBuilder<Banner> {
         super(game);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Optional<Banner> build(DataView container) throws InvalidDataException {

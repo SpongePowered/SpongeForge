@@ -51,6 +51,10 @@ public abstract class MixinChunk implements Chunk {
     @Shadow
     private net.minecraft.world.World worldObj;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Shadow
     public int xPosition;
 

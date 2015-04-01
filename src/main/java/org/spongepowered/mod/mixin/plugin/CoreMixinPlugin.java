@@ -52,6 +52,10 @@ public class CoreMixinPlugin implements IMixinConfigPlugin {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public String getRefMapperConfig() {
         return null;

@@ -59,4 +59,8 @@ public abstract class MixinEntityGuardian extends EntityMob {
     public void guardian$setElder(boolean elder) {
         this.setElder(elder);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

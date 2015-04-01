@@ -39,6 +39,10 @@ public abstract class MixinMinecraftProtocolVersionIdentifier implements Protoco
     @Shadow
     private int protocol;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public String getName() {
         return this.name;

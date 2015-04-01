@@ -52,4 +52,8 @@ public class SpongeEventHooks {
         SpongeHooks.logEntityDeath(event.entity);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

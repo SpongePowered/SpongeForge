@@ -44,4 +44,9 @@ public class SpongeProfession extends SpongeEntityMeta implements Profession {
     public Translation getTranslation() {
         return null;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

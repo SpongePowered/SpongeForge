@@ -55,6 +55,10 @@ public abstract class MixinBlockUpdateEvent extends BlockEvent implements BlockU
         this.notifiedSides = notifiedSides;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Collection<Location> getAffectedBlocks() {
         if (this.affectedBlocks == null) {

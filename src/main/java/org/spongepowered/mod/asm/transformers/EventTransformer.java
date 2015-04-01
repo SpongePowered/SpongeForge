@@ -56,6 +56,10 @@ import java.util.Map;
 @Cancelable
 public class EventTransformer implements IClassTransformer {
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private static final Map<String, Class<?>> events = new HashMap<String, Class<?>>();
 
     static {

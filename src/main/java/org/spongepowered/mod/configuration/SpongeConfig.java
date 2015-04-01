@@ -53,6 +53,14 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         Type(Class<? extends ConfigBase> type) {
             this.type = type;
         }
+
+        public boolean isFlowerPot() {
+            return false;
+        }
+    }
+
+    public boolean isFlowerPot() {
+        return false;
     }
 
     public static final String CONFIG_ENABLED = "config-enabled";

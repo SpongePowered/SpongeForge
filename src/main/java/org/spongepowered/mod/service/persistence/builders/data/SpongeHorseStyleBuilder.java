@@ -50,4 +50,8 @@ public class SpongeHorseStyleBuilder implements DataSerializableBuilder<HorseSty
         }
         return Optional.of(color);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

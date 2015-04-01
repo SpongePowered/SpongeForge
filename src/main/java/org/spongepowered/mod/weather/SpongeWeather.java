@@ -30,4 +30,8 @@ import org.spongepowered.api.world.weather.Weather;
 @NonnullByDefault
 public class SpongeWeather implements Weather {
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

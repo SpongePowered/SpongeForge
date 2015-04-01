@@ -42,4 +42,8 @@ public class MixinEntityGolem extends EntityCreature {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

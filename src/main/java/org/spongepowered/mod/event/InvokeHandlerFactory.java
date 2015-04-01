@@ -38,6 +38,10 @@ class InvokeHandlerFactory implements HandlerFactory {
         return new InvokeHandler(object, method, ignoreCancelled);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private static class InvokeHandler implements Handler {
 
         private final Object object;
@@ -48,6 +52,10 @@ class InvokeHandlerFactory implements HandlerFactory {
             this.object = object;
             this.method = method;
             this.ignoreCancelled = ignoreCancelled;
+        }
+
+        public boolean isFlowerPot() {
+            return false;
         }
 
         @Override

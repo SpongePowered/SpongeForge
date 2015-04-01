@@ -75,6 +75,10 @@ public abstract class MixinEntityArrow extends MixinEntity implements Arrow {
         return new UnknownProjectileSource();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void setShooter(ProjectileSource shooter) {
         if (shooter instanceof Entity) {

@@ -27,8 +27,10 @@ package org.spongepowered.mod.mixin.core.block.data;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.base.Optional;
+
 import net.minecraft.command.server.CommandBlockLogic;
 import net.minecraft.util.IChatComponent;
+
 import org.spongepowered.api.block.tile.CommandBlock;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataQuery;
@@ -68,5 +70,10 @@ public abstract class MixinTileEntityCommandBlock extends MixinTileEntity {
 //            }
         }
         return container;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

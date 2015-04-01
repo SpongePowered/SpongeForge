@@ -48,6 +48,10 @@ public class ChatComponentIterator extends UnmodifiableIterator<IChatComponent> 
         return this.children == null || (this.currentChildIterator != null && this.currentChildIterator.hasNext()) || this.children.hasNext();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public IChatComponent next() {

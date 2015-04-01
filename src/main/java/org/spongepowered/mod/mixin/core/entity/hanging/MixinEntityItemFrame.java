@@ -25,8 +25,10 @@
 package org.spongepowered.mod.mixin.core.entity.hanging;
 
 import com.google.common.base.Optional;
+
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.world.World;
+
 import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -60,6 +62,11 @@ public abstract class MixinEntityItemFrame extends EntityHanging implements Item
     @Override
     public Optional<ItemStack> getItem() {
         return Optional.fromNullable((ItemStack) getDisplayedItem());
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     @Override

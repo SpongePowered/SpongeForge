@@ -63,6 +63,10 @@ public abstract class MixinEntityEgg extends MixinEntityThrowable {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void writeToNbt(NBTTagCompound compound) {
         super.writeToNbt(compound);

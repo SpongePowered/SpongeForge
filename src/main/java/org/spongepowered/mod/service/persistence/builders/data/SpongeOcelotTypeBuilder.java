@@ -50,4 +50,8 @@ public class SpongeOcelotTypeBuilder implements DataSerializableBuilder<OcelotTy
         }
         return Optional.of(ocelotType);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

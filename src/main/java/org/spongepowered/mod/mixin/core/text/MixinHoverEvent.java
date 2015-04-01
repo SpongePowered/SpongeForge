@@ -54,6 +54,10 @@ public abstract class MixinHoverEvent implements SpongeHoverEvent {
     private HoverAction<?> handle;
     private boolean initialized;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public HoverAction<?> getHandle() {
         if (!this.initialized) {

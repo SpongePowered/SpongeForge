@@ -51,6 +51,10 @@ public class SpongeContextCalculator implements ContextCalculator {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean matches(Context context, Subject subject) {
         Optional<CommandSource> subjSource = subject.getCommandSource();

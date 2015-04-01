@@ -56,6 +56,10 @@ public class ProjectileSourceSerializer {
         return null;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public static ProjectileSource fromNbt(World worldObj, NBTBase tag) {
         if (tag instanceof NBTTagString) {
             Entity entity =

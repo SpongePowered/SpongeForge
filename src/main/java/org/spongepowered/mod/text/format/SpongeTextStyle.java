@@ -54,6 +54,10 @@ public class SpongeTextStyle extends TextStyle.Base {
         return this.handle.formattingCode;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public static SpongeTextStyle of(EnumChatFormatting handle) {
         if (handle == EnumChatFormatting.RESET) {
             return new SpongeTextStyle(handle, false, false, false, false, false);

@@ -60,4 +60,8 @@ public abstract class MixinEntityOcelot extends EntityTameable {
         this.setTameSkin(((SpongeEntityMeta) ocelotType).type);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

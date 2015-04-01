@@ -32,4 +32,9 @@ public class SpongeSkeletonType extends SpongeEntityMeta implements SkeletonType
         super(type, name);
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

@@ -33,4 +33,8 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(BiomeGenBase.class)
 public abstract class MixinBiomeGenBase implements BiomeType {
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

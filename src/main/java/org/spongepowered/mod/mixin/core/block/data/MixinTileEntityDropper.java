@@ -35,4 +35,9 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(net.minecraft.tileentity.TileEntityDropper.class)
 public abstract class MixinTileEntityDropper extends MixinTileEntityLockable {
 
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

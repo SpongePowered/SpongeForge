@@ -25,8 +25,10 @@
 package org.spongepowered.mod.mixin.core.entity;
 
 import com.google.common.base.Optional;
+
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.nbt.NBTTagCompound;
+
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.player.User;
@@ -58,6 +60,11 @@ public abstract class MixinEntityItem extends MixinEntity implements Item {
 
     @Shadow(remap = false)
     public int lifespan;
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 
     @Shadow
     public abstract net.minecraft.item.ItemStack getEntityItem();

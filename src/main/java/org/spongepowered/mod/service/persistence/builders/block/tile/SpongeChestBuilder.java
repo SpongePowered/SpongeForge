@@ -39,6 +39,10 @@ public class SpongeChestBuilder extends SpongeLockableBuilder<Chest> {
         super(game);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Optional<Chest> build(DataView container) throws InvalidDataException {

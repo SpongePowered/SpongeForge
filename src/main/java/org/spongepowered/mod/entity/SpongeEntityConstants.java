@@ -90,6 +90,10 @@ public class SpongeEntityConstants {
     public static final SpongeHorseVariant UNDEAD_HORSE = new SpongeHorseVariant(3, "UNDEAD_HORSE");
     public static final SpongeHorseVariant SKELETON_HORSE = new SpongeHorseVariant(4, "SKELETON_HORSE");
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     static {
         SKELETON_TYPES.put("NORMAL", NORMAL_SKELETON);
         SKELETON_TYPES.put("WITHER", WITHER_SKELETON);

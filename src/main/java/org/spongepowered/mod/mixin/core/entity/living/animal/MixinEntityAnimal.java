@@ -42,4 +42,8 @@ public abstract class MixinEntityAnimal extends EntityAgeable {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

@@ -44,6 +44,10 @@ public class WrappedModContainer implements PluginContainer {
         return this.container.getName();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public String getVersion() {
         return this.container.getVersion();

@@ -64,6 +64,10 @@ public abstract class MixinMerchantRecipe implements TradeOffer {
         return (ItemStack) getItemToBuy();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean hasSecondItem() {
         return hasSecondItemToBuy();

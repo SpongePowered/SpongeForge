@@ -67,4 +67,8 @@ public abstract class MixinItemFishingRod extends Item implements IMixinEntityFi
         return itemStack;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

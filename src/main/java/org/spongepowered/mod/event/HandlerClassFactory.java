@@ -97,6 +97,10 @@ class HandlerClassFactory implements HandlerFactory {
         this.targetPackage = targetPackage;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Handler createHandler(Object object, Method method, boolean ignoreCancelled) {
         synchronized (this.cache) {

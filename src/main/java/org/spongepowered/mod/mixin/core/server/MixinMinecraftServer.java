@@ -111,6 +111,10 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
         return Optional.absent();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Optional<World> loadWorld(String worldName) {
         throw new UnsupportedOperationException(); // TODO

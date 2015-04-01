@@ -57,6 +57,10 @@ public class EventRegistry {
     private EventRegistry() {
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     static {
         // FML state events
         register(FMLConstructionEvent.class, ConstructionEvent.class);

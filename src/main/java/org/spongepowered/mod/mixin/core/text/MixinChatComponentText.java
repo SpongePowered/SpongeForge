@@ -40,4 +40,8 @@ public abstract class MixinChatComponentText extends MixinChatComponentStyle {
         return Texts.builder(this.text);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

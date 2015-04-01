@@ -68,4 +68,8 @@ public class SpongePatternLayerBuilder implements DataSerializableBuilder<Patter
         }
         return Optional.<PatternLayer>of(new SpongePatternLayer(shapeOptional.get(), colorOptional.get()));
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

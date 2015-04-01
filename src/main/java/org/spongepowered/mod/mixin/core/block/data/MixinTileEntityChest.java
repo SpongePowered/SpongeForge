@@ -51,4 +51,9 @@ public abstract class MixinTileEntityChest extends MixinTileEntityLockable {
         }
         return container;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

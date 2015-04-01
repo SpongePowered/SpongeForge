@@ -49,4 +49,8 @@ public abstract class MixinModContainer implements ModContainer, PluginContainer
     public Object getInstance() {
         return getMod();
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

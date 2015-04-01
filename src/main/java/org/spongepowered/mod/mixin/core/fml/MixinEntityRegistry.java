@@ -60,6 +60,10 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
     @Shadow
     private BiMap<Class<? extends Entity>, EntityRegistration> entityClassRegistrations;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @SuppressWarnings({"unchecked", "unused"})
     private void doModEntityRegistration(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
             int updateFrequency, boolean sendsVelocityUpdates) {

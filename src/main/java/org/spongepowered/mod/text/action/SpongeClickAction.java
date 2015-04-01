@@ -49,4 +49,8 @@ public final class SpongeClickAction {
         return new ClickEvent(getType(action), action.getResult().toString());
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

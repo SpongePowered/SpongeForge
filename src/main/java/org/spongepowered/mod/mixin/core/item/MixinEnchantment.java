@@ -67,6 +67,10 @@ public abstract class MixinEnchantment implements Enchantment {
     @Shadow(remap = false)
     public abstract boolean isAllowedOnBooks();
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(int id, ResourceLocation resLoc, int weight, EnumEnchantmentType type, CallbackInfo ci) {
         this.id = resLoc.toString();

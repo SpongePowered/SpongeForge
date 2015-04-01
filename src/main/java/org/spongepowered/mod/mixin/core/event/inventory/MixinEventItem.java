@@ -52,4 +52,8 @@ public abstract class MixinEventItem extends EntityEvent implements ItemEvent {
     public Item getEntity() {
         return (Item) this.entityItem;
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

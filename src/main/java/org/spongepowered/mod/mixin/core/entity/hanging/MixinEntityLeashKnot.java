@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.entity.hanging;
 
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.world.World;
+
 import org.spongepowered.api.entity.hanging.LeashHitch;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,5 +37,10 @@ public abstract class MixinEntityLeashKnot extends EntityHanging implements Leas
 
     public MixinEntityLeashKnot(World worldIn) {
         super(worldIn);
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

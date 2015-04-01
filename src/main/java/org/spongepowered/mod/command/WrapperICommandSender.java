@@ -51,6 +51,10 @@ public class WrapperICommandSender implements ICommandSender {
         return this.source.getName();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public IChatComponent getDisplayName() {
         return ((SpongeText) Texts.of(this.source.getName())).toComponent();

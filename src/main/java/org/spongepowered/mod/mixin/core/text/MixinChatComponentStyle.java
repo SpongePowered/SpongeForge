@@ -57,6 +57,10 @@ public abstract class MixinChatComponentStyle implements SpongeChatComponent {
         throw new UnsupportedOperationException();
     }
 
+
+    public boolean isFlowerPot() {
+        return false;
+    }
     @Override
     public Iterable<IChatComponent> withChildren() {
         if (this.childrenIterable == null) {

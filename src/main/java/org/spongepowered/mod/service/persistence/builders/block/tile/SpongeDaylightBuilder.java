@@ -48,4 +48,8 @@ public class SpongeDaylightBuilder extends AbstractTileBuilder<DaylightDetector>
         ((TileEntityDaylightDetector) daylightdetectorOptional.get()).validate();
         return Optional.of(daylightdetectorOptional.get());
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

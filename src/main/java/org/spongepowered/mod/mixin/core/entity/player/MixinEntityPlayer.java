@@ -87,6 +87,10 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
         return this.getFoodStats().getFoodLevel();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public void human$setFoodLevel(double hunger) {
         this.getFoodStats().setFoodLevel((int) hunger);
     }

@@ -50,4 +50,8 @@ public abstract class MixinEntitySpider extends EntityMob {
         return this.isBesideClimbableBlock();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

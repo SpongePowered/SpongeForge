@@ -42,4 +42,8 @@ public abstract class MixinEntitySilverfish extends EntityMob {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

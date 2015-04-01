@@ -38,4 +38,8 @@ public abstract class MixinEventState extends FMLEvent {
     public Game getGame() {
         return SpongeMod.instance.getGame();
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

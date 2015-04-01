@@ -112,6 +112,10 @@ public abstract class MixinWorld implements World, IMixinWorld {
     @Shadow
     public abstract boolean spawnEntityInWorld(net.minecraft.entity.Entity entityIn);
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Shadow
     public abstract List<net.minecraft.entity.Entity> getEntities(Class<net.minecraft.entity.Entity> entityType,
             Predicate<net.minecraft.entity.Entity> filter);

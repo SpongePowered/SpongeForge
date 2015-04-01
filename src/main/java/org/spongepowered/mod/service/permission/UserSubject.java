@@ -47,6 +47,10 @@ public class UserSubject extends SpongeSubject {
     private final MemorySubjectData data;
     private final UserCollection collection;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public UserSubject(final GameProfile player, final UserCollection users) {
         super(users.getService());
         this.player = player;

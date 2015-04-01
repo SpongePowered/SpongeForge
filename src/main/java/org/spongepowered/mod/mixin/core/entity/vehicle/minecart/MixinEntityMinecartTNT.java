@@ -39,4 +39,8 @@ public abstract class MixinEntityMinecartTNT extends EntityMinecart implements M
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

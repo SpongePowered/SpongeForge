@@ -67,6 +67,10 @@ public class DataFactoryCollection extends SpongeSubjectCollection {
         return ret;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean hasRegistered(String identifier) {
         return this.subjects.containsKey(identifier);

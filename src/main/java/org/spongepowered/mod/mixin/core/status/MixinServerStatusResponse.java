@@ -56,6 +56,10 @@ public abstract class MixinServerStatusResponse implements StatusPingEvent.Respo
     private ServerStatusResponse.PlayerCountData playerCount;
     private ServerStatusResponse.PlayerCountData playerBackup;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Shadow
     private ServerStatusResponse.MinecraftProtocolVersionIdentifier protocolVersion;
 

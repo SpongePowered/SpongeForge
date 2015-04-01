@@ -39,4 +39,8 @@ public abstract class MixinTextSelector extends MixinText {
     protected ChatComponentStyle createComponent() {
         return new ChatComponentSelector(this.selector.toPlain());
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

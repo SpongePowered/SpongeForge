@@ -48,4 +48,8 @@ public class SpongeEnderChestBuilder extends AbstractTileBuilder<EnderChest> {
         ((TileEntityEnderChest) enderchestOptional.get()).validate();
         return Optional.of(enderchestOptional.get());
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

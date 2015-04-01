@@ -63,4 +63,8 @@ public class SpongeCommandBlockBuilder extends AbstractTileBuilder<CommandBlock>
         ((TileEntityCommandBlock) commandblock).validate();
         return Optional.of(commandblock);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

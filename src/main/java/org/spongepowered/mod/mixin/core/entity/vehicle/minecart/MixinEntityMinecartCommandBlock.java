@@ -47,6 +47,10 @@ public abstract class MixinEntityMinecartCommandBlock extends EntityMinecart imp
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public String getCommand() {
         return this.commandBlockLogic.getCommandSenderName();

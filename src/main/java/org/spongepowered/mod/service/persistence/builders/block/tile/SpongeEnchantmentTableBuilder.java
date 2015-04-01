@@ -53,4 +53,8 @@ public class SpongeEnchantmentTableBuilder extends AbstractTileBuilder<Enchantme
         ((TileEntityEnchantmentTable) enchantmenttable).validate();
         return Optional.of(enchantmenttable);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

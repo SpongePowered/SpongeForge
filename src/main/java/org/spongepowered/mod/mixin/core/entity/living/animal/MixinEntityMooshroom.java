@@ -42,4 +42,8 @@ public abstract class MixinEntityMooshroom extends EntityCow {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

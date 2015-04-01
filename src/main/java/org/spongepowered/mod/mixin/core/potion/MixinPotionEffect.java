@@ -63,6 +63,10 @@ public abstract class MixinPotionEffect implements PotionEffect {
         return (PotionEffectType) Potion.potionTypes[getPotionID()];
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public int potionEffect$getDuration() {
         return this.duration;
     }

@@ -52,4 +52,8 @@ public abstract class MixinEntityMinecartFurnace extends EntityMinecart implemen
     public void setFuel(int fuel) {
         this.fuel = fuel;
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

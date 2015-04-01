@@ -41,4 +41,8 @@ public class ChatComponentIterable implements Iterable<IChatComponent> {
         return new ChatComponentIterator(this.component);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

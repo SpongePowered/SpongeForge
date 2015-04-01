@@ -63,4 +63,8 @@ public abstract class MixinEntityItem extends Entity implements Item {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

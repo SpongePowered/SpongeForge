@@ -48,4 +48,8 @@ public abstract class MixinEventChunk extends WorldEvent implements ChunkEvent {
         return (Chunk) this.chunk;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

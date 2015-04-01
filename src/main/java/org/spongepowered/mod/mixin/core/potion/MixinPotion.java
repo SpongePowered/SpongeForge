@@ -40,4 +40,8 @@ public abstract class MixinPotion implements PotionEffectType {
         return false;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

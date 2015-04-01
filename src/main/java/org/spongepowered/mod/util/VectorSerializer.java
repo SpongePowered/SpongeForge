@@ -43,4 +43,8 @@ public class VectorSerializer {
         return new Vector3d(compound.getDouble("x"), compound.getDouble("y"), compound.getDouble("z"));
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

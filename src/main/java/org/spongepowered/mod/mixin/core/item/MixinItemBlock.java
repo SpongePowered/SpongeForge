@@ -43,4 +43,8 @@ public abstract class MixinItemBlock extends Item implements ItemBlock {
     public BlockType getBlock() {
         return (BlockType) shadow$getBlock();
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

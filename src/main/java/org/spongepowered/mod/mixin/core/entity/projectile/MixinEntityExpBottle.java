@@ -41,4 +41,8 @@ public abstract class MixinEntityExpBottle extends EntityThrowable {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

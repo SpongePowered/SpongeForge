@@ -58,6 +58,10 @@ public abstract class MixinEventBlock extends Event implements BlockEvent {
         return Optional.of(new Cause(null, getBlock(), null));
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public Game getGame() {
         return SpongeMod.instance.getGame();

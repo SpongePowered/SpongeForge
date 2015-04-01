@@ -60,6 +60,10 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void inactiveTick() {
     }

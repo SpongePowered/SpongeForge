@@ -87,6 +87,10 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public ProjectileSource getShooter() {
         if (this.projectileSource != null) {

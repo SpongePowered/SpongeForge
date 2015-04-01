@@ -34,4 +34,8 @@ public class SpongeAccessTransformer extends AccessTransformer {
     public SpongeAccessTransformer() throws IOException {
         super("sponge_at.cfg");
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

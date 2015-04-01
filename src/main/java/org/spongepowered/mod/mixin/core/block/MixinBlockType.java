@@ -25,11 +25,13 @@
 package org.spongepowered.mod.mixin.core.block;
 
 import com.google.common.base.Optional;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
+
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.item.ItemBlock;
@@ -64,6 +66,10 @@ public abstract class MixinBlockType implements BlockType {
 
     @Shadow
     public abstract IBlockState getStateFromMeta(int meta);
+    
+    // The legend, the hero, the god
+    @Shadow(prefix = "shadow$")
+    public abstract boolean shadow$isFlowerPot();
 
     @Override
     public String getId() {
@@ -125,6 +131,11 @@ public abstract class MixinBlockType implements BlockType {
     @Override
     public Optional<ItemBlock> getHeldItem() {
         return Optional.fromNullable((ItemBlock) Item.getItemFromBlock((Block) (Object) this));
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return shadow$isFlowerPot();
     }
 
 }

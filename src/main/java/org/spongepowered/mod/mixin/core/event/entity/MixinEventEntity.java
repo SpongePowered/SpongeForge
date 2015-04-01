@@ -49,4 +49,8 @@ public abstract class MixinEventEntity extends Event implements EntityEvent {
     public Game getGame() {
         return SpongeMod.instance.getGame();
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

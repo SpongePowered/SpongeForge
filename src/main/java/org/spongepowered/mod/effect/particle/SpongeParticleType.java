@@ -25,6 +25,7 @@
 package org.spongepowered.mod.effect.particle;
 
 import net.minecraft.util.EnumParticleTypes;
+
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.item.inventory.ItemStack;
 
@@ -54,6 +55,11 @@ public class SpongeParticleType implements ParticleType {
         return this.motion;
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public static class Colorable extends SpongeParticleType implements ParticleType.Colorable {
 
         private Color color;
@@ -66,6 +72,11 @@ public class SpongeParticleType implements ParticleType {
         @Override
         public Color getDefaultColor() {
             return this.color;
+        }
+
+        @Override
+        public boolean isFlowerPot() {
+            return false;
         }
 
     }
@@ -84,6 +95,11 @@ public class SpongeParticleType implements ParticleType {
             return this.size;
         }
 
+        @Override
+        public boolean isFlowerPot() {
+            return true;
+        }
+
     }
 
     public static class Note extends SpongeParticleType implements ParticleType.Note {
@@ -98,6 +114,11 @@ public class SpongeParticleType implements ParticleType {
         @Override
         public float getDefaultNote() {
             return this.note;
+        }
+
+        @Override
+        public boolean isFlowerPot() {
+            return false;
         }
 
     }
@@ -115,6 +136,11 @@ public class SpongeParticleType implements ParticleType {
         @Override
         public ItemStack getDefaultItem() {
             return ItemStack.class.cast(this.item.copy());
+        }
+
+        @Override
+        public boolean isFlowerPot() {
+            return false;
         }
 
     }

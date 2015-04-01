@@ -60,4 +60,8 @@ public abstract class MixinEntitySheep extends EntityAnimal {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

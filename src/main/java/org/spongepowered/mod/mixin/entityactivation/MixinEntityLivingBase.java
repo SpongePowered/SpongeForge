@@ -46,4 +46,8 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         ++this.entityAge;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

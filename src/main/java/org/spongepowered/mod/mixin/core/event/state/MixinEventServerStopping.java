@@ -34,4 +34,8 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(FMLServerStoppingEvent.class)
 public abstract class MixinEventServerStopping extends FMLStateEvent implements ServerStoppingEvent {
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

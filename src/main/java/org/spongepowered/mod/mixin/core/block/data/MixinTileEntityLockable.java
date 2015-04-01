@@ -27,9 +27,11 @@ package org.spongepowered.mod.mixin.core.block.data;
 import static org.spongepowered.api.service.persistence.data.DataQuery.of;
 
 import com.google.common.collect.Lists;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.LockCode;
+
 import org.spongepowered.api.block.tile.carrier.TileEntityCarrier;
 import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.service.persistence.data.DataView;
@@ -68,5 +70,10 @@ public abstract class MixinTileEntityLockable extends MixinTileEntity implements
         }
         container.set(of("Contents"), items);
         return container;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 }

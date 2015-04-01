@@ -43,4 +43,8 @@ public abstract class MixinEventEntityJoinWorld extends EntityEvent implements E
     public Location getLocation() {
         return getEntity().getLocation();
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

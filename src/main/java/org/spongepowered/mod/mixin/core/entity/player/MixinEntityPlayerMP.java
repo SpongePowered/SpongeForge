@@ -124,6 +124,10 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public void playermp$sendMessage(ChatType type, Iterable<Text> messages) {
         for (Text text : messages) {
             this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(), ((SpongeChatType) type).getId()));

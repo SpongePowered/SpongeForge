@@ -54,4 +54,9 @@ public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable {
         }
         return container;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

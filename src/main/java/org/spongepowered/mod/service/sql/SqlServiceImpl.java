@@ -81,6 +81,10 @@ public class SqlServiceImpl implements SqlService, Closeable {
         PROTOCOL_SPECIFIC_PROPS = build.build();
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private final LoadingCache<ConnectionInfo, HikariDataSource> connectionCache =
             CacheBuilder.newBuilder().removalListener(new RemovalListener<ConnectionInfo, HikariDataSource>() {
                 @Override

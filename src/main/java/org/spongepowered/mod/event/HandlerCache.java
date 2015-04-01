@@ -62,4 +62,8 @@ class HandlerCache {
         return this.orderGrouped.get(order);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

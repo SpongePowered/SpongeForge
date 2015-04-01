@@ -25,9 +25,11 @@
 package org.spongepowered.mod.mixin.core.entity.explosive;
 
 import com.google.common.base.Optional;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
+
 import org.spongepowered.api.entity.explosive.PrimedTNT;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -55,6 +57,11 @@ public abstract class MixinEntityTNTPrimed extends Entity implements PrimedTNT {
     public void detonate() {
         super.setDead();
         this.explode();
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     @Override

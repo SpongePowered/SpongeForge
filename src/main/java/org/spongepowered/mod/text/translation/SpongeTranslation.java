@@ -47,6 +47,10 @@ public class SpongeTranslation implements Translation {
         return StatCollector.translateToLocal(this.id);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public String get(Object... args) {
         return StatCollector.translateToLocalFormatted(this.id, args);

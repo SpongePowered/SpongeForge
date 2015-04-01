@@ -50,4 +50,8 @@ public class SpongeHorseVariantBuilder implements DataSerializableBuilder<HorseV
         }
         return Optional.of(color);
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

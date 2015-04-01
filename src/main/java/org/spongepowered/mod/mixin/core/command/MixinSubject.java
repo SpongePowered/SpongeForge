@@ -25,10 +25,12 @@
 package org.spongepowered.mod.mixin.core.command;
 
 import com.google.common.base.Optional;
+
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.server.CommandBlockLogic;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectCollection;
@@ -43,6 +45,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.command.MinecraftCommandWrapper;
 import org.spongepowered.mod.interfaces.Subjectable;
+
 
 
 import java.util.Collections;
@@ -73,6 +76,11 @@ public abstract class MixinSubject implements CommandSource, ICommandSender {
             }
         }
         return this.thisSubject;
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     @Override

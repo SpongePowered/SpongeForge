@@ -32,4 +32,9 @@ public class SpongeOcelotType extends SpongeEntityMeta implements OcelotType {
         super(type, name);
     }
 
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

@@ -55,6 +55,10 @@ public abstract class MixinNetworkManager extends SimpleChannelInboundHandler im
         return this.virtualHost;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void setVirtualHost(String host, int port) {
         this.virtualHost = InetSocketAddress.createUnresolved(host, port);

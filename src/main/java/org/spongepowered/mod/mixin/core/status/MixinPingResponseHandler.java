@@ -50,6 +50,10 @@ public abstract class MixinPingResponseHandler extends ChannelInboundHandlerAdap
     @Shadow
     private NetworkSystem networkSystem;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     private ByteBuf buf;
 
     @Shadow

@@ -54,4 +54,8 @@ public abstract class MixinEntityWitch extends EntityMob {
         this.getDataWatcher().updateObject(21, (byte) (aggressive ? 1 : 0));
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

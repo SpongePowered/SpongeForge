@@ -48,6 +48,10 @@ public abstract class MixinEventBus {
     @Shadow
     private IEventExceptionHandler exceptionHandler;
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Overwrite
     public boolean post(Event event) {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);

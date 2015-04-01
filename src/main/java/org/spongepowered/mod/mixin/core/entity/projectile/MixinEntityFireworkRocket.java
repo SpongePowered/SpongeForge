@@ -51,6 +51,10 @@ public abstract class MixinEntityFireworkRocket extends MixinEntity implements F
         return this.lifetime - this.fireworkAge;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public void setFuseDuration(int fuseTicks) {
         this.lifetime = fuseTicks + this.fireworkAge;

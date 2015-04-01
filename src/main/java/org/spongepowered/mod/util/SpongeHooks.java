@@ -82,6 +82,10 @@ public class SpongeHooks {
         MinecraftServer.getServer().logSevere(MessageFormat.format(msg, args));
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public static void logStack(SpongeConfig<?> config) {
         if (config.getConfig().getLogging().logWithStackTraces()) {
             Throwable ex = new Throwable();

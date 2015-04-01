@@ -42,4 +42,8 @@ public abstract class MixinEntitySquid extends EntityWaterMob {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

@@ -42,4 +42,8 @@ public abstract class MixinEntityCow extends EntityAnimal {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

@@ -56,6 +56,10 @@ public class SpongeFavicon implements Favicon {
         this.encoded = encode(decoded);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public SpongeFavicon(String encoded) throws IOException {
         this.encoded = checkNotNull(encoded, "encoded");
         this.decoded = decode(encoded);

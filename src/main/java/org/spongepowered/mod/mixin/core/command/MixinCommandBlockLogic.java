@@ -25,8 +25,10 @@
 package org.spongepowered.mod.mixin.core.command;
 
 import com.google.common.base.Optional;
+
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.server.CommandBlockLogic;
+
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectCollection;
@@ -67,6 +69,11 @@ public abstract class MixinCommandBlockLogic implements ICommandSender, CommandB
         for (Text message : messages) {
             addChatMessage(((SpongeText) message).toComponent());
         }
+    }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
     }
 
     @Override

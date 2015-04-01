@@ -56,6 +56,10 @@ public class SpongeSerializationService implements SerializationService {
         }
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public <T extends DataSerializable> Optional<DataSerializableBuilder<T>> getBuilder(Class<T> clazz) {

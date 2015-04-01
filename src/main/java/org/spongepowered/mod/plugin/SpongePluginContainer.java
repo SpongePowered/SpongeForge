@@ -85,6 +85,10 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
         this.pluginDescriptor = descriptor;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Subscribe
     public void constructMod(FMLConstructionEvent event) {
         try {

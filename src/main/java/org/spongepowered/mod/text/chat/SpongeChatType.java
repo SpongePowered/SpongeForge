@@ -38,4 +38,8 @@ public class SpongeChatType implements ChatType {
         return this.id;
     }
 
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

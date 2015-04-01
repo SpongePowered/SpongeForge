@@ -63,6 +63,10 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart {
         return this.maxSpeed;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     // this method overwrites vanilla behavior to allow for a custom deceleration rate on all three axes when airborne
     @Inject(method = "moveDerailedMinecart()V", at = @At(value = "FIELD", target = "net.minecraft.entity.Entity.onGround:Z", ordinal = 2))
     public void implementCustomAirborneDeceleration(CallbackInfo ci) {

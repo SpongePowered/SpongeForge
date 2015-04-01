@@ -58,6 +58,10 @@ public abstract class SpongeSubject implements Subject {
         return getPermissionValue(contexts, permission) == Tristate.TRUE;
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     public boolean hasPermission(String permission) {
         return hasPermission(getActiveContexts(), permission);

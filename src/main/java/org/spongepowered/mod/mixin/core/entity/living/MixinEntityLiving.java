@@ -62,6 +62,10 @@ public abstract class MixinEntityLiving extends EntityLivingBase {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public boolean agent$isAiEnabled() {
         return !isAIDisabled();
     }

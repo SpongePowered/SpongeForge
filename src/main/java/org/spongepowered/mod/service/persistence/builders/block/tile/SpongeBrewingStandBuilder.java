@@ -40,6 +40,10 @@ public class SpongeBrewingStandBuilder extends SpongeLockableBuilder<BrewingStan
         super(game);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Optional<BrewingStand> build(DataView container) throws InvalidDataException {

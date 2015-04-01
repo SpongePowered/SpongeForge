@@ -51,6 +51,10 @@ public final class VecHelper {
         return new Vector3i(pos.getX(), pos.getY(), pos.getZ());
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 
     // === Rotations --> Flow Vector ===
 

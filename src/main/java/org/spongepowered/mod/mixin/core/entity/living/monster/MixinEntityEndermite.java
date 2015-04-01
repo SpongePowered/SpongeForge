@@ -53,4 +53,8 @@ public abstract class MixinEntityEndermite extends EntityMob {
     public void endermite$setPlayerCreated(boolean playerCreated) {
         this.playerSpawned = playerCreated;
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

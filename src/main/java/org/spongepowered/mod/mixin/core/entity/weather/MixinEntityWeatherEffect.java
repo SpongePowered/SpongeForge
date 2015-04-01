@@ -38,4 +38,8 @@ public abstract class MixinEntityWeatherEffect extends Entity implements Weather
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
 }

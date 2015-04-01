@@ -37,4 +37,9 @@ public class SpongeHorseVariant extends SpongeEntityMeta implements HorseVariant
     public Translation getTranslation() {
         return null;
     }
+
+    @Override
+    public boolean isFlowerPot() {
+        return false;
+    }
 }

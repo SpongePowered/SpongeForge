@@ -103,6 +103,10 @@ public abstract class MixinEntityLivingBase extends Entity {
         super(worldIn);
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     public void living$damage(double amount) {
         Living thisEntity = (Living) this;
         DamageSource source = DamageSource.generic;

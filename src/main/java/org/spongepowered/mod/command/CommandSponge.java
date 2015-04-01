@@ -70,6 +70,10 @@ public class CommandSponge extends CommandBase {
         return "sponge";
     }
 
+    public boolean isFlowerPot() {
+        return false;
+    }
+
     @SuppressWarnings("rawtypes")
     @Override
     public List getCommandAliases() {

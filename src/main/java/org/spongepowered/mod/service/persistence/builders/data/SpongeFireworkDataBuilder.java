@@ -81,4 +81,8 @@ public class SpongeFireworkDataBuilder implements DataSerializableBuilder<Firewo
                                    .trail(trails)
                                    .build());
     }
+
+    public boolean isFlowerPot() {
+        return false;
+    }
 }
