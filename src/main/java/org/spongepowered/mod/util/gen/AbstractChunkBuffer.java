@@ -70,17 +70,7 @@ abstract class AbstractChunkBuffer implements MutableBlockBuffer {
     }
 
     @Override
-    public Vector3i getMaxBound() {
-        return this.maxBlock;
-    }
-
-    @Override
-    public Vector3i getMinBound() {
-        return this.minBlock;
-    }
-
-    @Override
-    public Vector3i getSize() {
+    public Vector3i getBlockSize() {
         return CHUNK_SIZE;
     }
 
@@ -102,7 +92,7 @@ abstract class AbstractChunkBuffer implements MutableBlockBuffer {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "(min = " + this.getMinBound() + ", max = " + this.getMaxBound() + ")";
+        return this.getClass().getSimpleName() + "(min = " + this.getBlockMin() + ", max = " + this.getBlockMax() + ")";
     }
 
 }

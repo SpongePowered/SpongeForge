@@ -25,8 +25,6 @@
 
 package org.spongepowered.mod.world.gen;
 
-import org.spongepowered.mod.util.gen.ChunkPrimerBuffer;
-
 import com.flowpowered.math.vector.Vector2i;
 import com.google.common.base.Preconditions;
 import net.minecraft.block.BlockFalling;
@@ -45,6 +43,7 @@ import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GeneratorPopulator;
 import org.spongepowered.mod.util.gen.ByteArrayMutableBiomeArea;
+import org.spongepowered.mod.util.gen.ChunkPrimerBuffer;
 
 import java.util.List;
 import java.util.Random;

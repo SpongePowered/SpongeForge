@@ -76,8 +76,8 @@ public class SpongeGeneratorPopulator implements GeneratorPopulator {
         // The block buffer can be of any size. We generate all chunks that
         // have at least part of the chunk in the given area, and copy the
         // needed blocks into the buffer
-        Vector3i min = buffer.getMinBound();
-        Vector3i max = buffer.getMaxBound();
+        Vector3i min = buffer.getBlockMin();
+        Vector3i max = buffer.getBlockMax();
         int minChunkX = (int) Math.floor(min.getX() / 16.0);
         int minChunkZ = (int) Math.floor(min.getZ() / 16.0);
         int maxChunkX = (int) Math.floor(max.getX() / 16.0);
@@ -95,8 +95,8 @@ public class SpongeGeneratorPopulator implements GeneratorPopulator {
         // Calculate bounds
         int xOffset = chunkX * 16;
         int zOffset = chunkZ * 16;
-        Vector3i minBound = buffer.getMinBound();
-        Vector3i maxBound = buffer.getMaxBound();
+        Vector3i minBound = buffer.getBlockMin();
+        Vector3i maxBound = buffer.getBlockMax();
         int xInChunkStart = Math.max(0, minBound.getX() - xOffset);
         int yStart = Math.max(0, minBound.getY());
         int zInChunkStart = Math.max(0, minBound.getZ() - zOffset);

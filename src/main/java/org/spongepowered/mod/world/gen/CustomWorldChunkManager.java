@@ -25,7 +25,6 @@
 
 package org.spongepowered.mod.world.gen;
 
-import org.spongepowered.mod.util.gen.ObjectArrayMutableBiomeArea;
 import com.flowpowered.math.vector.Vector2i;
 import com.google.common.base.Preconditions;
 import net.minecraft.util.BlockPos;
@@ -35,6 +34,7 @@ import net.minecraft.world.gen.layer.IntCache;
 import org.spongepowered.api.util.gen.MutableBiomeArea;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.mod.util.gen.ByteArrayMutableBiomeArea;
+import org.spongepowered.mod.util.gen.ObjectArrayMutableBiomeArea;
 
 import java.util.Arrays;
 import java.util.List;

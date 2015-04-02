@@ -62,13 +62,13 @@ public final class WorldGeneratorRegistry {
     }
 
     private Optional<WorldGeneratorModifier> getFromPrefixed(String prefixedId) {
-        return Optional.fromNullable(modifiers.get(prefixedId));
+        return Optional.fromNullable(this.modifiers.get(prefixedId));
     }
 
     private Optional<WorldGeneratorModifier> getFromUnprefixed(String unprefixedId) {
         // Requires a linear search. If this ever becomes a problem, a second
         // map of unprefixed keys needs to be created.
-        for (Entry<String, WorldGeneratorModifier> entry : modifiers.entrySet()) {
+        for (Entry<String, WorldGeneratorModifier> entry : this.modifiers.entrySet()) {
             String key = entry.getKey();
             String unprefixedKey = key.substring(key.indexOf(NAMESPACE_SEPARATOR));
             if (unprefixedKey.equals(unprefixedId)) {
@@ -79,7 +79,7 @@ public final class WorldGeneratorRegistry {
     }
 
     public Collection<WorldGeneratorModifier> getModifiers() {
-        return modifiers.values();
+        return this.modifiers.values();
     }
 
     public void registerModifier(PluginContainer plugin, String id, WorldGeneratorModifier modifier) {

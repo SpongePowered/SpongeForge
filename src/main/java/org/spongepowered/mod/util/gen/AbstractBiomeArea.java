@@ -58,23 +58,23 @@ abstract class AbstractBiomeArea implements BiomeBuffer {
     }
 
     @Override
-    public Vector2i getMinBound() {
+    public Vector2i getBiomeMin() {
         return this.start;
     }
 
     @Override
-    public Vector2i getMaxBound() {
+    public Vector2i getBiomeMax() {
         return this.end;
     }
 
     @Override
-    public Vector2i getSize() {
+    public Vector2i getBiomeSize() {
         return this.size;
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "(min = " + this.getMinBound() + ", max = " + this.getMaxBound() + ")";
+        return this.getClass().getSimpleName() + "(min = " + this.getBiomeMin() + ", max = " + this.getBiomeMax() + ")";
     }
 
 }

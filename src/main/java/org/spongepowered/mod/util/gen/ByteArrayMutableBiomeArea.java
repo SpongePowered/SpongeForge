@@ -60,11 +60,6 @@ public final class ByteArrayMutableBiomeArea extends AbstractBiomeArea implement
     }
 
     @Override
-    public String toString() {
-        return getClass().getSimpleName() + "(min: " + getMinBound() + ", size: " + getSize() + ")";
-    }
-
-    @Override
     public void setBiome(Vector2i position, BiomeType biome) {
         setBiome(position.getX(), position.getY(), biome);
     }
@@ -124,16 +119,6 @@ public final class ByteArrayMutableBiomeArea extends AbstractBiomeArea implement
         Arrays.fill(this.biomes, (byte) 0);
 
         this.detached = false;
-    }
-
-    @Override
-    public Vector2i getBiomeMin() {
-        return this.start;
-    }
-
-    @Override
-    public Vector2i getBiomeMax() {
-        return this.end;
     }
 
     @Override

@@ -74,16 +74,6 @@ public final class ObjectArrayMutableBiomeArea extends AbstractBiomeArea impleme
     }
 
     @Override
-    public Vector2i getBiomeMin() {
-        return this.start;
-    }
-
-    @Override
-    public Vector2i getBiomeMax() {
-        return this.end;
-    }
-
-    @Override
     public void setBiome(Vector2i position, BiomeType biome) {
         setBiome(position.getX(), position.getY(), biome);
     }
@@ -103,11 +93,6 @@ public final class ObjectArrayMutableBiomeArea extends AbstractBiomeArea impleme
     @Override
     public ImmutableBiomeArea getImmutableClone() {
         return new ByteArrayImmutableBiomeArea(this.biomes, this.start, this.size);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "(min: " + getMinBound() + ", size: " + getSize() + ")";
     }
 
 }

@@ -25,8 +25,6 @@
 
 package org.spongepowered.mod.util.gen;
 
-import java.util.Arrays;
-
 import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -35,6 +33,8 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.util.gen.ImmutableBlockBuffer;
+
+import java.util.Arrays;
 
 /**
  * Buffer backed by a single chunk.
