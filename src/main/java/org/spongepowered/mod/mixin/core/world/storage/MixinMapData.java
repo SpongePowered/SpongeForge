@@ -122,9 +122,9 @@ public abstract class MixinMapData extends WorldSavedData implements MapData {
 
         if (!nbt.hasKey("isVirtual")) {
             nbt.setBoolean("isVirtual", false);
-            isVirtual = false;
+            this.isVirtual = false;
         } else {
-            isVirtual = nbt.getBoolean("isVirtual");
+            this.isVirtual = nbt.getBoolean("isVirtual");
         }
 
 
@@ -172,10 +172,10 @@ public abstract class MixinMapData extends WorldSavedData implements MapData {
     public void writeToNBT(NBTTagCompound nbt)
     {
         nbt.setInteger("dimension", this.dimension);
-        nbt.setBoolean("isVirtual", isVirtual);
+        nbt.setBoolean("isVirtual", this.isVirtual);
         nbt.setBoolean("spongeWorld", true);
-        nbt.setLong("spongeWorldUUIDLower", spongeWorld.getUniqueId().getLeastSignificantBits());
-        nbt.setLong("spongeWorldUUIDUpper", spongeWorld.getUniqueId().getMostSignificantBits());
+        nbt.setLong("spongeWorldUUIDLower", this.spongeWorld.getUniqueId().getLeastSignificantBits());
+        nbt.setLong("spongeWorldUUIDUpper", this.spongeWorld.getUniqueId().getMostSignificantBits());
         nbt.setInteger("xCenter", this.xCenter);
         nbt.setInteger("zCenter", this.zCenter);
         nbt.setByte("scale", this.scale);
