@@ -35,7 +35,6 @@ import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.granite.Granite;
 import org.spongepowered.granite.GraniteGame;
 import org.spongepowered.granite.event.GraniteEventManager;
-import org.spongepowered.granite.guice.ConfigDirAnnotation;
 import org.spongepowered.granite.plugin.GranitePluginManager;
 import org.spongepowered.granite.registry.GraniteGameRegistry;
 

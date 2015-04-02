@@ -3,8 +3,6 @@
     "refmap": "mixins.vanilla.refmap.json",
     "server": [
         "MixinGameProfile",
-        "block.state.MixinBlockState",
-        "management.MixinItemInWorldManager",
         "server.MixinDedicatedServer",
         "server.MixinMinecraftServer",
         "server.MixinNetHandlerHandshakeTCP",
