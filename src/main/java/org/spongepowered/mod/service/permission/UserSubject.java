@@ -92,7 +92,13 @@ public class UserSubject extends SpongeSubject {
     int getOpLevel() {
         // Query op level from server ops list based on player's game profile
         UserListOpsEntry entry = ((UserListOpsEntry) SpongePermissionService.getOps().getEntry(this.player));
-        return entry == null ? 0 : entry.getPermissionLevel();
+        if (entry == null) {
+            return MinecraftServer.getServer().getConfigurationManager().canSendCommands(this.player) ? MinecraftServer.getServer()
+                    .getOpPermissionLevel() : 0; // Take care of singleplayer commands -- unless an op level is specified, this player follows
+                    // global rules
+        } else {
+            return entry.getPermissionLevel();
+        }
     }
 
     @Override

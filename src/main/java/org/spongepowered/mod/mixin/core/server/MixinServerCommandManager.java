@@ -70,6 +70,7 @@ public abstract class MixinServerCommandManager extends CommandHandler implement
 
     @Override
     public int executeCommand(ICommandSender sender, String command) {
+        System.out.println("Executing command from " + sender);
         command = command.trim();
         if (command.startsWith("/")) {
             command = command.substring(1);

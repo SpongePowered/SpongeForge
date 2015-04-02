@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.plugin.entityactivation;
 
+import com.google.common.base.Preconditions;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.IRangedAttackMob;
@@ -305,10 +306,16 @@ public class ActivationRange {
     }
 
     public static void addEntityToConfig(World world, SpongeEntityType type, byte activationType) {
+        Preconditions.checkNotNull(world, "world");
+        Preconditions.checkNotNull(type, "type");
+
         List<SpongeConfig<?>> configs = new ArrayList<SpongeConfig<?>>();
         configs.add(CoreMixinPlugin.getGlobalConfig());
         configs.add(((IMixinWorldProvider) world.provider).getDimensionConfig());
         configs.add(((IMixinWorld) world).getWorldConfig());
+        Preconditions.checkNotNull(configs.get(0), "global");
+        Preconditions.checkNotNull(configs.get(1), "dimension");
+        Preconditions.checkNotNull(configs.get(2), "world");
         String entityType = "misc";
         if (activationType == 1) {
             entityType = "monster";

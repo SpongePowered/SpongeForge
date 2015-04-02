@@ -40,6 +40,7 @@ import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -57,7 +58,9 @@ import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.sql.SqlService;
+import org.spongepowered.api.util.command.CommandMapping;
 import org.spongepowered.mod.command.CommandSponge;
+import org.spongepowered.mod.command.MinecraftCommandWrapper;
 import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
@@ -122,11 +125,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             this.game.getServiceManager().setProvider(this, SerializationService.class, serializationService);
         } catch (ProviderExistsException e2) {
             logger.warn("Non-Sponge SerializationService already registered: " + e2.getLocalizedMessage());
-        }
-
-        // Register vanilla-style commands
-        if (FMLCommonHandler.instance().getSide() == Side.SERVER) {
-            ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerEarlyCommands(this.game);
         }
     }
 
@@ -208,10 +206,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     public void onPostInitialization(FMLPostInitializationEvent e) {
         try {
             this.registry.postInit();
-            // Register MC commands
-            if (FMLCommonHandler.instance().getSide() == Side.SERVER) {
-                ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
-            }
             SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
             ((SpongeSerializationService) service).completeRegistration();
         } catch (Throwable t) {
@@ -222,6 +216,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onServerStarting(FMLServerStartingEvent e) {
         try {
+            // Register vanilla-style commands (if necessary -- not necessary on client)
+            ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerEarlyCommands(this.game);
             e.registerServerCommand(new CommandSponge());
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
@@ -229,8 +225,24 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     }
 
     @Subscribe
+    public void onServerStarted(FMLServerStartedEvent e) {
+        try {
+            ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
+        } catch (Throwable t) {
+            this.controller.errorOccurred(this, t);
+        }
+
+    }
+
+    @Subscribe
     public void onServerStopped(FMLServerStoppedEvent e) throws IOException {
         try {
+            CommandService service = getGame().getCommandDispatcher();
+            for (CommandMapping mapping : service.getCommands()) {
+                if (mapping.getCallable() instanceof MinecraftCommandWrapper) {
+                    service.removeMapping(mapping);
+                }
+            }
             ((SqlServiceImpl) getGame().getServiceManager().provideUnchecked(SqlService.class)).close();
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
