@@ -80,10 +80,7 @@ public class SpongePermissionService implements PermissionService {
             @Override
             public CommandSource apply(String s) {
                 if (s.equals("Server")) {
-                    Optional<Server> server = SpongeMod.instance.getGame().getServer();
-                    if (server.isPresent()) {
-                        return server.get().getConsole();
-                    }
+                    return SpongeMod.instance.getGame().getServer().getConsole();
                 } else if (s.equals("RCON")) {
                     // TODO: Implement RCON API?
                 }

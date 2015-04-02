@@ -119,7 +119,7 @@ public abstract class AbstractTileBuilder<T extends org.spongepowered.api.block.
             throw new InvalidDataException("The provided container does not contain the data to make a TileEntity!");
         }
         String worldName = container.getString(WORLD).get();
-        Optional<World> worldOptional = this.game.getServer().get().getWorld(worldName);
+        Optional<World> worldOptional = this.game.getServer().getWorld(worldName);
         if (!worldOptional.isPresent()) {
             throw new InvalidDataException("The provided container references a world that does not exist!");
         }
