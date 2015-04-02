@@ -1,0 +1,37 @@
+minecraft {
+    serverTweaker = 'org.spongepowered.granite.launch.server.VanillaServerTweaker'
+}
+
+configurations {
+    // While we could set this to 'runtime', Eclipse doesn't support runtime dependencies
+    // properly so this was always going before 'compile' in Eclipse
+    shadow
+}
+
+dependencies {
+    shadow 'org.ow2.asm:asm-all:5.0.3'
+}
+
+// Set main class and classpath for Minecraft server and Launchwrapper
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'org.spongepowered.granite.launch.server.VanillaServerMain',
+                'Class-Path': 'bin/minecraft_server.1.8.jar bin/launchwrapper-1.11.jar'
+        )
+    }
+}
+
+shadowJar {
+    configurations += [project.configurations.shadow]
+
+    from minecraftPlugin.delayedFile('{SRG_DIR}/notch-srg.srg')
+    rename 'notch-srg.srg', 'mappings.srg'
+
+    dependencies {
+        include dependency('net.sf.jopt-simple:jopt-simple')
+        include dependency('org.ow2.asm:asm-all')
+
+        include dependency('com.typesafe:config')
+    }
+}
