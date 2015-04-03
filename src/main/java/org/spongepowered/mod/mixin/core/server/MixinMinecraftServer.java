@@ -121,21 +121,6 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
         throw new UnsupportedOperationException(); // TODO
     }
 
-    @Override
-    public World createWorld(String worldName, WorldGenerator generator, long seed) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public World createWorld(String worldName, WorldGenerator generator) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public World createWorld(String worldName) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
     @SuppressWarnings("rawtypes")
     @Override
     public void broadcastMessage(Text message) {

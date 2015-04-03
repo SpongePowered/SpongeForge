@@ -153,6 +153,7 @@ import org.spongepowered.api.scoreboard.displayslot.DisplaySlot;
 import org.spongepowered.api.scoreboard.objective.ObjectiveBuilder;
 import org.spongepowered.api.scoreboard.objective.displaymode.ObjectiveDisplayMode;
 import org.spongepowered.api.service.persistence.SerializationService;
+import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.stats.BlockStatistic;
 import org.spongepowered.api.stats.EntityStatistic;
 import org.spongepowered.api.stats.ItemStatistic;
@@ -186,11 +187,16 @@ import org.spongepowered.api.util.rotation.Rotations;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.api.world.DimensionTypes;
+import org.spongepowered.api.world.GeneratorType;
+import org.spongepowered.api.world.WorldBuilder;
+import org.spongepowered.api.world.WorldCreationSettings;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
+import org.spongepowered.api.world.gen.WorldGenerator;
+import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
 import org.spongepowered.mod.SpongeMod;
@@ -263,6 +269,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 @SuppressWarnings("unchecked")
 @NonnullByDefault
@@ -473,11 +480,12 @@ public class SpongeGameRegistry implements GameRegistry {
             .put("NORMAL", (Difficulty) (Object) EnumDifficulty.NORMAL)
             .put("HARD", (Difficulty) (Object) EnumDifficulty.HARD)
             .build();
-    private static final ImmutableMap<String, EntityInteractionType> entityInteractionTypeMappings = new ImmutableMap.Builder<String, EntityInteractionType>()
-            .put("ATTACK", new SpongeEntityInteractionType("ATTACK"))
-            .put("PICK_BLOCK", new SpongeEntityInteractionType("PICK_BLOCK"))
-            .put("USE", new SpongeEntityInteractionType("USE"))
-            .build();
+    private static final ImmutableMap<String, EntityInteractionType> entityInteractionTypeMappings =
+            new ImmutableMap.Builder<String, EntityInteractionType>()
+                    .put("ATTACK", new SpongeEntityInteractionType("ATTACK"))
+                    .put("PICK_BLOCK", new SpongeEntityInteractionType("PICK_BLOCK"))
+                    .put("USE", new SpongeEntityInteractionType("USE"))
+                    .build();
     private final Map<String, Art> artMappings = Maps.newHashMap();
     private final Map<String, EntityType> entityTypeMappings = Maps.newHashMap();
     public final Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
@@ -1502,7 +1510,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     private void setEntityInteractionTypes() {
-        RegistryHelper.mapFields(EntityInteractionTypes.class, this.entityInteractionTypeMappings);
+        RegistryHelper.mapFields(EntityInteractionTypes.class, SpongeGameRegistry.entityInteractionTypeMappings);
     }
 
     private void setTextActionFactory() {
@@ -1514,16 +1522,20 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     private void setSelectors() {
-        /*try {
-            SelectorTypes.class.getDeclaredField("ALL_PLAYERS").set(null, new SpongeSelectorType("a"));
-            SelectorTypes.class.getDeclaredField("ALL_ENTITIES").set(null, new SpongeSelectorType("e"));
-            SelectorTypes.class.getDeclaredField("NEAREST_PLAYER").set(null, new SpongeSelectorType("p"));
-            SelectorTypes.class.getDeclaredField("RANDOM_PLAYER").set(null, new SpongeSelectorType("r"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        RegistryHelper.setFactory(SelectorTypes.class, new SpongeSelectorTypeFactory());
-        RegistryHelper.setFactory(Selectors.class, new SpongeSelectorFactory());*/
+        /*
+         * try { SelectorTypes.class.getDeclaredField("ALL_PLAYERS").set(null,
+         * new SpongeSelectorType("a"));
+         * SelectorTypes.class.getDeclaredField("ALL_ENTITIES").set(null, new
+         * SpongeSelectorType("e"));
+         * SelectorTypes.class.getDeclaredField("NEAREST_PLAYER").set(null, new
+         * SpongeSelectorType("p"));
+         * SelectorTypes.class.getDeclaredField("RANDOM_PLAYER").set(null, new
+         * SpongeSelectorType("r")); } catch (Exception e) {
+         * e.printStackTrace(); } RegistryHelper.setFactory(SelectorTypes.class,
+         * new SpongeSelectorTypeFactory());
+         * RegistryHelper.setFactory(Selectors.class, new
+         * SpongeSelectorFactory());
+         */
     }
 
     private void setTitleFactory() {
@@ -1883,6 +1895,41 @@ public class SpongeGameRegistry implements GameRegistry {
 
         // User
         // TODO someone needs to write a User implementation...
+    }
+
+    @Override
+    public WorldBuilder getWorldBuilder() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public WorldBuilder getWorldBuilder(WorldCreationSettings settings) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public WorldBuilder getWorldBuilder(WorldProperties properties) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Optional<GeneratorType> getGeneratorType(String name) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public Collection<GeneratorType> getGeneratorTypes() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public GeneratorType registerGeneratorType(String name, Callable<WorldGenerator> generator) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public GeneratorType registerGeneratorType(String name, Callable<WorldGenerator> generator, DataContainer settings) {
+        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override

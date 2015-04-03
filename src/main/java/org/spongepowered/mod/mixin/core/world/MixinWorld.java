@@ -466,11 +466,6 @@ public abstract class MixinWorld implements World, IMixinWorld {
     }
 
     @Override
-    public void setGameRule(String gameRule, String value) {
-        this.worldInfo.getGameRulesInstance().setOrCreateGameRule(gameRule, value);
-    }
-
-    @Override
     public Map<String, String> getGameRules() {
         GameRules gameRules = this.worldInfo.getGameRulesInstance();
         Map<String, String> ruleMap = new HashMap<String, String>();
@@ -483,12 +478,6 @@ public abstract class MixinWorld implements World, IMixinWorld {
     @Override
     public long getWorldSeed() {
         return this.getSeed();
-    }
-
-    @Override
-    public void setSeed(long seed) {
-        this.worldInfo.randomSeed = seed;
-        this.rand.setSeed(seed);
     }
 
     @SuppressWarnings("unchecked")
