@@ -25,7 +25,6 @@
 package org.spongepowered.mod.util;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3f;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.gson.stream.JsonWriter;
 import gnu.trove.map.hash.TObjectIntHashMap;
@@ -47,7 +46,6 @@ import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.block.BlockState;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
-import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.projectile.Projectile;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.mod.SpongeMod;
@@ -447,11 +445,12 @@ public class SpongeHooks {
             throw new UnsupportedOperationException("Custom BlockState implementations are not supported");
         }
     }
-    
-    public static Projectile launchProjectile(World world, Vector3d position, ProjectileSource source, Class<? extends Projectile> projectileClass, @Nullable Vector3f velocity) {
+
+    public static <T extends Projectile> T  launchProjectile(World world, Vector3d position, ProjectileSource source, Class<T> projectileClass, @Nullable Vector3d velocity) {
 
         try {
-            Projectile entity = (Projectile) ConstructorUtils.invokeConstructor(((SpongeGameRegistry)SpongeMod.instance.getGame().getRegistry()).getEntity(projectileClass).get().getEntityClass(), world);
+            @SuppressWarnings("unchecked")
+            T entity = (T) ConstructorUtils.invokeConstructor(((SpongeGameRegistry)SpongeMod.instance.getGame().getRegistry()).getEntity(projectileClass).get().getEntityClass(), world);
             entity.setLocation(entity.getLocation().setPosition(position));
             entity.setShooter(source);
             if(velocity != null) {

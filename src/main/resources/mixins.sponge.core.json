@@ -102,6 +102,7 @@
         "entity.projectile.MixinEntityFireworkRocket",
         "entity.projectile.MixinEntityFishHook",
         "entity.projectile.MixinEntityPotion",
+        "entity.projectile.MixinEntityProjectileSource",
         "entity.projectile.MixinEntitySnowball",
         "entity.projectile.MixinEntityThrowable",
         "entity.projectile.fireball.MixinEntityFireball",
