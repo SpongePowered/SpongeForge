@@ -58,11 +58,15 @@ public class MinecraftCommandWrapper implements CommandCallable {
         this.command = command;
     }
 
+    private String[] splitArgs(String arguments) {
+        return arguments.isEmpty() ? new String[0] : arguments.split(" +");
+    }
+
     @Override
     public boolean call(CommandSource source, String arguments, List<String> parents) throws CommandException {
         CommandHandler handler = (CommandHandler) MinecraftServer.getServer().getCommandManager();
         final ICommandSender mcSender = source instanceof ICommandSender ? (ICommandSender) source : new WrapperICommandSender(source);
-        final String[] args = arguments.split(" ");
+        final String[] args = splitArgs(arguments);
         int usernameIndex = handler.getUsernameIndex(this.command, args);
         int successCount = 0;
 
@@ -144,7 +148,7 @@ public class MinecraftCommandWrapper implements CommandCallable {
     @Override
     @SuppressWarnings("unchecked")
     public List<String> getSuggestions(CommandSource source, String arguments) throws CommandException {
-        return this.command.addTabCompletionOptions((ICommandSender) source, arguments.split(" "), null);
+        return this.command.addTabCompletionOptions((ICommandSender) source, splitArgs(arguments), null);
     }
 
     public ModContainer getMod() {
