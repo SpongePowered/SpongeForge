@@ -126,6 +126,8 @@
         "event.entity.MixinEventEntity",
         "event.entity.MixinEventEntityConstructing",
         "event.entity.MixinEventEntityJoinWorld",
+        "event.entity.MixinEventEntityExplosion",
+        "event.entity.MixinEventExplosionPrime",
         "event.entity.living.MixinEventLiving",
         "event.inventory.MixinEventItem",
         "event.player.MixinEventPlayer",
@@ -194,6 +196,7 @@
         "text.MixinHoverEvent",
 
         "world.MixinChunk",
+        "world.MixinExplosion",
         "world.MixinWorld",
         "world.MixinWorldBorder",
         "world.MixinWorldProvider",
