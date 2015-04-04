@@ -35,6 +35,7 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.LocaleUtils;
 import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
@@ -106,7 +107,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public Locale playermp$getLocale() {
-        return new Locale(this.translator);
+        return LocaleUtils.toLocale(this.translator);
     }
 
     public void playermp$sendMessage(Text... messages) {
