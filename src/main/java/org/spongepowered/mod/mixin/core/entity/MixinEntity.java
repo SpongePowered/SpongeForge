@@ -161,9 +161,9 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     }
 
     @Override
-    public boolean setLocation(Location location) {
+    public void setLocation(Location location) {
         if (isRemoved()) {
-            return false;
+            return;
         }
 
         Entity spongeEntity = this;
@@ -194,9 +194,8 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         } else {
             setPosition(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ());
             if (thisEntity instanceof EntityPlayerMP) {
-                ((EntityPlayerMP) thisEntity).playerNetServerHandler
-                        .setPlayerLocation(location.getPosition().getX(), location.getPosition().getY(), location.getPosition().getZ(),
-                                thisEntity.rotationYaw, thisEntity.rotationPitch);
+                ((EntityPlayerMP) thisEntity).playerNetServerHandler.setPlayerLocation(location.getPosition().getX(), location.getPosition().getY(),
+                        location.getPosition().getZ(), thisEntity.rotationYaw, thisEntity.rotationPitch);
             }
         }
 
@@ -209,7 +208,8 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
             }
 
             if (passengerEntity instanceof EntityPlayerMP && !this.worldObj.isRemote) {
-                // The actual mount is handled in our event as mounting must be set after client fully loads.
+                // The actual mount is handled in our event as mounting must be
+                // set after client fully loads.
                 ((IMixinEntity) passengerEntity).setIsTeleporting(true);
                 ((IMixinEntity) passengerEntity).setTeleportVehicle(lastPassenger);
             } else {
@@ -217,24 +217,20 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
             }
             lastPassenger = passengerEntity;
         }
-
-        return true;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public boolean setLocationAndRotation(Location location, Vector3d rotation, EnumSet<RelativePositions> relativePositions) {
+    public void setLocationAndRotation(Location location, Vector3d rotation, EnumSet<RelativePositions> relativePositions) {
         if (relativePositions.isEmpty()) {
-            //This is just a normal teleport that happens to set both.
-            if (setLocation(location)) {
-                setRotation(rotation);
-                return true;
-            }
-            return false;
+            // This is just a normal teleport that happens to set both.
+            setLocation(location);
+            setRotation(rotation);
         } else {
             Entity spongeEntity = this;
             if (spongeEntity instanceof EntityPlayerMP) {
-                //Players use different logic, as they support real relative movement.
+                // Players use different logic, as they support real relative
+                // movement.
                 EnumSet relativeFlags = EnumSet.noneOf(EnumFlags.class);
 
                 if (relativePositions.contains(RelativePositions.X)) {
@@ -259,7 +255,6 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
                 ((EntityPlayerMP) (Entity) this).playerNetServerHandler.setPlayerLocation(location.getPosition().getX(), location.getPosition()
                         .getY(), location.getPosition().getZ(), (float) rotation.getX(), (float) rotation.getY(), relativeFlags);
-                return true;
             } else {
                 Location resultant = getLocation();
                 Vector3d resultantRotation = getRotation();
@@ -284,12 +279,9 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
                     resultantRotation.add(0, rotation.getY(), 0);
                 }
 
-                //From here just a normal teleport is needed.
-                if (setLocation(resultant)) {
-                    setRotation(resultantRotation);
-                    return true;
-                }
-                return false;
+                // From here just a normal teleport is needed.
+                setLocation(resultant);
+                setRotation(resultantRotation);
             }
         }
     }
@@ -451,11 +443,10 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         if (entity instanceof EntityPlayer) {
             EntityPlayerMP entityplayermp1 = (EntityPlayerMP) entity;
             entityplayermp1.isDead = false;
-            entityplayermp1.playerNetServerHandler.sendPacket(
-                    new S07PacketRespawn(targetDim, toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
-                            entityplayermp1.theItemInWorldManager.getGameType()));
-            entityplayermp1.playerNetServerHandler.sendPacket(
-                    new S1FPacketSetExperience(entityplayermp1.experience, entityplayermp1.experienceTotal, entityplayermp1.experienceLevel));
+            entityplayermp1.playerNetServerHandler.sendPacket(new S07PacketRespawn(targetDim, toWorld.getDifficulty(), toWorld.getWorldInfo()
+                    .getTerrainType(), entityplayermp1.theItemInWorldManager.getGameType()));
+            entityplayermp1.playerNetServerHandler.sendPacket(new S1FPacketSetExperience(entityplayermp1.experience, entityplayermp1.experienceTotal,
+                    entityplayermp1.experienceLevel));
             entityplayermp1.setSneaking(false);
             mcServer.getConfigurationManager().updateTimeAndWeatherForPlayer(entityplayermp1, toWorld);
             toWorld.getPlayerManager().addPlayer(entityplayermp1);

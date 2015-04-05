@@ -38,6 +38,7 @@ import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.mod.service.scheduler.AsyncScheduler;
 import org.spongepowered.mod.service.scheduler.SyncScheduler;
 
@@ -130,5 +131,10 @@ public final class SpongeGame implements Game {
     @Override
     public Server getServer() {
         return (Server) MinecraftServer.getServer();
+    }
+
+    @Override
+    public TeleportHelper getTeleportHelper() {
+        return null;
     }
 }
