@@ -42,7 +42,7 @@ import org.spongepowered.mod.text.translation.SpongeTranslation;
 
 @NonnullByDefault
 @Mixin(Block.class)
-public abstract class MixinBlockType implements BlockType {
+public abstract class MixinBlock implements BlockType {
 
     @Shadow
     private boolean needsRandomTick;
@@ -54,7 +54,7 @@ public abstract class MixinBlockType implements BlockType {
     public abstract String getUnlocalizedName();
 
     @Shadow
-    public abstract boolean isFullCube();
+    public abstract boolean isBlockNormalCube();
 
     @Shadow
     public abstract boolean getEnableStats();
@@ -93,7 +93,7 @@ public abstract class MixinBlockType implements BlockType {
 
     @Override
     public boolean isSolidCube() {
-        return isFullCube();
+        return isBlockNormalCube();
     }
 
     @Override
