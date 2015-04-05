@@ -282,95 +282,209 @@ public class SpongeGameRegistry implements GameRegistry {
     public static final Map<EnumChatFormatting, SpongeTextColor> enumChatColor = Maps.newEnumMap(EnumChatFormatting.class);
 
     public static final ImmutableMap<String, TextStyle> textStyleMappings = new ImmutableMap.Builder<String, TextStyle>()
-            .put("BOLD", SpongeTextStyle.of(EnumChatFormatting.BOLD)).put("ITALIC", SpongeTextStyle.of(EnumChatFormatting.ITALIC))
+            .put("BOLD", SpongeTextStyle.of(EnumChatFormatting.BOLD))
+            .put("ITALIC", SpongeTextStyle.of(EnumChatFormatting.ITALIC))
             .put("UNDERLINE", SpongeTextStyle.of(EnumChatFormatting.UNDERLINE))
             .put("STRIKETHROUGH", SpongeTextStyle.of(EnumChatFormatting.STRIKETHROUGH))
-            .put("OBFUSCATED", SpongeTextStyle.of(EnumChatFormatting.OBFUSCATED)).put("RESET", SpongeTextStyle.of(EnumChatFormatting.RESET)).build();
+            .put("OBFUSCATED", SpongeTextStyle.of(EnumChatFormatting.OBFUSCATED))
+            .put("RESET", SpongeTextStyle.of(EnumChatFormatting.RESET))
+            .build();
     private static final ImmutableMap<String, ChatType> chatTypeMappings = new ImmutableMap.Builder<String, ChatType>()
-            .put("CHAT", new SpongeChatType((byte) 0)).put("SYSTEM", new SpongeChatType((byte) 1)).put("ACTION_BAR", new SpongeChatType((byte) 2))
+            .put("CHAT", new SpongeChatType((byte) 0))
+            .put("SYSTEM", new SpongeChatType((byte) 1))
+            .put("ACTION_BAR", new SpongeChatType((byte) 2))
             .build();
     private static final ImmutableMap<String, Locale> localeCodeMappings = ImmutableMap.<String, Locale>builder()
-            .put("af_ZA", new Locale("af", "ZA")).put("ar_SA", new Locale("ar", "SA")).put("ast_ES", new Locale("ast", "ES"))
-            .put("az_AZ", new Locale("az", "AZ")).put("bg_BG", new Locale("bg", "BG")).put("ca_ES", new Locale("ca", "ES"))
-            .put("cs_CZ", new Locale("cs", "CZ")).put("cy_GB", new Locale("cy", "GB")).put("da_DK", new Locale("da", "DK"))
-            .put("de_DE", new Locale("de", "DE")).put("el_GR", new Locale("el", "GR")).put("en_AU", new Locale("en", "AU"))
-            .put("en_CA", new Locale("en", "CA")).put("en_GB", new Locale("en", "GB")).put("en_PT", new Locale("en", "PT"))
-            .put("en_US", new Locale("en", "US")).put("eo_UY", new Locale("eo", "UY")).put("es_AR", new Locale("es", "AR"))
-            .put("es_ES", new Locale("es", "ES")).put("es_MX", new Locale("es", "MX")).put("es_UY", new Locale("es", "UY"))
-            .put("es_VE", new Locale("es", "VE")).put("et_EE", new Locale("et", "EE")).put("eu_ES", new Locale("eu", "ES"))
-            .put("fa_IR", new Locale("fa", "IR")).put("fi_FI", new Locale("fi", "FI")).put("fil_PH", new Locale("fil", "PH"))
-            .put("fr_CA", new Locale("fr", "CA")).put("fr_FR", new Locale("fr", "FR")).put("ga_IE", new Locale("ga", "IE"))
-            .put("gl_ES", new Locale("gl", "ES")).put("gv_IM", new Locale("gv", "IM")).put("he_IL", new Locale("he", "IL"))
-            .put("hi_IN", new Locale("hi", "IN")).put("hr_HR", new Locale("hr", "HR")).put("hu_HU", new Locale("hu", "HU"))
-            .put("hy_AM", new Locale("hy", "AM")).put("id_ID", new Locale("id", "ID")).put("is_IS", new Locale("is", "IS"))
-            .put("it_IT", new Locale("it", "IT")).put("ja_JP", new Locale("ja", "JP")).put("ka_GE", new Locale("ka", "GE"))
-            .put("ko_KR", new Locale("ko", "KR")).put("kw_GB", new Locale("kw", "GB")).put("la_LA", new Locale("la", "LA"))
-            .put("lb_LU", new Locale("lb", "LU")).put("lt_LT", new Locale("lt", "LT")).put("lv_LV", new Locale("lv", "LV"))
-            .put("mi_NZ", new Locale("mi", "NZ")).put("ms_MY", new Locale("ms", "MY")).put("mt_MT", new Locale("mt", "MT"))
-            .put("nds_DE", new Locale("nds", "DE")).put("nl_NL", new Locale("nl", "NL")).put("nn_NO", new Locale("nn", "NO"))
-            .put("no_NO", new Locale("no", "NO")).put("oc_FR", new Locale("oc", "FR")).put("pl_PL", new Locale("pl", "PL"))
-            .put("pt_BR", new Locale("pt", "BR")).put("pt_PT", new Locale("pt", "PT")).put("qya_AA", new Locale("qya", "AA"))
-            .put("ro_RO", new Locale("ro", "RO")).put("ru_RU", new Locale("ru", "RU")).put("se_NO", new Locale("se", "NO"))
-            .put("sk_SK", new Locale("sk", "SK")).put("sl_SI", new Locale("sl", "SI")).put("sr_SP", new Locale("sr", "SP"))
-            .put("sv_SE", new Locale("sv", "SE")).put("th_TH", new Locale("th", "TH")).put("tlh_AA", new Locale("tlh", "AA"))
-            .put("tr_TR", new Locale("tr", "TR")).put("uk_UA", new Locale("uk", "UA")).put("val_ES", new Locale("val", "ES"))
-            .put("vi_VN", new Locale("vi", "VN")).put("zh_CN", new Locale("zh", "CN")).put("zh_TW", new Locale("zh", "TW")).build();
+            .put("af_ZA", new Locale("af", "ZA"))
+            .put("ar_SA", new Locale("ar", "SA"))
+            .put("ast_ES", new Locale("ast", "ES"))
+            .put("az_AZ", new Locale("az", "AZ"))
+            .put("bg_BG", new Locale("bg", "BG"))
+            .put("ca_ES", new Locale("ca", "ES"))
+            .put("cs_CZ", new Locale("cs", "CZ"))
+            .put("cy_GB", new Locale("cy", "GB"))
+            .put("da_DK", new Locale("da", "DK"))
+            .put("de_DE", new Locale("de", "DE"))
+            .put("el_GR", new Locale("el", "GR"))
+            .put("en_AU", new Locale("en", "AU"))
+            .put("en_CA", new Locale("en", "CA"))
+            .put("en_GB", new Locale("en", "GB"))
+            .put("en_PT", new Locale("en", "PT"))
+            .put("en_US", new Locale("en", "US"))
+            .put("eo_UY", new Locale("eo", "UY"))
+            .put("es_AR", new Locale("es", "AR"))
+            .put("es_ES", new Locale("es", "ES"))
+            .put("es_MX", new Locale("es", "MX"))
+            .put("es_UY", new Locale("es", "UY"))
+            .put("es_VE", new Locale("es", "VE"))
+            .put("et_EE", new Locale("et", "EE"))
+            .put("eu_ES", new Locale("eu", "ES"))
+            .put("fa_IR", new Locale("fa", "IR"))
+            .put("fi_FI", new Locale("fi", "FI"))
+            .put("fil_PH", new Locale("fil", "PH"))
+            .put("fr_CA", new Locale("fr", "CA"))
+            .put("fr_FR", new Locale("fr", "FR"))
+            .put("ga_IE", new Locale("ga", "IE"))
+            .put("gl_ES", new Locale("gl", "ES"))
+            .put("gv_IM", new Locale("gv", "IM"))
+            .put("he_IL", new Locale("he", "IL"))
+            .put("hi_IN", new Locale("hi", "IN"))
+            .put("hr_HR", new Locale("hr", "HR"))
+            .put("hu_HU", new Locale("hu", "HU"))
+            .put("hy_AM", new Locale("hy", "AM"))
+            .put("id_ID", new Locale("id", "ID"))
+            .put("is_IS", new Locale("is", "IS"))
+            .put("it_IT", new Locale("it", "IT"))
+            .put("ja_JP", new Locale("ja", "JP"))
+            .put("ka_GE", new Locale("ka", "GE"))
+            .put("ko_KR", new Locale("ko", "KR"))
+            .put("kw_GB", new Locale("kw", "GB"))
+            .put("la_LA", new Locale("la", "LA"))
+            .put("lb_LU", new Locale("lb", "LU"))
+            .put("lt_LT", new Locale("lt", "LT"))
+            .put("lv_LV", new Locale("lv", "LV"))
+            .put("mi_NZ", new Locale("mi", "NZ"))
+            .put("ms_MY", new Locale("ms", "MY"))
+            .put("mt_MT", new Locale("mt", "MT"))
+            .put("nds_DE", new Locale("nds", "DE"))
+            .put("nl_NL", new Locale("nl", "NL"))
+            .put("nn_NO", new Locale("nn", "NO"))
+            .put("no_NO", new Locale("no", "NO"))
+            .put("oc_FR", new Locale("oc", "FR"))
+            .put("pl_PL", new Locale("pl", "PL"))
+            .put("pt_BR", new Locale("pt", "BR"))
+            .put("pt_PT", new Locale("pt", "PT"))
+            .put("qya_AA", new Locale("qya", "AA"))
+            .put("ro_RO", new Locale("ro", "RO"))
+            .put("ru_RU", new Locale("ru", "RU"))
+            .put("se_NO", new Locale("se", "NO"))
+            .put("sk_SK", new Locale("sk", "SK"))
+            .put("sl_SI", new Locale("sl", "SI"))
+            .put("sr_SP", new Locale("sr", "SP"))
+            .put("sv_SE", new Locale("sv", "SE"))
+            .put("th_TH", new Locale("th", "TH"))
+            .put("tlh_AA", new Locale("tlh", "AA"))
+            .put("tr_TR", new Locale("tr", "TR"))
+            .put("uk_UA", new Locale("uk", "UA"))
+            .put("val_ES", new Locale("val", "ES"))
+            .put("vi_VN", new Locale("vi", "VN"))
+            .put("zh_CN", new Locale("zh", "CN"))
+            .put("zh_TW", new Locale("zh", "TW"))
+            .build();
     private static final ImmutableMap<String, Locale> localeMappings = ImmutableMap.<String, Locale>builder()
-            .put("AFRIKAANS", localeCodeMappings.get("af_ZA")).put("ARABIC", localeCodeMappings.get("ar_SA"))
-            .put("ASTURIAN", localeCodeMappings.get("ast_ES")).put("AZERBAIJANI", localeCodeMappings.get("az_AZ"))
-            .put("BULGARIAN", localeCodeMappings.get("bg_BG")).put("CATALAN", localeCodeMappings.get("ca_ES"))
-            .put("CZECH", localeCodeMappings.get("cs_CZ")).put("WELSH", localeCodeMappings.get("cy_GB"))
-            .put("DANISH", localeCodeMappings.get("da_DK")).put("GERMAN", localeCodeMappings.get("de_DE"))
-            .put("GREEK", localeCodeMappings.get("el_GR")).put("AUSTRALIAN_ENGLISH", localeCodeMappings.get("en_AU"))
-            .put("CANADIAN_ENGLISH", localeCodeMappings.get("en_CA")).put("BRITISH_ENGLISH", localeCodeMappings.get("en_GB"))
-            .put("PIRATE_ENGLISH", localeCodeMappings.get("en_PT")).put("ENGLISH", localeCodeMappings.get("en_US"))
-            .put("ESPERANTO", localeCodeMappings.get("eo_UY")).put("ARGENTINIAN_SPANISH", localeCodeMappings.get("es_AR"))
-            .put("SPANISH", localeCodeMappings.get("es_ES")).put("MEXICAN_SPANISH", localeCodeMappings.get("es_MX"))
-            .put("URUGUAYAN_SPANISH", localeCodeMappings.get("es_UY")).put("VENEZUELAN_SPANISH", localeCodeMappings.get("es_VE"))
-            .put("ESTONIAN", localeCodeMappings.get("et_EE")).put("BASQUE", localeCodeMappings.get("eu_ES"))
-            .put("PERSIAN", localeCodeMappings.get("fa_IR")).put("FINNISH", localeCodeMappings.get("fi_FI"))
-            .put("FILIPINO", localeCodeMappings.get("fil_PH")).put("CANADIAN_FRENCH", localeCodeMappings.get("fr_CA"))
-            .put("FRENCH", localeCodeMappings.get("fr_FR")).put("IRISH", localeCodeMappings.get("ga_IE"))
-            .put("GALICIAN", localeCodeMappings.get("gl_ES")).put("MANX", localeCodeMappings.get("gv_IM"))
-            .put("HEBREW", localeCodeMappings.get("he_IL")).put("HINDI", localeCodeMappings.get("hi_IN"))
-            .put("CROATIAN", localeCodeMappings.get("hr_HR")).put("HUNGARIAN", localeCodeMappings.get("hu_HU"))
-            .put("ARMENIAN", localeCodeMappings.get("hy_AM")).put("INDONESIAN", localeCodeMappings.get("id_ID"))
-            .put("ICELANDIC", localeCodeMappings.get("is_IS")).put("ITALIAN", localeCodeMappings.get("it_IT"))
-            .put("JAPANESE", localeCodeMappings.get("ja_JP")).put("GEORGIAN", localeCodeMappings.get("ka_GE"))
-            .put("KOREAN", localeCodeMappings.get("ko_KR")).put("CORNISH", localeCodeMappings.get("kw_GB"))
-            .put("LATIN", localeCodeMappings.get("la_LA")).put("LUXEMBOURGISH", localeCodeMappings.get("lb_LU"))
-            .put("LITHUANIAN", localeCodeMappings.get("lt_LT")).put("LATVIAN", localeCodeMappings.get("lv_LV"))
-            .put("MAORI", localeCodeMappings.get("mi_NZ")).put("MALAY", localeCodeMappings.get("ms_MY"))
-            .put("MALTESE", localeCodeMappings.get("mt_MT")).put("LOW_GERMAN", localeCodeMappings.get("nds_DE"))
-            .put("DUTCH", localeCodeMappings.get("nl_NL")).put("NORWEGIAN_NYNORSK", localeCodeMappings.get("nn_NO"))
-            .put("NORWEGIAN", localeCodeMappings.get("no_NO")).put("OCCITAN", localeCodeMappings.get("oc_FR"))
-            .put("POLISH", localeCodeMappings.get("pl_PL")).put("BRAZILIAN_PORTUGUESE", localeCodeMappings.get("pt_BR"))
-            .put("PORTUGUESE", localeCodeMappings.get("pt_PT")).put("QUENYA", localeCodeMappings.get("qya_AA"))
-            .put("ROMANIAN", localeCodeMappings.get("ro_RO")).put("RUSSIAN", localeCodeMappings.get("ru_RU"))
-            .put("NORTHERN_SAMI", localeCodeMappings.get("se_NO")).put("SLOVAK", localeCodeMappings.get("sk_SK"))
-            .put("SLOVENE", localeCodeMappings.get("sl_SI")).put("SERBIAN", localeCodeMappings.get("sr_SP"))
-            .put("SWEDISH", localeCodeMappings.get("sv_SE")).put("THAI", localeCodeMappings.get("th_TH"))
-            .put("KLINGON", localeCodeMappings.get("tlh_AA")).put("TURKISH", localeCodeMappings.get("tr_TR"))
-            .put("UKRAINIAN", localeCodeMappings.get("uk_UA")).put("VALENCIAN", localeCodeMappings.get("val_ES"))
-            .put("VIETNAMESE", localeCodeMappings.get("vi_VN")).put("SIMPLIFIED_CHINESE", localeCodeMappings.get("zh_CN"))
-            .put("TRADITIONAL_CHINESE", localeCodeMappings.get("zh_TW")).build();
+            .put("AFRIKAANS", localeCodeMappings.get("af_ZA"))
+            .put("ARABIC", localeCodeMappings.get("ar_SA"))
+            .put("ASTURIAN", localeCodeMappings.get("ast_ES"))
+            .put("AZERBAIJANI", localeCodeMappings.get("az_AZ"))
+            .put("BULGARIAN", localeCodeMappings.get("bg_BG"))
+            .put("CATALAN", localeCodeMappings.get("ca_ES"))
+            .put("CZECH", localeCodeMappings.get("cs_CZ"))
+            .put("WELSH", localeCodeMappings.get("cy_GB"))
+            .put("DANISH", localeCodeMappings.get("da_DK"))
+            .put("GERMAN", localeCodeMappings.get("de_DE"))
+            .put("GREEK", localeCodeMappings.get("el_GR"))
+            .put("AUSTRALIAN_ENGLISH", localeCodeMappings.get("en_AU"))
+            .put("CANADIAN_ENGLISH", localeCodeMappings.get("en_CA"))
+            .put("BRITISH_ENGLISH", localeCodeMappings.get("en_GB"))
+            .put("PIRATE_ENGLISH", localeCodeMappings.get("en_PT"))
+            .put("ENGLISH", localeCodeMappings.get("en_US"))
+            .put("ESPERANTO", localeCodeMappings.get("eo_UY"))
+            .put("ARGENTINIAN_SPANISH", localeCodeMappings.get("es_AR"))
+            .put("SPANISH", localeCodeMappings.get("es_ES"))
+            .put("MEXICAN_SPANISH", localeCodeMappings.get("es_MX"))
+            .put("URUGUAYAN_SPANISH", localeCodeMappings.get("es_UY"))
+            .put("VENEZUELAN_SPANISH", localeCodeMappings.get("es_VE"))
+            .put("ESTONIAN", localeCodeMappings.get("et_EE"))
+            .put("BASQUE", localeCodeMappings.get("eu_ES"))
+            .put("PERSIAN", localeCodeMappings.get("fa_IR"))
+            .put("FINNISH", localeCodeMappings.get("fi_FI"))
+            .put("FILIPINO", localeCodeMappings.get("fil_PH"))
+            .put("CANADIAN_FRENCH", localeCodeMappings.get("fr_CA"))
+            .put("FRENCH", localeCodeMappings.get("fr_FR"))
+            .put("IRISH", localeCodeMappings.get("ga_IE"))
+            .put("GALICIAN", localeCodeMappings.get("gl_ES"))
+            .put("MANX", localeCodeMappings.get("gv_IM"))
+            .put("HEBREW", localeCodeMappings.get("he_IL"))
+            .put("HINDI", localeCodeMappings.get("hi_IN"))
+            .put("CROATIAN", localeCodeMappings.get("hr_HR"))
+            .put("HUNGARIAN", localeCodeMappings.get("hu_HU"))
+            .put("ARMENIAN", localeCodeMappings.get("hy_AM"))
+            .put("INDONESIAN", localeCodeMappings.get("id_ID"))
+            .put("ICELANDIC", localeCodeMappings.get("is_IS"))
+            .put("ITALIAN", localeCodeMappings.get("it_IT"))
+            .put("JAPANESE", localeCodeMappings.get("ja_JP"))
+            .put("GEORGIAN", localeCodeMappings.get("ka_GE"))
+            .put("KOREAN", localeCodeMappings.get("ko_KR"))
+            .put("CORNISH", localeCodeMappings.get("kw_GB"))
+            .put("LATIN", localeCodeMappings.get("la_LA"))
+            .put("LUXEMBOURGISH", localeCodeMappings.get("lb_LU"))
+            .put("LITHUANIAN", localeCodeMappings.get("lt_LT"))
+            .put("LATVIAN", localeCodeMappings.get("lv_LV"))
+            .put("MAORI", localeCodeMappings.get("mi_NZ"))
+            .put("MALAY", localeCodeMappings.get("ms_MY"))
+            .put("MALTESE", localeCodeMappings.get("mt_MT"))
+            .put("LOW_GERMAN", localeCodeMappings.get("nds_DE"))
+            .put("DUTCH", localeCodeMappings.get("nl_NL"))
+            .put("NORWEGIAN_NYNORSK", localeCodeMappings.get("nn_NO"))
+            .put("NORWEGIAN", localeCodeMappings.get("no_NO"))
+            .put("OCCITAN", localeCodeMappings.get("oc_FR"))
+            .put("POLISH", localeCodeMappings.get("pl_PL"))
+            .put("BRAZILIAN_PORTUGUESE", localeCodeMappings.get("pt_BR"))
+            .put("PORTUGUESE", localeCodeMappings.get("pt_PT"))
+            .put("QUENYA", localeCodeMappings.get("qya_AA"))
+            .put("ROMANIAN", localeCodeMappings.get("ro_RO"))
+            .put("RUSSIAN", localeCodeMappings.get("ru_RU"))
+            .put("NORTHERN_SAMI", localeCodeMappings.get("se_NO"))
+            .put("SLOVAK", localeCodeMappings.get("sk_SK"))
+            .put("SLOVENE", localeCodeMappings.get("sl_SI"))
+            .put("SERBIAN", localeCodeMappings.get("sr_SP"))
+            .put("SWEDISH", localeCodeMappings.get("sv_SE"))
+            .put("THAI", localeCodeMappings.get("th_TH"))
+            .put("KLINGON", localeCodeMappings.get("tlh_AA"))
+            .put("TURKISH", localeCodeMappings.get("tr_TR"))
+            .put("UKRAINIAN", localeCodeMappings.get("uk_UA"))
+            .put("VALENCIAN", localeCodeMappings.get("val_ES"))
+            .put("VIETNAMESE", localeCodeMappings.get("vi_VN"))
+            .put("SIMPLIFIED_CHINESE", localeCodeMappings.get("zh_CN"))
+            .put("TRADITIONAL_CHINESE", localeCodeMappings.get("zh_TW"))
+            .build();
 
     private static final ImmutableMap<String, Rotation> rotationMappings = new ImmutableMap.Builder<String, Rotation>()
-            .put("TOP", new SpongeRotation(0)).put("TOP_RIGHT", new SpongeRotation(45)).put("RIGHT", new SpongeRotation(90))
-            .put("BOTTOM_RIGHT", new SpongeRotation(135)).put("BOTTOM", new SpongeRotation(180)).put("BOTTOM_LEFT", new SpongeRotation(225))
-            .put("LEFT", new SpongeRotation(270)).put("TOP_LEFT", new SpongeRotation(315)).build();
+            .put("TOP", new SpongeRotation(0))
+            .put("TOP_RIGHT", new SpongeRotation(45))
+            .put("RIGHT", new SpongeRotation(90))
+            .put("BOTTOM_RIGHT", new SpongeRotation(135))
+            .put("BOTTOM", new SpongeRotation(180))
+            .put("BOTTOM_LEFT", new SpongeRotation(225))
+            .put("LEFT", new SpongeRotation(270))
+            .put("TOP_LEFT", new SpongeRotation(315))
+            .build();
     public static final ImmutableBiMap<Direction, EnumFacing> directionMap = ImmutableBiMap.<Direction, EnumFacing>builder()
-            .put(Direction.NORTH, EnumFacing.NORTH).put(Direction.EAST, EnumFacing.EAST).put(Direction.SOUTH, EnumFacing.SOUTH)
-            .put(Direction.WEST, EnumFacing.WEST).put(Direction.UP, EnumFacing.UP).put(Direction.DOWN, EnumFacing.DOWN).build();
-    private static final ImmutableMap<String, GameMode> gameModeMappings = new ImmutableMap.Builder<String, GameMode>()
-            .put("SURVIVAL", new SpongeGameMode()).put("CREATIVE", new SpongeGameMode()).put("ADVENTURE", new SpongeGameMode())
-            .put("SPECTATOR", new SpongeGameMode()).build();
+            .put(Direction.NORTH, EnumFacing.NORTH)
+            .put(Direction.EAST, EnumFacing.EAST)
+            .put(Direction.SOUTH, EnumFacing.SOUTH)
+            .put(Direction.WEST, EnumFacing.WEST)
+            .put(Direction.UP, EnumFacing.UP)
+            .put(Direction.DOWN, EnumFacing.DOWN)
+            .build();
+    public static final ImmutableMap<String, GameMode> gameModeMappings = new ImmutableMap.Builder<String, GameMode>()
+            .put("SURVIVAL", new SpongeGameMode())
+            .put("CREATIVE", new SpongeGameMode())
+            .put("ADVENTURE", new SpongeGameMode())
+            .put("SPECTATOR", new SpongeGameMode())
+            .build();
     private static final ImmutableMap<String, Difficulty> difficultyMappings = new ImmutableMap.Builder<String, Difficulty>()
-            .put("PEACEFUL", (Difficulty) (Object) EnumDifficulty.PEACEFUL).put("EASY", (Difficulty) (Object) EnumDifficulty.EASY)
-            .put("NORMAL", (Difficulty) (Object) EnumDifficulty.NORMAL).put("HARD", (Difficulty) (Object) EnumDifficulty.HARD).build();
+            .put("PEACEFUL", (Difficulty) (Object) EnumDifficulty.PEACEFUL)
+            .put("EASY", (Difficulty) (Object) EnumDifficulty.EASY)
+            .put("NORMAL", (Difficulty) (Object) EnumDifficulty.NORMAL)
+            .put("HARD", (Difficulty) (Object) EnumDifficulty.HARD)
+            .build();
     private static final ImmutableMap<String, EntityInteractionType> entityInteractionTypeMappings =
-            new ImmutableMap.Builder<String, EntityInteractionType>().put("ATTACK", new SpongeEntityInteractionType("ATTACK"))
-                    .put("PICK_BLOCK", new SpongeEntityInteractionType("PICK_BLOCK")).put("USE", new SpongeEntityInteractionType("USE")).build();
+            new ImmutableMap.Builder<String, EntityInteractionType>()
+                    .put("ATTACK", new SpongeEntityInteractionType("ATTACK"))
+                    .put("PICK_BLOCK", new SpongeEntityInteractionType("PICK_BLOCK"))
+                    .put("USE", new SpongeEntityInteractionType("USE"))
+                    .build();
     private final Map<String, Art> artMappings = Maps.newHashMap();
     private final Map<String, EntityType> entityTypeMappings = Maps.newHashMap();
     public final Map<String, SpongeEntityType> entityIdToTypeMappings = Maps.newHashMap();
@@ -1004,15 +1118,14 @@ public class SpongeGameRegistry implements GameRegistry {
         this.addParticleType("SLIME", new SpongeParticleType(EnumParticleTypes.SLIME, false));
         this.addParticleType("HEART", new SpongeParticleType(EnumParticleTypes.HEART, false));
         this.addParticleType("BARRIER", new SpongeParticleType(EnumParticleTypes.BARRIER, false));
-        this.addParticleType("ITEM_CRACK", new SpongeParticleType.Material(EnumParticleTypes.ITEM_CRACK,
-                new net.minecraft.item.ItemStack(Blocks.air), true));
-        this.addParticleType("BLOCK_CRACK", new SpongeParticleType.Material(EnumParticleTypes.BLOCK_CRACK, new net.minecraft.item.ItemStack(
-                Blocks.air), true));
-        this.addParticleType("BLOCK_DUST", new SpongeParticleType.Material(EnumParticleTypes.BLOCK_DUST,
-                new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("ITEM_CRACK",
+                new SpongeParticleType.Material(EnumParticleTypes.ITEM_CRACK, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("BLOCK_CRACK",
+                new SpongeParticleType.Material(EnumParticleTypes.BLOCK_CRACK, new net.minecraft.item.ItemStack(Blocks.air), true));
+        this.addParticleType("BLOCK_DUST",
+                new SpongeParticleType.Material(EnumParticleTypes.BLOCK_DUST, new net.minecraft.item.ItemStack(Blocks.air), true));
         this.addParticleType("WATER_DROP", new SpongeParticleType(EnumParticleTypes.WATER_DROP, false));
-        // Is this particle available to be spawned? It's not registered on the
-        // client though
+        // Is this particle available to be spawned? It's not registered on the client though
         this.addParticleType("ITEM_TAKE", new SpongeParticleType(EnumParticleTypes.ITEM_TAKE, false));
         this.addParticleType("MOB_APPEARANCE", new SpongeParticleType(EnumParticleTypes.MOB_APPEARANCE, false));
 
@@ -1329,8 +1442,8 @@ public class SpongeGameRegistry implements GameRegistry {
                     Arrays.asList(Careers.FARMER, Careers.FISHERMAN, Careers.SHEPHERD, Careers.FLETCHER));
             this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.LIBRARIAN).type, Arrays.asList(Careers.LIBRARIAN));
             this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.PRIEST).type, Arrays.asList(Careers.CLERIC));
-            this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.BLACKSMITH).type,
-                    Arrays.asList(Careers.ARMORER, Careers.WEAPON_SMITH, Careers.TOOL_SMITH));
+            this.professionToCareerMappings
+                    .put(((SpongeEntityMeta) Professions.BLACKSMITH).type, Arrays.asList(Careers.ARMORER, Careers.WEAPON_SMITH, Careers.TOOL_SMITH));
             this.professionToCareerMappings.put(((SpongeEntityMeta) Professions.BUTCHER).type, Arrays.asList(Careers.BUTCHER, Careers.LEATHERWORKER));
         } catch (Exception e) {
             e.printStackTrace();
@@ -1440,8 +1553,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     private void setTextActionFactory() {
-        // RegistryHelper.setFactory(TextActions.class, new
-        // SpongeTextActionFactory());
+        //RegistryHelper.setFactory(TextActions.class, new SpongeTextActionFactory());
     }
 
     private void setTextFactory() {
@@ -1466,7 +1578,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     private void setTitleFactory() {
-        // RegistryHelper.setFactory(Titles.class, new SpongeTitleFactory());
+        //RegistryHelper.setFactory(Titles.class, new SpongeTitleFactory());
     }
 
     private void setDimensionTypes() {

@@ -137,9 +137,10 @@ public abstract class MixinWorld implements World, IMixinWorld {
         if (!client) {
             String providerName = providerIn.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "");
             this.worldConfig =
-                    new SpongeConfig<SpongeConfig.WorldConfig>(SpongeConfig.Type.WORLD, new File(SpongeMod.instance.getConfigDir() + File.separator
-                            + providerName + File.separator + (providerIn.getDimensionId() == 0 ? "dim0" : providerIn.getSaveFolder().toLowerCase()),
-                            "world.conf"), "sponge");
+                    new SpongeConfig<SpongeConfig.WorldConfig>(SpongeConfig.Type.WORLD, new File(SpongeMod.instance.getConfigDir()
+                            + File.separator + providerName
+                            + File.separator + (providerIn.getDimensionId() == 0 ? "dim0" : providerIn.getSaveFolder().toLowerCase()), "world.conf"),
+                            "sponge");
         }
     }
 
@@ -148,8 +149,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
     public void onGetCollidingBoundingBoxes(net.minecraft.entity.Entity entity, net.minecraft.util.AxisAlignedBB axis,
             CallbackInfoReturnable<List> cir) {
         if (!entity.worldObj.isRemote && SpongeHooks.checkBoundingBoxSize(entity, axis)) {
-            cir.setReturnValue(new ArrayList());// Removing misbehaved living
-                                                // entities
+            cir.setReturnValue(new ArrayList());// Removing misbehaved living entities
         }
     }
 
@@ -369,7 +369,8 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     @Inject(method = "updateWeatherBody()V", remap = false, at = {
             @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setThundering(Z)V"),
-            @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setRaining(Z)V")})
+            @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setRaining(Z)V")
+    })
     private void onUpdateWeatherBody(CallbackInfo ci) {
         this.weatherStartTime = this.worldInfo.getWorldTotalTime();
     }
