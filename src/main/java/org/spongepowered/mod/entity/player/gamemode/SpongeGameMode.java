@@ -30,15 +30,14 @@ import org.spongepowered.mod.text.translation.SpongeTranslation;
 
 public class SpongeGameMode implements GameMode {
 
-    private SpongeTranslation translation;
+    private String name;
 
     public SpongeGameMode(String name) {
-        this.translation = new SpongeTranslation(name.toUpperCase());
+        this.name = name;
     }
 
     @Override
     public Translation getTranslation() {
-        return this.translation;
+        return new SpongeTranslation(this.name.toUpperCase());
     }
-
 }
