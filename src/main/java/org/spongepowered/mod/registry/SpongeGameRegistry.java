@@ -468,10 +468,11 @@ public class SpongeGameRegistry implements GameRegistry {
             .put(Direction.DOWN, EnumFacing.DOWN)
             .build();
     public static final ImmutableMap<String, GameMode> gameModeMappings = new ImmutableMap.Builder<String, GameMode>()
-            .put("SURVIVAL", new SpongeGameMode())
-            .put("CREATIVE", new SpongeGameMode())
-            .put("ADVENTURE", new SpongeGameMode())
-            .put("SPECTATOR", new SpongeGameMode())
+            .put("SURVIVAL", new SpongeGameMode("SURVIVAL"))
+            .put("CREATIVE", new SpongeGameMode("CREATIVE"))
+            .put("ADVENTURE", new SpongeGameMode("ADVENTURE"))
+            .put("SPECTATOR", new SpongeGameMode("SPECTATOR"))
+            .put("NOT_SET", new SpongeGameMode("NOT_SET"))
             .build();
     private static final ImmutableMap<String, Difficulty> difficultyMappings = new ImmutableMap.Builder<String, Difficulty>()
             .put("PEACEFUL", (Difficulty) (Object) EnumDifficulty.PEACEFUL)

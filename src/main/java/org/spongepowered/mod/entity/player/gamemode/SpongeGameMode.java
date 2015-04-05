@@ -26,12 +26,19 @@ package org.spongepowered.mod.entity.player.gamemode;
 
 import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.text.translation.Translation;
+import org.spongepowered.mod.text.translation.SpongeTranslation;
 
 public class SpongeGameMode implements GameMode {
 
+    private SpongeTranslation translation;
+
+    public SpongeGameMode(String name) {
+        this.translation = new SpongeTranslation(name.toUpperCase());
+    }
+
     @Override
     public Translation getTranslation() {
-        return null;
+        return this.translation;
     }
 
 }
