@@ -24,22 +24,32 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.util.gen.BiomeBuffer;
 import org.spongepowered.api.world.Chunk;
+import org.spongepowered.api.world.gen.GeneratorPopulator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.util.SpongeHooks;
+import org.spongepowered.mod.util.gen.FastChunkBuffer;
+import org.spongepowered.mod.util.gen.ObjectArrayMutableBiomeArea;
+
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.chunk.Chunk.class)
@@ -63,10 +73,31 @@ public abstract class MixinChunk implements Chunk {
     @Shadow
     private boolean isTerrainPopulated;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/World;II)V", at = @At("RETURN"))
     public void onConstructed(World world, int x, int z, CallbackInfo ci) {
         this.chunkPos = new Vector3i(x, 0, z);
         this.chunkCoordIntPair = new ChunkCoordIntPair(x, z);
+    }
+
+    @Inject(method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/world/chunk/ChunkPrimer;II)V", at = @At("RETURN"))
+    public void onNewlyGenerated(World world, ChunkPrimer primer, int chunkX, int chunkZ, CallbackInfo ci) {
+        // The constructor with the ChunkPrimer in it is only used for newly
+        // generated chunks, so we can call the generator populators here
+
+        // Calling the generator populators here has the benefit that the chunk
+        // can be modified before light is calculated and that implementations
+        // of IChunkProvider provided by mods will very likely still work well
+
+        List<GeneratorPopulator> populators = ((IMixinWorld) world).getGeneratorPopulators();
+        if (!populators.isEmpty()) {
+            FastChunkBuffer buffer = new FastChunkBuffer((net.minecraft.world.chunk.Chunk) (Object) this);
+            BiomeGenBase[] biomeArray = world.getWorldChunkManager().getBiomeGenAt(null, chunkX * 16, chunkZ * 16, 16, 16, true);
+            BiomeBuffer biomes = new ObjectArrayMutableBiomeArea(biomeArray, new Vector2i(chunkX * 16, chunkZ * 16), new Vector2i(16, 16));
+
+            for (GeneratorPopulator populator : populators) {
+                populator.populate(buffer, biomes);
+            }
+        }
     }
 
     @SideOnly(Side.SERVER)

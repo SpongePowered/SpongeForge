@@ -252,6 +252,7 @@ import org.spongepowered.mod.text.format.SpongeTextStyle;
 import org.spongepowered.mod.text.translation.SpongeTranslation;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
+import org.spongepowered.mod.world.gen.WorldGeneratorRegistry;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -512,6 +513,7 @@ public class SpongeGameRegistry implements GameRegistry {
     private final Map<String, Fish> fishMappings = Maps.newHashMap();
     private final Map<String, CookedFish> cookedFishMappings = Maps.newHashMap();
     private final Map<String, GoldenApple> goldenAppleMappings = Maps.newHashMap();
+    private final WorldGeneratorRegistry worldGeneratorRegistry = new WorldGeneratorRegistry();
 
     @Override
     public Optional<BlockType> getBlock(String id) {
@@ -804,17 +806,17 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<WorldGeneratorModifier> getWorldGeneratorModifier(String id) {
-        throw new UnsupportedOperationException(); // TODO
+        return this.worldGeneratorRegistry.getModifier(id);
     }
 
     @Override
     public Collection<WorldGeneratorModifier> getWorldGeneratorModifiers() {
-        throw new UnsupportedOperationException(); // TODO
+        return this.worldGeneratorRegistry.getModifiers();
     }
 
     @Override
-    public void registerWorldGeneratorModifier(PluginContainer plugin, String genId, WorldGeneratorModifier modifier) {
-        // TODO
+    public void registerWorldGeneratorModifier(PluginContainer plugin, String id, WorldGeneratorModifier modifier) {
+        this.worldGeneratorRegistry.registerModifier(plugin, id, modifier);
     }
 
     @Override
