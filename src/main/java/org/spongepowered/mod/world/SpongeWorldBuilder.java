@@ -46,6 +46,8 @@ import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.mod.interfaces.IMixinWorldSettings;
 import org.spongepowered.mod.service.persistence.NbtTranslator;
 
+import java.util.Random;
+
 public class SpongeWorldBuilder implements WorldBuilder {
 
     private String name;
@@ -186,7 +188,7 @@ public class SpongeWorldBuilder implements WorldBuilder {
     @Override
     public WorldBuilder reset() {
         this.name = "spongeworld";
-        this.seed = 1234567890;
+        this.seed = (new Random()).nextLong();
         this.gameMode = GameModes.SURVIVAL;
         this.generatorType = GeneratorTypes.DEFAULT;
         this.dimensionType = DimensionTypes.OVERWORLD;
