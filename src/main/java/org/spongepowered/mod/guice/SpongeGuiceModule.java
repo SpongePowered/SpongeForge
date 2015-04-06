@@ -34,10 +34,12 @@ import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.SimpleServiceManager;
 import org.spongepowered.api.service.event.EventManager;
+import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.mod.SpongeGame;
 import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
+import org.spongepowered.mod.world.SpongeTeleportHelper;
 
 import java.io.File;
 
@@ -50,6 +52,7 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(ServiceManager.class).to(SimpleServiceManager.class).in(Scopes.SINGLETON);
         bind(EventManager.class).to(SpongeEventBus.class).in(Scopes.SINGLETON);
         bind(GameRegistry.class).to(SpongeGameRegistry.class).in(Scopes.SINGLETON);
+        bind(TeleportHelper.class).to(SpongeTeleportHelper.class).in(Scopes.SINGLETON);
         bind(File.class).annotatedWith(new ConfigDirAnnotation(true)).toInstance(Loader.instance().getConfigDir());
     }
 }

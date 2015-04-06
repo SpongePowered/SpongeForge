@@ -210,6 +210,8 @@ public class ActivationRange {
             for (Object o : chunk.getEntityLists()[i]) {
                 Entity entity = (Entity) o;
                 SpongeConfig<?> config = getActiveConfig(entity.worldObj);
+                // TODO
+                if (config == null) continue;
                 SpongeEntityType type = (SpongeEntityType) ((org.spongepowered.api.entity.Entity) entity).getType();
                 if (entity.worldObj.getWorldInfo().getWorldTotalTime() > ((IMixinEntity) entity).getActivatedTick()) {
                     if (((IMixinEntity) entity).getDefaultActivationState()) {
@@ -328,6 +330,8 @@ public class ActivationRange {
         }
 
         for (SpongeConfig<?> config : configs) {
+            // TODO
+            if (config == null) continue;
             if (config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId()).isVirtual()) {
                 config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), "enabled").setValue(true);
             }

@@ -24,19 +24,10 @@
  */
 package org.spongepowered.mod.interfaces;
 
-import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.world.gen.GeneratorPopulator;
-import org.spongepowered.api.world.gen.Populator;
-import net.minecraft.world.storage.WorldInfo;
-import org.spongepowered.mod.configuration.SpongeConfig;
+import net.minecraft.entity.player.EntityPlayerMP;
+import org.spongepowered.api.world.Location;
 
-public interface IMixinWorld {
+public interface IMixinServerConfigurationManager {
 
-    SpongeConfig<SpongeConfig.WorldConfig> getWorldConfig();
-
-    ImmutableList<Populator> getPopulators();
-
-    ImmutableList<GeneratorPopulator> getGeneratorPopulators();
-
-    void setWorldInfo(WorldInfo worldInfo);
+    EntityPlayerMP respawnPlayer(EntityPlayerMP playerIn, int targetDimension, boolean conqueredEnd, Location location);
 }

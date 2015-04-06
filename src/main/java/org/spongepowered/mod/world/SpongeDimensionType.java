@@ -32,13 +32,15 @@ import org.spongepowered.api.world.DimensionType;
 public class SpongeDimensionType implements DimensionType {
 
     private String name;
+    private int dimensionTypeId;
     private boolean keepLoaded;
     private Class<? extends WorldProvider> dimensionClass;
 
-    public SpongeDimensionType(String name, boolean keepLoaded, Class<? extends WorldProvider> dimensionClass) {
+    public SpongeDimensionType(String name, boolean keepLoaded, Class<? extends WorldProvider> dimensionClass, int id) {
         this.name = name;
         this.keepLoaded = keepLoaded;
         this.dimensionClass = dimensionClass;
+        this.dimensionTypeId = id;
     }
 
     @Override
@@ -57,6 +59,10 @@ public class SpongeDimensionType implements DimensionType {
         return (Class<? extends Dimension>) this.dimensionClass;
     }
 
+    public int getDimensionTypeId() {
+        return this.dimensionTypeId;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -64,5 +70,22 @@ public class SpongeDimensionType implements DimensionType {
                 .add("keepLoaded", this.keepLoaded)
                 .add("class", this.dimensionClass.getName())
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof DimensionType)) {
+            return false;
+        }
+
+        DimensionType other = (DimensionType) obj;
+        if (!this.name.equals(other.getName())) {
+            return false;
+        }
+        if (!this.dimensionClass.equals(other.getDimensionClass())) {
+            return false;
+        }
+
+        return true;
     }
 }

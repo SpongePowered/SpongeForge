@@ -177,12 +177,12 @@
         "server.MixinNetHandlerPlayServer",
         "server.MixinNetworkManager",
         "server.MixinServerCommandManager",
+        "server.MixinServerConfigurationManager",
         "status.MixinMinecraftProtocolVersionIdentifier",
         "status.MixinNetHandlerStatusServer",
         "status.MixinPingResponseHandler",
         "status.MixinPlayerCountData",
         "status.MixinServerStatusResponse",
-
         "text.MixinChatComponentScore",
         "text.MixinChatComponentSelector",
         "text.MixinChatComponentStyle",
@@ -192,12 +192,17 @@
         "text.MixinChatStyleRoot",
         "text.MixinClickEvent",
         "text.MixinHoverEvent",
-
+        "world.MixinAnvilSaveHandler",
         "world.MixinChunk",
+        "world.MixinSaveHandler",
         "world.MixinWorld",
         "world.MixinWorldBorder",
         "world.MixinWorldProvider",
+        "world.MixinWorldServerMulti",
+        "world.MixinWorldSettings",
+        "world.MixinWorldType",
         "world.biome.MixinBiomeGenBase",
-        "world.difficulty.MixinEnumDifficulty"
+        "world.difficulty.MixinEnumDifficulty",
+        "world.storage.MixinWorldInfo"
     ]
 }

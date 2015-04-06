@@ -59,13 +59,15 @@ public final class SpongeGame implements Game {
     private final EventManager eventManager;
     private final GameRegistry gameRegistry;
     private final ServiceManager serviceManager;
+    private final TeleportHelper teleportHelper;
 
     @Inject
-    public SpongeGame(PluginManager plugin, EventManager event, GameRegistry registry, ServiceManager service) {
+    public SpongeGame(PluginManager plugin, EventManager event, GameRegistry registry, ServiceManager service, TeleportHelper teleportHelper) {
         this.pluginManager = plugin;
         this.eventManager = event;
         this.gameRegistry = registry;
         this.serviceManager = service;
+        this.teleportHelper = teleportHelper;
     }
 
     @Override
@@ -135,6 +137,6 @@ public final class SpongeGame implements Game {
 
     @Override
     public TeleportHelper getTeleportHelper() {
-        return null;
+        return this.teleportHelper;
     }
 }

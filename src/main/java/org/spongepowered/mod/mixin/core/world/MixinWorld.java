@@ -39,7 +39,6 @@ import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.BlockPos;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -48,9 +47,12 @@ import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.entity.Entity;
@@ -69,6 +71,7 @@ import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GeneratorPopulator;
 import org.spongepowered.api.world.gen.Populator;
 import org.spongepowered.api.world.gen.WorldGenerator;
+import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.api.world.weather.Weather;
 import org.spongepowered.api.world.weather.Weathers;
 import org.spongepowered.asm.mixin.Mixin;
@@ -83,6 +86,7 @@ import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
 import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.util.SpongeHooks;
+import org.spongepowered.mod.world.border.PlayerBorderListener;
 import org.spongepowered.mod.world.gen.CustomChunkProviderGenerate;
 import org.spongepowered.mod.world.gen.CustomWorldChunkManager;
 import org.spongepowered.mod.world.gen.SpongeWorldGenerator;
@@ -90,9 +94,7 @@ import org.spongepowered.mod.world.gen.SpongeWorldGenerator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -113,10 +115,16 @@ public abstract class MixinWorld implements World, IMixinWorld {
     protected WorldInfo worldInfo;
 
     @Shadow
+    protected ISaveHandler saveHandler;
+
+    @Shadow
     public Random rand;
 
     @Shadow
     public List<net.minecraft.entity.Entity> loadedEntityList;
+
+    @Shadow
+    private net.minecraft.world.border.WorldBorder worldBorder;
 
     @Shadow(prefix = "shadow$")
     public abstract net.minecraft.world.border.WorldBorder shadow$getWorldBorder();
@@ -157,6 +165,10 @@ public abstract class MixinWorld implements World, IMixinWorld {
                             + File.separator + (providerIn.getDimensionId() == 0 ? "dim0" : providerIn.getSaveFolder().toLowerCase()), "world.conf"),
                             "sponge");
         }
+
+        if (FMLCommonHandler.instance().getSide() == Side.SERVER) {
+            this.worldBorder.addListener(new PlayerBorderListener());
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -170,12 +182,12 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     @Override
     public UUID getUniqueId() {
-        throw new UnsupportedOperationException();
+        return ((WorldProperties) this.worldInfo).getUniqueId();
     }
 
     @Override
     public String getName() {
-        return this.worldInfo.getWorldName() + "_" + this.provider.getDimensionName().toLowerCase().replace(' ', '_');
+        return this.worldInfo.getWorldName();
     }
 
     @Override
@@ -206,6 +218,11 @@ public abstract class MixinWorld implements World, IMixinWorld {
     @Override
     public BlockState getBlock(int x, int y, int z) {
         return (BlockState) ((net.minecraft.world.World) (Object) this).getBlockState(new BlockPos(x, y, z));
+    }
+
+    @Override
+    public BlockType getBlockType(Vector3i position) {
+        return getBlock(position).getType();
     }
 
     @Override
@@ -472,24 +489,6 @@ public abstract class MixinWorld implements World, IMixinWorld {
         return Optional.absent();
     }
 
-    @Override
-    public Optional<String> getGameRule(String gameRule) {
-        if (this.worldInfo.getGameRulesInstance().hasRule(gameRule)) {
-            return Optional.of(this.worldInfo.getGameRulesInstance().getGameRuleStringValue(gameRule));
-        }
-        return Optional.absent();
-    }
-
-    @Override
-    public Map<String, String> getGameRules() {
-        GameRules gameRules = this.worldInfo.getGameRulesInstance();
-        Map<String, String> ruleMap = new HashMap<String, String>();
-        for (String rule : gameRules.getRules()) {
-            ruleMap.put(rule, gameRules.getGameRuleStringValue(rule));
-        }
-        return ruleMap;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public Iterable<Chunk> getLoadedChunks() {
@@ -555,6 +554,26 @@ public abstract class MixinWorld implements World, IMixinWorld {
         // instance does not affect the world without setWorldGenerator being
         // called
         return new SpongeWorldGenerator((WorldServer) (Object) this);
+    }
+
+    @Override
+    public void setWorldInfo(WorldInfo worldInfo) {
+        this.worldInfo = worldInfo;
+    }
+
+    @Override
+    public int getHeight() {
+        return this.provider.getActualHeight();
+    }
+
+    @Override
+    public int getBuildHeight() {
+        return this.provider.getHeight();
+    }
+
+    @Override
+    public WorldProperties getProperties() {
+        return (WorldProperties) this.worldInfo;
     }
 
     @Override
