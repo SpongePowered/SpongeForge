@@ -38,7 +38,7 @@ group = 'org.spongepowered'
 archivesBaseName = 'sponge'
 
 // Define variables
-ext.buildNumber = System.getenv().buildNumber != null ? System.getenv().buildNumber : '0'
+ext.buildNumber = System.getenv().BUILD_NUMBER != null ? System.getenv().BUILD_NUMBER : '0'
 ext.ciSystem = System.getenv().ciSystem != null ? System.getenv().ciSystem : 'unknown'
 ext.commit = System.getenv().commit != null ? System.getenv().commit : 'unknown'
 
