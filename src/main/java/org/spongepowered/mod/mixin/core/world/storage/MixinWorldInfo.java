@@ -68,7 +68,6 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
     private UUID uuid;
     private boolean worldEnabled;
     private DimensionType dimensionType;
-    @SuppressWarnings("unused")
     private boolean loadOnStartup;
     private boolean keepSpawnLoaded;
     private NBTTagCompound spongeRootLevelNbt;
@@ -211,7 +210,9 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
     }
 
     private void updateSpongeNbt() {
-        this.spongeNbt.setString("LevelName", this.levelName); // for reference
+        if (this.levelName != null) {
+            this.spongeNbt.setString("LevelName", this.levelName); // for reference
+        }
         this.spongeNbt.setInteger("dimensionId", this.dimension);
         if (this.dimensionType != null) {
             this.spongeNbt.setString("dimensionType", this.dimensionType.getDimensionClass().getName());

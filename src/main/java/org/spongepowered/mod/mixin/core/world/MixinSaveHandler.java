@@ -28,7 +28,8 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
-import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -68,7 +69,9 @@ public abstract class MixinSaveHandler {
                 nbttagcompound1 = nbttagcompound.getCompoundTag("Data");
                 worldInfo = new WorldInfo(nbttagcompound1);
                 // Forge and FML data are only loaded from main world
-                if (DimensionManager.getCurrentSaveRootDirectory().equals(this.worldDirectory)) {
+                if (this.worldDirectory.getParentFile() == null
+                        || (FMLCommonHandler.instance().getSide() == Side.CLIENT && this.worldDirectory.getParentFile().equals(
+                                FMLCommonHandler.instance().getSavesDirectory()))) {
                     net.minecraftforge.fml.common.FMLCommonHandler.instance().handleWorldDataLoad((SaveHandler) (Object) this, worldInfo,
                             nbttagcompound);
                 }
@@ -101,7 +104,9 @@ public abstract class MixinSaveHandler {
         nbttagcompound2.setTag("Data", nbttagcompound1);
 
         // Forge and FML data are only saved to main world
-        if (DimensionManager.getCurrentSaveRootDirectory().equals(this.worldDirectory)) {
+        if (this.worldDirectory.getParentFile() == null
+                || (FMLCommonHandler.instance().getSide() == Side.CLIENT && this.worldDirectory.getParentFile().equals(
+                        FMLCommonHandler.instance().getSavesDirectory()))) {
             net.minecraftforge.fml.common.FMLCommonHandler.instance().handleWorldDataSave((SaveHandler) (Object) this, worldInformation,
                     nbttagcompound2);
         }
@@ -164,7 +169,9 @@ public abstract class MixinSaveHandler {
         nbttagcompound1.setTag("Data", nbttagcompound);
 
         // Forge and FML data are only saved to main world
-        if (DimensionManager.getCurrentSaveRootDirectory().equals(this.worldDirectory)) {
+        if (this.worldDirectory.getParentFile() == null
+                || (FMLCommonHandler.instance().getSide() == Side.CLIENT && this.worldDirectory.getParentFile().equals(
+                        FMLCommonHandler.instance().getSavesDirectory()))) {
             net.minecraftforge.fml.common.FMLCommonHandler.instance().handleWorldDataSave((SaveHandler) (Object) this, worldInformation,
                     nbttagcompound1);
         }
