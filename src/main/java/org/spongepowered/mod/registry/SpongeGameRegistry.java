@@ -256,8 +256,11 @@ import org.spongepowered.mod.text.format.SpongeTextStyle;
 import org.spongepowered.mod.text.translation.SpongeTranslation;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
-import org.spongepowered.mod.world.gen.WorldGeneratorRegistry;
 import org.spongepowered.mod.world.SpongeWorldBuilder;
+import org.spongepowered.mod.world.SpongeWorldTypeEnd;
+import org.spongepowered.mod.world.SpongeWorldTypeNether;
+import org.spongepowered.mod.world.SpongeWorldTypeOverworld;
+import org.spongepowered.mod.world.gen.WorldGeneratorRegistry;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -858,10 +861,10 @@ public class SpongeGameRegistry implements GameRegistry {
     public void setGeneratorTypes() {
         this.generatorTypeMappings.put("DEFAULT", (GeneratorType) WorldType.DEFAULT);
         this.generatorTypeMappings.put("FLAT", (GeneratorType) WorldType.FLAT);
-        this.generatorTypeMappings.put("LARGE_BIOMES", (GeneratorType) WorldType.LARGE_BIOMES);
-        this.generatorTypeMappings.put("AMPLIFIED", (GeneratorType) WorldType.AMPLIFIED);
         this.generatorTypeMappings.put("DEBUG", (GeneratorType) WorldType.DEBUG_WORLD);
-        this.generatorTypeMappings.put("SUPER_FLAT", (GeneratorType) WorldType.DEFAULT_1_1);
+        this.generatorTypeMappings.put("NETHER", (GeneratorType) new SpongeWorldTypeNether());
+        this.generatorTypeMappings.put("THE_END", (GeneratorType) new SpongeWorldTypeEnd());
+        this.generatorTypeMappings.put("OVERWORLD", (GeneratorType) new SpongeWorldTypeOverworld());
         RegistryHelper.mapFields(GeneratorTypes.class, this.generatorTypeMappings);
     }
 

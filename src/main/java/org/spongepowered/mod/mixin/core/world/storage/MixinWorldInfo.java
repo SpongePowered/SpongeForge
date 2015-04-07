@@ -260,7 +260,7 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
     }
 
     @Override
-    public void setType(GeneratorType type) {
+    public void setGeneratorType(GeneratorType type) {
         this.terrainType = (WorldType) type;
     }
 

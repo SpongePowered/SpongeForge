@@ -311,6 +311,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
             ((WorldProperties) worldInfo).setKeepSpawnLoaded(settings.doesKeepSpawnLoaded());
             ((WorldProperties) worldInfo).setLoadOnStartup(settings.loadOnStartup());
             ((WorldProperties) worldInfo).setEnabled(settings.isEnabled());
+            ((WorldProperties) worldInfo).setGeneratorType(settings.getGeneratorType());
             SpongeMod.instance.getSpongeRegistry().registerWorldProperties((WorldProperties) worldInfo);
         }
 

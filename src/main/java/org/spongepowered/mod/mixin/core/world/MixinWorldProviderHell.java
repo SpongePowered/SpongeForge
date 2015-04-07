@@ -22,33 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.mixin.core.world;
 
-import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.world.DimensionType;
-import org.spongepowered.api.world.GeneratorType;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldProviderHell;
+import net.minecraft.world.WorldType;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.ChunkProviderHell;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 
-import java.util.UUID;
+@NonnullByDefault
+@Mixin(WorldProviderHell.class)
+public abstract class MixinWorldProviderHell extends WorldProvider {
 
-public interface IMixinWorldInfo {
-
-    NBTTagCompound getSpongeRootLevelNbt();
-
-    NBTTagCompound getSpongeNbt();
-
-    int getDimensionId();
-
-    void setDimensionId(int id);;
-
-    void setSpongeRootLevelNBT(NBTTagCompound nbt);
-
-    void setUUID(UUID uuid);
-
-    void setDimensionType(DimensionType type);
-
-    void setSeed(long seed);
-
-    void setWorldName(String name);
-
-    void readSpongeNbt(NBTTagCompound spongeNbt);
+    @Override
+    @Overwrite
+    public IChunkProvider createChunkGenerator() {
+        if (this.terrainType == WorldType.DEFAULT) {
+            return new ChunkProviderHell(this.worldObj, this.worldObj.getWorldInfo().isMapFeaturesEnabled(), this.worldObj.getSeed());
+        } else {
+            return super.createChunkGenerator(); // use custom GeneratorType
+        }
+    }
 }

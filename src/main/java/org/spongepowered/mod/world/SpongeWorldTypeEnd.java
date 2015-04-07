@@ -22,33 +22,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.world;
 
-import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.world.DimensionType;
-import org.spongepowered.api.world.GeneratorType;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldType;
+import net.minecraft.world.gen.ChunkProviderEnd;
 
-import java.util.UUID;
+public class SpongeWorldTypeEnd extends WorldType {
 
-public interface IMixinWorldInfo {
+    public SpongeWorldTypeEnd() {
+        super("THE_END");
+    }
 
-    NBTTagCompound getSpongeRootLevelNbt();
-
-    NBTTagCompound getSpongeNbt();
-
-    int getDimensionId();
-
-    void setDimensionId(int id);;
-
-    void setSpongeRootLevelNBT(NBTTagCompound nbt);
-
-    void setUUID(UUID uuid);
-
-    void setDimensionType(DimensionType type);
-
-    void setSeed(long seed);
-
-    void setWorldName(String name);
-
-    void readSpongeNbt(NBTTagCompound spongeNbt);
+    @Override
+    public net.minecraft.world.chunk.IChunkProvider getChunkGenerator(World world, String generatorOptions) {
+        return new ChunkProviderEnd(world, world.getSeed());
+    }
 }

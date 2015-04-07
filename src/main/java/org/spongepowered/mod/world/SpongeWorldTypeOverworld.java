@@ -22,33 +22,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.world;
 
-import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.world.DimensionType;
-import org.spongepowered.api.world.GeneratorType;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldType;
 
-import java.util.UUID;
+public class SpongeWorldTypeOverworld extends WorldType {
 
-public interface IMixinWorldInfo {
+    public SpongeWorldTypeOverworld() {
+        super("OVERWORLD");
+    }
 
-    NBTTagCompound getSpongeRootLevelNbt();
-
-    NBTTagCompound getSpongeNbt();
-
-    int getDimensionId();
-
-    void setDimensionId(int id);;
-
-    void setSpongeRootLevelNBT(NBTTagCompound nbt);
-
-    void setUUID(UUID uuid);
-
-    void setDimensionType(DimensionType type);
-
-    void setSeed(long seed);
-
-    void setWorldName(String name);
-
-    void readSpongeNbt(NBTTagCompound spongeNbt);
+    @Override
+    public net.minecraft.world.chunk.IChunkProvider getChunkGenerator(World world, String generatorOptions) {
+        return new net.minecraft.world.gen.ChunkProviderGenerate(world, world.getSeed(), world.getWorldInfo().isMapFeaturesEnabled(),
+                generatorOptions);
+    }
 }
