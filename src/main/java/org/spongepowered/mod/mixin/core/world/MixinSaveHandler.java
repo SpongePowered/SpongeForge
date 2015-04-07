@@ -28,6 +28,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -67,7 +68,7 @@ public abstract class MixinSaveHandler {
                 nbttagcompound1 = nbttagcompound.getCompoundTag("Data");
                 worldInfo = new WorldInfo(nbttagcompound1);
                 // Forge and FML data are only loaded from main world
-                if (nbttagcompound1.hasKey("dimension") && nbttagcompound1.getInteger("dimension") == 0) {
+                if (DimensionManager.getCurrentSaveRootDirectory().equals(this.worldDirectory)) {
                     net.minecraftforge.fml.common.FMLCommonHandler.instance().handleWorldDataLoad((SaveHandler) (Object) this, worldInfo,
                             nbttagcompound);
                 }
@@ -100,8 +101,9 @@ public abstract class MixinSaveHandler {
         nbttagcompound2.setTag("Data", nbttagcompound1);
 
         // Forge and FML data are only saved to main world
-        if (nbttagcompound1.hasKey("dimension") && nbttagcompound1.getInteger("dimension") == 0) {
-            net.minecraftforge.fml.common.FMLCommonHandler.instance().handleWorldDataSave((SaveHandler) (Object) this, worldInformation, nbttagcompound2);
+        if (DimensionManager.getCurrentSaveRootDirectory().equals(this.worldDirectory)) {
+            net.minecraftforge.fml.common.FMLCommonHandler.instance().handleWorldDataSave((SaveHandler) (Object) this, worldInformation,
+                    nbttagcompound2);
         }
 
         try {
@@ -162,8 +164,9 @@ public abstract class MixinSaveHandler {
         nbttagcompound1.setTag("Data", nbttagcompound);
 
         // Forge and FML data are only saved to main world
-        if (nbttagcompound.hasKey("dimension") && nbttagcompound.getInteger("dimension") == 0) {
-            net.minecraftforge.fml.common.FMLCommonHandler.instance().handleWorldDataSave((SaveHandler) (Object) this, worldInformation, nbttagcompound1);
+        if (DimensionManager.getCurrentSaveRootDirectory().equals(this.worldDirectory)) {
+            net.minecraftforge.fml.common.FMLCommonHandler.instance().handleWorldDataSave((SaveHandler) (Object) this, worldInformation,
+                    nbttagcompound1);
         }
 
         try {
