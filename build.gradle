@@ -43,7 +43,7 @@ ext.ciSystem = System.getenv().ciSystem != null ? System.getenv().ciSystem : 'un
 ext.commit = System.getenv().commit != null ? System.getenv().commit : 'unknown'
 
 // Version -> Minecraft-MinecraftForge-Ours(If any?)
-version = '1.8-1341-1.1DEV-' + buildNumber
+version = '1.8-1354-1.1DEV-' + buildNumber
 
 // mixin variables
 ext.mixinSrg = new File(project.buildDir, "tmp/mixins/mixins.srg")
@@ -62,7 +62,7 @@ repositories {
 
 // MinecraftForge version
 minecraft {
-    version = "1.8-11.14.1.1341"
+    version = "1.8-11.14.1.1354"
     mappings = "snapshot_20150301"
 }
 
