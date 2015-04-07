@@ -38,9 +38,9 @@ group = 'org.spongepowered'
 archivesBaseName = 'sponge'
 
 // Define variables
-ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
-ext.ciSystem = project.hasProperty("ciSystem") ? ciSystem : 'unknown'
-ext.commit = project.hasProperty("commit") ? commit : 'unknown'
+ext.buildNumber = System.getenv().buildNumber != null ? System.getenv().buildNumber : '0'
+ext.ciSystem = System.getenv().ciSystem != null ? System.getenv().ciSystem : 'unknown'
+ext.commit = System.getenv().commit != null ? System.getenv().commit : 'unknown'
 
 // Version -> Minecraft-MinecraftForge-Ours(If any?)
 version = '1.8-1341-1.1DEV-' + buildNumber
