@@ -235,6 +235,11 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
 
     @Override
     public Optional<World> loadWorld(String worldName) {
+        final Optional<World> optExisting = getWorld(worldName);
+        if (optExisting.isPresent()) {
+            return optExisting;
+        }
+
         File file = new File(getWorldContainer(), worldName);
 
         if ((file.exists()) && (!file.isDirectory())) {
