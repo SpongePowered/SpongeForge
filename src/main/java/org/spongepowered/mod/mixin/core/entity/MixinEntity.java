@@ -195,6 +195,11 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         return relocated;
     }
 
+    @Override
+    public boolean setLocationAndRotationSafely(Location location, Vector3d rotation, EnumSet<RelativePositions> relativePositions) {
+        return setLocationAndRotation(location, rotation, relativePositions, true);
+    }
+
     public boolean setLocation(Location location, boolean forced) {
         if (isRemoved()) {
             return false;
@@ -279,9 +284,15 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void setLocationAndRotation(Location location, Vector3d rotation, EnumSet<RelativePositions> relativePositions) {
+        setLocationAndRotation(location, rotation, relativePositions, false);
+    }
+
+    public boolean setLocationAndRotation(Location location, Vector3d rotation, EnumSet<RelativePositions> relativePositions, boolean forced) {
+        boolean relocated = true;
+
         if (relativePositions.isEmpty()) {
             //This is just a normal teleport that happens to set both.
-            setLocation(location);
+            relocated = setLocation(location, forced);
             setRotation(rotation);
         } else {
             Entity spongeEntity = this;
@@ -336,10 +347,12 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
                 }
 
                 //From here just a normal teleport is needed.
-                setLocation(resultant);
+                relocated = setLocation(resultant, forced);
                 setRotation(resultantRotation);
             }
         }
+
+        return relocated;
     }
 
     @Override
