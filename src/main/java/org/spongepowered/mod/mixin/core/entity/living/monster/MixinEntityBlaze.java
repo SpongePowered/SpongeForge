@@ -57,4 +57,5 @@ public abstract class MixinEntityBlaze extends EntityMob {
     public void blaze$setOnFire(boolean onFire) {
         this.func_70844_e(onFire);
     }
+
 }

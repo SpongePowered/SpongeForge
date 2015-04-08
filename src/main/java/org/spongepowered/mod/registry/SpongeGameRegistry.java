@@ -262,6 +262,7 @@ import org.spongepowered.mod.world.SpongeWorldTypeNether;
 import org.spongepowered.mod.world.SpongeWorldTypeOverworld;
 import org.spongepowered.mod.world.gen.WorldGeneratorRegistry;
 
+import javax.swing.text.html.Option;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -567,6 +568,15 @@ public class SpongeGameRegistry implements GameRegistry {
             id = "minecraft:" + id;
         }
         return Optional.fromNullable((EntityType) this.entityIdToTypeMappings.get(id));
+    }
+
+    public Optional<EntityType> getEntity(Class<? extends org.spongepowered.api.entity.Entity> entityClass) {
+        for(EntityType type : getEntities()) {
+            if(entityClass.isAssignableFrom(type.getEntityClass())) {
+                return Optional.of(type);
+            }
+        }
+        return Optional.absent();
     }
 
     @Override

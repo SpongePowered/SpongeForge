@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.util;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.gson.stream.JsonWriter;
 import gnu.trove.map.hash.TObjectIntHashMap;
@@ -43,10 +44,16 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.block.BlockState;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.spongepowered.api.entity.projectile.Projectile;
+import org.spongepowered.api.entity.projectile.source.ProjectileSource;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.interfaces.IMixinWorldProvider;
 import org.spongepowered.mod.mixin.plugin.CoreMixinPlugin;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -61,6 +68,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.management.MBeanServer;
 
 public class SpongeHooks {
@@ -436,5 +444,24 @@ public class SpongeHooks {
             // TODO: Need to figure out what is sensible for other BlockState implementing classes.
             throw new UnsupportedOperationException("Custom BlockState implementations are not supported");
         }
+    }
+
+    public static <T extends Projectile> T  launchProjectile(World world, Vector3d position, ProjectileSource source, Class<T> projectileClass, @Nullable Vector3d velocity) {
+
+        try {
+            @SuppressWarnings("unchecked")
+            T entity = (T) ConstructorUtils.invokeConstructor(((SpongeGameRegistry)SpongeMod.instance.getGame().getRegistry()).getEntity(projectileClass).get().getEntityClass(), world);
+            entity.setLocation(entity.getLocation().setPosition(position));
+            entity.setShooter(source);
+            if(velocity != null) {
+                entity.setVelocity(velocity.toDouble());
+            }
+            world.spawnEntityInWorld((net.minecraft.entity.Entity) entity);
+            return entity;
+        } catch(Exception e) {
+            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
+        }
+
+        return null;
     }
 }
