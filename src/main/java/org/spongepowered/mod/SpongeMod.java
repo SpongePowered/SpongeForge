@@ -306,6 +306,10 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
                             getLogger().info("World "+ child.getName() + " 'loadOnStartup' is disabled.. Skipping world load...");
                             continue;
                         }
+                    } else if (dimensionId == -1) {
+                        if (!MinecraftServer.getServer().getAllowNether()) {
+                            continue;
+                        }
                     }
                     if (spongeData.hasKey("uuid_most") && spongeData.hasKey("uuid_least")) {
                         UUID uuid = new UUID(spongeData.getLong("uuid_most"), spongeData.getLong("uuid_least"));

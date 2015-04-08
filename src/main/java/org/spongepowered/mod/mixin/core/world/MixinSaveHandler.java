@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.world;
 
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.MinecraftException;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -37,9 +38,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinWorldInfo;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.storage.SaveHandler.class)
@@ -47,6 +50,29 @@ public abstract class MixinSaveHandler {
 
     @Shadow
     private File worldDirectory;
+
+    @Shadow
+    private long initializationTime;
+
+    @Overwrite
+    public void checkSessionLock() throws MinecraftException {
+        try {
+            File file1 = new File(this.worldDirectory, "session.lock");
+            DataInputStream datainputstream = new DataInputStream(new FileInputStream(file1));
+
+            try {
+                if (datainputstream.readLong() != this.initializationTime) {
+                    throw new MinecraftException("The save folder for world " + this.worldDirectory
+                            + " is being accessed from another location, aborting");
+                }
+            } finally {
+                datainputstream.close();
+            }
+        } catch (IOException ioexception) {
+            ioexception.printStackTrace();
+            throw new MinecraftException("Failed to check session lock for world " + this.worldDirectory + ", aborting");
+        }
+    }
 
     @Overwrite
     public WorldInfo loadWorldInfo() {

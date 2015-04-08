@@ -29,7 +29,6 @@ import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.S05PacketSpawnPosition;
 import net.minecraft.network.play.server.S07PacketRespawn;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook.EnumFlags;
 import net.minecraft.server.MinecraftServer;
@@ -66,7 +65,6 @@ import org.spongepowered.mod.world.SpongeDimensionType;
 
 import java.util.ArrayDeque;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -178,14 +176,14 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     }
 
     @Override
-    public void setLocationAndRotation(Location location, Vector3d rotation) {
-        setLocation(location);
-        setRotation(rotation);
+    public boolean setLocationSafely(Location location) {
+        return setLocation(location, false);
     }
 
     @Override
-    public boolean setLocationSafely(Location location) {
-        return setLocation(location, false);
+    public void setLocationAndRotation(Location location, Vector3d rotation) {
+        setLocation(location);
+        setRotation(rotation);
     }
 
     @Override
@@ -208,11 +206,10 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         Entity spongeEntity = this;
         net.minecraft.entity.Entity thisEntity = (net.minecraft.entity.Entity) spongeEntity;
 
-        Optional<Location> safeLocation = Optional.absent();
         if (!forced) {
             // Validate
             TeleportHelper teleportHelper = SpongeMod.instance.getGame().getTeleportHelper();
-            safeLocation = teleportHelper.getSafeLocation(location);
+            Optional<Location> safeLocation = teleportHelper.getSafeLocation(location);
             if (!safeLocation.isPresent()) {
                 return false;
             } else {
@@ -239,17 +236,12 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         if (location.getExtent() instanceof World && ((World) location.getExtent()).getUniqueId() != ((World) this.worldObj).getUniqueId()) {
             nmsWorld = (net.minecraft.world.World) location.getExtent();
             if (thisEntity instanceof EntityPlayerMP) {
-                // register dimension on client-side
-                FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
-                serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
-                serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(thisEntity);
-                serverChannel.writeOutbound(new ForgeMessage.DimensionRegisterMessage(nmsWorld.provider.getDimensionId(),
-                        ((SpongeDimensionType) ((Dimension) nmsWorld.provider).getType()).getDimensionTypeId()));
-                teleportEntity(thisEntity, location, thisEntity.dimension, nmsWorld.provider.getDimensionId(), forced);
-                //((IMixinServerConfigurationManager)MinecraftServer.getServer().getConfigurationManager()).respawnPlayer((EntityPlayerMP)thisEntity, ((net.minecraft.world.World)location.getExtent()).provider.getDimensionId(), false, location);
-            } else {
-                teleportEntity(thisEntity, location, thisEntity.dimension, nmsWorld.provider.getDimensionId(), forced);
+                // Close open containers
+                if (((EntityPlayerMP) thisEntity).openContainer != ((EntityPlayerMP) thisEntity).inventoryContainer) {
+                    ((EntityPlayerMP) thisEntity).closeContainer();
+                }
             }
+            teleportEntity(thisEntity, location, thisEntity.dimension, nmsWorld.provider.getDimensionId(), forced);
         } else {
             if (thisEntity instanceof EntityPlayerMP) {
                 ((EntityPlayerMP) thisEntity).playerNetServerHandler
@@ -281,12 +273,12 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         return true;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void setLocationAndRotation(Location location, Vector3d rotation, EnumSet<RelativePositions> relativePositions) {
         setLocationAndRotation(location, rotation, relativePositions, false);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public boolean setLocationAndRotation(Location location, Vector3d rotation, EnumSet<RelativePositions> relativePositions, boolean forced) {
         boolean relocated = true;
 
@@ -523,8 +515,6 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
         entity.worldObj.removePlayerEntityDangerously(entity);
         entity.dimension = targetDim;
-        entity.setWorld(toWorld);
-        entity.isDead = false;
         entity.setPositionAndRotation(location.getX(), location.getY(), location.getZ(), 0, 0);
         if (forced) {
             while (!toWorld.getCollidingBoundingBoxes(entity, entity.getEntityBoundingBox()).isEmpty() && entity.posY < 256.0D) {
@@ -546,11 +536,19 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
                 } else {
                     targetDim = 0;
                 }
+            } else { // send DimensionRegister message
+                FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
+                serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
+                serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(entityplayermp1);
+                serverChannel.writeOutbound(new ForgeMessage.DimensionRegisterMessage(toWorld.provider.getDimensionId(),
+                        ((SpongeDimensionType) ((Dimension) toWorld.provider).getType()).getDimensionTypeId()));
             }
 
             entityplayermp1.playerNetServerHandler.sendPacket(
                     new S07PacketRespawn(targetDim, toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
                             entityplayermp1.theItemInWorldManager.getGameType()));
+            entity.setWorld(toWorld);
+            entity.isDead = false;
             entityplayermp1.playerNetServerHandler.setPlayerLocation(entityplayermp1.posX, entityplayermp1.posY, entityplayermp1.posZ,
                     entityplayermp1.rotationYaw, entityplayermp1.rotationPitch);
             entityplayermp1.setSneaking(false);

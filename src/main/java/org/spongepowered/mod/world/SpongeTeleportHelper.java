@@ -192,8 +192,8 @@ public class SpongeTeleportHelper implements TeleportHelper {
 
     protected boolean areTwoBlocksBelowSafe(World world, Vector3i blockPos) {
 
-        Vector3i blockBelowPos = new Vector3i(blockPos).sub(0, 1, 0);
-        Vector3i blockBelowPos2 = new Vector3i(blockPos).sub(0, 2, 0);
+        Vector3i blockBelowPos = blockPos.sub(0, 1, 0);
+        Vector3i blockBelowPos2 = blockPos.sub(0, 2, 0);
         BlockType blockBelow = world.getBlockType(blockBelowPos);
         BlockType blockBelow2 = world.getBlockType(blockBelowPos2);
         if (blockBelow == BlockTypes.AIR && blockBelow2 == BlockTypes.AIR) {

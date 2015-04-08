@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.WorldManager;
@@ -38,7 +39,6 @@ import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.chunk.storage.AnvilSaveHandler;
 import net.minecraft.world.storage.ISaveHandler;
-import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -54,6 +54,7 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.source.ConsoleSource;
 import org.spongepowered.api.world.Dimension;
+import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldCreationSettings;
 import org.spongepowered.api.world.storage.WorldProperties;
@@ -107,9 +108,6 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
     protected abstract void setUserMessage(String message);
 
     @Shadow
-    protected abstract void initialWorldChunkLoad();
-
-    @Shadow
     protected abstract void setResourcePackFromWorld(String worldNameIn, ISaveHandler saveHandlerIn);
 
     @Shadow
@@ -156,6 +154,15 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
     @Shadow
     public abstract void initiateShutdown();
 
+    @Shadow
+    public abstract boolean isServerRunning();
+
+    @Shadow
+    protected abstract void outputPercentRemaining(String message, int percent);
+
+    @Shadow
+    protected abstract void clearCurrentTask();
+
     @Overwrite
     protected void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
         this.convertMapIfNeeded(overworldFolder);
@@ -180,7 +187,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
             WorldSettings newWorldSettings = null;
             AnvilSaveHandler worldsavehandler = null;
 
-            worldsavehandler = new AnvilSaveHandler(getWorldContainer(), worldFolder, true);
+            worldsavehandler = new AnvilSaveHandler(new File(getFolderName()), worldFolder, true);
             worldInfo = worldsavehandler.loadWorldInfo();
             if (worldInfo == null) {
                 newWorldSettings = new WorldSettings(seed, this.getGameType(), this.canStructuresSpawn(), this.isHardcore(), type);
@@ -192,6 +199,13 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
 
                 worldInfo = new WorldInfo(newWorldSettings, worldFolder);
                 ((IMixinWorldInfo) worldInfo).setUUID(UUID.randomUUID());
+                if (dim == 0 || dim == -1 || dim == 1) {// if vanilla dimension
+                    ((WorldProperties) worldInfo).setKeepSpawnLoaded(true);
+                    ((WorldProperties) worldInfo).setLoadOnStartup(true);
+                    ((WorldProperties) worldInfo).setEnabled(true);
+                    ((WorldProperties) worldInfo).setGeneratorType(GeneratorTypes.DEFAULT);
+                    SpongeMod.instance.getSpongeRegistry().registerWorldProperties((WorldProperties) worldInfo);
+                }
             } else {
                 worldInfo.setWorldName(worldFolder);
                 newWorldSettings = new WorldSettings(worldInfo);
@@ -224,6 +238,63 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
         this.initialWorldChunkLoad();
     }
 
+    @Overwrite
+    protected void initialWorldChunkLoad() {
+        for (WorldServer worldserver : DimensionManager.getWorlds()) {
+            WorldProperties worldProperties = ((World) worldserver).getProperties();
+            if (worldProperties.doesKeepSpawnLoaded()) {
+                int i = 0;
+                this.setUserMessage("menu.generatingTerrain");
+                MinecraftServer.getServer().logInfo("Preparing start region for level " + worldserver.provider.getDimensionId());
+                BlockPos blockpos = worldserver.getSpawnPoint();
+                long j = MinecraftServer.getCurrentTimeMillis();
+
+                for (int k = -192; k <= 192 && this.isServerRunning(); k += 16)
+                {
+                    for (int l = -192; l <= 192 && this.isServerRunning(); l += 16)
+                    {
+                        long i1 = MinecraftServer.getCurrentTimeMillis();
+
+                        if (i1 - j > 1000L)
+                        {
+                            this.outputPercentRemaining("Preparing spawn area", i * 100 / 625);
+                            j = i1;
+                        }
+
+                        ++i;
+                        worldserver.theChunkProviderServer.loadChunk(blockpos.getX() + k >> 4, blockpos.getZ() + l >> 4);
+                    }
+                }
+            }
+        }
+
+        this.clearCurrentTask();
+    }
+
+    protected void prepareSpawnArea(WorldServer world) {
+        int i = 0;
+        this.setUserMessage("menu.generatingTerrain");
+        MinecraftServer.getServer().logInfo("Preparing start region for level " + world.provider.getDimensionId());
+        BlockPos blockpos = world.getSpawnPoint();
+        long j = MinecraftServer.getCurrentTimeMillis();
+
+        for (int k = -192; k <= 192 && this.isServerRunning(); k += 16) {
+            for (int l = -192; l <= 192 && this.isServerRunning(); l += 16) {
+                long i1 = MinecraftServer.getCurrentTimeMillis();
+
+                if (i1 - j > 1000L) {
+                    this.outputPercentRemaining("Preparing spawn area", i * 100 / 625);
+                    j = i1;
+                }
+
+                ++i;
+                world.theChunkProviderServer.loadChunk(blockpos.getX() + k >> 4, blockpos.getZ() + l >> 4);
+            }
+        }
+
+        this.clearCurrentTask();
+    }
+
     @Override
     public Optional<World> loadWorld(UUID uuid) {
         String worldFolder = SpongeMod.instance.getSpongeRegistry().getWorldFolder(uuid);
@@ -240,13 +311,13 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
             return optExisting;
         }
 
-        File file = new File(getWorldContainer(), worldName);
+        File file = new File(getFolderName(), worldName);
 
         if ((file.exists()) && (!file.isDirectory())) {
             throw new IllegalArgumentException("File exists with the name '" + worldName + "' and isn't a folder");
         }
 
-        AnvilSaveHandler savehandler = new AnvilSaveHandler(getWorldContainer(), worldName, true);
+        AnvilSaveHandler savehandler = new AnvilSaveHandler(new File(getFolderName()), worldName, true);
         int dim = 0;
         WorldInfo worldInfo = savehandler.loadWorldInfo();
         if (worldInfo != null) {
@@ -286,15 +357,23 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
             world.getWorldInfo().setGameType(getGameType());
         }
         this.setDifficultyForAllWorlds(this.getDifficulty());
+        if (((WorldProperties)worldInfo).doesKeepSpawnLoaded()) {
+            this.prepareSpawnArea(world);
+        }
 
         return Optional.of((World) world);
     }
 
     @Override
     public Optional<WorldProperties> createWorld(WorldCreationSettings settings) {
-        String name = settings.getWorldName();
+        String worldName = settings.getWorldName();
+        final Optional<World> optExisting = getWorld(worldName);
+        if (optExisting.isPresent()) {
+            return Optional.of(optExisting.get().getProperties());
+        }
+
         int dim = 0;
-        AnvilSaveHandler savehandler = new AnvilSaveHandler(getWorldContainer(), name, true);
+        AnvilSaveHandler savehandler = new AnvilSaveHandler(new File(getFolderName()), worldName, true);
         WorldInfo worldInfo = savehandler.loadWorldInfo();
 
         if (worldInfo != null)
@@ -319,7 +398,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
         ((IMixinWorldInfo) worldInfo).setDimensionType(settings.getDimensionType());
         UUID uuid = UUID.randomUUID();
         ((IMixinWorldInfo) worldInfo).setUUID(uuid);
-        SpongeMod.instance.getSpongeRegistry().registerWorldUniqueId(uuid, name);
+        SpongeMod.instance.getSpongeRegistry().registerWorldUniqueId(uuid, worldName);
 
         if (!DimensionManager.isDimensionRegistered(dim)) { // handle reloads properly
             DimensionManager.registerDimension(dim, ((SpongeDimensionType) ((WorldProperties) worldInfo).getDimensionType()).getDimensionTypeId());
@@ -338,13 +417,6 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
             return true;
         }
         return false;
-    }
-
-    public File getWorldContainer() {
-        if (DimensionManager.getWorld(0) != null) {
-            return ((SaveHandler) DimensionManager.getWorld(0).getSaveHandler()).getWorldDirectory();
-        }
-        return null;
     }
 
     @Override

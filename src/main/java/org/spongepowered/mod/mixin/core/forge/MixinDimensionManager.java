@@ -78,6 +78,10 @@ public abstract class MixinDimensionManager {
         ((SpongeGameRegistry) SpongeMod.instance.getGame().getRegistry())
                 .registerDimensionType(new SpongeDimensionType(worldType, keepLoaded, provider, id));
         providers.put(id, provider);
+        if (id == 1) {
+            // TODO - make this configurable
+            keepLoaded = true; // keep end loaded for plugins
+        }
         spawnSettings.put(id, keepLoaded);
         return true;
     }
