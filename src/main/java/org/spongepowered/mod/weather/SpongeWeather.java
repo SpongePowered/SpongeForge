@@ -30,4 +30,13 @@ import org.spongepowered.api.world.weather.Weather;
 @NonnullByDefault
 public class SpongeWeather implements Weather {
 
+    @Override
+    public String getId() {
+        return "weather"; // TODO
+    }
+
+    @Override
+    public String getName() {
+        return "weather"; // TODO
+    }
 }

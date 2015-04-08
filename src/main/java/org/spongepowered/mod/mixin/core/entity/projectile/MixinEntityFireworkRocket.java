@@ -46,12 +46,10 @@ public abstract class MixinEntityFireworkRocket extends MixinEntity implements F
 
     private ProjectileSource projectileSource = new UnknownProjectileSource();
 
-    @Override
     public int getFuseDuration() {
         return this.lifetime - this.fireworkAge;
     }
 
-    @Override
     public void setFuseDuration(int fuseTicks) {
         this.lifetime = fuseTicks + this.fireworkAge;
     }

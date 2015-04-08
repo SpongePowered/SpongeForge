@@ -70,11 +70,11 @@ public abstract class MixinEntityDragon extends EntityLiving {
         return builder.build();
     }
 
-    public Optional<EnderCrystal> dragon$getHealingCrystal() {
+    public Optional<EnderCrystal> getHealingCrystal() {
         return Optional.fromNullable((EnderCrystal) this.healingEnderCrystal);
     }
 
-    public void dragon$setHealingCrystal(@Nullable EnderCrystal crystal) {
+    public void setHealingCrystal(@Nullable EnderCrystal crystal) {
         this.healingEnderCrystal = (EntityEnderCrystal) crystal;
     }
 

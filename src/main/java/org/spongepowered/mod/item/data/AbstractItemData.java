@@ -27,10 +27,12 @@ package org.spongepowered.mod.item.data;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.item.ItemDataTransactionResult;
+import org.spongepowered.api.data.AbstractDataManipulator;
+import org.spongepowered.api.data.DataManipulator;
+import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.item.ItemType;
 
-public abstract class AbstractItemData {
+public abstract class AbstractItemData<T extends DataManipulator<T>> extends AbstractDataManipulator<T> {
 
     protected ItemType owner;
 
@@ -48,5 +50,5 @@ public abstract class AbstractItemData {
         return this.owner;
     }
 
-    public abstract ItemDataTransactionResult putData(ItemStack stack);
+    public abstract DataTransactionResult putData(ItemStack stack);
 }

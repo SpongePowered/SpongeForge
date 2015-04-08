@@ -46,20 +46,20 @@ public abstract class MixinEntityEnderman extends EntityMob {
         super(worldIn);
     }
 
-    public Optional<BlockState> enderman$getCarriedBlock() {
+    public Optional<BlockState> getCarriedBlock() {
         return Optional.fromNullable((BlockState) Block.getStateById(this.dataWatcher.getWatchableObjectShort(16) & 65535));
     }
 
-    public void enderman$setCarriedBlock(BlockState carriedBlock) {
+    public void setCarriedBlock(BlockState carriedBlock) {
         this.dataWatcher
                 .updateObject(16, (short) (Block.getStateId(((IBlockState) carriedBlock).getBlock().getDefaultState()) & 65535));
     }
 
-    public boolean enderman$isScreaming() {
+    public boolean isScreaming() {
         return this.dataWatcher.getWatchableObjectByte(18) > 0;
     }
 
-    public void enderman$setScreaming(boolean screaming) {
+    public void setScreaming(boolean screaming) {
         this.dataWatcher.updateObject(18, (byte) (screaming ? 1 : 0));
     }
 }

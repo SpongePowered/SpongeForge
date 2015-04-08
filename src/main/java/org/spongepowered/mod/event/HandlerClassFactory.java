@@ -157,7 +157,7 @@ class HandlerClassFactory implements HandlerFactory {
             mv.visitEnd();
         }
         {
-            mv = cw.visitMethod(ACC_PUBLIC, "handle", "(Lorg/spongepowered/api/util/event/Event;)V", null, null);
+            mv = cw.visitMethod(ACC_PUBLIC, "handle", "(Lorg/spongepowered/api/event/Event;)V", null, null);
             mv.visitCode();
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, createdInternalName, "object", "L" + invokedInternalName + ";");

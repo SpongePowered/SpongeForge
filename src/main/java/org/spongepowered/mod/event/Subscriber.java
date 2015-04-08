@@ -27,7 +27,7 @@ package org.spongepowered.mod.event;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.spongepowered.api.util.event.Order;
+import org.spongepowered.api.event.Order;
 
 class Subscriber {
 

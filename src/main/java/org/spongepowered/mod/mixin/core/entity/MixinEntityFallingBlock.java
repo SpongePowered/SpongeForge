@@ -57,52 +57,42 @@ public abstract class MixinEntityFallingBlock extends Entity implements FallingB
         super(worldIn);
     }
 
-    @Override
     public double getFallDamagePerBlock() {
         return this.fallHurtAmount;
     }
 
-    @Override
     public void setFallDamagePerBlock(double damage) {
         this.fallHurtAmount = (float) damage;
     }
 
-    @Override
     public double getMaxFallDamage() {
         return this.fallHurtMax;
     }
 
-    @Override
     public void setMaxFallDamage(double damage) {
         this.fallHurtMax = (int) damage;
     }
 
-    @Override
     public BlockState getBlockState() {
         return (BlockState) this.fallTile.getBlock().getBlockState();
     }
 
-    @Override
     public void setBlockState(BlockState blockState) {
         this.fallTile = (net.minecraft.block.state.IBlockState) blockState;
     }
 
-    @Override
     public boolean getCanPlaceAsBlock() {
         return this.canSetAsBlock;
     }
 
-    @Override
     public void setCanPlaceAsBlock(boolean placeable) {
         this.canSetAsBlock = placeable;
     }
 
-    @Override
     public boolean getCanDropAsItem() {
         return this.shouldDropItem;
     }
 
-    @Override
     public void setCanDropAsItem(boolean droppable) {
         this.shouldDropItem = droppable;
     }

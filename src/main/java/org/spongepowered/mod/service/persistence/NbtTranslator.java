@@ -25,7 +25,8 @@
 
 package org.spongepowered.mod.service.persistence;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.collect.Lists;
 import net.minecraft.nbt.NBTBase;
@@ -40,12 +41,12 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
-import org.spongepowered.api.service.persistence.DataSerializable;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataTranslator;
-import org.spongepowered.api.service.persistence.data.DataView;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataSerializable;
+import org.spongepowered.api.data.DataTranslator;
+import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.MemoryDataContainer;
 
 import java.util.List;
 import java.util.Map;

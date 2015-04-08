@@ -27,11 +27,12 @@ package org.spongepowered.mod.block.meta;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
-import org.spongepowered.api.block.tile.carrier.Beacon;
-import org.spongepowered.api.block.tile.data.BeaconData;
+import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataPriority;
+import org.spongepowered.api.data.manipulators.BeaconData;
 import org.spongepowered.api.potion.PotionEffectType;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.MemoryDataContainer;
 
 import javax.annotation.Nullable;
 
@@ -70,11 +71,6 @@ public class SpongeBeaconData implements BeaconData {
     }
 
     @Override
-    public Optional<Beacon> getTileEntity() {
-        return Optional.absent();
-    }
-
-    @Override
     public int compareTo(BeaconData o) {
         return 0;
     }
@@ -82,5 +78,20 @@ public class SpongeBeaconData implements BeaconData {
     @Override
     public DataContainer toContainer() {
         return new MemoryDataContainer();
+    }
+
+    @Override
+    public Optional<BeaconData> fill(DataHolder dataHolder) {
+        return null;
+    }
+
+    @Override
+    public Optional<BeaconData> fill(DataHolder dataHolder, DataPriority overlap) {
+        return null;
+    }
+
+    @Override
+    public Optional<BeaconData> from(DataContainer container) {
+        return null;
     }
 }

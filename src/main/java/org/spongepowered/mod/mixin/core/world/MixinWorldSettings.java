@@ -27,7 +27,7 @@ package org.spongepowered.mod.mixin.core.world;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.api.world.GeneratorType;

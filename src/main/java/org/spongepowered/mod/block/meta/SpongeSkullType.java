@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.block.meta;
 
-import org.spongepowered.api.block.tile.data.SkullType;
+import org.spongepowered.api.data.types.SkullType;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
@@ -40,8 +40,8 @@ public class SpongeSkullType implements SkullType {
     }
 
     @Override
-    public byte getId() {
-        return this.id;
+    public String getId() {
+        return this.name; // todo later
     }
 
     @Override

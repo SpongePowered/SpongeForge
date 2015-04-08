@@ -25,7 +25,7 @@
 package org.spongepowered.mod.mixin.core.block.data;
 
 import org.spongepowered.api.block.tile.Skull;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;

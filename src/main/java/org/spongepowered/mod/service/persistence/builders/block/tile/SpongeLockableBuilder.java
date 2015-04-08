@@ -32,8 +32,8 @@ import org.spongepowered.api.block.tile.carrier.TileEntityCarrier;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.SerializationService;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
 
 import java.util.List;
 

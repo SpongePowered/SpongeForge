@@ -53,13 +53,12 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.service.permission.context.Context;
-import org.spongepowered.api.service.persistence.data.DataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Dimension;
@@ -319,11 +318,6 @@ public abstract class MixinWorld implements World, IMixinWorld {
             SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
         }
         return Optional.fromNullable(entity);
-    }
-
-    @Override
-    public Optional<Entity> createEntity(EntitySnapshot snapshot, Vector3d position) {
-        return this.createEntity(snapshot.getType(), position);
     }
 
     @Override

@@ -49,6 +49,11 @@ public class SpongeDimensionType implements DimensionType {
     }
 
     @Override
+    public String getId() {
+        return this.name;
+    }
+
+    @Override
     public String getName() {
         return this.name;
     }
@@ -87,5 +92,10 @@ public class SpongeDimensionType implements DimensionType {
         }
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode(); // todo this is a warning
     }
 }

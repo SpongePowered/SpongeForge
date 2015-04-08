@@ -103,7 +103,7 @@ public abstract class MixinEntityLivingBase extends Entity {
         super(worldIn);
     }
 
-    public void living$damage(double amount) {
+    public void damageD(double amount) {
         Living thisEntity = (Living) this;
         DamageSource source = DamageSource.generic;
         if (thisEntity instanceof Human) {
@@ -119,11 +119,11 @@ public abstract class MixinEntityLivingBase extends Entity {
         }
     }
 
-    public double living$getHealth() {
+    public double getHealthD() {
         return getHealth();
     }
 
-    public void living$setHealth(double health) {
+    public void setHealthD(double health) {
         Living thisEntity = (Living) this;
         setHealth((float) health);
 
@@ -132,11 +132,11 @@ public abstract class MixinEntityLivingBase extends Entity {
         }
     }
 
-    public double living$getMaxHealth() {
+    public double getMaxHealthD() {
         return getMaxHealth();
     }
 
-    public void living$setMaxHealth(double maxHealth) {
+    public void setMaxHealth(double maxHealth) {
         getEntityAttribute(net.minecraft.entity.SharedMonsterAttributes.maxHealth).setBaseValue(maxHealth);
 
         if (getHealth() > maxHealth) {
@@ -144,32 +144,32 @@ public abstract class MixinEntityLivingBase extends Entity {
         }
     }
 
-    public void living$addPotionEffect(PotionEffect potionEffect, boolean force) {
-        if (living$hasPotionEffect(potionEffect.getType())) {
+    public void addPotionEffect(PotionEffect potionEffect, boolean force) {
+        if (hasPotionEffect(potionEffect.getType())) {
             if (!force) {
                 return;
             }
-            living$removePotionEffect(potionEffect.getType());
+            removePotionEffect(potionEffect.getType());
         }
 
         addPotionEffect(new net.minecraft.potion.PotionEffect((net.minecraft.potion.PotionEffect) potionEffect));
     }
 
-    public void living$addPotionEffects(Collection<PotionEffect> potionEffects, boolean force) {
+    public void addPotionEffects(Collection<PotionEffect> potionEffects, boolean force) {
         for (PotionEffect effect : potionEffects) {
-            living$addPotionEffect(effect, force);
+            addPotionEffect(effect, force);
         }
     }
 
-    public void living$removePotionEffect(PotionEffectType potionEffectType) {
+    public void removePotionEffect(PotionEffectType potionEffectType) {
         removePotionEffect(((Potion) potionEffectType).getId());
     }
 
-    public boolean living$hasPotionEffect(PotionEffectType potionEffectType) {
+    public boolean hasPotionEffect(PotionEffectType potionEffectType) {
         return isPotionActive((Potion) potionEffectType);
     }
 
-    public List<PotionEffect> living$getPotionEffects() {
+    public List<PotionEffect> getPotionEffects() {
         List<PotionEffect> potionEffects = new ArrayList<PotionEffect>();
         for (Object obj : getActivePotionEffects()) {
             potionEffects.add((PotionEffect) obj);
@@ -177,35 +177,35 @@ public abstract class MixinEntityLivingBase extends Entity {
         return potionEffects;
     }
 
-    public Optional<Living> living$getLastAttacker() {
+    public Optional<Living> getLastAttackerAPI() {
         return Optional.fromNullable((Living) getLastAttacker());
     }
 
-    public void living$setLastAttacker(@Nullable Living lastAttacker) {
+    public void setLastAttacker(@Nullable Living lastAttacker) {
         setLastAttacker((EntityLivingBase) lastAttacker);
     }
 
-    public double living$getEyeHeight() {
+    public double getEyeHeightD() {
         return getEyeHeight();
     }
 
-    public Vector3d living$getEyeLocation() {
+    public Vector3d getEyeLocation() {
         return ((Living) this).getLocation().getPosition().add(0, getEyeHeight(), 0);
     }
 
-    public int living$getRemainingAir() {
+    public int getRemainingAir() {
         return getAir();
     }
 
-    public void living$setRemainingAir(int air) {
+    public void setRemainingAir(int air) {
         setAir(air);
     }
 
-    public int living$getMaxAir() {
+    public int getMaxAir() {
         return this.maxAir;
     }
 
-    public void living$setMaxAir(int air) {
+    public void setMaxAir(int air) {
         this.maxAir = air;
     }
 
@@ -213,31 +213,31 @@ public abstract class MixinEntityLivingBase extends Entity {
         return this.lastDamage;
     }
 
-    public void living$setLastDamage(double damage) {
+    public void setLastDamage(double damage) {
         this.lastDamage = (float) damage;
     }
 
-    public int living$getInvulnerabilityTicks() {
+    public int getInvulnerabilityTicks() {
         return this.hurtResistantTime;
     }
 
-    public void living$setInvulnerabilityTicks(int ticks) {
+    public void setInvulnerabilityTicks(int ticks) {
         this.hurtResistantTime = ticks;
     }
 
-    public int living$getMaxInvulnerabilityTicks() {
+    public int getMaxInvulnerabilityTicks() {
         return this.maxHurtResistantTime;
     }
 
-    public void living$setMaxInvulnerabilityTicks(int ticks) {
+    public void setMaxInvulnerabilityTicks(int ticks) {
         this.maxHurtResistantTime = ticks;
     }
 
-    public String living$getCustomName() {
+    public String getCustomName() {
         return getCustomNameTag();
     }
 
-    public void living$setCustomName(String name) {
+    public void setCustomName(String name) {
         if (name == null) {
             name = "";
         }
@@ -249,19 +249,19 @@ public abstract class MixinEntityLivingBase extends Entity {
         setCustomNameTag(name);
     }
 
-    public boolean living$isCustomNameVisible() {
+    public boolean isCustomNameVisible() {
         return getAlwaysRenderNameTag();
     }
 
-    public void living$setCustomNameVisible(boolean visible) {
+    public void setCustomNameVisible(boolean visible) {
         setAlwaysRenderNameTag(visible);
     }
 
-    public boolean living$isInvisible() {
+    public boolean isAPIInvisible() {
         return this.getFlag(5);
     }
 
-    public void living$setInvisible(boolean invisible) {
+    public void setAPIInvisible(boolean invisible) {
         this.setFlag(5, invisible);
     }
 

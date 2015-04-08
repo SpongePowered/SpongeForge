@@ -24,17 +24,37 @@
  */
 package org.spongepowered.mod.entity;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
-import org.spongepowered.api.entity.living.animal.HorseColor;
-import org.spongepowered.api.entity.living.animal.HorseStyle;
-import org.spongepowered.api.entity.living.animal.HorseVariant;
-import org.spongepowered.api.entity.living.animal.OcelotType;
-import org.spongepowered.api.entity.living.animal.RabbitType;
-import org.spongepowered.api.entity.living.monster.SkeletonType;
+import org.spongepowered.api.data.DataManipulator;
+import org.spongepowered.api.data.DataTransactionResult;
+import org.spongepowered.api.data.types.HorseColor;
+import org.spongepowered.api.data.types.HorseStyle;
+import org.spongepowered.api.data.types.HorseVariant;
+import org.spongepowered.api.data.types.OcelotType;
+import org.spongepowered.api.data.types.RabbitType;
+import org.spongepowered.api.data.types.SkeletonType;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class SpongeEntityConstants {
+    public static final DataTransactionResult NO_CHANGE = new DataTransactionResult() {
+        @Override
+        public Type getType() {
+            return Type.SUCCESS;
+        }
+
+        @Override
+        public Optional<? extends Collection<? extends DataManipulator<?>>> getRejectedData() {
+            return Optional.absent();
+        }
+
+        @Override
+        public Optional<? extends Collection<? extends DataManipulator<?>>> getReplacedData() {
+            return Optional.absent();
+        }
+    };
 
     public static final Map<String, SkeletonType> SKELETON_TYPES = Maps.newHashMap();
     public static final Map<Integer, SkeletonType> SKELETON_IDMAP = Maps.newHashMap();

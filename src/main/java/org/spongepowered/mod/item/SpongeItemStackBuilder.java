@@ -32,9 +32,9 @@ import static org.spongepowered.mod.item.ItemsHelper.validateData;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import net.minecraft.item.Item;
-import org.spongepowered.api.item.ItemDataTransactionResult;
+import org.spongepowered.api.data.DataManipulator;
+import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.item.ItemType;
-import org.spongepowered.api.item.data.ItemData;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackBuilder;
 
@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
 
 public class SpongeItemStackBuilder implements ItemStackBuilder {
     @Nullable
-    private Set<ItemData<?>> itemDataSet;
+    private Set<DataManipulator<?>> itemDataSet;
     private ItemType type;
     private int quantity;
     private int maxQuantity;
@@ -69,20 +69,13 @@ public class SpongeItemStackBuilder implements ItemStackBuilder {
     }
 
     @Override
-    public ItemStackBuilder maxQuantity(int maxQuantity) {
-        checkArgument(maxQuantity > 0, "Max quantity must be greater than 0");
-        this.maxQuantity = maxQuantity;
-        return this;
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
-    public <T extends ItemData<T>> ItemStackBuilder itemData(final T itemData) throws IllegalArgumentException {
+    public <T extends DataManipulator<T>> ItemStackBuilder itemData(final T itemData) throws IllegalArgumentException {
         checkNotNull(itemData, "Must have a non-null item data!");
         checkNotNull(this.type, "Cannot set item data without having set a type first!");
         // Validation is required, we can't let devs set block data on a non-block item!
-        ItemDataTransactionResult result = validateData(this.type, itemData);
-        if (result.getType() != ItemDataTransactionResult.Type.SUCCESS) {
+        DataTransactionResult result = validateData(this.type, itemData);
+        if (result.getType() != DataTransactionResult.Type.SUCCESS) {
             throw new IllegalArgumentException("The item data is not compatible with the current item type!");
         } else {
             if (this.itemDataSet == null) {
@@ -94,8 +87,8 @@ public class SpongeItemStackBuilder implements ItemStackBuilder {
                 throw new IllegalArgumentException("We could not property clone the data!");
             }
             // We have to sanitize the item data so that we don't have duplicates!
-            for (Iterator<ItemData<?>> iter = this.itemDataSet.iterator(); iter.hasNext();) {
-                ItemData<?> data = iter.next();
+            for (Iterator<DataManipulator<?>> iter = this.itemDataSet.iterator(); iter.hasNext();) {
+                DataManipulator<?> data = iter.next();
                 if (data.getClass().equals(newOptional.get().getClass())) {
                     iter.remove();
                 }
@@ -147,7 +140,7 @@ public class SpongeItemStackBuilder implements ItemStackBuilder {
         ItemStack stack = (ItemStack) new net.minecraft.item.ItemStack((Item) this.type, this.quantity, damage);
 
         if (this.itemDataSet != null) {
-            for (ItemData<?> data : this.itemDataSet) {
+            for (DataManipulator<?> data : this.itemDataSet) {
                 ItemsHelper.setData(stack, data);
             }
         }

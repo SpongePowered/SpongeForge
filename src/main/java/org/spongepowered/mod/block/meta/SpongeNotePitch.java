@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.block.meta;
 
-import org.spongepowered.api.block.tile.data.NotePitch;
+import org.spongepowered.api.data.types.NotePitch;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @NonnullByDefault
@@ -39,8 +39,8 @@ public class SpongeNotePitch implements NotePitch {
     }
 
     @Override
-    public byte getId() {
-        return this.id;
+    public String getId() {
+        return this.name;
     }
 
     @Override

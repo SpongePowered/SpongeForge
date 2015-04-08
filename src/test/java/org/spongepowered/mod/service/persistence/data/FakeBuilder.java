@@ -26,12 +26,12 @@
 package org.spongepowered.mod.service.persistence.data;
 
 import com.google.common.base.Optional;
-import org.spongepowered.api.service.persistence.DataSerializableBuilder;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.service.persistence.DataBuilder;
 import org.spongepowered.api.service.persistence.InvalidDataException;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
 
-public class FakeBuilder implements DataSerializableBuilder<FakeSerializable> {
+public class FakeBuilder implements DataBuilder<FakeSerializable> {
 
     private static final DataQuery fooQuery = new DataQuery("foo");
     private static final DataQuery intQuery = new DataQuery("myInt");

@@ -24,16 +24,16 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.collect.Lists;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.LockCode;
 import org.spongepowered.api.block.tile.carrier.TileEntityCarrier;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataView;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;

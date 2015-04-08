@@ -50,13 +50,4 @@ public abstract class MixinEntityGuardian extends EntityMob {
         super(worldIn);
     }
 
-    @Intrinsic
-    public boolean guardian$isElder() {
-        return this.isElder();
-    }
-
-    @Intrinsic
-    public void guardian$setElder(boolean elder) {
-        this.setElder(elder);
-    }
 }

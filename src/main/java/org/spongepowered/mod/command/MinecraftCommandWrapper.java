@@ -37,6 +37,7 @@ import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.command.CommandCallable;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandSource;
@@ -103,7 +104,7 @@ public class MinecraftCommandWrapper implements CommandCallable {
             }
         } else {
             source.sendMessage(Texts
-                    .builder(SpongeMod.instance.getGame().getRegistry().getTranslationById(TRANSLATION_NO_PERMISSION).get(), new Object[0])
+                    .builder(SpongeMod.instance.getGame().getRegistry().getType(Translation.class, TRANSLATION_NO_PERMISSION).get(), new Object[0])
                     .color(TextColors.RED)
                     .build());
         }

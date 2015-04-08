@@ -86,31 +86,20 @@ public abstract class MixinEntityArrow extends MixinEntity implements Arrow {
         this.projectileSource = shooter;
     }
 
-    public double arrow$getDamage() {
+    public double getDamage() {
         return this.damage;
     }
 
-    public void arrow$setDamage(double damage) {
+    public void setDamage(double damage) {
         this.damage = damage;
     }
 
-    public void arrow$setKnockbackStrength(int knockbackStrength) {
+    public void setKnockbackStrength(int knockbackStrength) {
         this.knockbackStrength = knockbackStrength;
     }
 
-    @Override
     public int getKnockbackStrength() {
         return this.knockbackStrength;
-    }
-
-    @Override
-    public boolean isCritical() {
-        return this.getIsCritical();
-    }
-
-    @Override
-    public void setCritical(boolean critical) {
-        this.setIsCritical(critical);
     }
 
     @Override

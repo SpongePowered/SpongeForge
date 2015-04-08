@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.interfaces;
 
-import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.world.DimensionType;
 
 public interface IMixinWorldSettings {

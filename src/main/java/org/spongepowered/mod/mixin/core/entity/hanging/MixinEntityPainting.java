@@ -27,8 +27,8 @@ package org.spongepowered.mod.mixin.core.entity.hanging;
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.item.EntityPainting.EnumArt;
 import net.minecraft.world.World;
+import org.spongepowered.api.data.types.Art;
 import org.spongepowered.api.entity.hanging.Painting;
-import org.spongepowered.api.entity.hanging.art.Art;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,12 +44,10 @@ public abstract class MixinEntityPainting extends EntityHanging implements Paint
         super(worldIn);
     }
 
-    @Override
     public Art getArt() {
         return (Art) (Object) this.art;
     }
 
-    @Override
     public void setArt(Art art) {
         this.art = (EnumArt) (Object) art;
     }

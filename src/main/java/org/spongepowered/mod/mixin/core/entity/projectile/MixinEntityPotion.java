@@ -50,16 +50,16 @@ public abstract class MixinEntityPotion extends EntityThrowable {
     @Shadow
     private net.minecraft.item.ItemStack potionDamage;
 
-    public ItemStack potion$getItem() {
+    public ItemStack getItem() {
         return (ItemStack) this.potionDamage;
     }
 
-    public void potion$setItem(ItemStack item) {
+    public void setItem(ItemStack item) {
         this.potionDamage = (net.minecraft.item.ItemStack) item;
     }
 
     @SuppressWarnings("unchecked")
-    public List<PotionEffect> potion$getPotionEffects() {
+    public List<PotionEffect> getPotionEffects() {
         return Items.potionitem.getEffects(this.potionDamage);
     }
 

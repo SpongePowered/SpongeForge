@@ -31,8 +31,8 @@ import net.minecraft.tileentity.TileEntityBrewingStand;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.tile.carrier.BrewingStand;
 import org.spongepowered.api.service.persistence.InvalidDataException;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
 
 public class SpongeBrewingStandBuilder extends SpongeLockableBuilder<BrewingStand> {
 

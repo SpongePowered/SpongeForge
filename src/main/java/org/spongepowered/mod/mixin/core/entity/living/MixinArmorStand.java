@@ -94,51 +94,51 @@ public abstract class MixinArmorStand extends EntityLivingBase {
         super(worldIn);
     }
 
-    public Vector3d astand$getHeadDirection() {
+    public Vector3d getHeadDirection() {
         return VecHelper.toVector(this.headRotation);
     }
 
-    public void astand$setHeadDirection(Vector3d direction) {
+    public void setHeadDirection(Vector3d direction) {
         setHeadRotation(VecHelper.toRotation(direction));
     }
 
-    public Vector3d astand$getBodyRotation() {
+    public Vector3d getBodyRotation() {
         return VecHelper.toVector(this.bodyRotation);
     }
 
-    public void astand$setBodyDirection(Vector3d direction) {
+    public void setBodyDirection(Vector3d direction) {
         setBodyRotation(VecHelper.toRotation(direction));
     }
 
-    public Vector3d astand$getLeftArmDirection() {
+    public Vector3d getLeftArmDirection() {
         return VecHelper.toVector(this.leftArmRotation);
     }
 
-    public void astand$setLeftArmDirection(Vector3d direction) {
+    public void setLeftArmDirection(Vector3d direction) {
         setLeftArmRotation(VecHelper.toRotation(direction));
     }
 
-    public Vector3d astand$getRightArmDirection() {
+    public Vector3d getRightArmDirection() {
         return VecHelper.toVector(this.rightArmRotation);
     }
 
-    public void astand$setRightArmDirection(Vector3d direction) {
+    public void setRightArmDirection(Vector3d direction) {
         setRightArmRotation(VecHelper.toRotation(direction));
     }
 
-    public Vector3d astand$getLeftLegDirection() {
+    public Vector3d getLeftLegDirection() {
         return VecHelper.toVector(this.leftLegRotation);
     }
 
-    public void astand$setLeftLegDirection(Vector3d direction) {
+    public void setLeftLegDirection(Vector3d direction) {
         setLeftLegRotation(VecHelper.toRotation(direction));
     }
 
-    public Vector3d astand$getRightLegDirection() {
+    public Vector3d getRightLegDirection() {
         return VecHelper.toVector(this.rightLegRotation);
     }
 
-    public void astand$setRightLegDirection(Vector3d direction) {
+    public void setRightLegDirection(Vector3d direction) {
         setRightLegRotation(VecHelper.toRotation(direction));
     }
 

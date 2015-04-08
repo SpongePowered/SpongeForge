@@ -25,39 +25,30 @@
 package org.spongepowered.mod.item.data;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
-import net.minecraft.item.ItemTool;
-import org.spongepowered.api.item.ItemDataTransactionResult;
-import org.spongepowered.api.item.ItemType;
-import org.spongepowered.api.item.data.DurabilityData;
-import org.spongepowered.api.item.data.ItemData;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.data.AbstractDataManipulator;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataPriority;
+import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.data.manipulators.DurabilityData;
 
-import java.util.Collection;
-
-public class SpongeDurabilityData extends AbstractItemData implements DurabilityData {
+public class SpongeDurabilityData extends AbstractDataManipulator<DurabilityData> implements DurabilityData {
 
     private int durability;
     private int maxDurability;
     private boolean breakable = true;
 
-    public SpongeDurabilityData(ItemType type, int currentDurability) {
-        super(type);
-        this.durability = currentDurability;
-        this.maxDurability = ((Item) type).getMaxDamage();
+    public SpongeDurabilityData() {
+
     }
 
     public SpongeDurabilityData(ItemStack stack) {
-        super((ItemType) stack.getItem());
-        this.durability = stack.getItemDamage();
+        this.durability = checkNotNull(stack).getItemDamage();
         this.maxDurability = stack.getItem().getMaxDamage();
         this.breakable = stack.isItemStackDamageable();
     }
@@ -70,6 +61,7 @@ public class SpongeDurabilityData extends AbstractItemData implements Durability
     @Override
     public void setDurability(int durability) {
         checkArgument(durability >= 0);
+        checkArgument(durability < this.maxDurability);
         this.durability = durability;
     }
 
@@ -91,57 +83,23 @@ public class SpongeDurabilityData extends AbstractItemData implements Durability
     @Override
     public DataContainer toContainer() {
         DataContainer container = new MemoryDataContainer();
+        container.set(of("Durability"), this.durability);
         container.set(of("Unbreakable"), this.breakable);
         return container;
     }
 
     @Override
-    public ItemDataTransactionResult putData(ItemStack stack) {
-        if (stack.getItem() instanceof ItemArmor || stack.getItem() instanceof ItemTool || stack.getItem() instanceof ItemSword) {
-            ItemDataTransactionResult result = success(stack);
-            stack.setItemDamage(this.durability);
-            stack.getTagCompound().setBoolean("Unbreakable", this.breakable);
-            return result;
-        }
-        return rejected(this);
+    public Optional<DurabilityData> fill(DataHolder dataHolder) {
+        return null;
     }
 
-    private ItemDataTransactionResult success(final ItemStack stack) {
-        return new ItemDataTransactionResult() {
-            @Override
-            public Type getType() {
-                return Type.SUCCESS;
-            }
-
-            @Override
-            public Optional<Collection<ItemData<?>>> getRejectedData() {
-                return Optional.absent();
-            }
-
-            @Override
-            public Optional<Collection<ItemData<?>>> getReplacedData() {
-                return Optional.<Collection<ItemData<?>>>of(ImmutableSet.<ItemData<?>>of(new SpongeDurabilityData(stack)));
-            }
-        };
+    @Override
+    public Optional<DurabilityData> fill(DataHolder dataHolder, DataPriority overlap) {
+        return null;
     }
 
-    private ItemDataTransactionResult rejected(final SpongeDurabilityData data) {
-        return new ItemDataTransactionResult() {
-            @Override
-            public Type getType() {
-                return Type.FAILURE;
-            }
-
-            @Override
-            public Optional<Collection<ItemData<?>>> getRejectedData() {
-                return Optional.<Collection<ItemData<?>>>of(ImmutableSet.<ItemData<?>>of(data));
-            }
-
-            @Override
-            public Optional<Collection<ItemData<?>>> getReplacedData() {
-                return Optional.absent();
-            }
-        };
+    @Override
+    public Optional<DurabilityData> from(DataContainer container) {
+        return null;
     }
-
 }

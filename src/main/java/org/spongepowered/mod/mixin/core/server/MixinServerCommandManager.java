@@ -41,6 +41,8 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.translation.Translatable;
+import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandException;
@@ -88,7 +90,7 @@ public abstract class MixinServerCommandManager extends CommandHandler implement
         if (game.getEventManager().post(SpongeEventFactory.createCommand(game, args, (CommandSource) sender, name))) {
             return 1;
         } else {
-            source.sendMessage(Texts.builder(game.getRegistry().getTranslationById(TRANSLATION_COMMAND_NOT_FOUND).get(), new Object[0])
+            source.sendMessage(Texts.builder("Stuff") // TODO fix game registry
                     .color(TextColors.RED).build());
             return 0;
         }

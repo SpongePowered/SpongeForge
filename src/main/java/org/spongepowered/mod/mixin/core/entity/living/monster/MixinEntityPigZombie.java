@@ -46,11 +46,11 @@ public abstract class MixinEntityPigZombie extends EntityZombie {
         super(worldIn);
     }
 
-    public int pigzombie$getAngerLevel() {
+    public int getAngerLevel() {
         return this.angerLevel;
     }
 
-    public void pigzombie$setAngerLevel(int angerLevel) {
+    public void setAngerLevel(int angerLevel) {
         this.angerLevel = angerLevel;
     }
 

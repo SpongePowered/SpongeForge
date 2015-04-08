@@ -25,18 +25,19 @@
 package org.spongepowered.mod.block.meta;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.spongepowered.api.block.tile.Banner;
-import org.spongepowered.api.block.tile.data.BannerData;
-import org.spongepowered.api.block.tile.data.BannerPatternShape;
-import org.spongepowered.api.item.DyeColor;
-import org.spongepowered.api.item.DyeColors;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataPriority;
+import org.spongepowered.api.data.manipulators.BannerData;
+import org.spongepowered.api.data.types.BannerPatternShape;
+import org.spongepowered.api.data.types.DyeColor;
+import org.spongepowered.api.data.types.DyeColors;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.MemoryDataContainer;
 
 import java.util.List;
 
@@ -56,12 +57,12 @@ public class SpongeBannerData implements BannerData {
     }
 
     @Override
-    public List<PatternLayer> getPatternList() {
+    public List<PatternLayer> getPatternsList() {
         return ImmutableList.copyOf(this.patterns);
     }
 
     @Override
-    public void clearPattern() {
+    public void clearPatterns() {
         this.patterns.clear();
     }
 
@@ -76,11 +77,6 @@ public class SpongeBannerData implements BannerData {
     }
 
     @Override
-    public Optional<Banner> getTileEntity() {
-        return Optional.absent();
-    }
-
-    @Override
     public int compareTo(BannerData o) {
         return this.base.getName().compareTo(o.getBaseColor().toString());
     }
@@ -91,5 +87,20 @@ public class SpongeBannerData implements BannerData {
         container.set(of("Base"), this.base);
         container.set(of("Patterns"), this.patterns);
         return container;
+    }
+
+    @Override
+    public Optional<BannerData> fill(DataHolder dataHolder) {
+        return null;
+    }
+
+    @Override
+    public Optional<BannerData> fill(DataHolder dataHolder, DataPriority overlap) {
+        return null;
+    }
+
+    @Override
+    public Optional<BannerData> from(DataContainer container) {
+        return null;
     }
 }

@@ -24,7 +24,10 @@
  */
 package org.spongepowered.mod.world;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldSettings;
@@ -33,7 +36,7 @@ import net.minecraft.world.WorldType;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.entity.player.gamemode.GameModes;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.api.world.DimensionTypes;
 import org.spongepowered.api.world.GeneratorType;
@@ -90,6 +93,38 @@ public class SpongeWorldBuilder implements WorldBuilder {
         this.worldEnabled = properties.isEnabled();
         this.loadOnStartup = properties.loadOnStartup();
         this.keepSpawnLoaded = properties.doesKeepSpawnLoaded();
+    }
+
+    @Override
+    public WorldBuilder fill(WorldCreationSettings settings) {
+        checkNotNull(settings);
+        this.name = settings.getWorldName();
+        this.seed = settings.getSeed();
+        this.gameMode = settings.getGameMode();
+        this.generatorType = settings.getGeneratorType();
+        this.dimensionType = settings.getDimensionType();
+        this.mapFeaturesEnabled = settings.usesMapFeatures();
+        this.hardcore = settings.isHardcore();
+        this.worldEnabled = settings.isEnabled();
+        this.loadOnStartup = settings.loadOnStartup();
+        this.keepSpawnLoaded = settings.doesKeepSpawnLoaded();
+        return this;
+    }
+
+    @Override
+    public WorldBuilder fill(WorldProperties properties) {
+        checkNotNull(properties);
+        this.name = properties.getWorldName();
+        this.seed = properties.getSeed();
+        this.gameMode = properties.getGameMode();
+        this.generatorType = properties.getGeneratorType();
+        this.dimensionType = properties.getDimensionType();
+        this.mapFeaturesEnabled = properties.usesMapFeatures();
+        this.hardcore = properties.isHardcore();
+        this.worldEnabled = properties.isEnabled();
+        this.loadOnStartup = properties.loadOnStartup();
+        this.keepSpawnLoaded = properties.doesKeepSpawnLoaded();
+        return this;
     }
 
     @Override

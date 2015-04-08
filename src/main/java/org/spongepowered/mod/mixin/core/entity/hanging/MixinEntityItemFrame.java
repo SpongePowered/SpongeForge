@@ -57,22 +57,18 @@ public abstract class MixinEntityItemFrame extends EntityHanging implements Item
         super(worldIn);
     }
 
-    @Override
     public Optional<ItemStack> getItem() {
         return Optional.fromNullable((ItemStack) getDisplayedItem());
     }
 
-    @Override
     public void setItem(@Nullable ItemStack item) {
         setDisplayedItem((net.minecraft.item.ItemStack) item);
     }
 
-    @Override
     public Rotation getItemRotation() {
         return SpongeMod.instance.getGame().getRegistry().getRotationFromDegree(shadow$getRotation() * 45).get();
     }
 
-    @Override
     public void setRotation(Rotation itemRotation) {
         setItemRotation(itemRotation.getAngle() / 45);
     }

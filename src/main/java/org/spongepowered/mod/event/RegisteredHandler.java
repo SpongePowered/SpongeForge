@@ -26,7 +26,7 @@
 package org.spongepowered.mod.event;
 
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.util.event.Order;
+import org.spongepowered.api.event.Order;
 
 class RegisteredHandler implements Comparable<RegisteredHandler> {
 

@@ -68,6 +68,7 @@ import net.minecraftforge.fml.common.network.FMLOutboundHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
+import org.spongepowered.api.data.manipulators.RespawnLocationData;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
@@ -245,10 +246,11 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
         if (conqueredEnd) {
             WorldServer exitWorld = this.mcServer.worldServerForDimension(targetDimension);
             Location enter = ((Player) playerIn).getLocation();
-            Optional<Location> exit = null;
+            Optional<Location> exit = Optional.absent();
             // use bed if available, otherwise default spawn
-            exit = ((Player) playerIn).getBedLocation();
-
+            if (((Player) playerIn).getData(RespawnLocationData.class).isPresent()) {
+                exit = Optional.of(((Player) playerIn).getData(RespawnLocationData.class).get().getRespawnLocation());
+            }
             if (!exit.isPresent() || ((net.minecraft.world.World) ((World) exit.get().getExtent())).provider.getDimensionId() != 0) {
                 Vector3i pos = ((World) exitWorld).getProperties().getSpawnPosition();
                 exit = Optional.of(new Location((World) exitWorld, new Vector3d(pos.getX(), pos.getY(), pos.getZ())));

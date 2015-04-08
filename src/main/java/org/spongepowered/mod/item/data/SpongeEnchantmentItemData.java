@@ -25,53 +25,52 @@
 package org.spongepowered.mod.item.data;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import net.minecraft.item.ItemStack;
+import org.spongepowered.api.data.AbstractDataManipulator;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataManipulator;
+import org.spongepowered.api.data.DataPriority;
+import org.spongepowered.api.data.DataTransactionResult;
+import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.data.manipulators.EnchantmentData;
 import org.spongepowered.api.item.Enchantment;
-import org.spongepowered.api.item.ItemDataTransactionResult;
-import org.spongepowered.api.item.ItemType;
-import org.spongepowered.api.item.data.EnchantmentData;
-import org.spongepowered.api.item.data.ItemData;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataView;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public class SpongeEnchantmentItemData extends AbstractItemData implements EnchantmentData {
+public class SpongeEnchantmentItemData extends AbstractDataManipulator<EnchantmentData> implements EnchantmentData {
 
-    private static final ItemDataTransactionResult SUCCESS_NO_DATA = new ItemDataTransactionResult() {
+    private static final DataTransactionResult SUCCESS_NO_DATA = new DataTransactionResult() {
         @Override
         public Type getType() {
             return Type.SUCCESS;
         }
 
         @Override
-        public Optional<Collection<ItemData<?>>> getRejectedData() {
+        public Optional<Collection<DataManipulator<?>>> getRejectedData() {
             return Optional.absent();
         }
 
         @Override
-        public Optional<Collection<ItemData<?>>> getReplacedData() {
+        public Optional<Collection<DataManipulator<?>>> getReplacedData() {
             return Optional.absent();
         }
     };
     private Map<Enchantment, Integer> enchantments = Maps.newHashMap();
 
-    public SpongeEnchantmentItemData(ItemType owner) {
-        super(owner);
+    public SpongeEnchantmentItemData() {
     }
 
-    public SpongeEnchantmentItemData(ItemType owner, Map<Enchantment, Integer> enchantments) {
-        super(owner);
+    public SpongeEnchantmentItemData(Map<Enchantment, Integer> enchantments) {
         // Defensively copy
         for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             this.setUnsafe(entry.getKey(), entry.getValue());
@@ -96,7 +95,7 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
     }
 
     @Override
-    public ItemDataTransactionResult set(Enchantment key, Integer value) {
+    public DataTransactionResult set(Enchantment key, Integer value) {
         checkNotNull(key);
         checkNotNull(value);
         if (key.getMinimumLevel() > value || value > key.getMaximumLevel()) {
@@ -106,7 +105,7 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
         if (!incompatible.isEmpty()) {
             return rejectSelf(key, value);
         } else {
-            final ItemDataTransactionResult result;
+            final DataTransactionResult result;
             if (this.enchantments.containsKey(key)) {
                 result = replace(key, value);
             } else {
@@ -118,12 +117,12 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
     }
 
     @Override
-    public ItemDataTransactionResult set(Map<Enchantment, Integer> mapped) {
+    public DataTransactionResult set(Map<Enchantment, Integer> mapped) {
         checkNotNull(mapped);
-        ImmutableSet.Builder<ItemData<?>> builder = ImmutableSet.builder();
+        ImmutableSet.Builder<DataManipulator<?>> builder = ImmutableSet.builder();
         for (Map.Entry<Enchantment, Integer> entry : mapped.entrySet()) {
-            ItemDataTransactionResult result = set(entry.getKey(), entry.getValue());
-            if (result.getType() == ItemDataTransactionResult.Type.SUCCESS) {
+            DataTransactionResult result = set(entry.getKey(), entry.getValue());
+            if (result.getType() == DataTransactionResult.Type.SUCCESS) {
                 if (result.getReplacedData().isPresent()) {
                     builder.addAll(result.getReplacedData().get());
                 }
@@ -136,12 +135,12 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
 
 
     @Override
-    public ItemDataTransactionResult set(Enchantment... mapped) {
+    public DataTransactionResult set(Enchantment... mapped) {
         checkNotNull(mapped);
-        ImmutableSet.Builder<ItemData<?>> builder = ImmutableSet.builder();
+        ImmutableSet.Builder<DataManipulator<?>> builder = ImmutableSet.builder();
         for (Enchantment enchantment : mapped) {
-            ItemDataTransactionResult result = set(enchantment, enchantment.getMinimumLevel());
-            if (result.getType() == ItemDataTransactionResult.Type.SUCCESS) {
+            DataTransactionResult result = set(enchantment, enchantment.getMinimumLevel());
+            if (result.getType() == DataTransactionResult.Type.SUCCESS) {
                 if (result.getReplacedData().isPresent()) {
                     builder.addAll(result.getReplacedData().get());
                 }
@@ -202,86 +201,96 @@ public class SpongeEnchantmentItemData extends AbstractItemData implements Encha
         return builder.build();
     }
 
-    @Override
-    public ItemDataTransactionResult putData(ItemStack stack) {
-        return null;
-    }
-
-    private ItemDataTransactionResult rejectSelf(final Enchantment enchantment, final Integer value) {
-        return new ItemDataTransactionResult() {
+    private DataTransactionResult rejectSelf(final Enchantment enchantment, final Integer value) {
+        return new DataTransactionResult() {
             @Override
             public Type getType() {
                 return Type.FAILURE;
             }
 
             @Override
-            public Optional<Collection<ItemData<?>>> getRejectedData() {
-                return Optional.<Collection<ItemData<?>>>of(ImmutableList.<ItemData<?>>of(
-                        new SpongeEnchantmentItemData(SpongeEnchantmentItemData.this.owner, ImmutableMap.of(enchantment, value))));
+            public Optional<Collection<DataManipulator<?>>> getRejectedData() {
+                return Optional.<Collection<DataManipulator<?>>>of(ImmutableList.<DataManipulator<?>>of(
+                        new SpongeEnchantmentItemData(ImmutableMap.of(enchantment, value))));
             }
 
             @Override
-            public Optional<Collection<ItemData<?>>> getReplacedData() {
+            public Optional<Collection<DataManipulator<?>>> getReplacedData() {
                 return Optional.absent();
             }
         };
     }
 
-    private ItemDataTransactionResult replace(final Enchantment key, final Integer value) {
-        return new ItemDataTransactionResult() {
+    private DataTransactionResult replace(final Enchantment key, final Integer value) {
+        return new DataTransactionResult() {
             @Override
             public Type getType() {
                 return Type.SUCCESS;
             }
 
             @Override
-            public Optional<Collection<ItemData<?>>> getRejectedData() {
-                return Optional.<Collection<ItemData<?>>>of(ImmutableList.<ItemData<?>>of(
-                        new SpongeEnchantmentItemData(SpongeEnchantmentItemData.this.owner, ImmutableMap.of(key, value))));
+            public Optional<Collection<DataManipulator<?>>> getRejectedData() {
+                return Optional.<Collection<DataManipulator<?>>>of(ImmutableList.<DataManipulator<?>>of(
+                        new SpongeEnchantmentItemData(ImmutableMap.of(key, value))));
             }
 
             @Override
-            public Optional<Collection<ItemData<?>>> getReplacedData() {
+            public Optional<Collection<DataManipulator<?>>> getReplacedData() {
                 return Optional.absent();
             }
         };
     }
 
-    private ItemDataTransactionResult succesReplaced(final ImmutableSet<ItemData<?>> set) {
-        return new ItemDataTransactionResult() {
+    private DataTransactionResult succesReplaced(final ImmutableSet<DataManipulator<?>> set) {
+        return new DataTransactionResult() {
             @Override
             public Type getType() {
                 return Type.SUCCESS;
             }
 
             @Override
-            public Optional<Collection<ItemData<?>>> getRejectedData() {
+            public Optional<Collection<DataManipulator<?>>> getRejectedData() {
                 return Optional.absent();
             }
 
             @Override
-            public Optional<Collection<ItemData<?>>> getReplacedData() {
-                return Optional.<Collection<ItemData<?>>>of(set);
+            public Optional<Collection<DataManipulator<?>>> getReplacedData() {
+                return Optional.<Collection<DataManipulator<?>>>of(set);
             }
         };
     }
 
-    private ItemDataTransactionResult rejected(final ItemDataTransactionResult result, final ImmutableSet<ItemData<?>> build) {
-        return new ItemDataTransactionResult() {
+    private DataTransactionResult rejected(final DataTransactionResult result, final ImmutableSet<DataManipulator<?>> build) {
+        return new DataTransactionResult() {
             @Override
             public Type getType() {
                 return result.getType();
             }
 
             @Override
-            public Optional<Collection<ItemData<?>>> getRejectedData() {
+            public Optional<? extends Collection<? extends DataManipulator<?>>> getRejectedData() {
                 return result.getRejectedData();
             }
 
             @Override
-            public Optional<Collection<ItemData<?>>> getReplacedData() {
-                return Optional.<Collection<ItemData<?>>>of(build);
+            public Optional<Collection<DataManipulator<?>>> getReplacedData() {
+                return Optional.<Collection<DataManipulator<?>>>of(build);
             }
         };
+    }
+
+    @Override
+    public Optional<EnchantmentData> fill(DataHolder dataHolder) {
+        return null;
+    }
+
+    @Override
+    public Optional<EnchantmentData> fill(DataHolder dataHolder, DataPriority overlap) {
+        return null;
+    }
+
+    @Override
+    public Optional<EnchantmentData> from(DataContainer container) {
+        return null;
     }
 }

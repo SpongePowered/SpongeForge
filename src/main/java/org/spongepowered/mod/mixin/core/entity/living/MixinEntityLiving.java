@@ -62,35 +62,35 @@ public abstract class MixinEntityLiving extends EntityLivingBase {
         super(worldIn);
     }
 
-    public boolean agent$isAiEnabled() {
+    public boolean isAiEnabled() {
         return !isAIDisabled();
     }
 
-    public void agent$setAiEnabled(boolean aiEnabled) {
+    public void setAiEnabled(boolean aiEnabled) {
         setNoAI(!aiEnabled);
     }
 
-    public boolean agent$isLeashed() {
+    public boolean isLeashed() {
         return getLeashedToEntity() != null;
     }
 
-    public void agent$setLeashed(boolean leashed) {
+    public void setLeashed(boolean leashed) {
         throw new UnsupportedOperationException(); // TODO
     }
 
-    public Optional<Entity> agent$getLeashHolder() {
+    public Optional<Entity> getLeashHolder() {
         return Optional.fromNullable((Entity) getLeashedToEntity());
     }
 
-    public void agent$setLeashHolder(@Nullable Entity entity) {
+    public void setLeashHolder(@Nullable Entity entity) {
         setLeashedToEntity((net.minecraft.entity.Entity) entity, true);
     }
 
-    public boolean agent$getCanPickupItems() {
+    public boolean getCanPickupItems() {
         return this.canPickUpLoot;
     }
 
-    public void agent$setCanPickupItems(boolean canPickupItems) {
+    public void setCanPickupItems(boolean canPickupItems) {
         this.canPickUpLoot = canPickupItems;
     }
 

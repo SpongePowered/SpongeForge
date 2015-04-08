@@ -25,10 +25,10 @@
 
 package org.spongepowered.mod.service.persistence.data;
 
-import org.spongepowered.api.service.persistence.DataSerializable;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataSerializable;
+import org.spongepowered.api.data.MemoryDataContainer;
 
 public class FakeSerializable implements DataSerializable {
 

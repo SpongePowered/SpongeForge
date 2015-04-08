@@ -29,16 +29,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import net.minecraft.potion.Potion;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.potion.PotionEffect;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
-import org.spongepowered.api.service.persistence.DataSerializableBuilder;
+import org.spongepowered.api.service.persistence.DataBuilder;
 import org.spongepowered.api.service.persistence.InvalidDataException;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
 import org.spongepowered.mod.SpongeMod;
 
-public class SpongePotionEffectBuilder implements DataSerializableBuilder<PotionEffect> {
+public class SpongePotionEffectBuilder implements DataBuilder<PotionEffect> {
 
     @Override
     public Optional<PotionEffect> build(DataView container) throws InvalidDataException {
@@ -62,7 +62,7 @@ public class SpongePotionEffectBuilder implements DataSerializableBuilder<Potion
         int amplifier = container.getInt(new DataQuery("Amplifier")).get();
         boolean ambience = container.getBoolean(new DataQuery("Ambience")).get();
         boolean particles = container.getBoolean(new DataQuery("ShowsParticles")).get();
-        PotionEffectBuilder builder = SpongeMod.instance.getGame().getRegistry().getPotionEffectBuilder();
+        PotionEffectBuilder builder = SpongeMod.instance.getGame().getRegistry().getBuilderOf(PotionEffectBuilder.class).get();
 
         return Optional.of(builder.potionType(potionType)
                                   .particles(particles)

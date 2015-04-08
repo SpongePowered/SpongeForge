@@ -47,22 +47,18 @@ public abstract class MixinEntityMinecartCommandBlock extends EntityMinecart imp
         super(worldIn);
     }
 
-    @Override
     public String getCommand() {
         return this.commandBlockLogic.getCommandSenderName();
     }
 
-    @Override
     public void setCommand(@Nonnull String command) {
         this.commandBlockLogic.setCommand(command);
     }
 
-    @Override
     public String getCommandName() {
         return this.commandBlockLogic.getCustomName();
     }
 
-    @Override
     public void setCommandName(@Nullable String name) {
         if (name == null) {
             name = "@";

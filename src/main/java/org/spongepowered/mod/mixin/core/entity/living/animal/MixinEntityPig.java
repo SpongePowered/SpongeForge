@@ -42,11 +42,11 @@ public abstract class MixinEntityPig extends EntityAnimal {
         super(worldIn);
     }
 
-    public boolean pig$isSaddled() {
+    public boolean isSaddled() {
         return (this.dataWatcher.getWatchableObjectByte(16) & 1) != 0;
     }
 
-    public void pig$setSaddled(boolean saddled) {
+    public void setSaddled(boolean saddled) {
         if (saddled) {
             this.dataWatcher.updateObject(16, (byte) 1);
         } else {

@@ -24,8 +24,8 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.entity.living.villager.Career;
-import org.spongepowered.api.entity.living.villager.Profession;
+import org.spongepowered.api.data.types.Career;
+import org.spongepowered.api.data.types.Profession;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 

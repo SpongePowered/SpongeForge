@@ -24,7 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.item;
 
+import com.google.common.base.Optional;
 import net.minecraft.item.Item;
+import org.spongepowered.api.data.Property;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -48,6 +50,16 @@ public abstract class MixinItemType implements ItemType {
     @Override
     public String getId() {
         return Item.itemRegistry.getNameForObject(this).toString();
+    }
+
+    @Override
+    public String getName() {
+        return Item.itemRegistry.getNameForObject(this).toString();
+    }
+
+    @Override
+    public <T extends Property<?, ?>> Optional<T> getDefaultProperty(Class<T> propertyClass) {
+        return Optional.absent(); // TODO
     }
 
     @Override

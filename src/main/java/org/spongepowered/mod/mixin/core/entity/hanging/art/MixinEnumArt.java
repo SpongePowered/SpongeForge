@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.hanging.art;
 
-import org.spongepowered.api.entity.hanging.art.Art;
+import org.spongepowered.api.data.types.Art;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -50,6 +50,11 @@ public class MixinEnumArt implements Art {
     @Override
     public int getWidth() {
         return this.sizeX;
+    }
+
+    @Override
+    public String getId() {
+        return this.title; // todo maybe prefix with 'minecraft:'
     }
 
     @Override

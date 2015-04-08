@@ -43,12 +43,10 @@ public abstract class MixinEntityXPOrb extends Entity implements ExperienceOrb {
         super(worldIn);
     }
 
-    @Override
     public int getExperience() {
         return this.xpValue;
     }
 
-    @Override
     public void setExperience(int experience) {
         this.xpValue = experience;
     }

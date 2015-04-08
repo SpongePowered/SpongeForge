@@ -25,6 +25,8 @@
 
 package org.spongepowered.mod.registry;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -59,6 +61,7 @@ import net.minecraft.world.WorldSettings.GameType;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fml.common.registry.GameData;
+import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.GameProfile;
@@ -88,13 +91,55 @@ import org.spongepowered.api.block.tile.carrier.Dispenser;
 import org.spongepowered.api.block.tile.carrier.Dropper;
 import org.spongepowered.api.block.tile.carrier.Furnace;
 import org.spongepowered.api.block.tile.carrier.Hopper;
-import org.spongepowered.api.block.tile.data.BannerData;
-import org.spongepowered.api.block.tile.data.BannerPatternShape;
-import org.spongepowered.api.block.tile.data.BannerPatternShapes;
-import org.spongepowered.api.block.tile.data.NotePitch;
-import org.spongepowered.api.block.tile.data.NotePitches;
-import org.spongepowered.api.block.tile.data.SkullType;
-import org.spongepowered.api.block.tile.data.SkullTypes;
+import org.spongepowered.api.data.manipulators.BannerData;
+import org.spongepowered.api.data.types.Art;
+import org.spongepowered.api.data.types.Arts;
+import org.spongepowered.api.data.types.BannerPatternShape;
+import org.spongepowered.api.data.types.BannerPatternShapes;
+import org.spongepowered.api.data.types.Career;
+import org.spongepowered.api.data.types.Careers;
+import org.spongepowered.api.data.types.CoalType;
+import org.spongepowered.api.data.types.CoalTypes;
+import org.spongepowered.api.data.types.Comparison;
+import org.spongepowered.api.data.types.CookedFish;
+import org.spongepowered.api.data.types.CookedFishes;
+import org.spongepowered.api.data.types.DirtType;
+import org.spongepowered.api.data.types.DisgusedBlockType;
+import org.spongepowered.api.data.types.DyeColor;
+import org.spongepowered.api.data.types.DyeColors;
+import org.spongepowered.api.data.types.Fish;
+import org.spongepowered.api.data.types.Fishes;
+import org.spongepowered.api.data.types.GoldenApple;
+import org.spongepowered.api.data.types.Hinge;
+import org.spongepowered.api.data.types.HorseColor;
+import org.spongepowered.api.data.types.HorseColors;
+import org.spongepowered.api.data.types.HorseStyle;
+import org.spongepowered.api.data.types.HorseStyles;
+import org.spongepowered.api.data.types.HorseVariant;
+import org.spongepowered.api.data.types.HorseVariants;
+import org.spongepowered.api.data.types.NotePitch;
+import org.spongepowered.api.data.types.NotePitches;
+import org.spongepowered.api.data.types.OcelotType;
+import org.spongepowered.api.data.types.OcelotTypes;
+import org.spongepowered.api.data.types.PlantType;
+import org.spongepowered.api.data.types.PortionType;
+import org.spongepowered.api.data.types.PrismarineType;
+import org.spongepowered.api.data.types.Profession;
+import org.spongepowered.api.data.types.Professions;
+import org.spongepowered.api.data.types.QuartzType;
+import org.spongepowered.api.data.types.RabbitType;
+import org.spongepowered.api.data.types.RabbitTypes;
+import org.spongepowered.api.data.types.RailDirection;
+import org.spongepowered.api.data.types.SandstoneType;
+import org.spongepowered.api.data.types.SkeletonType;
+import org.spongepowered.api.data.types.SkeletonTypes;
+import org.spongepowered.api.data.types.SkullType;
+import org.spongepowered.api.data.types.SkullTypes;
+import org.spongepowered.api.data.types.SlabType;
+import org.spongepowered.api.data.types.StairShape;
+import org.spongepowered.api.data.types.StoneType;
+import org.spongepowered.api.data.types.TreeType;
+import org.spongepowered.api.data.types.WallType;
 import org.spongepowered.api.effect.particle.ParticleEffectBuilder;
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.effect.particle.ParticleTypes;
@@ -104,46 +149,19 @@ import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.EntityInteractionTypes;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.api.entity.hanging.art.Art;
-import org.spongepowered.api.entity.hanging.art.Arts;
-import org.spongepowered.api.entity.living.animal.HorseColor;
-import org.spongepowered.api.entity.living.animal.HorseColors;
-import org.spongepowered.api.entity.living.animal.HorseStyle;
-import org.spongepowered.api.entity.living.animal.HorseStyles;
-import org.spongepowered.api.entity.living.animal.HorseVariant;
-import org.spongepowered.api.entity.living.animal.HorseVariants;
-import org.spongepowered.api.entity.living.animal.OcelotType;
-import org.spongepowered.api.entity.living.animal.OcelotTypes;
-import org.spongepowered.api.entity.living.animal.RabbitType;
-import org.spongepowered.api.entity.living.animal.RabbitTypes;
-import org.spongepowered.api.entity.living.monster.SkeletonType;
-import org.spongepowered.api.entity.living.monster.SkeletonTypes;
-import org.spongepowered.api.entity.living.villager.Career;
-import org.spongepowered.api.entity.living.villager.Careers;
-import org.spongepowered.api.entity.living.villager.Profession;
-import org.spongepowered.api.entity.living.villager.Professions;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.entity.player.gamemode.GameModes;
-import org.spongepowered.api.item.CoalType;
-import org.spongepowered.api.item.CoalTypes;
-import org.spongepowered.api.item.CookedFish;
-import org.spongepowered.api.item.CookedFishes;
-import org.spongepowered.api.item.DyeColor;
-import org.spongepowered.api.item.DyeColors;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
-import org.spongepowered.api.item.FireworkEffect;
 import org.spongepowered.api.item.FireworkEffectBuilder;
-import org.spongepowered.api.item.Fish;
-import org.spongepowered.api.item.Fishes;
-import org.spongepowered.api.item.GoldenApple;
+import org.spongepowered.api.item.FireworkShape;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStackBuilder;
+import org.spongepowered.api.item.inventory.equipment.EquipmentType;
 import org.spongepowered.api.item.merchant.TradeOfferBuilder;
 import org.spongepowered.api.item.recipe.RecipeRegistry;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.potion.PotionEffect;
 import org.spongepowered.api.potion.PotionEffectBuilder;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.potion.PotionEffectTypes;
@@ -161,10 +179,6 @@ import org.spongepowered.api.stats.EntityStatistic;
 import org.spongepowered.api.stats.ItemStatistic;
 import org.spongepowered.api.stats.Statistic;
 import org.spongepowered.api.stats.StatisticBuilder;
-import org.spongepowered.api.stats.StatisticBuilder.BlockStatisticBuilder;
-import org.spongepowered.api.stats.StatisticBuilder.EntityStatisticBuilder;
-import org.spongepowered.api.stats.StatisticBuilder.ItemStatisticBuilder;
-import org.spongepowered.api.stats.StatisticBuilder.TeamStatisticBuilder;
 import org.spongepowered.api.stats.StatisticFormat;
 import org.spongepowered.api.stats.StatisticGroup;
 import org.spongepowered.api.stats.TeamStatistic;
@@ -178,9 +192,7 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.format.TextStyles;
-import org.spongepowered.api.text.selector.ArgumentType;
 import org.spongepowered.api.text.selector.SelectorType;
-import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.text.translation.locale.Locales;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -192,7 +204,6 @@ import org.spongepowered.api.world.DimensionTypes;
 import org.spongepowered.api.world.GeneratorType;
 import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.api.world.WorldBuilder;
-import org.spongepowered.api.world.WorldCreationSettings;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.difficulty.Difficulties;
@@ -241,19 +252,11 @@ import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeMobSp
 import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeNoteBuilder;
 import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeSignBuilder;
 import org.spongepowered.mod.service.persistence.builders.block.tile.SpongeSkullBuilder;
-import org.spongepowered.mod.service.persistence.builders.data.SpongeDyeBuilder;
-import org.spongepowered.mod.service.persistence.builders.data.SpongeFireworkDataBuilder;
-import org.spongepowered.mod.service.persistence.builders.data.SpongeHorseColorBuilder;
-import org.spongepowered.mod.service.persistence.builders.data.SpongeHorseStyleBuilder;
-import org.spongepowered.mod.service.persistence.builders.data.SpongeHorseVariantBuilder;
-import org.spongepowered.mod.service.persistence.builders.data.SpongeOcelotTypeBuilder;
-import org.spongepowered.mod.service.persistence.builders.potion.SpongePotionEffectBuilder;
 import org.spongepowered.mod.status.SpongeFavicon;
 import org.spongepowered.mod.text.SpongeTextFactory;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 import org.spongepowered.mod.text.format.SpongeTextStyle;
-import org.spongepowered.mod.text.translation.SpongeTranslation;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
 import org.spongepowered.mod.world.SpongeWorldBuilder;
@@ -532,12 +535,78 @@ public class SpongeGameRegistry implements GameRegistry {
     public final Map<UUID, String> worldFolderUniqueIdMappings = Maps.newHashMap();
     private final Map<String, GeneratorType> generatorTypeMappings = Maps.newHashMap();
 
-    @Override
+    private final Map<Class<? extends CatalogType>, Map<String, ? extends CatalogType>> catalogTypeMap =
+            ImmutableMap.<Class<? extends CatalogType>, Map<String, ? extends CatalogType>>builder()
+            .put(Achievement.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(Art.class, artMappings)
+            .put(Attribute.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(BannerPatternShape.class, bannerPatternShapeMappings)
+            .put(BiomeType.class, biomeTypeMappings)
+            .put(BlockType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(Career.class, careerMappings)
+            .put(ChatType.class, chatTypeMappings)
+            .put(CoalType.class, coaltypeMappings)
+            .put(Comparison.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(CookedFish.class, cookedFishMappings)
+            .put(Criterion.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(Difficulty.class, difficultyMappings)
+            .put(DimensionType.class, dimensionTypeMappings)
+            .put(DirtType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(DisgusedBlockType.class,ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(DyeColor.class, dyeColorMappings)
+            .put(Enchantment.class, enchantmentMappings)
+            .put(EntityInteractionType.class, entityInteractionTypeMappings)
+            .put(EntityType.class, entityTypeMappings)
+            .put(EquipmentType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(FireworkShape.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(Fish.class, fishMappings)
+            .put(GameMode.class, gameModeMappings)
+            .put(GeneratorType.class, generatorTypeMappings)
+            .put(GoldenApple.class, goldenAppleMappings)
+            .put(Hinge.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(HorseColor.class, SpongeEntityConstants.HORSE_COLORS)
+            .put(HorseStyle.class, SpongeEntityConstants.HORSE_STYLES)
+            .put(HorseVariant.class, SpongeEntityConstants.HORSE_VARIANTS)
+            .put(NotePitch.class, notePitchMappings)
+            .put(ItemType.class, ImmutableMap.<String, CatalogType>of()) // TODO handle special case of items
+            .put(ObjectiveDisplayMode.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(OcelotType.class, SpongeEntityConstants.OCELOT_TYPES)
+            .put(Operation.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(ParticleType.class, particleByName)
+            .put(PlantType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(PotionEffectType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(PortionType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(PrismarineType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(Profession.class, professionMappings)
+            .put(QuartzType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(RabbitType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(RailDirection.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(Rotation.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(SandstoneType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(SelectorType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(SkeletonType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(SkullType.class, skullTypeMappings)
+            .put(SlabType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(SoundType.class, soundNames)
+            .put(StairShape.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(Statistic.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(StatisticFormat.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(StatisticGroup.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(StoneType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(TextColor.class, textColorMappings)
+            .put(TileEntityType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(TreeType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(Visibility.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(WallType.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(Weather.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .build();
+    private final Map<Class<?>, Class<?>> builderMap = ImmutableMap.of(); // TODO FIGURE OUT HOW TO DO THIS!!?!
+
+
     public Optional<BlockType> getBlock(String id) {
         return Optional.fromNullable((BlockType) GameData.getBlockRegistry().getObject(id));
     }
 
-    @Override
     public Optional<ItemType> getItem(String id) {
         return Optional.fromNullable((ItemType) GameData.getItemRegistry().getObject(id));
     }
@@ -545,6 +614,61 @@ public class SpongeGameRegistry implements GameRegistry {
     public Optional<PotionEffectType> getPotion(String id) {
         return Optional.fromNullable((PotionEffectType) Potion.getPotionFromResourceLocation(id));
     }
+
+    public Optional<EntityType> getEntity(String id) {
+        if (!id.contains(":")) {
+            id = "minecraft:" + id;
+        }
+        return Optional.fromNullable((EntityType) this.entityIdToTypeMappings.get(id));
+    }
+
+    public Optional<BiomeType> getBiome(String id) {
+        for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
+            if (biome != null && biome.biomeName.equalsIgnoreCase(id)) {
+                return Optional.of((BiomeType) biome);
+            }
+        }
+        return Optional.absent();
+    }
+
+    public List<BiomeType> getBiomes() {
+        return ImmutableList.copyOf(this.biomeTypes);
+    }
+
+    @Override
+    public <T extends CatalogType> Optional<T> getType(Class<T> typeClass, String id) {
+        Map<String, ? extends CatalogType> tempMap = this.catalogTypeMap.get(checkNotNull(typeClass, "null type class"));
+        if (tempMap == null) {
+            return Optional.absent();
+        } else {
+            T type = (T) tempMap.get(id);
+            if (type == null) {
+                return Optional.absent();
+            } else {
+                return Optional.of(type);
+            }
+        }
+    }
+
+    @Override
+    public <T extends CatalogType> Collection<? extends T> getAllOf(Class<T> typeClass) {
+        Map<String, ? extends CatalogType> tempMap = this.catalogTypeMap.get(checkNotNull(typeClass, "null type class"));
+        if (tempMap == null) {
+            return Collections.emptyList();
+        } else {
+            ImmutableList.Builder<T> builder = ImmutableList.builder();
+            for (Map.Entry<String, ? extends CatalogType> entry : tempMap.entrySet()) {
+                builder.add((T) entry.getValue());
+            }
+            return builder.build();
+        }
+    }
+
+    @Override
+    public <T> Optional<T> getBuilderOf(Class<T> builderClass) {
+        return null;
+    }
+
 
     @Override
     public ItemStackBuilder getItemBuilder() {
@@ -557,71 +681,78 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
-    public List<PotionEffectType> getPotionEffects() {
-        return ImmutableList.copyOf(this.potionList);
+    public FireworkEffectBuilder getFireworkEffectBuilder() {
+        return new SpongeFireworkBuilder();
     }
 
     @Override
-    public Optional<EntityType> getEntity(String id) {
-        if (!id.contains(":")) {
-            id = "minecraft:" + id;
-        }
-        return Optional.fromNullable((EntityType) this.entityIdToTypeMappings.get(id));
+    public PotionEffectBuilder getPotionEffectBuilder() {
+        return new SpongePotionBuilder();
     }
 
     @Override
-    public List<EntityType> getEntities() {
-        return ImmutableList.copyOf(this.entityTypeMappings.values());
+    public ObjectiveBuilder getObjectiveBuilder() {
+        return null;
     }
 
     @Override
-    public Optional<BiomeType> getBiome(String id) {
-        for (BiomeGenBase biome : BiomeGenBase.getBiomeGenArray()) {
-            if (biome != null && biome.biomeName.equalsIgnoreCase(id)) {
-                return Optional.of((BiomeType) biome);
-            }
-        }
-        return Optional.absent();
+    public TeamBuilder getTeamBuilder() {
+        return null;
     }
 
     @Override
-    public List<BiomeType> getBiomes() {
-        return ImmutableList.copyOf(this.biomeTypes);
+    public ScoreboardBuilder getScoreboardBuilder() {
+        return null;
     }
 
     @Override
-    public List<BlockType> getBlocks() {
-        return ImmutableList.copyOf(this.blockList);
+    public StatisticBuilder getStatisticBuilder() {
+        return null;
     }
 
     @Override
-    public List<ItemType> getItems() {
-        return ImmutableList.copyOf(this.itemList);
+    public StatisticBuilder.EntityStatisticBuilder getEntityStatisticBuilder() {
+        return null;
     }
 
     @Override
-    public Optional<TileEntityType> getTileEntityType(String id) {
-        return Optional.absent();
+    public StatisticBuilder.BlockStatisticBuilder getBlockStatisticBuilder() {
+        return null;
     }
 
     @Override
-    public Collection<TileEntityType> getTileEntityTypes() {
-        return Collections.emptyList();
+    public StatisticBuilder.ItemStatisticBuilder getItemStatisticBuilder() {
+        return null;
     }
 
     @Override
-    public Optional<ParticleType> getParticleType(String name) {
-        return Optional.fromNullable(this.particleByName.get(name));
+    public StatisticBuilder.TeamStatisticBuilder getTeamStatisticBuilder() {
+        return null;
     }
 
     @Override
-    public List<ParticleType> getParticleTypes() {
-        return ImmutableList.copyOf(this.particleByName.values());
+    public AchievementBuilder getAchievementBuilder() {
+        return null;
+    }
+
+    @Override
+    public AttributeModifierBuilder getAttributeModifierBuilder() {
+        return null;
+    }
+
+    @Override
+    public AttributeBuilder getAttributeBuilder() {
+        return null; // TODO
+    }
+
+    @Override
+    public WorldBuilder getWorldBuilder() {
+        return new SpongeWorldBuilder();
     }
 
     @Override
     public ParticleEffectBuilder getParticleEffectBuilder(ParticleType particle) {
-        Preconditions.checkNotNull(particle);
+        checkNotNull(particle);
 
         if (particle instanceof SpongeParticleType.Colorable) {
             return new SpongeParticleEffectBuilder.BuilderColorable((SpongeParticleType.Colorable) particle);
@@ -634,16 +765,6 @@ public class SpongeGameRegistry implements GameRegistry {
         } else {
             return new SpongeParticleEffectBuilder((SpongeParticleType) particle);
         }
-    }
-
-    @Override
-    public Optional<SoundType> getSound(String name) {
-        return Optional.fromNullable(this.soundNames.get(name));
-    }
-
-    @Override
-    public List<SoundType> getSounds() {
-        return ImmutableList.copyOf(this.soundNames.values());
     }
 
     @Override
@@ -661,137 +782,11 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
-    public Optional<Art> getArt(String id) {
-        return Optional.fromNullable(this.artMappings.get(id));
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public List<Art> getArts() {
-        return (List) Arrays.asList(EnumArt.values());
-    }
-
-    @Override
-    public Optional<DyeColor> getDye(String id) {
-        return Optional.fromNullable(this.dyeColorMappings.get(id));
-    }
-
-    @Override
-    public List<DyeColor> getDyes() {
-        return ImmutableList.copyOf(this.dyeColorMappings.values());
-    }
-
-    @Override
-    public Optional<HorseColor> getHorseColor(String id) {
-        return Optional.fromNullable(SpongeEntityConstants.HORSE_COLORS.get(id));
-    }
-
-    @Override
-    public List<HorseColor> getHorseColors() {
-        return ImmutableList.copyOf(SpongeEntityConstants.HORSE_COLORS.values());
-    }
-
-    @Override
-    public Optional<HorseStyle> getHorseStyle(String id) {
-        return Optional.fromNullable(SpongeEntityConstants.HORSE_STYLES.get(id));
-    }
-
-    @Override
-    public List<HorseStyle> getHorseStyles() {
-        return ImmutableList.copyOf(SpongeEntityConstants.HORSE_STYLES.values());
-    }
-
-    @Override
-    public Optional<HorseVariant> getHorseVariant(String id) {
-        return Optional.fromNullable(SpongeEntityConstants.HORSE_VARIANTS.get(id));
-    }
-
-    @Override
-    public List<HorseVariant> getHorseVariants() {
-        return ImmutableList.copyOf(SpongeEntityConstants.HORSE_VARIANTS.values());
-    }
-
-    @Override
-    public Optional<OcelotType> getOcelotType(String id) {
-        return Optional.fromNullable(SpongeEntityConstants.OCELOT_TYPES.get(id));
-    }
-
-    @Override
-    public List<OcelotType> getOcelotTypes() {
-        return ImmutableList.copyOf(SpongeEntityConstants.OCELOT_TYPES.values());
-    }
-
-    @Override
-    public Optional<RabbitType> getRabbitType(String id) {
-        return Optional.fromNullable(SpongeEntityConstants.RABBIT_TYPES.get(id));
-    }
-
-    @Override
-    public List<RabbitType> getRabbitTypes() {
-        return ImmutableList.copyOf(SpongeEntityConstants.RABBIT_TYPES.values());
-    }
-
-    @Override
-    public Optional<SkeletonType> getSkeletonType(String id) {
-        return Optional.fromNullable(SpongeEntityConstants.SKELETON_TYPES.get(id));
-    }
-
-    @Override
-    public List<SkeletonType> getSkeletonTypes() {
-        return ImmutableList.copyOf(SpongeEntityConstants.SKELETON_TYPES.values());
-    }
-
-    @Override
-    public Optional<Career> getCareer(String id) {
-        return Optional.fromNullable(this.careerMappings.get(id));
-    }
-
-    @Override
-    public List<Career> getCareers() {
-        return ImmutableList.copyOf(this.careerMappings.values());
-    }
-
-    @Override
     public List<Career> getCareers(Profession profession) {
         return this.professionToCareerMappings.get(((SpongeEntityMeta) profession).type);
     }
 
-    @Override
-    public Optional<Profession> getProfession(String id) {
-        return Optional.fromNullable(this.professionMappings.get(id));
-    }
 
-    @Override
-    public List<Profession> getProfessions() {
-        return ImmutableList.copyOf(this.professionMappings.values());
-    }
-
-    @Override
-    public List<GameMode> getGameModes() {
-        return ImmutableList.copyOf(gameModeMappings.values());
-    }
-
-    @Override
-    public PotionEffectBuilder getPotionEffectBuilder() {
-        return new SpongePotionBuilder();
-    }
-
-    @Override
-    public Optional<Enchantment> getEnchantment(String id) {
-        return Optional.fromNullable((Enchantment) net.minecraft.enchantment.Enchantment.getEnchantmentByLocation(id));
-    }
-
-    @Override
-    public List<Enchantment> getEnchantments() {
-        return ImmutableList.copyOf(this.enchantmentMappings.values());
-    }
-
-    @Override
-    public Optional<DimensionType> getDimensionType(String name) {
-        return Optional.fromNullable(this.dimensionTypeMappings.get(name));
-    }
-
-    @Override
     public List<DimensionType> getDimensionTypes() {
         return ImmutableList.copyOf(this.dimensionTypeMappings.values());
     }
@@ -833,30 +828,6 @@ public class SpongeGameRegistry implements GameRegistry {
         return Optional.fromNullable(this.worldPropertiesMappings.get(uuid));
     }
 
-    @Override
-    public Optional<GeneratorType> getGeneratorType(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<GeneratorType> getGeneratorTypes() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public WorldBuilder getWorldBuilder() {
-        return new SpongeWorldBuilder();
-    }
-
-    @Override
-    public WorldBuilder getWorldBuilder(WorldProperties properties) {
-        return new SpongeWorldBuilder(properties);
-    }
-
-    @Override
-    public WorldBuilder getWorldBuilder(WorldCreationSettings settings) {
-        return new SpongeWorldBuilder(settings);
-    }
 
     public void setGeneratorTypes() {
         this.generatorTypeMappings.put("DEFAULT", (GeneratorType) WorldType.DEFAULT);
@@ -866,16 +837,6 @@ public class SpongeGameRegistry implements GameRegistry {
         this.generatorTypeMappings.put("THE_END", (GeneratorType) new SpongeWorldTypeEnd());
         this.generatorTypeMappings.put("OVERWORLD", (GeneratorType) new SpongeWorldTypeOverworld());
         RegistryHelper.mapFields(GeneratorTypes.class, this.generatorTypeMappings);
-    }
-
-    @Override
-    public Optional<WorldGeneratorModifier> getWorldGeneratorModifier(String id) {
-        return this.worldGeneratorRegistry.getModifier(id);
-    }
-
-    @Override
-    public Collection<WorldGeneratorModifier> getWorldGeneratorModifiers() {
-        return this.worldGeneratorRegistry.getModifiers();
     }
 
     @Override
@@ -893,10 +854,6 @@ public class SpongeGameRegistry implements GameRegistry {
         return Optional.absent();
     }
 
-    @Override
-    public List<Rotation> getRotations() {
-        return ImmutableList.copyOf(rotationMappings.values());
-    }
 
     @Override
     public GameProfile createGameProfile(UUID uuid, String name) {
@@ -928,40 +885,6 @@ public class SpongeGameRegistry implements GameRegistry {
         return SpongeFavicon.load(image);
     }
 
-    @Override
-    public Optional<NotePitch> getNotePitch(String name) {
-        return Optional.fromNullable(this.notePitchMappings.get(name));
-    }
-
-    @Override
-    public List<NotePitch> getNotePitches() {
-        return ImmutableList.copyOf(this.notePitchMappings.values());
-    }
-
-    @Override
-    public Optional<SkullType> getSkullType(String name) {
-        return Optional.fromNullable(this.skullTypeMappings.get(name));
-    }
-
-    @Override
-    public List<SkullType> getSkullTypes() {
-        return ImmutableList.copyOf(this.skullTypeMappings.values());
-    }
-
-    @Override
-    public Optional<BannerPatternShape> getBannerPatternShape(String name) {
-        return Optional.fromNullable(this.bannerPatternShapeMappings.get(name));
-    }
-
-    @Override
-    public Optional<BannerPatternShape> getBannerPatternShapeById(String id) {
-        return Optional.fromNullable(this.idToBannerPatternShapeMappings.get(id));
-    }
-
-    @Override
-    public List<BannerPatternShape> getBannerPatternShapes() {
-        return ImmutableList.copyOf(this.bannerPatternShapeMappings.values());
-    }
 
     @Override
     public GameDictionary getGameDictionary() {
@@ -971,171 +894,6 @@ public class SpongeGameRegistry implements GameRegistry {
     @Override
     public RecipeRegistry getRecipeRegistry() {
         throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<TextColor> getTextColor(String name) {
-        return Optional.fromNullable(textColorMappings.get(name));
-    }
-
-    @Override
-    public Collection<TextColor> getTextColors() {
-        return Collections.unmodifiableCollection(textColorMappings.values());
-    }
-
-    @Override
-    public Optional<TextStyle> getTextStyle(String name) {
-        return Optional.fromNullable(textStyleMappings.get(name));
-    }
-
-    @Override
-    public Collection<TextStyle> getTextStyles() {
-        return Collections.unmodifiableCollection(textStyleMappings.values());
-    }
-
-    @Override
-    public Optional<ChatType> getChatType(String name) {
-        return Optional.fromNullable(chatTypeMappings.get(name));
-    }
-
-    @Override
-    public Collection<ChatType> getChatTypes() {
-        return Collections.unmodifiableCollection(chatTypeMappings.values());
-    }
-
-    @Override
-    public Optional<SelectorType> getSelectorType(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<ArgumentType<?>> getArgumentTypes() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<ArgumentType<?>> getArgumentType(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<SelectorType> getSelectorTypes() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<Locale> getLocale(String name) {
-        return Optional.fromNullable(localeMappings.get(name));
-    }
-
-    @Override
-    public Optional<Locale> getLocaleById(String id) {
-        return Optional.fromNullable(localeCodeMappings.get(id));
-    }
-
-    @Override
-    public Collection<Locale> getLocales() {
-        return Collections.unmodifiableCollection(localeCodeMappings.values());
-    }
-
-    @Override
-    public Optional<Translation> getTranslationById(String id) {
-        return Optional.<Translation>of(new SpongeTranslation(id));
-    }
-
-    @Override
-    public Collection<Difficulty> getDifficulties() {
-        return difficultyMappings.values();
-    }
-
-    @Override
-    public Optional<Difficulty> getDifficulty(String name) {
-        return Optional.fromNullable(difficultyMappings.get(name));
-    }
-
-    @Override
-    public Collection<EntityInteractionType> getEntityInteractionTypes() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<EntityInteractionType> getEntityInteractionType(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<Attribute> getAttribute(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<Attribute> getAttributes() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<Operation> getOperation(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<Operation> getOperations() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public AttributeModifierBuilder getAttributeModifierBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public AttributeBuilder getAttributeBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<CoalType> getCoalType(String name) {
-        return Optional.fromNullable(this.coaltypeMappings.get(name));
-    }
-
-    @Override
-    public Collection<CoalType> getCoalTypes() {
-        return ImmutableList.copyOf(this.coaltypeMappings.values());
-    }
-
-    @Override
-    public Optional<Fish> getFishType(String name) {
-        return Optional.fromNullable(this.fishMappings.get(name));
-    }
-
-    @Override
-    public Collection<Fish> getFishTypes() {
-        return ImmutableList.copyOf(this.fishMappings.values());
-    }
-
-    @Override
-    public Optional<CookedFish> getCookedFishType(String name) {
-        return Optional.fromNullable(this.cookedFishMappings.get(name));
-    }
-
-    @Override
-    public Collection<CookedFish> getCookedFishTypes() {
-        return ImmutableList.copyOf(this.cookedFishMappings.values());
-    }
-
-    @Override
-    public Optional<GoldenApple> getGoldenAppleType(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<GoldenApple> getGoldenAppleTypes() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public FireworkEffectBuilder getFireworkEffectBuilder() {
-        return new SpongeFireworkBuilder();
     }
 
     @Override
@@ -1269,10 +1027,10 @@ public class SpongeGameRegistry implements GameRegistry {
         }
         RegistryHelper.mapFields(PotionEffectTypes.class, new Function<String, PotionEffectType>() {
 
-            @Override
-            public PotionEffectType apply(String fieldName) {
-                return getPotion(fieldName.toLowerCase()).get();
-            }
+                @Override
+                public PotionEffectType apply(String fieldName) {
+                        return getPotion(fieldName.toLowerCase()).get();
+                }
         });
     }
 
@@ -1367,17 +1125,18 @@ public class SpongeGameRegistry implements GameRegistry {
 
         RegistryHelper.mapFields(EntityTypes.class, new Function<String, EntityType>() {
 
-            @Override
-            public EntityType apply(String fieldName) {
-                if (fieldName.equals("UNKNOWN")) {
-                    // TODO Something for Unknown?
-                    return null;
+                @Override
+                public EntityType apply(String fieldName) {
+                        if (fieldName.equals("UNKNOWN")) {
+                                // TODO Something for Unknown?
+                                return null;
+                        }
+                        EntityType entityType = SpongeGameRegistry.this.entityTypeMappings.get(fieldName);
+                        SpongeGameRegistry.this.entityClassToTypeMappings
+                                .put(((SpongeEntityType) entityType).entityClass, (SpongeEntityType) entityType);
+                        SpongeGameRegistry.this.entityIdToTypeMappings.put(((SpongeEntityType) entityType).getId(), ((SpongeEntityType) entityType));
+                        return entityType;
                 }
-                EntityType entityType = SpongeGameRegistry.this.entityTypeMappings.get(fieldName);
-                SpongeGameRegistry.this.entityClassToTypeMappings.put(((SpongeEntityType) entityType).entityClass, (SpongeEntityType) entityType);
-                SpongeGameRegistry.this.entityIdToTypeMappings.put(((SpongeEntityType) entityType).getId(), ((SpongeEntityType) entityType));
-                return entityType;
-            }
         });
 
         RegistryHelper.mapFields(SkeletonTypes.class, SpongeEntityConstants.SKELETON_TYPES);
@@ -1549,12 +1308,12 @@ public class SpongeGameRegistry implements GameRegistry {
     private void setDyeColors() {
         RegistryHelper.mapFields(DyeColors.class, new Function<String, DyeColor>() {
 
-            @Override
-            public DyeColor apply(String input) {
-                DyeColor dyeColor = DyeColor.class.cast(EnumDyeColor.valueOf(input));
-                SpongeGameRegistry.this.dyeColorMappings.put(dyeColor.getName(), dyeColor);
-                return dyeColor;
-            }
+                @Override
+                public DyeColor apply(String input) {
+                        DyeColor dyeColor = DyeColor.class.cast(EnumDyeColor.valueOf(input));
+                        SpongeGameRegistry.this.dyeColorMappings.put(dyeColor.getName(), dyeColor);
+                        return dyeColor;
+                }
 
         });
     }
@@ -1562,16 +1321,16 @@ public class SpongeGameRegistry implements GameRegistry {
     private void setFishes() {
         RegistryHelper.mapFields(Fishes.class, new Function<String, Fish>() {
 
-            @Override
-            public Fish apply(String input) {
-                Fish fish = Fish.class.cast(ItemFishFood.FishType.valueOf(input));
-                if (fish != null) {
-                    SpongeGameRegistry.this.fishMappings.put(fish.getId(), fish);
-                    return fish;
-                } else {
-                    return null;
+                @Override
+                public Fish apply(String input) {
+                        Fish fish = Fish.class.cast(ItemFishFood.FishType.valueOf(input));
+                        if (fish != null) {
+                                SpongeGameRegistry.this.fishMappings.put(fish.getId(), fish);
+                                return fish;
+                        } else {
+                                return null;
+                        }
                 }
-            }
         });
 
         RegistryHelper.mapFields(CookedFishes.class, new Function<String, CookedFish>() {
@@ -1985,22 +1744,8 @@ public class SpongeGameRegistry implements GameRegistry {
         service.registerBuilder(Sign.class, new SpongeSignBuilder(game));
         service.registerBuilder(Skull.class, new SpongeSkullBuilder(game));
 
-        // Meta
-        service.registerBuilder(DyeColor.class, new SpongeDyeBuilder());
-        service.registerBuilder(HorseColor.class, new SpongeHorseColorBuilder());
-        service.registerBuilder(HorseStyle.class, new SpongeHorseStyleBuilder());
-        service.registerBuilder(HorseVariant.class, new SpongeHorseVariantBuilder());
-        service.registerBuilder(OcelotType.class, new SpongeOcelotTypeBuilder());
-        service.registerBuilder(PotionEffect.class, new SpongePotionEffectBuilder());
-        service.registerBuilder(FireworkEffect.class, new SpongeFireworkDataBuilder());
-
         // User
         // TODO someone needs to write a User implementation...
-    }
-
-    @Override
-    public Optional<Statistic> getStatistic(String name) {
-        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
@@ -2029,64 +1774,10 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
-    public Collection<Statistic> getStatistics() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public StatisticBuilder getStatisticBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public EntityStatisticBuilder getEntityStatisticBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public BlockStatisticBuilder getBlockStatisticBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public ItemStatisticBuilder getItemStatisticBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public TeamStatisticBuilder getTeamStatisticBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
     public void registerStatistic(Statistic stat) {
         throw new UnsupportedOperationException(); // TODO
     }
 
-    @Override
-    public Optional<StatisticFormat> getStatisticFormat(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<StatisticFormat> getStatisticFormats() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<Achievement> getAchievement(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<Achievement> getAchievements() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public AchievementBuilder getAchievementBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
 
     @Override
     public Optional<ResourcePack> getById(String id) {
@@ -2094,62 +1785,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
-    public ObjectiveBuilder getObjectiveBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public TeamBuilder getTeamBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public ScoreboardBuilder getScoreboardBuilder() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<DisplaySlot> getDisplaySlot(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
     public Optional<DisplaySlot> getDisplaySlotForColor(TextColor color) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<DisplaySlot> getDisplaySlots() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<Visibility> getVisibility(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<Visibility> getVisibilities() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<Criterion> getCriterion(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<Criterion> getCriteria() {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Optional<ObjectiveDisplayMode> getObjectiveDisplayMode(String name) {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
-    public Collection<ObjectiveDisplayMode> getObjectiveDisplayModes() {
         throw new UnsupportedOperationException(); // TODO
     }
 

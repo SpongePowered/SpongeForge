@@ -57,15 +57,15 @@ public abstract class MixinEntityWither extends EntityMob {
         super(worldIn);
     }
 
-    public int wither$getInvulnerableTicks() {
+    public int getInvulnerableTicks() {
         return this.getInvulTime();
     }
 
-    public void wither$setInvulnerableTicks(int invulnerableTicks) {
+    public void setInvulnerableTicks(int invulnerableTicks) {
         this.setInvulTime(invulnerableTicks);
     }
 
-    public List<Living> wither$getTargets() {
+    public List<Living> getTargets() {
         List<Living> watchedTargets = new ArrayList<Living>();
         for (int i = 0; i < 2; ++i) {
             int j = this.getWatchedTargetId(i + 1);

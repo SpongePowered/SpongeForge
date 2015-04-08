@@ -25,14 +25,14 @@
 
 package org.spongepowered.mod.item;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.item.FireworkEffect;
 import org.spongepowered.api.item.FireworkShape;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
 import java.awt.Color;
 import java.util.List;

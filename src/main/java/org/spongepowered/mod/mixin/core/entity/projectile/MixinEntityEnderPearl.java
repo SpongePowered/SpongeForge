@@ -48,11 +48,11 @@ public abstract class MixinEntityEnderPearl extends MixinEntityThrowable {
         return (float) this.damageAmount;
     }
 
-    public double enderpearl$getDamage() {
+    public double getDamage() {
         return this.damageAmount;
     }
 
-    public void enderpearl$setDamage(double damage) {
+    public void setDamage(double damage) {
         this.damageAmount = damage;
     }
 

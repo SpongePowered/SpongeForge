@@ -49,11 +49,4 @@ public abstract class MixinEntitySlime extends EntityLiving {
         super(worldIn);
     }
 
-    public int slime$getSize() {
-        return this.getSlimeSize();
-    }
-
-    public void slime$setSize(int size) {
-        setSlimeSize(size);
-    }
 }

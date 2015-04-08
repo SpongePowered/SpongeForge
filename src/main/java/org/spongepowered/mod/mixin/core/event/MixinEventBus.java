@@ -52,7 +52,7 @@ public abstract class MixinEventBus {
     public boolean post(Event event) {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
-        if (event instanceof org.spongepowered.api.util.event.Event) {
+        if (event instanceof org.spongepowered.api.event.Event) {
             return ((SpongeEventBus) SpongeMod.instance.getGame().getEventManager()).post(event, listeners);
         } else {
             listeners = event.getListenerList().getListeners(this.busID);

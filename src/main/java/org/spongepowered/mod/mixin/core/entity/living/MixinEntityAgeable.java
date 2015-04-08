@@ -52,35 +52,35 @@ public abstract class MixinEntityAgeable extends EntityCreature {
         super(worldIn);
     }
 
-    public int ageable$getAge() {
+    public int getAge() {
         return getGrowingAge();
     }
 
-    public void ageable$setAge(int age) {
+    public void setAge(int age) {
         setGrowingAge(age);
     }
 
-    public void ageable$setBaby() {
+    public void setBaby() {
         if (getGrowingAge() >= 0) {
             setGrowingAge(-24000);
         }
     }
 
-    public void ageable$setAdult() {
+    public void setAdult() {
         if (getGrowingAge() < 0) {
             setGrowingAge(0);
         }
     }
 
-    public boolean ageable$isBaby() {
+    public boolean isBaby() {
         return getGrowingAge() < 0;
     }
 
-    public boolean ageable$canBreed() {
+    public boolean canBreed() {
         return getGrowingAge() == 0;
     }
 
-    public void ageable$setBreeding(boolean breeding) {
+    public void setBreeding(boolean breeding) {
         if (breeding) {
             setGrowingAge(0);
         } else if (getGrowingAge() >= 0) {
@@ -88,7 +88,7 @@ public abstract class MixinEntityAgeable extends EntityCreature {
         }
     }
 
-    public void ageable$setScaleForAge() {
+    public void setScaleForAge() {
         setScaleForAge(getGrowingAge() < 0);
     }
 

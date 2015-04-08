@@ -31,12 +31,12 @@ import com.google.common.base.Optional;
 import net.minecraft.nbt.NBTTagCompound;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.spongepowered.api.service.persistence.DataSerializableBuilder;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.service.persistence.DataBuilder;
 import org.spongepowered.api.service.persistence.SerializationService;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 import org.spongepowered.mod.service.persistence.NbtTranslator;
 
 public class NBTTranslationTest {
@@ -44,7 +44,7 @@ public class NBTTranslationTest {
     @Test
     public void testContainerToNBT() {
         SerializationService service = Mockito.mock(SerializationService.class);
-        DataSerializableBuilder<FakeSerializable> builder = new FakeBuilder();
+        DataBuilder<FakeSerializable> builder = new FakeBuilder();
         Mockito.stub(service.getBuilder(FakeSerializable.class)).toReturn(Optional.of(builder));
         DataContainer container = new MemoryDataContainer();
         container.set(new DataQuery("foo"), "bar");

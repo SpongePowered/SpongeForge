@@ -36,6 +36,11 @@ public class SpongeEntityInteractionType implements EntityInteractionType {
     }
 
     @Override
+    public String getId() {
+        return this.name;
+    }
+
+    @Override
     public String getName() {
         return this.name;
     }

@@ -46,11 +46,11 @@ public abstract class MixinEntityEndermite extends EntityMob {
         super(worldIn);
     }
 
-    public boolean endermite$isPlayerCreated() {
+    public boolean isPlayerCreated() {
         return this.playerSpawned;
     }
 
-    public void endermite$setPlayerCreated(boolean playerCreated) {
+    public void setPlayerCreated(boolean playerCreated) {
         this.playerSpawned = playerCreated;
     }
 }

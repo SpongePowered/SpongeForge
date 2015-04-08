@@ -40,4 +40,14 @@ public class SpongeGameMode implements GameMode {
     public Translation getTranslation() {
         return new SpongeTranslation(this.name.toUpperCase());
     }
+
+    @Override
+    public String getId() {
+        return name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 }

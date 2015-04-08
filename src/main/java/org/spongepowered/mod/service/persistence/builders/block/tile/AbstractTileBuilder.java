@@ -26,7 +26,7 @@
 package org.spongepowered.mod.service.persistence.builders.block.tile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
@@ -56,16 +56,16 @@ import net.minecraft.util.BlockPos;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.service.persistence.DataSerializableBuilder;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.service.persistence.DataBuilder;
 import org.spongepowered.api.service.persistence.InvalidDataException;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
 import org.spongepowered.api.world.World;
 
 import java.util.Map;
 
 public abstract class AbstractTileBuilder<T extends org.spongepowered.api.block.tile.TileEntity> implements
-        DataSerializableBuilder<T> {
+                                                                                                 DataBuilder<T> {
 
     private static final Map<Class<? extends TileEntity>, BlockType> classToTypeMap = Maps.newHashMap();
     protected final Game game;

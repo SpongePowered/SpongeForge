@@ -30,15 +30,15 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
-import org.spongepowered.api.service.persistence.DataSerializable;
-import org.spongepowered.api.service.persistence.DataSerializableBuilder;
+import org.spongepowered.api.data.DataSerializable;
+import org.spongepowered.api.service.persistence.DataBuilder;
 import org.spongepowered.api.service.persistence.SerializationService;
 
 import java.util.Map;
 
 public class SpongeSerializationService implements SerializationService {
 
-    private final Map<Class<?>, DataSerializableBuilder<?>> builders = Maps.newHashMap();
+    private final Map<Class<?>, DataBuilder<?>> builders = Maps.newHashMap();
     private boolean registrationComplete = false;
 
     public void completeRegistration() {
@@ -47,7 +47,7 @@ public class SpongeSerializationService implements SerializationService {
     }
 
     @Override
-    public <T extends DataSerializable> void registerBuilder(Class<T> clazz, DataSerializableBuilder<T> builder) {
+    public <T extends DataSerializable> void registerBuilder(Class<T> clazz, DataBuilder<T> builder) {
         checkNotNull(clazz);
         checkNotNull(builder);
         checkState(!this.registrationComplete);
@@ -58,10 +58,10 @@ public class SpongeSerializationService implements SerializationService {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends DataSerializable> Optional<DataSerializableBuilder<T>> getBuilder(Class<T> clazz) {
+    public <T extends DataSerializable> Optional<DataBuilder<T>> getBuilder(Class<T> clazz) {
         checkNotNull(clazz);
         if (this.builders.containsKey(clazz)) {
-            return Optional.of((DataSerializableBuilder<T>) this.builders.get(clazz));
+            return Optional.of((DataBuilder<T>) this.builders.get(clazz));
         } else {
             return Optional.absent();
         }

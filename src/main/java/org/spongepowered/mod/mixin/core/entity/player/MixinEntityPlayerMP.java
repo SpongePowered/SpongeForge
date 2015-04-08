@@ -110,7 +110,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         return Optional.of((Player) this);
     }
 
-    public Text playermp$getDisplayName() {
+    public Text getDisplayNameApi() {
         return ((SpongeChatComponent) getDisplayName()).toText();
     }
 
@@ -128,13 +128,13 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
 
     public void playermp$sendMessage(ChatType type, Text... messages) {
         for (Text text : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(), ((SpongeChatType) type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(), ((SpongeChatType) type).getByteId()));
         }
     }
 
     public void playermp$sendMessage(ChatType type, Iterable<Text> messages) {
         for (Text text : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(), ((SpongeChatType) type).getId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(), ((SpongeChatType) type).getByteId()));
         }
     }
 
@@ -178,12 +178,12 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         return (PlayerConnection) this.playerNetServerHandler;
     }
 
-    public void playermp$setBedLocation(@Nullable Location location) {
+    public void setBedLocation(@Nullable Location location) {
         super.spawnChunk = location != null ? VecHelper.toBlockPos(location.getPosition()) : null;
     }
 
     // this needs to be overridden from EntityPlayer so we can force a resend of the experience level
-    public void playermp$setLevel(int level) {
+    public void setLevel(int level) {
         this.experienceLevel = level;
         this.lastExperience = -1;
     }

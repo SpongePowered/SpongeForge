@@ -25,7 +25,7 @@
 package org.spongepowered.mod.mixin.core.world;
 
 import net.minecraft.world.WorldType;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.GeneratorType;
 import org.spongepowered.api.world.World;
@@ -45,6 +45,11 @@ public class MixinWorldType implements GeneratorType, IMixinWorldType {
 
     @Shadow
     private String worldType;
+
+    @Override
+    public String getId() {
+        return this.worldType;
+    }
 
     @Override
     public String getName() {

@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.entity.living.animal.HorseColor;
+import org.spongepowered.api.data.types.HorseColor;
 
 public class SpongeHorseColor extends SpongeEntityMeta implements HorseColor {
 

@@ -47,11 +47,11 @@ public abstract class MixinEntityEgg extends MixinEntityThrowable {
         return (float) this.damageAmount;
     }
 
-    public double egg$getDamage() {
+    public double getDamage() {
         return this.damageAmount;
     }
 
-    public void egg$setDamage(double damage) {
+    public void setDamage(double damage) {
         this.damageAmount = damage;
     }
 

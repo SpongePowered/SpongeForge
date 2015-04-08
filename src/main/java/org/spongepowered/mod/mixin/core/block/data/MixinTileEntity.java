@@ -24,14 +24,14 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.common.util.Constants;
 import org.spongepowered.api.block.tile.TileEntity;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;

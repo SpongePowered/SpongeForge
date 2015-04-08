@@ -81,12 +81,6 @@ public abstract class MixinBlock implements BlockType {
     }
 
     @Override
-    @Deprecated
-    public BlockState getStateFromDataValue(byte data) {
-        return (BlockState) getStateFromMeta(data);
-    }
-
-    @Override
     public boolean isLiquid() {
         return BlockLiquid.class.isAssignableFrom(this.getClass());
     }

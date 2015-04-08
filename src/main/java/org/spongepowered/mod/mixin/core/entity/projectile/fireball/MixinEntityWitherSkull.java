@@ -44,7 +44,6 @@ public abstract class MixinEntityWitherSkull extends MixinEntityFireball impleme
         return (float) getDamage();
     }
 
-    @Override
     public double getDamage() {
         if (this.damageSet) {
             return this.damage;
@@ -57,7 +56,6 @@ public abstract class MixinEntityWitherSkull extends MixinEntityFireball impleme
         }
     }
 
-    @Override
     public void setDamage(double damage) {
         this.damageSet = true;
         this.damage = (float) damage;

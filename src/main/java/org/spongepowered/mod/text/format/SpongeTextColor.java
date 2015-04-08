@@ -39,6 +39,11 @@ public class SpongeTextColor implements TextColor.Base {
     private final EnumChatFormatting handle;
     private final Color color;
 
+    @Override
+    public String getId() {
+        return this.handle.name();
+    }
+
     public SpongeTextColor(EnumChatFormatting handle, Color color) {
         this.handle = checkNotNull(handle, "handle");
         this.color = checkNotNull(color, "color");
@@ -50,7 +55,7 @@ public class SpongeTextColor implements TextColor.Base {
 
     @Override
     public String getName() {
-        return this.handle.name();
+        return this.handle.getFriendlyName();
     }
 
     @Override

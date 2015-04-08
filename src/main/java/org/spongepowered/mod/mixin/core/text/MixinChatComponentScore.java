@@ -34,7 +34,7 @@ public abstract class MixinChatComponentScore extends MixinChatComponentStyle {
 
     @Override
     protected TextBuilder createBuilder() {
-        return Texts.builder((Object) null); // TODO
+        return Texts.builder();
     }
 
 }

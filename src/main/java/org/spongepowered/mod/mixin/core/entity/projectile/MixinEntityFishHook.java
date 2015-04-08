@@ -133,12 +133,10 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
         return false;
     }
 
-    @Override
     public double getDamage() {
         return this.damageAmount;
     }
 
-    @Override
     public void setDamage(double damage) {
         this.damageAmount = damage;
     }

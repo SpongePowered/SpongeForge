@@ -29,9 +29,9 @@ import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
+import org.spongepowered.api.data.types.Career;
+import org.spongepowered.api.data.types.Profession;
 import org.spongepowered.api.entity.living.Human;
-import org.spongepowered.api.entity.living.villager.Career;
-import org.spongepowered.api.entity.living.villager.Profession;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -51,7 +51,7 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.passive.EntityVillager.class)
-@Implements(@Interface(iface = org.spongepowered.api.entity.living.villager.Villager.class, prefix = "villager$"))
+@Implements(@Interface(iface = org.spongepowered.api.entity.living.Villager.class, prefix = "villager$"))
 public abstract class MixinEntityVillager extends EntityAgeable {
 
     public MixinEntityVillager(World worldIn) {
@@ -87,22 +87,19 @@ public abstract class MixinEntityVillager extends EntityAgeable {
 
     private Profession profession;
 
+    @SuppressWarnings("unchecked")
     @Inject(method = "setProfession(I)V", at = @At("RETURN"))
     public void onSetProfession(int professionId, CallbackInfo ci) {
         // TODO: Fix GameRegistry for API changes
-        this.profession = ((List<Profession>) SpongeMod.instance.getGame().getRegistry().getProfessions()).get(professionId);
+        this.profession =  ((List<? extends Profession>) SpongeMod.instance.getGame().getRegistry().getAllOf(Profession.class)).get(professionId);
     }
 
-    public boolean villager$isPlaying() {
+    public boolean isPlaying() {
         return this.isPlaying;
     }
 
-    public void villager$setPlaying(boolean playing) {
+    public void setPlaying(boolean playing) {
         this.isPlaying = playing;
-    }
-
-    public boolean villager$isTrading() {
-        return this.isTrading();
     }
 
     @Overwrite
@@ -110,35 +107,35 @@ public abstract class MixinEntityVillager extends EntityAgeable {
         return this.buyingPlayer != null;
     }
 
-    public Career villager$getCareer() {
+    public Career getCareer() {
         // TODO: Fix GameRegistry for API changes
         return ((List<Career>) SpongeMod.instance.getGame().getRegistry().getCareers(this.profession)).get(this.careerId);
     }
 
-    public void villager$setCareer(Career career) {
+    public void setCareer(Career career) {
         setProfession(((SpongeEntityMeta) career.getProfession()).type);
         this.careerId = ((SpongeEntityMeta) career).type;
     }
 
-    public void villager$setCustomer(@Nullable Human human) {
+    public void setCustomer(@Nullable Human human) {
         this.setCustomer((EntityPlayer) human);
     }
 
-    public Optional<Human> villager$getCustomer() {
+    public Optional<Human> getCustomer() {
         return Optional.fromNullable((Human) this.shadow$getCustomer());
     }
 
     @SuppressWarnings("unchecked")
-    public List<TradeOffer> villager$getOffers() {
+    public List<TradeOffer> getOffers() {
         return getRecipes(null);
     }
 
     @SuppressWarnings("unchecked")
-    public void villager$addOffer(TradeOffer offer) {
+    public void addOffer(TradeOffer offer) {
         this.buyingList.add(offer);
     }
 
-    public void villager$setOffers(List<TradeOffer> offers) {
+    public void setOffers(List<TradeOffer> offers) {
         this.buyingList = (MerchantRecipeList) offers;
     }
 

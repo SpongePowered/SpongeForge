@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.entity;
 
-import org.spongepowered.api.entity.living.animal.OcelotType;
+import org.spongepowered.api.data.types.OcelotType;
 
 public class SpongeOcelotType extends SpongeEntityMeta implements OcelotType {
 

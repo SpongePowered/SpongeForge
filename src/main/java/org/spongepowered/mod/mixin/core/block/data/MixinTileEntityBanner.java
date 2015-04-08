@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.block.data;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.collect.Lists;
 import net.minecraft.item.EnumDyeColor;
@@ -34,8 +34,10 @@ import net.minecraft.nbt.NBTTagList;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.tile.TileEntityType;
 import org.spongepowered.api.block.tile.TileEntityTypes;
-import org.spongepowered.api.block.tile.data.BannerData.PatternLayer;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.manipulators.BannerData;
+import org.spongepowered.api.data.types.BannerPatternShape;
+import org.spongepowered.api.data.types.DyeColor;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -60,7 +62,7 @@ public abstract class MixinTileEntityBanner extends MixinTileEntity {
     @Shadow
     private NBTTagList patterns;
 
-    private List<PatternLayer> patternLayers = Lists.newArrayList();
+    private List<BannerData.PatternLayer> patternLayers = Lists.newArrayList();
 
     @Inject(method = "setItemValues(Lnet/minecraft/item/ItemStack;)V", at = @At("RETURN"))
     private void onSetItemValues(ItemStack stack, CallbackInfo ci) {
@@ -86,8 +88,8 @@ public abstract class MixinTileEntityBanner extends MixinTileEntity {
             GameRegistry registry = SpongeMod.instance.getGame().getRegistry();
             for (int i = 0; i < this.patterns.tagCount(); i++) {
                 NBTTagCompound tagCompound = this.patterns.getCompoundTagAt(i);
-                this.patternLayers.add(new SpongePatternLayer(registry.getBannerPatternShapeById(tagCompound.getString("Pattern")).get(),
-                        registry.getDye(EnumDyeColor.byDyeDamage(tagCompound.getInteger("Color")).getName()).get()));
+                this.patternLayers.add(new SpongePatternLayer(registry.getType(BannerPatternShape.class, tagCompound.getString("Pattern")).get(),
+                        registry.getType(DyeColor.class, EnumDyeColor.byDyeDamage(tagCompound.getInteger("Color")).getName()).get()));
             }
         }
         this.markDirtyAndUpdate();

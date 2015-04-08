@@ -47,22 +47,18 @@ public abstract class MixinEntityLargeFireball extends MixinEntityFireball imple
         return this.damage;
     }
 
-    @Override
     public double getDamage() {
         return this.damage;
     }
 
-    @Override
     public void setDamage(double damage) {
         this.damage = (float) damage;
     }
 
-    @Override
     public int getExplosionPower() {
         return this.explosionPower;
     }
 
-    @Override
     public void setExplosionPower(int explosionPower) {
         this.explosionPower = explosionPower;
     }

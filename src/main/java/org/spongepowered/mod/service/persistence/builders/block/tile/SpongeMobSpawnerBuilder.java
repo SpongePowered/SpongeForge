@@ -30,7 +30,7 @@ import net.minecraft.tileentity.TileEntityMobSpawner;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.tile.MobSpawner;
 import org.spongepowered.api.service.persistence.InvalidDataException;
-import org.spongepowered.api.service.persistence.data.DataView;
+import org.spongepowered.api.data.DataView;
 
 public class SpongeMobSpawnerBuilder extends AbstractTileBuilder<MobSpawner> {
 

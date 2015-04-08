@@ -24,15 +24,15 @@
  */
 package org.spongepowered.mod.block.meta;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
-import org.spongepowered.api.block.tile.data.BannerData.PatternLayer;
-import org.spongepowered.api.block.tile.data.BannerPatternShape;
-import org.spongepowered.api.item.DyeColor;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.data.manipulators.BannerData;
+import org.spongepowered.api.data.types.BannerPatternShape;
+import org.spongepowered.api.data.types.DyeColor;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.MemoryDataContainer;
 
-public class SpongePatternLayer implements PatternLayer {
+public class SpongePatternLayer implements BannerData.PatternLayer {
 
     private final BannerPatternShape id;
     private final DyeColor color;

@@ -34,8 +34,16 @@ public class SpongeChatType implements ChatType {
         this.id = id;
     }
 
-    public byte getId() {
-        return this.id;
+    public String getId() {
+        return "minecraft:" + this.id;
     }
 
+    @Override
+    public String getName() {
+        return getId(); // todo actually pick up a name
+    }
+
+    public byte getByteId() {
+        return this.id;
+    }
 }

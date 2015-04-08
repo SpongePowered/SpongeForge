@@ -26,10 +26,10 @@ package org.spongepowered.mod.mixin.core.event;
 
 import com.google.common.base.Optional;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.CauseTracked;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.util.event.Cancellable;
 import org.spongepowered.api.util.event.callback.CallbackList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

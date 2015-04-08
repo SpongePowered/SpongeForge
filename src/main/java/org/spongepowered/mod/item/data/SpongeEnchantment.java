@@ -25,12 +25,12 @@
 
 package org.spongepowered.mod.item.data;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataSerializable;
+import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.item.Enchantment;
-import org.spongepowered.api.service.persistence.DataSerializable;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
 
 public class SpongeEnchantment implements DataSerializable {
 

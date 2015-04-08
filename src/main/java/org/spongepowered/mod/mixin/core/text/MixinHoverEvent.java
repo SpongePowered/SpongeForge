@@ -35,6 +35,7 @@ import net.minecraft.stats.StatList;
 import net.minecraft.util.IChatComponent;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.stats.achievement.Achievement;
 import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.asm.mixin.Mixin;
@@ -65,7 +66,7 @@ public abstract class MixinHoverEvent implements SpongeHoverEvent {
                         break;
                     case SHOW_ACHIEVEMENT:
                         String stat = this.value.getUnformattedText();
-                        setHandle(TextActions.showAchievement(checkNotNull(StatList.getOneShotStat(stat), "Unknown statistic: %s", stat)));
+                        setHandle(TextActions.showAchievement((Achievement) checkNotNull(StatList.getOneShotStat(stat), "Unknown statistic: %s", stat)));
                         break;
                     case SHOW_ITEM:
                         setHandle(TextActions.showItem((ItemStack) net.minecraft.item.ItemStack.loadItemStackFromNBT(loadNbt())));
@@ -75,7 +76,7 @@ public abstract class MixinHoverEvent implements SpongeHoverEvent {
                         String name = nbt.getString("name");
                         EntityType type = null;
                         if (nbt.hasKey("type", 8)) {
-                            type = SpongeMod.instance.getGame().getRegistry().getEntity(name).orNull();
+                            type = SpongeMod.instance.getGame().getRegistry().getType(EntityType.class, name).orNull();
                         }
 
                         UUID uniqueId = UUID.fromString(nbt.getString("id"));

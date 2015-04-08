@@ -27,7 +27,7 @@ package org.spongepowered.mod.event;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.spongepowered.api.util.event.Order;
+import org.spongepowered.api.event.Order;
 
 import java.util.ArrayList;
 import java.util.EnumMap;

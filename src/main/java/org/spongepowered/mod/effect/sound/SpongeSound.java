@@ -36,6 +36,11 @@ public class SpongeSound implements SoundType {
     }
 
     @Override
+    public String getId() {
+        return this.name;
+    }
+
+    @Override
     public String getName() {
         return this.name;
     }

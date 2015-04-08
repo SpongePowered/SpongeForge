@@ -47,9 +47,9 @@ import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionRange;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.state.StateEvent;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.util.event.Event;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.EventRegistry;
 import org.spongepowered.mod.event.SpongeEventBus;
@@ -133,7 +133,7 @@ public class SpongePluginContainer implements ModContainer, PluginContainer {
     protected void findStateEventHandlers(Class<?> clazz) throws Exception {
         for (Method m : clazz.getDeclaredMethods()) {
             for (Annotation a : m.getAnnotations()) {
-                if (a.annotationType().equals(org.spongepowered.api.util.event.Subscribe.class)) {
+                if (a.annotationType().equals(org.spongepowered.api.event.Subscribe.class)) {
                     Class<?>[] paramTypes = m.getParameterTypes();
                     if ((paramTypes.length == 1) && StateEvent.class.isAssignableFrom(paramTypes[0])) {
                         m.setAccessible(true);

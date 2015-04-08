@@ -25,7 +25,7 @@
 
 package org.spongepowered.mod.event;
 
-import org.spongepowered.api.util.event.Event;
+import org.spongepowered.api.event.Event;
 
 import java.lang.reflect.InvocationTargetException;
 

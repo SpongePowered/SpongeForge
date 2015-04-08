@@ -25,7 +25,7 @@
 
 package org.spongepowered.mod.item;
 
-import org.spongepowered.api.item.CoalType;
+import org.spongepowered.api.data.types.CoalType;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
 
 public class SpongeCoalType extends SpongeEntityMeta implements CoalType {
@@ -34,8 +34,4 @@ public class SpongeCoalType extends SpongeEntityMeta implements CoalType {
         super(type, name);
     }
 
-    @Override
-    public String getId() {
-        return this.getName();
-    }
 }

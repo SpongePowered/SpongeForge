@@ -73,13 +73,13 @@ public abstract class MixinChunk implements Chunk {
     @Shadow
     private boolean isTerrainPopulated;
 
-    @Inject(method = "<init>(Lnet/minecraft/world/World;II)V", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/World;II)V", at = @At("RETURN"), remap = false)
     public void onConstructed(World world, int x, int z, CallbackInfo ci) {
         this.chunkPos = new Vector3i(x, 0, z);
         this.chunkCoordIntPair = new ChunkCoordIntPair(x, z);
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/world/chunk/ChunkPrimer;II)V", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/world/chunk/ChunkPrimer;II)V", at = @At("RETURN"), remap = false)
     public void onNewlyGenerated(World world, ChunkPrimer primer, int chunkX, int chunkZ, CallbackInfo ci) {
         // The constructor with the ChunkPrimer in it is only used for newly
         // generated chunks, so we can call the generator populators here

@@ -47,11 +47,11 @@ public abstract class MixinEntitySnowball extends MixinEntityThrowable {
         return this.damageSet ? (float) this.damageAmount : damage;
     }
 
-    public double snowball$getDamage() {
+    public double getDamage() {
         return this.damageAmount;
     }
 
-    public void snowball$setDamage(double damage) {
+    public void setDamage(double damage) {
         this.damageSet = true;
         this.damageAmount = damage;
     }

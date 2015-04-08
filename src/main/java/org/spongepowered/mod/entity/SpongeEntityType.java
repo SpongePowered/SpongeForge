@@ -64,6 +64,11 @@ public class SpongeEntityType implements EntityType {
         return this.modId + ":" + this.entityName;
     }
 
+    @Override
+    public String getName() {
+        return this.entityName;
+    }
+
     public String getEntityName() {
         return this.entityName;
     }

@@ -25,13 +25,15 @@
 
 package org.spongepowered.mod.service.persistence.builders.block.tile;
 
+import static org.spongepowered.api.data.DataQuery.of;
+
 import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntityDropper;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.tile.carrier.Dropper;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.service.persistence.InvalidDataException;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
 
 public class SpongeDropperBuilder extends SpongeLockableBuilder<Dropper> {
 
@@ -47,7 +49,7 @@ public class SpongeDropperBuilder extends SpongeLockableBuilder<Dropper> {
             throw new InvalidDataException("The container had insufficient data to create a Dropper tile entity!");
         }
         Dropper dropper = dropperOptional.get();
-        if (container.contains(new DataQuery("CustomName"))) {
+        if (container.contains(of("CustomName"))) {
             ((TileEntityDropper) dropper).setCustomName(container.getString(new DataQuery("CustomName")).get());
         }
         ((TileEntityDropper) dropper).validate();

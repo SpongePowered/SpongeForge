@@ -27,8 +27,25 @@ package org.spongepowered.mod.mixin.core.world.difficulty;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.EnumDifficulty.class)
 public class MixinEnumDifficulty implements Difficulty {
+
+    @Shadow
+    private int difficultyId;
+
+    @Shadow
+    private String difficultyResourceKey;
+
+    @Override
+    public String getId() {
+        return this.difficultyResourceKey;
+    }
+
+    @Override
+    public String getName() {
+        return this.difficultyResourceKey.replace("options.difficulty.", "");
+    }
 }

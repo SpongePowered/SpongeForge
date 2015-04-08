@@ -81,12 +81,10 @@ public abstract class MixinEntityHanging extends Entity implements Hanging {
         }
     }
 
-    @Override
     public Direction getHangingDirection() {
         return SpongeGameRegistry.directionMap.inverse().get(this.facingDirection);
     }
 
-    @Override
     public void setHangingDirection(Direction direction, boolean forced) {
         this.ignorePhysics = forced;
         this.facingDirection =

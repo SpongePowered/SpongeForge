@@ -35,7 +35,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.spongepowered.api.util.event.Event;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.asm.util.ASMHelper;
 
 import java.util.ListIterator;

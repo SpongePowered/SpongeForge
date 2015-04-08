@@ -59,39 +59,39 @@ public abstract class MixinEntityZombie extends EntityMob {
         super(worldIn);
     }
 
-    public boolean zombie$isVillagerZombie() {
+    public boolean isVillagerZombie() {
         return this.isVillager();
     }
 
-    public void zombie$setVillagerZombie(boolean villagerZombie) {
+    public void setVillagerZombie(boolean villagerZombie) {
         this.setVillager(villagerZombie);
     }
 
-    public void zombie$setAge(int age) {
+    public void setAge(int age) {
         this.setChild(age < 0);
     }
 
-    public void zombie$setBaby() {
+    public void setBaby() {
         this.setChild(true);
     }
 
-    public void zombie$setAdult() {
+    public void setAdult() {
         this.setChild(false);
     }
 
-    public boolean zombie$isBaby() {
+    public boolean isBaby() {
         return this.isChild();
     }
 
-    public boolean zombie$canBreed() {
+    public boolean canBreed() {
         return this.getEntityAttribute(reinforcementChance).getAttributeValue() > 0;
     }
 
-    public void zombie$setBreeding(boolean breeding) {
+    public void setBreeding(boolean breeding) {
         this.getEntityAttribute(reinforcementChance).setBaseValue(breeding ? this.rand.nextDouble() * 0.10000000149011612D : 0);
     }
 
-    public void zombie$setScaleForAge() {
+    public void setScaleForAge() {
         this.setChildSize(this.isChild());
     }
 }

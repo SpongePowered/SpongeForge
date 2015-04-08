@@ -67,27 +67,27 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
         super(worldIn);
     }
 
-    public double human$getExhaustion() {
+    public double getExhaustion() {
         return this.getFoodStats().foodExhaustionLevel;
     }
 
-    public void human$setExhaustion(double exhaustion) {
+    public void setExhaustion(double exhaustion) {
         this.getFoodStats().foodExhaustionLevel = (float) exhaustion;
     }
 
-    public double human$getSaturation() {
+    public double getSaturation() {
         return this.getFoodStats().getSaturationLevel();
     }
 
-    public void human$setSaturation(double saturation) {
+    public void setSaturation(double saturation) {
         this.getFoodStats().setFoodSaturationLevel((float) saturation);
     }
 
-    public double human$getFoodLevel() {
+    public double getFoodLevel() {
         return this.getFoodStats().getFoodLevel();
     }
 
-    public void human$setFoodLevel(double hunger) {
+    public void setFoodLevel(double hunger) {
         this.getFoodStats().setFoodLevel((int) hunger);
     }
 
@@ -103,43 +103,43 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
         }
     }
 
-    public int human$getExperienceSinceLevel() {
-        return this.human$getTotalExperience() - xpAtLevel(this.human$getLevel());
+    public int getExperienceSinceLevel() {
+        return this.getTotalExperience() - xpAtLevel(this.getLevel());
     }
 
-    public void human$setExperienceSinceLevel(int experience) {
-        this.human$setTotalExperience(xpAtLevel(this.experienceLevel) + experience);
+    public void setExperienceSinceLevel(int experience) {
+        this.setTotalExperience(xpAtLevel(this.experienceLevel) + experience);
     }
 
-    public int human$getExperienceBetweenLevels() {
+    public int getExperienceBetweenLevels() {
         return this.xpBarCap();
     }
 
-    public int human$getLevel() {
+    public int getLevel() {
         return this.experienceLevel;
     }
 
-    public void human$setLevel(int level) {
+    public void setLevel(int level) {
         this.experienceLevel = level;
     }
 
-    public int human$getTotalExperience() {
+    public int getTotalExperience() {
         return this.experienceTotal;
     }
 
-    public void human$setTotalExperience(int exp) {
+    public void setTotalExperience(int exp) {
         this.experienceTotal = exp;
     }
 
-    public boolean human$isFlying() {
+    public boolean isFlying() {
         return this.capabilities.isFlying;
     }
 
-    public void human$setFlying(boolean flying) {
+    public void setFlying(boolean flying) {
         this.capabilities.isFlying = flying;
     }
 
-    public boolean human$isViewingInventory() {
+    public boolean isViewingInventory() {
         return this.openContainer != null;
     }
 

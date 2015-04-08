@@ -29,20 +29,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.item.FireworkEffect;
 import org.spongepowered.api.item.FireworkEffectBuilder;
 import org.spongepowered.api.item.FireworkShape;
 import org.spongepowered.api.item.FireworkShapes;
-import org.spongepowered.api.service.persistence.DataSerializableBuilder;
+import org.spongepowered.api.service.persistence.DataBuilder;
 import org.spongepowered.api.service.persistence.InvalidDataException;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
 import org.spongepowered.mod.SpongeMod;
 
 import java.awt.Color;
 import java.util.List;
 
-public class SpongeFireworkDataBuilder implements DataSerializableBuilder<FireworkEffect> {
+public class SpongeFireworkDataBuilder implements DataBuilder<FireworkEffect> {
 
     private static final DataQuery TYPE = new DataQuery("Type");
     private static final DataQuery COLORS = new DataQuery("Colors");
@@ -74,7 +74,7 @@ public class SpongeFireworkDataBuilder implements DataSerializableBuilder<Firewo
         }
         boolean trails = container.getBoolean(TRAILS).get();
         boolean flickers = container.getBoolean(FLICKERS).get();
-        FireworkEffectBuilder builder = SpongeMod.instance.getGame().getRegistry().getFireworkEffectBuilder();
+        FireworkEffectBuilder builder = SpongeMod.instance.getGame().getRegistry().getBuilderOf(FireworkEffectBuilder.class).get();
         return Optional.of(builder.colors(colors)
                                    .fades(fades)
                                    .flicker(flickers)

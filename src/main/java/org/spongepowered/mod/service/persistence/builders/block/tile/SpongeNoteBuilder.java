@@ -29,10 +29,10 @@ import com.google.common.base.Optional;
 import net.minecraft.tileentity.TileEntityNote;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.tile.Note;
-import org.spongepowered.api.block.tile.data.NotePitch;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.types.NotePitch;
 import org.spongepowered.api.service.persistence.InvalidDataException;
-import org.spongepowered.api.service.persistence.data.DataQuery;
-import org.spongepowered.api.service.persistence.data.DataView;
 
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class SpongeNoteBuilder extends AbstractTileBuilder<Note> {
             throw new InvalidDataException("The container had insufficient data to create a Note tile entity!");
         }
         Note note = noteOptional.get();
-        NotePitch pitch = ((List<NotePitch>) this.game.getRegistry().getNotePitches()).get(container.getInt(new DataQuery("Note")).get());
+//        NotePitch pitch = ((List<NotePitch>) this.game.getRegistry().getNotePitches()).get(container.getInt(new DataQuery("Note")).get());
         // TODO Write NoteData
 //        note.setNoteData(pitch);
         ((TileEntityNote) note).validate();

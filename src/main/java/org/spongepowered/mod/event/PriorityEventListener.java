@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.event;
 
-import org.spongepowered.api.util.event.Order;
+import org.spongepowered.api.event.Order;
 
 public class PriorityEventListener<T> implements EventListener<T>, Comparable<PriorityEventListener<T>> {
 

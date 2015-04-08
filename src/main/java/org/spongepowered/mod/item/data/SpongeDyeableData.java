@@ -25,6 +25,7 @@
 package org.spongepowered.mod.item.data;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
@@ -37,47 +38,44 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.item.DyeColor;
-import org.spongepowered.api.item.ItemDataTransactionResult;
-import org.spongepowered.api.item.ItemType;
-import org.spongepowered.api.item.data.DyeableItemData;
-import org.spongepowered.api.item.data.ItemData;
-import org.spongepowered.api.service.persistence.data.DataContainer;
+import org.spongepowered.api.data.AbstractDataManipulator;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataManipulator;
+import org.spongepowered.api.data.DataPriority;
+import org.spongepowered.api.data.DataTransactionResult;
+import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.data.manipulators.DyeableData;
+import org.spongepowered.api.data.types.DyeColor;
+import org.spongepowered.api.data.types.DyeColors;
 
 import java.util.Collection;
 
-public class SpongeDyeableData extends AbstractItemData implements DyeableItemData {
+public class SpongeDyeableData extends AbstractDataManipulator<DyeableData> implements DyeableData {
 
-    private DyeColor color;
+    private DyeColor color = DyeColors.WHITE;
 
-    public SpongeDyeableData(ItemType type, DyeColor color) {
-        super(type);
+    public SpongeDyeableData() {
+
+    }
+
+    public SpongeDyeableData(DyeColor color) {
         this.color = color;
     }
 
     @Override
-    public DyeColor get() {
-        return this.color;
-    }
-
-    @Override
-    public void set(DyeColor value) {
-        checkNotNull(value);
-        this.color = value;
-    }
-
-    @Override
-    public int compareTo(DyeableItemData dyeableItemData) {
-        return this.color.getName().compareTo(dyeableItemData.get().getName());
+    public int compareTo(DyeableData dyeableItemData) {
+        return this.color.getName().compareTo(dyeableItemData.getValue().getName());
     }
 
     @Override
     public DataContainer toContainer() {
-        return this.color.toContainer();
+        DataContainer container = new MemoryDataContainer();
+        container.set(of("DyeColor"), this.color.getId());
+        return container;
     }
 
-    @Override
-    public ItemDataTransactionResult putData(ItemStack stack) {
+    public DataTransactionResult putData(ItemStack stack) {
         // Can't really use any other way since MC is scattered...
         if (stack.getItem().equals(Items.dye)) {
             EnumDyeColor newColor = EnumDyeColor.valueOf(this.color.getName().toUpperCase());
@@ -130,23 +128,48 @@ public class SpongeDyeableData extends AbstractItemData implements DyeableItemDa
         return (combinedRg << 8) + trueBlue;
     }
 
-    private ItemDataTransactionResult rejectData(final DyeColor color) {
-        return new ItemDataTransactionResult() {
+    private DataTransactionResult rejectData(final DyeColor color) {
+        return new DataTransactionResult() {
             @Override
             public Type getType() {
                 return Type.FAILURE;
             }
 
             @Override
-            public Optional<Collection<ItemData<?>>> getRejectedData() {
-                return Optional.<Collection<ItemData<?>>>of(
-                        ImmutableSet.<ItemData<?>>of(new SpongeDyeableData(SpongeDyeableData.this.getOwner(), color)));
+            public Optional<Collection<DataManipulator<?>>> getRejectedData() {
+                return Optional.<Collection<DataManipulator<?>>>of(
+                        ImmutableSet.<DataManipulator<?>>of(new SpongeDyeableData(color)));
             }
 
             @Override
-            public Optional<Collection<ItemData<?>>> getReplacedData() {
+            public Optional<Collection<DataManipulator<?>>> getReplacedData() {
                 return Optional.absent();
             }
         };
+    }
+
+    @Override
+    public DyeColor getValue() {
+        return this.color;
+    }
+
+    @Override
+    public void setValue(DyeColor value) {
+        this.color = checkNotNull(value);
+    }
+
+    @Override
+    public Optional<DyeableData> fill(DataHolder dataHolder) {
+        return null;
+    }
+
+    @Override
+    public Optional<DyeableData> fill(DataHolder dataHolder, DataPriority overlap) {
+        return null;
+    }
+
+    @Override
+    public Optional<DyeableData> from(DataContainer container) {
+        return null;
     }
 }

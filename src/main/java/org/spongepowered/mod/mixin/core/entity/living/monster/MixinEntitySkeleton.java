@@ -27,8 +27,8 @@ package org.spongepowered.mod.mixin.core.entity.living.monster;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.world.World;
+import org.spongepowered.api.data.types.SkeletonType;
 import org.spongepowered.api.entity.living.monster.Skeleton;
-import org.spongepowered.api.entity.living.monster.SkeletonType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -49,11 +49,11 @@ public abstract class MixinEntitySkeleton extends EntityMob {
         super(worldIn);
     }
 
-    public SkeletonType skeleton$getSkeletonType() {
+    public SkeletonType getSkeletonType() {
         return SpongeEntityConstants.SKELETON_IDMAP.get((int) this.dataWatcher.getWatchableObjectByte(13));
     }
 
-    public void skeleton$setSkeletonType(SkeletonType skeletonType) {
+    public void setSkeletonType(SkeletonType skeletonType) {
         this.setSkeletonType(((SpongeEntityMeta) skeletonType).type);
     }
 

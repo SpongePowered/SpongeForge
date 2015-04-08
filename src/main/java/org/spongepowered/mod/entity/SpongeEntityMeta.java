@@ -24,13 +24,14 @@
  */
 package org.spongepowered.mod.entity;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.base.MoreObjects;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.CatalogType;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.MemoryDataContainer;
 
-public class SpongeEntityMeta {
+public class SpongeEntityMeta implements CatalogType {
 
     public final int type;
     public final String name;
@@ -38,6 +39,11 @@ public class SpongeEntityMeta {
     public SpongeEntityMeta(int type, String name) {
         this.type = type;
         this.name = name;
+    }
+
+    @Override
+    public String getId() {
+        return this.name;
     }
 
     public String getName() {

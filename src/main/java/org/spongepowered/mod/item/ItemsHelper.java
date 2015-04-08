@@ -31,13 +31,13 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
+import org.spongepowered.api.data.DataManipulator;
+import org.spongepowered.api.data.DataTransactionResult;
+import org.spongepowered.api.data.manipulators.BlockItemData;
+import org.spongepowered.api.data.manipulators.DurabilityData;
+import org.spongepowered.api.data.manipulators.SingleValueData;
 import org.spongepowered.api.item.ItemBlock;
-import org.spongepowered.api.item.ItemDataTransactionResult;
 import org.spongepowered.api.item.ItemType;
-import org.spongepowered.api.item.data.BlockItemData;
-import org.spongepowered.api.item.data.DurabilityData;
-import org.spongepowered.api.item.data.ItemData;
-import org.spongepowered.api.item.data.PseudoEnumItemData;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.mod.item.data.AbstractItemData;
 
@@ -47,19 +47,19 @@ import java.util.Set;
 
 public final class ItemsHelper {
 
-    public static final ItemDataTransactionResult SUCCESS_NO_REPLACEMENTS = new ItemDataTransactionResult() {
+    public static final DataTransactionResult SUCCESS_NO_REPLACEMENTS = new DataTransactionResult() {
         @Override
         public Type getType() {
             return Type.SUCCESS;
         }
 
         @Override
-        public Optional<Collection<ItemData<?>>> getRejectedData() {
+        public Optional<Collection<DataManipulator<?>>> getRejectedData() {
             return Optional.absent();
         }
 
         @Override
-        public Optional<Collection<ItemData<?>>> getReplacedData() {
+        public Optional<Collection<DataManipulator<?>>> getReplacedData() {
             return Optional.absent();
         }
     };
@@ -67,15 +67,15 @@ public final class ItemsHelper {
     private ItemsHelper() { // No subclassing for you!
     }
 
-    public static <T extends ItemData<T>> Optional<T> getClone(T itemData, Class<T> clazz) {
+    public static <T extends DataManipulator<T>> Optional<T> getClone(T DataManipulator, Class<T> clazz) {
 
         return Optional.absent();
     }
 
-    public static Optional<Integer> getDamageValue(final ItemType type, final Set<ItemData<?>> itemDataSet) {
+    public static Optional<Integer> getDamageValue(final ItemType type, final Set<DataManipulator<?>> DataManipulatorSet) {
         if (type instanceof ItemBlock) {
             // If it's a block, well, we definitely should have some block state information we can use
-            for (ItemData<?> data : itemDataSet) {
+            for (DataManipulator<?> data : DataManipulatorSet) {
                 if (data instanceof BlockItemData) {
                     BlockItemData blockData = (BlockItemData) data;
                     return Optional.of(Block.getBlockFromItem((Item) type).damageDropped((BlockState.StateImplementation) blockData.getState()));
@@ -85,11 +85,11 @@ public final class ItemsHelper {
             // TODO we need a better way to represent identifiable damage values
 
         } else {
-            for (ItemData<?> data : itemDataSet) {
+            for (DataManipulator<?> data : DataManipulatorSet) {
                 // Otherwise, it's a durability number
                 if (data instanceof DurabilityData) {
                     return Optional.of(((DurabilityData) data).getDurability());
-                } else if (data instanceof PseudoEnumItemData<?, ?>) {
+                } else if (data instanceof SingleValueData<?, ?>) {
                     // We really need to figure this one out.
                 }
             }
@@ -97,15 +97,15 @@ public final class ItemsHelper {
         return Optional.absent();
     }
 
-    public static ItemDataTransactionResult validateData(ItemType type, ItemData<?> data) {
+    public static DataTransactionResult validateData(ItemType type, DataManipulator<?> data) {
         return SUCCESS_NO_REPLACEMENTS; // TODO actually implement
     }
 
-    public static ItemDataTransactionResult setData(ItemStack stack, ItemData<?> data) {
-        NBTTagCompound compound = ((net.minecraft.item.ItemStack) stack).getTagCompound();
+    public static DataTransactionResult setData(ItemStack stack, DataManipulator<?> data) {
         if (data instanceof AbstractItemData) {
             return ((AbstractItemData) data).putData((net.minecraft.item.ItemStack) stack);
         } else {
+            NBTTagCompound compound = ((net.minecraft.item.ItemStack) stack).getTagCompound();
             getInstance().translateContainerToData(compound, data.toContainer());
             return SUCCESS_NO_REPLACEMENTS;
         }

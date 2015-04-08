@@ -94,7 +94,6 @@ public abstract class MixinEntityItem extends MixinEntity implements Item {
         }
     }
 
-    @Override
     public int getPickupDelay() {
         if (this.delayBeforeCanPickup == MAGIC_INFINITE_PICKUP_DELAY) {
             // There are two cases when -1 should be returned:
@@ -110,21 +109,18 @@ public abstract class MixinEntityItem extends MixinEntity implements Item {
         return this.delayBeforeCanPickup;
     }
 
-    @Override
     public void setPickupDelay(int delay) {
         this.delayBeforeCanPickup = delay;
         this.pluginPickupSet = true;
         this.infinitePickupDelay = false;
     }
 
-    @Override
     public void setInfinitePickupDelay() {
         this.delayBeforeCanPickup = MAGIC_INFINITE_PICKUP_DELAY;
         this.pluginPickupSet = true;
         this.infinitePickupDelay = true;
     }
 
-    @Override
     public int getDespawnTime() {
         if (this.age == MAGIC_INFINITE_DESPAWN_TIME) {
             if ((this.pluginDespawnSet && this.infiniteDespawnDelay) || !this.pluginDespawnSet) {
@@ -134,32 +130,27 @@ public abstract class MixinEntityItem extends MixinEntity implements Item {
         return this.lifespan - this.age;
     }
 
-    @Override
     public void setDespawnTime(int time) {
         this.lifespan = this.age + time;
         this.pluginDespawnSet = true;
         this.infiniteDespawnDelay = false;
     }
 
-    @Override
     public void setInfiniteDespawnTime() {
         this.age = MAGIC_INFINITE_DESPAWN_TIME;
         this.pluginDespawnSet = true;
         this.infiniteDespawnDelay = true;
     }
 
-    @Override
     public ItemStack getItemStack() {
         return (ItemStack) getEntityItem();
     }
 
     // TODO: Implement getThrower once some class implements User
-    @Override
     public Optional<User> getThrower() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
     public void setThrower(@Nullable User user) {
         throw new UnsupportedOperationException();
     }

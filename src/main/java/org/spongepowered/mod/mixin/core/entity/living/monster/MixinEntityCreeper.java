@@ -75,19 +75,19 @@ public abstract class MixinEntityCreeper extends EntityMob {
         this.ignite();
     }
 
-    public int creeper$getFuseDuration() {
+    public int getFuseDuration() {
         return this.fuseTime - this.timeSinceIgnited;
     }
 
-    public void creeper$setFuseDuration(int fuseTicks) {
+    public void setFuseDuration(int fuseTicks) {
         this.timeSinceIgnited = this.fuseTime - fuseTicks;
     }
 
-    public boolean creeper$isPowered() {
+    public boolean isPowered() {
         return getPowered();
     }
 
-    public void creeper$setPowered(boolean powered) {
+    public void setPowered(boolean powered) {
         if (powered) {
             this.dataWatcher.updateObject(17, (byte) 1);
         } else {
@@ -95,11 +95,11 @@ public abstract class MixinEntityCreeper extends EntityMob {
         }
     }
 
-    public int creeper$getExplosionRadius() {
+    public int getExplosionRadius() {
         return this.explosionRadius;
     }
 
-    public void creeper$setExplosionRadius(int radius) {
+    public void setExplosionRadius(int radius) {
         this.explosionRadius = radius;
     }
 }

@@ -53,24 +53,20 @@ public abstract class MixinEntityEnderEye extends MixinEntity implements EyeOfEn
 
     private ProjectileSource projectileSource = new UnknownProjectileSource();
 
-    @Override
     public Vector3d getTargetedLocation() {
         return new Vector3d(this.targetX, this.targetY, this.targetZ);
     }
 
-    @Override
     public void setTargetedLocation(Vector3d vector3d) {
         this.targetX = vector3d.getX();
         this.targetY = vector3d.getY();
         this.targetZ = vector3d.getZ();
     }
 
-    @Override
     public boolean doesShatterOnDrop() {
         return !this.shatterOrDrop;
     }
 
-    @Override
     public void setShatterOnDrop(boolean shatterOnDrop) {
         this.shatterOrDrop = !shatterOnDrop;
     }

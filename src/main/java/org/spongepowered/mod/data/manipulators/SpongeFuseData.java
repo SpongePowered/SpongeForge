@@ -22,70 +22,84 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.block.meta;
 
+package org.spongepowered.mod.data.manipulators;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.base.Optional;
+import org.spongepowered.api.data.AbstractDataManipulator;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataPriority;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.MemoryDataContainer;
-import org.spongepowered.api.data.manipulators.LockableData;
+import org.spongepowered.api.data.manipulators.FuseData;
 
-public class SpongeLockableData implements LockableData {
+public class SpongeFuseData extends AbstractDataManipulator<FuseData> implements FuseData {
 
-    private String lockToken;
+    private int fuse = 0;
 
-    public SpongeLockableData() {
+    public SpongeFuseData() {
     }
 
     @Override
-    public String getValue() {
+    public int getFuseDuration() {
+        return this.fuse;
+    }
+
+    @Override
+    public void setFuseDuration(int fuseTicks) {
+        checkArgument(fuseTicks >= this.getMinValue(), "Must be greater than the min value!");
+        checkArgument(fuseTicks <= this.getMaxValue(), "Must be less than the max value!");
+        this.fuse = fuseTicks;
+    }
+
+    @Override
+    public Integer getMinValue() {
+        return 0;
+    }
+
+    @Override
+    public Integer getMaxValue() {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public Integer getValue() {
+        return this.fuse;
+    }
+
+    @Override
+    public void setValue(Integer value) {
+        this.setFuseDuration(checkNotNull(value, "Can not accept null values!"));
+    }
+
+    @Override
+    public Optional<FuseData> fill(DataHolder dataHolder) {
         return null;
     }
 
     @Override
-    public void setValue(String value) {
-
-    }
-
-    @Override
-    public Optional<LockableData> fill(DataHolder dataHolder) {
+    public Optional<FuseData> fill(DataHolder dataHolder, DataPriority overlap) {
         return null;
     }
 
     @Override
-    public Optional<LockableData> fill(DataHolder dataHolder, DataPriority overlap) {
+    public Optional<FuseData> from(DataContainer container) {
         return null;
     }
 
     @Override
-    public Optional<LockableData> from(DataContainer container) {
-        return null;
-    }
-
-    @Override
-    public String getLockToken() {
-        return this.lockToken;
-    }
-
-    @Override
-    public void setLockToken(String token) {
-        checkNotNull(token);
-        this.lockToken = token;
-    }
-
-    @Override
-    public int compareTo(LockableData o) {
-        return this.lockToken.compareTo(o.getLockToken());
+    public int compareTo(FuseData o) {
+        return o.getFuseDuration() - this.fuse;
     }
 
     @Override
     public DataContainer toContainer() {
         DataContainer container = new MemoryDataContainer();
-        container.set(of("Lock"), this.lockToken);
+        container.set(DataQuery.of("Fuse"), this.fuse);
         return container;
     }
 }

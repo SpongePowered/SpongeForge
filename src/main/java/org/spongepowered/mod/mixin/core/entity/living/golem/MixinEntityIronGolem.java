@@ -42,11 +42,11 @@ public abstract class MixinEntityIronGolem extends EntityGolem {
         super(worldIn);
     }
 
-    public boolean irongolem$isPlayerCreated() {
+    public boolean isPlayerCreated() {
         return (this.dataWatcher.getWatchableObjectByte(16) & 1) != 0;
     }
 
-    public void irongolem$setPlayerCreated(boolean playerCreated) {
+    public void setPlayerCreated(boolean playerCreated) {
         byte b0 = this.dataWatcher.getWatchableObjectByte(16);
 
         if (playerCreated) {

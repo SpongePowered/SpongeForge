@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.entity;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -40,9 +41,16 @@ import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
 import net.minecraftforge.fml.common.network.FMLOutboundHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataManipulator;
+import org.spongepowered.api.data.DataPriority;
+import org.spongepowered.api.data.DataTransactionResult;
+import org.spongepowered.api.data.Property;
+import org.spongepowered.api.data.manipulators.AttributeData;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.util.RelativePositions;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
@@ -64,6 +72,7 @@ import org.spongepowered.mod.util.VecHelper;
 import org.spongepowered.mod.world.SpongeDimensionType;
 
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.UUID;
 
@@ -144,6 +153,9 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     @Shadow(remap = false)
     public abstract NBTTagCompound getEntityData();
+
+    @Shadow
+    public abstract void setDead();
 
     @Inject(method = "setSize", at = @At("RETURN"))
     public void onSetSize(float width, float height, CallbackInfo ci) {
@@ -368,39 +380,32 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         return false;
     }
 
-    @Override
     public Vector3d getRotation() {
         return new Vector3d(this.rotationYaw, this.rotationPitch, 0);
     }
 
-    @Override
     public void setRotation(Vector3d rotation) {
         shadow$setRotation((float) rotation.getX(), (float) rotation.getY());
     }
 
-    @Override
     public Vector3d getVelocity() {
         return new Vector3d(this.motionX, this.motionY, this.motionZ);
     }
 
-    @Override
     public void setVelocity(Vector3d velocity) {
         this.motionX = velocity.getX();
         this.motionY = velocity.getY();
         this.motionZ = velocity.getZ();
     }
 
-    @Override
     public Optional<Entity> getPassenger() {
         return Optional.fromNullable((Entity) this.riddenByEntity);
     }
 
-    @Override
     public Optional<Entity> getVehicle() {
         return Optional.fromNullable((Entity) this.ridingEntity);
     }
 
-    @Override
     public Entity getBaseVehicle() {
         if (this.ridingEntity == null) {
             return this;
@@ -413,7 +418,6 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         return (Entity) baseVehicle;
     }
 
-    @Override
     public boolean setPassenger(@Nullable Entity entity) {
         net.minecraft.entity.Entity passenger = (net.minecraft.entity.Entity) entity;
         if (this.riddenByEntity == null) { // no existing passenger
@@ -435,23 +439,19 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         return true;
     }
 
-    @Override
     public boolean setVehicle(@Nullable Entity entity) {
         mountEntity((net.minecraft.entity.Entity) entity);
         return true;
     }
 
-    @Override
     public float getBase() {
         return this.width;
     }
 
-    @Override
     public float getHeight() {
         return this.height;
     }
 
-    @Override
     public float getScale() {
         if (this.origWidth == 0 || this.origHeight == 0) {
             this.origWidth = this.width;
@@ -483,17 +483,14 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         this.isDead = true;
     }
 
-    @Override
     public int getFireTicks() {
         return this.fire;
     }
 
-    @Override
     public void setFireTicks(int ticks) {
         this.fire = ticks;
     }
 
-    @Override
     public int getFireDelay() {
         return this.fireResistance;
     }
@@ -589,29 +586,16 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     }
 
     @Override
-    public boolean isPersistent() {
-        // TODO
-        return true;
-    }
-
-    @Override
-    public void setPersistent(boolean persistent) {
-        // TODO
-    }
-
-    @Override
-    public <T> Optional<T> getData(Class<T> dataClass) {
+    public <T extends DataManipulator<T>> Optional<T> getData(Class<T> dataClass) {
+        if (dataClass.isAssignableFrom(AttributeData.class)) {
+            // TODO handle attributes
+        }
         throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
     public EntityType getType() {
         return this.entityType;
-    }
-
-    @Override
-    public EntitySnapshot getSnapshot() {
-        throw new UnsupportedOperationException(); // TODO
     }
 
     @Override
@@ -679,5 +663,71 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
      * @param compound The SpongeData compound to write to
      */
     public void writeToNbt(NBTTagCompound compound) {
+    }
+
+    @Override
+    public <T extends DataManipulator<T>> Optional<T> getOrCreate(Class<T> manipulatorClass) {
+        return null;
+    }
+
+    @Override
+    public <T extends DataManipulator<T>> boolean remove(Class<T> manipulatorClass) {
+        return false;
+    }
+
+    @Override
+    public <T extends DataManipulator<T>> boolean isCompatible(Class<T> manipulatorClass) {
+        return false;
+    }
+
+    @Override
+    public <T extends DataManipulator<T>> DataTransactionResult offer(T manipulatorData) {
+
+        return null;
+    }
+
+    @Override
+    public <T extends DataManipulator<T>> DataTransactionResult offer(T manipulatorData, DataPriority priority) {
+        return null;
+    }
+
+    @Override
+    public Collection<? extends DataManipulator<?>> getManipulators() {
+        return getUnsafeManipulators().build();
+    }
+
+    protected ImmutableList.Builder<DataManipulator<?>> getUnsafeManipulators() {
+
+        return ImmutableList.builder();
+    }
+
+    @Override
+    public <T extends Property<?, ?>> Optional<T> getProperty(Class<T> propertyClass) {
+        return null;
+    }
+
+    @Override
+    public Collection<? extends Property<?, ?>> getProperties() {
+        return null;
+    }
+
+    @Override
+    public boolean validateRawData(DataContainer container) {
+        return false;
+    }
+
+    @Override
+    public void setRawData(DataContainer container) throws InvalidDataException {
+
+    }
+    @Override
+    public DataContainer toContainer() {
+        return null;
+    }
+
+    protected <T extends DataManipulator<T>> DataTransactionResult preTransaction(T manipulatorData, T oldData,
+                                                                                  DataHolder mixinEntityTNTPrimed) {
+        // TODO stuff
+        return null;
     }
 }

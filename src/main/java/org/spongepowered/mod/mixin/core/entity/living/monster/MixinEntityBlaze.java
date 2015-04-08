@@ -50,11 +50,11 @@ public abstract class MixinEntityBlaze extends EntityMob {
         super(worldIn);
     }
 
-    public boolean blaze$isOnFire() {
+    public boolean isOnFire() {
         return isBurning();
     }
 
-    public void blaze$setOnFire(boolean onFire) {
+    public void setOnFire(boolean onFire) {
         this.func_70844_e(onFire);
     }
 }

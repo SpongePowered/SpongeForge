@@ -40,8 +40,8 @@ import java.util.Map.Entry;
  * Class that handles the registry of world generators. The methods in
  * {@link GameRegistry} simply call methods on this class.
  *
- * @see GameRegistry#getWorldGeneratorModifier(String)
- * @see GameRegistry#getWorldGeneratorModifiers()
+ * @see GameRegistry#getType(Class, String) with {@link WorldGeneratorModifier}
+ * @see GameRegistry#getAllOf(Class) with {@link WorldGeneratorModifier}
  * @see GameRegistry#registerWorldGeneratorModifier(PluginContainer, String,
  *      WorldGeneratorModifier)
  */

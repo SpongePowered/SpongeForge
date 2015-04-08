@@ -24,19 +24,22 @@
  */
 package org.spongepowered.mod.mixin.core.item.inventory;
 
-import static org.spongepowered.api.service.persistence.data.DataQuery.of;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.item.ItemDataTransactionResult;
+import org.spongepowered.api.data.DataManipulator;
+import org.spongepowered.api.data.DataPriority;
+import org.spongepowered.api.data.DataTransactionResult;
+import org.spongepowered.api.data.Property;
 import org.spongepowered.api.item.ItemType;
-import org.spongepowered.api.item.data.ItemData;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.properties.ItemProperty;
-import org.spongepowered.api.service.persistence.data.DataContainer;
-import org.spongepowered.api.service.persistence.data.MemoryDataContainer;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -93,52 +96,58 @@ public abstract class MixinItemStack implements ItemStack {
     }
 
     @Override
-    public void setMaxStackQuantity(int quantity) {
-        shadow$getItem().setMaxStackSize(quantity);
-    }
-
-    @Override
-    public <T extends ItemData<T>> ItemDataTransactionResult setItemData(T itemData) {
-        // TODO actually implement this....
-        ItemDataTransactionResult result = ItemsHelper.validateData(this.getItem(), itemData);
-        if (result.getType() != ItemDataTransactionResult.Type.SUCCESS) {
-            return result;
-        } else {
-            result = ItemsHelper.setData(this, itemData);
-            return result;
-        }
-    }
-
-    @Override
-    public <T extends ItemData<T>> Optional<T> getOrCreateItemData(Class<T> dataClass) {
-        return null;
-    }
-
-    @Override
-    public Collection<ItemProperty<?, ?>> getProperties() {
-        return null;
-    }
-
-    @Override
-    public Collection<ItemData<?>> getItemData() {
-        return null;
-    }
-
-    public <T extends ItemProperty<?, ?>> Optional<T> getProperty(Class<T> property) {
-
+    public <T extends DataManipulator<T>> Optional<T> getData(Class<T> dataClass) {
         return Optional.absent();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> Optional<T> getData(Class<T> dataClass) {
-        if (ItemData.class.isAssignableFrom(dataClass)) {
-            return (Optional<T>) getOrCreateItemData((Class) dataClass);
-        } else if (ItemProperty.class.isAssignableFrom(dataClass)) {
-            return (Optional<T>) getProperty((Class) dataClass);
-        } else {
-            return Optional.absent(); // Because fuck you, that's why
-        }
+    public <T extends DataManipulator<T>> Optional<T> getOrCreate(Class<T> manipulatorClass) {
+        return Optional.absent();
+    }
+
+    @Override
+    public <T extends DataManipulator<T>> boolean remove(Class<T> manipulatorClass) {
+        return false;
+    }
+
+    @Override
+    public <T extends DataManipulator<T>> boolean isCompatible(Class<T> manipulatorClass) {
+        return false;
+    }
+
+    @Override
+    public <T extends DataManipulator<T>> DataTransactionResult offer(T manipulatorData) {
+        return null;
+    }
+
+    @Override
+    public <T extends DataManipulator<T>> DataTransactionResult offer(T manipulatorData, DataPriority priority) {
+        return null;
+    }
+
+    @Override
+    public Collection<? extends DataManipulator<?>> getManipulators() {
+        return ImmutableList.of();
+    }
+
+    @Override
+    public <T extends Property<?, ?>> Optional<T> getProperty(Class<T> propertyClass) {
+        return Optional.absent();
+    }
+
+    @Override
+    public Collection<? extends Property<?, ?>> getProperties() {
+        return null;
+    }
+
+    @Override
+    public boolean validateRawData(DataContainer container) {
+        return false;
+    }
+
+    @Override
+    public void setRawData(DataContainer container) throws InvalidDataException {
+
     }
 
     @Override
@@ -147,12 +156,9 @@ public abstract class MixinItemStack implements ItemStack {
         container.set(of("ItemType"), this.getItem().getId());
         container.set(of("Quantity"), this.getQuantity());
         List<DataContainer> containerList = Lists.newArrayList();
-        for (ItemData<?> itemData : getItemData()) {
+        for (DataManipulator<?> itemData : getManipulators()) {
             containerList.add(itemData.toContainer());
         }
-
-
         return container;
     }
-
 }

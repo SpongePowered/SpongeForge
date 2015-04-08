@@ -35,6 +35,16 @@ public class SpongeRotation implements Rotation {
     }
 
     @Override
+    public String getId() {
+        return null; // TODO
+    }
+
+    @Override
+    public String getName() {
+        return null; // TODO
+    }
+
+    @Override
     public int getAngle() {
         return this.angle;
     }
