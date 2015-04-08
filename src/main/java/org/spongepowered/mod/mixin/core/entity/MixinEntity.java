@@ -188,6 +188,13 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         return setLocation(location, false);
     }
 
+    @Override
+    public boolean setLocationAndRotationSafely(Location location, Vector3d rotation) {
+        boolean relocated = setLocation(location, false);
+        setRotation(rotation);
+        return relocated;
+    }
+
     public boolean setLocation(Location location, boolean forced) {
         if (isRemoved()) {
             return false;
