@@ -110,6 +110,7 @@ shadowJar  {
         include(dependency('com.h2database:h2'))
         include(dependency('org.xerial:sqlite-jdbc'))
         include(dependency('org.javassist:javassist'))
+        include(dependency('com.google.code.findbugs:jsr305'))
         include(project('SpongeAPI'))
         include(project('Mixin'))
     }
