@@ -26,30 +26,42 @@ package org.spongepowered.mod;
 
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
 
 import java.util.Map;
 
 public class SpongeCoremod implements IFMLLoadingPlugin {
 
     public SpongeCoremod() {
+        // Let's get this party started
         MixinBootstrap.init();
-        MixinEnvironment env = MixinEnvironment.getCurrentEnvironment();
-        env.addConfiguration("mixins.sponge.core.json");
-        env.addConfiguration("mixins.sponge.api.json");
-        env.addConfiguration("mixins.sponge.entityactivation.json");
+        
+        // Add pre-init mixins
+        MixinEnvironment.getEnvironment(Phase.PREINIT)
+            .addConfiguration("mixins.sponge.base.json");
+        
+        // Add default mixins
+        MixinEnvironment.getDefaultEnvironment()
+            .addConfiguration("mixins.sponge.core.json")
+            .addConfiguration("mixins.sponge.api.json")
+            .addConfiguration("mixins.sponge.entityactivation.json");
 
+        // Classloader exclusions - TODO: revise when event pkg refactor reaches impl
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.CauseTracked");
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.event.Cancellable");
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.event.callback.CallbackList");
+        
         // Transformer exclusions
-        Launch.classLoader.addTransformerExclusion("ninja.leaping.configurate");
-        Launch.classLoader.addTransformerExclusion("org.apache.commons.lang3");
+        Launch.classLoader.addTransformerExclusion("ninja.leaping.configurate.");
+        Launch.classLoader.addTransformerExclusion("org.apache.commons.lang3.");
     }
 
     @Override
     public String[] getASMTransformerClass() {
-        return new String[] {
-            MixinBootstrap.TRANSFORMER_CLASS,
-        };
+        return null;
     }
 
     @Override

@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.event.FMLEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.util.event.callback.CallbackList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.SpongeMod;
 
@@ -38,4 +39,10 @@ public abstract class MixinEventState extends FMLEvent {
     public Game getGame() {
         return SpongeMod.instance.getGame();
     }
+    
+    public CallbackList getCallbacks() {
+        // TODO
+        return null;
+    }
+
 }

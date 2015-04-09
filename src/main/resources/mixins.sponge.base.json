@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "minVersion": "0.3",
+    "package": "org.spongepowered.mod.mixin.core",
+    "refmap": "mixins.sponge.refmap.json",
+    "mixins": [
+        "event.MixinEvent",
+        "fml.MixinEntityRegistry",
+        "fml.MixinModContainer",
+        "forge.MixinBlockSnapshot",
+        "forge.MixinDimensionManager"
+    ]
+}
