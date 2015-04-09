@@ -5,9 +5,6 @@
     "refmap": "mixins.sponge.refmap.json",
     "mixins": [
         "event.MixinEvent",
-        "fml.MixinEntityRegistry",
-        "fml.MixinModContainer",
-        "forge.MixinBlockSnapshot",
-        "forge.MixinDimensionManager"
+        "fml.MixinModContainer"
     ]
 }

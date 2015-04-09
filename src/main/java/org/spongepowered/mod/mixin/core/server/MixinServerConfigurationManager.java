@@ -124,7 +124,7 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
     public abstract void playerLoggedIn(EntityPlayerMP playerIn);
 
     @SuppressWarnings("rawtypes")
-    @Overwrite
+    @Overwrite(aliases = "initializeConnectionToPlayer")
     public void initializeConnectionToPlayer(NetworkManager netManager, EntityPlayerMP playerIn, NetHandlerPlayServer nethandlerplayserver) {
         GameProfile gameprofile = playerIn.getGameProfile();
         PlayerProfileCache playerprofilecache = this.mcServer.getPlayerProfileCache();
