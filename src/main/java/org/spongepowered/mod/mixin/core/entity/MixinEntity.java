@@ -353,8 +353,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
             if (worldserver.getWorldInfo().getWorldName().equalsIgnoreCase(worldName)) {
                 Vector3d pos = VecHelper.toVector3d(worldserver.getSpawnPoint());
                 Location location = new Location((World) worldserver, pos);
-                setLocationSafely(location);
-                return true;
+                return setLocationSafely(location);
             }
         }
         return false;
