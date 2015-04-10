@@ -44,7 +44,7 @@ import java.util.Set;
 @Mixin(targets = "net/minecraft/command/CommandExecuteAt$1")
 @NonnullByDefault
 public abstract class MixinCommandExecuteAtSender implements CommandSource, ICommandSender {
-    @Shadow
+    @Shadow(aliases = "val$sender")
     private ICommandSender field_174802_b;
 
     @Override
