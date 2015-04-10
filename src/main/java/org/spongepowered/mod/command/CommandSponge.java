@@ -25,6 +25,7 @@
 package org.spongepowered.mod.command;
 
 import com.google.common.collect.ImmutableList;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,8 +34,10 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.spongepowered.api.world.DimensionType;
+import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.interfaces.IMixinWorld;
@@ -53,7 +56,7 @@ public class CommandSponge extends CommandBase {
     @SuppressWarnings("unused")
     private static final List<String> FLAGS = ImmutableList.of("-g", "-d", "-w");
     private static final List<String> FLAG_COMMANDS = ImmutableList.of("save", "chunks", "conf", "reload");
-    private static final List<String> COMMANDS = ImmutableList.of("chunks", "conf", "heap", "help", "reload", "save", "version");
+    private static final List<String> COMMANDS = ImmutableList.of("chunks", "conf", "heap", "help", "reload", "save", "version", "audit");
     private static final List<String> ALIASES = ImmutableList.of("sp");
 
     private static final String USAGE_CONF =
@@ -255,6 +258,8 @@ public class CommandSponge extends CommandBase {
                                     + "SpongeAPI : " + EnumChatFormatting.GREEN + SpongeMod.instance.getGame().getApiVersion()));
                 } else if (command.equalsIgnoreCase("heap")) {
                     processHeap(sender, args);
+                } else if (command.equalsIgnoreCase("audit")) {
+                    MixinEnvironment.getCurrentEnvironment().audit();
                 } else if (command.equalsIgnoreCase("help")) {
                     sender.addChatMessage(new ChatComponentText("commands:\n"
                             + "    " + EnumChatFormatting.GREEN + "chunks   " + EnumChatFormatting.WHITE + "     "
