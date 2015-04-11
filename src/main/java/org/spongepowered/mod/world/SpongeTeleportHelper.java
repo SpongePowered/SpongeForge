@@ -34,11 +34,6 @@ import org.spongepowered.api.world.World;
 
 public class SpongeTeleportHelper implements TeleportHelper {
 
-    /** The default height radius to scan for safe locations */
-    static int DEFAULT_HEIGHT = 3;
-    /** The default width radius to scan for safe locations */
-    static int DEFAULT_WIDTH = 9;
-
     @Override
     public Optional<Location> getSafeLocation(Location location) {
         return getSafeLocation(location, DEFAULT_HEIGHT, DEFAULT_WIDTH);
@@ -47,9 +42,9 @@ public class SpongeTeleportHelper implements TeleportHelper {
     @Override
     public Optional<Location> getSafeLocation(Location location, final int height, final int width) {
         // Check around the player first in a configurable radius:
-        Optional<Location> safe = checkAboveAndBelowLocation(location, height, width);
+        final Optional<Location> safe = checkAboveAndBelowLocation(location, height, width);
         if (safe.isPresent()) {
-            return safe;
+            return Optional.of(new Location(safe.get().getExtent(), safe.get().getPosition().add(0.5, 0, 0.5)));
         } else {
             return Optional.absent();
         }
@@ -83,10 +78,8 @@ public class SpongeTeleportHelper implements TeleportHelper {
     }
 
     private Optional<Location> checkAroundLocation(Location location, final int radius) {
-        // Let's check the center of the 'circle' first...
-        Vector3i blockPos = new Vector3i(location.getBlockPosition());
-        if (isSafeLocation((World) location.getExtent(), blockPos)) {
-            return Optional.of(new Location(location.getExtent(), blockPos));
+        if (isSafeLocation((World) location.getExtent(), location.getBlockPosition())) {
+            return Optional.of(location);
         }
 
         // Now we're going to search in expanding concentric circles...
@@ -153,57 +146,50 @@ public class SpongeTeleportHelper implements TeleportHelper {
     }
 
     public boolean isSafeLocation(World world, Vector3i blockPos) {
-        Vector3i up = new Vector3i(blockPos.add(Vector3i.UP));
-        Vector3i down = new Vector3i(blockPos.sub(0, 1, 0));
+        final Vector3i up = new Vector3i(blockPos.add(Vector3i.UP));
+        final Vector3i down = new Vector3i(blockPos.sub(Vector3i.UP));
 
-        if (!isBlockSafe(world, blockPos) || !isBlockSafe(world, up) || !isBlockSafe(world, down)) {
-            return false;
-        }
+        return !(!isBlockSafe(world, blockPos, false) || !isBlockSafe(world, up, false) || !isBlockSafe(world, down, true));
 
-        if (world.getBlock(down).getType() == BlockTypes.AIR) {
-            final boolean blocksBelowSafe = areTwoBlocksBelowSafe(world, down);
-            return blocksBelowSafe;
-        }
-        return true;
     }
 
-    protected boolean isBlockSafe(World world, Vector3i blockPos) {
-        BlockType block = world.getBlockType(blockPos);
-        if (block.isSolidCube()) {
-            return false;
-        }
-        if (blockPos.getY() < 0) {
-            return false;
-        }
+    private boolean isBlockSafe(World world, Vector3i blockPos, boolean floorBlock) {
+        final BlockType block = world.getBlockType(blockPos);
 
-        if (blockPos.getY() >= world.getDimension().getHeight()) {
+        if (blockPos.getY() <= 0) {
             return false;
         }
 
-        BlockType type = world.getBlockType(blockPos);
-        if (type == BlockTypes.LAVA) {
+        if (blockPos.getY() > world.getHeight()) {
             return false;
         }
-        if (type == BlockTypes.FIRE) {
-            return false;
+
+
+        if (floorBlock) {
+            //Floor is air so we'll fall, need to make sure we fall safely.
+            if (block == BlockTypes.AIR) {
+                final BlockType typeBelowPos = world.getBlockType(blockPos.sub(0, 1, 0));
+                final BlockType typeBelowPos2 = world.getBlockType(blockPos.sub(0, 2, 0));
+
+                // We'll fall too far, not safe
+                if (typeBelowPos == BlockTypes.AIR && typeBelowPos2 == BlockTypes.AIR) {
+                    return false;
+                }
+
+                // We'll fall onto a block, need to make sure its safe
+                if (typeBelowPos != BlockTypes.WATER || typeBelowPos != BlockTypes.FLOWING_WATER || !typeBelowPos.isSolidCube()) {
+                    return false;
+                }
+
+                // We'll fall through an air block to another, need to make sure its safe
+                return !(typeBelowPos2 != BlockTypes.WATER || typeBelowPos2 != BlockTypes.FLOWING_WATER || !typeBelowPos2.isSolidCube());
+            }
+
+            //We have a non-air floor, need to ensure its safe
+            return block == BlockTypes.WATER || block == BlockTypes.FLOWING_WATER || block.isSolidCube();
         }
-        return true;
-    }
 
-    protected boolean areTwoBlocksBelowSafe(World world, Vector3i blockPos) {
-
-        Vector3i blockBelowPos = blockPos.sub(0, 1, 0);
-        Vector3i blockBelowPos2 = blockPos.sub(0, 2, 0);
-        BlockType blockBelow = world.getBlockType(blockBelowPos);
-        BlockType blockBelow2 = world.getBlockType(blockBelowPos2);
-        if (blockBelow == BlockTypes.AIR && blockBelow2 == BlockTypes.AIR) {
-            return false; // prevent fall damage
-        }
-
-        if ((blockBelow == BlockTypes.AIR && (blockBelow2 == BlockTypes.LAVA || blockBelow2 == BlockTypes.FLOWING_LAVA))) {
-            return false; // prevent damage;
-        }
-
-        return true;
+        //We need to make sure the block at our torso or head is safe
+        return block == BlockTypes.AIR || block == BlockTypes.WATER || block == BlockTypes.FLOWING_WATER;
     }
 }
