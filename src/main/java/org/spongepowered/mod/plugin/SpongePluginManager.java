@@ -27,7 +27,6 @@ package org.spongepowered.mod.plugin;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.MinecraftDummyContainer;
 import net.minecraftforge.fml.common.ModContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,20 @@ public class SpongePluginManager implements PluginManager {
 
     @Override
     public Optional<PluginContainer> getPlugin(String s) {
-        return Optional.fromNullable((PluginContainer) Loader.instance().getIndexedModList().get(s));
+        if (s.equalsIgnoreCase(MINECRAFT_CONTAINER.getId())) {
+            return Optional.of((PluginContainer) Loader.instance().getMinecraftModContainer());
+        } else {
+            ModContainer container = Loader.instance().getIndexedModList().get(s);
+            if (container == null) {
+                for (ModContainer mod : Loader.instance().getModList()) {
+                    if (mod.getModId().equalsIgnoreCase(s)) {
+                        container = mod;
+                        break;
+                    }
+                }
+            }
+            return Optional.fromNullable((PluginContainer) container);
+        }
     }
 
     @Override
@@ -55,15 +67,13 @@ public class SpongePluginManager implements PluginManager {
     @Override
     @SuppressWarnings("unchecked")
     public Collection<PluginContainer> getPlugins() {
-        return ImmutableSet.copyOf((List) Loader.instance().getActiveModList());
+        return (ImmutableSet) ImmutableSet.builder().add(Loader.instance().getMinecraftModContainer()).addAll((List) Loader.instance().getActiveModList()).build();
     }
 
     @Override
     public Optional<PluginContainer> fromInstance(Object instance) {
         if (instance instanceof PluginContainer) {
             return Optional.of((PluginContainer) instance);
-        } else if (instance instanceof MinecraftDummyContainer) {
-            return Optional.of(MINECRAFT_CONTAINER);
         } else if (instance instanceof ModContainer) { // For coremods that don't get to be mixed in
             return getPlugin(((ModContainer) instance).getModId());
         }
@@ -72,6 +82,6 @@ public class SpongePluginManager implements PluginManager {
 
     @Override
     public boolean isLoaded(String s) {
-        return Loader.isModLoaded(s);
+        return s.equalsIgnoreCase(MINECRAFT_CONTAINER.getId()) || Loader.isModLoaded(s);
     }
 }

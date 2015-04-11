@@ -24,10 +24,10 @@
  */
 package org.spongepowered.mod.command;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandHandler;
-import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.PlayerSelector;
@@ -36,11 +36,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.command.CommandCallable;
 import org.spongepowered.api.util.command.CommandException;
+import org.spongepowered.api.util.command.CommandPermissionException;
+import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.util.command.InvocationCommandException;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.List;
@@ -54,9 +56,13 @@ public class MinecraftCommandWrapper implements CommandCallable {
     private final ModContainer activeMod;
     private final ICommand command;
 
-    public MinecraftCommandWrapper(ModContainer activeMod, ICommand command) {
+    public MinecraftCommandWrapper(final ModContainer activeMod, final ICommand command) {
         this.activeMod = activeMod;
         this.command = command;
+    }
+
+    private static ICommandSender sourceToSender(CommandSource source) {
+        return source instanceof ICommandSender ? (ICommandSender) source : new WrapperICommandSender(source);
     }
 
     private String[] splitArgs(String arguments) {
@@ -64,53 +70,53 @@ public class MinecraftCommandWrapper implements CommandCallable {
     }
 
     @Override
-    public boolean call(CommandSource source, String arguments, List<String> parents) throws CommandException {
+    public Optional<CommandResult> process(CommandSource source, String arguments) throws CommandException {
+
+        if (!testPermission(source)) {
+            throw new CommandPermissionException(Texts.of(SpongeMod.instance.getGame().getRegistry()
+                    .getTranslationById(TRANSLATION_NO_PERMISSION).get()));
+        }
+
         CommandHandler handler = (CommandHandler) MinecraftServer.getServer().getCommandManager();
-        final ICommandSender mcSender = source instanceof ICommandSender ? (ICommandSender) source : new WrapperICommandSender(source);
-        final String[] args = splitArgs(arguments);
-        int usernameIndex = handler.getUsernameIndex(this.command, args);
+        final ICommandSender mcSender = sourceToSender(source);
+        final String[] splitArgs = splitArgs(arguments);
+        int usernameIndex = handler.getUsernameIndex(this.command, splitArgs);
         int successCount = 0;
 
+
         // Below this is copied from CommandHandler.execute. This might need to be updated between versions.
-        if (testPermission(source)) {
-            net.minecraftforge.event.CommandEvent event = new net.minecraftforge.event.CommandEvent(this.command, mcSender, args);
-            if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event)) {
-                if (event.exception != null) {
-                    com.google.common.base.Throwables.propagateIfPossible(event.exception);
-                }
-                return false;
+        net.minecraftforge.event.CommandEvent event = new net.minecraftforge.event.CommandEvent(this.command, mcSender, splitArgs);
+        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event)) {
+            if (event.exception != null) {
+                throw new InvocationCommandException(Texts.of("Error while firing Forge event"), event.exception);
             }
+            return Optional.of(CommandResult.empty());
+        }
+        int affectedEntities = 1;
+        if (usernameIndex > -1) {
+            @SuppressWarnings("unchecked")
+            List<Entity> list = PlayerSelector.matchEntities(mcSender, splitArgs[usernameIndex], Entity.class);
+            String previousNameVal = splitArgs[usernameIndex];
+            affectedEntities = list.size();
 
-            if (usernameIndex > -1) {
-                @SuppressWarnings("unchecked")
-                List<Entity> list = PlayerSelector.matchEntities(mcSender, args[usernameIndex], Entity.class);
-                String previousNameVal = args[usernameIndex];
-                mcSender.setCommandStat(CommandResultStats.Type.AFFECTED_ENTITIES, list.size());
+            for (Entity entity : list) {
+                splitArgs[usernameIndex] = entity.getUniqueID().toString();
 
-                for (Entity entity : list) {
-                    args[usernameIndex] = entity.getUniqueID().toString();
-
-                    if (handler.tryExecute(mcSender, args, this.command, arguments)) {
-                        ++successCount;
-                    }
-                }
-                args[usernameIndex] = previousNameVal;
-            } else {
-                mcSender.setCommandStat(CommandResultStats.Type.AFFECTED_ENTITIES, 1);
-
-                if (handler.tryExecute(mcSender, args, this.command, arguments)) {
+                if (handler.tryExecute(mcSender, splitArgs, this.command, arguments)) {
                     ++successCount;
                 }
             }
+            splitArgs[usernameIndex] = previousNameVal;
         } else {
-            source.sendMessage(Texts
-                    .builder(SpongeMod.instance.getGame().getRegistry().getTranslationById(TRANSLATION_NO_PERMISSION).get(), new Object[0])
-                    .color(TextColors.RED)
-                    .build());
+            if (handler.tryExecute(mcSender, splitArgs, this.command, arguments)) {
+                ++successCount;
+            }
         }
 
-        mcSender.setCommandStat(CommandResultStats.Type.SUCCESS_COUNT, successCount);
-        return successCount > 0;
+        return Optional.of(CommandResult.builder()
+                .affectedEntities(affectedEntities)
+                .successCount(successCount)
+                .build());
     }
 
     public int getPermissionLevel() {
@@ -119,6 +125,10 @@ public class MinecraftCommandWrapper implements CommandCallable {
 
     public String getCommandPermission() {
         return this.activeMod.getModId().toLowerCase() + ".command." + this.command.getCommandName();
+    }
+
+    public ModContainer getMod() {
+        return this.activeMod;
     }
 
     @Override
@@ -131,19 +141,24 @@ public class MinecraftCommandWrapper implements CommandCallable {
     }
 
     @Override
-    public String getShortDescription(CommandSource source) {
-        return null;
+    public Optional<Text> getShortDescription(CommandSource source) {
+        return Optional.absent();
     }
 
     @Override
-    public Text getHelp(CommandSource source) {
-        return null;
+    public Optional<Text> getHelp(CommandSource source) {
+        return Optional.absent();
     }
 
     @Override
-    public String getUsage(CommandSource source) {
-        final ICommandSender mcSender = source instanceof ICommandSender ? (ICommandSender) source : new WrapperICommandSender(source);
-        return this.command.getCommandUsage(mcSender);
+    public Text getUsage(CommandSource source) {
+        final ICommandSender mcSender =
+                source instanceof ICommandSender ? (ICommandSender) source : new WrapperICommandSender(source);
+        String usage = this.command.getCommandUsage(mcSender);
+        if (usage.startsWith("/") && usage.contains(" ")) {
+            usage = usage.substring(usage.indexOf(" "));
+        }
+        return Texts.of(SpongeMod.instance.getGame().getRegistry().getTranslationById(usage).get());
     }
 
     @Override
@@ -151,11 +166,6 @@ public class MinecraftCommandWrapper implements CommandCallable {
     public List<String> getSuggestions(CommandSource source, String arguments) throws CommandException {
         return this.command.addTabCompletionOptions((ICommandSender) source, splitArgs(arguments), null);
     }
-
-    public ModContainer getMod() {
-        return this.activeMod;
-    }
-
     @SuppressWarnings("unchecked")
     public List<String> getNames() {
         return ImmutableList.<String>builder().add(this.command.getCommandName()).addAll(this.command.getCommandAliases()).build();

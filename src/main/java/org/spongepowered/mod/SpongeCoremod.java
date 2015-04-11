@@ -38,11 +38,11 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     public SpongeCoremod() {
         // Let's get this party started
         MixinBootstrap.init();
-        
+
         // Add pre-init mixins
         MixinEnvironment.getEnvironment(Phase.PREINIT)
             .addConfiguration("mixins.sponge.base.json");
-        
+
         // Add default mixins
         MixinEnvironment.getDefaultEnvironment()
             .addConfiguration("mixins.sponge.core.json")
@@ -53,7 +53,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.CauseTracked");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Cancellable");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.event.callback.CallbackList");
-        
+
         // Transformer exclusions
         Launch.classLoader.addTransformerExclusion("ninja.leaping.configurate.");
         Launch.classLoader.addTransformerExclusion("org.apache.commons.lang3.");

@@ -203,11 +203,18 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         @Setting
         private SqlCategory sql = new SqlCategory();
 
+        @Setting
+        private CommandsCategory commands = new CommandsCategory();
+
         @Setting(value = "modules")
         private ModuleCategory mixins = new ModuleCategory();
 
         public SqlCategory getSql() {
             return this.sql;
+        }
+
+        public CommandsCategory getCommands() {
+            return this.commands;
         }
 
         public ModuleCategory getModules() {
@@ -286,6 +293,16 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
     @ConfigSerializable
     public static class SqlCategory extends Category {
         @Setting
+        private Map<String, String> aliases = new HashMap<String, String>();
+
+        public Map<String, String> getAliases() {
+            return this.aliases;
+        }
+    }
+
+    @ConfigSerializable
+    public static class CommandsCategory extends Category {
+        @Setting(comment = "A mapping from unqualified command alias to plugin id of the plugin that should handle a certain command")
         private Map<String, String> aliases = new HashMap<String, String>();
 
         public Map<String, String> getAliases() {
