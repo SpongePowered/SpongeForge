@@ -25,9 +25,7 @@
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
 import net.minecraft.entity.ai.attributes.IAttribute;
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Zombie;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -38,26 +36,14 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Mixin(EntityZombie.class)
 @Implements(@Interface(iface = Zombie.class, prefix = "zombie$"))
-public abstract class MixinEntityZombie extends EntityMob {
+public abstract class MixinEntityZombie extends MixinEntityMob {
 
-    @Shadow
-    private static IAttribute reinforcementChance;
-
-    @Shadow
-    public abstract boolean isVillager();
-
-    @Shadow
-    public abstract void setVillager(boolean villagerZombie);
-
-    @Shadow
-    public abstract void setChild(boolean childZombie);
-
-    @Shadow
-    public abstract void setChildSize(boolean isChild);
-
-    public MixinEntityZombie(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow private static IAttribute reinforcementChance;
+    @Shadow public abstract boolean isVillager();
+    @Shadow public abstract void setVillager(boolean villagerZombie);
+    @Shadow public abstract boolean isChild();
+    @Shadow public abstract void setChild(boolean childZombie);
+    @Shadow public abstract void setChildSize(boolean isChild);
 
     public boolean isVillagerZombie() {
         return this.isVillager();

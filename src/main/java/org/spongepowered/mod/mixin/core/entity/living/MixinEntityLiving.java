@@ -24,10 +24,11 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living;
 
+import static org.spongepowered.api.data.DataQuery.of;
+
 import com.google.common.base.Optional;
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.world.World;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.Agent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -41,26 +42,13 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 @Mixin(EntityLiving.class)
 @Implements(@Interface(iface = Agent.class, prefix = "agent$"))
-public abstract class MixinEntityLiving extends EntityLivingBase {
+public abstract class MixinEntityLiving extends MixinEntityLivingBase {
 
-    @Shadow
-    private boolean canPickUpLoot;
-
-    @Shadow
-    public abstract boolean isAIDisabled();
-
-    @Shadow
-    protected abstract void setNoAI(boolean p_94061_1_);
-
-    @Shadow
-    public abstract net.minecraft.entity.Entity getLeashedToEntity();
-
-    @Shadow
-    public abstract void setLeashedToEntity(net.minecraft.entity.Entity entityIn, boolean sendAttachNotification);
-
-    public MixinEntityLiving(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow private boolean canPickUpLoot;
+    @Shadow public abstract boolean isAIDisabled();
+    @Shadow protected abstract void setNoAI(boolean p_94061_1_);
+    @Shadow public abstract net.minecraft.entity.Entity getLeashedToEntity();
+    @Shadow public abstract void setLeashedToEntity(net.minecraft.entity.Entity entityIn, boolean sendAttachNotification);
 
     public boolean isAiEnabled() {
         return !isAIDisabled();
@@ -94,4 +82,10 @@ public abstract class MixinEntityLiving extends EntityLivingBase {
         this.canPickUpLoot = canPickupItems;
     }
 
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(of("AiEnabled"), !this.isAIDisabled());
+        return container;
+    }
 }

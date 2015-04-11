@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySilverfish;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Silverfish;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -36,10 +34,6 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(EntitySilverfish.class)
 @Implements(@Interface(iface = Silverfish.class, prefix = "silverfish$"))
-public abstract class MixinEntitySilverfish extends EntityMob {
-
-    public MixinEntitySilverfish(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntitySilverfish extends MixinEntityMob {
 
 }

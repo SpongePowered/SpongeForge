@@ -25,11 +25,9 @@
 package org.spongepowered.mod.mixin.core.entity.living.animal;
 
 import com.google.common.base.Optional;
-import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.AnimalChest;
-import net.minecraft.world.World;
 import org.spongepowered.api.data.types.HorseColor;
 import org.spongepowered.api.data.types.HorseStyle;
 import org.spongepowered.api.data.types.HorseVariant;
@@ -48,26 +46,13 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 @Mixin(EntityHorse.class)
 @Implements(@Interface(iface = Horse.class, prefix = "horse$"))
-public abstract class MixinEntityHorse extends EntityAnimal {
+public abstract class MixinEntityHorse extends MixinEntityAnimal {
 
-    @Shadow
-    private AnimalChest horseChest;
-
-    @Shadow
-    public abstract void setHorseType(int type);
-
-    @Shadow
-    public abstract void setHorseVariant(int variant);
-
-    @Shadow
-    public abstract int getHorseVariant();
-
-    @Shadow
-    public abstract int getHorseType();
-
-    public MixinEntityHorse(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow private AnimalChest horseChest;
+    @Shadow public abstract int getHorseVariant();
+    @Shadow public abstract void setHorseVariant(int variant);
+    @Shadow public abstract int getHorseType();
+    @Shadow public abstract void setHorseType(int type);
 
     public HorseStyle getStyle() {
         return SpongeEntityConstants.HORSE_STYLE_IDMAP.get(getHorseVariant() & 0xFF);

@@ -28,8 +28,6 @@ import com.google.common.base.Optional;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.monster.EntityEnderman;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.world.World;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.entity.living.monster.Enderman;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -40,11 +38,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(EntityEnderman.class)
 @Implements(@Interface(iface = Enderman.class, prefix = "enderman$"))
-public abstract class MixinEntityEnderman extends EntityMob {
-
-    public MixinEntityEnderman(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityEnderman extends MixinEntityMob {
 
     public Optional<BlockState> getCarriedBlock() {
         return Optional.fromNullable((BlockState) Block.getStateById(this.dataWatcher.getWatchableObjectShort(16) & 65535));
@@ -52,7 +46,7 @@ public abstract class MixinEntityEnderman extends EntityMob {
 
     public void setCarriedBlock(BlockState carriedBlock) {
         this.dataWatcher
-                .updateObject(16, (short) (Block.getStateId(((IBlockState) carriedBlock).getBlock().getDefaultState()) & 65535));
+            .updateObject(16, (short) (Block.getStateId(((IBlockState) carriedBlock).getBlock().getDefaultState()) & 65535));
     }
 
     public boolean isScreaming() {

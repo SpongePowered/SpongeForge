@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.golem;
 
-import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.monster.EntityIronGolem;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.golem.IronGolem;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -36,11 +34,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(EntityIronGolem.class)
 @Implements(@Interface(iface = IronGolem.class, prefix = "irongolem$"))
-public abstract class MixinEntityIronGolem extends EntityGolem {
-
-    public MixinEntityIronGolem(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityIronGolem extends MixinEntityGolem {
 
     public boolean isPlayerCreated() {
         return (this.dataWatcher.getWatchableObjectByte(16) & 1) != 0;

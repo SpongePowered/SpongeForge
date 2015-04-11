@@ -22,15 +22,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.entity.vehicle.minecart;
+package org.spongepowered.mod.entity;
 
-import net.minecraft.entity.ai.EntityMinecartMobSpawner;
-import org.spongepowered.api.entity.vehicle.minecart.MinecartMobSpawner;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Mixin;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.DamageSource;
 
-@NonnullByDefault
-@Mixin(EntityMinecartMobSpawner.class)
-public abstract class MixinEntityMinecartMobSpawner extends MixinEntityMinecart implements MinecartMobSpawner {
+public class DamageHandler {
+
+    public static DamageSource damage(Object thrower, Entity victim) {
+        return DamageSource.causeThrownDamage((Entity) thrower, victim);
+    }
 
 }

@@ -42,18 +42,13 @@ import javax.annotation.Nullable;
 @Mixin(EntityThrowable.class)
 public abstract class MixinEntityThrowable extends MixinEntity implements Projectile {
 
+    @Shadow private EntityLivingBase thrower;
+    @Shadow private String throwerName;
+    @Shadow public abstract EntityLivingBase getThrower();
+
+
     @Nullable
     public ProjectileSource projectileSource;
-
-    @Shadow
-    private EntityLivingBase thrower;
-
-    @Shadow
-    private String throwerName;
-
-    // This method includes additional logic for dealing with player names
-    @Shadow
-    public abstract EntityLivingBase getThrower();
 
     @Override
     public ProjectileSource getShooter() {

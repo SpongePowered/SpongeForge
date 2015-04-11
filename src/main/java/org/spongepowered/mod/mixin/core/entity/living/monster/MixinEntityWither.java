@@ -26,8 +26,6 @@ package org.spongepowered.mod.mixin.core.entity.living.monster;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.EntityWither;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.monster.Wither;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -42,20 +40,11 @@ import java.util.List;
 @NonnullByDefault
 @Mixin(EntityWither.class)
 @Implements(@Interface(iface = Wither.class, prefix = "wither$"))
-public abstract class MixinEntityWither extends EntityMob {
+public abstract class MixinEntityWither extends MixinEntityMob {
 
-    @Shadow
-    public abstract int getInvulTime();
-
-    @Shadow
-    public abstract void setInvulTime(int invulnerableTicks);
-
-    @Shadow
-    public abstract int getWatchedTargetId(int targetId);
-
-    public MixinEntityWither(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public abstract int getInvulTime();
+    @Shadow public abstract void setInvulTime(int invulnerableTicks);
+    @Shadow public abstract int getWatchedTargetId(int targetId);
 
     public int getInvulnerableTicks() {
         return this.getInvulTime();

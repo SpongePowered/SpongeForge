@@ -25,8 +25,6 @@
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
 import net.minecraft.entity.monster.EntityBlaze;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Blaze;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -37,18 +35,10 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Mixin(EntityBlaze.class)
 @Implements(@Interface(iface = Blaze.class, prefix = "blaze$"))
-public abstract class MixinEntityBlaze extends EntityMob {
+public abstract class MixinEntityBlaze extends MixinEntityMob {
 
-    @Shadow
-    public abstract void func_70844_e(boolean onFire); // setOnFire
-
-    @Override
-    @Shadow
-    public abstract boolean isBurning();
-
-    public MixinEntityBlaze(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public abstract void func_70844_e(boolean onFire); // setOnFire
+    @Shadow public abstract boolean isBurning();
 
     public boolean isOnFire() {
         return isBurning();

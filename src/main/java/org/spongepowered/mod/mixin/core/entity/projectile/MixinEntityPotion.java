@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.projectile;
 
-import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Items;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.projectile.ThrownPotion;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.potion.PotionEffect;
@@ -41,14 +39,9 @@ import java.util.List;
 @NonnullByDefault
 @Mixin(net.minecraft.entity.projectile.EntityPotion.class)
 @Implements(@Interface(iface = ThrownPotion.class, prefix = "potion$"))
-public abstract class MixinEntityPotion extends EntityThrowable {
+public abstract class MixinEntityPotion extends MixinEntityThrowable {
 
-    public MixinEntityPotion(World worldIn) {
-        super(worldIn);
-    }
-
-    @Shadow
-    private net.minecraft.item.ItemStack potionDamage;
+    @Shadow private net.minecraft.item.ItemStack potionDamage;
 
     public ItemStack getItem() {
         return (ItemStack) this.potionDamage;

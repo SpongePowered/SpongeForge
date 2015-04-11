@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.vehicle.minecart;
 
-import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartFurnace;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.MinecartFurnace;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,14 +32,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityMinecartFurnace.class)
-public abstract class MixinEntityMinecartFurnace extends EntityMinecart implements MinecartFurnace {
+public abstract class MixinEntityMinecartFurnace extends MixinEntityMinecart implements MinecartFurnace {
 
-    @Shadow
-    private int fuel;
-
-    public MixinEntityMinecartFurnace(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow private int fuel;
 
     @Override
     public int getFuel() {

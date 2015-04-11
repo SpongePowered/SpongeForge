@@ -27,11 +27,9 @@ package org.spongepowered.mod.mixin.core.entity.living.complex;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.item.EntityEnderCrystal;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.EnderCrystal;
 import org.spongepowered.api.entity.living.complex.EnderDragon;
 import org.spongepowered.api.entity.living.complex.EnderDragonPart;
@@ -40,6 +38,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLiving;
 
 import java.util.Set;
 
@@ -48,17 +47,10 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 @Mixin(EntityDragon.class)
 @Implements(@Interface(iface = EnderDragon.class, prefix = "dragon$"))
-public abstract class MixinEntityDragon extends EntityLiving {
+public abstract class MixinEntityDragon extends MixinEntityLiving {
 
-    @Shadow
-    public EntityDragonPart[] dragonPartArray;
-
-    @Shadow
-    public EntityEnderCrystal healingEnderCrystal;
-
-    public MixinEntityDragon(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public EntityDragonPart[] dragonPartArray;
+    @Shadow public EntityEnderCrystal healingEnderCrystal;
 
     public Set<EnderDragonPart> dragon$getParts() {
         Builder<EnderDragonPart> builder = ImmutableSet.builder();

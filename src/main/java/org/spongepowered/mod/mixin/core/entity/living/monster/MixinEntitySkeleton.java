@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySkeleton;
-import net.minecraft.world.World;
 import org.spongepowered.api.data.types.SkeletonType;
 import org.spongepowered.api.entity.living.monster.Skeleton;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -40,14 +38,9 @@ import org.spongepowered.mod.entity.SpongeEntityMeta;
 @NonnullByDefault
 @Mixin(EntitySkeleton.class)
 @Implements(@Interface(iface = Skeleton.class, prefix = "skeleton$"))
-public abstract class MixinEntitySkeleton extends EntityMob {
+public abstract class MixinEntitySkeleton extends MixinEntityMob {
 
-    @Shadow
-    public abstract void setSkeletonType(int type);
-
-    public MixinEntitySkeleton(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public abstract void setSkeletonType(int type);
 
     public SkeletonType getSkeletonType() {
         return SpongeEntityConstants.SKELETON_IDMAP.get((int) this.dataWatcher.getWatchableObjectByte(13));

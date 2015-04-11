@@ -26,19 +26,18 @@ package org.spongepowered.mod.mixin.core.entity.player;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.spongepowered.mod.entity.CombatHelper.getNewTracker;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
-import net.minecraft.util.CombatTracker;
 import net.minecraft.util.FoodStats;
-import net.minecraft.world.World;
 import org.apache.commons.lang3.LocaleUtils;
 import org.spongepowered.api.GameProfile;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.net.PlayerConnection;
@@ -74,25 +73,16 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 @Mixin(EntityPlayerMP.class)
 @Implements(@Interface(iface = Player.class, prefix = "playermp$"))
-public abstract class MixinEntityPlayerMP extends EntityPlayer implements CommandSource, Subjectable, IMixinEntityPlayerMP {
+public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements CommandSource, Subjectable, IMixinEntityPlayerMP {
 
     public int newExperience = 0;
     public int newLevel = 0;
     public int newTotalExperience = 0;
     public boolean keepsLevel = false;
 
-    @Shadow
-    private String translator;
-
-    @Shadow
-    public NetHandlerPlayServer playerNetServerHandler;
-
-    @Shadow
-    public int lastExperience;
-
-    public MixinEntityPlayerMP(World worldIn, com.mojang.authlib.GameProfile gameprofile) {
-        super(worldIn, gameprofile);
-    }
+    @Shadow private String translator;
+    @Shadow public NetHandlerPlayServer playerNetServerHandler;
+    @Shadow public int lastExperience;
 
     public GameProfile playermp$getProfile() {
         return (GameProfile) getGameProfile();
@@ -179,10 +169,11 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
     }
 
     public void setBedLocation(@Nullable Location location) {
-        super.spawnChunk = location != null ? VecHelper.toBlockPos(location.getPosition()) : null;
+        this.spawnChunk = location != null ? VecHelper.toBlockPos(location.getPosition()) : null;
     }
 
     // this needs to be overridden from EntityPlayer so we can force a resend of the experience level
+    @Override
     public void setLevel(int level) {
         this.experienceLevel = level;
         this.lastExperience = -1;
@@ -215,7 +206,7 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         }
 
         this.clearActivePotions();
-        this._combatTracker = new CombatTracker(this);
+        this._combatTracker = getNewTracker(this);
         this.deathTime = 0;
         this.experience = 0;
         this.experienceLevel = this.newLevel;
@@ -237,5 +228,12 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer implements Comman
         }
 
         this.keepsLevel = false;
+    }
+
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+
+        return container;
     }
 }

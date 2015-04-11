@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySpider;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Spider;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -37,14 +35,9 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Mixin(EntitySpider.class)
 @Implements(@Interface(iface = Spider.class, prefix = "spider$"))
-public abstract class MixinEntitySpider extends EntityMob {
+public abstract class MixinEntitySpider extends MixinEntityMob {
 
-    @Shadow
-    public abstract boolean isBesideClimbableBlock();
-
-    public MixinEntitySpider(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public abstract boolean isBesideClimbableBlock();
 
     public boolean spider$isClimbing() {
         return this.isBesideClimbableBlock();

@@ -25,8 +25,6 @@
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
 import net.minecraft.entity.monster.EntityEndermite;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Endermite;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -37,14 +35,9 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Mixin(EntityEndermite.class)
 @Implements(@Interface(iface = Endermite.class, prefix = "endermite$"))
-public abstract class MixinEntityEndermite extends EntityMob {
+public abstract class MixinEntityEndermite extends MixinEntityMob {
 
-    @Shadow
-    private boolean playerSpawned;
-
-    public MixinEntityEndermite(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow private boolean playerSpawned;
 
     public boolean isPlayerCreated() {
         return this.playerSpawned;

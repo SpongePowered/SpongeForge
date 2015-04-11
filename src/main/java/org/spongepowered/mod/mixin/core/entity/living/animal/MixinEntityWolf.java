@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.animal;
 
-import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityWolf;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.animal.Wolf;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -36,10 +34,6 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(EntityWolf.class)
 @Implements(@Interface(iface = Wolf.class, prefix = "wolf$"))
-public abstract class MixinEntityWolf extends EntityTameable {
-
-    public MixinEntityWolf(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityWolf extends MixinEntityAnimal {
 
 }

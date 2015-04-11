@@ -25,27 +25,23 @@
 package org.spongepowered.mod.mixin.core.entity;
 
 import com.google.common.base.Optional;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.monster.EntityGiantZombie;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.ArmorEquipable;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLivingBase;
 
 // All implementors of ArmorEquipable
 @Mixin({EntityArmorStand.class, EntityGiantZombie.class, EntityPlayer.class, EntitySkeleton.class, EntityZombie.class})
 @Implements(@Interface(iface = ArmorEquipable.class, prefix = "equipable$"))
-public abstract class MixinArmorEquipable extends EntityLivingBase {
-
-    public MixinArmorEquipable(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinArmorEquipable extends MixinEntityLivingBase {
 
     private static final int SLOT_HAND = 0;
     private static final int SLOT_BOOTS = 1;

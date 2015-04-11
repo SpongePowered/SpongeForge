@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityWitch;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Witch;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -37,21 +35,16 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Mixin(EntityWitch.class)
 @Implements(@Interface(iface = Witch.class, prefix = "witch$"))
-public abstract class MixinEntityWitch extends EntityMob {
+public abstract class MixinEntityWitch extends MixinEntityMob {
 
-    @Shadow
-    public abstract boolean getAggressive();
-
-    public MixinEntityWitch(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public abstract boolean getAggressive();
 
     public boolean isAggressive() {
         return this.getAggressive();
     }
 
     public void setAggressive(boolean aggressive) {
-        this.getDataWatcher().updateObject(21, (byte) (aggressive ? 1 : 0));
+        this.dataWatcher.updateObject(21, (byte) (aggressive ? 1 : 0));
     }
 
 }

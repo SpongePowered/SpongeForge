@@ -51,15 +51,9 @@ import java.util.Collection;
 @Mixin(net.minecraft.entity.item.EntityTNTPrimed.class)
 public abstract class MixinEntityTNTPrimed extends MixinEntity implements PrimedTNT {
 
-
-    @Shadow
-    private int fuse;
-
-    @Shadow
-    private EntityLivingBase tntPlacedBy;
-
-    @Shadow
-    public abstract void explode();
+    @Shadow private int fuse;
+    @Shadow private EntityLivingBase tntPlacedBy;
+    @Shadow public abstract void explode();
 
     @SuppressWarnings("unchecked")
     @Override

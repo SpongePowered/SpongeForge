@@ -24,28 +24,19 @@
  */
 package org.spongepowered.mod.mixin.core.entity.weather;
 
-import net.minecraft.entity.effect.EntityWeatherEffect;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.weather.Lightning;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.SoftOverride;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.effect.EntityLightningBolt.class)
-public abstract class MixinEntityLightningBolt extends EntityWeatherEffect implements Lightning {
-
-    private MixinEntityLightningBolt super$;
+public abstract class MixinEntityLightningBolt extends MixinEntityWeatherEffect implements Lightning {
 
     private boolean effect = false;
-
-    public MixinEntityLightningBolt(World worldIn) {
-        super(worldIn);
-    }
 
     @Override
     public boolean isEffect() {
@@ -66,17 +57,17 @@ public abstract class MixinEntityLightningBolt extends EntityWeatherEffect imple
         }
     }
 
-    @SoftOverride
+    @Override
     public void readFromNbt(NBTTagCompound compound) {
-        this.super$.readFromNbt(compound);
+        super.readFromNbt(compound);
         if (compound.hasKey("effect")) {
             this.effect = compound.getBoolean("effect");
         }
     }
 
-    @SoftOverride
+    @Override
     public void writeToNbt(NBTTagCompound compound) {
-        this.super$.writeToNbt(compound);
+        super.writeToNbt(compound);
         compound.setBoolean("effect", this.effect);
     }
 }

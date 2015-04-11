@@ -24,9 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living;
 
+import static org.spongepowered.api.data.DataQuery.of;
+
 import net.minecraft.entity.EntityAgeable;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.world.World;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.entity.living.Ageable;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -37,20 +38,11 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Mixin(EntityAgeable.class)
 @Implements(@Interface(iface = Ageable.class, prefix = "ageable$"))
-public abstract class MixinEntityAgeable extends EntityCreature {
+public abstract class MixinEntityAgeable extends MixinEntityLiving {
 
-    @Shadow
-    public abstract int getGrowingAge();
-
-    @Shadow
-    public abstract void setGrowingAge(int age);
-
-    @Shadow
-    public abstract void setScaleForAge(boolean baby);
-
-    public MixinEntityAgeable(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public abstract int getGrowingAge();
+    @Shadow public abstract void setGrowingAge(int age);
+    @Shadow public abstract void setScaleForAge(boolean baby);
 
     public int getAge() {
         return getGrowingAge();
@@ -92,4 +84,10 @@ public abstract class MixinEntityAgeable extends EntityCreature {
         setScaleForAge(getGrowingAge() < 0);
     }
 
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(of("GrowthAge"), this.getAge());
+        return container;
+    }
 }

@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.animal;
 
-import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityPig;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.animal.Pig;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -36,11 +34,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(EntityPig.class)
 @Implements(@Interface(iface = Pig.class, prefix = "pig$"))
-public abstract class MixinEntityPig extends EntityAnimal {
-
-    public MixinEntityPig(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityPig extends MixinEntityAnimal {
 
     public boolean isSaddled() {
         return (this.dataWatcher.getWatchableObjectByte(16) & 1) != 0;

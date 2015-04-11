@@ -24,10 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.complex;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.IEntityMultiPart;
 import net.minecraft.entity.boss.EntityDragonPart;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.complex.EnderDragon;
 import org.spongepowered.api.entity.living.complex.EnderDragonPart;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -35,18 +33,14 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 
 @NonnullByDefault
 @Mixin(EntityDragonPart.class)
 @Implements(@Interface(iface = EnderDragonPart.class, prefix = "dragonpart$"))
-public abstract class MixinEntityDragonPart extends Entity {
+public abstract class MixinEntityDragonPart extends MixinEntity {
 
-    @Shadow
-    public IEntityMultiPart entityDragonObj;
-
-    public MixinEntityDragonPart(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public IEntityMultiPart entityDragonObj;
 
     public EnderDragon dragonpart$getParent() {
         return (EnderDragon) this.entityDragonObj;

@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.animal;
 
-import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityRabbit;
-import net.minecraft.world.World;
 import org.spongepowered.api.data.types.RabbitType;
 import org.spongepowered.api.entity.living.animal.Rabbit;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -40,17 +38,12 @@ import org.spongepowered.mod.entity.SpongeEntityMeta;
 @NonnullByDefault
 @Mixin(EntityRabbit.class)
 @Implements(@Interface(iface = Rabbit.class, prefix = "rabbit$"))
-public abstract class MixinEntityRabbit extends EntityAnimal {
+public abstract class MixinEntityRabbit extends MixinEntityAnimal {
 
     @Shadow(prefix = "shadow$")
     public abstract int shadow$getRabbitType();
-
     @Shadow(prefix = "shadow$")
     public abstract void shadow$setRabbitType(int type);
-
-    public MixinEntityRabbit(World worldIn) {
-        super(worldIn);
-    }
 
     public RabbitType getRabbitType() {
         return SpongeEntityConstants.RABBIT_IDMAP.get(this.shadow$getRabbitType());

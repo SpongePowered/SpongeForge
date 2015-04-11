@@ -45,22 +45,14 @@ import javax.annotation.Nullable;
 public abstract class MixinEntityItem extends MixinEntity implements Item {
 
     private static final short MAGIC_INFINITE_PICKUP_DELAY = 32767;
-
     private static final short MAGIC_INFINITE_DESPAWN_TIME = -32768;
-
     private static final int MAGIC_INFINITE = -1;
 
-    @Shadow
-    private int delayBeforeCanPickup;
-
-    @Shadow
-    private int age;
-
+    @Shadow private int delayBeforeCanPickup;
+    @Shadow private int age;
     @Shadow(remap = false)
     public int lifespan;
-
-    @Shadow
-    public abstract net.minecraft.item.ItemStack getEntityItem();
+    @Shadow public abstract net.minecraft.item.ItemStack getEntityItem();
 
     //
     // In the case where a Forge mod sets the delay to MAGIC_INFINITE_PICKUP_DELAY, but a plugin has
@@ -71,11 +63,8 @@ public abstract class MixinEntityItem extends MixinEntity implements Item {
     // To resolve the ambiguity, this flag is used to determine whether infiniteDelay is false because it was never changed
     // from the default, or if it was explicitly set by a plugin
     private boolean pluginPickupSet;
-
     private boolean infinitePickupDelay;
-
     private boolean pluginDespawnSet;
-
     private boolean infiniteDespawnDelay;
 
     @Inject(method = "onUpdate()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityItem;delayBeforeCanPickup:I",

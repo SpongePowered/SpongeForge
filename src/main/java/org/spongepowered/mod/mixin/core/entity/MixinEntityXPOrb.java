@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityXPOrb;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.ExperienceOrb;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,14 +32,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityXPOrb.class)
-public abstract class MixinEntityXPOrb extends Entity implements ExperienceOrb {
+public abstract class MixinEntityXPOrb extends MixinEntity implements ExperienceOrb {
 
-    @Shadow
-    public int xpValue;
-
-    public MixinEntityXPOrb(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public int xpValue;
 
     public int getExperience() {
         return this.xpValue;

@@ -24,29 +24,21 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.monster.EntitySlime;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Slime;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLiving;
 
 @NonnullByDefault
 @Mixin(EntitySlime.class)
 @Implements(@Interface(iface = Slime.class, prefix = "slime$"))
-public abstract class MixinEntitySlime extends EntityLiving {
+public abstract class MixinEntitySlime extends MixinEntityLiving {
 
-    @Shadow
-    public abstract int getSlimeSize();
-
-    @Shadow
-    protected abstract void setSlimeSize(int p_70799_1_);
-
-    public MixinEntitySlime(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow protected abstract void setSlimeSize(int p_70799_1_);
+    @Shadow public abstract int getSlimeSize();
 
 }

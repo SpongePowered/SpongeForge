@@ -39,17 +39,10 @@ import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 @Mixin(net.minecraft.entity.item.EntityEnderEye.class)
 public abstract class MixinEntityEnderEye extends MixinEntity implements EyeOfEnder {
 
-    @Shadow
-    private double targetX;
-
-    @Shadow
-    private double targetY;
-
-    @Shadow
-    private double targetZ;
-
-    @Shadow
-    private boolean shatterOrDrop;
+    @Shadow private double targetX;
+    @Shadow private double targetY;
+    @Shadow private double targetZ;
+    @Shadow private boolean shatterOrDrop;
 
     private ProjectileSource projectileSource = new UnknownProjectileSource();
 

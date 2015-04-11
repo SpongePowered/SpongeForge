@@ -45,25 +45,16 @@ import javax.annotation.Nullable;
 @Implements(@Interface(iface = Arrow.class, prefix = "arrow$"))
 public abstract class MixinEntityArrow extends MixinEntity implements Arrow {
 
-    @Shadow
-    public double damage;
-
-    @Shadow
-    public int knockbackStrength;
-
-    @Shadow
-    public Entity shootingEntity;
+    @Shadow public double damage;
+    @Shadow public int knockbackStrength;
+    @Shadow public Entity shootingEntity;
+    @Shadow public abstract boolean getIsCritical();
+    @Shadow public abstract void setIsCritical(boolean critical);
 
     // Not all ProjectileSources are entities (e.g. BlockProjectileSource).
     // This field is used to store a ProjectileSource that isn't an entity.
     @Nullable
     public ProjectileSource projectileSource;
-
-    @Shadow
-    public abstract boolean getIsCritical();
-
-    @Shadow
-    public abstract void setIsCritical(boolean critical);
 
     @Override
     public ProjectileSource getShooter() {

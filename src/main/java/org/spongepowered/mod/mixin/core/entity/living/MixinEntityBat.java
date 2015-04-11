@@ -24,9 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living;
 
-import net.minecraft.entity.passive.EntityAmbientCreature;
+import static org.spongepowered.api.data.DataQuery.of;
+
 import net.minecraft.entity.passive.EntityBat;
-import net.minecraft.world.World;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.entity.living.Bat;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -37,17 +38,10 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Mixin(EntityBat.class)
 @Implements(@Interface(iface = Bat.class, prefix = "bat$"))
-public abstract class MixinEntityBat extends EntityAmbientCreature {
+public abstract class MixinEntityBat extends MixinEntityLiving {
 
-    @Shadow
-    public abstract boolean getIsBatHanging();
-
-    @Shadow
-    public abstract void setIsBatHanging(boolean hanging);
-
-    public MixinEntityBat(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public abstract boolean getIsBatHanging();
+    @Shadow public abstract void setIsBatHanging(boolean hanging);
 
     public boolean isAwake() {
         return !getIsBatHanging();
@@ -57,4 +51,10 @@ public abstract class MixinEntityBat extends EntityAmbientCreature {
         setIsBatHanging(!awake);
     }
 
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+        container.set(of("Awake"), this.isAwake());
+        return container;
+    }
 }

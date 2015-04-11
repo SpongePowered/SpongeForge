@@ -24,9 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.entity;
 
+import static org.spongepowered.api.data.DataQuery.of;
+
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.entity.DataWatcher;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -46,6 +49,7 @@ import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataManipulator;
 import org.spongepowered.api.data.DataPriority;
 import org.spongepowered.api.data.DataTransactionResult;
+import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.manipulators.AttributeData;
 import org.spongepowered.api.entity.Entity;
@@ -74,6 +78,7 @@ import org.spongepowered.mod.world.SpongeDimensionType;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -88,74 +93,46 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     private float origWidth;
     private float origHeight;
 
-    @Shadow
-    private UUID entityUniqueID;
-
-    @Shadow
-    public net.minecraft.world.World worldObj;
-
-    @Shadow
-    public double posX;
-
-    @Shadow
-    public double posY;
-
-    @Shadow
-    public double posZ;
-
-    @Shadow
-    public double motionX;
-
-    @Shadow
-    public double motionY;
-
-    @Shadow
-    public double motionZ;
-
-    @Shadow
-    public float rotationYaw;
-
-    @Shadow
-    public float rotationPitch;
-
-    @Shadow
-    public float width;
-
-    @Shadow
-    public float height;
-
-    @Shadow
-    public boolean isDead;
-
-    @Shadow
-    public boolean onGround;
-
-    @Shadow
-    public int fireResistance;
-
-    @Shadow
-    private int fire;
-
-    @Shadow
-    public net.minecraft.entity.Entity riddenByEntity;
-
-    @Shadow
-    public net.minecraft.entity.Entity ridingEntity;
-
-    @Shadow
-    public abstract void setPosition(double x, double y, double z);
-
+    @Shadow private UUID entityUniqueID;
+    @Shadow public net.minecraft.world.World worldObj;
+    @Shadow public double posX;
+    @Shadow public double posY;
+    @Shadow public double posZ;
+    @Shadow public double motionX;
+    @Shadow public double motionY;
+    @Shadow public double motionZ;
+    @Shadow public float rotationYaw;
+    @Shadow public float rotationPitch;
+    @Shadow public float width;
+    @Shadow public float height;
+    @Shadow public float fallDistance;
+    @Shadow public boolean isDead;
+    @Shadow public boolean onGround;
+    @Shadow public boolean inWater;
+    @Shadow public int hurtResistantTime;
+    @Shadow public int fireResistance;
+    @Shadow public int fire;
+    @Shadow public net.minecraft.entity.Entity riddenByEntity;
+    @Shadow public net.minecraft.entity.Entity ridingEntity;
+    @Shadow protected DataWatcher dataWatcher;
+    @Shadow protected Random rand;
+    @Shadow public abstract void setPosition(double x, double y, double z);
+    @Shadow public abstract void mountEntity(net.minecraft.entity.Entity entityIn);
+    @Shadow public abstract void setDead();
+    @Shadow public abstract void setFlag(int flag, boolean data);
+    @Shadow public abstract void setAir(int air);
+    @Shadow public abstract void setCustomNameTag(String name);
+    @Shadow public abstract boolean getFlag(int flag);
+    @Shadow public abstract int getAir();
+    @Shadow public abstract float getEyeHeight();
+    @Shadow public abstract String getCustomNameTag();
+    @Shadow public abstract UUID getUniqueID();
+    @Shadow protected abstract boolean getAlwaysRenderNameTag();
+    @Shadow protected abstract void setAlwaysRenderNameTag(boolean visible);
     @Shadow(prefix = "shadow$")
     protected abstract void shadow$setRotation(float yaw, float pitch);
-
-    @Shadow
-    public abstract void mountEntity(net.minecraft.entity.Entity entityIn);
-
     @Shadow(remap = false)
     public abstract NBTTagCompound getEntityData();
-
-    @Shadow
-    public abstract void setDead();
 
     @Inject(method = "setSize", at = @At("RETURN"))
     public void onSetSize(float width, float height, CallbackInfo ci) {
@@ -380,10 +357,12 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         return false;
     }
 
+    @Override
     public Vector3d getRotation() {
         return new Vector3d(this.rotationYaw, this.rotationPitch, 0);
     }
 
+    @Override
     public void setRotation(Vector3d rotation) {
         shadow$setRotation((float) rotation.getX(), (float) rotation.getY());
     }
@@ -722,7 +701,10 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     }
     @Override
     public DataContainer toContainer() {
-        return null;
+        DataContainer container = new MemoryDataContainer();
+        container.set(of("World"), this.getWorld().getUniqueId().toString());
+        // TODO do stuff with more container information
+        return container;
     }
 
     protected <T extends DataManipulator<T>> DataTransactionResult preTransaction(T manipulatorData, T oldData,

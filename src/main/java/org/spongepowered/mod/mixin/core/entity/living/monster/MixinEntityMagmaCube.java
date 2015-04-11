@@ -25,8 +25,6 @@
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
 import net.minecraft.entity.monster.EntityMagmaCube;
-import net.minecraft.entity.monster.EntitySlime;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.MagmaCube;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -36,10 +34,6 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(EntityMagmaCube.class)
 @Implements(@Interface(iface = MagmaCube.class, prefix = "magma$"))
-public abstract class MixinEntityMagmaCube extends EntitySlime {
-
-    public MixinEntityMagmaCube(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityMagmaCube extends MixinEntitySlime {
 
 }

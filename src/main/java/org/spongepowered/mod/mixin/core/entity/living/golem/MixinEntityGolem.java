@@ -24,22 +24,17 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.golem;
 
-import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.EntityGolem;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.golem.Golem;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLiving;
 
 @NonnullByDefault
 @Mixin(EntityGolem.class)
 @Implements(@Interface(iface = Golem.class, prefix = "golem$"))
-public class MixinEntityGolem extends EntityCreature {
-
-    public MixinEntityGolem(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityGolem extends MixinEntityLiving {
 
 }

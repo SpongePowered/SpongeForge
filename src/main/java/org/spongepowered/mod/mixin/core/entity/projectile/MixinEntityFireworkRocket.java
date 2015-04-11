@@ -38,11 +38,8 @@ import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 @Mixin(net.minecraft.entity.item.EntityFireworkRocket.class)
 public abstract class MixinEntityFireworkRocket extends MixinEntity implements Firework {
 
-    @Shadow
-    private int lifetime;
-
-    @Shadow
-    private int fireworkAge;
+    @Shadow private int lifetime;
+    @Shadow private int fireworkAge;
 
     private ProjectileSource projectileSource = new UnknownProjectileSource();
 

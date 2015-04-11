@@ -24,22 +24,17 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
-import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Monster;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLiving;
 
 @NonnullByDefault
 @Mixin(EntityMob.class)
 @Implements(@Interface(iface = Monster.class, prefix = "monster$"))
-public abstract class MixinEntityMob extends EntityCreature {
-
-    public MixinEntityMob(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityMob extends MixinEntityLiving {
 
 }

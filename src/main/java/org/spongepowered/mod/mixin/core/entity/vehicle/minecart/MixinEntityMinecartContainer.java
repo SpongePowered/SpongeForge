@@ -24,19 +24,13 @@
  */
 package org.spongepowered.mod.mixin.core.entity.vehicle.minecart;
 
-import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartContainer;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.MinecartContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(EntityMinecartContainer.class)
-public abstract class MixinEntityMinecartContainer extends EntityMinecart implements MinecartContainer {
-
-    public MixinEntityMinecartContainer(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityMinecartContainer extends MixinEntityMinecart implements MinecartContainer {
 
 }

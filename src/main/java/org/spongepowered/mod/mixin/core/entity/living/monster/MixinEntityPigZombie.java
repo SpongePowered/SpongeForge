@@ -25,8 +25,6 @@
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
 import net.minecraft.entity.monster.EntityPigZombie;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.ZombiePigman;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -37,14 +35,9 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Mixin(EntityPigZombie.class)
 @Implements(@Interface(iface = ZombiePigman.class, prefix = "pigzombie$"))
-public abstract class MixinEntityPigZombie extends EntityZombie {
+public abstract class MixinEntityPigZombie extends MixinEntityZombie {
 
-    @Shadow
-    private int angerLevel;
-
-    public MixinEntityPigZombie(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow private int angerLevel;
 
     public int getAngerLevel() {
         return this.angerLevel;

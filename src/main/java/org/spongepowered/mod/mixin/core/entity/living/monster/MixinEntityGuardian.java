@@ -25,29 +25,19 @@
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
 import net.minecraft.entity.monster.EntityGuardian;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Guardian;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityGuardian.class)
 @Implements(@Interface(iface = Guardian.class, prefix = "guardian$"))
-public abstract class MixinEntityGuardian extends EntityMob {
+public abstract class MixinEntityGuardian extends MixinEntityMob {
 
-    @Shadow
-    public abstract boolean isElder();
-    
-    @Shadow
-    public abstract void setElder(boolean elder);
-
-    public MixinEntityGuardian(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public abstract boolean isElder();
+    @Shadow public abstract void setElder(boolean elder);
 
 }

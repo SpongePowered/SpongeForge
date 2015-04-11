@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.animal;
 
-import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntitySheep;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.animal.Sheep;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -37,14 +35,9 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Mixin(EntitySheep.class)
 @Implements(@Interface(iface = Sheep.class, prefix = "sheep$"))
-public abstract class MixinEntitySheep extends EntityAnimal {
+public abstract class MixinEntitySheep extends MixinEntityAnimal {
 
-    @Shadow
-    public abstract boolean getSheared();
-
-    public MixinEntitySheep(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public abstract boolean getSheared();
 
     public boolean isSheared() {
         return this.getSheared();

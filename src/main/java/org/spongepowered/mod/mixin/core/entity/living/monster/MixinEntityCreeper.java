@@ -25,8 +25,6 @@
 package org.spongepowered.mod.mixin.core.entity.living.monster;
 
 import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.monster.Creeper;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -37,29 +35,14 @@ import org.spongepowered.asm.mixin.Shadow;
 @NonnullByDefault
 @Mixin(EntityCreeper.class)
 @Implements(@Interface(iface = Creeper.class, prefix = "creeper$"))
-public abstract class MixinEntityCreeper extends EntityMob {
+public abstract class MixinEntityCreeper extends MixinEntityMob {
 
-    @Shadow
-    private int explosionRadius;
-
-    @Shadow
-    private int timeSinceIgnited;
-
-    @Shadow
-    private int fuseTime = 30;
-
-    @Shadow
-    public abstract boolean getPowered();
-
-    @Shadow
-    public abstract void explode();
-
-    @Shadow
-    public abstract void ignite();
-
-    public MixinEntityCreeper(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow private int explosionRadius;
+    @Shadow private int timeSinceIgnited;
+    @Shadow private int fuseTime = 30;
+    @Shadow public abstract boolean getPowered();
+    @Shadow public abstract void explode();
+    @Shadow public abstract void ignite();
 
     public void creeper$detonate() {
         this.explode();

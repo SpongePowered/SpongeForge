@@ -25,21 +25,16 @@
 package org.spongepowered.mod.mixin.core.entity.living.animal;
 
 import net.minecraft.entity.passive.EntitySquid;
-import net.minecraft.entity.passive.EntityWaterMob;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.Squid;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLiving;
 
 @NonnullByDefault
 @Mixin(EntitySquid.class)
 @Implements(@Interface(iface = Squid.class, prefix = "squid$"))
-public abstract class MixinEntitySquid extends EntityWaterMob {
-
-    public MixinEntitySquid(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntitySquid extends MixinEntityLiving {
 
 }

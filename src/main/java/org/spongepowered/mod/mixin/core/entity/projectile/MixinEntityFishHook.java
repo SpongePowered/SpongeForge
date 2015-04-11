@@ -34,7 +34,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.entity.projectile.FishHook;
 import org.spongepowered.api.entity.projectile.source.ProjectileSource;
@@ -50,42 +49,27 @@ import org.spongepowered.asm.mixin.SoftOverride;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.entity.DamageHandler;
 import org.spongepowered.mod.entity.projectile.ProjectileSourceSerializer;
 import org.spongepowered.mod.interfaces.IMixinEntityFishHook;
+import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityFishHook.class)
-public abstract class MixinEntityFishHook extends Entity implements FishHook, IMixinEntityFishHook {
+public abstract class MixinEntityFishHook extends MixinEntity implements FishHook, IMixinEntityFishHook {
 
-    private MixinEntityFishHook super$;
-
-    private double damageAmount;
-
-    private ItemStack fishingRod;
-
-    @Shadow
-    private boolean inGround;
-
-    @Shadow
-    private EntityPlayer angler;
-
-    @Shadow
-    public Entity caughtEntity;
-
-    @Shadow
-    private int ticksCatchable;
-
-    @Shadow
-    public abstract ItemStack getFishingResult();
+    @Shadow private boolean inGround;
+    @Shadow private EntityPlayer angler;
+    @Shadow public Entity caughtEntity;
+    @Shadow private int ticksCatchable;
+    @Shadow public abstract ItemStack getFishingResult();
 
     @Nullable
     public ProjectileSource projectileSource;
-
-    public MixinEntityFishHook(World worldIn) {
-        super(worldIn);
-    }
+    private double damageAmount;
+    private ItemStack fishingRod;
 
     @Override
     public ProjectileSource getShooter() {
@@ -126,7 +110,7 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
                 (org.spongepowered.api.entity.Entity) this$0);
         if (!SpongeMod.instance.getGame().getEventManager().post(event)) {
             if (this.getShooter() instanceof Entity) {
-                damageSource = DamageSource.causeThrownDamage(this, (Entity) this.getShooter());
+                damageSource = DamageHandler.damage(this, (Entity) this.getShooter());
             }
             return this$0.attackEntityFrom(damageSource, (float) this.getDamage());
         }
@@ -210,18 +194,20 @@ public abstract class MixinEntityFishHook extends Entity implements FishHook, IM
         this.fishingRod = fishingRod;
     }
 
+    @Override
     @SoftOverride
     public void readFromNbt(NBTTagCompound compound) {
-        this.super$.readFromNbt(compound);
+        super.readFromNbt(compound);
         if (compound.hasKey("damageAmount")) {
             this.damageAmount = compound.getDouble("damageAmount");
         }
         ProjectileSourceSerializer.readSourceFromNbt(compound, this);
     }
 
+    @Override
     @SoftOverride
     public void writeToNbt(NBTTagCompound compound) {
-        this.super$.writeToNbt(compound);
+        super.writeToNbt(compound);
         compound.setDouble("damageAmount", this.damageAmount);
         ProjectileSourceSerializer.writeSourceToNbt(compound, this.projectileSource, this.angler);
     }

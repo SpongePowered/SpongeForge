@@ -26,8 +26,6 @@ package org.spongepowered.mod.mixin.core.entity.vehicle.minecart;
 
 import net.minecraft.command.server.CommandBlockLogic;
 import net.minecraft.entity.EntityMinecartCommandBlock;
-import net.minecraft.entity.item.EntityMinecart;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.MinecartCommandBlock;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,14 +36,9 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(EntityMinecartCommandBlock.class)
-public abstract class MixinEntityMinecartCommandBlock extends EntityMinecart implements MinecartCommandBlock {
+public abstract class MixinEntityMinecartCommandBlock extends MixinEntityMinecart implements MinecartCommandBlock {
 
-    @Shadow
-    private CommandBlockLogic commandBlockLogic;
-
-    public MixinEntityMinecartCommandBlock(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow private CommandBlockLogic commandBlockLogic;
 
     public String getCommand() {
         return this.commandBlockLogic.getCommandSenderName();

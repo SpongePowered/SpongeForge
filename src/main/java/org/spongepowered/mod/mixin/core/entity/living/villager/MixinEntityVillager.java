@@ -25,10 +25,8 @@
 package org.spongepowered.mod.mixin.core.entity.living.villager;
 
 import com.google.common.base.Optional;
-import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.village.MerchantRecipeList;
-import net.minecraft.world.World;
 import org.spongepowered.api.data.types.Career;
 import org.spongepowered.api.data.types.Profession;
 import org.spongepowered.api.entity.living.Human;
@@ -44,6 +42,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.entity.SpongeEntityMeta;
+import org.spongepowered.mod.mixin.core.entity.living.MixinEntityAgeable;
 
 import java.util.List;
 
@@ -52,38 +51,18 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 @Mixin(net.minecraft.entity.passive.EntityVillager.class)
 @Implements(@Interface(iface = org.spongepowered.api.entity.living.Villager.class, prefix = "villager$"))
-public abstract class MixinEntityVillager extends EntityAgeable {
+public abstract class MixinEntityVillager extends MixinEntityAgeable {
 
-    public MixinEntityVillager(World worldIn) {
-        super(worldIn);
-    }
-
-    @Shadow
-    private boolean isPlaying;
-
-    @Shadow
-    private EntityPlayer buyingPlayer;
-
-    @Shadow
-    private int careerId;
-
-    @Shadow
-    private MerchantRecipeList buyingList;
-
-    @Shadow
-    public abstract int getProfession();
-
-    @Shadow
-    public abstract void setProfession(int professionId);
-
-    @Shadow
-    public abstract void setCustomer(EntityPlayer player);
-
+    @Shadow private boolean isPlaying;
+    @Shadow private EntityPlayer buyingPlayer;
+    @Shadow private int careerId;
+    @Shadow private MerchantRecipeList buyingList;
+    @Shadow public abstract int getProfession();
+    @Shadow public abstract void setProfession(int professionId);
+    @Shadow public abstract void setCustomer(EntityPlayer player);
     @Shadow(prefix = "shadow$")
     public abstract EntityPlayer shadow$getCustomer();
-
-    @Shadow
-    public abstract MerchantRecipeList getRecipes(EntityPlayer player);
+    @Shadow public abstract MerchantRecipeList getRecipes(EntityPlayer player);
 
     private Profession profession;
 
@@ -91,7 +70,7 @@ public abstract class MixinEntityVillager extends EntityAgeable {
     @Inject(method = "setProfession(I)V", at = @At("RETURN"))
     public void onSetProfession(int professionId, CallbackInfo ci) {
         // TODO: Fix GameRegistry for API changes
-        this.profession =  ((List<? extends Profession>) SpongeMod.instance.getGame().getRegistry().getAllOf(Profession.class)).get(professionId);
+        this.profession = ((List<? extends Profession>) SpongeMod.instance.getGame().getRegistry().getAllOf(Profession.class)).get(professionId);
     }
 
     public boolean isPlaying() {
@@ -117,12 +96,12 @@ public abstract class MixinEntityVillager extends EntityAgeable {
         this.careerId = ((SpongeEntityMeta) career).type;
     }
 
-    public void setCustomer(@Nullable Human human) {
-        this.setCustomer((EntityPlayer) human);
-    }
-
     public Optional<Human> getCustomer() {
         return Optional.fromNullable((Human) this.shadow$getCustomer());
+    }
+
+    public void setCustomer(@Nullable Human human) {
+        this.setCustomer((EntityPlayer) human);
     }
 
     @SuppressWarnings("unchecked")
@@ -130,13 +109,13 @@ public abstract class MixinEntityVillager extends EntityAgeable {
         return getRecipes(null);
     }
 
+    public void setOffers(List<TradeOffer> offers) {
+        this.buyingList = (MerchantRecipeList) offers;
+    }
+
     @SuppressWarnings("unchecked")
     public void addOffer(TradeOffer offer) {
         this.buyingList.add(offer);
-    }
-
-    public void setOffers(List<TradeOffer> offers) {
-        this.buyingList = (MerchantRecipeList) offers;
     }
 
 }

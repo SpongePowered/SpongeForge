@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.animal;
 
-import net.minecraft.entity.passive.EntityCow;
 import net.minecraft.entity.passive.EntityMooshroom;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.animal.Mooshroom;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
@@ -36,10 +34,6 @@ import org.spongepowered.asm.mixin.Mixin;
 @NonnullByDefault
 @Mixin(EntityMooshroom.class)
 @Implements(@Interface(iface = Mooshroom.class, prefix = "mooshroom$"))
-public abstract class MixinEntityMooshroom extends EntityCow {
-
-    public MixinEntityMooshroom(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityMooshroom extends MixinEntityAnimal {
 
 }

@@ -24,22 +24,17 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living.animal;
 
-import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.passive.EntityAnimal;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.animal.Animal;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.mixin.core.entity.living.MixinEntityAgeable;
 
 @NonnullByDefault
 @Mixin(EntityAnimal.class)
 @Implements(@Interface(iface = Animal.class, prefix = "animal$"))
-public abstract class MixinEntityAnimal extends EntityAgeable {
-
-    public MixinEntityAnimal(World worldIn) {
-        super(worldIn);
-    }
+public abstract class MixinEntityAnimal extends MixinEntityAgeable {
 
 }

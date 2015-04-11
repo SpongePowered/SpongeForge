@@ -537,46 +537,46 @@ public class SpongeGameRegistry implements GameRegistry {
     private final Map<Class<? extends CatalogType>, Map<String, ? extends CatalogType>> catalogTypeMap =
             ImmutableMap.<Class<? extends CatalogType>, Map<String, ? extends CatalogType>>builder()
             .put(Achievement.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(Art.class, artMappings)
+            .put(Art.class, this.artMappings)
             .put(Attribute.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(BannerPatternShape.class, bannerPatternShapeMappings)
-            .put(BiomeType.class, biomeTypeMappings)
+            .put(BannerPatternShape.class, this.bannerPatternShapeMappings)
+            .put(BiomeType.class, this.biomeTypeMappings)
             .put(BlockType.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(Career.class, careerMappings)
+            .put(Career.class, this.careerMappings)
             .put(ChatType.class, chatTypeMappings)
-            .put(CoalType.class, coaltypeMappings)
+            .put(CoalType.class, this.coaltypeMappings)
             .put(Comparison.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(CookedFish.class, cookedFishMappings)
+            .put(CookedFish.class, this.cookedFishMappings)
             .put(Criterion.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(Difficulty.class, difficultyMappings)
-            .put(DimensionType.class, dimensionTypeMappings)
+            .put(DimensionType.class, this.dimensionTypeMappings)
             .put(DirtType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(DisgusedBlockType.class,ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(DyeColor.class, dyeColorMappings)
-            .put(Enchantment.class, enchantmentMappings)
+            .put(DyeColor.class, this.dyeColorMappings)
+            .put(Enchantment.class, this.enchantmentMappings)
             .put(EntityInteractionType.class, entityInteractionTypeMappings)
-            .put(EntityType.class, entityTypeMappings)
+            .put(EntityType.class, this.entityTypeMappings)
             .put(EquipmentType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(FireworkShape.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(Fish.class, fishMappings)
+            .put(Fish.class, this.fishMappings)
             .put(GameMode.class, gameModeMappings)
-            .put(GeneratorType.class, generatorTypeMappings)
-            .put(GoldenApple.class, goldenAppleMappings)
+            .put(GeneratorType.class, this.generatorTypeMappings)
+            .put(GoldenApple.class, this.goldenAppleMappings)
             .put(Hinge.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(HorseColor.class, SpongeEntityConstants.HORSE_COLORS)
             .put(HorseStyle.class, SpongeEntityConstants.HORSE_STYLES)
             .put(HorseVariant.class, SpongeEntityConstants.HORSE_VARIANTS)
-            .put(NotePitch.class, notePitchMappings)
+            .put(NotePitch.class, this.notePitchMappings)
             .put(ItemType.class, ImmutableMap.<String, CatalogType>of()) // TODO handle special case of items
             .put(ObjectiveDisplayMode.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(OcelotType.class, SpongeEntityConstants.OCELOT_TYPES)
             .put(Operation.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(ParticleType.class, particleByName)
+            .put(ParticleType.class, this.particleByName)
             .put(PlantType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(PotionEffectType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(PortionType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(PrismarineType.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(Profession.class, professionMappings)
+            .put(Profession.class, this.professionMappings)
             .put(QuartzType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(RabbitType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(RailDirection.class, ImmutableMap.<String, CatalogType>of()) // TODO
@@ -584,9 +584,9 @@ public class SpongeGameRegistry implements GameRegistry {
             .put(SandstoneType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(SelectorType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(SkeletonType.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(SkullType.class, skullTypeMappings)
+            .put(SkullType.class, this.skullTypeMappings)
             .put(SlabType.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(SoundType.class, soundNames)
+            .put(SoundType.class, this.soundNames)
             .put(StairShape.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(Statistic.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(StatisticFormat.class, ImmutableMap.<String, CatalogType>of()) // TODO

@@ -25,8 +25,6 @@
 package org.spongepowered.mod.mixin.core.entity.living.animal;
 
 import net.minecraft.entity.passive.EntityOcelot;
-import net.minecraft.entity.passive.EntityTameable;
-import net.minecraft.world.World;
 import org.spongepowered.api.data.types.OcelotType;
 import org.spongepowered.api.entity.living.animal.Ocelot;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -40,17 +38,10 @@ import org.spongepowered.mod.entity.SpongeEntityMeta;
 @NonnullByDefault
 @Mixin(EntityOcelot.class)
 @Implements(@Interface(iface = Ocelot.class, prefix = "ocelot$"))
-public abstract class MixinEntityOcelot extends EntityTameable {
+public abstract class MixinEntityOcelot extends MixinEntityAnimal {
 
-    @Shadow
-    public abstract int getTameSkin();
-
-    @Shadow
-    public abstract void setTameSkin(int skin);
-
-    public MixinEntityOcelot(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public abstract int getTameSkin();
+    @Shadow public abstract void setTameSkin(int skin);
 
     public OcelotType getOcelotType() {
         return SpongeEntityConstants.OCELOT_IDMAP.get(this.getTameSkin());

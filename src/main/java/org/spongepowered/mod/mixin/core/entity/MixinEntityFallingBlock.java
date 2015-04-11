@@ -25,9 +25,7 @@
 package org.spongepowered.mod.mixin.core.entity;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFallingBlock;
-import net.minecraft.world.World;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.entity.FallingBlock;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -36,26 +34,13 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityFallingBlock.class)
-public abstract class MixinEntityFallingBlock extends Entity implements FallingBlock {
+public abstract class MixinEntityFallingBlock extends MixinEntity implements FallingBlock {
 
-    @Shadow
-    public float fallHurtAmount;
-
-    @Shadow
-    public int fallHurtMax;
-
-    @Shadow
-    public IBlockState fallTile;
-
-    @Shadow
-    public boolean shouldDropItem;
-
-    @Shadow
-    public boolean canSetAsBlock;
-
-    public MixinEntityFallingBlock(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public float fallHurtAmount;
+    @Shadow public int fallHurtMax;
+    @Shadow public IBlockState fallTile;
+    @Shadow public boolean shouldDropItem;
+    @Shadow public boolean canSetAsBlock;
 
     public double getFallDamagePerBlock() {
         return this.fallHurtAmount;

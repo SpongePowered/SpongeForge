@@ -31,11 +31,13 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.boss.EntityDragon;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.CombatTracker;
 import net.minecraft.util.DamageSource;
-import net.minecraft.world.World;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.entity.living.Human;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.potion.PotionEffect;
@@ -45,7 +47,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.SoftOverride;
+import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,51 +58,44 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 @Mixin(EntityLivingBase.class)
 @Implements(@Interface(iface = Living.class, prefix = "living$"))
-public abstract class MixinEntityLivingBase extends Entity {
+public abstract class MixinEntityLivingBase extends MixinEntity {
 
-    private MixinEntityLivingBase super$;
+    @Shadow public int maxHurtResistantTime;
+    @Shadow public int hurtTime;
+    @Shadow public int maxHurtTime;
+    @Shadow public int deathTime;
+    @Shadow public boolean potionsNeedUpdate;
+    @Shadow public CombatTracker _combatTracker;
+    @Shadow public EntityLivingBase entityLivingToAttack;
+    @Shadow protected float lastDamage;
+    @Shadow protected EntityPlayer attackingPlayer;
+    @Shadow public abstract void setHealth(float health);
+    @Shadow public abstract void addPotionEffect(net.minecraft.potion.PotionEffect potionEffect);
+    @Shadow public abstract void removePotionEffect(int id);
+    @Shadow public abstract void setCurrentItemOrArmor(int slotIn, net.minecraft.item.ItemStack stack);
+    @Shadow public abstract void clearActivePotions();
+    @Shadow public abstract void setLastAttacker(Entity entity);
+    @Shadow public abstract boolean isPotionActive(Potion potion);
+    @Shadow public abstract boolean attackEntityFrom(DamageSource source, float amount);
+    @Shadow public abstract float getHealth();
+    @Shadow public abstract float getMaxHealth();
+    @Shadow public abstract Collection getActivePotionEffects();
+    @Shadow public abstract EntityLivingBase getLastAttacker();
+    @Shadow public abstract IAttributeInstance getEntityAttribute(IAttribute attribute);
+    @Shadow public abstract net.minecraft.item.ItemStack getEquipmentInSlot(int slotIn);
 
     private int maxAir = 300;
 
-    @Shadow
-    protected float lastDamage;
+    public void setLastAttacker(@Nullable Living lastAttacker) {
+        setLastAttacker((EntityLivingBase) lastAttacker);
+    }
 
-    @Shadow
-    public int maxHurtResistantTime;
+    public void setMaxHealth(double maxHealth) {
+        getEntityAttribute(net.minecraft.entity.SharedMonsterAttributes.maxHealth).setBaseValue(maxHealth);
 
-    @Shadow
-    public abstract float getHealth();
-
-    @Shadow
-    public abstract void setHealth(float health);
-
-    @Shadow
-    public abstract float getMaxHealth();
-
-    @Shadow
-    public abstract IAttributeInstance getEntityAttribute(IAttribute attribute);
-
-    @Shadow
-    public abstract void addPotionEffect(net.minecraft.potion.PotionEffect potionEffect);
-
-    @Shadow
-    public abstract void removePotionEffect(int id);
-
-    @Shadow
-    public abstract boolean isPotionActive(Potion potion);
-
-    @SuppressWarnings("rawtypes")
-    @Shadow
-    public abstract Collection getActivePotionEffects();
-
-    @Shadow
-    public abstract EntityLivingBase getLastAttacker();
-
-    @Shadow
-    public abstract void setLastAttacker(Entity entity);
-
-    public MixinEntityLivingBase(World worldIn) {
-        super(worldIn);
+        if (getHealth() > maxHealth) {
+            setHealth((float) maxHealth);
+        }
     }
 
     public void damageD(double amount) {
@@ -134,14 +129,6 @@ public abstract class MixinEntityLivingBase extends Entity {
 
     public double getMaxHealthD() {
         return getMaxHealth();
-    }
-
-    public void setMaxHealth(double maxHealth) {
-        getEntityAttribute(net.minecraft.entity.SharedMonsterAttributes.maxHealth).setBaseValue(maxHealth);
-
-        if (getHealth() > maxHealth) {
-            setHealth((float) maxHealth);
-        }
     }
 
     public void addPotionEffect(PotionEffect potionEffect, boolean force) {
@@ -179,10 +166,6 @@ public abstract class MixinEntityLivingBase extends Entity {
 
     public Optional<Living> getLastAttackerAPI() {
         return Optional.fromNullable((Living) getLastAttacker());
-    }
-
-    public void setLastAttacker(@Nullable Living lastAttacker) {
-        setLastAttacker((EntityLivingBase) lastAttacker);
     }
 
     public double getEyeHeightD() {
@@ -265,18 +248,25 @@ public abstract class MixinEntityLivingBase extends Entity {
         this.setFlag(5, invisible);
     }
 
-    @SoftOverride
+    @Override
     public void readFromNbt(NBTTagCompound compound) {
-        this.super$.readFromNbt(compound);
+        super.readFromNbt(compound);
         if (compound.hasKey("maxAir")) {
             this.maxAir = compound.getInteger("maxAir");
         }
     }
 
-    @SoftOverride
+    @Override
     public void writeToNbt(NBTTagCompound compound) {
-        this.super$.writeToNbt(compound);
+        super.writeToNbt(compound);
         compound.setInteger("maxAir", this.maxAir);
+    }
+
+    @Override
+    public DataContainer toContainer() {
+        DataContainer container = super.toContainer();
+
+        return container;
     }
 
 }

@@ -25,30 +25,26 @@
 package org.spongepowered.mod.mixin.core.entity.vehicle.minecart;
 
 import com.flowpowered.math.vector.Vector3d;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.Minecart;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.SoftOverride;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 import org.spongepowered.mod.util.VectorSerializer;
 
 @NonnullByDefault
 @Mixin(EntityMinecart.class)
-public abstract class MixinEntityMinecart extends Entity implements Minecart {
+public abstract class MixinEntityMinecart extends MixinEntity implements Minecart {
 
-    private MixinEntityMinecart super$;
 
     @Shadow(remap = false)
     public abstract double getDragAir();
-
     @Shadow(remap = false)
     public abstract double getMaxSpeed();
 
@@ -103,10 +99,6 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart {
         }
     }
 
-    public MixinEntityMinecart(World worldIn) {
-        super(worldIn);
-    }
-
     @Override
     public double getSwiftness() {
         return this.maxSpeed;
@@ -152,9 +144,9 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart {
         this.derailedMod = derailedVelocityMod;
     }
 
-    @SoftOverride
+    @Override
     public void readFromNbt(NBTTagCompound compound) {
-        this.super$.readFromNbt(compound);
+        super.readFromNbt(compound);
         if (compound.hasKey("maxSpeed")) {
             this.maxSpeed = compound.getDouble("maxSpeed");
         }
@@ -169,9 +161,9 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart {
         }
     }
 
-    @SoftOverride
+    @Override
     public void writeToNbt(NBTTagCompound compound) {
-        this.super$.writeToNbt(compound);
+        super.writeToNbt(compound);
         compound.setDouble("maxSpeed", this.maxSpeed);
         compound.setBoolean("slowWhenEmpty", this.slowWhenEmpty);
         compound.setTag("airborneModifier", VectorSerializer.toNbt(this.airborneMod));

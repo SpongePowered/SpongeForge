@@ -24,48 +24,39 @@
  */
 package org.spongepowered.mod.mixin.core.entity.player;
 
-import net.minecraft.entity.EntityLivingBase;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.inventory.Container;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.FoodStats;
-import net.minecraft.world.World;
+import net.minecraft.util.IChatComponent;
 import org.spongepowered.api.entity.living.Human;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLivingBase;
 
 @NonnullByDefault
 @Mixin(EntityPlayer.class)
 @Implements(@Interface(iface = Human.class, prefix = "human$"))
-public abstract class MixinEntityPlayer extends EntityLivingBase {
+public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
 
-    @Shadow
-    public Container inventoryContainer;
-
-    @Shadow
-    public Container openContainer;
-
-    @Shadow
-    public int experienceLevel;
-
-    @Shadow
-    public int experienceTotal;
-
-    @Shadow
-    public PlayerCapabilities capabilities;
-
-    @Shadow
-    public abstract int xpBarCap();
-
-    @Shadow
-    public abstract FoodStats getFoodStats();
-
-    public MixinEntityPlayer(World worldIn) {
-        super(worldIn);
-    }
+    @Shadow public Container inventoryContainer;
+    @Shadow public Container openContainer;
+    @Shadow public int experienceLevel;
+    @Shadow public int experienceTotal;
+    @Shadow public float experience;
+    @Shadow public PlayerCapabilities capabilities;
+    @Shadow public abstract int xpBarCap();
+    @Shadow public abstract FoodStats getFoodStats();
+    @Shadow public abstract GameProfile getGameProfile();
+    @Shadow public abstract IChatComponent getDisplayName();
+    @Shadow public abstract void addExperience(int amount);
+    @Shadow protected BlockPos spawnChunk;
+    @Shadow protected FoodStats foodStats;
 
     public double getExhaustion() {
         return this.getFoodStats().foodExhaustionLevel;

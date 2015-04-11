@@ -24,25 +24,21 @@
  */
 package org.spongepowered.mod.mixin.core.entity.vehicle;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.SoftOverride;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 
 @NonnullByDefault
 @Mixin(EntityBoat.class)
-public abstract class MixinEntityBoat extends Entity implements Boat {
-
-    private MixinEntityBoat super$;
+public abstract class MixinEntityBoat extends MixinEntity implements Boat {
 
     @Shadow
     private double speedMultiplier;
@@ -119,10 +115,6 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
         }
     }
 
-    public MixinEntityBoat(World worldIn) {
-        super(worldIn);
-    }
-
     @Override
     public boolean isInWater() {
         return !this.onGround;
@@ -168,9 +160,9 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
         this.unoccupiedDecelerationSpeed = unoccupiedDeceleration;
     }
 
-    @SoftOverride
+    @Override
     public void readFromNbt(NBTTagCompound compound) {
-        this.super$.readFromNbt(compound);
+        super.readFromNbt(compound);
         if (compound.hasKey("maxSpeed")) {
             this.maxSpeed = compound.getDouble("maxSpeed");
         }
@@ -185,9 +177,9 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
         }
     }
 
-    @SoftOverride
+    @Override
     public void writeToNbt(NBTTagCompound compound) {
-        this.super$.writeToNbt(compound);
+        super.writeToNbt(compound);
         compound.setDouble("maxSpeed", this.maxSpeed);
         compound.setBoolean("moveOnLand", this.moveOnLand);
         compound.setDouble("occupiedDecelerationSpeed", this.occupiedDecelerationSpeed);

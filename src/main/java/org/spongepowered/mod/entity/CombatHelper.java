@@ -22,15 +22,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.entity.vehicle.minecart;
+package org.spongepowered.mod.entity;
 
-import net.minecraft.entity.ai.EntityMinecartMobSpawner;
-import org.spongepowered.api.entity.vehicle.minecart.MinecartMobSpawner;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Mixin;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.CombatTracker;
+import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLiving;
 
-@NonnullByDefault
-@Mixin(EntityMinecartMobSpawner.class)
-public abstract class MixinEntityMinecartMobSpawner extends MixinEntityMinecart implements MinecartMobSpawner {
+public final class CombatHelper {
+
+    @SuppressWarnings("Unchecked")
+    public static CombatTracker getNewTracker(Object mixin) {
+        if (mixin instanceof MixinEntityLiving) {
+            return new CombatTracker((EntityLivingBase) mixin);
+        }
+        return null;
+    }
+
+    private CombatHelper() {
+    }
 
 }
