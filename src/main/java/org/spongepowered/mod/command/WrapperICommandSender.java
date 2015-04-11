@@ -68,12 +68,12 @@ public class WrapperICommandSender implements ICommandSender {
 
     @Override
     public BlockPos getPosition() {
-        return null;
+        return new BlockPos(0, 0, 0);
     }
 
     @Override
     public Vec3 getPositionVector() {
-        return null;
+        return new Vec3(0, 0, 0);
     }
 
     @Override
