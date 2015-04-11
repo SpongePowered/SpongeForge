@@ -44,6 +44,11 @@ import org.spongepowered.mod.text.action.SpongeClickAction;
 import org.spongepowered.mod.text.action.SpongeHoverAction;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 @Mixin(value = Text.class, remap = false)
 public abstract class MixinText implements SpongeText {
 
@@ -54,17 +59,21 @@ public abstract class MixinText implements SpongeText {
     @Shadow protected Optional<HoverAction<?>> hoverAction;
     @Shadow protected Optional<ShiftClickAction<?>> shiftClickAction;
 
-    private IChatComponent component;
+    private Map<Locale, IChatComponent> localizedComponents;
     private String json;
 
-    protected ChatComponentStyle createComponent() {
+    protected ChatComponentStyle createComponent(Locale locale) {
         throw new UnsupportedOperationException();
     }
 
-    private void initializeComponent() {
-        if (this.component == null) {
-            this.component = createComponent();
-            ChatStyle style = this.component.getChatStyle();
+    private IChatComponent initializeComponent(Locale locale) {
+        if (this.localizedComponents == null) {
+            this.localizedComponents = Collections.synchronizedMap(new HashMap<Locale, IChatComponent>());
+        }
+        IChatComponent component = this.localizedComponents.get(locale);
+        if (component == null) {
+            component = createComponent(locale);
+            ChatStyle style = component.getChatStyle();
 
             if (this.color != TextColors.NONE) {
                 style.setColor(((SpongeTextColor) this.color).getHandle());
@@ -83,7 +92,7 @@ public abstract class MixinText implements SpongeText {
             }
 
             if (this.hoverAction.isPresent()) {
-                style.setChatHoverEvent(SpongeHoverAction.getHandle(this.hoverAction.get()));
+                style.setChatHoverEvent(SpongeHoverAction.getHandle(this.hoverAction.get(), locale));
             }
 
             if (this.shiftClickAction.isPresent()) {
@@ -92,38 +101,39 @@ public abstract class MixinText implements SpongeText {
             }
 
             for (Text child : this.children) {
-                this.component.appendSibling(((SpongeText) child).toComponent());
+                component.appendSibling(((SpongeText) child).toComponent(locale));
             }
+            this.localizedComponents.put(locale, component);
         }
+        return component;
     }
 
-    private IChatComponent getHandle() {
-        initializeComponent();
-        return this.component;
-    }
-
-    @Override
-    public IChatComponent toComponent() {
-        return getHandle().createCopy(); // Mutable instances are not nice :(
+    private IChatComponent getHandle(Locale locale) {
+        return initializeComponent(locale);
     }
 
     @Override
-    public String toPlain() {
-        return ((SpongeChatComponent) getHandle()).toPlain();
+    public IChatComponent toComponent(Locale locale) {
+        return getHandle(locale).createCopy(); // Mutable instances are not nice :(
     }
 
     @Override
-    public String toJson() {
+    public String toPlain(Locale locale) {
+        return ((SpongeChatComponent) getHandle(locale)).toPlain();
+    }
+
+    @Override
+    public String toJson(Locale locale) {
         if (this.json == null) {
-            this.json = IChatComponent.Serializer.componentToJson(getHandle());
+            this.json = IChatComponent.Serializer.componentToJson(getHandle(locale));
         }
 
         return this.json;
     }
 
     @Override
-    public String toLegacy(char code) {
-        return ((SpongeChatComponent) getHandle()).toLegacy(code);
+    public String toLegacy(char code, Locale locale) {
+        return ((SpongeChatComponent) getHandle(locale)).toLegacy(code);
     }
 
 }

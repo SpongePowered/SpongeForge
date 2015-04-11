@@ -34,6 +34,8 @@ import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.mod.entity.SpongeEntityType;
 import org.spongepowered.mod.text.SpongeText;
 
+import java.util.Locale;
+
 public class SpongeHoverAction {
 
     private SpongeHoverAction() {
@@ -53,7 +55,7 @@ public class SpongeHoverAction {
         throw new UnsupportedOperationException(action.getClass().toString());
     }
 
-    public static HoverEvent getHandle(HoverAction<?> action) {
+    public static HoverEvent getHandle(HoverAction<?> action, Locale locale) {
         HoverEvent.Action type = getType(action);
         IChatComponent component;
 
@@ -83,7 +85,7 @@ public class SpongeHoverAction {
                 break;
             }
             case SHOW_TEXT:
-                component = ((SpongeText) action.getResult()).toComponent();
+                component = ((SpongeText) action.getResult()).toComponent(locale);
                 break;
             default:
                 throw new AssertionError();

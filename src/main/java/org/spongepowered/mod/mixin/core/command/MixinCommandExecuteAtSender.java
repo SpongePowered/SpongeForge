@@ -36,7 +36,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.text.SpongeText;
 
 import java.util.List;
 import java.util.Set;
@@ -49,16 +48,12 @@ public abstract class MixinCommandExecuteAtSender implements CommandSource, ICom
 
     @Override
     public void sendMessage(Text... messages) {
-        for (Text message : messages) {
-            addChatMessage(((SpongeText) message).toComponent());
-        }
+        ((CommandSource) this.field_174802_b).sendMessage(messages);
     }
 
     @Override
     public void sendMessage(Iterable<Text> messages) {
-        for (Text message : messages) {
-            addChatMessage(((SpongeText) message).toComponent());
-        }
+        ((CommandSource) this.field_174802_b).sendMessage(messages);
     }
 
     @Override
