@@ -34,7 +34,7 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.block.tile.carrier.Beacon;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.manipulators.BeaconData;
+import org.spongepowered.api.data.manipulators.tileentities.BeaconData;
 import org.spongepowered.api.potion.PotionEffectType;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.mod.block.meta.SpongeBeaconData;

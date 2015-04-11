@@ -95,7 +95,7 @@ public abstract class MixinChunk implements Chunk {
             BiomeBuffer biomes = new ObjectArrayMutableBiomeArea(biomeArray, new Vector2i(chunkX * 16, chunkZ * 16), new Vector2i(16, 16));
 
             for (GeneratorPopulator populator : populators) {
-                populator.populate(buffer, biomes);
+                populator.populate((org.spongepowered.api.world.World) world, buffer, biomes);
             }
         }
     }

@@ -27,12 +27,12 @@ package org.spongepowered.mod.block.meta;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataPriority;
-import org.spongepowered.api.data.manipulators.BeaconData;
-import org.spongepowered.api.potion.PotionEffectType;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.data.manipulators.tileentities.BeaconData;
+import org.spongepowered.api.potion.PotionEffectType;
 
 import javax.annotation.Nullable;
 

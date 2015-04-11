@@ -33,7 +33,7 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.block.tile.Banner;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.manipulators.BannerData;
+import org.spongepowered.api.data.manipulators.tileentities.BannerData;
 import org.spongepowered.api.data.types.DyeColors;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.SerializationService;

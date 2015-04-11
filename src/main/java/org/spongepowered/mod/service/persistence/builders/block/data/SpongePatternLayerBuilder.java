@@ -30,16 +30,13 @@ import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.base.Optional;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.manipulators.BannerData.PatternLayer;
+import org.spongepowered.api.data.manipulators.tileentities.BannerData;
 import org.spongepowered.api.data.types.BannerPatternShape;
-import org.spongepowered.api.data.manipulators.BannerData;
-import org.spongepowered.api.data.types.DyeColor;
 import org.spongepowered.api.service.persistence.DataBuilder;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.service.persistence.SerializationService;
-import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.mod.block.meta.SpongePatternLayer;
 
 public class SpongePatternLayerBuilder implements DataBuilder<BannerData.PatternLayer> {
 
@@ -52,7 +49,7 @@ public class SpongePatternLayerBuilder implements DataBuilder<BannerData.Pattern
     }
 
     @Override
-    public Optional<PatternLayer> build(final DataView container) throws InvalidDataException {
+    public Optional<BannerData.PatternLayer> build(final DataView container) throws InvalidDataException {
         checkNotNull(container);
         if (!container.contains(ID) || !container.contains(COLOR)) {
             throw new InvalidDataException("The provided container does not contain the data to make a PatternLayer!");

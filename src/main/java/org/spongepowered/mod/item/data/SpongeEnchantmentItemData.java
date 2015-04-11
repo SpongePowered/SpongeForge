@@ -40,7 +40,7 @@ import org.spongepowered.api.data.DataPriority;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.MemoryDataContainer;
-import org.spongepowered.api.data.manipulators.EnchantmentData;
+import org.spongepowered.api.data.manipulators.items.EnchantmentData;
 import org.spongepowered.api.item.Enchantment;
 
 import java.util.Collection;

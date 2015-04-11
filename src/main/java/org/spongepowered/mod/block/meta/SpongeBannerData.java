@@ -30,14 +30,14 @@ import static org.spongepowered.api.data.DataQuery.of;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataPriority;
-import org.spongepowered.api.data.manipulators.BannerData;
+import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.data.manipulators.tileentities.BannerData;
 import org.spongepowered.api.data.types.BannerPatternShape;
 import org.spongepowered.api.data.types.DyeColor;
 import org.spongepowered.api.data.types.DyeColors;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.MemoryDataContainer;
 
 import java.util.List;
 

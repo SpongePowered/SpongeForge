@@ -35,7 +35,7 @@ import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.block.tile.TileEntityType;
 import org.spongepowered.api.block.tile.TileEntityTypes;
 import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.manipulators.BannerData;
+import org.spongepowered.api.data.manipulators.tileentities.BannerData;
 import org.spongepowered.api.data.types.BannerPatternShape;
 import org.spongepowered.api.data.types.DyeColor;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

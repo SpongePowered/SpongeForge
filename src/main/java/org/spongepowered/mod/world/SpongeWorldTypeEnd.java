@@ -31,7 +31,7 @@ import net.minecraft.world.gen.ChunkProviderEnd;
 public class SpongeWorldTypeEnd extends WorldType {
 
     public SpongeWorldTypeEnd() {
-        super("THE_END");
+        super("END");
     }
 
     @Override

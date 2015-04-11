@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.world.storage;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
 import net.minecraft.nbt.NBTTagCompound;

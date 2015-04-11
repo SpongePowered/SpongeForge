@@ -28,16 +28,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.world.World;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataManipulator;
 import org.spongepowered.api.data.DataPriority;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataTransactionResult;
-import org.spongepowered.api.data.Property;
-import org.spongepowered.api.data.manipulators.FuseData;
+import org.spongepowered.api.data.manipulators.entities.FuseData;
 import org.spongepowered.api.entity.explosive.PrimedTNT;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.service.persistence.InvalidDataException;
@@ -49,7 +46,6 @@ import org.spongepowered.mod.entity.SpongeEntityConstants;
 import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 
 import java.util.Collection;
-import java.util.List;
 
 @NonnullByDefault
 @Mixin(net.minecraft.entity.item.EntityTNTPrimed.class)

@@ -35,7 +35,7 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataPriority;
 import org.spongepowered.api.data.MemoryDataContainer;
-import org.spongepowered.api.data.manipulators.DurabilityData;
+import org.spongepowered.api.data.manipulators.items.DurabilityData;
 
 public class SpongeDurabilityData extends AbstractDataManipulator<DurabilityData> implements DurabilityData {
 

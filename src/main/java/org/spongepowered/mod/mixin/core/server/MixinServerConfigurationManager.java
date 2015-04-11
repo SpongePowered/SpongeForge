@@ -68,7 +68,7 @@ import net.minecraftforge.fml.common.network.FMLOutboundHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.data.manipulators.RespawnLocationData;
+import org.spongepowered.api.data.manipulators.entities.RespawnLocationData;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;

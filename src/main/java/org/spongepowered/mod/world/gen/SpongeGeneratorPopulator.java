@@ -68,7 +68,7 @@ public class SpongeGeneratorPopulator implements GeneratorPopulator {
     }
 
     @Override
-    public void populate(MutableBlockBuffer buffer, BiomeBuffer biomes) {
+    public void populate(org.spongepowered.api.world.World world, MutableBlockBuffer buffer, BiomeBuffer biomes) {
 
         // Empty the buffer
         buffer.fill(BlockTypes.AIR.getDefaultState());

@@ -35,7 +35,7 @@ import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataPriority;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.MemoryDataContainer;
-import org.spongepowered.api.data.manipulators.FuseData;
+import org.spongepowered.api.data.manipulators.entities.FuseData;
 
 public class SpongeFuseData extends AbstractDataManipulator<FuseData> implements FuseData {
 

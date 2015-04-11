@@ -29,7 +29,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -91,7 +90,7 @@ import org.spongepowered.api.block.tile.carrier.Dispenser;
 import org.spongepowered.api.block.tile.carrier.Dropper;
 import org.spongepowered.api.block.tile.carrier.Furnace;
 import org.spongepowered.api.block.tile.carrier.Hopper;
-import org.spongepowered.api.data.manipulators.BannerData;
+import org.spongepowered.api.data.manipulators.tileentities.BannerData;
 import org.spongepowered.api.data.types.Art;
 import org.spongepowered.api.data.types.Arts;
 import org.spongepowered.api.data.types.BannerPatternShape;
@@ -209,6 +208,7 @@ import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.gamerule.DefaultGameRules;
+import org.spongepowered.api.world.gen.PopulatorFactory;
 import org.spongepowered.api.world.gen.WorldGenerator;
 import org.spongepowered.api.world.gen.WorldGeneratorModifier;
 import org.spongepowered.api.world.storage.WorldProperties;
@@ -834,7 +834,7 @@ public class SpongeGameRegistry implements GameRegistry {
         this.generatorTypeMappings.put("FLAT", (GeneratorType) WorldType.FLAT);
         this.generatorTypeMappings.put("DEBUG", (GeneratorType) WorldType.DEBUG_WORLD);
         this.generatorTypeMappings.put("NETHER", (GeneratorType) new SpongeWorldTypeNether());
-        this.generatorTypeMappings.put("THE_END", (GeneratorType) new SpongeWorldTypeEnd());
+        this.generatorTypeMappings.put("END", (GeneratorType) new SpongeWorldTypeEnd());
         this.generatorTypeMappings.put("OVERWORLD", (GeneratorType) new SpongeWorldTypeOverworld());
         RegistryHelper.mapFields(GeneratorTypes.class, this.generatorTypeMappings);
     }
@@ -1786,6 +1786,11 @@ public class SpongeGameRegistry implements GameRegistry {
 
     @Override
     public Optional<DisplaySlot> getDisplaySlotForColor(TextColor color) {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public PopulatorFactory getPopulatorFactory() {
         throw new UnsupportedOperationException(); // TODO
     }
 

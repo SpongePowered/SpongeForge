@@ -32,7 +32,7 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataPriority;
 import org.spongepowered.api.data.MemoryDataContainer;
-import org.spongepowered.api.data.manipulators.LockableData;
+import org.spongepowered.api.data.manipulators.tileentities.LockableData;
 
 public class SpongeLockableData implements LockableData {
 
