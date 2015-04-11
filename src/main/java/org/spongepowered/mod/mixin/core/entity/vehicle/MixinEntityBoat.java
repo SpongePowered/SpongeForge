@@ -125,8 +125,7 @@ public abstract class MixinEntityBoat extends Entity implements Boat {
 
     @Override
     public boolean isInWater() {
-        // TODO This only works when the boat is submerged
-        return this.inWater;
+        return !this.onGround;
     }
 
     @Override
