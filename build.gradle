@@ -285,6 +285,10 @@ artifacts {
     archives javadocJar
 }
 
+runServer {
+    jvmArgs '-Dmixin.debug=true -verbose:class'
+}
+
 uploadArchives {
     dependsOn reobf
     repositories {
