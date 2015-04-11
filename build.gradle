@@ -164,12 +164,9 @@ license {
 checkstyle {
     configFile = project('SpongeAPI').file('checkstyle.xml')
     configProperties = [
-            "name" : project.name,
-            "organization" : project.organization,
-            "url" : project.url,
-            "year" : project.inceptionYear,
-            "basedir": project.projectDir,
-            "severity": 'warning'
+            'basedir': project.projectDir,
+            'suppressions': project.file('checkstyle-suppressions.xml'),
+            'severity': 'warning'
     ]
 }
 tasks.jar.dependsOn "check"
