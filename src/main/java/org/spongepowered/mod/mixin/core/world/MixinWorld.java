@@ -571,6 +571,11 @@ public abstract class MixinWorld implements World, IMixinWorld {
     }
 
     @Override
+    public Location getSpawnLocation() {
+        return new Location(this, this.worldInfo.getSpawnX(), this.worldInfo.getSpawnY(), this.worldInfo.getSpawnZ());
+    }
+
+    @Override
     public Context getContext() {
         if (this.worldContext == null) {
             this.worldContext = new Context(Context.WORLD_KEY, getName());
