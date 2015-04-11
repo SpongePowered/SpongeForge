@@ -39,6 +39,7 @@ import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,6 +55,10 @@ public class SpongeTextFactory implements TextFactory {
         }
     }
 
+    public static Locale getDefaultLocale() { // TODO: Get this from the MC client?
+        return Locale.getDefault();
+    }
+
     @Override
     public Text parseJsonLenient(String json) throws IllegalArgumentException {
         return parseJson(json); // TODO
@@ -61,12 +66,22 @@ public class SpongeTextFactory implements TextFactory {
 
     @Override
     public String toPlain(Text text) {
-        return ((SpongeText) text).toPlain();
+        return toPlain(text, getDefaultLocale());
+    }
+
+    @Override
+    public String toPlain(Text text, Locale locale) {
+        return ((SpongeText) text).toPlain(locale);
     }
 
     @Override
     public String toJson(Text text) {
-        return ((SpongeText) text).toJson();
+        return toJson(text, getDefaultLocale());
+    }
+
+    @Override
+    public String toJson(Text text, Locale locale) {
+        return ((SpongeText) text).toJson(locale);
     }
 
     @Override
@@ -176,7 +191,13 @@ public class SpongeTextFactory implements TextFactory {
 
     @Override
     public String toLegacy(Text text, char code) {
-        return ((SpongeText) text).toLegacy(code);
+        return toLegacy(text, code, getDefaultLocale());
     }
+
+    @Override
+    public String toLegacy(Text text, char code, Locale locale) {
+        return ((SpongeText) text).toLegacy(code, locale);
+    }
+
 
 }

@@ -28,6 +28,8 @@ import net.minecraft.util.StatCollector;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
+import java.util.Locale;
+
 @NonnullByDefault
 public class SpongeTranslation implements Translation {
 
@@ -43,12 +45,12 @@ public class SpongeTranslation implements Translation {
     }
 
     @Override
-    public String get() {
+    public String get(Locale locale) {
         return StatCollector.translateToLocal(this.id);
     }
 
     @Override
-    public String get(Object... args) {
+    public String get(Locale locale, Object... args) {
         return StatCollector.translateToLocalFormatted(this.id, args);
     }
 

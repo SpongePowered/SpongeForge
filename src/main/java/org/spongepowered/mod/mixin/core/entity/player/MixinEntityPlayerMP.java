@@ -118,13 +118,13 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements C
 
     public void playermp$sendMessage(ChatType type, Text... messages) {
         for (Text text : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(), ((SpongeChatType) type).getByteId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(playermp$getLocale()), ((SpongeChatType) type).getByteId()));
         }
     }
 
     public void playermp$sendMessage(ChatType type, Iterable<Text> messages) {
         for (Text text : messages) {
-            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(), ((SpongeChatType) type).getByteId()));
+            this.playerNetServerHandler.sendPacket(new S02PacketChat(((SpongeText) text).toComponent(playermp$getLocale()), ((SpongeChatType) type).getByteId()));
         }
     }
 

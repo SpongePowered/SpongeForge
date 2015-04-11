@@ -31,6 +31,8 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.util.Locale;
+
 @Mixin(value = Text.Score.class, remap = false)
 public abstract class MixinTextScore extends MixinText {
 
@@ -38,7 +40,7 @@ public abstract class MixinTextScore extends MixinText {
     @Shadow protected Optional<String> override;
 
     @Override
-    protected ChatComponentStyle createComponent() {
+    protected ChatComponentStyle createComponent(Locale locale) {
         ChatComponentScore component = new ChatComponentScore(null, null); // TODO
         if (this.override.isPresent()) {
             component.setValue(this.override.get());

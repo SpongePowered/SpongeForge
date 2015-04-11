@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.server;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
@@ -67,6 +68,7 @@ import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinWorldInfo;
 import org.spongepowered.mod.interfaces.Subjectable;
 import org.spongepowered.mod.text.SpongeText;
+import org.spongepowered.mod.text.SpongeTextFactory;
 import org.spongepowered.mod.world.SpongeDimensionType;
 
 import java.io.File;
@@ -76,6 +78,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @NonnullByDefault
@@ -418,7 +421,10 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
 
     @Override
     public void broadcastMessage(Text message) {
-        getConfigurationManager().sendChatMsg(((SpongeText) message).toComponent());
+        for (Player player : getOnlinePlayers()) {
+            player.sendMessage(message);
+        }
+        sendMessage(message);
     }
 
     @Override
@@ -475,14 +481,14 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
     @Override
     public void sendMessage(Text... messages) {
         for (Text message : messages) {
-            addChatMessage(((SpongeText) message).toComponent());
+            addChatMessage(((SpongeText) message).toComponent(SpongeTextFactory.getDefaultLocale()));
         }
     }
 
     @Override
     public void sendMessage(Iterable<Text> messages) {
         for (Text message : messages) {
-            addChatMessage(((SpongeText) message).toComponent());
+            addChatMessage(((SpongeText) message).toComponent(SpongeTextFactory.getDefaultLocale()));
         }
     }
 
