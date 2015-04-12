@@ -175,7 +175,7 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements C
     // this needs to be overridden from EntityPlayer so we can force a resend of the experience level
     @Override
     public void setLevel(int level) {
-        this.experienceLevel = level;
+        super.experienceLevel = level;
         this.lastExperience = -1;
     }
 

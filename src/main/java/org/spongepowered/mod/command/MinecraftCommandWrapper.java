@@ -104,7 +104,7 @@ public class MinecraftCommandWrapper implements CommandCallable {
             }
         } else {
             source.sendMessage(Texts
-                    .builder(SpongeMod.instance.getGame().getRegistry().getType(Translation.class, TRANSLATION_NO_PERMISSION).get(), new Object[0])
+                    .builder(SpongeMod.instance.getGame().getRegistry().getTranslationById(TRANSLATION_NO_PERMISSION).get(), new Object[0])
                     .color(TextColors.RED)
                     .build());
         }

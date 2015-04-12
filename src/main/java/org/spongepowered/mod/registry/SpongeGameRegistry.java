@@ -191,6 +191,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.selector.SelectorType;
+import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.text.translation.locale.Locales;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -256,6 +257,7 @@ import org.spongepowered.mod.text.SpongeTextFactory;
 import org.spongepowered.mod.text.chat.SpongeChatType;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 import org.spongepowered.mod.text.format.SpongeTextStyle;
+import org.spongepowered.mod.text.translation.SpongeTranslation;
 import org.spongepowered.mod.weather.SpongeWeather;
 import org.spongepowered.mod.world.SpongeDimensionType;
 import org.spongepowered.mod.world.SpongeWorldBuilder;
@@ -898,6 +900,11 @@ public class SpongeGameRegistry implements GameRegistry {
     @Override
     public AttributeCalculator getAttributeCalculator() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<Translation> getTranslationById(String id) {
+        return Optional.<Translation>of(new SpongeTranslation(id));
     }
 
     private void setParticles() {

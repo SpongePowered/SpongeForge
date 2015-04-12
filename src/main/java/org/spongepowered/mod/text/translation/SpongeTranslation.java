@@ -43,11 +43,6 @@ public class SpongeTranslation implements Translation {
     }
 
     @Override
-    public String getName() {
-        return this.id;
-    }
-
-    @Override
     public String get() {
         return StatCollector.translateToLocal(this.id);
     }

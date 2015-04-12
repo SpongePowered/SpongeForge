@@ -90,7 +90,7 @@ public abstract class MixinServerCommandManager extends CommandHandler implement
         if (game.getEventManager().post(SpongeEventFactory.createCommand(game, args, (CommandSource) sender, name))) {
             return 1;
         } else {
-            source.sendMessage(Texts.builder("Stuff") // TODO fix game registry
+            source.sendMessage(Texts.builder(game.getRegistry().getTranslationById(TRANSLATION_COMMAND_NOT_FOUND).get(), new Object[0])
                     .color(TextColors.RED).build());
             return 0;
         }
