@@ -193,6 +193,7 @@
         "world.MixinWorldProvider",
         "world.MixinWorldProviderEnd",
         "world.MixinWorldProviderHell",
+        "world.MixinWorldServer",
         "world.MixinWorldServerMulti",
         "world.MixinWorldSettings",
         "world.MixinWorldType",

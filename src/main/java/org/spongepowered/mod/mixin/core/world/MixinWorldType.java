@@ -43,8 +43,8 @@ public class MixinWorldType implements GeneratorType, IMixinWorldType {
     private Callable<WorldGenerator> generator;
     private DataContainer generatorSettings;
 
-    @Shadow
-    private String worldType;
+    @Shadow private String worldType;
+    @Shadow private int worldTypeId;
 
     @Override
     public String getId() {
@@ -77,4 +77,26 @@ public class MixinWorldType implements GeneratorType, IMixinWorldType {
         return this.generatorSettings;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof WorldType)) {
+            return false;
+        }
+
+        WorldType other = (WorldType) obj;
+        if (!this.getName().equals(other.getWorldTypeName())) {
+            return false;
+        }
+
+        if (this.worldTypeId != other.getWorldTypeID()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return this.getName();
+    }
 }

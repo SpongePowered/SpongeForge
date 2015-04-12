@@ -24,12 +24,18 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldType;
 import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.service.permission.context.Context;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionType;
+import org.spongepowered.api.world.GeneratorType;
+import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -48,22 +54,13 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
     private SpongeConfig<SpongeConfig.DimensionConfig> dimensionConfig;
     private volatile Context dimContext;
 
-    @Shadow
-    protected int dimensionId;
-    @Shadow
-    protected boolean isHellWorld;
-
-    @Shadow
-    public abstract String getDimensionName();
-
-    @Shadow
-    public abstract boolean canRespawnHere();
-
-    @Shadow
-    public abstract int getAverageGroundLevel();
-
-    @Shadow
-    public abstract boolean getHasNoSky();
+    @Shadow protected World worldObj;
+    @Shadow protected int dimensionId;
+    @Shadow protected boolean isHellWorld;
+    @Shadow public WorldType terrainType;
+    @Shadow protected boolean hasNoSky;
+    @Shadow public abstract String getDimensionName();
+    @Shadow public abstract boolean canRespawnHere();
 
     @Overwrite
     public static WorldProvider getProviderForDimension(int dimension) {
@@ -109,6 +106,23 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
         return this.getAverageGroundLevel();
     }
 
+    public int getAverageGroundLevel() {
+        if (((GeneratorType) this.terrainType).equals(GeneratorTypes.END)) {
+            return 50;
+        } else {
+            return this.terrainType.getMinimumSpawnHeight(this.worldObj);
+        }
+    }
+
+    public boolean canCoordinateBeSpawn(int x, int z) {
+        if (((GeneratorType) this.terrainType).equals(GeneratorTypes.END)) {
+            return this.worldObj.getGroundAboveSeaLevel(new BlockPos(x, 0, z)).getMaterial().blocksMovement();
+        }
+        else {
+            return this.worldObj.getGroundAboveSeaLevel(new BlockPos(x, 0, z)) == Blocks.grass;
+        }
+    }
+
     @Override
     public boolean doesWaterEvaporate() {
         return this.isHellWorld;
@@ -122,6 +136,14 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
     @Override
     public boolean hasSky() {
         return !getHasNoSky();
+    }
+
+    public boolean getHasNoSky() {
+        if (((GeneratorType) this.terrainType).equals(GeneratorTypes.NETHER)) {
+            return true;
+        } else {
+            return this.hasNoSky;
+        }
     }
 
     @Override
