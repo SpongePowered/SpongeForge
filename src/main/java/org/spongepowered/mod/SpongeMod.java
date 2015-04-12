@@ -48,8 +48,8 @@ import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.relauncher.Side;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.plugin.Plugin;
@@ -68,6 +68,7 @@ import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.mod.command.CommandSponge;
 import org.spongepowered.mod.command.MinecraftCommandWrapper;
+import org.spongepowered.mod.command.SpongeCommandDisambiguator;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.interfaces.IMixinServerCommandManager;
@@ -112,7 +113,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         this.game = this.spongeInjector.getInstance(Game.class);
         this.registry = (SpongeGameRegistry) this.game.getRegistry();
         try {
-            SimpleCommandService commandService = new SimpleCommandService(this.game);
+            SimpleCommandService commandService = new SimpleCommandService(this.game, new SpongeCommandDisambiguator(this.game));
             this.game.getServiceManager().setProvider(this, CommandService.class, commandService);
         } catch (ProviderExistsException e) {
             logger.warn("Non-Sponge CommandService already registered: " + e.getLocalizedMessage());

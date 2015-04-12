@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.server;
 
-import akka.io.Tcp;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import net.minecraft.command.CommandHandler;
