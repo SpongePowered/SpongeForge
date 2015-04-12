@@ -51,7 +51,7 @@ import org.spongepowered.api.data.DataPriority;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.data.Property;
-import org.spongepowered.api.data.manipulators.AttributeData;
+import org.spongepowered.api.data.manipulators.entities.NameData;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.service.persistence.InvalidDataException;
@@ -69,6 +69,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.data.manipulators.SpongeNameData;
 import org.spongepowered.mod.interfaces.IMixinEntity;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.util.SpongeHooks;
@@ -87,6 +88,7 @@ import javax.annotation.Nullable;
 @Mixin(net.minecraft.entity.Entity.class)
 public abstract class MixinEntity implements Entity, IMixinEntity {
 
+    // @formatter:off
     private EntityType entityType = ((SpongeGameRegistry) SpongeMod.instance.getGame().getRegistry()).entityClassToTypeMappings.get(this.getClass());
     private boolean teleporting;
     private net.minecraft.entity.Entity teleportVehicle;
@@ -116,16 +118,17 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @Shadow public net.minecraft.entity.Entity ridingEntity;
     @Shadow protected DataWatcher dataWatcher;
     @Shadow protected Random rand;
+
     @Shadow public abstract void setPosition(double x, double y, double z);
     @Shadow public abstract void mountEntity(net.minecraft.entity.Entity entityIn);
     @Shadow public abstract void setDead();
     @Shadow public abstract void setFlag(int flag, boolean data);
-    @Shadow public abstract void setAir(int air);
-    @Shadow public abstract void setCustomNameTag(String name);
     @Shadow public abstract boolean getFlag(int flag);
     @Shadow public abstract int getAir();
+    @Shadow public abstract void setAir(int air);
     @Shadow public abstract float getEyeHeight();
     @Shadow public abstract String getCustomNameTag();
+    @Shadow public abstract void setCustomNameTag(String name);
     @Shadow public abstract UUID getUniqueID();
     @Shadow protected abstract boolean getAlwaysRenderNameTag();
     @Shadow protected abstract void setAlwaysRenderNameTag(boolean visible);
@@ -133,6 +136,8 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     protected abstract void shadow$setRotation(float yaw, float pitch);
     @Shadow(remap = false)
     public abstract NBTTagCompound getEntityData();
+
+    // @formatter:on
 
     @Inject(method = "setSize", at = @At("RETURN"))
     public void onSetSize(float width, float height, CallbackInfo ci) {
@@ -565,14 +570,6 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     }
 
     @Override
-    public <T extends DataManipulator<T>> Optional<T> getData(Class<T> dataClass) {
-        if (dataClass.isAssignableFrom(AttributeData.class)) {
-            // TODO handle attributes
-        }
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    @Override
     public EntityType getType() {
         return this.entityType;
     }
@@ -642,6 +639,16 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
      * @param compound The SpongeData compound to write to
      */
     public void writeToNbt(NBTTagCompound compound) {
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends DataManipulator<T>> Optional<T> getData(Class<T> dataClass) {
+        if (NameData.class.isAssignableFrom((Class) dataClass)) {
+            NameData nameData = new SpongeNameData();
+            return (Optional<T>) (Optional) nameData.fill(this);
+        }
+        return Optional.absent();
     }
 
     @Override
