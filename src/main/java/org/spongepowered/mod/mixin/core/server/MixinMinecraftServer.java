@@ -64,6 +64,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.interfaces.IMixinWorldInfo;
 import org.spongepowered.mod.interfaces.Subjectable;
 import org.spongepowered.mod.text.SpongeText;
@@ -372,7 +373,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
             return Optional.of(optExisting.get().getProperties());
         }
 
-        int dim = 0;
+        int dim;
         AnvilSaveHandler savehandler = new AnvilSaveHandler(new File(getFolderName()), worldName, true);
         WorldInfo worldInfo = savehandler.loadWorldInfo();
 
@@ -405,7 +406,8 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
         }
         savehandler.saveWorldInfoWithPlayer(worldInfo, getConfigurationManager().getHostPlayerData());
 
-        SpongeEventFactory.createWorldCreate(SpongeMod.instance.getGame(), (WorldProperties) worldInfo, settings);
+        SpongeMod.instance.getEventManager().post(SpongeEventFactory.createWorldCreate(SpongeMod.instance.getGame(), (WorldProperties)
+                worldInfo, settings));
         return Optional.of((WorldProperties) worldInfo);
     }
 

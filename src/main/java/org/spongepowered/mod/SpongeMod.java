@@ -57,6 +57,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.ProviderExistsException;
 import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.command.SimpleCommandService;
+import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
@@ -145,6 +146,10 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     public Game getGame() {
         return this.game;
+    }
+
+    public EventManager getEventManager() {
+        return this.game.getEventManager();
     }
 
     public Injector getInjector() {

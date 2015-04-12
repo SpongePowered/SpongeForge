@@ -201,14 +201,14 @@ public class SpongeWorldBuilder implements WorldBuilder {
 
     @Override
     public Optional<World> build() throws IllegalStateException {
-        WorldCreationSettings settings = buildSettings();
-        ((Server) MinecraftServer.getServer()).createWorld(buildSettings());
+        final WorldCreationSettings settings = buildSettings();
+        ((Server) MinecraftServer.getServer()).createWorld(settings);
         return ((Server) MinecraftServer.getServer()).loadWorld(settings.getWorldName());
     }
 
     @Override
     public WorldCreationSettings buildSettings() throws IllegalStateException {
-        WorldSettings settings =
+        final WorldSettings settings =
                 new WorldSettings(this.seed, GameType.valueOf(this.gameMode.getTranslation().get()), this.mapFeaturesEnabled, this.hardcore,
                         (WorldType) this.generatorType);
         settings.setWorldName(this.name);
