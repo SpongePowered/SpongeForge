@@ -53,6 +53,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.tile.TileEntity;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.sound.SoundType;
@@ -152,6 +153,9 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     @Shadow
     public abstract WorldChunkManager getWorldChunkManager();
+
+    @Shadow
+    public abstract net.minecraft.tileentity.TileEntity getTileEntity(BlockPos pos);
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client,
@@ -581,5 +585,25 @@ public abstract class MixinWorld implements World, IMixinWorld {
             this.worldContext = new Context(Context.WORLD_KEY, getName());
         }
         return this.worldContext;
+    }
+
+    @Override
+    public Optional<TileEntity> getTileEntity(Vector3i position) {
+        return getTileEntity(position.getX(), position.getY(), position.getZ());
+    }
+
+    @Override
+    public Optional<TileEntity> getTileEntity(int x, int y, int z) {
+        net.minecraft.tileentity.TileEntity tileEntity = getTileEntity(new BlockPos(x,y,z));
+        if(tileEntity == null) {
+            return Optional.absent();
+        } else {
+            return Optional.of((TileEntity)tileEntity);
+        }
+    }
+
+    @Override
+    public Optional<TileEntity> getTileEntity(Location blockLoc) {
+        return getTileEntity(blockLoc.getBlockX(), blockLoc.getBlockY(), blockLoc.getBlockZ());
     }
 }
