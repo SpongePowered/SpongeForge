@@ -45,10 +45,10 @@ public abstract class MixinIntegratedServer extends MinecraftServer {
     /**
      * @author bloodmc
      *
-     *         In order to guarantee that both client and server load worlds the
-     *         same using our custom logic, we call super and handle any client
-     *         specific cases there. This avoids duplicate code here and makes
-     *         it easier to maintain.
+     *  Purpose: In order to guarantee that both client and server load worlds the
+     *  same using our custom logic, we call super and handle any client specific
+     *  cases there. 
+     *  Reasoning: This avoids duplicate code and makes it easier to maintain.
      */
     @Override
     @Overwrite
