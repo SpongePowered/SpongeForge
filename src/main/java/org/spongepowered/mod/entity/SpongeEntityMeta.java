@@ -46,6 +46,7 @@ public class SpongeEntityMeta implements CatalogType {
         return this.name;
     }
 
+    @Override
     public String getName() {
         return this.name;
     }

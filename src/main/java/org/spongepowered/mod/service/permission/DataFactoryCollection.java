@@ -114,8 +114,6 @@ public class DataFactoryCollection extends SpongeSubjectCollection {
             if (ret == Tristate.UNDEFINED) {
                 ret = getDataPermissionValue(DataFactoryCollection.this.service.getDefaultData(), permission);
             }
-            System.out.println("Getting permission " + permission + " for " + getContainingCollection().getIdentifier() + ":" + getIdentifier()
-                    + ", was: " + ret);
             return ret;
 
         }

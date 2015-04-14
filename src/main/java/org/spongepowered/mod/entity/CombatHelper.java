@@ -32,7 +32,7 @@ public final class CombatHelper {
 
     @SuppressWarnings("Unchecked")
     public static CombatTracker getNewTracker(Object mixin) {
-        if (mixin instanceof MixinEntityLiving) {
+        if (mixin instanceof EntityLivingBase) {
             return new CombatTracker((EntityLivingBase) mixin);
         }
         return null;
