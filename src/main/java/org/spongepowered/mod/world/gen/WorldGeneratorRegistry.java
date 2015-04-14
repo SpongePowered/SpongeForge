@@ -24,16 +24,22 @@
  */
 package org.spongepowered.mod.world.gen;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.GameRegistry;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.world.gen.WorldGeneratorModifier;
+import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.registry.SpongeGameRegistry;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Class that handles the registry of world generators. The methods in
@@ -41,57 +47,92 @@ import java.util.Map.Entry;
  *
  * @see GameRegistry#getType(Class, String) with {@link WorldGeneratorModifier}
  * @see GameRegistry#getAllOf(Class) with {@link WorldGeneratorModifier}
- * @see GameRegistry#registerWorldGeneratorModifier(PluginContainer, String,
- *      WorldGeneratorModifier)
+ * @see GameRegistry#registerWorldGeneratorModifier(WorldGeneratorModifier)
  */
 public final class WorldGeneratorRegistry {
 
+    private static final Logger logger = LogManager.getLogger();
+
+    public static WorldGeneratorRegistry getInstance() {
+        SpongeGameRegistry registry = (SpongeGameRegistry) SpongeMod.instance.getGame().getRegistry();
+        return registry.getWorldGeneratorRegistry();
+    }
+
     /**
-     * Map of prefixed id => modifier.
+     * Map of id => modifier.
      */
     private final Map<String, WorldGeneratorModifier> modifiers = Maps.newHashMap();
-    private static final char NAMESPACE_SEPARATOR = ':';
 
-    public Optional<WorldGeneratorModifier> getModifier(String id) {
-        Optional<WorldGeneratorModifier> modifier = getFromPrefixed(id);
-        if (!modifier.isPresent()) {
-            modifier = getFromUnprefixed(id);
-        }
-        return modifier;
+    public Map<String, WorldGeneratorModifier> viewModifiersMap() {
+        return Collections.unmodifiableMap(this.modifiers);
     }
 
-    private Optional<WorldGeneratorModifier> getFromPrefixed(String prefixedId) {
-        return Optional.fromNullable(this.modifiers.get(prefixedId));
-    }
-
-    private Optional<WorldGeneratorModifier> getFromUnprefixed(String unprefixedId) {
-        // Requires a linear search. If this ever becomes a problem, a second
-        // map of unprefixed keys needs to be created.
-        for (Entry<String, WorldGeneratorModifier> entry : this.modifiers.entrySet()) {
-            String key = entry.getKey();
-            String unprefixedKey = key.substring(key.indexOf(NAMESPACE_SEPARATOR));
-            if (unprefixedKey.equals(unprefixedId)) {
-                return Optional.of(entry.getValue());
-            }
-        }
-        return Optional.absent();
-    }
-
-    public Collection<WorldGeneratorModifier> getModifiers() {
-        return this.modifiers.values();
-    }
-
-    public void registerModifier(PluginContainer plugin, String id, WorldGeneratorModifier modifier) {
+    public void registerModifier(WorldGeneratorModifier modifier) {
+        String id = modifier.getId();
         checkId(id, "World generator ID");
-        checkId(plugin.getId(), "Plugin ID");
         Preconditions.checkNotNull(modifier, "modifier");
 
-        this.modifiers.put(plugin.getId() + NAMESPACE_SEPARATOR + id, modifier);
+        this.modifiers.put(id, modifier);
     }
 
     private void checkId(String id, String subject) {
-        Preconditions.checkArgument(id.indexOf(NAMESPACE_SEPARATOR) == -1, subject + " " + id + " may not contain a colon (:)");
         Preconditions.checkArgument(id.indexOf(' ') == -1, subject + " " + id + " may not contain a space");
+    }
+
+    /**
+     * Gets the string list for the modifiers, for saving purposes.
+     *
+     * @param modifiers
+     *            The modifiers
+     * @return The string list
+     * @throws IllegalArgumentException
+     *             If any of the modifiers is not registered
+     */
+    public ImmutableCollection<String> toIds(Collection<WorldGeneratorModifier> modifiers) {
+        ImmutableList.Builder<String> ids = ImmutableList.builder();
+        for (WorldGeneratorModifier modifier : modifiers) {
+            Preconditions.checkNotNull(modifier, "modifier (in collection)");
+            String id = modifier.getId();
+            Preconditions.checkArgument(this.modifiers.containsKey(id),
+                    "unregistered modifier in collection");
+            ids.add(id);
+        }
+        return ids.build();
+    }
+
+    /**
+     * Gets the world generator modifiers with the given id. If no world
+     * generator modifier can be found with a certain id, a message is logged
+     * and the id is skipped.
+     *
+     * @param ids
+     *            The ids
+     * @return The modifiers
+     */
+    public Collection<WorldGeneratorModifier> toModifiers(Collection<String> ids) {
+        List<WorldGeneratorModifier> modifiers = Lists.newArrayList();
+        for (String id : ids) {
+            WorldGeneratorModifier modifier = this.modifiers.get(id);
+            if (modifier != null) {
+                modifiers.add(modifier);
+            } else {
+                logger.error("World generator modifier with id " + id + " not found. Missing plugin?");
+            }
+        }
+        return modifiers;
+    }
+
+    /**
+     * Checks that all modifiers are registered.
+     * 
+     * @param modifiers
+     *            The modifiers
+     * @throws IllegalArgumentException
+     *             If a modifier is not registered
+     */
+    public void checkAllRegistered(Collection<WorldGeneratorModifier> modifiers) {
+        // We simply call toIds, that checks all world generators
+        toIds(modifiers);
     }
 
 }

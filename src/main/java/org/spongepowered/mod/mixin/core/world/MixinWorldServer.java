@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.world;
 
 import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSettings;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -34,6 +35,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.mod.interfaces.IMixinWorld;
 
 @NonnullByDefault
 @Mixin(WorldServer.class)
@@ -46,5 +49,13 @@ public abstract class MixinWorldServer extends MixinWorld {
             this.worldInfo.setSpawn(new BlockPos(55, 60, 0));
             ci.cancel();
         }
+    }
+
+    @Inject(method = "init", at = @At("RETURN"))
+    public void onPostInit(CallbackInfoReturnable<World> ci) {
+        // Run the world generator modifiers in the init method
+        // (the "init" method, not the "<init>" constructor)
+        IMixinWorld world = (IMixinWorld) ci.getReturnValue();
+        world.updateWorldGenerator();
     }
 }

@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
@@ -37,6 +39,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.entity.player.gamemode.SpongeGameMode;
 import org.spongepowered.mod.interfaces.IMixinWorldSettings;
+import org.spongepowered.mod.world.gen.WorldGeneratorRegistry;
 
 import java.util.Collection;
 
@@ -49,6 +52,7 @@ public class MixinWorldSettings implements WorldCreationSettings, IMixinWorldSet
     private boolean worldEnabled;
     private boolean loadOnStartup;
     private boolean keepSpawnLoaded;
+    private ImmutableCollection<WorldGeneratorModifier> generatorModifiers;
 
     @Shadow
     private long seed;
@@ -165,8 +169,17 @@ public class MixinWorldSettings implements WorldCreationSettings, IMixinWorldSet
     }
 
     @Override
+    public void setGeneratorModifiers(Collection<WorldGeneratorModifier> modifiers) {
+        ImmutableList<WorldGeneratorModifier> defensiveCopy = ImmutableList.copyOf(modifiers);
+        WorldGeneratorRegistry.getInstance().checkAllRegistered(defensiveCopy);
+        this.generatorModifiers = defensiveCopy;
+    }
+
+    @Override
     public Collection<WorldGeneratorModifier> getGeneratorModifiers() {
-        // TODO Auto-generated method stub
-        return null;
+        if (this.generatorModifiers == null) {
+            return ImmutableList.of();
+        }
+        return this.generatorModifiers;
     }
 }

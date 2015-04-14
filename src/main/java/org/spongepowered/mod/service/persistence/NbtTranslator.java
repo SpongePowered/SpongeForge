@@ -136,7 +136,7 @@ public final class NbtTranslator implements DataTranslator<NBTTagCompound> {
     }
 
     @SuppressWarnings("unchecked")
-    private static DataView getViewFromCompound(NBTTagCompound compound) {
+    private static DataContainer getViewFromCompound(NBTTagCompound compound) {
         DataContainer container = new MemoryDataContainer();
         for (String key : (Set<String>) compound.getKeySet()) {
             NBTBase base = compound.getTag(key);
@@ -239,7 +239,7 @@ public final class NbtTranslator implements DataTranslator<NBTTagCompound> {
     }
 
     @Override
-    public DataView translateFrom(NBTTagCompound node) {
+    public DataContainer translateFrom(NBTTagCompound node) {
         return NbtTranslator.getViewFromCompound(node);
     }
 }

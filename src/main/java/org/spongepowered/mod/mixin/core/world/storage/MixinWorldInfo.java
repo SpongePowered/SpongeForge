@@ -24,10 +24,19 @@
  */
 package org.spongepowered.mod.mixin.core.world.storage;
 
+import org.spongepowered.api.data.MemoryDataContainer;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.WorldSettings;
@@ -43,6 +52,7 @@ import org.spongepowered.api.world.GeneratorType;
 import org.spongepowered.api.world.WorldBorder;
 import org.spongepowered.api.world.WorldCreationSettings;
 import org.spongepowered.api.world.difficulty.Difficulty;
+import org.spongepowered.api.world.gen.WorldGeneratorModifier;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -54,8 +64,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.entity.player.gamemode.SpongeGameMode;
 import org.spongepowered.mod.interfaces.IMixinWorldInfo;
+import org.spongepowered.mod.interfaces.IMixinWorldType;
 import org.spongepowered.mod.service.persistence.NbtTranslator;
+import org.spongepowered.mod.world.gen.WorldGeneratorRegistry;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
@@ -69,6 +82,7 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
     private DimensionType dimensionType;
     private boolean loadOnStartup;
     private boolean keepSpawnLoaded;
+    private ImmutableCollection<String> generatorModifiers;
     private NBTTagCompound spongeRootLevelNbt;
     private NBTTagCompound spongeNbt;
 
@@ -197,7 +211,10 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
         this.spongeRootLevelNbt = new NBTTagCompound();
         this.spongeNbt = new NBTTagCompound();
         this.spongeRootLevelNbt.setTag(SpongeMod.instance.getModId(), this.spongeNbt);
-        this.dimensionType = ((WorldCreationSettings) (Object) settings).getDimensionType();
+
+        WorldCreationSettings creationSettings = (WorldCreationSettings) (Object) settings;
+        this.dimensionType = creationSettings.getDimensionType();
+        this.generatorModifiers = WorldGeneratorRegistry.getInstance().toIds(creationSettings.getGeneratorModifiers());
     }
 
     @Inject(method = "<init>*", at = @At("RETURN"))
@@ -223,6 +240,12 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
         this.spongeNbt.setBoolean("enabled", this.worldEnabled);
         this.spongeNbt.setBoolean("keepSpawnLoaded", this.keepSpawnLoaded);
         this.spongeNbt.setBoolean("loadOnStartup", this.loadOnStartup);
+
+        NBTTagList generatorModifierNbt = new NBTTagList();
+        for (String generatorModifierId : this.generatorModifiers) {
+            generatorModifierNbt.appendTag(new NBTTagString(generatorModifierId));
+        }
+        this.spongeNbt.setTag("generatorModifiers", generatorModifierNbt);
     }
 
     @Override
@@ -239,6 +262,14 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
                 this.dimensionType = type;
             }
         }
+
+        // Read generator modifiers
+        NBTTagList generatorModifiersNbt = nbt.getTagList("generatorModifiers", 8);
+        ImmutableList.Builder<String> ids = ImmutableList.builder();
+        for (int i = 0; i < generatorModifiersNbt.tagCount(); i++) {
+            ids.add(generatorModifiersNbt.getStringTagAt(i));
+        }
+        this.generatorModifiers = ids.build();
     }
 
     @Override
@@ -442,12 +473,12 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
     public DataContainer getAdditionalProperties() {
         NBTTagCompound additionalProperties = (NBTTagCompound) this.spongeRootLevelNbt.copy();
         additionalProperties.removeTag(SpongeMod.instance.getModId());
-        return (DataContainer) NbtTranslator.getInstance().translateFrom(additionalProperties);
+        return NbtTranslator.getInstance().translateFrom(additionalProperties);
     }
 
     @Override
     public DataContainer toContainer() {
-        return (DataContainer) NbtTranslator.getInstance().translateFrom(getNBTTagCompound());
+        return NbtTranslator.getInstance().translateFrom(getNBTTagCompound());
     }
 
     @Override
@@ -486,9 +517,41 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
     }
 
     @Override
+    public Collection<WorldGeneratorModifier> getGeneratorModifiers() {
+        if (this.generatorModifiers == null) {
+            return ImmutableList.of();
+        }
+        return WorldGeneratorRegistry.getInstance().toModifiers(this.generatorModifiers);
+    }
+
+    @Override
+    public void setGeneratorModifiers(Collection<WorldGeneratorModifier> modifiers) {
+        Preconditions.checkNotNull(modifiers, "modifiers");
+
+        this.generatorModifiers = WorldGeneratorRegistry.getInstance().toIds(modifiers);
+    }
+
+    @Override
+    public DataContainer getGeneratorSettings() {
+        // Minecraft uses a String, we want to return a fancy DataContainer
+
+        // Parse the world generator settings as JSON
+        try {
+            NBTTagCompound nbt = JsonToNBT.getTagFromJson(this.generatorOptions);
+            return NbtTranslator.getInstance().translateFrom(nbt);
+        } catch (NBTException e) {
+        }
+
+        // Else return container with one single value
+        MemoryDataContainer container = new MemoryDataContainer();
+        container.set(IMixinWorldType.STRING_VALUE, this.generatorOptions);
+        return container;
+    }
+
+    @Override
     public Optional<DataView> getPropertySection(DataQuery path) {
         if (this.spongeRootLevelNbt.hasKey(path.toString())) {
-            return Optional.of(NbtTranslator.getInstance().translateFrom(this.spongeRootLevelNbt.getCompoundTag(path.toString())));
+            return Optional.<DataView> of(NbtTranslator.getInstance().translateFrom(this.spongeRootLevelNbt.getCompoundTag(path.toString())));
         } else {
             return Optional.absent();
         }
