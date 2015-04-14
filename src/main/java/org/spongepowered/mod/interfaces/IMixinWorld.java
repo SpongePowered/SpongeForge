@@ -39,4 +39,7 @@ public interface IMixinWorld {
     ImmutableList<GeneratorPopulator> getGeneratorPopulators();
 
     void setWorldInfo(WorldInfo worldInfo);
+
+    void updateWorldGenerator();
+
 }

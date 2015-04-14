@@ -26,14 +26,19 @@ package org.spongepowered.mod.interfaces;
 
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.world.DimensionType;
+import org.spongepowered.api.world.gen.WorldGeneratorModifier;
+
+import java.util.Collection;
 
 public interface IMixinWorldSettings {
 
     void setDimensionType(DimensionType type);
 
-    void setEnabled(boolean isWorldEnabled);
-
     void setGeneratorSettings(DataContainer generatorSettings);
+
+    void setGeneratorModifiers(Collection<WorldGeneratorModifier> modifiers);
+
+    void setEnabled(boolean isWorldEnabled);
 
     void setLoadOnStartup(boolean loadOnStartup);
 

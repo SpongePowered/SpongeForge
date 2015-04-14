@@ -40,7 +40,7 @@ import org.spongepowered.api.world.gen.GeneratorPopulator;
  * Generator populator that wraps a Minecraft {@link IChunkProvider}.
  *
  */
-public class SpongeGeneratorPopulator implements GeneratorPopulator {
+public final class SpongeGeneratorPopulator implements GeneratorPopulator {
 
     private final IChunkProvider chunkGenerator;
     private final World world;
@@ -54,7 +54,7 @@ public class SpongeGeneratorPopulator implements GeneratorPopulator {
      * @param chunkGenerator The chunk generator.
      * @return The generator populator.
      */
-    static GeneratorPopulator of(World world, IChunkProvider chunkGenerator) {
+    public static GeneratorPopulator of(World world, IChunkProvider chunkGenerator) {
         if (chunkGenerator instanceof CustomChunkProviderGenerate) {
             return ((CustomChunkProviderGenerate) chunkGenerator).generatorPopulator;
         }

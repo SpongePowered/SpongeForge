@@ -27,16 +27,16 @@ package org.spongepowered.mod.world;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldSettings.GameType;
 import net.minecraft.world.WorldType;
 import org.spongepowered.api.Server;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.entity.player.gamemode.GameModes;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.api.world.DimensionTypes;
 import org.spongepowered.api.world.GeneratorType;
@@ -48,6 +48,7 @@ import org.spongepowered.api.world.gen.WorldGeneratorModifier;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.mod.interfaces.IMixinWorldSettings;
 import org.spongepowered.mod.service.persistence.NbtTranslator;
+import org.spongepowered.mod.world.gen.WorldGeneratorRegistry;
 
 import java.util.Random;
 
@@ -64,6 +65,7 @@ public class SpongeWorldBuilder implements WorldBuilder {
     private boolean loadOnStartup;
     private boolean keepSpawnLoaded;
     private DataContainer generatorSettings;
+    private ImmutableList<WorldGeneratorModifier> generatorModifiers;
 
     public SpongeWorldBuilder() {
         reset();
@@ -74,6 +76,7 @@ public class SpongeWorldBuilder implements WorldBuilder {
         this.seed = settings.getSeed();
         this.gameMode = settings.getGameMode();
         this.generatorType = settings.getGeneratorType();
+        this.generatorModifiers = ImmutableList.copyOf(settings.getGeneratorModifiers());
         this.dimensionType = settings.getDimensionType();
         this.mapFeaturesEnabled = settings.usesMapFeatures();
         this.hardcore = settings.isHardcore();
@@ -87,6 +90,7 @@ public class SpongeWorldBuilder implements WorldBuilder {
         this.seed = properties.getSeed();
         this.gameMode = properties.getGameMode();
         this.generatorType = properties.getGeneratorType();
+        this.generatorModifiers = ImmutableList.copyOf(properties.getGeneratorModifiers());
         this.dimensionType = properties.getDimensionType();
         this.mapFeaturesEnabled = properties.usesMapFeatures();
         this.hardcore = properties.isHardcore();
@@ -194,9 +198,11 @@ public class SpongeWorldBuilder implements WorldBuilder {
     }
 
     @Override
-    public WorldBuilder generatorModifiers(WorldGeneratorModifier... modifier) {
-        // TODO Auto-generated method stub
-        return null;
+    public WorldBuilder generatorModifiers(WorldGeneratorModifier... modifiers) {
+        ImmutableList<WorldGeneratorModifier> defensiveCopy = ImmutableList.copyOf(modifiers);
+        WorldGeneratorRegistry.getInstance().checkAllRegistered(defensiveCopy);
+        this.generatorModifiers = defensiveCopy;
+        return this;
     }
 
     @Override
@@ -214,6 +220,7 @@ public class SpongeWorldBuilder implements WorldBuilder {
         settings.setWorldName(this.name);
         ((IMixinWorldSettings) (Object) settings).setDimensionType(this.dimensionType);
         ((IMixinWorldSettings) (Object) settings).setGeneratorSettings(this.generatorSettings);
+        ((IMixinWorldSettings) (Object) settings).setGeneratorModifiers(this.generatorModifiers);
         ((IMixinWorldSettings) (Object) settings).setEnabled(this.worldEnabled);
         ((IMixinWorldSettings) (Object) settings).setKeepSpawnLoaded(this.keepSpawnLoaded);
         ((IMixinWorldSettings) (Object) settings).setLoadOnStartup(this.loadOnStartup);
@@ -232,7 +239,8 @@ public class SpongeWorldBuilder implements WorldBuilder {
         this.worldEnabled = true;
         this.loadOnStartup = true;
         this.keepSpawnLoaded = false;
-        this.generatorSettings = (DataContainer) NbtTranslator.getInstance().translateFrom(new NBTTagCompound());
+        this.generatorSettings = NbtTranslator.getInstance().translateFrom(new NBTTagCompound());
+        this.generatorModifiers = ImmutableList.of();
         return this;
     }
 

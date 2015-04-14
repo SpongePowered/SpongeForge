@@ -283,7 +283,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
 @SuppressWarnings("unchecked")
 @NonnullByDefault
@@ -528,7 +527,6 @@ public class SpongeGameRegistry implements GameRegistry {
     private final Map<String, CookedFish> cookedFishMappings = Maps.newHashMap();
     private final Map<String, GoldenApple> goldenAppleMappings = Maps.newHashMap();
     private final WorldGeneratorRegistry worldGeneratorRegistry = new WorldGeneratorRegistry();
-    public final Map<String, Callable<WorldGenerator>> generatorMappings = Maps.newHashMap();
     private final Hashtable<Class<? extends WorldProvider>, Integer> classToProviders = new Hashtable<Class<? extends WorldProvider>, Integer>();
     private final ArrayList<Integer> spongeDims = new ArrayList<Integer>(); // used to keep track of Sponge dimensions
     private final Map<UUID, WorldProperties> worldPropertiesMappings = Maps.newHashMap();
@@ -600,6 +598,7 @@ public class SpongeGameRegistry implements GameRegistry {
             .put(Visibility.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(WallType.class, ImmutableMap.<String, CatalogType>of()) // TODO
             .put(Weather.class, ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(WorldGeneratorModifier.class, this.worldGeneratorRegistry.viewModifiersMap())
             .build();
     private final Map<Class<?>, Class<?>> builderMap = ImmutableMap.of(); // TODO FIGURE OUT HOW TO DO THIS!!?!
 
@@ -841,8 +840,12 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     @Override
-    public void registerWorldGeneratorModifier(PluginContainer plugin, String id, WorldGeneratorModifier modifier) {
-        this.worldGeneratorRegistry.registerModifier(plugin, id, modifier);
+    public void registerWorldGeneratorModifier(WorldGeneratorModifier modifier) {
+        this.worldGeneratorRegistry.registerModifier(modifier);
+    }
+
+    public WorldGeneratorRegistry getWorldGeneratorRegistry() {
+        return this.worldGeneratorRegistry;
     }
 
     @Override

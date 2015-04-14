@@ -25,13 +25,13 @@
 package org.spongepowered.mod.interfaces;
 
 import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.world.gen.WorldGenerator;
-
-import java.util.concurrent.Callable;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.world.World;
+import org.spongepowered.mod.world.gen.SpongeWorldGenerator;
 
 public interface IMixinWorldType {
 
-    void setWorldGenerator(Callable<WorldGenerator> generator);
+    public static final DataQuery STRING_VALUE = DataQuery.of("customSettings");
 
-    void setGeneratorSettings(DataContainer settings);
+    SpongeWorldGenerator createGenerator(World world, DataContainer settings);
 }
