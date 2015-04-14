@@ -22,29 +22,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.text.chat;
+package org.spongepowered.mod.mixin.core.client.server;
 
-import org.spongepowered.api.text.chat.ChatType;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.world.WorldType;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 
-public class SpongeChatType implements ChatType {
+import java.io.File;
+import java.net.Proxy;
 
-    private final byte id;
+@NonnullByDefault
+@Mixin(IntegratedServer.class)
+public abstract class MixinIntegratedServer extends MinecraftServer {
 
-    public SpongeChatType(byte id) {
-        this.id = id;
+    public MixinIntegratedServer(File workDir, Proxy proxy, File profileCacheDir) {
+        super(workDir, proxy, profileCacheDir);
     }
 
+    /**
+     * @author bloodmc
+     *
+     *         In order to guarantee that both client and server load worlds the
+     *         same using our custom logic, we call super and handle any client
+     *         specific cases there. This avoids duplicate code here and makes
+     *         it easier to maintain.
+     */
     @Override
-    public String getId() {
-        return "minecraft:" + this.id;
-    }
-
-    @Override
-    public String getName() {
-        return getId(); // todo actually pick up a name
-    }
-
-    public byte getByteId() {
-        return this.id;
+    @Overwrite
+    protected void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
+        super.loadAllWorlds(overworldFolder, unused, seed, type, generator);
     }
 }

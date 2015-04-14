@@ -27,6 +27,8 @@ package org.spongepowered.mod.mixin.plugin;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.objectweb.asm.tree.ClassNode;
+import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.mod.configuration.SpongeConfig;
@@ -60,6 +62,10 @@ public class CoreMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName,
             String mixinClassName) {
+        // temp workaround until I figure out how to setup client/server/common mixins in json
+        if (mixinClassName.contains("core.client") && MixinEnvironment.getCurrentEnvironment().getSide() == Side.SERVER) {
+            return false;
+        }
         return true;
     }
 

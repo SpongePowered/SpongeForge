@@ -43,11 +43,11 @@ public class SpongeGameMode implements GameMode {
 
     @Override
     public String getId() {
-        return name;
+        return this.name;
     }
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 }

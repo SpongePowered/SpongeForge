@@ -32,6 +32,7 @@
         "block.data.MixinTileEntitySign",
         "block.data.MixinTileEntitySkull",
         "block.meta.MixinEnumBannerPattern",
+        "client.server.MixinIntegratedServer",
         "command.MixinCommandBlockLogic",
         "command.MixinCommandExecuteAtSender",
         "command.MixinSubject",
