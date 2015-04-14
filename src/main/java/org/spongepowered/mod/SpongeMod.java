@@ -136,6 +136,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         } catch (ProviderExistsException e2) {
             logger.warn("Non-Sponge SerializationService already registered: " + e2.getLocalizedMessage());
         }
+        this.game.getCommandDispatcher().register(this, CommandSponge.getCommand(this), "sponge", "sp");
     }
 
     @Override
@@ -237,7 +238,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         try {
             // Register vanilla-style commands (if necessary -- not necessary on client)
             ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerEarlyCommands(this.game);
-            e.registerServerCommand(new CommandSponge());
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
         }

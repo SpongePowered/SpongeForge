@@ -25,7 +25,7 @@
 package org.spongepowered.mod.command;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.spongepowered.api.Game;
@@ -40,8 +40,6 @@ import org.spongepowered.mod.mixin.plugin.CoreMixinPlugin;
 
 import java.util.List;
 import java.util.Set;
-
-import javax.annotation.Nullable;
 
 public class SpongeCommandDisambiguator implements Disambiguator {
     private final Game game;
@@ -67,13 +65,8 @@ public class SpongeCommandDisambiguator implements Disambiguator {
                             + " to default");
                 } else {
                     final Set<CommandMapping> ownedCommands = this.game.getCommandDispatcher().getOwnedBy(container.get());
-                    final List<CommandMapping> ownedMatchingCommands = ImmutableList.copyOf(
-                            Iterables.filter(availableOptions, new Predicate<CommandMapping>() {
-                                @Override
-                                public boolean apply(@Nullable CommandMapping input) {
-                                    return ownedCommands.contains(input);
-                                }
-                            }));
+                    final List<CommandMapping> ownedMatchingCommands = ImmutableList.copyOf(Iterables.filter(availableOptions,
+                            Predicates.in(ownedCommands)));
                     if (ownedMatchingCommands.isEmpty()) {
                         SpongeMod.instance.getLogger().warn("Plugin " + container.get().getName() + " was specified as the preferred owner for "
                                 + aliasUsed + ", but does not have any such command!");
