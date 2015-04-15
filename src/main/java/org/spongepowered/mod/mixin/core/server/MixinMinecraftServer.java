@@ -141,7 +141,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
 
             if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
                 worldsavehandler =
-                        new AnvilSaveHandler(new File(dim == 0 ? "." : FMLCommonHandler.instance().getSavesDirectory() + File.separator
+                        new AnvilSaveHandler(dim == 0 ? FMLCommonHandler.instance().getSavesDirectory() : new File(FMLCommonHandler.instance().getSavesDirectory() + File.separator
                                 + getFolderName()),
                                 worldFolder, true);
             } else {
