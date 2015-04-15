@@ -290,8 +290,9 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
 
         WorldSettings settings = new WorldSettings(worldInfo);
 
-        // TODO - handle custom generators
-        //ChunkGenerator gen = settings.getGeneratorType().createGenerator();
+        if (!DimensionManager.isDimensionRegistered(dim)) { // handle reloads properly
+            DimensionManager.registerDimension(dim, ((SpongeDimensionType) ((WorldProperties) worldInfo).getDimensionType()).getDimensionTypeId());
+        }
 
         WorldServer world = (WorldServer) new WorldServer((MinecraftServer) (Object) this, savehandler, worldInfo, dim, this.theProfiler).init();
 
