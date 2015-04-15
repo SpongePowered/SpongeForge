@@ -530,8 +530,8 @@ public class SpongeGameRegistry implements GameRegistry {
     private final WorldGeneratorRegistry worldGeneratorRegistry = new WorldGeneratorRegistry();
     public final Map<String, Callable<WorldGenerator>> generatorMappings = Maps.newHashMap();
     private final Hashtable<Class<? extends WorldProvider>, Integer> classToProviders = new Hashtable<Class<? extends WorldProvider>, Integer>();
-    private final ArrayList<Integer> spongeDims = new ArrayList<Integer>(); // used to keep track of Sponge dimensions
-    private final Map<UUID, WorldProperties> worldPropertiesMappings = Maps.newHashMap();
+    private final Map<UUID, WorldProperties> worldPropertiesUuidMappings = Maps.newHashMap();
+    private final Map<String, WorldProperties> worldPropertiesNameMappings = Maps.newHashMap();
     private final Map<Integer, String> worldFolderDimensionIdMappings = Maps.newHashMap();
     public final Map<UUID, String> worldFolderUniqueIdMappings = Maps.newHashMap();
     private final Map<String, GeneratorType> generatorTypeMappings = Maps.newHashMap();
@@ -798,7 +798,8 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     public void registerWorldProperties(WorldProperties properties) {
-        this.worldPropertiesMappings.put(properties.getUniqueId(), properties);
+        this.worldPropertiesUuidMappings.put(properties.getUniqueId(), properties);
+        this.worldPropertiesNameMappings.put(properties.getWorldName(), properties);
     }
 
     public void registerWorldDimensionId(int dim, String folderName) {
@@ -807,6 +808,10 @@ public class SpongeGameRegistry implements GameRegistry {
 
     public void registerWorldUniqueId(UUID uuid, String folderName) {
         this.worldFolderUniqueIdMappings.put(uuid, folderName);
+    }
+
+    public Optional<WorldProperties> getWorldProperties(String worldName) {
+        return Optional.fromNullable(this.worldPropertiesNameMappings.get(worldName));
     }
 
     public String getWorldFolder(int dim) {
@@ -826,7 +831,7 @@ public class SpongeGameRegistry implements GameRegistry {
     }
 
     public Optional<WorldProperties> getWorldProperties(UUID uuid) {
-        return Optional.fromNullable(this.worldPropertiesMappings.get(uuid));
+        return Optional.fromNullable(this.worldPropertiesUuidMappings.get(uuid));
     }
 
 
