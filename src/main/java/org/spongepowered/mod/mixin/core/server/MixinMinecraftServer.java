@@ -412,6 +412,11 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
     }
 
     @Override
+    public Collection<WorldProperties> getAllWorldProperties() {
+        return SpongeMod.instance.getSpongeRegistry().getAllWorldProperties();
+    }
+
+    @Override
     public void broadcastMessage(Text message) {
         getConfigurationManager().sendChatMsg(((SpongeText) message).toComponent());
     }

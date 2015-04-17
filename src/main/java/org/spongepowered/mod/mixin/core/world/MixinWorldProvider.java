@@ -82,11 +82,6 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
     }
 
     @Override
-    public int getDimensionId() {
-        return this.dimensionId;
-    }
-
-    @Override
     public String getName() {
         return getDimensionName();
     }

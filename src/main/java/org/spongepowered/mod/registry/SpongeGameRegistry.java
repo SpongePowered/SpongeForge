@@ -89,6 +89,7 @@ import org.spongepowered.api.block.tile.carrier.Dispenser;
 import org.spongepowered.api.block.tile.carrier.Dropper;
 import org.spongepowered.api.block.tile.carrier.Furnace;
 import org.spongepowered.api.block.tile.carrier.Hopper;
+import org.spongepowered.api.data.DataManipulatorRegistry;
 import org.spongepowered.api.data.manipulators.tileentities.BannerData;
 import org.spongepowered.api.data.types.Art;
 import org.spongepowered.api.data.types.Arts;
@@ -813,6 +814,10 @@ public class SpongeGameRegistry implements GameRegistry {
         return Optional.fromNullable(this.worldPropertiesNameMappings.get(worldName));
     }
 
+    public Collection<WorldProperties> getAllWorldProperties() {
+        return Collections.unmodifiableCollection(this.worldPropertiesNameMappings.values());
+    }
+
     public String getWorldFolder(int dim) {
         return this.worldFolderDimensionIdMappings.get(dim);
     }
@@ -903,6 +908,11 @@ public class SpongeGameRegistry implements GameRegistry {
     @Override
     public RecipeRegistry getRecipeRegistry() {
         throw new UnsupportedOperationException(); // TODO
+    }
+
+    @Override
+    public DataManipulatorRegistry getManipulatorRegistry() {
+        throw new UnsupportedOperationException(); //TODO
     }
 
     @Override

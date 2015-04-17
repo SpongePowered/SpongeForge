@@ -31,6 +31,7 @@ import net.minecraftforge.event.entity.item.ItemTossEvent;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerDropItemEvent;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -50,8 +51,8 @@ public abstract class MixinEventPlayerDropItem extends ItemEvent implements Play
     public EntityPlayer player;
 
     @Override
-    public Collection<Item> getDroppedItems() {
-        return Collections.nCopies(1, (Item) this.entityItem);
+    public Collection<ItemStack> getDroppedItems() {
+        return Collections.nCopies(1, (ItemStack) this.entityItem.getEntityItem());
     }
 
     @Override
