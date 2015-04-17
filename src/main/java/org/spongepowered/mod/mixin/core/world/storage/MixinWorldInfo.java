@@ -241,11 +241,13 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
         this.spongeNbt.setBoolean("keepSpawnLoaded", this.keepSpawnLoaded);
         this.spongeNbt.setBoolean("loadOnStartup", this.loadOnStartup);
 
-        NBTTagList generatorModifierNbt = new NBTTagList();
-        for (String generatorModifierId : this.generatorModifiers) {
-            generatorModifierNbt.appendTag(new NBTTagString(generatorModifierId));
+        if (this.generatorModifiers != null) {
+            NBTTagList generatorModifierNbt = new NBTTagList();
+            for (String generatorModifierId : this.generatorModifiers) {
+                generatorModifierNbt.appendTag(new NBTTagString(generatorModifierId));
+            }
+            this.spongeNbt.setTag("generatorModifiers", generatorModifierNbt);
         }
-        this.spongeNbt.setTag("generatorModifiers", generatorModifierNbt);
     }
 
     @Override
