@@ -28,13 +28,12 @@ import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.mod.text.SpongeChatComponent;
-import org.spongepowered.mod.text.SpongeText;
 
 /**
  * Wrapper around a CommandSource that is not part of the base game to allow it to access MC commands.
@@ -53,7 +52,7 @@ public class WrapperICommandSender implements ICommandSender {
 
     @Override
     public IChatComponent getDisplayName() {
-        return ((SpongeText) Texts.of(this.source.getName())).toComponent();
+        return new ChatComponentText(this.source.getName());
     }
 
     @Override
@@ -68,12 +67,12 @@ public class WrapperICommandSender implements ICommandSender {
 
     @Override
     public BlockPos getPosition() {
-        return null;
+        return BlockPos.ORIGIN;
     }
 
     @Override
     public Vec3 getPositionVector() {
-        return null;
+        return new Vec3(0, 0, 0);
     }
 
     @Override

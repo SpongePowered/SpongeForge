@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.core.server;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import net.minecraft.command.CommandHandler;
+import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.ServerCommandManager;
@@ -35,24 +36,20 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.MinecraftDummyContainer;
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.translation.Translatable;
-import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.util.command.CommandException;
+import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.command.MinecraftCommandWrapper;
 import org.spongepowered.mod.service.permission.SpongePermissionService;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -70,6 +67,12 @@ public abstract class MixinServerCommandManager extends CommandHandler implement
         this.earlyRegisterCommands = Lists.newArrayList();
     }
 
+    private void updateStat(ICommandSender sender, CommandResultStats.Type type, Optional<Integer> count) {
+        if (count.isPresent()) {
+            sender.setCommandStat(type, count.get());
+        }
+    }
+
     @Override
     public int executeCommand(ICommandSender sender, String command) {
         command = command.trim();
@@ -77,20 +80,19 @@ public abstract class MixinServerCommandManager extends CommandHandler implement
             command = command.substring(1);
         }
 
-        String name = command;
-        String args = "";
-        int pos = name.indexOf(' ');
-        if (pos > -1) {
-            name = command.substring(0, pos);
-            args = command.substring(pos + 1);
-        }
-
         CommandSource source = ((CommandSource) sender);
         Game game = SpongeMod.instance.getGame();
-        if (game.getEventManager().post(SpongeEventFactory.createCommand(game, args, (CommandSource) sender, name))) {
-            return 1;
+        Optional<CommandResult> resultOpt;
+        if ((resultOpt = game.getCommandDispatcher().process(source, command)).isPresent()) {
+            CommandResult result = resultOpt.get();
+            updateStat(sender, CommandResultStats.Type.AFFECTED_BLOCKS, result.getAffectedBlocks());
+            updateStat(sender, CommandResultStats.Type.AFFECTED_ENTITIES, result.getAffectedEntities());
+            updateStat(sender, CommandResultStats.Type.AFFECTED_ITEMS, result.getAffectedItems());
+            updateStat(sender, CommandResultStats.Type.QUERY_RESULT, result.getQueryResult());
+            updateStat(sender, CommandResultStats.Type.SUCCESS_COUNT, result.getSuccessCount());
+            return resultOpt.get().getSuccessCount().or(1);
         } else {
-            source.sendMessage(Texts.builder(game.getRegistry().getTranslationById(TRANSLATION_COMMAND_NOT_FOUND).get(), new Object[0])
+            source.sendMessage(Texts.builder(game.getRegistry().getTranslationById(TRANSLATION_COMMAND_NOT_FOUND).get())
                     .color(TextColors.RED).build());
             return 0;
         }
@@ -163,12 +165,6 @@ public abstract class MixinServerCommandManager extends CommandHandler implement
     public List getTabCompletionOptions(ICommandSender sender, String input, BlockPos pos) {
         CommandService service = SpongeMod.instance.getGame().getCommandDispatcher();
         CommandSource source = (CommandSource) sender;
-        try {
-            return service.getSuggestions(source, input);
-        } catch (CommandException e) {
-            source.sendMessage(Texts.of(TextColors.RED, e.getMessage()));
-            return Collections.emptyList();
-        }
-
+        return service.getSuggestions(source, input);
     }
 }

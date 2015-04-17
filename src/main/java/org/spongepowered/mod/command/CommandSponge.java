@@ -24,375 +24,321 @@
  */
 package org.spongepowered.mod.command;
 
-import com.google.common.collect.ImmutableList;
+import static org.spongepowered.api.util.command.args.GenericArguments.dimension;
+import static org.spongepowered.api.util.command.args.GenericArguments.world;
+import static org.spongepowered.api.util.command.args.GenericArguments.firstParsing;
+import static org.spongepowered.api.util.command.args.GenericArguments.flags;
+import static org.spongepowered.api.util.command.args.GenericArguments.literal;
+import static org.spongepowered.api.util.command.args.GenericArguments.optional;
+import static org.spongepowered.api.util.command.args.GenericArguments.seq;
+import static org.spongepowered.api.util.command.args.GenericArguments.string;
 
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
+import com.google.common.base.Optional;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.util.command.CommandException;
+import org.spongepowered.api.util.command.CommandResult;
+import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.util.command.args.ChildCommandElementExecutor;
+import org.spongepowered.api.util.command.args.CommandContext;
+import org.spongepowered.api.util.command.spec.CommandExecutor;
+import org.spongepowered.api.util.command.spec.CommandSpec;
 import org.spongepowered.api.world.DimensionType;
+import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.configuration.SpongeConfig;
 import org.spongepowered.mod.interfaces.IMixinWorld;
 import org.spongepowered.mod.interfaces.IMixinWorldProvider;
 import org.spongepowered.mod.mixin.plugin.CoreMixinPlugin;
-import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.util.SpongeHooks;
+import org.spongepowered.mod.world.SpongeDimensionType;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
-public class CommandSponge extends CommandBase {
+@NonnullByDefault
+public class CommandSponge {
+    private static final String INDENT = "    ";
+    private static final String LONG_INDENT = INDENT + INDENT;
 
-    @SuppressWarnings("unused")
-    private static final List<String> FLAGS = ImmutableList.of("-g", "-d", "-w");
-    private static final List<String> FLAG_COMMANDS = ImmutableList.of("save", "chunks", "conf", "reload");
-    private static final List<String> COMMANDS = ImmutableList.of("chunks", "conf", "heap", "help", "reload", "save", "version", "audit");
-    private static final List<String> ALIASES = ImmutableList.of("sp");
+    private static final Text NEWLINE_TEXT = Texts.of("\n");
 
-    private static final String USAGE_CONF =
-            EnumChatFormatting.WHITE + "Usage:\n" + EnumChatFormatting.GREEN + "/sponge conf [-g] [-d dim] [-w world] key value";
-    private static final String USAGE_RELOAD =
-            EnumChatFormatting.WHITE + "Usage:\n" + EnumChatFormatting.GREEN + "/sponge reload [-g] [-d dim|*] [-w world|*]";
-    private static final String USAGE_SAVE =
-            EnumChatFormatting.WHITE + "Usage:\n" + EnumChatFormatting.GREEN + "/sponge save [-g] [-d dim|*] [-w world|*]";
-    private static final String USAGE_CHUNKS =
-            EnumChatFormatting.WHITE + "Usage:\n" + EnumChatFormatting.GREEN + "/sponge chunks [-g] [-d dim] [-w world]";
-
-    @Override
-    public String getCommandName() {
-        return "sponge";
+    /**
+     * Create a new instance of the Sponge command structure.
+     *
+     * @param mod The mod to deal with
+     * @return The newly created command
+     */
+    public static CommandSpec getCommand(SpongeMod mod) {
+        final ChildCommandElementExecutor flagChildren = new ChildCommandElementExecutor(null);
+        final ChildCommandElementExecutor nonFlagChildren = new ChildCommandElementExecutor(flagChildren);
+        nonFlagChildren.register(getVersionCommand(mod), "version");
+        nonFlagChildren.register(getAuditCommand(), "audit");
+        nonFlagChildren.register(getHeapCommand(), "heap");
+        flagChildren.register(getChunksCommand(mod), "chunks");
+        flagChildren.register(getConfigCommand(), "config");
+        flagChildren.register(getReloadCommand(), "reload"); // TODO: Should these two be subcommands of config, and what is now config be set?
+        flagChildren.register(getSaveCommand(), "save");
+        return CommandSpec.builder()
+                .setDescription(Texts.of("Text description"))
+                .setExtendedDescription(Texts.of("commands:\n", // TODO: Automatically generate from child executors (wait for help system on this)
+                        INDENT, Texts.of(TextColors.GREEN, "chunks"), LONG_INDENT, "Prints chunk data for a specific dimension or world(s)\n",
+                        INDENT, Texts.of(TextColors.GREEN, "conf"), LONG_INDENT, "Configure sponge settings\n",
+                        INDENT, Texts.of(TextColors.GREEN, "heap"), LONG_INDENT, "Dump live JVM heap\n",
+                        INDENT, Texts.of(TextColors.GREEN, "reload", LONG_INDENT, "Reloads a global, dimension, or world config\n"),
+                        INDENT, Texts.of(TextColors.GREEN, "save"), LONG_INDENT, "Saves a global, dimension, or world config\n",
+                        INDENT, Texts.of(TextColors.GREEN, "version"), LONG_INDENT, "Prints current Sponge version\n",
+                        INDENT, Texts.of(TextColors.GREEN, "audit"), LONG_INDENT, "Audit mixin classes for implementation"))
+                .setArguments(firstParsing(nonFlagChildren, flags()
+                        .flag("-global", "g")
+                        .valueFlag(world(Texts.of("world"), mod.getGame()), "-world", "w")
+                        .valueFlag(dimension(Texts.of("dimension"), mod.getGame()), "-dimension", "d")
+                        .buildWith(flagChildren)))
+                .setExecutor(nonFlagChildren)
+                .build();
     }
 
-    @SuppressWarnings("rawtypes")
-    @Override
-    public List getCommandAliases() {
-        return ALIASES;
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 2;
-    }
-
-    @Override
-    public String getCommandUsage(ICommandSender par1ICommandSender) {
-        return "/sponge <command> [args]";
-    }
-
-    private String getCommandUsage(String command) {
-        if (command.equalsIgnoreCase("chunks")) {
-            return USAGE_CHUNKS;
-        } else if (command.equalsIgnoreCase("reload")) {
-            return USAGE_RELOAD;
-        } else if (command.equalsIgnoreCase("save")) {
-            return USAGE_SAVE;
+    // TODO: Have some sort of separator between outputs for each world/dimension/global/whatever (that are exactly one line?)
+    private abstract static class ConfigUsingExecutor implements CommandExecutor {
+        @Override
+        public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+            int successes = 0;
+            if (args.hasAny("global")) {
+                src.sendMessage(Texts.of("Global: ", processGlobal(CoreMixinPlugin.getGlobalConfig(), src, args)));
+                ++successes;
+            }
+            if (args.hasAny("dimension")) {
+                for (DimensionType dimension : args.<DimensionType>getAll("dimension")) {
+                    WorldProvider provider = DimensionManager.getProvider(((SpongeDimensionType) dimension).getDimensionTypeId());
+                    src.sendMessage(Texts.of("Dimension ", dimension.getName(), ": ", processDimension(((IMixinWorldProvider) provider)
+                                    .getDimensionConfig(), dimension, src, args)));
+                    ++successes;
+                }
+            }
+            if (args.hasAny("world")) {
+                for (WorldProperties properties : args.<WorldProperties>getAll("world")) {
+                    Optional<World> world = SpongeMod.instance.getGame().getServer().getWorld(properties.getUniqueId());
+                    if (!world.isPresent()) {
+                        throw new CommandException(Texts.of("World ", properties.getWorldName(), " is not loaded, cannot work with it"));
+                    }
+                    src.sendMessage(Texts.of("World ", properties.getWorldName(), ": ", processWorld(((IMixinWorld) world.get()).getWorldConfig(),
+                            world.get(), src, args)));
+                    ++successes;
+                }
+            }
+            if (successes == 0) {
+                throw new CommandException(Texts.of("At least one target flag must be specified"));
+            }
+            return CommandResult.builder().successCount(successes).build(); // TODO: How do we handle results?
         }
 
-        return "";
+        protected Text processGlobal(SpongeConfig<SpongeConfig.GlobalConfig> config, CommandSource source, CommandContext args)
+                throws CommandException {
+            return process(config, source, args);
+        }
+
+        protected Text processDimension(SpongeConfig<SpongeConfig.DimensionConfig> config, DimensionType dim, CommandSource source,
+                CommandContext args) throws CommandException {
+            return process(config, source, args);
+        }
+
+        protected Text processWorld(SpongeConfig<SpongeConfig.WorldConfig> config, World world, CommandSource source,
+                CommandContext args) throws CommandException {
+            return process(config, source, args);
+        }
+
+        protected Text process(SpongeConfig<?> config, CommandSource source, CommandContext args) throws CommandException {
+            return Texts.of("Unimplemented");
+        }
     }
 
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) {
-        if (args.length > 0) {
-            String command = args[0];
-            SpongeConfig<?> config = CoreMixinPlugin.getGlobalConfig();
+    // Flag children
 
-            if (COMMANDS.contains(command)) {
-                if (FLAG_COMMANDS.contains(command)) {
-
-                    String name = "";
-                    WorldServer world = null;
-                    DimensionType dimensionType = null;
-                    if (sender instanceof EntityPlayer) {
-                        world = (WorldServer) ((EntityPlayer) sender).worldObj;
+    private static CommandSpec getChunksCommand(final SpongeMod mod) {
+        return CommandSpec.builder()
+                .setDescription(Texts.of("Print chunk information, optionally dump"))
+                .setArguments(optional(seq(literal(Texts.of("dump"), "dump"), optional(literal(Texts.of("dump-all"), "all")))))
+                .setPermission("sponge.command.chunks")
+                .setExecutor(new ConfigUsingExecutor() {
+                    @Override
+                    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+                        CommandResult res = super.execute(src, args);
+                        if (args.hasAny("dump")) {
+                            File file = new File(new File(new File("."), "chunk-dumps"),
+                                    "chunk-info-" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + "-server.txt");
+                            src.sendMessage(Texts.of("Writing chunk info to: ", file));
+                            SpongeHooks.writeChunks(file, args.hasAny("dump-all"));
+                            src.sendMessage(Texts.of("Chunk info complete"));
+                        }
+                        return res;
                     }
 
-                    if (command.equalsIgnoreCase("conf")) {
-                        if (args.length < 3) {
-                            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Improper conf syntax detected.\n"
-                                    + USAGE_CONF));
-                            return;
+                    @Override
+                    protected Text processGlobal(SpongeConfig<SpongeConfig.GlobalConfig> config, CommandSource source, CommandContext args)
+                            throws CommandException {
+                        for (World world : mod.getGame().getServer().getWorlds()) {
+                            source.sendMessage(Texts.of("World ", Texts.of(TextStyles.BOLD, world.getName()),
+                                    getChunksInfo(((WorldServer) world))));
                         }
-
-                        name = args[2];
-                    } else {
-                        if (args.length < 2) {
-                            sender.addChatMessage(new ChatComponentText(
-                                    EnumChatFormatting.RED + "Improper " + command + " syntax detected.\n" + getCommandUsage(command)));
-                            return;
-                        }
-
-                        if (args.length > 2) {
-                            name = args[2];
-                        }
+                        return Texts.of("Printed chunk info for all worlds ");
                     }
 
-                    String flag = args[1];
-
-                    if (flag.equalsIgnoreCase("-d")) {
-                        if (name.equals("") || name.equals("*")) {
-                            if (sender instanceof EntityPlayer) {
-                                config = ((IMixinWorldProvider) ((EntityPlayer) sender).worldObj.provider).getDimensionConfig();
-                            } else {
-                                sender.addChatMessage(
-                                        new ChatComponentText(EnumChatFormatting.RED + "Console requires a valid dimension name.\n"
-                                                + USAGE_CONF));
-                                return;
+                    @Override
+                    protected Text processDimension(SpongeConfig<SpongeConfig.DimensionConfig> config, DimensionType dim, CommandSource source,
+                            CommandContext args)
+                            throws CommandException {
+                        for (World world : mod.getGame().getServer().getWorlds()) {
+                            if (world.getDimension().getType().equals(dim)) {
+                                source.sendMessage(Texts.of("World ", Texts.of(TextStyles.BOLD, world.getName()),
+                                        getChunksInfo(((WorldServer) world))));
                             }
+                        }
+                        return Texts.of("Printed chunk info for all worlds in dimension ", dim.getName());
+                    }
+
+                    @Override
+                    protected Text processWorld(SpongeConfig<SpongeConfig.WorldConfig> config, World world, CommandSource source, CommandContext args)
+                            throws CommandException {
+                        return getChunksInfo((WorldServer) world);
+                    }
+
+                    protected Text key(Object text) {
+                        return Texts.of(TextColors.GOLD, text);
+                    }
+
+                    protected Text value(Object text) {
+                        return Texts.of(TextColors.GRAY, text);
+                    }
+
+                    protected Text getChunksInfo(WorldServer worldserver) {
+                        return Texts.of(NEWLINE_TEXT, key("Dimension: "), value(worldserver.provider.getDimensionId()), NEWLINE_TEXT,
+                                key("Loaded chunks: "), value(worldserver.theChunkProviderServer.getLoadedChunkCount()), NEWLINE_TEXT,
+                                key("Active chunks: "), value(worldserver.activeChunkSet.size()), NEWLINE_TEXT,
+                                key("Entities: "), value(worldserver.loadedEntityList.size()), NEWLINE_TEXT,
+                                key("Tile Entities: "), value(worldserver.loadedTileEntityList.size()), NEWLINE_TEXT,
+                                key("Removed Entities:"), value(worldserver.unloadedEntityList.size()), NEWLINE_TEXT,
+                                key("Removed Tile Entities: "), value(worldserver.tileEntitiesToBeRemoved), NEWLINE_TEXT
+                        );
+                    }
+                })
+                .build();
+    }
+
+    private static CommandSpec getConfigCommand() {
+        return CommandSpec.builder()
+                .setDescription(Texts.of("Inspect the Sponge config"))
+                .setArguments(seq(string(Texts.of("key")), optional(string(Texts.of("value")))))
+                .setPermission("sponge.command.config")
+                .setExecutor(new ConfigUsingExecutor() {
+                    @Override
+                    protected Text process(SpongeConfig<?> config, CommandSource source, CommandContext args) throws CommandException {
+                        final Optional<String> key = args.getOne("key");
+                        final Optional<String> value = args.getOne("value");
+                        if (config.getSetting(key.get()).isVirtual()) {
+                            throw new CommandException(Texts.of("Key ", Texts.builder(key.get()).color(TextColors.GREEN).build(), " is not "
+                                    + "valid"));
+                        }
+                        CommentedConfigurationNode setting = config.getSetting(key.get());
+
+                        if (value.isPresent()) { // Set
+                            setting.setValue(value.get());
+                            return Texts.builder().append(Texts.of(TextColors.GOLD, key), Texts.of(" set to "),
+                                    Texts.of(TextColors.GREEN, setting.getValue())).build();
                         } else {
-                            for (DimensionType dimType : ((SpongeGameRegistry) SpongeMod.instance.getGame().getRegistry()).getDimensionTypes()) {
-                                if (dimType.getName().equalsIgnoreCase(name)) {
-                                    config = SpongeGameRegistry.dimensionConfigs.get(dimType.getDimensionClass());
-                                    dimensionType = dimType;
-                                    break;
-                                }
-                            }
-                            if (config == CoreMixinPlugin.getGlobalConfig()) {
-                                sender.addChatMessage(new ChatComponentText("Dimension '" + EnumChatFormatting.RED + name + EnumChatFormatting.WHITE
-                                        + "' does not exist. Please enter a valid dimension."));
-                                return;
-                            }
+                            return Texts.builder().append(Texts.of(TextColors.GOLD, key), Texts.of(" is "),
+                                    Texts.of(TextColors.GREEN, setting.getValue())).build();
                         }
-                    } else if (flag.equalsIgnoreCase("-w")) {
-                        if (name.equals("") || name.equals("*")) {
-                            if (sender instanceof EntityPlayer) {
-                                config = ((IMixinWorld) ((EntityPlayer) sender).worldObj).getWorldConfig();
-                            } else {
-                                sender.addChatMessage(
-                                        new ChatComponentText(EnumChatFormatting.RED + "Console requires a valid world name.\n"
-                                                + USAGE_CONF));
-                                return;
-                            }
-                        } else {
-                            for (WorldServer worldserver : DimensionManager.getWorlds()) {
-                                if (worldserver.provider.getSaveFolder() == null && name.equalsIgnoreCase("DIM0")) {
-                                    config = ((IMixinWorld) worldserver).getWorldConfig();
-                                    world = worldserver;
-                                    break;
-                                }
-                                if (worldserver.provider.getSaveFolder() != null && worldserver.provider.getSaveFolder().equalsIgnoreCase(name)) {
-                                    config = ((IMixinWorld) worldserver).getWorldConfig();
-                                    world = worldserver;
-                                    break;
-                                }
-                            }
-                            if (config == CoreMixinPlugin.getGlobalConfig()) {
-                                sender.addChatMessage(new ChatComponentText(
-                                        EnumChatFormatting.RED + "World " + EnumChatFormatting.AQUA + name + EnumChatFormatting.RED
-                                                + " does not exist. Please enter a valid world."));
-                                return;
-                            }
-                        }
-                    } else if (flag.equalsIgnoreCase("-g")) {
-                        config = CoreMixinPlugin.getGlobalConfig();
-                    } else {
-                        sender.addChatMessage(new ChatComponentText(
-                                EnumChatFormatting.AQUA + flag + EnumChatFormatting.RED + " is not recognized as a valid flag.\n"
-                                        + USAGE_CONF));
-                        return;
                     }
+                })
+                .build();
+    }
 
-                    if (command.equalsIgnoreCase("save")) {
-                        String configName = config.getConfigName();
-                        if (name.equals("")) {
-                            config.save();
-                        } else if (name.equals("*") && config.getType() == SpongeConfig.Type.WORLD) {
-                            for (WorldServer worldserver : DimensionManager.getWorlds()) {
-                                SpongeConfig<SpongeConfig.WorldConfig> worldConfig = ((IMixinWorld) worldserver).getWorldConfig();
-                                worldConfig.save();
-                            }
-                            configName = "ALL";
-                        } else if (name.equals("*") && config.getType() == SpongeConfig.Type.DIMENSION) {
-                            for (SpongeConfig<?> dimensionConfig : SpongeGameRegistry.dimensionConfigs.values()) {
-                                dimensionConfig.save();
-                            }
-                            configName = "ALL";
-                        }
-                        sender.addChatMessage(new ChatComponentText(
-                                EnumChatFormatting.GREEN + "Saved " + EnumChatFormatting.GOLD + config.getType() + EnumChatFormatting.GREEN
-                                        + " configuration: " + EnumChatFormatting.AQUA + configName));
-                    } else if (command.equalsIgnoreCase("reload")) {
+    private static CommandSpec getReloadCommand() {
+        return CommandSpec.builder()
+                .setDescription(Texts.of("Reload the Sponge configuration"))
+                .setPermission("sponge.command.reload")
+                .setExecutor(new ConfigUsingExecutor() {
+                    @Override
+                    protected Text process(SpongeConfig<?> config, CommandSource source, CommandContext args) throws CommandException {
                         config.reload();
-                        String configName = config.getConfigName();
-                        if (name.equals("")) {
-                            config.reload();
-                        } else if (name.equals("*") && config.getType() == SpongeConfig.Type.WORLD) {
-                            for (WorldServer worldserver : DimensionManager.getWorlds()) {
-                                SpongeConfig<?> worldConfig = ((IMixinWorld) worldserver).getWorldConfig();
-                                worldConfig.reload();
-                            }
-                            configName = "ALL";
-                        } else if (name.equals("*") && config.getType() == SpongeConfig.Type.DIMENSION) {
-                            for (SpongeConfig<?> dimensionConfig : SpongeGameRegistry.dimensionConfigs.values()) {
-                                dimensionConfig.reload();
-                            }
-                            configName = "ALL";
-                        }
-
-                        sender.addChatMessage(new ChatComponentText(
-                                EnumChatFormatting.GREEN + "Reloaded " + EnumChatFormatting.GOLD + config.getType() + EnumChatFormatting.GREEN
-                                        + " configuration: " + EnumChatFormatting.AQUA + configName));
-                    } else if (command.equalsIgnoreCase("chunks")) {
-                        processChunks(config.getType(), world, dimensionType, sender, args);
-                    } else {
-                        if (config.getSetting(args[args.length - 1]) != null) {
-                            getToggle(config, sender, args[args.length - 1]);
-                        } else {
-                            setToggle(config, sender, args[args.length - 2], args[args.length - 1]);
-                        }
+                        return Texts.of("Reloaded configuration");
                     }
-
-                } else if ("version".equalsIgnoreCase(command)) {
-                    sender.addChatMessage(new ChatComponentText(
-                            "SpongeMod : " + EnumChatFormatting.GREEN + SpongeMod.instance.getGame().getImplementationVersion() + "\n"
-                                    + "SpongeAPI : " + EnumChatFormatting.GREEN + SpongeMod.instance.getGame().getApiVersion()));
-                } else if (command.equalsIgnoreCase("heap")) {
-                    processHeap(sender, args);
-                } else if (command.equalsIgnoreCase("audit")) {
-                    MixinEnvironment.getCurrentEnvironment().audit();
-                } else if (command.equalsIgnoreCase("help")) {
-                    sender.addChatMessage(new ChatComponentText("commands:\n"
-                            + "    " + EnumChatFormatting.GREEN + "chunks   " + EnumChatFormatting.WHITE + "     "
-                            + "Prints chunk data for a specific dimension or world(s)\n"
-                            + "    " + EnumChatFormatting.GREEN + "conf   " + EnumChatFormatting.WHITE + "     " + "Configure sponge settings\n"
-                            + "    " + EnumChatFormatting.GREEN + "heap   " + EnumChatFormatting.WHITE + "     " + "Dump live JVM heap\n"
-                            + "    " + EnumChatFormatting.GREEN + "reload   " + EnumChatFormatting.WHITE + "     "
-                            + "Reloads a global, dimension, or world config\n"
-                            + "    " + EnumChatFormatting.GREEN + "save   " + EnumChatFormatting.WHITE + "     "
-                            + "Saves a global, dimension, or world config\n"
-                            + "    " + EnumChatFormatting.GREEN + "version" + EnumChatFormatting.WHITE + "     " + "Prints current sponge version"));
-                }
-            } else { // invalid command
-                sender.addChatMessage(new ChatComponentText("'" + EnumChatFormatting.RED + command + EnumChatFormatting.WHITE + "'"
-                        + " is not recognized as a valid command.\nAvailable commands are: \n" + EnumChatFormatting.GREEN
-                        + COMMANDS.toString()));
-                return;
-            }
-        } else {
-            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Usage: " + getCommandUsage(sender)));
-        }
+                })
+                .build();
     }
 
-    private void processHeap(ICommandSender sender, String[] args) {
-        File file = new File(new File(new File("."), "dumps"),
-                "heap-dump-" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + "-server.bin");
-        sender.addChatMessage(new ChatComponentText("Writing JVM heap data to: " + file));
-        SpongeHooks.dumpHeap(file, true);
-        sender.addChatMessage(new ChatComponentText("Heap dump complete"));
+    private static CommandSpec getSaveCommand() {
+        return CommandSpec.builder()
+                .setDescription(Texts.of("Save the configuration"))
+                .setPermission("sponge.command.save")
+                .setExecutor(new ConfigUsingExecutor() {
+                    @Override
+                    protected Text process(SpongeConfig<?> config, CommandSource source, CommandContext args) throws CommandException {
+                        config.save();
+                        return Texts.of("Saved");
+                    }
+                })
+                .build();
     }
 
-    private void processChunks(SpongeConfig.Type type, WorldServer world, DimensionType dimensionType, ICommandSender sender, String[] args) {
+    // Non-flag children
 
-        if (type == SpongeConfig.Type.GLOBAL) {
-            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + "Dimension stats: "));
-            for (net.minecraft.world.WorldServer worldserver : DimensionManager.getWorlds()) {
-                sender.addChatMessage(new ChatComponentText(
-                        EnumChatFormatting.GOLD + "Dimension: " + EnumChatFormatting.AQUA + worldserver.provider.getDimensionId() + "\n"
-                                + EnumChatFormatting.GOLD + " Loaded Chunks: " + EnumChatFormatting.GRAY + worldserver.theChunkProviderServer
-                                        .getLoadedChunkCount() + "\n"
-                                + EnumChatFormatting.GOLD + " Active Chunks: " + EnumChatFormatting.GRAY + worldserver.activeChunkSet.size() + "\n"
-                                + EnumChatFormatting.GOLD + " Entities: " + EnumChatFormatting.GRAY + worldserver.loadedEntityList.size() + "\n"
-                                + EnumChatFormatting.GOLD + " Tile Entities: " + EnumChatFormatting.GRAY + worldserver.loadedTileEntityList.size()
-                        ));
-                sender.addChatMessage(new ChatComponentText(
-                        EnumChatFormatting.GOLD + " Removed Entities: " + EnumChatFormatting.GRAY + worldserver.unloadedEntityList.size() + "\n"
-                                + EnumChatFormatting.GOLD + " Removed Tile Entities: " + EnumChatFormatting.GRAY + worldserver.tileEntitiesToBeRemoved
-                                        .size()
-                        ));
-            }
-        } else if (type == SpongeConfig.Type.WORLD) {
-            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + "World stats: "));
-            sender.addChatMessage(new ChatComponentText(
-                    EnumChatFormatting.GOLD + "World: " + EnumChatFormatting.AQUA + (world.provider.getSaveFolder() == null ? "DIM0" :
-                            world.provider.getSaveFolder()) + "\n"
-                            + EnumChatFormatting.GOLD + " Loaded Chunks: " + EnumChatFormatting.GRAY + world.theChunkProviderServer
-                                    .getLoadedChunkCount() + "\n"
-                            + EnumChatFormatting.GOLD + " Active Chunks: " + EnumChatFormatting.GRAY + world.activeChunkSet.size() + "\n"
-                            + EnumChatFormatting.GOLD + " Entities: " + EnumChatFormatting.GRAY + world.loadedEntityList.size() + "\n"
-                            + EnumChatFormatting.GOLD + " Tile Entities: " + EnumChatFormatting.GRAY + world.loadedTileEntityList.size()
-                    ));
-            sender.addChatMessage(new ChatComponentText(
-                    EnumChatFormatting.GOLD + " Removed Entities: " + EnumChatFormatting.GRAY + world.unloadedEntityList.size() + "\n"
-                            + EnumChatFormatting.GOLD + " Removed Tile Entities: " + EnumChatFormatting.GRAY + world.tileEntitiesToBeRemoved.size()
-                    ));
-        } else if (type == SpongeConfig.Type.DIMENSION) {
-            for (net.minecraft.world.WorldServer worldserver : DimensionManager.getWorlds()) {
-                if (worldserver.provider.getClass() == dimensionType.getDimensionClass()) {
-                    sender.addChatMessage(new ChatComponentText(
-                            EnumChatFormatting.GOLD + "Dimension: " + EnumChatFormatting.AQUA + worldserver.provider.getDimensionId() + "\n"
-                                    + EnumChatFormatting.GOLD + " Loaded Chunks: " + EnumChatFormatting.GRAY + worldserver.theChunkProviderServer
-                                            .getLoadedChunkCount() + "\n"
-                                    + EnumChatFormatting.GOLD + " Active Chunks: " + EnumChatFormatting.GRAY + worldserver.activeChunkSet.size()
-                                    + "\n"
-                                    + EnumChatFormatting.GOLD + " Entities: " + EnumChatFormatting.GRAY + worldserver.loadedEntityList.size() + "\n"
-                                    + EnumChatFormatting.GOLD + " Tile Entities: " + EnumChatFormatting.GRAY + worldserver.loadedTileEntityList.size()
-                            ));
-                    sender.addChatMessage(new ChatComponentText(
-                            EnumChatFormatting.GOLD + " Removed Entities: " + EnumChatFormatting.GRAY + worldserver.unloadedEntityList.size() + "\n"
-                                    + EnumChatFormatting.GOLD + " Removed Tile Entities: " + EnumChatFormatting.GRAY
-                                    + worldserver.tileEntitiesToBeRemoved.size()
-                            ));
-                }
-            }
-        }
+    private static CommandSpec getHeapCommand() {
+        return CommandSpec.builder()
+                .setDescription(Texts.of("Generate a dump of the Sponge heap"))
+                .setPermission("sponge.command.heap")
+                .setExecutor(new CommandExecutor() {
+                    @Override
+                    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+                        File file = new File(new File(new File("."), "dumps"),
+                                "heap-dump-" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + "-server.bin");
+                        src.sendMessage(Texts.of("Writing JVM heap data to: ", file));
+                        SpongeHooks.dumpHeap(file, true);
+                        src.sendMessage(Texts.of("Heap dump complete"));
+                        return CommandResult.builder().successCount(1).build();
+                    }
+                })
+                .build();
 
-        // TODO
-        if ((args.length < 2) || !args[1].equalsIgnoreCase("dump")) {
-            return;
-        }
-        boolean dumpAll = ((args.length > 2) && "all".equalsIgnoreCase(args[2]));
-
-        File file = new File(new File(new File("."), "chunk-dumps"),
-                "chunk-info-" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + "-server.txt");
-        sender.addChatMessage(new ChatComponentText("Writing chunk info to: " + file));
-        SpongeHooks.writeChunks(file, dumpAll);
-        sender.addChatMessage(new ChatComponentText("Chunk info complete"));
-    }
-
-    private boolean getToggle(SpongeConfig<?> config, ICommandSender sender, String key) {
-        try {
-            if (config.getSetting(key).isVirtual()) {
-                sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Could not find option: " + key));
-                return false;
-            }
-
-            CommentedConfigurationNode setting = config.getSetting(key);
-            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + key + " " + EnumChatFormatting.GREEN + setting.getValue()));
-        } catch (Exception e) {
-            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Usage: " + getCommandUsage(sender)));
-            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
-        }
-
-        return true;
-    }
-
-    private boolean setToggle(SpongeConfig<?> config, ICommandSender sender, String key, String value) {
-        try {
-            if (config.getSetting(key).isVirtual()) {
-                sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Could not find option: " + key));
-                return false;
-            }
-
-            CommentedConfigurationNode setting = config.getSetting(key).setValue(value);
-            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.GOLD + key + " " + EnumChatFormatting.GREEN + setting.getValue()));
-
-            config.save();
-        } catch (Exception e) {
-            sender.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Usage: " + getCommandUsage(sender)));
-            SpongeMod.instance.getLogger().error(ExceptionUtils.getStackTrace(e));
-        }
-        return true;
     }
 
 
+    private static CommandSpec getVersionCommand(final SpongeMod mod) {
+        return CommandSpec.builder()
+                .setDescription(Texts.of("Display Sponge's current version"))
+                .setPermission("sponge.command.version")
+                .setExecutor(new CommandExecutor() {
+                    @Override
+                    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+                        src.sendMessage(Texts.of("SpongeMod: ", Texts.of(TextColors.GREEN, mod.getGame().getImplementationVersion()), "\n",
+                                "SpongeAPI: ", Texts.of(TextColors.GREEN, mod.getGame().getApiVersion())));
+                        return CommandResult.builder().successCount(1).build();
+                    }
+                })
+                .build();
+    }
+
+    private static CommandSpec getAuditCommand() {
+        return CommandSpec.builder()
+                .setDescription(Texts.of("Audit Mixin classes for implementation"))
+                .setPermission("sponge.command.audit")
+                .setExecutor(new CommandExecutor() {
+                    @Override
+                    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+                        MixinEnvironment.getCurrentEnvironment().audit();
+                        return CommandResult.empty();
+                    }
+                })
+                .build();
+    }
 }

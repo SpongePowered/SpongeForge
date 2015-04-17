@@ -29,6 +29,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.server.CommandBlockLogic;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import org.eclipse.osgi.container.SystemModule;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectCollection;
@@ -36,7 +37,6 @@ import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.permission.context.Context;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.util.command.CommandCallable;
 import org.spongepowered.api.util.command.CommandMapping;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
@@ -168,11 +168,9 @@ public abstract class MixinSubject implements CommandSource, ICommandSender {
 
     @Override
     public boolean canCommandSenderUseCommand(int permissionLevel, String commandName) {
-        Optional<? extends CommandMapping> mapping = SpongeMod.instance.getGame().getCommandDispatcher().get(commandName);
-        if (mapping.isPresent()) {
-            CommandCallable call = mapping.get().getCallable();
-            if (call instanceof MinecraftCommandWrapper) {
-                return hasPermission(((MinecraftCommandWrapper) call).getCommandPermission());
+        for (CommandMapping mapping : SpongeMod.instance.getGame().getCommandDispatcher().getAll(commandName)) {
+            if (mapping.getCallable() instanceof MinecraftCommandWrapper) { // best we can do :/
+                return hasPermission(((MinecraftCommandWrapper) mapping.getCallable()).getCommandPermission());
             }
         }
         return ((Subjectable) this).permDefault(commandName).asBoolean();
