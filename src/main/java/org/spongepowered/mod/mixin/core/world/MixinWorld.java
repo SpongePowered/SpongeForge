@@ -529,6 +529,12 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
         // Get the default generator for the world type
         DataContainer generatorSettings = this.getProperties().getGeneratorSettings();
+        if (generatorSettings.contains(IMixinWorldType.STRING_VALUE)) {
+            String options = generatorSettings.getString(IMixinWorldType.STRING_VALUE).get();
+            if (options.equals("")) {
+                return;
+            }
+        }
         SpongeWorldGenerator newGenerator = worldType.createGenerator(this, generatorSettings);
 
         // Re-apply all world generator modifiers
@@ -590,8 +596,8 @@ public abstract class MixinWorld implements World, IMixinWorld {
         return new SpongeWorldGenerator(
                 SpongeBiomeGenerator.of(getWorldChunkManager()), 
                 SpongeGeneratorPopulator.of(world, serverChunkProvider.serverChunkGenerator), 
-                generatorPopulators, 
-                populators);
+                this.generatorPopulators, 
+                this.populators);
     }
 
     @Override
