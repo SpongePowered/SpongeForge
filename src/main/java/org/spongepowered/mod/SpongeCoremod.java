@@ -30,24 +30,31 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
+import org.spongepowered.common.Sponge;
+import org.spongepowered.common.launch.SpongeLaunch;
 
 import java.util.Map;
 
 public class SpongeCoremod implements IFMLLoadingPlugin {
 
     public SpongeCoremod() {
+
         // Let's get this party started
         MixinBootstrap.init();
 
         // Add pre-init mixins
         MixinEnvironment.getEnvironment(Phase.PREINIT)
-            .addConfiguration("mixins.sponge.base.json");
+                .addConfiguration("mixins.forge.base.json");
+
+        SpongeLaunch.initialize(null, null, null);
+        Sponge.getGlobalConfig(); // Load config
 
         // Add default mixins
         MixinEnvironment.getDefaultEnvironment()
-            .addConfiguration("mixins.sponge.core.json")
-            .addConfiguration("mixins.sponge.api.json")
-            .addConfiguration("mixins.sponge.entityactivation.json");
+                .addConfiguration("mixins.common.api.json")
+                .addConfiguration("mixins.common.core.json")
+                .addConfiguration("mixins.forge.core.json")
+                .addConfiguration("mixins.forge.entityactivation.json");
 
         // Classloader exclusions - TODO: revise when event pkg refactor reaches impl
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.CauseTracked");

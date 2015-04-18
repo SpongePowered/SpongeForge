@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.core.server;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
@@ -64,12 +63,12 @@ import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.IMixinWorldInfo;
+import org.spongepowered.common.interfaces.Subjectable;
+import org.spongepowered.common.text.SpongeText;
+import org.spongepowered.common.text.SpongeTextFactory;
+import org.spongepowered.common.world.SpongeDimensionType;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.interfaces.IMixinWorldInfo;
-import org.spongepowered.mod.interfaces.Subjectable;
-import org.spongepowered.mod.text.SpongeText;
-import org.spongepowered.mod.text.SpongeTextFactory;
-import org.spongepowered.mod.world.SpongeDimensionType;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -78,7 +77,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 @NonnullByDefault
@@ -87,31 +85,73 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
 
     @Shadow private static Logger logger;
     @Shadow public WorldServer[] worldServers;
-    @Shadow private ServerConfigurationManager serverConfigManager;
     @Shadow public Profiler theProfiler;
+    @Shadow private ServerConfigurationManager serverConfigManager;
     @Shadow private boolean enableBonusChest;
     @Shadow private boolean worldIsBeingDeleted;
     @Shadow private int tickCounter;
-    @Shadow protected abstract void convertMapIfNeeded(String worldNameIn);
-    @Shadow protected abstract void setUserMessage(String message);
-    @Shadow protected abstract void setResourcePackFromWorld(String worldNameIn, ISaveHandler saveHandlerIn);
-    @Shadow public abstract boolean canStructuresSpawn();
-    @Shadow public abstract WorldSettings.GameType getGameType();
-    @Shadow public abstract EnumDifficulty getDifficulty();
-    @Shadow public abstract boolean isHardcore();
-    @Shadow public abstract boolean isSinglePlayer();
-    @Shadow public abstract boolean isDemo();
-    @Shadow public abstract String getFolderName();
-    @Shadow public abstract void setDifficultyForAllWorlds(EnumDifficulty difficulty);
-    @Shadow public abstract ServerConfigurationManager getConfigurationManager();
-    @Shadow @SideOnly(Side.SERVER) public abstract String getServerHostname();
-    @Shadow @SideOnly(Side.SERVER) public abstract int getPort();
-    @Shadow public abstract void addChatMessage(IChatComponent message);
-    @Shadow public abstract boolean isServerInOnlineMode();
-    @Shadow public abstract void initiateShutdown();
-    @Shadow public abstract boolean isServerRunning();
-    @Shadow protected abstract void outputPercentRemaining(String message, int percent);
-    @Shadow protected abstract void clearCurrentTask();
+
+    @Shadow
+    protected abstract void convertMapIfNeeded(String worldNameIn);
+
+    @Shadow
+    protected abstract void setUserMessage(String message);
+
+    @Shadow
+    protected abstract void setResourcePackFromWorld(String worldNameIn, ISaveHandler saveHandlerIn);
+
+    @Shadow
+    public abstract boolean canStructuresSpawn();
+
+    @Shadow
+    public abstract WorldSettings.GameType getGameType();
+
+    @Shadow
+    public abstract EnumDifficulty getDifficulty();
+
+    @Shadow
+    public abstract boolean isHardcore();
+
+    @Shadow
+    public abstract boolean isSinglePlayer();
+
+    @Shadow
+    public abstract boolean isDemo();
+
+    @Shadow
+    public abstract String getFolderName();
+
+    @Shadow
+    public abstract void setDifficultyForAllWorlds(EnumDifficulty difficulty);
+
+    @Shadow
+    public abstract ServerConfigurationManager getConfigurationManager();
+
+    @Shadow
+    @SideOnly(Side.SERVER)
+    public abstract String getServerHostname();
+
+    @Shadow
+    @SideOnly(Side.SERVER)
+    public abstract int getPort();
+
+    @Shadow
+    public abstract void addChatMessage(IChatComponent message);
+
+    @Shadow
+    public abstract boolean isServerInOnlineMode();
+
+    @Shadow
+    public abstract void initiateShutdown();
+
+    @Shadow
+    public abstract boolean isServerRunning();
+
+    @Shadow
+    protected abstract void outputPercentRemaining(String message, int percent);
+
+    @Shadow
+    protected abstract void clearCurrentTask();
 
     @Overwrite
     protected void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
@@ -144,8 +184,9 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
 
             if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
                 worldsavehandler =
-                        new AnvilSaveHandler(dim == 0 ? FMLCommonHandler.instance().getSavesDirectory() : new File(FMLCommonHandler.instance().getSavesDirectory() + File.separator
-                                + getFolderName()),
+                        new AnvilSaveHandler(dim == 0 ? FMLCommonHandler.instance().getSavesDirectory() :
+                                new File(FMLCommonHandler.instance().getSavesDirectory() + File.separator
+                                        + getFolderName()),
                                 worldFolder, true);
             } else {
                 worldsavehandler = new AnvilSaveHandler(new File(dim == 0 ? "." : getFolderName()), worldFolder, true);
@@ -195,7 +236,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.WorldEvent.Load(world));
         }
 
-        this.serverConfigManager.setPlayerManager(new WorldServer[] {DimensionManager.getWorld(0)});
+        this.serverConfigManager.setPlayerManager(new WorldServer[]{DimensionManager.getWorld(0)});
         this.setDifficultyForAllWorlds(this.getDifficulty());
         this.initialWorldChunkLoad();
     }
@@ -304,8 +345,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
 
         world.addWorldAccess(new WorldManager((MinecraftServer) (Object) this, world));
         MinecraftForge.EVENT_BUS.post(new WorldEvent.Load(world));
-        if (!isSinglePlayer())
-        {
+        if (!isSinglePlayer()) {
             world.getWorldInfo().setGameType(getGameType());
         }
         this.setDifficultyForAllWorlds(this.getDifficulty());
@@ -335,8 +375,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
         }
         WorldInfo worldInfo = savehandler.loadWorldInfo();
 
-        if (worldInfo != null)
-        {
+        if (worldInfo != null) {
             if (!SpongeMod.instance.getSpongeRegistry().getWorldProperties(((WorldProperties) worldInfo).getUniqueId()).isPresent()) {
                 SpongeMod.instance.getSpongeRegistry().registerWorldProperties((WorldProperties) worldInfo);
                 return Optional.of((WorldProperties) worldInfo);

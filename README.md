@@ -16,25 +16,25 @@ A Forge implementation of the Sponge API. It is licensed under the [MIT License]
 
 ## Clone
 The following steps will ensure your project is cloned properly.  
-1. `git clone git@github.com:SpongePowered/Sponge.git`  
-2. `cd Sponge`  
-3. `git submodule update --init --recursive`  
-4. `cp scripts/pre-commit .git/hooks`
+
+1. `git clone --recursive https://github.com/SpongePowered/Sponge.git`
+2. `cd Sponge`
+3. `cp scripts/pre-commit .git/hooks`
 
 ## Setup
 __Note:__ If you do not have [Gradle] installed then use ./gradlew for Unix systems or Git Bash and gradlew.bat for Windows systems in place of any 'gradle' command.
 
 __For [Eclipse]__  
   1. Run `gradle setupDecompWorkspace --refresh-dependencies`  
-  2. Make sure you have the Gradle plugin installed (Help > Eclipse Marketplace > Gradle Integration Plugin)  
-  3. Import Sponge as a Gradle project (File > Import)
-  4. Select the root folder for Sponge and click **Build Model**
+  2. Run `gradle eclipse`
+  3. Import Sponge as an existing project (File > Import > General)
+  4. Select the root folder for Sponge and make sure `Search for nested projects` is enabled
   5. Check Sponge when it finishes building and click **Finish**
 
 __For [IntelliJ]__  
   1. Run `gradle setupDecompWorkspace --refresh-dependencies`  
   2. Make sure you have the Gradle plugin enabled (File > Settings > Plugins).  
-  3. Click File > Import Module and select the **build.gradle** file for Sponge.
+  3. Click File > New > Project from Existing Sources > Gradle and select the root folder for Sponge.
 
 ## Running
 __Note:__ The following is aimed to help you setup run configurations for Eclipse and IntelliJ, if you do not want to be able to run Sponge directly from your IDE then you can skip this.  
@@ -71,7 +71,6 @@ __Server__
 |    VM Options     | -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
 | Working directory | ./run/server (Included in project) |
 | Module classpath  | Sponge (IntelliJ Only)             |
-
 
 ## Building
 __Note:__ If you do not have [Gradle] installed then use ./gradlew for Unix systems or Git Bash and gradlew.bat for Windows systems in place of any 'gradle' command.

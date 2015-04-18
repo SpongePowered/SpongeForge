@@ -50,12 +50,12 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.FakePlayer;
-import org.spongepowered.mod.configuration.SpongeConfig;
-import org.spongepowered.mod.entity.SpongeEntityType;
-import org.spongepowered.mod.interfaces.IMixinEntity;
-import org.spongepowered.mod.interfaces.IMixinWorld;
-import org.spongepowered.mod.interfaces.IMixinWorldProvider;
-import org.spongepowered.mod.mixin.plugin.CoreMixinPlugin;
+import org.spongepowered.common.Sponge;
+import org.spongepowered.common.configuration.SpongeConfig;
+import org.spongepowered.common.entity.SpongeEntityType;
+import org.spongepowered.common.interfaces.IMixinEntity;
+import org.spongepowered.common.interfaces.IMixinWorld;
+import org.spongepowered.common.interfaces.IMixinWorldProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -312,7 +312,7 @@ public class ActivationRange {
         Preconditions.checkNotNull(type, "type");
 
         List<SpongeConfig<?>> configs = new ArrayList<SpongeConfig<?>>();
-        configs.add(CoreMixinPlugin.getGlobalConfig());
+        configs.add(Sponge.getGlobalConfig());
         configs.add(((IMixinWorldProvider) world.provider).getDimensionConfig());
         configs.add(((IMixinWorld) world).getWorldConfig());
         Preconditions.checkNotNull(configs.get(0), "global");
@@ -353,7 +353,7 @@ public class ActivationRange {
                 .getDimensionConfig().getConfig().isConfigEnabled()) {
             return ((IMixinWorldProvider) world.provider).getDimensionConfig();
         } else {
-            return CoreMixinPlugin.getGlobalConfig();
+            return Sponge.getGlobalConfig();
         }
     }
 }

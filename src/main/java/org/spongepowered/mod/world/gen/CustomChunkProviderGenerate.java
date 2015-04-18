@@ -41,8 +41,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GeneratorPopulator;
-import org.spongepowered.mod.util.gen.ByteArrayMutableBiomeArea;
-import org.spongepowered.mod.util.gen.ChunkPrimerBuffer;
+import org.spongepowered.common.util.gen.ByteArrayMutableBiomeArea;
+import org.spongepowered.common.util.gen.ChunkPrimerBuffer;
 
 import java.util.List;
 import java.util.Random;

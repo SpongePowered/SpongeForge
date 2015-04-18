@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
-import org.spongepowered.mod.interfaces.IMixinWorldSettings;
+import org.spongepowered.common.interfaces.IMixinWorldSettings;
 import net.minecraft.world.WorldSettings;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -83,18 +83,18 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.configuration.SpongeConfig;
-import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
-import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
-import org.spongepowered.mod.interfaces.IMixinWorld;
-import org.spongepowered.mod.interfaces.IMixinWorldType;
+import org.spongepowered.common.configuration.SpongeConfig;
+import org.spongepowered.common.effect.particle.SpongeParticleEffect;
+import org.spongepowered.common.effect.particle.SpongeParticleHelper;
+import org.spongepowered.common.interfaces.IMixinWorld;
+import org.spongepowered.common.interfaces.IMixinWorldType;
 import org.spongepowered.mod.util.SpongeHooks;
-import org.spongepowered.mod.world.border.PlayerBorderListener;
+import org.spongepowered.common.world.border.PlayerBorderListener;
 import org.spongepowered.mod.world.gen.CustomChunkProviderGenerate;
-import org.spongepowered.mod.world.gen.CustomWorldChunkManager;
-import org.spongepowered.mod.world.gen.SpongeBiomeGenerator;
+import org.spongepowered.common.world.gen.CustomWorldChunkManager;
+import org.spongepowered.common.world.gen.SpongeBiomeGenerator;
 import org.spongepowered.mod.world.gen.SpongeGeneratorPopulator;
-import org.spongepowered.mod.world.gen.SpongeWorldGenerator;
+import org.spongepowered.common.world.gen.SpongeWorldGenerator;
 
 import java.io.File;
 import java.util.ArrayList;

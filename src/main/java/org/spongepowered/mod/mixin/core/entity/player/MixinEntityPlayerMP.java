@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.entity.player;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.spongepowered.mod.entity.CombatHelper.getNewTracker;
+import static org.spongepowered.common.entity.CombatHelper.getNewTracker;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
@@ -55,15 +55,15 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.effect.particle.SpongeParticleEffect;
-import org.spongepowered.mod.effect.particle.SpongeParticleHelper;
-import org.spongepowered.mod.interfaces.IMixinEntityPlayerMP;
-import org.spongepowered.mod.interfaces.Subjectable;
-import org.spongepowered.mod.text.SpongeChatComponent;
-import org.spongepowered.mod.text.SpongeText;
-import org.spongepowered.mod.text.chat.SpongeChatType;
-import org.spongepowered.mod.text.title.SpongeTitle;
-import org.spongepowered.mod.util.VecHelper;
+import org.spongepowered.common.effect.particle.SpongeParticleEffect;
+import org.spongepowered.common.effect.particle.SpongeParticleHelper;
+import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
+import org.spongepowered.common.interfaces.Subjectable;
+import org.spongepowered.common.text.SpongeChatComponent;
+import org.spongepowered.common.text.SpongeText;
+import org.spongepowered.common.text.chat.SpongeChatType;
+import org.spongepowered.common.text.title.SpongeTitle;
+import org.spongepowered.common.util.VecHelper;
 
 import java.util.List;
 import java.util.Locale;
