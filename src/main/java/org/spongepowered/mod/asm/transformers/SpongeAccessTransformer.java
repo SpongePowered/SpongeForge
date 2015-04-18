@@ -31,6 +31,6 @@ import java.io.IOException;
 public class SpongeAccessTransformer extends AccessTransformer {
 
     public SpongeAccessTransformer() throws IOException {
-        super("sponge_at.cfg");
+        super("common_at.cfg");
     }
 }

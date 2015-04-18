@@ -33,7 +33,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.rotation.Rotation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.common.Sponge;
 
 import javax.annotation.Nullable;
 
@@ -66,7 +66,7 @@ public abstract class MixinEntityItemFrame extends EntityHanging implements Item
     }
 
     public Rotation getItemRotation() {
-        return SpongeMod.instance.getGame().getRegistry().getRotationFromDegree(shadow$getRotation() * 45).get();
+        return Sponge.getGame().getRegistry().getRotationFromDegree(shadow$getRotation() * 45).get();
     }
 
     public void setRotation(Rotation itemRotation) {

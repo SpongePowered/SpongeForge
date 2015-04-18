@@ -54,13 +54,13 @@ import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.common.Sponge;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.configuration.SpongeConfig;
-import org.spongepowered.mod.interfaces.IMixinWorld;
-import org.spongepowered.mod.interfaces.IMixinWorldProvider;
-import org.spongepowered.mod.mixin.plugin.CoreMixinPlugin;
+import org.spongepowered.common.configuration.SpongeConfig;
+import org.spongepowered.common.interfaces.IMixinWorld;
+import org.spongepowered.common.interfaces.IMixinWorldProvider;
 import org.spongepowered.mod.util.SpongeHooks;
-import org.spongepowered.mod.world.SpongeDimensionType;
+import org.spongepowered.common.world.SpongeDimensionType;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -114,7 +114,7 @@ public class CommandSponge {
         public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
             int successes = 0;
             if (args.hasAny("global")) {
-                src.sendMessage(Texts.of("Global: ", processGlobal(CoreMixinPlugin.getGlobalConfig(), src, args)));
+                src.sendMessage(Texts.of("Global: ", processGlobal(Sponge.getGlobalConfig(), src, args)));
                 ++successes;
             }
             if (args.hasAny("dimension")) {

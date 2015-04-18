@@ -44,10 +44,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.mod.interfaces.IMixinWorld;
+import org.spongepowered.common.interfaces.IMixinWorld;
 import org.spongepowered.mod.util.SpongeHooks;
-import org.spongepowered.mod.util.gen.FastChunkBuffer;
-import org.spongepowered.mod.util.gen.ObjectArrayMutableBiomeArea;
+import org.spongepowered.common.util.gen.FastChunkBuffer;
+import org.spongepowered.common.util.gen.ObjectArrayMutableBiomeArea;
 
 import java.util.List;
 

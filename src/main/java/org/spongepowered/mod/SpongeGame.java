@@ -39,8 +39,9 @@ import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.TeleportHelper;
-import org.spongepowered.mod.service.scheduler.AsyncScheduler;
-import org.spongepowered.mod.service.scheduler.SyncScheduler;
+import org.spongepowered.common.SpongeMinecraftVersion;
+import org.spongepowered.common.service.scheduler.AsyncScheduler;
+import org.spongepowered.common.service.scheduler.SyncScheduler;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;

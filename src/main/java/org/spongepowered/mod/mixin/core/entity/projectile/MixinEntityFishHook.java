@@ -48,10 +48,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.SoftOverride;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.entity.DamageHandler;
-import org.spongepowered.mod.entity.projectile.ProjectileSourceSerializer;
-import org.spongepowered.mod.interfaces.IMixinEntityFishHook;
+import org.spongepowered.common.Sponge;
+import org.spongepowered.common.entity.DamageHandler;
+import org.spongepowered.common.entity.projectile.ProjectileSourceSerializer;
+import org.spongepowered.common.interfaces.IMixinEntityFishHook;
 import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 
 import javax.annotation.Nullable;
@@ -106,9 +106,9 @@ public abstract class MixinEntityFishHook extends MixinEntity implements FishHoo
             @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z")
         )
     public boolean onAttackEntityFrom(Entity this$0, DamageSource damageSource, float damage) {
-        PlayerHookedEntityEvent event = SpongeEventFactory.createPlayerHookedEntityEvent(SpongeMod.instance.getGame(), (Player) this.angler, this,
+        PlayerHookedEntityEvent event = SpongeEventFactory.createPlayerHookedEntityEvent(Sponge.getGame(), (Player) this.angler, this,
                 (org.spongepowered.api.entity.Entity) this$0);
-        if (!SpongeMod.instance.getGame().getEventManager().post(event)) {
+        if (!Sponge.getGame().getEventManager().post(event)) {
             if (this.getShooter() instanceof Entity) {
                 damageSource = DamageHandler.damage(this, (Entity) this.getShooter());
             }
@@ -137,10 +137,10 @@ public abstract class MixinEntityFishHook extends MixinEntity implements FishHoo
         }
 
         PlayerRetractFishingLineEvent event = SpongeEventFactory
-                .createPlayerRetractFishingLineEvent(SpongeMod.instance.getGame(), (Player) this.angler, this,
+                .createPlayerRetractFishingLineEvent(Sponge.getGame(), (Player) this.angler, this,
                         (org.spongepowered.api.item.inventory.ItemStack) itemStack, (org.spongepowered.api.entity.Entity) this.caughtEntity, exp);
         byte b0 = 0;
-        if (!SpongeMod.instance.getGame().getEventManager().post(event)) {
+        if (!Sponge.getGame().getEventManager().post(event)) {
             exp = event.getExp();
             if (event.getCaughtEntity().isPresent()) {
                 this.caughtEntity = (Entity) event.getCaughtEntity().get();

@@ -36,13 +36,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.command.CommandCallable;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandPermissionException;
 import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.api.util.command.InvocationCommandException;
+import org.spongepowered.common.command.WrapperICommandSender;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.List;

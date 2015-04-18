@@ -78,10 +78,10 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.interfaces.IMixinEntityPlayerMP;
-import org.spongepowered.mod.interfaces.IMixinServerConfigurationManager;
-import org.spongepowered.mod.world.SpongeDimensionType;
-import org.spongepowered.mod.world.border.PlayerBorderListener;
+import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
+import org.spongepowered.common.interfaces.IMixinServerConfigurationManager;
+import org.spongepowered.common.world.SpongeDimensionType;
+import org.spongepowered.common.world.border.PlayerBorderListener;
 
 import java.util.Iterator;
 import java.util.List;

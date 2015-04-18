@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.mod.interfaces.IMixinWorld;
+import org.spongepowered.common.interfaces.IMixinWorld;
 
 @NonnullByDefault
 @Mixin(WorldServer.class)
