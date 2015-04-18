@@ -25,13 +25,12 @@
 package org.spongepowered.mod.service.permission;
 
 import com.google.common.base.Optional;
-import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.context.Context;
 import org.spongepowered.api.service.permission.context.ContextCalculator;
 import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.util.command.source.LocatedSource;
 import org.spongepowered.api.world.World;
-import org.spongepowered.api.world.extent.Extent;
 
 import java.util.Set;
 
@@ -42,29 +41,22 @@ public class SpongeContextCalculator implements ContextCalculator {
     @Override
     public void accumulateContexts(Subject subject, Set<Context> accumulator) {
         Optional<CommandSource> subjSource = subject.getCommandSource();
-        if (subjSource.isPresent() && subjSource.get() instanceof Player) {
-            Extent currentExt = ((Player) subjSource.get()).getLocation().getExtent();
-            if (currentExt instanceof World) {
-                accumulator.add(((World) currentExt).getContext());
-                accumulator.add((((World) currentExt).getDimension().getContext()));
-            }
+        if (subjSource.isPresent() && subjSource.get() instanceof LocatedSource) {
+            World currentExt = ((LocatedSource) subjSource.get()).getWorld();
+            accumulator.add(currentExt.getContext());
+            accumulator.add((currentExt.getDimension().getContext()));
         }
     }
 
     @Override
     public boolean matches(Context context, Subject subject) {
         Optional<CommandSource> subjSource = subject.getCommandSource();
-        if (subjSource.isPresent() && subjSource.get() instanceof Player && context.getType().equals(Context.WORLD_KEY)) {
+        if (subjSource.isPresent() && subjSource.get() instanceof LocatedSource && context.getType().equals(Context.WORLD_KEY)) {
+            LocatedSource source = ((LocatedSource) subjSource.get());
             if (context.getType().equals(Context.WORLD_KEY)) {
-                Extent currentExt = ((Player) subjSource.get()).getLocation().getExtent();
-                if (currentExt instanceof World) {
-                    return ((World) currentExt).getContext().equals(context);
-                }
+                return source.getWorld().getContext().equals(context);
             } else if (context.getType().equals(Context.DIMENSION_KEY)) {
-                Extent currentExt = ((Player) subjSource.get()).getLocation().getExtent();
-                if (currentExt instanceof World) {
-                    return ((World) currentExt).getDimension().getContext().equals(context);
-                }
+                return source.getWorld().getDimension().getContext().equals(context);
             }
         }
         return false;
