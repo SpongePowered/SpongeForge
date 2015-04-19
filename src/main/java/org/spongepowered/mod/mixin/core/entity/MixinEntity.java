@@ -37,7 +37,6 @@ import net.minecraft.network.play.server.S07PacketRespawn;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook.EnumFlags;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.network.ForgeMessage;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
@@ -63,6 +62,7 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.extent.Extent;
+import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -73,7 +73,6 @@ import org.spongepowered.mod.data.manipulators.SpongeNameData;
 import org.spongepowered.mod.interfaces.IMixinEntity;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.util.SpongeHooks;
-import org.spongepowered.mod.util.VecHelper;
 import org.spongepowered.mod.world.SpongeDimensionType;
 
 import java.util.ArrayDeque;
@@ -343,11 +342,14 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     @Override
     public boolean transferToWorld(String worldName, Vector3d position) {
-        for (WorldServer worldserver : DimensionManager.getWorlds()) {
-            if (worldserver.getWorldInfo().getWorldName().equalsIgnoreCase(worldName)) {
-                Vector3d pos = VecHelper.toVector3d(worldserver.getSpawnPoint());
-                Location location = new Location((World) worldserver, pos);
-                return setLocationSafely(location);
+        Optional<WorldProperties> props = SpongeMod.instance.getSpongeRegistry().getWorldProperties(worldName);
+        if (props.isPresent()) {
+            if (props.get().isEnabled()) {
+                Optional<World> world = SpongeMod.instance.getGame().getServer().loadWorld(worldName);
+                if (world.isPresent()) {
+                    Location location = new Location(world.get(), position);
+                    return setLocationSafely(location);
+                }
             }
         }
         return false;
@@ -355,11 +357,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     @Override
     public boolean transferToWorld(UUID uuid, Vector3d position) {
-        String worldFolder = SpongeMod.instance.getSpongeRegistry().getWorldFolder(uuid);
-        if (worldFolder != null) {
-            return transferToWorld(worldFolder, position);
-        }
-        return false;
+        return transferToWorld(SpongeMod.instance.getSpongeRegistry().getWorldFolder(uuid), position);
     }
 
     @Override
