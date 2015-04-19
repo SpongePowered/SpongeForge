@@ -27,7 +27,11 @@ package org.spongepowered.mod.text;
 import net.minecraft.util.IChatComponent;
 import org.spongepowered.api.text.Text;
 
-public interface SpongeChatComponent {
+import java.util.Iterator;
+
+public interface SpongeChatComponent extends IChatComponent {
+
+    Iterator<IChatComponent> childrenIterator();
 
     Iterable<IChatComponent> withChildren();
 

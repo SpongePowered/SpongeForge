@@ -24,13 +24,19 @@
  */
 package org.spongepowered.mod.mixin.core.text;
 
+import com.google.common.collect.Iterators;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
 import org.spongepowered.api.text.TextBuilder;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.text.ChatComponentIterable;
 import org.spongepowered.mod.text.SpongeChatComponent;
 import org.spongepowered.mod.text.translation.SpongeTranslation;
+
+import java.util.Iterator;
+import java.util.List;
 
 @Mixin(ChatComponentTranslation.class)
 public abstract class MixinChatComponentTranslation extends MixinChatComponentStyle {
@@ -38,9 +44,23 @@ public abstract class MixinChatComponentTranslation extends MixinChatComponentSt
     @Shadow private String key;
     @Shadow private Object[] formatArgs;
 
+    @Shadow List<IChatComponent> children;
+    @Shadow abstract void ensureInitialized();
+
     @Override
     protected TextBuilder createBuilder() {
         return Texts.builder(new SpongeTranslation(this.key), wrapFormatArgs(this.formatArgs));
+    }
+
+    @Override
+    public Iterator<IChatComponent> childrenIterator() {
+        ensureInitialized();
+        return Iterators.concat(this.children.iterator(), super.childrenIterator());
+    }
+
+    @Override
+    public Iterable<IChatComponent> withChildren() {
+        return new ChatComponentIterable(this, false);
     }
 
     private static Object[] wrapFormatArgs(Object... formatArgs) {

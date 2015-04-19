@@ -41,6 +41,7 @@ import org.spongepowered.mod.text.SpongeClickEvent;
 import org.spongepowered.mod.text.SpongeHoverEvent;
 import org.spongepowered.mod.text.format.SpongeTextColor;
 
+import java.util.Iterator;
 import java.util.List;
 
 @Mixin(ChatComponentStyle.class)
@@ -49,8 +50,6 @@ public abstract class MixinChatComponentStyle implements SpongeChatComponent {
     @Shadow private ChatStyle style;
     @Shadow protected List<IChatComponent> siblings;
 
-    private Iterable<IChatComponent> childrenIterable;
-
     private char[] formatting;
 
     protected TextBuilder createBuilder() {
@@ -58,12 +57,13 @@ public abstract class MixinChatComponentStyle implements SpongeChatComponent {
     }
 
     @Override
-    public Iterable<IChatComponent> withChildren() {
-        if (this.childrenIterable == null) {
-            this.childrenIterable = new ChatComponentIterable((IChatComponent) this);
-        }
+    public Iterator<IChatComponent> childrenIterator() {
+        return getSiblings().iterator();
+    }
 
-        return this.childrenIterable;
+    @Override
+    public Iterable<IChatComponent> withChildren() {
+        return new ChatComponentIterable(this, true);
     }
 
     private char[] getFormatting() {

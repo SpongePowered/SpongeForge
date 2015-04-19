@@ -30,15 +30,21 @@ import java.util.Iterator;
 
 public class ChatComponentIterable implements Iterable<IChatComponent> {
 
-    private final IChatComponent component;
+    private final SpongeChatComponent component;
+    private final boolean includeSelf;
 
-    public ChatComponentIterable(IChatComponent component) {
+    public ChatComponentIterable(SpongeChatComponent component, boolean includeSelf) {
         this.component = component;
+        this.includeSelf = includeSelf;
     }
 
     @Override
     public Iterator<IChatComponent> iterator() {
-        return new ChatComponentIterator(this.component);
+        if (this.includeSelf) {
+            return new ChatComponentIterator(this.component);
+        } else {
+            return new ChatComponentIterator(this.component.childrenIterator());
+        }
     }
 
 }

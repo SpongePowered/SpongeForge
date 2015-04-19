@@ -24,28 +24,33 @@
  */
 package org.spongepowered.mod.text;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.UnmodifiableIterator;
 import net.minecraft.util.IChatComponent;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.annotation.Nullable;
 
 public class ChatComponentIterator extends UnmodifiableIterator<IChatComponent> {
 
-    private final IChatComponent component;
-    @Nullable private Iterator<IChatComponent> children;
+    private SpongeChatComponent component;
+    private Iterator<IChatComponent> children;
     @Nullable private Iterator<IChatComponent> currentChildIterator;
 
-    public ChatComponentIterator(IChatComponent component) {
-        this.component = component;
+    public ChatComponentIterator(SpongeChatComponent component) {
+        this.component = checkNotNull(component, "component");
+    }
+
+    public ChatComponentIterator(Iterator<IChatComponent> children) {
+        this.children = checkNotNull(children, "children");
     }
 
     @Override
     public boolean hasNext() {
-        return this.children == null || (this.currentChildIterator != null && this.currentChildIterator.hasNext()) || this.children.hasNext();
+        return this.component != null || (this.currentChildIterator != null && this.currentChildIterator.hasNext()) || this.children.hasNext();
     }
 
     @Override
@@ -54,9 +59,12 @@ public class ChatComponentIterator extends UnmodifiableIterator<IChatComponent> 
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
-        if (this.children == null) {
-            this.children = ((List<IChatComponent>) this.component.getSiblings()).iterator();
-            return this.component;
+        if (this.component != null) {
+            this.children = this.component.childrenIterator();
+
+            IChatComponent result = this.component;
+            this.component = null;
+            return result;
         } else if (this.currentChildIterator == null || !this.currentChildIterator.hasNext()) {
             this.currentChildIterator = ((SpongeChatComponent) this.children.next()).withChildren().iterator();
         }
