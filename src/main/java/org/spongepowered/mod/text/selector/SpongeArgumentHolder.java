@@ -30,7 +30,6 @@ import com.flowpowered.math.vector.Vector3i;
 import com.flowpowered.math.vector.Vector3l;
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
@@ -38,6 +37,7 @@ import org.spongepowered.api.text.selector.ArgumentHolder;
 import org.spongepowered.api.text.selector.ArgumentType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -73,7 +73,7 @@ public class SpongeArgumentHolder<T extends ArgumentHolder<?>> implements Argume
 
         private static final SetMultimap<Class<?>, Function<?, ?>> extractFunctionSets = HashMultimap.create();
         static {
-            List<Class<?>> vectors = ImmutableList.<Class<?>>builder().add(Vector3i.class, Vector3l.class, Vector3f.class, Vector3d.class).build();
+            List<Class<?>> vectors = Arrays.<Class<?>>asList(Vector3i.class, Vector3l.class, Vector3f.class, Vector3d.class);;
             for (Class<?> vec : vectors) {
                 Set<Function<?, ?>> set = Sets.newLinkedHashSet();
                 try {

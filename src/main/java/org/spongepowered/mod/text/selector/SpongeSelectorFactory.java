@@ -103,7 +103,7 @@ public class SpongeSelectorFactory implements SelectorFactory {
     private final Map<String, ArgumentType<?>> argumentLookupMap = Maps.newLinkedHashMap();
 
     @SuppressWarnings("unchecked")
-    private <T> Optional<T> recast(Optional<?> source) {
+    private static <T> Optional<T> recast(Optional<?> source) {
         return (Optional<T>) source;
     }
 

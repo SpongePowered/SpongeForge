@@ -1416,66 +1416,65 @@ public class SpongeGameRegistry implements GameRegistry {
     private void setSelectors() {
         RegistryHelper.mapFields(SelectorType.class, this.selectorMappings);
         SpongeSelectorFactory factory = new SpongeSelectorFactory();
-        try {
-            // POSITION
-            ArgumentType<Integer> x = factory.createArgumentType("x", Integer.class);
-            ArgumentType<Integer> y = factory.createArgumentType("y", Integer.class);
-            ArgumentType<Integer> z = factory.createArgumentType("z", Integer.class);
-            ArgumentHolder.Vector3<Vector3i, Integer> position = new SpongeArgumentHolder.SpongeVector3<Vector3i, Integer>(x, y, z, Vector3i.class);
-            ArgumentTypes.class.getDeclaredField("POSITION").set(null, position);
+        Map<String, ArgumentHolder<?>> argMappings = Maps.newHashMap();
+        // POSITION
+        ArgumentType<Integer> x = factory.createArgumentType("x", Integer.class);
+        ArgumentType<Integer> y = factory.createArgumentType("y", Integer.class);
+        ArgumentType<Integer> z = factory.createArgumentType("z", Integer.class);
+        ArgumentHolder.Vector3<Vector3i, Integer> position = new SpongeArgumentHolder.SpongeVector3<Vector3i, Integer>(x, y, z, Vector3i.class);
+        argMappings.put("POSITION", position);
 
-            // RADIUS
-            ArgumentType<Integer> rmin = factory.createArgumentType("rm", Integer.class);
-            ArgumentType<Integer> rmax = factory.createArgumentType("r", Integer.class);
-            ArgumentHolder.Limit<ArgumentType<Integer>> radius = new SpongeArgumentHolder.SpongeLimit<ArgumentType<Integer>>(rmin, rmax);
-            ArgumentTypes.class.getDeclaredField("RADIUS").set(null, radius);
+        // RADIUS
+        ArgumentType<Integer> rmin = factory.createArgumentType("rm", Integer.class);
+        ArgumentType<Integer> rmax = factory.createArgumentType("r", Integer.class);
+        ArgumentHolder.Limit<ArgumentType<Integer>> radius = new SpongeArgumentHolder.SpongeLimit<ArgumentType<Integer>>(rmin, rmax);
+        argMappings.put("RADIUS", radius);
 
-            // GAME_MODE
-            ArgumentTypes.class.getDeclaredField("GAME_MODE").set(null, factory.createArgumentType("m", GameMode.class));
+        // GAME_MODE
+        argMappings.put("GAME_MODE", factory.createArgumentType("m", GameMode.class));
 
-            // COUNT
-            ArgumentTypes.class.getDeclaredField("COUNT").set(null, factory.createArgumentType("c", Integer.class));
+        // COUNT
+        argMappings.put("COUNT", factory.createArgumentType("c", Integer.class));
 
-            // LEVEL
-            ArgumentType<Integer> lmin = factory.createArgumentType("lm", Integer.class);
-            ArgumentType<Integer> lmax = factory.createArgumentType("l", Integer.class);
-            ArgumentHolder.Limit<ArgumentType<Integer>> level = new SpongeArgumentHolder.SpongeLimit<ArgumentType<Integer>>(lmin, lmax);
-            ArgumentTypes.class.getDeclaredField("LEVEL").set(null, level);
+        // LEVEL
+        ArgumentType<Integer> lmin = factory.createArgumentType("lm", Integer.class);
+        ArgumentType<Integer> lmax = factory.createArgumentType("l", Integer.class);
+        ArgumentHolder.Limit<ArgumentType<Integer>> level = new SpongeArgumentHolder.SpongeLimit<ArgumentType<Integer>>(lmin, lmax);
+        argMappings.put("LEVEL", level);
 
-            // TEAM
-            ArgumentTypes.class.getDeclaredField("TEAM").set(null, factory.createInvertibleArgumentType("team", Team.class));
+        // TEAM
+        argMappings.put("TEAM", factory.createInvertibleArgumentType("team", Team.class));
 
-            // NAME
-            ArgumentTypes.class.getDeclaredField("NAME").set(null, factory.createInvertibleArgumentType("name", String.class));
+        // NAME
+        argMappings.put("NAME", factory.createInvertibleArgumentType("name", String.class));
 
-            // DIMENSION
-            ArgumentType<Integer> dx = factory.createArgumentType("dx", Integer.class);
-            ArgumentType<Integer> dy = factory.createArgumentType("dy", Integer.class);
-            ArgumentType<Integer> dz = factory.createArgumentType("dz", Integer.class);
-            ArgumentHolder.Vector3<Vector3i, Integer> dimension =
-                    new SpongeArgumentHolder.SpongeVector3<Vector3i, Integer>(dx, dy, dz, Vector3i.class);
-            ArgumentTypes.class.getDeclaredField("DIMENSION").set(null, dimension);
+        // DIMENSION
+        ArgumentType<Integer> dx = factory.createArgumentType("dx", Integer.class);
+        ArgumentType<Integer> dy = factory.createArgumentType("dy", Integer.class);
+        ArgumentType<Integer> dz = factory.createArgumentType("dz", Integer.class);
+        ArgumentHolder.Vector3<Vector3i, Integer> dimension =
+                new SpongeArgumentHolder.SpongeVector3<Vector3i, Integer>(dx, dy, dz, Vector3i.class);
+        argMappings.put("DIMENSION", dimension);
 
-            // ROTATION
-            ArgumentType<Double> rotxmin = factory.createArgumentType("rxm", Double.class);
-            ArgumentType<Double> rotymin = factory.createArgumentType("rym", Double.class);
-            ArgumentType<Double> rotzmin = factory.createArgumentType("rzm", Double.class);
-            ArgumentHolder.Vector3<Vector3d, Double> rotmin =
-                    new SpongeArgumentHolder.SpongeVector3<Vector3d, Double>(rotxmin, rotymin, rotzmin, Vector3d.class);
-            ArgumentType<Double> rotxmax = factory.createArgumentType("rx", Double.class);
-            ArgumentType<Double> rotymax = factory.createArgumentType("ry", Double.class);
-            ArgumentType<Double> rotzmax = factory.createArgumentType("rz", Double.class);
-            ArgumentHolder.Vector3<Vector3d, Double> rotmax =
-                    new SpongeArgumentHolder.SpongeVector3<Vector3d, Double>(rotxmax, rotymax, rotzmax, Vector3d.class);
-            ArgumentHolder.Limit<ArgumentHolder.Vector3<Vector3d, Double>> rot =
-                    new SpongeArgumentHolder.SpongeLimit<ArgumentHolder.Vector3<Vector3d, Double>>(rotmin, rotmax);
-            ArgumentTypes.class.getDeclaredField("ROTATION").set(null, rot);
+        // ROTATION
+        ArgumentType<Double> rotxmin = factory.createArgumentType("rxm", Double.class);
+        ArgumentType<Double> rotymin = factory.createArgumentType("rym", Double.class);
+        ArgumentType<Double> rotzmin = factory.createArgumentType("rzm", Double.class);
+        ArgumentHolder.Vector3<Vector3d, Double> rotmin =
+                new SpongeArgumentHolder.SpongeVector3<Vector3d, Double>(rotxmin, rotymin, rotzmin, Vector3d.class);
+        ArgumentType<Double> rotxmax = factory.createArgumentType("rx", Double.class);
+        ArgumentType<Double> rotymax = factory.createArgumentType("ry", Double.class);
+        ArgumentType<Double> rotzmax = factory.createArgumentType("rz", Double.class);
+        ArgumentHolder.Vector3<Vector3d, Double> rotmax =
+                new SpongeArgumentHolder.SpongeVector3<Vector3d, Double>(rotxmax, rotymax, rotzmax, Vector3d.class);
+        ArgumentHolder.Limit<ArgumentHolder.Vector3<Vector3d, Double>> rot =
+                new SpongeArgumentHolder.SpongeLimit<ArgumentHolder.Vector3<Vector3d, Double>>(rotmin, rotmax);
+        argMappings.put("ROTATION", rot);
 
-            // ENTITY_TYPE
-            ArgumentTypes.class.getDeclaredField("ENTITY_TYPE").set(null, factory.createInvertibleArgumentType("type", EntityType.class));
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+        // ENTITY_TYPE
+        argMappings.put("ENTITY_TYPE", factory.createInvertibleArgumentType("type", EntityType.class));
+
+        RegistryHelper.mapFields(ArgumentTypes.class, argMappings);
         RegistryHelper.setFactory(Selectors.class, factory);
     }
 
