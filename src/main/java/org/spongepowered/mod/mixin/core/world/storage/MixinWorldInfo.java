@@ -62,11 +62,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.entity.player.gamemode.SpongeGameMode;
-import org.spongepowered.mod.interfaces.IMixinWorldInfo;
-import org.spongepowered.mod.interfaces.IMixinWorldType;
-import org.spongepowered.mod.service.persistence.NbtTranslator;
-import org.spongepowered.mod.world.gen.WorldGeneratorRegistry;
+import org.spongepowered.common.entity.player.gamemode.SpongeGameMode;
+import org.spongepowered.common.interfaces.IMixinWorldInfo;
+import org.spongepowered.common.interfaces.IMixinWorldType;
+import org.spongepowered.common.service.persistence.NbtTranslator;
+import org.spongepowered.common.world.gen.WorldGeneratorRegistry;
 
 import java.util.Collection;
 import java.util.Map;

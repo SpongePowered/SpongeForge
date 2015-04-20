@@ -46,8 +46,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.block.meta.SpongePatternLayer;
+import org.spongepowered.common.Sponge;
+import org.spongepowered.common.meta.SpongePatternLayer;
 
 import java.util.List;
 
@@ -85,7 +85,7 @@ public abstract class MixinTileEntityBanner extends MixinTileEntity {
     private void updatePatterns() {
         this.patternLayers.clear();
         if (this.patterns != null) {
-            GameRegistry registry = SpongeMod.instance.getGame().getRegistry();
+            GameRegistry registry = Sponge.getGame().getRegistry();
             for (int i = 0; i < this.patterns.tagCount(); i++) {
                 NBTTagCompound tagCompound = this.patterns.getCompoundTagAt(i);
                 this.patternLayers.add(new SpongePatternLayer(registry.getType(BannerPatternShape.class, tagCompound.getString("Pattern")).get(),

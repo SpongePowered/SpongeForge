@@ -36,7 +36,7 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.util.VecHelper;
+import org.spongepowered.common.util.VecHelper;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)

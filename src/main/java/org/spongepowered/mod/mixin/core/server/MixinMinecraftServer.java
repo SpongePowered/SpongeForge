@@ -64,10 +64,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.interfaces.IMixinWorldInfo;
-import org.spongepowered.mod.interfaces.Subjectable;
-import org.spongepowered.mod.text.SpongeText;
-import org.spongepowered.mod.world.SpongeDimensionType;
+import org.spongepowered.common.interfaces.IMixinWorldInfo;
+import org.spongepowered.common.interfaces.Subjectable;
+import org.spongepowered.common.text.SpongeText;
+import org.spongepowered.common.world.SpongeDimensionType;
 
 import java.io.File;
 import java.net.InetSocketAddress;

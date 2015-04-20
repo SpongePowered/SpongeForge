@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.util.VecHelper;
+import org.spongepowered.common.util.VecHelper;
 
 @Mixin(EntityArmorStand.class)
 @Implements(@Interface(iface = ArmorStand.class, prefix = "astand$"))

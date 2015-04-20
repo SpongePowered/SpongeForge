@@ -48,14 +48,14 @@ import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.command.MinecraftCommandWrapper;
-import org.spongepowered.mod.service.permission.SpongePermissionService;
+import org.spongepowered.common.service.permission.SpongePermissionService;
 
 import java.util.Iterator;
 import java.util.List;
 
 @NonnullByDefault
 @Mixin(ServerCommandManager.class)
-public abstract class MixinServerCommandManager extends CommandHandler implements org.spongepowered.mod.interfaces.IMixinServerCommandManager {
+public abstract class MixinServerCommandManager extends CommandHandler implements org.spongepowered.common.interfaces.IMixinServerCommandManager {
     private static final String
                 TRANSLATION_COMMAND_NOT_FOUND = "commands.generic.notFound";
 

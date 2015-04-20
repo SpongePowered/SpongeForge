@@ -40,8 +40,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.entity.SpongeEntityMeta;
+import org.spongepowered.common.Sponge;
+import org.spongepowered.common.entity.SpongeEntityMeta;
 import org.spongepowered.mod.mixin.core.entity.living.MixinEntityAgeable;
 
 import java.util.List;
@@ -70,7 +70,7 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable {
     @Inject(method = "setProfession(I)V", at = @At("RETURN"))
     public void onSetProfession(int professionId, CallbackInfo ci) {
         // TODO: Fix GameRegistry for API changes
-        this.profession = ((List<? extends Profession>) SpongeMod.instance.getGame().getRegistry().getAllOf(Profession.class)).get(professionId);
+        this.profession = ((List<? extends Profession>) Sponge.getGame().getRegistry().getAllOf(Profession.class)).get(professionId);
     }
 
     public boolean isPlaying() {
@@ -88,7 +88,7 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable {
 
     public Career getCareer() {
         // TODO: Fix GameRegistry for API changes
-        return ((List<Career>) SpongeMod.instance.getGame().getRegistry().getCareers(this.profession)).get(this.careerId);
+        return ((List<Career>) Sponge.getGame().getRegistry().getCareers(this.profession)).get(this.careerId);
     }
 
     public void setCareer(Career career) {
