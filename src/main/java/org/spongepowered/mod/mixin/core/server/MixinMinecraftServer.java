@@ -59,6 +59,7 @@ import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldCreationSettings;
+import org.spongepowered.api.world.storage.ChunkLayout;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -68,6 +69,7 @@ import org.spongepowered.mod.interfaces.IMixinWorldInfo;
 import org.spongepowered.mod.interfaces.Subjectable;
 import org.spongepowered.mod.text.SpongeText;
 import org.spongepowered.mod.world.SpongeDimensionType;
+import org.spongepowered.mod.world.storage.SpongeChunkLayout;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -414,6 +416,11 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
     @Override
     public Collection<WorldProperties> getAllWorldProperties() {
         return SpongeMod.instance.getSpongeRegistry().getAllWorldProperties();
+    }
+
+    @Override
+    public ChunkLayout getChunkLayout() {
+        return SpongeChunkLayout.instance;
     }
 
     @Override
