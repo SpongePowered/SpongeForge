@@ -40,6 +40,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.status.SpongeFavicon;
 import org.spongepowered.mod.text.SpongeChatComponent;
 import org.spongepowered.mod.text.SpongeText;
+import org.spongepowered.mod.text.SpongeTextFactory;
 
 import java.io.IOException;
 
@@ -71,7 +72,7 @@ public abstract class MixinServerStatusResponse implements StatusPingEvent.Respo
     @Override
     public void setDescription(Text description) {
         this.description = checkNotNull(description, "description");
-        this.serverMotd = ((SpongeText) description).toComponent();
+        this.serverMotd = ((SpongeText) description).toComponent(SpongeTextFactory.getDefaultLocale()); // TODO: Hope we get sent the locale
     }
 
     @Overwrite

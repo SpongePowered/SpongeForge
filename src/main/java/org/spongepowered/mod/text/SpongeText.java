@@ -26,16 +26,18 @@ package org.spongepowered.mod.text;
 
 import net.minecraft.util.IChatComponent;
 
+import java.util.Locale;
+
 public interface SpongeText {
 
     char COLOR_CHAR = '\247';
 
-    IChatComponent toComponent();
+    IChatComponent toComponent(Locale locale);
 
-    String toPlain();
+    String toPlain(Locale locale);
 
-    String toJson();
+    String toJson(Locale locale);
 
-    String toLegacy(char code);
+    String toLegacy(char code, Locale locale);
 
 }

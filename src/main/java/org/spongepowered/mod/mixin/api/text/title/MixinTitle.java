@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.api.text.title;
 import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.S45PacketTitle;
+import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.asm.mixin.Mixin;
@@ -65,10 +66,12 @@ public abstract class MixinTitle implements SpongeTitle {
                 packets[i++] = new S45PacketTitle(this.fadeIn.or(20), this.stay.or(60), this.fadeOut.or(20));
             }
             if (this.subtitle.isPresent()) {
-                packets[i++] = new S45PacketTitle(S45PacketTitle.Type.SUBTITLE, ((SpongeText) this.subtitle.get()).toComponent());
+                packets[i++] = new S45PacketTitle(S45PacketTitle.Type.SUBTITLE, ((SpongeText) this.subtitle.get()).toComponent(((Player) player)
+                        .getLocale()));
             }
             if (this.title.isPresent()) {
-                packets[i++] = new S45PacketTitle(S45PacketTitle.Type.TITLE, ((SpongeText) this.title.get()).toComponent());
+                packets[i++] = new S45PacketTitle(S45PacketTitle.Type.TITLE, ((SpongeText) this.title.get()).toComponent(((Player) player)
+                        .getLocale()));
             }
 
             this.packets = i == packets.length ? packets : Arrays.copyOf(packets, i);

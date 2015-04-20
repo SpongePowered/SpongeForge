@@ -215,7 +215,7 @@ public class SpongeWorldBuilder implements WorldBuilder {
     @Override
     public WorldCreationSettings buildSettings() throws IllegalStateException {
         final WorldSettings settings =
-                new WorldSettings(this.seed, GameType.valueOf(this.gameMode.getTranslation().get()), this.mapFeaturesEnabled, this.hardcore,
+                new WorldSettings(this.seed, GameType.valueOf(this.gameMode.getTranslation().getId()), this.mapFeaturesEnabled, this.hardcore,
                         (WorldType) this.generatorType);
         settings.setWorldName(this.name);
         ((IMixinWorldSettings) (Object) settings).setDimensionType(this.dimensionType);
