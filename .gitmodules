@@ -1,6 +1,6 @@
 [submodule "SpongeAPI"]
 	path = SpongeAPI
-	url = git://github.com/SpongePowered/SpongeAPI.git
+	url = https://github.com/kenzierocks/SpongeAPI
 [submodule "Mixin"]
 	path = Mixin
 	url = git://github.com/SpongePowered/Mixin.git
