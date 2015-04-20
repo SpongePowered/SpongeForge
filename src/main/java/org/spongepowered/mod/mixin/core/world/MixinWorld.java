@@ -95,6 +95,7 @@ import org.spongepowered.mod.world.gen.CustomWorldChunkManager;
 import org.spongepowered.mod.world.gen.SpongeBiomeGenerator;
 import org.spongepowered.mod.world.gen.SpongeGeneratorPopulator;
 import org.spongepowered.mod.world.gen.SpongeWorldGenerator;
+import org.spongepowered.mod.world.storage.SpongeChunkLayout;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -200,6 +201,9 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     @Override
     public Optional<Chunk> getChunk(Vector3i position) {
+        if (!SpongeChunkLayout.instance.isValidChunk(position)) {
+            return Optional.absent();
+        }
         WorldServer worldserver = (WorldServer) (Object) this;
         net.minecraft.world.chunk.Chunk chunk = null;
         if (worldserver.theChunkProviderServer.chunkExists(position.getX(), position.getZ())) {
@@ -210,6 +214,9 @@ public abstract class MixinWorld implements World, IMixinWorld {
 
     @Override
     public Optional<Chunk> loadChunk(Vector3i position, boolean shouldGenerate) {
+        if (!SpongeChunkLayout.instance.isValidChunk(position)) {
+            return Optional.absent();
+        }
         WorldServer worldserver = (WorldServer) (Object) this;
         net.minecraft.world.chunk.Chunk chunk = null;
         if (worldserver.theChunkProviderServer.chunkExists(position.getX(), position.getZ()) || shouldGenerate) {
