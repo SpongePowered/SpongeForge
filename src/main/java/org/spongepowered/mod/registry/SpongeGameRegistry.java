@@ -103,7 +103,7 @@ import org.spongepowered.api.data.types.Comparison;
 import org.spongepowered.api.data.types.CookedFish;
 import org.spongepowered.api.data.types.CookedFishes;
 import org.spongepowered.api.data.types.DirtType;
-import org.spongepowered.api.data.types.DisgusedBlockType;
+import org.spongepowered.api.data.types.DisguisedBlockType;
 import org.spongepowered.api.data.types.DyeColor;
 import org.spongepowered.api.data.types.DyeColors;
 import org.spongepowered.api.data.types.Fish;
@@ -397,7 +397,7 @@ public class SpongeGameRegistry implements GameRegistry {
             .put(Difficulty.class, difficultyMappings)
             .put(DimensionType.class, this.dimensionTypeMappings)
             .put(DirtType.class, ImmutableMap.<String, CatalogType>of()) // TODO
-            .put(DisgusedBlockType.class,ImmutableMap.<String, CatalogType>of()) // TODO
+            .put(DisguisedBlockType.class,ImmutableMap.<String, CatalogType>of()) // TODO
             .put(DyeColor.class, this.dyeColorMappings)
             .put(Enchantment.class, this.enchantmentMappings)
             .put(EntityInteractionType.class, entityInteractionTypeMappings)

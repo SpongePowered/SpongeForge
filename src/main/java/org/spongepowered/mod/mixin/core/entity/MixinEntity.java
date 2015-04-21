@@ -50,7 +50,6 @@ import org.spongepowered.api.data.DataPriority;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.data.Property;
-import org.spongepowered.api.data.manipulators.entities.NameData;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.service.persistence.InvalidDataException;
@@ -69,7 +68,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.data.manipulators.SpongeNameData;
 import org.spongepowered.mod.interfaces.IMixinEntity;
 import org.spongepowered.mod.registry.SpongeGameRegistry;
 import org.spongepowered.mod.util.SpongeHooks;
@@ -642,10 +640,6 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends DataManipulator<T>> Optional<T> getData(Class<T> dataClass) {
-        if (NameData.class.isAssignableFrom((Class) dataClass)) {
-            NameData nameData = new SpongeNameData();
-            return (Optional<T>) (Optional) nameData.fill(this);
-        }
         return Optional.absent();
     }
 
