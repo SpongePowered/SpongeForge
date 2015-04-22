@@ -36,7 +36,8 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.gen.Populator;
 import org.spongepowered.common.interfaces.IMixinEntity;
 import org.spongepowered.common.interfaces.IMixinWorld;
-import org.spongepowered.mod.util.SpongeHooks;
+import org.spongepowered.common.util.SpongeHooks;
+import org.spongepowered.mod.util.SpongeModHooks;
 
 public class SpongeEventHooks {
 

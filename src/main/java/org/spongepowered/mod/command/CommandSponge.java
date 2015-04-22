@@ -55,11 +55,12 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.common.Sponge;
+import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.common.configuration.SpongeConfig;
 import org.spongepowered.common.interfaces.IMixinWorld;
 import org.spongepowered.common.interfaces.IMixinWorldProvider;
-import org.spongepowered.mod.util.SpongeHooks;
+import org.spongepowered.mod.util.SpongeModHooks;
 import org.spongepowered.common.world.SpongeDimensionType;
 
 import java.io.File;
@@ -177,7 +178,7 @@ public class CommandSponge {
                             File file = new File(new File(new File("."), "chunk-dumps"),
                                     "chunk-info-" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + "-server.txt");
                             src.sendMessage(Texts.of("Writing chunk info to: ", file));
-                            SpongeHooks.writeChunks(file, args.hasAny("dump-all"));
+                            SpongeModHooks.writeChunks(file, args.hasAny("dump-all"));
                             src.sendMessage(Texts.of("Chunk info complete"));
                         }
                         return res;

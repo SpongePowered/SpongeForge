@@ -45,7 +45,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.IMixinWorld;
-import org.spongepowered.mod.util.SpongeHooks;
+import org.spongepowered.common.util.SpongeHooks;
+import org.spongepowered.mod.util.SpongeModHooks;
 import org.spongepowered.common.util.gen.FastChunkBuffer;
 import org.spongepowered.common.util.gen.ObjectArrayMutableBiomeArea;
 
