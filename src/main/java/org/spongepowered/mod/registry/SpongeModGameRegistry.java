@@ -24,8 +24,6 @@
  */
 package org.spongepowered.mod.registry;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -77,6 +75,7 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.GeneratorType;
 import org.spongepowered.api.world.GeneratorTypes;
+import org.spongepowered.common.data.types.SpongeCookedFish;
 import org.spongepowered.common.data.types.SpongeNotePitch;
 import org.spongepowered.common.data.types.SpongeSkullType;
 import org.spongepowered.common.entity.SpongeEntityConstants;
@@ -238,7 +237,7 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
 
             @Override
             public CookedFish apply(String input) {
-                CookedFish fish = (CookedFish) (Object) ItemFishFood.FishType.valueOf(input);
+                CookedFish fish = new SpongeCookedFish(input, input); // TODO
                 if (fish != null) {
                     SpongeModGameRegistry.this.cookedFishMappings.put(fish.getId(), fish);
                     return fish;

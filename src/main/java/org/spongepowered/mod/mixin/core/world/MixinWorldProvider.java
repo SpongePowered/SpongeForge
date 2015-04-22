@@ -82,85 +82,11 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
     }
 
     @Override
-    public String getName() {
-        return getDimensionName();
-    }
-
-    @Override
-    public boolean allowsPlayerRespawns() {
-        return this.allowPlayerRespawns;
-    }
-
-    @Override
-    public void setAllowsPlayerRespawns(boolean allow) {
-        this.allowPlayerRespawns = allow;
-    }
-
-    @Override
-    public int getMinimumSpawnHeight() {
-        return this.getAverageGroundLevel();
-    }
-
     public int getAverageGroundLevel() {
         if (((GeneratorType) this.terrainType).equals(GeneratorTypes.END)) {
             return 50;
         } else {
             return this.terrainType.getMinimumSpawnHeight(this.worldObj);
         }
-    }
-
-    public boolean canCoordinateBeSpawn(int x, int z) {
-        if (((GeneratorType) this.terrainType).equals(GeneratorTypes.END)) {
-            return this.worldObj.getGroundAboveSeaLevel(new BlockPos(x, 0, z)).getMaterial().blocksMovement();
-        }
-        else {
-            return this.worldObj.getGroundAboveSeaLevel(new BlockPos(x, 0, z)) == Blocks.grass;
-        }
-    }
-
-    @Override
-    public boolean doesWaterEvaporate() {
-        return this.isHellWorld;
-    }
-
-    @Override
-    public void setWaterEvaporates(boolean evaporates) {
-        this.isHellWorld = evaporates;
-    }
-
-    @Override
-    public boolean hasSky() {
-        return !getHasNoSky();
-    }
-
-    public boolean getHasNoSky() {
-        if (((GeneratorType) this.terrainType).equals(GeneratorTypes.NETHER)) {
-            return true;
-        } else {
-            return this.hasNoSky;
-        }
-    }
-
-    @Override
-    public DimensionType getType() {
-        return ((SpongeModGameRegistry) SpongeMod.instance.getGame().getRegistry()).dimensionClassMappings.get(this.getClass());
-    }
-
-    @Override
-    public void setDimensionConfig(SpongeConfig<SpongeConfig.DimensionConfig> config) {
-        this.dimensionConfig = config;
-    }
-
-    @Override
-    public SpongeConfig<SpongeConfig.DimensionConfig> getDimensionConfig() {
-        return this.dimensionConfig;
-    }
-
-    @Override
-    public Context getContext() {
-        if (this.dimContext == null) {
-            this.dimContext = new Context(Context.DIMENSION_KEY, getName());
-        }
-        return this.dimContext;
     }
 }

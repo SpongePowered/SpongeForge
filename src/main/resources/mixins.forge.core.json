@@ -52,7 +52,6 @@
         "world.MixinSaveHandler",
         "world.MixinWorld",
         "world.MixinWorldProvider",
-        "world.MixinWorldServer",
         "world.MixinWorldType",
         "world.storage.MixinWorldInfo"
     ]

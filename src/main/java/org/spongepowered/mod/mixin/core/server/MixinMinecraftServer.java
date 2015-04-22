@@ -25,12 +25,10 @@
 package org.spongepowered.mod.mixin.core.server;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.WorldManager;
 import net.minecraft.world.WorldProvider;
@@ -45,14 +43,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.source.ConsoleSource;
 import org.spongepowered.api.world.Dimension;
@@ -63,15 +56,13 @@ import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.IMixinServer;
 import org.spongepowered.common.interfaces.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.Subjectable;
-import org.spongepowered.common.text.SpongeText;
-import org.spongepowered.common.text.SpongeTextFactory;
 import org.spongepowered.common.world.SpongeDimensionType;
 import org.spongepowered.mod.SpongeMod;
 
 import java.io.File;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -81,7 +72,7 @@ import java.util.UUID;
 
 @NonnullByDefault
 @Mixin(MinecraftServer.class)
-public abstract class MixinMinecraftServer implements Server, ConsoleSource, Subjectable {
+public abstract class MixinMinecraftServer implements Server, ConsoleSource, Subjectable, IMixinServer {
 
     @Shadow private static Logger logger;
     @Shadow public WorldServer[] worldServers;
@@ -91,67 +82,20 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
     @Shadow private boolean worldIsBeingDeleted;
     @Shadow private int tickCounter;
 
-    @Shadow
-    protected abstract void convertMapIfNeeded(String worldNameIn);
-
-    @Shadow
-    protected abstract void setUserMessage(String message);
-
-    @Shadow
-    protected abstract void setResourcePackFromWorld(String worldNameIn, ISaveHandler saveHandlerIn);
-
-    @Shadow
-    public abstract boolean canStructuresSpawn();
-
-    @Shadow
-    public abstract WorldSettings.GameType getGameType();
-
-    @Shadow
-    public abstract EnumDifficulty getDifficulty();
-
-    @Shadow
-    public abstract boolean isHardcore();
-
-    @Shadow
-    public abstract boolean isSinglePlayer();
-
-    @Shadow
-    public abstract boolean isDemo();
-
-    @Shadow
-    public abstract String getFolderName();
-
-    @Shadow
-    public abstract void setDifficultyForAllWorlds(EnumDifficulty difficulty);
-
-    @Shadow
-    public abstract ServerConfigurationManager getConfigurationManager();
-
-    @Shadow
-    @SideOnly(Side.SERVER)
-    public abstract String getServerHostname();
-
-    @Shadow
-    @SideOnly(Side.SERVER)
-    public abstract int getPort();
-
-    @Shadow
-    public abstract void addChatMessage(IChatComponent message);
-
-    @Shadow
-    public abstract boolean isServerInOnlineMode();
-
-    @Shadow
-    public abstract void initiateShutdown();
-
-    @Shadow
-    public abstract boolean isServerRunning();
-
-    @Shadow
-    protected abstract void outputPercentRemaining(String message, int percent);
-
-    @Shadow
-    protected abstract void clearCurrentTask();
+    @Shadow public abstract boolean canStructuresSpawn();
+    @Shadow public abstract boolean isHardcore();
+    @Shadow public abstract boolean isServerRunning();
+    @Shadow public abstract boolean isSinglePlayer();
+    @Shadow public abstract String getFolderName();
+    @Shadow public abstract ServerConfigurationManager getConfigurationManager();
+    @Shadow public abstract WorldSettings.GameType getGameType();
+    @Shadow public abstract EnumDifficulty getDifficulty();
+    @Shadow public abstract void setDifficultyForAllWorlds(EnumDifficulty difficulty);
+    @Shadow protected abstract void convertMapIfNeeded(String worldNameIn);
+    @Shadow protected abstract void setUserMessage(String message);
+    @Shadow protected abstract void setResourcePackFromWorld(String worldNameIn, ISaveHandler saveHandlerIn);
+    @Shadow protected abstract void outputPercentRemaining(String message, int percent);
+    @Shadow protected abstract void clearCurrentTask();
 
     @Overwrite
     protected void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
@@ -278,15 +222,6 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
     }
 
     @Override
-    public Optional<World> loadWorld(UUID uuid) {
-        String worldFolder = SpongeMod.instance.getSpongeRegistry().getWorldFolder(uuid);
-        if (worldFolder != null) {
-            return loadWorld(worldFolder);
-        }
-        return Optional.absent();
-    }
-
-    @Override
     public Optional<World> loadWorld(String worldName) {
         final Optional<World> optExisting = getWorld(worldName);
         if (optExisting.isPresent()) {
@@ -299,14 +234,8 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
             throw new IllegalArgumentException("File exists with the name '" + worldName + "' and isn't a folder");
         }
 
-        AnvilSaveHandler savehandler = null;
-        if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
-            savehandler =
-                    new AnvilSaveHandler(new File(FMLCommonHandler.instance().getSavesDirectory() + File.separator + getFolderName()), worldName,
-                            true);
-        } else {
-            savehandler = new AnvilSaveHandler(new File(getFolderName()), worldName, true);
-        }
+        AnvilSaveHandler savehandler = getHandler(worldName);
+
         int dim;
         WorldInfo worldInfo = savehandler.loadWorldInfo();
         if (worldInfo != null) {
@@ -439,132 +368,17 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
     }
 
     @Override
-    public Optional<World> getWorld(String worldName) {
-        for (World world : getWorlds()) {
-            if (world.getName().equals(worldName)) {
-                return Optional.of(world);
-            }
-        }
-        return Optional.absent();
-    }
-
-    @Override
-    public Optional<WorldProperties> getWorldProperties(String worldName) {
-        return SpongeMod.instance.getSpongeRegistry().getWorldProperties(worldName);
-    }
-
-    @Override
-    public Collection<WorldProperties> getAllWorldProperties() {
-        return SpongeMod.instance.getSpongeRegistry().getAllWorldProperties();
-    }
-
-    @Override
-    public void broadcastMessage(Text message) {
-        for (Player player : getOnlinePlayers()) {
-            player.sendMessage(message);
-        }
-        sendMessage(message);
-    }
-
-    @Override
-    public Optional<InetSocketAddress> getBoundAddress() {
-        return Optional.fromNullable(new InetSocketAddress(getServerHostname(), getPort()));
-    }
-
-    @Override
-    public boolean hasWhitelist() {
-        return this.serverConfigManager.isWhiteListEnabled();
-    }
-
-    @Override
-    public void setHasWhitelist(boolean enabled) {
-        this.serverConfigManager.setWhiteListEnabled(enabled);
-    }
-
-    @Override
-    public boolean getOnlineMode() {
-        return isServerInOnlineMode();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Collection<Player> getOnlinePlayers() {
-        return ImmutableList.copyOf((List<Player>) getConfigurationManager().playerEntityList);
-    }
-
-    @Override
-    public Optional<Player> getPlayer(UUID uniqueId) {
-        return Optional.fromNullable((Player) getConfigurationManager().getPlayerByUUID(uniqueId));
-    }
-
-    @Override
-    public Optional<Player> getPlayer(String name) {
-        return Optional.fromNullable((Player) getConfigurationManager().getPlayerByUsername(name));
-    }
-
-    @Override
-    public Text getMotd() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getMaxPlayers() {
-        return getConfigurationManager().getMaxPlayers();
-    }
-
-    @Override
-    public int getRunningTimeTicks() {
-        return this.tickCounter;
-    }
-
-    @Override
-    public void sendMessage(Text... messages) {
-        for (Text message : messages) {
-            addChatMessage(((SpongeText) message).toComponent(SpongeTextFactory.getDefaultLocale()));
+    public AnvilSaveHandler getHandler(String worldName) {
+        if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+            return new AnvilSaveHandler(new File(FMLCommonHandler.instance().getSavesDirectory() + File.separator + getFolderName()), worldName,
+                    true);
+        } else {
+            return new AnvilSaveHandler(new File(getFolderName()), worldName, true);
         }
     }
 
     @Override
-    public void sendMessage(Iterable<Text> messages) {
-        for (Text message : messages) {
-            addChatMessage(((SpongeText) message).toComponent(SpongeTextFactory.getDefaultLocale()));
-        }
-    }
-
-    @Override
-    public String getIdentifier() {
-        return getName();
-    }
-
-    @Override
-    public String getSubjectCollectionIdentifier() {
-        return PermissionService.SUBJECTS_SYSTEM;
-    }
-
-    @Override
-    public Tristate permDefault(String permission) {
-        return Tristate.TRUE;
-    }
-
-    @Override
-    public String getName() {
-        return "Server";
-    }
-
-    @Override
-    public ConsoleSource getConsole() {
-        return this;
-    }
-
-    @Override
-    public void shutdown(Text kickMessage) {
-        /*
-         * for (Player player : getOnlinePlayers()) { ((EntityPlayerMP)
-         * player).playerNetServerHandler
-         * .kickPlayerFromServer(kickMessage.toLegacy()); //TODO update with the
-         * new Text API }
-         */
-
-        initiateShutdown();
+    public void initialSpongeWorldChunkLoad() {
+        initialWorldChunkLoad();
     }
 }
