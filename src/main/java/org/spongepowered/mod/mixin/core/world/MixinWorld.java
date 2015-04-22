@@ -69,6 +69,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
     private volatile Context worldContext;
     private ImmutableList<Populator> populators;
     private ImmutableList<GeneratorPopulator> generatorPopulators;
+    long weatherStartTime;
 
     @Shadow public WorldProvider provider;
     @Shadow protected WorldInfo worldInfo;
@@ -92,6 +93,14 @@ public abstract class MixinWorld implements World, IMixinWorld {
         if (FMLCommonHandler.instance().getSide() == Side.SERVER) {
             this.worldBorder.addListener(new PlayerBorderListener());
         }
+    }
+
+    @Inject(method = "updateWeatherBody()V", remap = false, at = {
+            @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setThundering(Z)V"),
+            @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setRaining(Z)V")
+    })
+    private void onUpdateWeatherBody(CallbackInfo ci) {
+        this.weatherStartTime = this.worldInfo.getWorldTotalTime();
     }
 
     @Override
