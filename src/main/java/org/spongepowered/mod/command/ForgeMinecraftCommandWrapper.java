@@ -22,32 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.server;
+package org.spongepowered.mod.command;
 
-import net.minecraft.command.CommandHandler;
 import net.minecraft.command.ICommand;
-import net.minecraft.command.ServerCommandManager;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraft.command.ICommandSender;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.util.command.InvocationCommandException;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
-import org.spongepowered.common.interfaces.IMixinServerCommandManager;
-import org.spongepowered.mod.command.ForgeMinecraftCommandWrapper;
 
-@NonnullByDefault
-@Mixin(ServerCommandManager.class)
-public abstract class MixinServerCommandManager extends CommandHandler implements IMixinServerCommandManager {
+/**
+ * Command wrapper throwing forge events.
+ */
+public class ForgeMinecraftCommandWrapper extends MinecraftCommandWrapper {
+
+    public ForgeMinecraftCommandWrapper(PluginContainer owner, ICommand command) {
+        super(owner, command);
+    }
 
     @Override
-    public MinecraftCommandWrapper wrapCommand(ICommand command) {
-        ModContainer activeContainer = Loader.instance().activeModContainer();
-        if (activeContainer == null) {
-            activeContainer = Loader.instance().getMinecraftModContainer();
+    protected boolean throwEvent(ICommandSender sender, String[] args) throws InvocationCommandException {
+        net.minecraftforge.event.CommandEvent event = new net.minecraftforge.event.CommandEvent(this.command, sender, args);
+        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event)) {
+            if (event.exception != null) {
+                throw new InvocationCommandException(Texts.of("Error while firing Forge event"), event.exception);
+            }
+            return false;
         }
-
-
-        return new ForgeMinecraftCommandWrapper((PluginContainer) activeContainer, command);
+        return super.throwEvent(sender, args);
     }
 }

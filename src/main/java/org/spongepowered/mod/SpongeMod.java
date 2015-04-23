@@ -79,12 +79,11 @@ import org.spongepowered.common.service.sql.SqlServiceImpl;
 import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.SpongeDimensionType;
 import org.spongepowered.mod.command.CommandSponge;
-import org.spongepowered.mod.command.MinecraftCommandWrapper;
+import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.registry.SpongeModGameRegistry;
-import org.spongepowered.mod.util.SpongeModHooks;
 
 import java.io.File;
 import java.io.FileInputStream;
