@@ -48,6 +48,7 @@ public abstract class MixinWorldType implements GeneratorType, IMixinWorldType {
     @Shadow public abstract WorldChunkManager getChunkManager(net.minecraft.world.World world);
     @Shadow public abstract IChunkProvider getChunkGenerator(net.minecraft.world.World world, String options);
 
+    @Override
     public SpongeWorldGenerator createGeneratorFromString(World world, String settings) {
         net.minecraft.world.World mcWorld = (net.minecraft.world.World) world;
         IChunkProvider chunkProvider = this.getChunkGenerator(mcWorld, settings);
