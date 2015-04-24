@@ -7,7 +7,7 @@
     "mixins": [
         "block.data.MixinTileEntity",
         "entity.MixinEntity",
-        "entity.MixinEntityMinecart",
+        "entity.vehicle.MixinEntityMinecart",
         "event.MixinEventBus",
         "event.block.MixinEventBlock",
         "event.block.MixinBlockUpdateEvent",

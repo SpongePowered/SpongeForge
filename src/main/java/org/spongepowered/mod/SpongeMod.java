@@ -111,7 +111,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         SpongeMod.instance = this;
 
         // Initialize Sponge
-        Guice.createInjector(new SpongeGuiceModule(logger)).getInstance(Sponge.class);
+        Guice.createInjector(new SpongeGuiceModule()).getInstance(Sponge.class);
 
         this.game = Sponge.getGame();
         this.registry = (SpongeModGameRegistry) this.game.getRegistry();

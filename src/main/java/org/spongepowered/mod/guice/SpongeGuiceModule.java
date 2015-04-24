@@ -24,12 +24,15 @@
  */
 package org.spongepowered.mod.guice;
 
+import static com.google.inject.name.Names.named;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import net.minecraftforge.fml.common.Loader;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.SimpleServiceManager;
@@ -37,6 +40,7 @@ import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.guice.ConfigDirAnnotation;
 import org.spongepowered.mod.SpongeGame;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 import org.spongepowered.mod.registry.SpongeModGameRegistry;
@@ -46,15 +50,13 @@ import java.io.File;
 
 public class SpongeGuiceModule extends AbstractModule {
 
-    private final Logger logger;
-
-    public SpongeGuiceModule(Logger logger) {
-        this.logger = logger;
-    }
-
     @Override
     protected void configure() {
-        bind(Logger.class).toInstance(this.logger);
+        bind(SpongeMod.class).toInstance(SpongeMod.instance);
+        bind(Logger.class).toInstance(SpongeMod.instance.getLogger());
+
+        bind(PluginContainer.class).annotatedWith(named("Sponge")).toInstance(SpongeMod.instance);
+        bind(PluginContainer.class).annotatedWith(named("Minecraft")).toInstance((PluginContainer) Loader.instance().getMinecraftModContainer());
 
         bind(Game.class).to(SpongeGame.class).in(Scopes.SINGLETON);
         bind(PluginManager.class).to(SpongePluginManager.class).in(Scopes.SINGLETON);
