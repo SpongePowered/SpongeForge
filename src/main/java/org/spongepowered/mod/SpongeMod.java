@@ -60,10 +60,12 @@ import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.api.service.scheduler.AsynchronousScheduler;
 import org.spongepowered.api.service.scheduler.SynchronousScheduler;
 import org.spongepowered.api.service.sql.SqlService;
+import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.command.CommandMapping;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionType;
@@ -218,7 +220,10 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             this.registry.init();
             if (!this.game.getServiceManager().provide(PermissionService.class).isPresent()) {
                 try {
-                    this.game.getServiceManager().setProvider(this, PermissionService.class, new SpongePermissionService());
+                    SpongePermissionService service = new SpongePermissionService();
+                    // Setup default permissions
+                    service.getGroupForOpLevel(2).getData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.commandblock", Tristate.TRUE);
+                    this.game.getServiceManager().setProvider(this, PermissionService.class, service);
                 } catch (ProviderExistsException e1) {
                     // It's a fallback, ignore
                 }
