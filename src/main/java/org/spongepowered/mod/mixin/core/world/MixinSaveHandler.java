@@ -35,8 +35,8 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.common.interfaces.IMixinWorldInfo;
+import org.spongepowered.mod.SpongeMod;
 
 import java.io.DataInputStream;
 import java.io.File;

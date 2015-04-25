@@ -32,9 +32,9 @@ import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.world.SpongeDimensionType;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.registry.SpongeModGameRegistry;
-import org.spongepowered.common.world.SpongeDimensionType;
 
 import java.util.ArrayList;
 import java.util.Hashtable;

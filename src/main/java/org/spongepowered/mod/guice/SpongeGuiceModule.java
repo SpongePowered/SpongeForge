@@ -39,12 +39,12 @@ import org.spongepowered.api.service.SimpleServiceManager;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.guice.ConfigDirAnnotation;
+import org.spongepowered.common.world.SpongeTeleportHelper;
 import org.spongepowered.mod.SpongeGame;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.SpongeEventBus;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 import org.spongepowered.mod.registry.SpongeModGameRegistry;
-import org.spongepowered.common.world.SpongeTeleportHelper;
 
 import java.io.File;
 

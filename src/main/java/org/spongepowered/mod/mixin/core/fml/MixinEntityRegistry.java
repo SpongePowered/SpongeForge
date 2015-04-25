@@ -38,9 +38,9 @@ import org.apache.logging.log4j.Level;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.common.entity.SpongeEntityRegistry;
 import org.spongepowered.common.entity.SpongeEntityType;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.registry.SpongeModGameRegistry;
 
 import java.util.Map;

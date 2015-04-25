@@ -34,7 +34,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.text.SpongeChatComponent;
+import org.spongepowered.common.text.SpongeTexts;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
@@ -59,7 +59,7 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
 
     @Override
     public Text getMessage() {
-        return ((SpongeChatComponent) this.component).toText();
+        return SpongeTexts.toText(this.component);
     }
 
     @Override
