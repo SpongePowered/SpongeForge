@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
@@ -52,6 +53,8 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
     @Shadow
     public ChatComponentTranslation component;
 
+    private Text spongeText;
+
     @Override
     public CommandSource getSource() {
         return (CommandSource) this.player;
@@ -59,7 +62,21 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
 
     @Override
     public Text getMessage() {
-        return SpongeTexts.toText(this.component);
+        if (this.spongeText == null) {
+            this.spongeText = SpongeTexts.toText(this.component);
+        }
+        return this.spongeText;
+    }
+
+    @Override // TODO: Better integration with forge mods?
+    public void setMessage(Text text) {
+        this.spongeText = text;
+        IChatComponent component = SpongeTexts.toComponent(text, ((Player) player).getLocale());
+        if (component instanceof ChatComponentTranslation) {
+            this.component = ((ChatComponentTranslation) component);
+        } else {
+            this.component = new ChatComponentTranslation("%s", component);
+        }
     }
 
     @Override
