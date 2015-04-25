@@ -24,8 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.world.gen.feature;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
+import net.minecraftforge.common.IPlantable;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.gen.Populator;
 import org.spongepowered.api.world.gen.PopulatorType;
@@ -36,14 +40,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.mixin.core.world.gen.populators.MixinWorldGenerator;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.world.gen.SpongePopulatorType;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.Random;
 
-@Mixin(net.minecraft.world.gen.feature.WorldGenerator.class)
-public abstract class MixinWorldGenerator implements Populator {
+@Mixin(value = net.minecraft.world.gen.feature.WorldGenerator.class, priority = 1001)
+public abstract class MixinWorldGeneratorForge extends MixinWorldGenerator implements Populator {
 
     private SpongePopulatorType populatorType;
 
@@ -75,6 +80,22 @@ public abstract class MixinWorldGenerator implements Populator {
     @Override
     public void populate(Chunk chunk, Random random) {
         // DOES NOTHING
+    }
+
+    public boolean isAir(IBlockState state, World worldIn, BlockPos pos) {
+        return state.getBlock().isAir(worldIn, pos);
+    }
+
+    public boolean isLeaves(IBlockState state, World worldIn, BlockPos pos) {
+        return state.getBlock().isLeaves(worldIn, pos);
+    }
+
+    public boolean isWood(IBlockState state, World worldIn, BlockPos pos) {
+        return state.getBlock().isWood(worldIn, pos);
+    }
+    
+    public boolean canSustainPlant(Block block, World worldIn, BlockPos pos, EnumFacing direction, Block plant) {
+        return block.canSustainPlant(worldIn, pos, direction, (IPlantable) plant);
     }
 
 }

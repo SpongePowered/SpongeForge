@@ -32,7 +32,7 @@ import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.interfaces.IMixinWorld;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 
 @NonnullByDefault
 @Mixin(EntityItem.class)

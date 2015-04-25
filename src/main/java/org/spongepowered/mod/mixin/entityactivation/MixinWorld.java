@@ -33,8 +33,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.spongepowered.common.interfaces.IMixinWorld;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.mod.mixin.plugin.entityactivation.ActivationRange;
 
 @NonnullByDefault

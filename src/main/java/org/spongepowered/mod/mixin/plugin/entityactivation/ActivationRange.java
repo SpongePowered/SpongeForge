@@ -55,9 +55,9 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.config.SpongeConfig;
 import org.spongepowered.common.config.SpongeConfig.WorldConfig;
 import org.spongepowered.common.entity.SpongeEntityType;
-import org.spongepowered.common.interfaces.IMixinWorld;
-import org.spongepowered.common.interfaces.IMixinWorldProvider;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.interfaces.world.IMixinWorldProvider;
 
 import java.util.ArrayList;
 import java.util.List;

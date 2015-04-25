@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.interfaces.IMixinWorld;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 
 @Mixin(value = net.minecraft.world.World.class, priority = 1001)
 public abstract class MixinWorld implements org.spongepowered.api.world.World, IMixinWorld {
@@ -44,5 +44,4 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
     private void onUpdateWeatherBody(CallbackInfo ci) {
         this.setWeatherStartTime(this.worldInfo.getWorldTotalTime());
     }
-
 }

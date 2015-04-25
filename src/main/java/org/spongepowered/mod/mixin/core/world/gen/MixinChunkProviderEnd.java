@@ -22,28 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.block;
+package org.spongepowered.mod.mixin.core.world.gen;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockLog;
-import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.ChunkProviderEnd;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.terraingen.ChunkProviderEvent.ReplaceBiomeBlocks;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.mixin.core.block.MixinBlock;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@NonnullByDefault
-@Mixin(value = BlockLog.class, priority = 1001)
-public abstract class MixinBlockLog extends MixinBlock {
+@Mixin(ChunkProviderEnd.class)
+public abstract class MixinChunkProviderEnd implements IChunkProvider {
 
-    @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;)V") )
-    public void onBreakBlock(Block block, World worldIn, BlockPos pos) {
-        IMixinWorld spongeWorld = (IMixinWorld) worldIn;
-        spongeWorld.setCapturingBlockDecay(true);
-        block.beginLeavesDecay(worldIn, pos);
-        spongeWorld.setCapturingBlockDecay(false);
+    @Shadow private int chunkX;
+    @Shadow private int chunkZ;
+    @Shadow private World endWorld;
+
+
+    @Inject(method = "func_180519_a(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
+    public void cancelEndStone(ChunkPrimer chunk, CallbackInfo ci) {
+        ReplaceBiomeBlocks event = new ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.endWorld);
+        MinecraftForge.EVENT_BUS.post(event);
+        ci.cancel();
     }
 }

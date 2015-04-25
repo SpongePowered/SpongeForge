@@ -22,28 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.block;
+package org.spongepowered.mod.mixin.core.world.biome;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockLog;
-import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import net.minecraft.world.biome.BiomeDecorator;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.event.terraingen.DeferredBiomeDecorator;
+import org.spongepowered.api.world.biome.BiomeGenerationSettings;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.mixin.core.block.MixinBlock;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
+import org.spongepowered.common.mixin.core.world.biome.MixinBiomeGenBase;
 
-@NonnullByDefault
-@Mixin(value = BlockLog.class, priority = 1001)
-public abstract class MixinBlockLog extends MixinBlock {
+@Mixin(value = BiomeGenBase.class, priority = 1001)
+@Implements(value = @Interface(iface = IBiomeGenBase.class, prefix = "super$") )
+public class MixinBiomeGenBaseForge extends MixinBiomeGenBase {
 
-    @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;)V") )
-    public void onBreakBlock(Block block, World worldIn, BlockPos pos) {
-        IMixinWorld spongeWorld = (IMixinWorld) worldIn;
-        spongeWorld.setCapturingBlockDecay(true);
-        block.beginLeavesDecay(worldIn, pos);
-        spongeWorld.setCapturingBlockDecay(false);
+    @Shadow public BiomeDecorator theBiomeDecorator;
+
+    @Intrinsic(displace = true)
+    public BiomeGenerationSettings super$initPopulators(World world) {
+        if (this.theBiomeDecorator instanceof DeferredBiomeDecorator) {
+            ((DeferredBiomeDecorator) this.theBiomeDecorator).fireCreateEventAndReplace((BiomeGenBase) (Object) this);
+        }
+        return initPopulators(world);
     }
 }
