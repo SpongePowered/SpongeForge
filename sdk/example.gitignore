@@ -1,0 +1,16 @@
+# gradle stuff
+build
+.gradle
+
+# eclipse stuff
+.classpath
+.project
+.settings
+bin
+
+# intellij stuff
+.idea
+out
+*.iml
+*.iws
+*.ipr
