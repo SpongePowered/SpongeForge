@@ -34,6 +34,7 @@ import org.spongepowered.common.launch.SpongeLaunch;
 
 import java.util.Map;
 
+@IFMLLoadingPlugin.MCVersion("1.8")
 public class SpongeCoremod implements IFMLLoadingPlugin {
 
     public SpongeCoremod() {
