@@ -30,7 +30,7 @@ ext {
     forgeVersion = "11.14.1.$forgeBuild"
 }
 
-apply from: project(':Common').file('gradle/implementation.gradle')
+apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
 
 jar {
     exclude 'log4j2.xml'
