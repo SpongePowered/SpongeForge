@@ -2,11 +2,15 @@
 <ivysettings>
     <settings defaultResolver="sponge" />
     <resolvers>
-        <chain name="sponge">
-            <ibiblio name="m2" m2compatible="true" />
-            <ibiblio name="forge" m2compatible="true" root="http://files.minecraftforge.net/maven/" usepoms="false" useMavenMetadata="false" pattern="[orgPath]/[artifact]/[revision]/[artifact]-[revision]-[branch].[ext]" />
-            <ibiblio name="mojang" m2compatible="true" root="https://libraries.minecraft.net/" />
+        <chain name="sponge" returnFirst="true">
             <ibiblio name="minecraft" m2compatible="false" root="https://s3.amazonaws.com/Minecraft.Download/versions/" pattern="[revision]/[artifact].[revision].jar" />
+            <ibiblio name="forge" m2compatible="true" root="http://files.minecraftforge.net/maven/" usepoms="false" useMavenMetadata="false" pattern="[orgPath]/[artifact]/[revision]/[artifact]-[revision]-[branch].[ext]" />
+            <url name="mojang">
+                <artifact pattern="https://libraries.minecraft.net/[orgPath]/[artifact]/[revision]/[artifact]-[revision].[ext]" />
+            </url>
+            <url name="spongemaven">
+                <artifact pattern="http://repo.spongepowered.org/maven/[orgPath]/[artifact]/[revision]/[artifact]-[revision].[ext]" />
+            </url>
         </chain>
     </resolvers>
 </ivysettings>
