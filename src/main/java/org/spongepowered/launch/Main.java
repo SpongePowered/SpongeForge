@@ -31,6 +31,7 @@ import org.spongepowered.launch.handlers.RunHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,6 +124,19 @@ public class Main {
             File jar = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             if (jar.isFile()) {
                 return jar;
+            }
+        } catch (IllegalArgumentException ex) {
+            try {
+                String uriFull = Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().toString();
+                int bangPos = uriFull.lastIndexOf('!');
+                if (bangPos > -1 && uriFull.startsWith("jar:")) {
+                    File jar = new File(URI.create(uriFull.substring(4, bangPos)));
+                    if (jar.isFile()) {
+                        return jar;
+                    }
+                }
+            } catch (Exception ex1) {
+                // ex1.printStackTrace();
             }
         } catch (Exception ex) {
             // derp

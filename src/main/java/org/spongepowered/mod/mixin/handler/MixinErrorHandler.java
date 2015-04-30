@@ -24,13 +24,13 @@
  */
 package org.spongepowered.mod.mixin.handler;
 
-import org.spongepowered.asm.util.PrettyPrinter;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.extensibility.IMixinErrorHandler;
+import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+import org.spongepowered.asm.util.PrettyPrinter;
+import org.spongepowered.launch.Main;
 
 /**
  * Error handler for Sponge mixins
@@ -45,6 +45,9 @@ public class MixinErrorHandler implements IMixinErrorHandler {
     @Override
     public ErrorAction onError(String targetClassName, Throwable th, IMixinInfo mixin, ErrorAction action) {
         if (action == ErrorAction.ERROR && mixin.getConfig().getMixinPackage().startsWith("org.spongepowered.")) {
+            String forgeVer = Main.getManifestAttribute("TargetForgeVersion", null);
+            String forgeMessage = forgeVer == null ? "is usually specified in the sponge mod's jar filename" : "version is for Forge " + forgeVer;
+            
             new PrettyPrinter()
                 .add()
                 .add("Oh dear. Something went wrong and the server had to shut down!")
@@ -59,7 +62,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
                 .add("     goes away.")
                 .add()
                 .add("   * You are using the wrong version of Minecraft Forge. You must use the correct version of Forge")
-                .add("     when running Sponge, this is usually specified in the sponge mod's jar filename.")
+                .add("     when running Sponge, this %s.", forgeMessage)
                 .add()
                 .add("   * An error exists in Sponge itself. Ensure you are running the latest version of Sponge.")
                 .add()
