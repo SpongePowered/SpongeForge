@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivysettings>
+    <settings defaultResolver="sponge" />
+    <resolvers>
+        <chain name="sponge">
+			<ibiblio name="m2" m2compatible="true" />
+			<ibiblio name="forge" m2compatible="true" root="http://files.minecraftforge.net/maven/" usepoms="false" useMavenMetadata="false" pattern="[orgPath]/[artifact]/[revision]/[artifact]-[revision]-[branch].[ext]" />
+			<ibiblio name="mojang" m2compatible="true" root="https://libraries.minecraft.net/" />
+			<ibiblio name="minecraft" m2compatible="false" root="https://s3.amazonaws.com/Minecraft.Download/versions/" pattern="[revision]/[artifact].[revision].jar" />
+        </chain>
+    </resolvers>
+</ivysettings>

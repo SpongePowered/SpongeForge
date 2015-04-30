@@ -1,0 +1,31 @@
+
+--------------------------------------------------------------------------------
+
+  Oops! You attempted to run the Sponge Forge Mod directly!
+
+  This jar file is a mod for Minecraft Forge. You can run this file as a Forge
+  mod by installing Minecraft Forge and simply dropping the jar file into the
+  Forge "mods" directory. You can get Minecraft Forge from:
+
+    https://files.minecraftforge.net/
+
+  Once you have downloaded and installed Forge, you can load Sponge as a mod.
+
+
+  Alternatively, for headless server installations you can use this Sponge jar
+  as a launcher for Minecraft Forge. To use the jar as a launcher, you can:
+
+    1) Install Minecraft Forge and the dependencies by running:
+
+        java -jar ${jarfile} install
+
+    2) Run Minecraft Forge with Sponge by running
+
+        java -jar ${jarfile} run {args}
+
+
+  If you need more help, you should check out our forums:
+
+    http://forums.spongepowered.org/
+
+--------------------------------------------------------------------------------

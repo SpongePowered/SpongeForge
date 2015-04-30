@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+    <info organisation="spongepowered" module="spongeruntime" status="integration">
+        <ivyauthor name="SpongePowered" />
+    </info>
+    <configurations>
+        <conf name="libraries" description="Libraries required for Minecraft" />
+    </configurations>
+    <dependencies defaultconf="libraries->default">
+        <!-- Minecraft -->
+        <dependency org="net.minecraft" name="minecraft_server" rev="1.8" />
+    
+        <!-- Forge -->
+        <dependency org="net.minecraftforge" name="forge" rev="1.8-11.14.1.1371" branch="universal" />
+        
+        <!-- Forge Dependencies -->
+        <dependency org="net.minecraft" name="launchwrapper" rev="1.9" />
+        <dependency org="org.ow2.asm" name="asm-all" rev="5.0.3" />
+        <dependency org="com.typesafe.akka" name="akka-actor_2.11" rev="2.3.3" />
+        <dependency org="com.typesafe" name="config" rev="1.2.1" />
+        <dependency org="org.scala-lang" name="scala-actors-migration_2.11" rev="1.1.0" />
+        <dependency org="org.scala-lang" name="scala-compiler" rev="2.11.1" />
+        <dependency org="org.scala-lang.plugins" name="scala-continuations-library_2.11" rev="1.0.2" />
+        <dependency org="org.scala-lang.plugins" name="scala-continuations-plugin_2.11.1" rev="1.0.2" />
+        <dependency org="org.scala-lang" name="scala-library" rev="2.11.1" />
+        <dependency org="org.scala-lang.modules" name="scala-parser-combinators_2.11" rev="1.0.1" />
+        <dependency org="org.scala-lang" name="scala-reflect" rev="2.11.1" />
+        <dependency org="org.scala-lang.modules" name="scala-swing_2.11" rev="1.0.1" />
+        <dependency org="org.scala-lang.modules" name="scala-xml_2.11" rev="1.0.2" />
+        <dependency org="lzma" name="lzma" rev="0.0.1" />
+        <dependency org="net.sf.jopt-simple" name="jopt-simple" rev="4.5" />
+        
+        <!-- Minecraft dependencies -->
+		<dependency org="java3d" name="vecmath" rev="1.5.2" />
+		<dependency org="net.sf.trove4j" name="trove4j" rev="3.0.3" />
+		<dependency org="com.ibm.icu" name="icu4j-core-mojang" rev="51.2" />
+		<dependency org="net.sf.jopt-simple" name="jopt-simple" rev="4.6" />
+		<dependency org="com.paulscode" name="codecjorbis" rev="20101023" />
+		<dependency org="com.paulscode" name="codecwav" rev="20101023" />
+		<dependency org="com.paulscode" name="libraryjavasound" rev="20101123" />
+		<dependency org="com.paulscode" name="librarylwjglopenal" rev="20100824" />
+		<dependency org="com.paulscode" name="soundsystem" rev="20120107" />
+		<dependency org="io.netty" name="netty-all" rev="4.0.15.Final" />
+		<dependency org="com.google.guava" name="guava" rev="17.0" />
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.3.2" />
+		<dependency org="commons-io" name="commons-io" rev="2.4" />
+		<dependency org="commons-codec" name="commons-codec" rev="1.9" />
+		<dependency org="net.java.jinput" name="jinput" rev="2.0.5" />
+		<dependency org="net.java.jutils" name="jutils" rev="1.0.0" />
+		<dependency org="com.google.code.gson" name="gson" rev="2.2.4" />
+		<dependency org="com.mojang" name="authlib" rev="1.5.17" />
+		<dependency org="com.mojang" name="realms" rev="1.6.1" />
+		<dependency org="org.apache.commons" name="commons-compress" rev="1.8.1" />
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.3.3" />
+		<dependency org="commons-logging" name="commons-logging" rev="1.1.3" />
+		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.3.2" />
+		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.0-beta9" />
+		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.0-beta9" />
+<!-- 		<dependency org="org.lwjgl.lwjgl" name="lwjgl" rev="2.9.1" /> -->
+<!-- 		<dependency org="org.lwjgl.lwjgl" name="lwjgl_util" rev="2.9.1" /> -->
+<!-- 		<dependency org="org.lwjgl.lwjgl" name="lwjgl-platform" rev="2.9.1" /> -->
+<!-- 		<dependency org="net.java.jinput" name="jinput-platform" rev="2.0.5" /> -->
+<!-- 		<dependency org="tv.twitch" name="twitch" rev="6.5" /> -->
+<!-- 		<dependency org="tv.twitch" name="twitch-platform" rev="6.5" /> -->
+<!-- 		<dependency org="tv.twitch" name="twitch-external-platform" rev="4.5" /> -->
+		
+		<exclude module="asm-debug-all" conf="libraries" />
+    </dependencies>
+</ivy-module>

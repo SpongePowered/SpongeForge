@@ -32,11 +32,19 @@ ext {
 
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
 
+// Project dependencies
+dependencies {
+    compile 'org.apache.ivy:ivy:2.4.0'
+}
+
 jar {
     exclude 'log4j2.xml'
 
     manifest {
         attributes(
+                'Main-Class': 'org.spongepowered.launch.Main',
+                'TargetForgeBuild': "${forgeBuild}",
+                'TargetForgeVersion': "${forgeVersion}",
                 'FMLCorePlugin': 'org.spongepowered.mod.SpongeCoremod',
                 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                 'TweakOrder': '10000'
@@ -49,7 +57,19 @@ shadowJar {
 
     dependencies {
         include dependency('com.google.code.findbugs:jsr305')
+        include(dependency('org.apache.ivy:ivy'))
     }
+    
+    // Exlcude a bunch of stuff we don't need from Ivy, so the end jar is smaller
+    exclude 'fr/**'
+    exclude 'org/apache/ivy/ant/**'
+    exclude 'org/apache/ivy/logo.png'
+    exclude 'org/apache/ivy/osgi/filter/**'
+    exclude 'org/apache/ivy/osgi/obr/**'
+    exclude 'org/apache/ivy/osgi/p2/**'
+    exclude 'org/apache/ivy/osgi/repo/**'
+    exclude 'org/apache/ivy/osgi/updatesite/**'
+    exclude 'org/apache/ivy/osgi/util/**'
 }
 
 copySrgs << {
