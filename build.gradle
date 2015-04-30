@@ -46,6 +46,10 @@ jar {
 
 shadowJar {
     exclude 'log4j2.xml'
+
+    dependencies {
+        include dependency('com.google.code.findbugs:jsr305')
+    }
 }
 
 copySrgs << {
