@@ -24,6 +24,7 @@
  */
 package org.spongepowered.launch;
 
+import org.spongepowered.launch.gui.LaunchInfoPanel;
 import org.spongepowered.launch.handlers.GoHandler;
 import org.spongepowered.launch.handlers.HelpHandler;
 import org.spongepowered.launch.handlers.ResolveHandler;
@@ -31,6 +32,7 @@ import org.spongepowered.launch.handlers.RunHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -43,6 +45,12 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+
+import javax.imageio.ImageIO;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 
 /**
  * Bootstrap class to provide some help for end users and manage headless
@@ -61,14 +69,12 @@ public class Main {
     private static final Map<String, LaunchHandler> handlers = new LinkedHashMap<String, LaunchHandler>();
     
     public static void main(String[] argv) {
-        
-        System.out.printf("\n%s v%s for Minecraft Forge %s\n   implementing %s version %s\n",
-                Main.getManifestAttribute("Implementation-Name", "Sponge"),
-                Main.getManifestAttribute("Implementation-Version", "DEV"),
-                Main.getManifestAttribute("TargetForgeBuild", ""),
-                Main.getManifestAttribute("Specification-Name", "SpongeAPI"),
-                Main.getManifestAttribute("Specification-Version", "DEV")
-        );
+        if (System.console() == null && !Main.checkHeadlessState()) {
+            Main.displayGraphicalMessage();
+            return;
+        }
+            
+        Main.printHeader();
         
         List<String> args = new ArrayList<String>(Arrays.asList(argv));
         Main.initDefaultHandlers();
@@ -77,6 +83,42 @@ public class Main {
         } catch (Throwable th) {
             th.printStackTrace();
         }
+    }
+
+    private static void displayGraphicalMessage() {
+        JOptionPane messagePane = new JOptionPane(new LaunchInfoPanel(), JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION);
+        messagePane.setBorder(new EmptyBorder(0, 0, 20, 0));
+        String dialogTitle = "Cannot start this jar directly - " + Main.getManifestAttribute("Implementation-Version", "DEV");
+        JDialog dialog = messagePane.createDialog(null, dialogTitle);
+        try {
+            dialog.setIconImage(ImageIO.read(LaunchInfoPanel.class.getResourceAsStream("temp_icon.png")));
+        } catch (IOException ex) {
+            // load icon failed :(
+        }
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.setModal(true);
+        dialog.setVisible(true);
+    }
+
+    private static void printHeader() {
+        System.out.printf("\n%s v%s for Minecraft Forge %s\n   implementing %s version %s\n",
+                Main.getManifestAttribute("Implementation-Name", "Sponge"),
+                Main.getManifestAttribute("Implementation-Version", "DEV"),
+                Main.getManifestAttribute("TargetForgeBuild", ""),
+                Main.getManifestAttribute("Specification-Name", "SpongeAPI"),
+                Main.getManifestAttribute("Specification-Version", "DEV")
+        );
+    }
+
+    private static boolean checkHeadlessState() {
+        try {
+            Class<?> clGraphicsEnvironment = Class.forName("java.awt.GraphicsEnvironment");
+            Method mdIsHeadless = clGraphicsEnvironment.getDeclaredMethod("isHeadless");
+            return (Boolean)mdIsHeadless.invoke(null);
+        } catch (Exception ex) {
+            // ignore
+        }
+        return true;
     }
 
     private static void dispatch(List<String> args) {
