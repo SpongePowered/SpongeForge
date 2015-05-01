@@ -7,7 +7,7 @@
   mod by installing Minecraft Forge and simply dropping the jar file into the
   Forge "mods" directory. You can get Minecraft Forge from:
 
-    https://files.minecraftforge.net/
+    http://files.minecraftforge.net/
 
   Once you have downloaded and installed Forge, you can load Sponge as a mod.
 
