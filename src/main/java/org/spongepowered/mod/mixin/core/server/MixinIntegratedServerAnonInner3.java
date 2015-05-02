@@ -22,27 +22,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
 
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+package org.spongepowered.mod.mixin.core.server;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-@NonnullByDefault
-@Mixin(PlayerEvent.PlayerLoggedInEvent.class)
-public abstract class MixinEventPlayerJoin implements PlayerJoinEvent {
+@SideOnly(Side.CLIENT)
+@Mixin(targets = "net/minecraft/server/integrated/IntegratedServer$3")
+public class MixinIntegratedServerAnonInner3 {
 
-    private Text message;
-
-    @Override
-    public Text getJoinMessage() {
-        return this.message;
-    }
-
-    @Override
-    public void setJoinMessage(Text joinMessage) {
-        this.message = joinMessage;
+    /**
+     * @author Simon816
+     *
+     * @see MixinServerConfigurationManager#onFirePlayerLoggedOutCall
+     * firePlayerLoggedOut must be called manually just before playerLoggedOut
+     */
+    @ModifyArg(method = "run()V", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/server/management/ServerConfigurationManager;playerLoggedOut(Lnet/minecraft/entity/player/EntityPlayerMP;)V"))
+    public EntityPlayerMP beforeFirePlayerLoggedOut(EntityPlayerMP playerIn) {
+        FMLCommonHandler.instance().firePlayerLoggedOut(playerIn);
+        return playerIn;
     }
 }

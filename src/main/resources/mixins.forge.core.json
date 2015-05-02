@@ -47,6 +47,7 @@
         "forge.MixinDimensionManager",
         "item.MixinEnchantment",
         "server.MixinMinecraftServer",
+        "server.MixinNetHandlerPlayServer",
         "server.MixinServerCommandManager",
         "server.MixinServerConfigurationManager",
         "world.MixinChunk",
@@ -55,5 +56,8 @@
         "world.MixinWorldProvider",
         "world.MixinWorldType",
         "world.storage.MixinWorldInfo"
+    ],
+    "client": [
+        "server.MixinIntegratedServerAnonInner3"
     ]
 }

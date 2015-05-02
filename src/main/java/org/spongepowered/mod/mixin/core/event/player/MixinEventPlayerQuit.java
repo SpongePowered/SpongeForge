@@ -34,13 +34,15 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(PlayerEvent.PlayerLoggedOutEvent.class)
 public abstract class MixinEventPlayerQuit implements PlayerQuitEvent {
 
-    // TODO: This event actually fires after messages are displayed.
+    private Text message;
+
     @Override
     public Text getQuitMessage() {
-        return null;
+        return this.message;
     }
 
     @Override
-    public void setQuitMessage(Text joinMessage) {
+    public void setQuitMessage(Text quitMessage) {
+        this.message = quitMessage;
     }
 }

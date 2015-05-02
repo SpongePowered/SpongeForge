@@ -63,6 +63,7 @@ import net.minecraft.world.storage.IPlayerFileData;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.network.ForgeMessage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
 import net.minecraftforge.fml.common.network.FMLOutboundHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -70,6 +71,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.data.manipulators.entities.RespawnLocationData;
 import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.DimensionTypes;
@@ -78,8 +80,11 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.IMixinServerConfigurationManager;
+import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.world.SpongeDimensionType;
 import org.spongepowered.common.world.border.PlayerBorderListener;
 
@@ -124,6 +129,15 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
     @Shadow
     public abstract void playerLoggedIn(EntityPlayerMP playerIn);
 
+    /**
+     * @author bloodmc, Simon816
+     *
+     * TODO bloodmc needs to describe changes here
+     *
+     * Simon816's changes: Delay call to sendChatMsg until after
+     * PlayerJoinEvent is fired in order for event handlers to change
+     * the join message.
+     */
     @SuppressWarnings("rawtypes")
     @Overwrite(aliases = "initializeConnectionToPlayer")
     public void initializeConnectionToPlayer(NetworkManager netManager, EntityPlayerMP playerIn, NetHandlerPlayServer nethandlerplayserver) {
@@ -191,16 +205,6 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
         playerIn.getStatFile().func_150884_b(playerIn);
         this.func_96456_a((ServerScoreboard) worldserver.getScoreboard(), playerIn);
         this.mcServer.refreshStatusNextTick();
-        ChatComponentTranslation chatcomponenttranslation;
-
-        if (!playerIn.getCommandSenderName().equalsIgnoreCase(s)) {
-            chatcomponenttranslation = new ChatComponentTranslation("multiplayer.player.joined.renamed", new Object[] {playerIn.getDisplayName(), s});
-        } else {
-            chatcomponenttranslation = new ChatComponentTranslation("multiplayer.player.joined", new Object[] {playerIn.getDisplayName()});
-        }
-
-        chatcomponenttranslation.getChatStyle().setColor(EnumChatFormatting.YELLOW);
-        this.sendChatMsg(chatcomponenttranslation);
         this.playerLoggedIn(playerIn);
         nethandlerplayserver.setPlayerLocation(playerIn.posX, playerIn.posY, playerIn.posZ, playerIn.rotationYaw, playerIn.rotationPitch);
         this.updateTimeAndWeatherForPlayer(playerIn, worldserver);
@@ -218,7 +222,18 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
 
         playerIn.addSelfToInternalCraftingInventory();
 
-        net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerLoggedIn(playerIn);
+        ChatComponentTranslation joinMessage;
+        if (!playerIn.getCommandSenderName().equalsIgnoreCase(s)) {
+            joinMessage = new ChatComponentTranslation("multiplayer.player.joined.renamed", new Object[] {playerIn.getDisplayName(), s});
+        } else {
+            joinMessage = new ChatComponentTranslation("multiplayer.player.joined", new Object[] {playerIn.getDisplayName()});
+        }
+        joinMessage.getChatStyle().setColor(EnumChatFormatting.YELLOW);
+        PlayerJoinEvent joinEvent = (PlayerJoinEvent) new PlayerEvent.PlayerLoggedInEvent(playerIn);
+        joinEvent.setJoinMessage(SpongeTexts.toText(joinMessage));
+        net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().post((PlayerEvent.PlayerLoggedInEvent) joinEvent);
+        this.sendChatMsg(SpongeTexts.toComponent(joinEvent.getJoinMessage()));
+
         if (nbttagcompound != null && nbttagcompound.hasKey("Riding", 10)) {
             Entity entity = EntityList.createEntityFromNBT(nbttagcompound.getCompoundTag("Riding"), worldserver);
 
@@ -384,5 +399,20 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
             playerIn.playerNetServerHandler.sendPacket(new S2BPacketChangeGameState(7, worldIn.getRainStrength(1.0F)));
             playerIn.playerNetServerHandler.sendPacket(new S2BPacketChangeGameState(8, worldIn.getThunderStrength(1.0F)));
         }
+    }
+
+    /**
+     * @author Simon816
+     *
+     * Remove call to firePlayerLoggedOut because
+     * {@link MixinNetHandlerPlayServer#onDisconnectPlayer} fires the event already
+     *
+     * NOTE: ANY call to playerLoggedOut will need to fire the PlayerLoggedOutEvent manually!
+     */
+    @Redirect(method = "playerLoggedOut", at = @At(value = "INVOKE",
+            target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;firePlayerLoggedOut(Lnet/minecraft/entity/player/EntityPlayer;)V",
+            remap = false))
+    public void onFirePlayerLoggedOutCall(FMLCommonHandler thisCtx, EntityPlayer playerIn) {
+        // -net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerLoggedOut(playerIn);
     }
 }
