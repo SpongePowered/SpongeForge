@@ -28,6 +28,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerDropItemEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -55,18 +56,12 @@ public abstract class MixinEventPlayerDropItem extends ItemEvent implements Play
     }
 
     @Override
-    public Player getPlayer() {
+    public Player getEntity() {
         return (Player) this.player;
     }
 
     @Override
-    public Player getHuman() {
+    public Player getUser() {
         return (Player) this.player;
     }
-
-    @Override
-    public Player getLiving() {
-        return (Player) this.player;
-    }
-
 }

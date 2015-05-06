@@ -28,6 +28,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
 import org.spongepowered.api.text.Text;
@@ -80,23 +81,12 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
     }
 
     @Override
-    public Player getPlayer() {
-        return (Player) this.player;
-    }
-
-    @Override
-    public Player getHuman() {
-        return (Player) this.player;
-    }
-
-    @Override
-    public Player getLiving() {
-        return (Player) this.player;
-    }
-
-    @Override
     public Player getEntity() {
         return (Player) this.player;
     }
 
+    @Override
+    public Player getUser() {
+        return (Player) this.player;
+    }
 }
