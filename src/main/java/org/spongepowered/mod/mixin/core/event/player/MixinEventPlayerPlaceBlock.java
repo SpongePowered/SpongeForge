@@ -64,9 +64,6 @@ public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements P
     }
 
     @Override
-    public Living getLiving() {return (Player) this.player;}
-
-    @Override
     public Player getEntity() {
         return (Player) this.player;
     }
