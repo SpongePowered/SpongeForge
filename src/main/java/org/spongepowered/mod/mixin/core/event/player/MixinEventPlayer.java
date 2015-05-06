@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.core.event.player;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -43,6 +44,9 @@ public abstract class MixinEventPlayer extends LivingEvent implements PlayerEven
     public MixinEventPlayer(EntityLivingBase entity) {
         super(entity);
     }
+
+    @Override
+    public Living getLiving() {return (Player) this.entityPlayer;}
 
     @Override
     public Player getEntity() {

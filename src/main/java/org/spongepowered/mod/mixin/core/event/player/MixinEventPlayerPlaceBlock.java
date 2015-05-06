@@ -32,6 +32,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.player.PlayerPlaceBlockEvent;
@@ -61,6 +62,9 @@ public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements P
     public MixinEventPlayerPlaceBlock(World world, BlockPos pos, IBlockState state) {
         super(world, pos, state);
     }
+
+    @Override
+    public Living getLiving() {return (Player) this.player;}
 
     @Override
     public Player getEntity() {
