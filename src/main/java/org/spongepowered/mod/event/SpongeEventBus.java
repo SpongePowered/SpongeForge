@@ -38,8 +38,10 @@ import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
+import org.apache.commons.lang3.NotImplementedException;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.EventHandler;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -179,6 +181,16 @@ public class SpongeEventBus implements EventManager {
         registerAll(findAllSubscribers(object), container.get());
     }
 
+    @Override
+    public <T extends Event> void register(Object plugin, Class<T> eventClass, EventHandler<? super T> handler) {
+        throw new NotImplementedException("TODO");
+    }
+
+    @Override
+    public <T extends Event> void register(Object plugin, Class<T> eventClass, Order order, EventHandler<? super T> handler) {
+        throw new NotImplementedException("TODO");
+    }
+
     private boolean registerAll(List<Subscriber> subscribers, PluginContainer container) {
         synchronized (this.lock) {
             boolean changed = false;
@@ -209,6 +221,11 @@ public class SpongeEventBus implements EventManager {
     public void unregister(Object object) {
         checkNotNull(object, "object");
         unregisterAll(findAllSubscribers(object));
+    }
+
+    @Override
+    public void unregisterPlugin(Object plugin) {
+        throw new NotImplementedException("TODO");
     }
 
     public boolean unregisterAll(List<Subscriber> subscribers) {
