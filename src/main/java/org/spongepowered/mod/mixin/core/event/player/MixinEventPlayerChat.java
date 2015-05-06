@@ -80,21 +80,6 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
     }
 
     @Override
-    public Player getPlayer() {
-        return (Player) this.player;
-    }
-
-    @Override
-    public Player getHuman() {
-        return (Player) this.player;
-    }
-
-    @Override
-    public Player getLiving() {
-        return (Player) this.player;
-    }
-
-    @Override
     public Player getEntity() {
         return (Player) this.player;
     }

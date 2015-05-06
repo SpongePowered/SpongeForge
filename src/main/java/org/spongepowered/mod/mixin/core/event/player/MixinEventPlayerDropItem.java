@@ -54,18 +54,9 @@ public abstract class MixinEventPlayerDropItem extends ItemEvent implements Play
         return Collections.nCopies(1, (ItemStack) this.entityItem.getEntityItem());
     }
 
-    @Override
-    public Player getPlayer() {
-        return (Player) this.player;
-    }
 
     @Override
-    public Player getHuman() {
-        return (Player) this.player;
-    }
-
-    @Override
-    public Player getLiving() {
+    public Player getEntity() {
         return (Player) this.player;
     }
 

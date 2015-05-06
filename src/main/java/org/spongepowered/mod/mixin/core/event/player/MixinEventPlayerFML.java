@@ -47,21 +47,6 @@ public abstract class MixinEventPlayerFML extends Event implements PlayerEvent {
     }
 
     @Override
-    public Player getPlayer() {
-        return (Player) this.player;
-    }
-
-    @Override
-    public Player getLiving() {
-        return (Player) this.player;
-    }
-
-    @Override
-    public Player getHuman() {
-        return (Player) this.player;
-    }
-
-    @Override
     public Player getEntity() {
         return (Player) this.player;
     }
