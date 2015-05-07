@@ -85,4 +85,8 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
         return (Player) this.player;
     }
 
+    @Override
+    public Player getUser() {
+        return (Player) this.player;
+    }
 }

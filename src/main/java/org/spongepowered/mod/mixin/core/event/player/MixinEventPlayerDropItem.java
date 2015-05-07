@@ -60,4 +60,8 @@ public abstract class MixinEventPlayerDropItem extends ItemEvent implements Play
         return (Player) this.player;
     }
 
+    @Override
+    public Player getUser() {
+        return (Player) this.player;
+    }
 }

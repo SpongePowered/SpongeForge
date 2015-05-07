@@ -67,6 +67,11 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
     }
 
     @Override
+    public Player getUser() {
+        return (Player) this.player;
+    }
+
+    @Override
     public BlockSnapshot getReplacementBlock() {
         return (BlockSnapshot) this.blockSnapshot;
     }
