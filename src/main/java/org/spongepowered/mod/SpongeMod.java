@@ -113,35 +113,12 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         SpongeMod.instance = this;
 
         // Initialize Sponge
-        Guice.createInjector(new SpongeGuiceModule()).getInstance(Sponge.class);
+        Sponge common = Guice.createInjector(new SpongeGuiceModule()).getInstance(Sponge.class);
 
         this.game = Sponge.getGame();
         this.registry = (SpongeModGameRegistry) this.game.getRegistry();
+        common.registerServices();
 
-        try {
-            SimpleCommandService commandService = new SimpleCommandService(this.game, new SpongeCommandDisambiguator(this.game));
-            this.game.getServiceManager().setProvider(this, CommandService.class, commandService);
-        } catch (ProviderExistsException e) {
-            logger.warn("Non-Sponge CommandService already registered: " + e.getLocalizedMessage());
-        }
-        try {
-            this.game.getServiceManager().setProvider(this, SqlService.class, new SqlServiceImpl());
-        } catch (ProviderExistsException e) {
-            logger.warn("Non-Sponge SqlService already registered: " + e.getLocalizedMessage());
-        }
-        try {
-            this.game.getServiceManager().setProvider(this, SynchronousScheduler.class, SyncScheduler.getInstance());
-            this.game.getServiceManager().setProvider(this, AsynchronousScheduler.class, AsyncScheduler.getInstance());
-        } catch (ProviderExistsException e) {
-            logger.error("Non-Sponge scheduler has been registered. Cannot continue!");
-            FMLCommonHandler.instance().exitJava(1, false);
-        }
-        try {
-            SerializationService serializationService = new SpongeSerializationService();
-            this.game.getServiceManager().setProvider(this, SerializationService.class, serializationService);
-        } catch (ProviderExistsException e2) {
-            logger.warn("Non-Sponge SerializationService already registered: " + e2.getLocalizedMessage());
-        }
         this.game.getCommandDispatcher().register(this, CommandSponge.getCommand(this), "sponge", "sp");
     }
 
