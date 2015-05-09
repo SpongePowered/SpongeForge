@@ -42,7 +42,7 @@ import org.spongepowered.common.guice.ConfigDirAnnotation;
 import org.spongepowered.common.world.SpongeTeleportHelper;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.SpongeModGame;
-import org.spongepowered.mod.event.SpongeEventBus;
+import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 import org.spongepowered.mod.registry.SpongeModGameRegistry;
 
@@ -61,7 +61,7 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(Game.class).to(SpongeModGame.class).in(Scopes.SINGLETON);
         bind(PluginManager.class).to(SpongePluginManager.class).in(Scopes.SINGLETON);
         bind(ServiceManager.class).to(SimpleServiceManager.class).in(Scopes.SINGLETON);
-        bind(EventManager.class).to(SpongeEventBus.class).in(Scopes.SINGLETON);
+        bind(EventManager.class).to(SpongeModEventManager.class).in(Scopes.SINGLETON);
         bind(GameRegistry.class).to(SpongeModGameRegistry.class).in(Scopes.SINGLETON);
         bind(TeleportHelper.class).to(SpongeTeleportHelper.class).in(Scopes.SINGLETON);
         bind(File.class).annotatedWith(new ConfigDirAnnotation(true)).toInstance(Loader.instance().getConfigDir());

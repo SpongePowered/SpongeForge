@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.event.SpongeEventBus;
+import org.spongepowered.mod.event.SpongeModEventManager;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.fml.common.eventhandler.EventBus.class, remap = false)
@@ -53,7 +53,7 @@ public abstract class MixinEventBus {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
         if (event instanceof org.spongepowered.api.event.Event) {
-            return ((SpongeEventBus) SpongeMod.instance.getGame().getEventManager()).post(event, listeners);
+            return ((SpongeModEventManager) SpongeMod.instance.getGame().getEventManager()).post(event, listeners);
         } else {
             listeners = event.getListenerList().getListeners(this.busID);
             int index = 0;

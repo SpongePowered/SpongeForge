@@ -51,11 +51,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.state.StateEvent;
+import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
 import org.spongepowered.common.plugin.SpongePluginContainer;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.EventRegistry;
-import org.spongepowered.mod.event.SpongeEventBus;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -109,7 +109,7 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
 
     @Subscribe
     public void registerMod(FMLPreInitializationEvent event) {
-        SpongeEventBus spongeBus = (SpongeEventBus) SpongeMod.instance.getGame().getEventManager();
+        SpongeEventManager spongeBus = (SpongeEventManager) SpongeMod.instance.getGame().getEventManager();
         spongeBus.register(this, this.pluginInstance);
     }
 
