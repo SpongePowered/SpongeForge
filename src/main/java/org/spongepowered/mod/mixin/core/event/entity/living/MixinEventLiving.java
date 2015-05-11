@@ -43,11 +43,6 @@ public abstract class MixinEventLiving extends EntityEvent implements LivingEven
     }
 
     @Override
-    public Living getLiving() {
-        return (Living) this.entityLiving;
-    }
-
-    @Override
     public Living getEntity() {
         return (Living) this.entityLiving;
     }
