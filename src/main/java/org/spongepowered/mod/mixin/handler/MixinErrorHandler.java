@@ -80,7 +80,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
                 .add()
                 .log(this.log);
             
-            FMLCommonHandler.instance().exitJava(1, false);
+            FMLCommonHandler.instance().exitJava(1, true);
         }
         
         return null;
