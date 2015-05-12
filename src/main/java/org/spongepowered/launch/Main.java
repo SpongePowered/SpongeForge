@@ -98,6 +98,7 @@ public class Main {
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dialog.setModal(true);
         dialog.setVisible(true);
+        dialog.dispose();
     }
 
     private static void printHeader() {
