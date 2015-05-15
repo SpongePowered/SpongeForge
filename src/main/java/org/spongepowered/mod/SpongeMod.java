@@ -199,7 +199,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
                 try {
                     SpongePermissionService service = new SpongePermissionService();
                     // Setup default permissions
-                    service.getGroupForOpLevel(2).getData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.commandblock", Tristate.TRUE);
+                    service.getGroupForOpLevel(2).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.commandblock", Tristate.TRUE);
                     this.game.getServiceManager().setProvider(this, PermissionService.class, service);
                 } catch (ProviderExistsException e1) {
                     // It's a fallback, ignore
