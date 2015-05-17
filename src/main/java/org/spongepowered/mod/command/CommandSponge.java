@@ -91,8 +91,8 @@ public class CommandSponge {
         flagChildren.register(getReloadCommand(), "reload"); // TODO: Should these two be subcommands of config, and what is now config be set?
         flagChildren.register(getSaveCommand(), "save");
         return CommandSpec.builder()
-                .setDescription(Texts.of("Text description"))
-                .setExtendedDescription(Texts.of("commands:\n", // TODO: Automatically generate from child executors (wait for help system on this)
+                .description(Texts.of("Text description"))
+                .extendedDescription(Texts.of("commands:\n", // TODO: Automatically generate from child executors (wait for help system on this)
                         INDENT, Texts.of(TextColors.GREEN, "chunks"), LONG_INDENT, "Prints chunk data for a specific dimension or world(s)\n",
                         INDENT, Texts.of(TextColors.GREEN, "conf"), LONG_INDENT, "Configure sponge settings\n",
                         INDENT, Texts.of(TextColors.GREEN, "heap"), LONG_INDENT, "Dump live JVM heap\n",
@@ -100,12 +100,12 @@ public class CommandSponge {
                         INDENT, Texts.of(TextColors.GREEN, "save"), LONG_INDENT, "Saves a global, dimension, or world config\n",
                         INDENT, Texts.of(TextColors.GREEN, "version"), LONG_INDENT, "Prints current Sponge version\n",
                         INDENT, Texts.of(TextColors.GREEN, "audit"), LONG_INDENT, "Audit mixin classes for implementation"))
-                .setArguments(firstParsing(nonFlagChildren, flags()
+                .arguments(firstParsing(nonFlagChildren, flags()
                         .flag("-global", "g")
                         .valueFlag(world(Texts.of("world"), mod.getGame()), "-world", "w")
                         .valueFlag(dimension(Texts.of("dimension"), mod.getGame()), "-dimension", "d")
                         .buildWith(flagChildren)))
-                .setExecutor(nonFlagChildren)
+                .executor(nonFlagChildren)
                 .build();
     }
 
@@ -167,10 +167,10 @@ public class CommandSponge {
 
     private static CommandSpec getChunksCommand(final SpongeMod mod) {
         return CommandSpec.builder()
-                .setDescription(Texts.of("Print chunk information, optionally dump"))
-                .setArguments(optional(seq(literal(Texts.of("dump"), "dump"), optional(literal(Texts.of("dump-all"), "all")))))
-                .setPermission("sponge.command.chunks")
-                .setExecutor(new ConfigUsingExecutor() {
+                .description(Texts.of("Print chunk information, optionally dump"))
+                .arguments(optional(seq(literal(Texts.of("dump"), "dump"), optional(literal(Texts.of("dump-all"), "all")))))
+                .permission("sponge.command.chunks")
+                .executor(new ConfigUsingExecutor() {
                     @Override
                     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
                         CommandResult res = super.execute(src, args);
@@ -237,10 +237,10 @@ public class CommandSponge {
 
     private static CommandSpec getConfigCommand() {
         return CommandSpec.builder()
-                .setDescription(Texts.of("Inspect the Sponge config"))
-                .setArguments(seq(string(Texts.of("key")), optional(string(Texts.of("value")))))
-                .setPermission("sponge.command.config")
-                .setExecutor(new ConfigUsingExecutor() {
+                .description(Texts.of("Inspect the Sponge config"))
+                .arguments(seq(string(Texts.of("key")), optional(string(Texts.of("value")))))
+                .permission("sponge.command.config")
+                .executor(new ConfigUsingExecutor() {
                     @Override
                     protected Text process(SpongeConfig<?> config, CommandSource source, CommandContext args) throws CommandException {
                         final Optional<String> key = args.getOne("key");
@@ -266,9 +266,9 @@ public class CommandSponge {
 
     private static CommandSpec getReloadCommand() {
         return CommandSpec.builder()
-                .setDescription(Texts.of("Reload the Sponge configuration"))
-                .setPermission("sponge.command.reload")
-                .setExecutor(new ConfigUsingExecutor() {
+                .description(Texts.of("Reload the Sponge configuration"))
+                .permission("sponge.command.reload")
+                .executor(new ConfigUsingExecutor() {
                     @Override
                     protected Text process(SpongeConfig<?> config, CommandSource source, CommandContext args) throws CommandException {
                         config.reload();
@@ -280,9 +280,9 @@ public class CommandSponge {
 
     private static CommandSpec getSaveCommand() {
         return CommandSpec.builder()
-                .setDescription(Texts.of("Save the configuration"))
-                .setPermission("sponge.command.save")
-                .setExecutor(new ConfigUsingExecutor() {
+                .description(Texts.of("Save the configuration"))
+                .permission("sponge.command.save")
+                .executor(new ConfigUsingExecutor() {
                     @Override
                     protected Text process(SpongeConfig<?> config, CommandSource source, CommandContext args) throws CommandException {
                         config.save();
@@ -296,9 +296,9 @@ public class CommandSponge {
 
     private static CommandSpec getHeapCommand() {
         return CommandSpec.builder()
-                .setDescription(Texts.of("Generate a dump of the Sponge heap"))
-                .setPermission("sponge.command.heap")
-                .setExecutor(new CommandExecutor() {
+                .description(Texts.of("Generate a dump of the Sponge heap"))
+                .permission("sponge.command.heap")
+                .executor(new CommandExecutor() {
                     @Override
                     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
                         File file = new File(new File(new File("."), "dumps"),
@@ -316,9 +316,9 @@ public class CommandSponge {
 
     private static CommandSpec getVersionCommand(final SpongeMod mod) {
         return CommandSpec.builder()
-                .setDescription(Texts.of("Display Sponge's current version"))
-                .setPermission("sponge.command.version")
-                .setExecutor(new CommandExecutor() {
+                .description(Texts.of("Display Sponge's current version"))
+                .permission("sponge.command.version")
+                .executor(new CommandExecutor() {
                     @Override
                     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
                         src.sendMessage(Texts.of("SpongeMod: ", Texts.of(TextColors.GREEN, mod.getGame().getImplementationVersion()), "\n",
@@ -331,9 +331,9 @@ public class CommandSponge {
 
     private static CommandSpec getAuditCommand() {
         return CommandSpec.builder()
-                .setDescription(Texts.of("Audit Mixin classes for implementation"))
-                .setPermission("sponge.command.audit")
-                .setExecutor(new CommandExecutor() {
+                .description(Texts.of("Audit Mixin classes for implementation"))
+                .permission("sponge.command.audit")
+                .executor(new CommandExecutor() {
                     @Override
                     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
                         MixinEnvironment.getCurrentEnvironment().audit();

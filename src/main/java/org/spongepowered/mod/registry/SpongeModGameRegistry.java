@@ -27,18 +27,6 @@ package org.spongepowered.mod.registry;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.boss.EntityDragonPart;
-import net.minecraft.entity.effect.EntityLightningBolt;
-import net.minecraft.entity.effect.EntityWeatherEffect;
-import net.minecraft.entity.item.EntityPainting;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.projectile.EntityEgg;
-import net.minecraft.entity.projectile.EntityFishHook;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.ItemFishFood;
-import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.fml.common.registry.GameData;
@@ -46,41 +34,11 @@ import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.types.Art;
-import org.spongepowered.api.data.types.Arts;
-import org.spongepowered.api.data.types.BannerPatternShape;
-import org.spongepowered.api.data.types.BannerPatternShapes;
-import org.spongepowered.api.data.types.CookedFish;
-import org.spongepowered.api.data.types.CookedFishes;
-import org.spongepowered.api.data.types.DyeColor;
-import org.spongepowered.api.data.types.DyeColors;
-import org.spongepowered.api.data.types.Fish;
-import org.spongepowered.api.data.types.Fishes;
-import org.spongepowered.api.data.types.HorseColors;
-import org.spongepowered.api.data.types.HorseStyles;
-import org.spongepowered.api.data.types.HorseVariants;
-import org.spongepowered.api.data.types.NotePitch;
-import org.spongepowered.api.data.types.NotePitches;
-import org.spongepowered.api.data.types.OcelotTypes;
-import org.spongepowered.api.data.types.RabbitTypes;
-import org.spongepowered.api.data.types.SkeletonTypes;
-import org.spongepowered.api.data.types.SkullType;
-import org.spongepowered.api.data.types.SkullTypes;
-import org.spongepowered.api.entity.EntityInteractionType;
-import org.spongepowered.api.entity.EntityInteractionTypes;
-import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.GeneratorType;
 import org.spongepowered.api.world.GeneratorTypes;
-import org.spongepowered.common.data.types.SpongeCookedFish;
-import org.spongepowered.common.data.types.SpongeNotePitch;
-import org.spongepowered.common.data.types.SpongeSkullType;
-import org.spongepowered.common.entity.SpongeEntityConstants;
-import org.spongepowered.common.entity.SpongeEntityInteractionType;
-import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.mod.world.SpongeWorldTypeEnd;
@@ -88,7 +46,6 @@ import org.spongepowered.mod.world.SpongeWorldTypeNether;
 import org.spongepowered.mod.world.SpongeWorldTypeOverworld;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -100,8 +57,8 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
     private final List<ItemType> itemList = new ArrayList<ItemType>();
 
     {
-        catalogTypeMap = ImmutableMap.<Class<? extends CatalogType>, Map<String, ? extends CatalogType>>builder()
-                .putAll(catalogTypeMap)
+        this.catalogTypeMap = ImmutableMap.<Class<? extends CatalogType>, Map<String, ? extends CatalogType>>builder()
+                .putAll(this.catalogTypeMap)
                 .put(GeneratorType.class, this.generatorTypeMappings)
                 .build();
     }
@@ -116,9 +73,8 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
 
 
     private void setBlockTypes() {
-        Iterator<ResourceLocation> iter = GameData.getBlockRegistry().getKeys().iterator();
-        while (iter.hasNext()) {
-            this.blockList.add(getBlock(iter.next().toString()).get());
+        for (ResourceLocation resourceLocation : (Iterable<ResourceLocation>) GameData.getBlockRegistry().getKeys()) {
+            this.blockList.add(getBlock(resourceLocation.toString()).get());
         }
 
         RegistryHelper.mapFields(BlockTypes.class, new Function<String, BlockType>() {
@@ -131,9 +87,8 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
     }
 
     private void setItemTypes() {
-        Iterator<ResourceLocation> iter = GameData.getItemRegistry().getKeys().iterator();
-        while (iter.hasNext()) {
-            this.itemList.add(getItem(iter.next().toString()).get());
+        for (ResourceLocation resourceLocation : (Iterable<ResourceLocation>) GameData.getItemRegistry().getKeys()) {
+            this.itemList.add(getItem(resourceLocation.toString()).get());
         }
 
         RegistryHelper.mapFields(ItemTypes.class, new Function<String, ItemType>() {

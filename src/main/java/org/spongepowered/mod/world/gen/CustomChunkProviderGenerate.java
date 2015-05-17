@@ -41,7 +41,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GeneratorPopulator;
-import org.spongepowered.common.util.gen.ByteArrayMutableBiomeArea;
+import org.spongepowered.common.util.gen.ByteArrayMutableBiomeBuffer;
 import org.spongepowered.common.util.gen.ChunkPrimerBuffer;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public final class CustomChunkProviderGenerate implements IChunkProvider {
     final GeneratorPopulator generatorPopulator;
     final BiomeGenerator biomeGenerator;
     private final World world;
-    private final ByteArrayMutableBiomeArea cachedBiomes;
+    private final ByteArrayMutableBiomeBuffer cachedBiomes;
 
     /**
      * Gets the chunk generator from the given generator populator and biome
@@ -86,7 +86,7 @@ public final class CustomChunkProviderGenerate implements IChunkProvider {
         this.biomeGenerator = Preconditions.checkNotNull(biomeGenerator);
 
         // Make initially empty biome cache
-        this.cachedBiomes = new ByteArrayMutableBiomeArea(Vector2i.ZERO, CHUNK_AREA);
+        this.cachedBiomes = new ByteArrayMutableBiomeBuffer(Vector2i.ZERO, CHUNK_AREA);
         this.cachedBiomes.detach();
     }
 

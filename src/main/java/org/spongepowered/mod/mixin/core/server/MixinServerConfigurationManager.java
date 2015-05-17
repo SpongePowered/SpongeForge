@@ -68,7 +68,7 @@ import net.minecraftforge.fml.common.network.FMLOutboundHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.data.manipulators.entities.RespawnLocationData;
+import org.spongepowered.api.data.manipulator.entity.RespawnLocationData;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
@@ -83,7 +83,6 @@ import org.spongepowered.common.interfaces.IMixinServerConfigurationManager;
 import org.spongepowered.common.world.SpongeDimensionType;
 import org.spongepowered.common.world.border.PlayerBorderListener;
 
-import java.util.Iterator;
 import java.util.List;
 
 @NonnullByDefault
@@ -156,7 +155,7 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
         WorldServer worldserver = this.mcServer.worldServerForDimension(playerIn.dimension);
         WorldInfo worldinfo = worldserver.getWorldInfo();
         BlockPos blockpos = worldserver.getSpawnPoint();
-        this.setPlayerGameTypeBasedOnOther(playerIn, (EntityPlayerMP) null, worldserver);
+        this.setPlayerGameTypeBasedOnOther(playerIn, null, worldserver);
         playerIn.playerNetServerHandler = nethandlerplayserver;
         // Support vanilla clients logging into custom dimensions
         int dimension = worldserver.provider.getDimensionId();
@@ -194,9 +193,9 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
         ChatComponentTranslation chatcomponenttranslation;
 
         if (!playerIn.getCommandSenderName().equalsIgnoreCase(s)) {
-            chatcomponenttranslation = new ChatComponentTranslation("multiplayer.player.joined.renamed", new Object[] {playerIn.getDisplayName(), s});
+            chatcomponenttranslation = new ChatComponentTranslation("multiplayer.player.joined.renamed", playerIn.getDisplayName(), s);
         } else {
-            chatcomponenttranslation = new ChatComponentTranslation("multiplayer.player.joined", new Object[] {playerIn.getDisplayName()});
+            chatcomponenttranslation = new ChatComponentTranslation("multiplayer.player.joined", playerIn.getDisplayName());
         }
 
         chatcomponenttranslation.getChatStyle().setColor(EnumChatFormatting.YELLOW);
@@ -209,10 +208,8 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
             playerIn.loadResourcePack(this.mcServer.getResourcePackUrl(), this.mcServer.getResourcePackHash());
         }
 
-        Iterator iterator = playerIn.getActivePotionEffects().iterator();
-
-        while (iterator.hasNext()) {
-            PotionEffect potioneffect = (PotionEffect) iterator.next();
+        for (Object o : playerIn.getActivePotionEffects()) {
+            PotionEffect potioneffect = (PotionEffect) o;
             nethandlerplayserver.sendPacket(new S1DPacketEntityEffect(playerIn.getEntityId(), potioneffect));
         }
 
@@ -251,7 +248,7 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
             if (((Player) playerIn).getData(RespawnLocationData.class).isPresent()) {
                 exit = Optional.of(((Player) playerIn).getData(RespawnLocationData.class).get().getRespawnLocation());
             }
-            if (!exit.isPresent() || ((net.minecraft.world.World) ((World) exit.get().getExtent())).provider.getDimensionId() != 0) {
+            if (!exit.isPresent() || ((net.minecraft.world.World) exit.get().getExtent()).provider.getDimensionId() != 0) {
                 Vector3i pos = ((World) exitWorld).getProperties().getSpawnPosition();
                 exit = Optional.of(new Location((World) exitWorld, new Vector3d(pos.getX(), pos.getY(), pos.getZ())));
             }
@@ -268,13 +265,12 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
         BlockPos bedSpawnChunkCoords = playerIn.getBedLocation(targetDimension);
         boolean spawnForced = playerIn.isSpawnForced(targetDimension);
         playerIn.dimension = targetDimension;
-        EntityPlayerMP entityplayermp1 = playerIn;
         // make sure to update reference for bed spawn logic
-        entityplayermp1.setWorld(this.mcServer.worldServerForDimension(playerIn.dimension));
-        entityplayermp1.playerConqueredTheEnd = false;
+        playerIn.setWorld(this.mcServer.worldServerForDimension(playerIn.dimension));
+        playerIn.playerConqueredTheEnd = false;
         BlockPos bedSpawnLocation;
         boolean isBedSpawn = false;
-        World toWorld = ((World) entityplayermp1.worldObj);
+        World toWorld = ((World) playerIn.worldObj);
         Location location = null;
 
         if (bedSpawnChunkCoords != null) { // if player has a bed
@@ -283,14 +279,14 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
 
             if (bedSpawnLocation != null) {
                 isBedSpawn = true;
-                entityplayermp1.setLocationAndAngles(bedSpawnLocation.getX() + 0.5F,
+                playerIn.setLocationAndAngles(bedSpawnLocation.getX() + 0.5F,
                         bedSpawnLocation.getY() + 0.1F, bedSpawnLocation.getZ() + 0.5F, 0.0F, 0.0F);
-                entityplayermp1.setSpawnPoint(bedSpawnChunkCoords, spawnForced);
+                playerIn.setSpawnPoint(bedSpawnChunkCoords, spawnForced);
                 location =
                         new Location(toWorld, new Vector3d(bedSpawnChunkCoords.getX() + 0.5, bedSpawnChunkCoords.getY(),
                                 bedSpawnChunkCoords.getZ() + 0.5));
             } else { // bed was not found (broken)
-                entityplayermp1.playerNetServerHandler.sendPacket(new S2BPacketChangeGameState(0, 0));
+                playerIn.playerNetServerHandler.sendPacket(new S2BPacketChangeGameState(0, 0));
                 // use the spawnpoint as location
                 location =
                         new Location(toWorld, new Vector3d(toWorld.getProperties().getSpawnPosition().getX(), toWorld.getProperties()
@@ -311,11 +307,11 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
         }
 
         WorldServer targetWorld = (WorldServer) location.getExtent();
-        entityplayermp1.setPositionAndRotation(location.getX(), location.getY(), location.getZ(), 0, 0);//, location.getYaw(), location.getPitch());
-        targetWorld.theChunkProviderServer.loadChunk((int) entityplayermp1.posX >> 4, (int) entityplayermp1.posZ >> 4);
+        playerIn.setPositionAndRotation(location.getX(), location.getY(), location.getZ(), 0, 0);//, location.getYaw(), location.getPitch());
+        targetWorld.theChunkProviderServer.loadChunk((int) playerIn.posX >> 4, (int) playerIn.posZ >> 4);
 
-        while (!targetWorld.getCollidingBoundingBoxes(entityplayermp1, entityplayermp1.getEntityBoundingBox()).isEmpty()) {
-            entityplayermp1.setPosition(entityplayermp1.posX, entityplayermp1.posY + 1.0D, entityplayermp1.posZ);
+        while (!targetWorld.getCollidingBoundingBoxes(playerIn, playerIn.getEntityBoundingBox()).isEmpty()) {
+            playerIn.setPosition(playerIn.posX, playerIn.posY + 1.0D, playerIn.posZ);
         }
 
         // Phase 5 - Respawn player in new world
@@ -323,11 +319,11 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
         // inform client of custom dimensions
         FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
         serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
-        serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(entityplayermp1);
+        serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(playerIn);
         serverChannel.writeOutbound(new ForgeMessage.DimensionRegisterMessage(actualDimension,
                 ((SpongeDimensionType) ((Dimension) targetWorld.provider).getType()).getDimensionTypeId()));
 
-        boolean fmlClient = entityplayermp1.playerNetServerHandler.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
+        boolean fmlClient = playerIn.playerNetServerHandler.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
         // Support vanilla clients teleporting to custom dimensions
         if (!fmlClient) {
             if (toWorld.getDimension().getType().equals(DimensionTypes.NETHER)) {
@@ -339,28 +335,28 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
             }
         }
 
-        entityplayermp1.playerNetServerHandler.sendPacket(new S07PacketRespawn(actualDimension, targetWorld.getDifficulty(), targetWorld
-                .getWorldInfo().getTerrainType(), entityplayermp1.theItemInWorldManager.getGameType()));
-        entityplayermp1.setWorld(targetWorld); // in case plugin changed it
-        entityplayermp1.isDead = false;
+        playerIn.playerNetServerHandler.sendPacket(new S07PacketRespawn(actualDimension, targetWorld.getDifficulty(), targetWorld
+                .getWorldInfo().getTerrainType(), playerIn.theItemInWorldManager.getGameType()));
+        playerIn.setWorld(targetWorld); // in case plugin changed it
+        playerIn.isDead = false;
         BlockPos blockpos1 = targetWorld.getSpawnPoint();
-        entityplayermp1.playerNetServerHandler.setPlayerLocation(entityplayermp1.posX, entityplayermp1.posY, entityplayermp1.posZ,
-                entityplayermp1.rotationYaw, entityplayermp1.rotationPitch);
-        entityplayermp1.setSneaking(false);
+        playerIn.playerNetServerHandler.setPlayerLocation(playerIn.posX, playerIn.posY, playerIn.posZ,
+                playerIn.rotationYaw, playerIn.rotationPitch);
+        playerIn.setSneaking(false);
         BlockPos spawnLocation = targetWorld.getSpawnPoint();
-        entityplayermp1.playerNetServerHandler.sendPacket(new S05PacketSpawnPosition(spawnLocation));
-        entityplayermp1.playerNetServerHandler.sendPacket(new S1FPacketSetExperience(entityplayermp1.experience, entityplayermp1.experienceTotal,
-                entityplayermp1.experienceLevel));
-        this.updateTimeAndWeatherForPlayer(entityplayermp1, targetWorld);
-        targetWorld.getPlayerManager().addPlayer(entityplayermp1);
-        targetWorld.spawnEntityInWorld(entityplayermp1);
-        this.playerEntityList.add(entityplayermp1);
-        entityplayermp1.addSelfToInternalCraftingInventory();
-        entityplayermp1.setHealth(entityplayermp1.getHealth());
+        playerIn.playerNetServerHandler.sendPacket(new S05PacketSpawnPosition(spawnLocation));
+        playerIn.playerNetServerHandler.sendPacket(new S1FPacketSetExperience(playerIn.experience, playerIn.experienceTotal,
+                playerIn.experienceLevel));
+        this.updateTimeAndWeatherForPlayer(playerIn, targetWorld);
+        targetWorld.getPlayerManager().addPlayer(playerIn);
+        targetWorld.spawnEntityInWorld(playerIn);
+        this.playerEntityList.add(playerIn);
+        playerIn.addSelfToInternalCraftingInventory();
+        playerIn.setHealth(playerIn.getHealth());
 
-        FMLCommonHandler.instance().firePlayerRespawnEvent(entityplayermp1);
+        FMLCommonHandler.instance().firePlayerRespawnEvent(playerIn);
 
-        return entityplayermp1;
+        return playerIn;
     }
 
     @Overwrite
