@@ -86,6 +86,7 @@ import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.registry.SpongeModGameRegistry;
+import scala.tools.nsc.backend.icode.Primitives;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -199,6 +200,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
                 try {
                     SpongePermissionService service = new SpongePermissionService();
                     // Setup default permissions
+                    service.getGroupForOpLevel(1).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.selector", Tristate.TRUE);
                     service.getGroupForOpLevel(2).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.commandblock", Tristate.TRUE);
                     this.game.getServiceManager().setProvider(this, PermissionService.class, service);
                 } catch (ProviderExistsException e1) {
