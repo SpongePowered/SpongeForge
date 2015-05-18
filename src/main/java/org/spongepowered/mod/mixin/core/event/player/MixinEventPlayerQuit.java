@@ -36,11 +36,16 @@ public abstract class MixinEventPlayerQuit implements PlayerQuitEvent {
 
     // TODO: This event actually fires after messages are displayed.
     @Override
-    public Text getQuitMessage() {
+    public Text getMessage() {
         return null;
     }
 
     @Override
-    public void setQuitMessage(Text joinMessage) {
+    public Text getNewMessage() {
+        return null;
+    }
+
+    @Override
+    public void setNewMessage(Text joinMessage) {
     }
 }

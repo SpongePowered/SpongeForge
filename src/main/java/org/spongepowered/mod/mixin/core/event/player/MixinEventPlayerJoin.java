@@ -36,11 +36,16 @@ public abstract class MixinEventPlayerJoin implements PlayerJoinEvent {
 
     // TODO: This event actually fires after messages are displayed.
     @Override
-    public Text getJoinMessage() {
+    public Text getMessage() {
         return null;
     }
 
     @Override
-    public void setJoinMessage(Text joinMessage) {
+    public Text getNewMessage() {
+        return null;
+    }
+
+    @Override
+    public void setNewMessage(Text joinMessage) {
     }
 }

@@ -28,14 +28,15 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.text.SpongeTexts;
 
 @NonnullByDefault
@@ -54,25 +55,35 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
     @Shadow
     public ChatComponentTranslation component;
 
-    private Text spongeText;
+    private Text spongeText, spongeNewText;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onConstructed(EntityPlayerMP player, String message, ChatComponentTranslation component, CallbackInfo ci) {
+        this.spongeText = SpongeTexts.toText(component);
+    }
 
     @Override
-    public CommandSource getSource() {
-        return (CommandSource) this.player;
+    public Player getSource() {
+        return (Player) this.player;
     }
 
     @Override
     public Text getMessage() {
-        if (this.spongeText == null) {
-            this.spongeText = SpongeTexts.toText(this.component);
-        }
         return this.spongeText;
     }
 
+    @Override
+    public Text getNewMessage() {
+        if (this.spongeNewText == null) {
+            this.spongeNewText = SpongeTexts.toText(this.component);
+        }
+        return this.spongeNewText;
+    }
+
     @Override // TODO: Better integration with forge mods?
-    public void setMessage(Text text) {
-        this.spongeText = text;
-        IChatComponent component = SpongeTexts.toComponent(text, ((Player) player).getLocale());
+    public void setNewMessage(Text text) {
+        this.spongeNewText = text;
+        final IChatComponent component = SpongeTexts.toComponent(text, ((Player) this.player).getLocale());
         if (component instanceof ChatComponentTranslation) {
             this.component = ((ChatComponentTranslation) component);
         } else {
