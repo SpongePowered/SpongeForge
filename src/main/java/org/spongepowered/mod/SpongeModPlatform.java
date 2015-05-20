@@ -22,33 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.spongepowered.mod;
 
-import org.spongepowered.api.GameRegistry;
-import org.spongepowered.api.Platform;
-import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.api.service.ServiceManager;
-import org.spongepowered.api.service.event.EventManager;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.TeleportHelper;
-import org.spongepowered.common.SpongeGame;
+import net.minecraftforge.common.ForgeVersion;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.spongepowered.api.MinecraftVersion;
+import org.spongepowered.common.AbstractPlatform;
 
-import javax.inject.Inject;
+import java.util.Map;
 
-@NonnullByDefault
-public final class SpongeModGame extends SpongeGame {
+public class SpongeModPlatform extends AbstractPlatform {
 
-    private final Platform platform = new SpongeModPlatform(SpongeGame.MINECRAFT_VERSION,
-            SpongeGame.API_VERSION, SpongeGame.IMPLEMENTATION_VERSION);
-
-    @Inject
-    public SpongeModGame(PluginManager pluginManager, EventManager eventManager, GameRegistry gameRegistry,
-            ServiceManager serviceManager, TeleportHelper teleportHelper) {
-        super(pluginManager, eventManager, gameRegistry, serviceManager, teleportHelper);
+    public SpongeModPlatform(MinecraftVersion minecraftVersion, String apiVersion, String version) {
+        super(minecraftVersion, apiVersion, version);
     }
 
     @Override
-    public Platform getPlatform() {
-        return this.platform;
+    public Type getType() {
+        switch (FMLCommonHandler.instance().getEffectiveSide()) {
+            case CLIENT:
+                return Type.CLIENT;
+            case SERVER:
+                return Type.SERVER;
+            default:
+                return Type.UNKNOWN;
+        }
     }
+
+    @Override
+    public Map<String, Object> asMap() {
+        Map<String, Object> map = super.asMap();
+        map.put("ForgeVersion", ForgeVersion.getVersion());
+        return map;
+    }
+
 }

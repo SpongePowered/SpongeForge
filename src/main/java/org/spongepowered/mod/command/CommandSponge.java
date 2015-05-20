@@ -321,8 +321,8 @@ public class CommandSponge {
                 .executor(new CommandExecutor() {
                     @Override
                     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-                        src.sendMessage(Texts.of("SpongeMod: ", Texts.of(TextColors.GREEN, mod.getGame().getImplementationVersion()), "\n",
-                                "SpongeAPI: ", Texts.of(TextColors.GREEN, mod.getGame().getApiVersion())));
+                        src.sendMessage(Texts.of("SpongeMod: ", Texts.of(TextColors.GREEN, mod.getGame().getPlatform().getVersion()), "\n",
+                                "SpongeAPI: ", Texts.of(TextColors.GREEN, mod.getGame().getPlatform().getApiVersion())));
                         return CommandResult.builder().successCount(1).build();
                     }
                 })
