@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
@@ -47,5 +48,15 @@ public abstract class MixinEventPlayerJoin implements PlayerJoinEvent {
 
     @Override
     public void setNewMessage(Text joinMessage) {
+    }
+
+    @Override
+    public MessageSink getSink() {
+        return null;
+    }
+
+    @Override
+    public void setSink(MessageSink sink) {
+
     }
 }

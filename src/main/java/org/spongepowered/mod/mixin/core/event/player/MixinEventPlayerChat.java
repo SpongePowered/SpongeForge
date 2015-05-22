@@ -32,12 +32,15 @@ import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.text.SpongeTexts;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
@@ -55,7 +58,13 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
     @Shadow
     public ChatComponentTranslation component;
 
-    private Text spongeText, spongeNewText;
+    private Text spongeText;
+
+    @Nullable
+    private Text spongeNewText;
+
+    @Nullable
+    private MessageSink sink;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayerMP player, String message, ChatComponentTranslation component, CallbackInfo ci) {
@@ -99,5 +108,18 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
     @Override
     public Player getUser() {
         return (Player) this.player;
+    }
+
+    @Override
+    public MessageSink getSink() {
+        if (this.sink == null) {
+            this.sink = getEntity().getMessageSink();
+        }
+        return this.sink;
+    }
+
+    @Override
+    public void setSink(MessageSink sink) {
+        this.sink = sink;
     }
 }
