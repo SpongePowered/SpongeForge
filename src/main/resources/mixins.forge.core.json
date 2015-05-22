@@ -46,6 +46,7 @@
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",
         "item.MixinEnchantment",
+        "network.MixinNetHandlerPlayServer",
         "server.MixinMinecraftServer",
         "server.MixinServerCommandManager",
         "server.MixinServerConfigurationManager",
