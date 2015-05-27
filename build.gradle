@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.*
+
 buildscript {
     repositories {
         mavenCentral()
@@ -47,8 +49,19 @@ jar {
                 'TargetForgeVersion': "${forgeVersion}",
                 'FMLCorePlugin': 'org.spongepowered.mod.SpongeCoremod',
                 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder': '10000'
+                'TweakOrder': '0'
         )
+    }
+}
+
+processResources {
+    from('src/main/resources') {
+        include 'mcmod.info'
+        filter(ReplaceTokens, tokens: [
+            'VERSION' : project.version.toString(),
+            'URL': project.url.toString(),
+            'MCVERSION': minecraft.version.toString()
+        ])
     }
 }
 

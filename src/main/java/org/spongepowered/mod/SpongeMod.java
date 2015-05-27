@@ -25,6 +25,7 @@
 package org.spongepowered.mod;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
@@ -37,6 +38,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.MetadataCollection;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -90,7 +92,9 @@ import java.util.UUID;
 
 public class SpongeMod extends DummyModContainer implements PluginContainer {
 
-    private static final Logger logger = LogManager.getLogger("Sponge");
+    public static final String MODID = "Sponge";
+    
+    private static final Logger logger = LogManager.getLogger(SpongeMod.MODID);
     public static SpongeMod instance;
     private final Game game;
     private LoadController controller;
@@ -99,12 +103,10 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
     public SpongeMod() {
-        super(new ModMetadata());
+        super(SpongeMod.createMetadata(ImmutableMap.<String, Object>of("name", SpongeMod.MODID, "version", "DEV")));
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
 
-        this.getMetadata().name = "Sponge";
-        this.getMetadata().modId = "Sponge";
         SpongeMod.instance = this;
 
         // Initialize Sponge
@@ -139,7 +141,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     }
 
     public Logger getLogger() {
-        return logger;
+        return SpongeMod.logger;
     }
 
     public File getConfigDir() {
@@ -292,11 +294,11 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
                     int dimensionId = spongeData.getInteger("dimensionId");
                     if (!(dimensionId == -1) && !(dimensionId == 0) && !(dimensionId == 1)) {
                         if (!enabled) {
-                            getLogger().info("World " + child.getName() + " is currently disabled. Skipping world load...");
+                            getLogger().info("World {} is currently disabled. Skipping world load...", child.getName());
                             continue;
                         }
                         if (!loadOnStartup) {
-                            getLogger().info("World " + child.getName() + " 'loadOnStartup' is disabled.. Skipping world load...");
+                            getLogger().info("World {} 'loadOnStartup' is disabled.. Skipping world load...", child.getName());
                             continue;
                         }
                     } else if (dimensionId == -1) {
@@ -321,12 +323,21 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
                             }
                         }
                     } else {
-                        logger.info("World " + child.getName() + " is disabled! Skipping world registration...");
+                        getLogger().info("World {} is disabled! Skipping world registration...", child.getName());
                     }
                 }
             } catch (Throwable t) {
-                logger.error("Error during world registration.", t);
+                getLogger().error("Error during world registration.", t);
             }
         }
     }
+
+    private static ModMetadata createMetadata(Map<String, Object> defaults) {
+        try {
+            return MetadataCollection.from(SpongeMod.class.getResourceAsStream("/mcmod.info"), SpongeMod.MODID).getMetadataForId(SpongeMod.MODID, defaults);
+        } catch (Exception ex) {
+            return new ModMetadata();
+        }
+    }
+
 }
