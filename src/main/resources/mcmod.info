@@ -1,0 +1,17 @@
+[
+    {
+        "modid": "Sponge",
+        "name": "SpongePowered Sponge",
+        "description": "The Sponge API Subsystem",
+        "version": "@VERSION@",
+        "credits": "Copyright (C) SpongePowered and contributors",
+        "logoFile": "/org/spongepowered/launch/gui/temp_logo.png",
+        "mcversion": "@MCVERSION@",
+        "url": "@URL@",
+        "updateUrl": "",
+        "authors": [ "SpongePowered" ],
+        "parent":"",
+        "screenshots": [],
+        "dependencies": []
+    }
+]
