@@ -22,30 +22,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.entity.living.Living;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.entity.player.PlayerEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
 
-@NonnullByDefault
-@Mixin(value = net.minecraftforge.fml.common.gameevent.PlayerEvent.class, remap = false)
-public abstract class MixinEventPlayerFML extends Event implements PlayerEvent {
-
-    @Shadow
-    public EntityPlayer player;
-
-    @Override
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
-    }
+@Mixin(value = PlayerEvent.class, remap = false)
+public abstract class MixinPlayerEvent extends Event implements org.spongepowered.api.event.entity.player.PlayerEvent {
+    @Shadow public EntityPlayer player;
 
     @Override
     public Player getEntity() {

@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod;
 
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.plugin.PluginManager;
@@ -32,6 +33,8 @@ import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeGame;
+
+import java.io.File;
 
 import javax.inject.Inject;
 
@@ -45,6 +48,11 @@ public final class SpongeModGame extends SpongeGame {
     public SpongeModGame(PluginManager pluginManager, EventManager eventManager, GameRegistry gameRegistry,
             ServiceManager serviceManager, TeleportHelper teleportHelper) {
         super(pluginManager, eventManager, gameRegistry, serviceManager, teleportHelper);
+    }
+
+    @Override
+    public File getSavesDirectory() {
+        return FMLCommonHandler.instance().getSavesDirectory();
     }
 
     @Override

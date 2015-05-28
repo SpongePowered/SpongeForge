@@ -22,34 +22,67 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.entity.player.PlayerEvent;
+import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.entity.player.PlayerEvent.class, remap = false)
-public abstract class MixinEventPlayer extends LivingEvent implements PlayerEvent {
+@Mixin(value = PlayerEvent.PlayerLoggedInEvent.class, remap = false)
+public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implements PlayerJoinEvent {
 
-    @Shadow public EntityPlayer entityPlayer;
+    private Text message;
+    private Text originalMessage;
+    private Location location;
+    private MessageSink sink;
 
-    public MixinEventPlayer(EntityLivingBase entity) {
-        super(entity);
+    @Override
+    public Text getMessage() {
+        return this.originalMessage;
     }
 
     @Override
-    public Player getEntity() {
-        return (Player) this.entityPlayer;
+    public Text getNewMessage() {
+        return this.message;
     }
 
     @Override
-    public Player getUser() {
-        return (Player) this.entityPlayer;
+    public void setNewMessage(Text joinMessage) {
+        if (this.originalMessage == null) {
+            // setNewMessage is always called before event fired
+            this.originalMessage = joinMessage;
+        }
+        this.message = joinMessage;
+    }
+
+    @Override
+    public Player getSource() {
+        return (Player) this.player;
+    }
+
+    @Override
+    public MessageSink getSink() {
+        return this.sink;
+    }
+
+    @Override
+    public void setSink(MessageSink sink) {
+        this.sink = sink;
+    }
+
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
     }
 }

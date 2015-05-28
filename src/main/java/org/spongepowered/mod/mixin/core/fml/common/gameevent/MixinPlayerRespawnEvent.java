@@ -22,20 +22,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.world;
+package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
-import net.minecraft.world.World;
-import net.minecraft.world.WorldType;
-import net.minecraft.world.gen.ChunkProviderHell;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import org.spongepowered.api.event.entity.player.PlayerRespawnEvent;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
 
-public class SpongeWorldTypeNether extends WorldType {
+@Mixin(PlayerEvent.PlayerRespawnEvent.class)
+public abstract class MixinPlayerRespawnEvent extends MixinPlayerEvent implements PlayerRespawnEvent, IMixinPlayerRespawnEvent {
+    private Location originalLocation;
+    private Location newLocation;
+    private boolean isBedSpawn;
 
-    public SpongeWorldTypeNether() {
-        super("NETHER");
+    @Override
+    public void setIsBedSpawn(boolean isBedSpawn) {
+        this.isBedSpawn = isBedSpawn;
     }
 
     @Override
-    public net.minecraft.world.chunk.IChunkProvider getChunkGenerator(World world, String generatorOptions) {
-        return new ChunkProviderHell(world, world.getWorldInfo().isMapFeaturesEnabled(), world.getSeed());
+    public Location getRespawnLocation() {
+        return this.originalLocation;
+    }
+
+    @Override
+    public Location getNewRespawnLocation() {
+        return this.newLocation;
+    }
+
+    @Override
+    public boolean isBedSpawn() {
+        return this.isBedSpawn;
+    }
+
+    @Override
+    public void setNewRespawnLocation(Location respawnLocation) {
+        if (this.originalLocation == null) {
+            this.originalLocation = respawnLocation;
+        }
+        this.newLocation = respawnLocation;
     }
 }

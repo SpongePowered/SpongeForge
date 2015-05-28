@@ -24,66 +24,24 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
-import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
-import net.minecraft.world.WorldType;
-import net.minecraftforge.common.DimensionManager;
-import org.spongepowered.api.service.permission.context.Context;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
-import org.spongepowered.api.world.GeneratorType;
-import org.spongepowered.api.world.GeneratorTypes;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.configuration.SpongeConfig;
-import org.spongepowered.common.interfaces.IMixinWorldProvider;
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.registry.SpongeModGameRegistry;
 
-import java.io.File;
+@Mixin(value = WorldProvider.class, remap = false)
+@Implements(@Interface(iface = Dimension.class, prefix = "dimension$"))
+public abstract class MixinWorldProvider {
+    @Shadow public abstract int getHeight();
+    @Shadow public abstract int getActualHeight();
 
-@NonnullByDefault
-@Mixin(WorldProvider.class)
-public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvider {
-
-    private boolean allowPlayerRespawns;
-    private SpongeConfig<SpongeConfig.DimensionConfig> dimensionConfig;
-    private volatile Context dimContext;
-
-    @Shadow protected World worldObj;
-    @Shadow protected int dimensionId;
-    @Shadow protected boolean isHellWorld;
-    @Shadow public WorldType terrainType;
-    @Shadow protected boolean hasNoSky;
-    @Shadow public abstract String getDimensionName();
-    @Shadow public abstract boolean canRespawnHere();
-
-    @Overwrite
-    public static WorldProvider getProviderForDimension(int dimension) {
-        WorldProvider provider = net.minecraftforge.common.DimensionManager.createProviderFor(dimension);
-        if (((IMixinWorldProvider) provider).getDimensionConfig() == null) {
-            SpongeConfig<SpongeConfig.DimensionConfig> dimConfig = SpongeModGameRegistry.dimensionConfigs.get(provider.getClass());
-            if (dimConfig == null) {
-                String providerName = provider.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "");
-                dimConfig = new SpongeConfig<SpongeConfig.DimensionConfig>(SpongeConfig.Type.DIMENSION, new File(SpongeMod.instance.getConfigDir()
-                        + File.separator + providerName + File.separator, "dimension.conf"), "sponge");
-                SpongeModGameRegistry.dimensionConfigs.put(provider.getClass(), dimConfig);
-            }
-            ((IMixinWorldProvider) provider).setDimensionConfig(SpongeModGameRegistry.dimensionConfigs.get(provider.getClass()));
-        }
-
-        Dimension dim = (Dimension) provider;
-        dim.setAllowsPlayerRespawns(DimensionManager.shouldLoadSpawn(dimension));
-        return provider;
+    public int dimension$getHeight() {
+        return getActualHeight();
     }
 
-    @Override
-    public int getAverageGroundLevel() {
-        if (((GeneratorType) this.terrainType).equals(GeneratorTypes.END)) {
-            return 50;
-        } else {
-            return this.terrainType.getMinimumSpawnHeight(this.worldObj);
-        }
+    public int getBuildHeight() {
+        return getHeight();
     }
 }

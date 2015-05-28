@@ -40,6 +40,18 @@ public class SpongeModPlatform extends AbstractPlatform {
 
     @Override
     public Type getType() {
+        switch (FMLCommonHandler.instance().getSide()) {
+            case CLIENT:
+                return Type.CLIENT;
+            case SERVER:
+                return Type.SERVER;
+            default:
+                return Type.UNKNOWN;
+        }
+    }
+
+    @Override
+    public Type getExecutionType() {
         switch (FMLCommonHandler.instance().getEffectiveSide()) {
             case CLIENT:
                 return Type.CLIENT;

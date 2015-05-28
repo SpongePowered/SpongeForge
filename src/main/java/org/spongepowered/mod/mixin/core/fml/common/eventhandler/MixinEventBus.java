@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event;
+package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
 import com.google.common.base.Throwables;
 import net.minecraftforge.fml.common.eventhandler.Event;

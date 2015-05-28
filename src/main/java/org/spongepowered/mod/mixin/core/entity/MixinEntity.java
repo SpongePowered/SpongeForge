@@ -30,35 +30,42 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.S07PacketRespawn;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.network.ForgeMessage;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
-import net.minecraftforge.fml.common.network.FMLOutboundHandler;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.Dimension;
-import org.spongepowered.api.world.DimensionTypes;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.IMixinEntity;
-import org.spongepowered.common.world.SpongeDimensionType;
+import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
+import org.spongepowered.common.world.DimensionManager;
 
 
 @NonnullByDefault
-@Mixin(net.minecraft.entity.Entity.class)
-public abstract class MixinEntity implements Entity, IMixinEntity {
+@Mixin(value = net.minecraft.entity.Entity.class, priority = 1001, remap = false)
+@Implements(@Interface(iface = IMixinEntity.class, prefix = "entity$"))
+public abstract class MixinEntity {
 
     // @formatter:off
     @Shadow(remap = false)
     public abstract NBTTagCompound getEntityData();
-
     // @formatter:on
 
-    // for sponge internal use only
-    @Override
+    @Intrinsic
+    public NBTTagCompound entity$getEntityData() {
+        return this.getEntityData();
+    }
+
+    public final NBTTagCompound getSpongeData() {
+        final NBTTagCompound data = this.getEntityData();
+        if (!data.hasKey("SpongeData", Constants.NBT.TAG_COMPOUND)) {
+            data.setTag("SpongeData", new NBTTagCompound());
+        }
+        return data.getCompoundTag("SpongeData");
+    }
+
     @SuppressWarnings("unchecked")
     public boolean teleportEntity(net.minecraft.entity.Entity entity, Location location, int currentDim, int targetDim, boolean forced) {
         MinecraftServer mcServer = MinecraftServer.getServer();
@@ -85,26 +92,22 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
         if (entity instanceof EntityPlayer) {
             EntityPlayerMP entityplayermp1 = (EntityPlayerMP) entity;
-            boolean fmlClient = entityplayermp1.playerNetServerHandler.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
-            // Support vanilla clients teleporting to custom dimensions
-            if (!fmlClient) {
-                if (((Dimension) toWorld.provider).getType().equals(DimensionTypes.NETHER)) {
-                    targetDim = -1;
-                } else if (((Dimension) toWorld.provider).getType().equals(DimensionTypes.END)) {
-                    targetDim = 1;
-                } else {
-                    targetDim = 0;
+
+            // Support vanilla clients going into custom dimensions
+            int clientDimension = DimensionManager.getClientDimensionToSend(toWorld.provider.getDimensionId(), toWorld, entityplayermp1);
+            if (((IMixinEntityPlayerMP) entityplayermp1).usesCustomClient()) {
+                DimensionManager.sendDimensionRegistration(toWorld, entityplayermp1, clientDimension);
+            } else {
+                // Send bogus dimension change for same worlds on Vanilla client
+                if (currentDim != targetDim && (currentDim == clientDimension || targetDim == clientDimension)) {
+                    entityplayermp1.playerNetServerHandler.sendPacket(
+                            new S07PacketRespawn(((clientDimension + 2) % 3) - 1, toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
+                                    entityplayermp1.theItemInWorldManager.getGameType()));
                 }
-            } else { // send DimensionRegister message
-                FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
-                serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
-                serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(entityplayermp1);
-                serverChannel.writeOutbound(new ForgeMessage.DimensionRegisterMessage(toWorld.provider.getDimensionId(),
-                        ((SpongeDimensionType) ((Dimension) toWorld.provider).getType()).getDimensionTypeId()));
             }
 
             entityplayermp1.playerNetServerHandler.sendPacket(
-                    new S07PacketRespawn(targetDim, toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
+                    new S07PacketRespawn(clientDimension, toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
                             entityplayermp1.theItemInWorldManager.getGameType()));
             entity.setWorld(toWorld);
             entity.isDead = false;
@@ -127,14 +130,4 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
         toWorld.resetUpdateEntityTick();
         return true;
     }
-
-    @Override
-    public final NBTTagCompound getSpongeData() {
-        NBTTagCompound data = this.getEntityData();
-        if (!data.hasKey("SpongeData", Constants.NBT.TAG_COMPOUND)) {
-            data.setTag("SpongeData", new NBTTagCompound());
-        }
-        return data.getCompoundTag("SpongeData");
-    }
-
 }

@@ -22,18 +22,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
+import org.spongepowered.api.event.entity.player.PlayerQuitEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
-@Mixin(PlayerEvent.PlayerLoggedInEvent.class)
-public abstract class MixinEventPlayerJoin implements PlayerJoinEvent {
+@Mixin(PlayerEvent.PlayerLoggedOutEvent.class)
+public abstract class MixinPlayerLoggedOutEvent extends MixinPlayerEvent implements PlayerQuitEvent {
 
     // TODO: This event actually fires after messages are displayed.
     @Override
@@ -51,12 +51,12 @@ public abstract class MixinEventPlayerJoin implements PlayerJoinEvent {
     }
 
     @Override
-    public MessageSink getSink() {
-        return null;
+    public void setSink(MessageSink sink) {
+
     }
 
     @Override
-    public void setSink(MessageSink sink) {
-
+    public MessageSink getSink() {
+        return null;
     }
 }

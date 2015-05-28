@@ -22,50 +22,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event;
+package org.spongepowered.mod.mixin.core.entity.player;
 
-import com.google.common.base.Optional;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.event.Cancellable;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.CauseTracked;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.util.event.callback.CallbackList;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
 
-@NonnullByDefault
-@Mixin(value = net.minecraftforge.fml.common.eventhandler.Event.class, remap = false)
-public abstract class MixinEvent implements CauseTracked, Cancellable {
+@Mixin(value = EntityPlayerMP.class, priority = 1001)
+public abstract class MixinEntityPlayerMP extends EntityPlayer {
+    @Shadow private NetHandlerPlayServer playerNetServerHandler;
 
-    @Shadow
-    public abstract void setCanceled(boolean cancel);
-
-    @Shadow
-    public abstract boolean isCanceled();
-
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
+    public MixinEntityPlayerMP(World worldIn, GameProfile gameProfileIn) {
+        super(worldIn, gameProfileIn);
     }
 
-    @Override
-    public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, Optional.absent(), null));
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return isCanceled();
-    }
-
-    @Override
-    public void setCancelled(boolean cancel) {
-        setCanceled(cancel);
-    }
-
-    public CallbackList getCallbacks() {
-        // TODO
-        return null;
+    public boolean usesCustomClient() {
+        return this.playerNetServerHandler.getNetworkManager().channel.attr(NetworkRegistry.FML_MARKER).get();
     }
 }

@@ -37,7 +37,7 @@ import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.mod.command.ForgeMinecraftCommandWrapper;
 
 @NonnullByDefault
-@Mixin(value = ServerCommandManager.class, priority = 1111) // TODO: Shouldn't this take the priority from the config?
+@Mixin(value = ServerCommandManager.class, priority = 1001)
 public abstract class MixinServerCommandManager extends CommandHandler implements IMixinServerCommandManager {
 
     @Override
@@ -46,7 +46,6 @@ public abstract class MixinServerCommandManager extends CommandHandler implement
         if (activeContainer == null) {
             activeContainer = Loader.instance().getMinecraftModContainer();
         }
-
 
         return new ForgeMinecraftCommandWrapper((PluginContainer) activeContainer, command);
     }

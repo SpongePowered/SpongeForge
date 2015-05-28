@@ -22,20 +22,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.world;
+package org.spongepowered.mod.interfaces;
 
-import net.minecraft.world.World;
-import net.minecraft.world.WorldType;
-import net.minecraft.world.gen.ChunkProviderEnd;
-
-public class SpongeWorldTypeEnd extends WorldType {
-
-    public SpongeWorldTypeEnd() {
-        super("END");
-    }
-
-    @Override
-    public net.minecraft.world.chunk.IChunkProvider getChunkGenerator(World world, String generatorOptions) {
-        return new ChunkProviderEnd(world, world.getSeed());
-    }
+public interface IMixinPlayerRespawnEvent {
+    void setIsBedSpawn(boolean isBedSpawn);
 }

@@ -32,9 +32,9 @@ import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.Sponge;
+import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.world.SpongeDimensionType;
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.registry.SpongeModGameRegistry;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -43,14 +43,9 @@ import java.util.Hashtable;
 @Mixin(value = DimensionManager.class, remap = false)
 public abstract class MixinDimensionManager {
 
-    @Shadow
-    private static Hashtable<Integer, Class<? extends WorldProvider>> providers;
-
-    @Shadow
-    private static Hashtable<Integer, Boolean> spawnSettings;
-
-    @Shadow
-    private static ArrayList<Integer> unloadQueue;
+    @Shadow private static Hashtable<Integer, Class<? extends WorldProvider>> providers;
+    @Shadow private static Hashtable<Integer, Boolean> spawnSettings;
+    @Shadow private static ArrayList<Integer> unloadQueue;
 
     @Overwrite
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded) {
@@ -58,7 +53,7 @@ public abstract class MixinDimensionManager {
             return false;
         }
 
-        String worldType = "";
+        String worldType;
         switch (id) {
             case -1:
                 worldType = "NETHER";
@@ -75,7 +70,7 @@ public abstract class MixinDimensionManager {
                 worldType = worldType.replace("provider", "");
         }
         // register dimension type
-        ((SpongeModGameRegistry) SpongeMod.instance.getGame().getRegistry())
+        ((SpongeGameRegistry) Sponge.getGame().getRegistry())
                 .registerDimensionType(new SpongeDimensionType(worldType, keepLoaded, provider, id));
         providers.put(id, provider);
         if (id == 1) {

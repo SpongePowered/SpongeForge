@@ -22,41 +22,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.event.entity.player.PlayerQuitEvent;
-import org.spongepowered.api.text.Text;
+import com.google.common.base.Optional;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.CauseTracked;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.text.sink.MessageSink;
+import org.spongepowered.api.util.event.callback.CallbackList;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.SpongeMod;
 
 @NonnullByDefault
-@Mixin(PlayerEvent.PlayerLoggedOutEvent.class)
-public abstract class MixinEventPlayerQuit implements PlayerQuitEvent {
+@Mixin(value = net.minecraftforge.fml.common.eventhandler.Event.class, remap = false)
+public abstract class MixinEvent implements CauseTracked, Cancellable {
 
-    // TODO: This event actually fires after messages are displayed.
-    @Override
-    public Text getMessage() {
-        return null;
+    @Shadow public abstract void setCanceled(boolean cancel);
+    @Shadow public abstract boolean isCanceled();
+
+    public Game getGame() {
+        return SpongeMod.instance.getGame();
     }
 
     @Override
-    public Text getNewMessage() {
-        return null;
+    public Optional<Cause> getCause() {
+        return Optional.fromNullable(new Cause(null, Optional.absent(), null));
     }
 
     @Override
-    public void setNewMessage(Text joinMessage) {
+    public boolean isCancelled() {
+        return isCanceled();
     }
 
     @Override
-    public void setSink(MessageSink sink) {
-
+    public void setCancelled(boolean cancel) {
+        setCanceled(cancel);
     }
 
-    @Override
-    public MessageSink getSink() {
-        return null;
+    public CallbackList getCallbacks() {
+        // TODO Implement callbacks
+        return new CallbackList();
     }
 }

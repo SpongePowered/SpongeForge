@@ -25,42 +25,30 @@
 package org.spongepowered.mod.registry;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.WorldType;
 import net.minecraftforge.fml.common.registry.GameData;
-import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.GeneratorType;
-import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.SpongeGameRegistry;
-import org.spongepowered.mod.world.SpongeWorldTypeEnd;
-import org.spongepowered.mod.world.SpongeWorldTypeNether;
-import org.spongepowered.mod.world.SpongeWorldTypeOverworld;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @SuppressWarnings("unchecked")
 @NonnullByDefault
 public class SpongeModGameRegistry extends SpongeGameRegistry {
-    private final Map<String, GeneratorType> generatorTypeMappings = Maps.newHashMap();
-    private final List<BlockType> blockList = new ArrayList<BlockType>();
-    private final List<ItemType> itemList = new ArrayList<ItemType>();
 
-    {
-        this.catalogTypeMap = ImmutableMap.<Class<? extends CatalogType>, Map<String, ? extends CatalogType>>builder()
-                .putAll(this.catalogTypeMap)
-                .put(GeneratorType.class, this.generatorTypeMappings)
-                .build();
+    @Override
+    public GameDictionary getGameDictionary() {
+        return SpongeGameDictionary.instance;
+    }
+
+    @Override
+    public void postInit() {
+        super.postInit();
+        setBlockTypes();
+        setItemTypes();
     }
 
     public com.google.common.base.Optional<BlockType> getBlock(String id) {
@@ -71,12 +59,7 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
         return com.google.common.base.Optional.fromNullable((ItemType) GameData.getItemRegistry().getObject(id));
     }
 
-
     private void setBlockTypes() {
-        for (ResourceLocation resourceLocation : (Iterable<ResourceLocation>) GameData.getBlockRegistry().getKeys()) {
-            this.blockList.add(getBlock(resourceLocation.toString()).get());
-        }
-
         RegistryHelper.mapFields(BlockTypes.class, new Function<String, BlockType>() {
 
             @Override
@@ -87,10 +70,6 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
     }
 
     private void setItemTypes() {
-        for (ResourceLocation resourceLocation : (Iterable<ResourceLocation>) GameData.getItemRegistry().getKeys()) {
-            this.itemList.add(getItem(resourceLocation.toString()).get());
-        }
-
         RegistryHelper.mapFields(ItemTypes.class, new Function<String, ItemType>() {
 
             @Override
@@ -98,35 +77,5 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
                 return getItem(fieldName.toLowerCase()).get();
             }
         });
-    }
-
-    public void setGeneratorTypes() {
-        this.generatorTypeMappings.put("DEFAULT", (GeneratorType) WorldType.DEFAULT);
-        this.generatorTypeMappings.put("FLAT", (GeneratorType) WorldType.FLAT);
-        this.generatorTypeMappings.put("DEBUG", (GeneratorType) WorldType.DEBUG_WORLD);
-        this.generatorTypeMappings.put("NETHER", (GeneratorType) new SpongeWorldTypeNether());
-        this.generatorTypeMappings.put("END", (GeneratorType) new SpongeWorldTypeEnd());
-        this.generatorTypeMappings.put("OVERWORLD", (GeneratorType) new SpongeWorldTypeOverworld());
-        RegistryHelper.mapFields(GeneratorTypes.class, this.generatorTypeMappings);
-    }
-
-    @Override
-    public GameDictionary getGameDictionary() {
-        return SpongeGameDictionary.instance;
-    }
-
-    @Override
-    public void init() {
-        super.init();
-
-        setGeneratorTypes();
-    }
-
-    @Override
-    public void postInit() {
-        super.postInit();
-        setBlockTypes();
-        setItemTypes();
-
     }
 }
