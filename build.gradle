@@ -39,6 +39,12 @@ dependencies {
     compile 'org.apache.ivy:ivy:2.4.0'
 }
 
+compileJava {
+    options.compilerArgs += [
+            "-Atokens=FORGE=${forgeBuild};FML=${forgeBuild}"
+    ]
+}
+
 jar {
     exclude 'log4j2.xml'
 

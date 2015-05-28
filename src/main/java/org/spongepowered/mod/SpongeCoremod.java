@@ -24,6 +24,10 @@
  */
 package org.spongepowered.mod;
 
+import net.minecraftforge.fml.common.Loader;
+
+import net.minecraftforge.common.ForgeVersion;
+import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.spongepowered.asm.launch.MixinBootstrap;
@@ -36,6 +40,27 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion("1.8")
 public class SpongeCoremod implements IFMLLoadingPlugin {
+    
+    public static final class TokenProvider implements IEnvironmentTokenProvider {
+        
+        @Override
+        public int getPriority() {
+            return IEnvironmentTokenProvider.DEFAULT_PRIORITY;
+        }
+        
+        @Override
+        public Integer getToken(String token, MixinEnvironment env) {
+            if ("FORGE".equals(token)) {
+                return Integer.valueOf(ForgeVersion.getBuildVersion());
+            } else if ("FML".equals(token)) {
+                String fmlVersion = Loader.instance().getFMLVersionString(); 
+                int build = Integer.parseInt(fmlVersion.substring(fmlVersion.lastIndexOf('.') + 1));
+                return Integer.valueOf(build);
+            }
+            return null;
+        }
+        
+    }
 
     public SpongeCoremod() {
 
@@ -50,7 +75,8 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
         // Add pre-init mixins
         MixinEnvironment.getEnvironment(Phase.PREINIT)
-                .addConfiguration("mixins.forge.base.json");
+                .addConfiguration("mixins.forge.base.json")
+                .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
         SpongeLaunch.initialize(null, null, null);
         Sponge.getGlobalConfig(); // Load config
@@ -60,7 +86,8 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
                 .addConfiguration("mixins.common.api.json")
                 .addConfiguration("mixins.common.core.json")
                 .addConfiguration("mixins.forge.core.json")
-                .addConfiguration("mixins.forge.entityactivation.json");
+                .addConfiguration("mixins.forge.entityactivation.json")
+                .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
         // Classloader exclusions - TODO: revise when event pkg refactor reaches impl
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.CauseTracked");
