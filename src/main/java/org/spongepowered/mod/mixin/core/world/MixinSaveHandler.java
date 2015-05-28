@@ -48,13 +48,15 @@ import java.io.IOException;
 @Mixin(net.minecraft.world.storage.SaveHandler.class)
 public abstract class MixinSaveHandler {
 
+    private static final String $OVERWRITE_POLICY = "FORGE(1371 +50)";
+
     @Shadow
     private File worldDirectory;
 
     @Shadow
     private long initializationTime;
 
-    @Overwrite
+    @Overwrite(constraints = MixinSaveHandler.$OVERWRITE_POLICY)
     public void checkSessionLock() throws MinecraftException {
         try {
             File file1 = new File(this.worldDirectory, "session.lock");
@@ -74,7 +76,7 @@ public abstract class MixinSaveHandler {
         }
     }
 
-    @Overwrite
+    @Overwrite(constraints = MixinSaveHandler.$OVERWRITE_POLICY)
     public WorldInfo loadWorldInfo() {
         File file1 = new File(this.worldDirectory, "level.dat");
         File file2 = new File(this.worldDirectory, "level.dat_old");
@@ -123,7 +125,7 @@ public abstract class MixinSaveHandler {
         return null;
     }
 
-    @Overwrite
+    @Overwrite(constraints = MixinSaveHandler.$OVERWRITE_POLICY)
     public void saveWorldInfoWithPlayer(WorldInfo worldInformation, NBTTagCompound tagCompound) {
         NBTTagCompound nbttagcompound1 = worldInformation.cloneNBTCompound(tagCompound);
         NBTTagCompound nbttagcompound2 = new NBTTagCompound();
@@ -188,7 +190,7 @@ public abstract class MixinSaveHandler {
         }
     }
 
-    @Overwrite
+    @Overwrite(constraints = MixinSaveHandler.$OVERWRITE_POLICY)
     public void saveWorldInfo(WorldInfo worldInformation) {
         NBTTagCompound nbttagcompound = worldInformation.getNBTTagCompound();
         NBTTagCompound nbttagcompound1 = new NBTTagCompound();

@@ -52,7 +52,7 @@ public abstract class MixinDimensionManager {
     @Shadow
     private static ArrayList<Integer> unloadQueue;
 
-    @Overwrite
+    @Overwrite(constraints = "FORGE(1371+)")
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded) {
         if (providers.containsKey(id)) {
             return false;
@@ -86,7 +86,7 @@ public abstract class MixinDimensionManager {
         return true;
     }
 
-    @Overwrite
+    @Overwrite(constraints = "FORGE(1371+)")
     public static void unloadWorld(int id) {
         WorldServer world = DimensionManager.getWorld(id);
         if (world != null && !((WorldProperties) world.getWorldInfo()).doesKeepSpawnLoaded()) {

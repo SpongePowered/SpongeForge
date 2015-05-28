@@ -55,7 +55,7 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart, IM
     public abstract double getMaxSpeed();
 
     // this method overwrites the vanilla accessor for maximum speed
-    @Overwrite
+    @Overwrite(constraints = "FORGE(1371+)")
     public double getMaximumSpeed() {
         return this.maxSpeed;
     }

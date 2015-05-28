@@ -97,7 +97,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
     @Shadow protected abstract void outputPercentRemaining(String message, int percent);
     @Shadow protected abstract void clearCurrentTask();
 
-    @Overwrite
+    @Overwrite(constraints = "FORGE(1371 +10)")
     protected void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
         this.convertMapIfNeeded(overworldFolder);
         this.setUserMessage("menu.loadingLevel");
@@ -185,7 +185,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, Sub
         this.initialWorldChunkLoad();
     }
 
-    @Overwrite
+    @Overwrite(constraints = "FORGE(1371 +50)")
     protected void initialWorldChunkLoad() {
         for (WorldServer worldserver : DimensionManager.getWorlds()) {
             WorldProperties worldProperties = ((World) worldserver).getProperties();

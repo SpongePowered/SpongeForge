@@ -89,6 +89,8 @@ import java.util.List;
 @Mixin(ServerConfigurationManager.class)
 public abstract class MixinServerConfigurationManager implements IMixinServerConfigurationManager {
 
+    private static final String $OVERWRITE_POLICY = "FORGE(1371 +10)";
+
     @Shadow
     private static Logger logger;
 
@@ -124,7 +126,7 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
     public abstract void playerLoggedIn(EntityPlayerMP playerIn);
 
     @SuppressWarnings("rawtypes")
-    @Overwrite(aliases = "initializeConnectionToPlayer")
+    @Overwrite(aliases = "initializeConnectionToPlayer", constraints = MixinServerConfigurationManager.$OVERWRITE_POLICY)
     public void initializeConnectionToPlayer(NetworkManager netManager, EntityPlayerMP playerIn, NetHandlerPlayServer nethandlerplayserver) {
         GameProfile gameprofile = playerIn.getGameProfile();
         PlayerProfileCache playerprofilecache = this.mcServer.getPlayerProfileCache();
@@ -229,7 +231,7 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
     }
 
     @SuppressWarnings({"unused", "unchecked"})
-    @Overwrite
+    @Overwrite(constraints = MixinServerConfigurationManager.$OVERWRITE_POLICY)
     public EntityPlayerMP recreatePlayerEntity(EntityPlayerMP playerIn, int targetDimension, boolean conqueredEnd) {
         // Phase 1 - check if the player is allowed to respawn in same dimension
         net.minecraft.world.World world = this.mcServer.worldServerForDimension(targetDimension);
@@ -359,7 +361,7 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
         return playerIn;
     }
 
-    @Overwrite
+    @Overwrite(constraints = MixinServerConfigurationManager.$OVERWRITE_POLICY)
     public void setPlayerManager(WorldServer[] worldServers) {
         if (this.playerNBTManagerObj != null) {
             return;
@@ -368,7 +370,7 @@ public abstract class MixinServerConfigurationManager implements IMixinServerCon
         worldServers[0].getWorldBorder().addListener(new PlayerBorderListener());
     }
 
-    @Overwrite
+    @Overwrite(constraints = MixinServerConfigurationManager.$OVERWRITE_POLICY)
     public void updateTimeAndWeatherForPlayer(EntityPlayerMP playerIn, WorldServer worldIn) {
         net.minecraft.world.border.WorldBorder worldborder = worldIn.getWorldBorder();
         playerIn.playerNetServerHandler.sendPacket(new S44PacketWorldBorder(worldborder, S44PacketWorldBorder.Action.INITIALIZE));

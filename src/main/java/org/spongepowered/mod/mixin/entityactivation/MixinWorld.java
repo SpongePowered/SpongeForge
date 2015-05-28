@@ -62,7 +62,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
         }
     }
 
-    @Overwrite
+    @Overwrite(constraints = "FORGE(1371 +10)")
     public void updateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate) {
         int i = MathHelper.floor_double(entity.posX);
         int j = MathHelper.floor_double(entity.posZ);

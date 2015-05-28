@@ -59,7 +59,7 @@ public abstract class MixinWorldProvider implements Dimension, IMixinWorldProvid
     @Shadow public abstract String getDimensionName();
     @Shadow public abstract boolean canRespawnHere();
 
-    @Overwrite
+    @Overwrite(constraints = "FORGE(1371+)")
     public static WorldProvider getProviderForDimension(int dimension) {
         WorldProvider provider = net.minecraftforge.common.DimensionManager.createProviderFor(dimension);
         if (((IMixinWorldProvider) provider).getDimensionConfig() == null) {

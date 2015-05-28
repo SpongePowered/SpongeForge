@@ -48,7 +48,7 @@ public abstract class MixinEventBus {
     @Shadow
     private IEventExceptionHandler exceptionHandler;
 
-    @Overwrite
+    @Overwrite(constraints = "FML(1371)")
     public boolean post(Event event) {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
