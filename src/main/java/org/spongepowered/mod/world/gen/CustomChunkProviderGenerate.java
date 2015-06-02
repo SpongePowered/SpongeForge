@@ -131,12 +131,12 @@ public final class CustomChunkProviderGenerate implements IChunkProvider {
     public Chunk provideChunk(int chunkX, int chunkZ) {
 
         // Generate biomes
-        this.cachedBiomes.reuse(new Vector2i(chunkX * 16, chunkZ * 16));
+        this.cachedBiomes.reuse(new Vector2i(chunkX << 4, chunkZ << 4));
         this.biomeGenerator.generateBiomes(this.cachedBiomes);
 
         // Generate blocks
         ChunkPrimer chunkprimer = new ChunkPrimer();
-        ChunkPrimerBuffer buffer = new ChunkPrimerBuffer(chunkprimer, chunkZ, chunkZ);
+        ChunkPrimerBuffer buffer = new ChunkPrimerBuffer(chunkprimer, chunkX, chunkZ);
         this.generatorPopulator.populate((org.spongepowered.api.world.World) this.world, buffer, this.cachedBiomes.getImmutableClone());
 
         // Assemble chunk
