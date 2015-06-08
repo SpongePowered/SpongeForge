@@ -51,7 +51,7 @@ __For [Eclipse]__
   3. Set the current project.
   4. Set the name as `Sponge (forge/client)` and apply the information for Client below.
   5. Repeat step 1 through 4, then set the name as `Sponge (forge/server)` and apply the information for Server below.
-  6. When launching the server for the first time, it will shutdown by itself. You will need to modify the server.properties to set onlinemode=false and modify the eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
+  6. When launching the server for the first time, it will shutdown by itself. You will need to modify eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
 
 
 __For [IntelliJ]__
@@ -59,7 +59,7 @@ __For [IntelliJ]__
   2. Click the green + button and select **Application**.
   3. Set the name as `Sponge (forge/client)` and apply the information for Client below.
   4. Repeat step 2 and set the name as `Sponge (forge/server)` and apply the information for Server below.
-  5. When launching the server for the first time, it will shutdown by itself. You will need to modify the server.properties to set onlinemode=false and modify the eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
+  5. When launching the server for the first time, it will shutdown by itself. You will need to modify eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
 
 __Client__
 
