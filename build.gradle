@@ -28,8 +28,8 @@ apply plugin: 'forge'
 ext {
     minecraftPlugin = plugins.getPlugin('forge')
 
-    forgeBuild = '1371'
-    forgeVersion = "11.14.1.$forgeBuild"
+    forgeBuild = '1446'
+    forgeVersion = "11.14.3.$forgeBuild"
 }
 
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
