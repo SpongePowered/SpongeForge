@@ -33,30 +33,20 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.interfaces.IMixinEntity;
 import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
 import org.spongepowered.common.world.DimensionManager;
 
 
 @NonnullByDefault
 @Mixin(value = net.minecraft.entity.Entity.class, priority = 1001, remap = false)
-@Implements(@Interface(iface = IMixinEntity.class, prefix = "entity$"))
 public abstract class MixinEntity {
 
     // @formatter:off
     @Shadow(remap = false)
     public abstract NBTTagCompound getEntityData();
     // @formatter:on
-
-    @Intrinsic
-    public NBTTagCompound entity$getEntityData() {
-        return this.getEntityData();
-    }
 
     public final NBTTagCompound getSpongeData() {
         final NBTTagCompound data = this.getEntityData();
