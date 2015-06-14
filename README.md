@@ -13,7 +13,7 @@ A Forge implementation of the Sponge API.
 * [Development Chat]: #spongedev on irc.esper.net
 
 ## Prerequisites
-* [Java] 6
+* [Java] 6+
 
 ## Cloning
 The following steps will ensure your project is cloned properly.
