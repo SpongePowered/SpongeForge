@@ -200,7 +200,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onPostInitialization(FMLPostInitializationEvent event) {
         try {
-            SpongeBootstrap.postIniitalizeRegistry();
+            SpongeBootstrap.postInitializeRegistry();
             SerializationService service = this.game.getServiceManager().provide(SerializationService.class).get();
             ((SpongeSerializationService) service).completeRegistration();
         } catch (Throwable t) {
