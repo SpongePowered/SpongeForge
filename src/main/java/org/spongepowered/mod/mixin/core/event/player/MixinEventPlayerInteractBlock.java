@@ -35,10 +35,13 @@ import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.EntityInteractionTypes;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.player.PlayerInteractBlockEvent;
+import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.Sponge;
+import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.util.VecHelper;
 
 @NonnullByDefault
@@ -53,6 +56,8 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
 
     @Shadow
     public BlockPos pos;
+
+    @Shadow public EnumFacing face;
 
     public MixinEventPlayerInteractBlock(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, World world) {
         super(player);
@@ -72,6 +77,14 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
         } else {
             return EntityInteractionTypes.PICK_BLOCK;
         }
+    }
+
+    @Override
+    public Direction getSide() {
+        if (this.face != null) {
+            return ((SpongeGameRegistry) Sponge.getGame().getRegistry()).directionMap.inverse().get(this.face);
+        }
+        return Direction.NONE;
     }
 
     @Override
