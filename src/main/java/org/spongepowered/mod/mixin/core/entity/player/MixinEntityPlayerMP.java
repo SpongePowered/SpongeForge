@@ -42,6 +42,6 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer {
     }
 
     public boolean usesCustomClient() {
-        return this.playerNetServerHandler.getNetworkManager().channel.attr(NetworkRegistry.FML_MARKER).get();
+        return this.playerNetServerHandler.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
     }
 }
