@@ -49,6 +49,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static void init() {
+        System.out.println("Proxying to Forge DimensionManager Init!");
         DimensionManager.init();
     }
 
