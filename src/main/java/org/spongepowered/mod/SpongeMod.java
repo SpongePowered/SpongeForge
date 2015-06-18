@@ -71,7 +71,6 @@ import org.spongepowered.common.service.persistence.SpongeSerializationService;
 import org.spongepowered.common.service.scheduler.SyncScheduler;
 import org.spongepowered.common.service.sql.SqlServiceImpl;
 import org.spongepowered.common.util.SpongeHooks;
-import org.spongepowered.mod.command.CommandSponge;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
@@ -212,7 +211,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         try {
             SpongeBootstrap.registerWorlds();
-            this.game.getCommandDispatcher().register(this, CommandSponge.getCommand(this), "sponge", "sp");
 
             // Register vanilla-style commands (if necessary -- not necessary on client)
             ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerEarlyCommands(this.game);
