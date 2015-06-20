@@ -24,31 +24,24 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerDropItemEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.mixin.core.event.entity.item.MixinEventItem;
 
 import java.util.Collection;
 import java.util.Collections;
 
 @NonnullByDefault
 @Mixin(value = ItemTossEvent.class, remap = false)
-public abstract class MixinEventPlayerDropItem extends ItemEvent implements PlayerDropItemEvent {
+public abstract class MixinEventPlayerDropItem extends MixinEventItem implements PlayerDropItemEvent {
 
-    public MixinEventPlayerDropItem(EntityItem itemEntity) {
-        super(itemEntity);
-    }
-
-    @Shadow
-    public EntityPlayer player;
+    @Shadow public EntityPlayer player;
 
     @Override
     public Collection<ItemStack> getDroppedItems() {

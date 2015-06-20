@@ -37,17 +37,25 @@ import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
+import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.BreakEvent.class, remap = false)
-public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements PlayerBreakBlockEvent {
+public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements PlayerBreakBlockEvent {
 
-    private final net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
+    private net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
     private List<Item> droppedItems = new ArrayList<Item>();
 
     @Shadow
@@ -56,8 +64,8 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
     @Shadow
     private EntityPlayer player;
 
-    public MixinEventPlayerBreakBlock(World world, BlockPos pos, IBlockState state) {
-        super(world, pos, state);
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onInit(World world, BlockPos pos, IBlockState state, EntityPlayer player, CallbackInfo ci) {
         this.blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
     }
 
@@ -73,6 +81,9 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
 
     @Override
     public BlockSnapshot getReplacementBlock() {
+        if (this.spongeEvent != null) {
+            return ((PlayerBreakBlockEvent) this.spongeEvent).getReplacementBlock();
+        }
         return (BlockSnapshot) this.blockSnapshot;
     }
 
@@ -82,12 +93,44 @@ public abstract class MixinEventPlayerBreakBlock extends BlockEvent implements P
     }
 
     @Override
-    public boolean isCancelled() {
-        return this.isCanceled();
+    public int getExp() {
+        if (this.spongeEvent != null) {
+            return ((PlayerBreakBlockEvent) this.spongeEvent).getExp();
+        }
+        return this.exp;
     }
 
     @Override
-    public void setCancelled(boolean cancelled) {
-        this.setCanceled(cancelled);
+    public void setExp(int exp) {
+        if (this.spongeEvent != null) {
+            ((PlayerBreakBlockEvent) this.spongeEvent).setExp(exp);
+        }
+        this.exp = exp;
+    }
+
+    @Inject(method = "getExpToDrop", at = @At("HEAD"), cancellable = true)
+    public void onGetExpToDrop(CallbackInfoReturnable<Integer> cir) {
+        if (this.spongeEvent != null) {
+            cir.setReturnValue(((PlayerBreakBlockEvent) this.spongeEvent).getExp());
+        }
+    }
+
+    @Inject(method = "setExpToDrop", at = @At("HEAD"))
+    public void onSetExpToDrop(int exp, CallbackInfo ci) {
+        if (this.spongeEvent != null) {
+            ((PlayerBreakBlockEvent) this.spongeEvent).setExp(exp);
+        }
+    }
+
+    private static BlockEvent.BreakEvent fromSpongeEvent(PlayerBreakBlockEvent spongeEvent) {
+        Location location = spongeEvent.getBlock();
+        World world = (World) spongeEvent.getBlock().getExtent();
+        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+
+        BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos), (EntityPlayer) spongeEvent.getEntity());
+        event.setExpToDrop(spongeEvent.getExp());
+
+        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
+        return event;
     }
 }

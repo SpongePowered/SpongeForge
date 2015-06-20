@@ -35,10 +35,11 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.SpongeModEventManager;
+import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.fml.common.eventhandler.EventBus.class, remap = false)
-public abstract class MixinEventBus {
+public abstract class MixinEventBus implements IMixinEventBus {
 
     private EventBus eventBus = (EventBus) (Object) this;
 
@@ -69,4 +70,8 @@ public abstract class MixinEventBus {
         }
     }
 
+    @Override
+    public int getBusID() {
+        return this.busID;
+    }
 }

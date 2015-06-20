@@ -32,6 +32,7 @@ import org.spongepowered.api.event.entity.player.PlayerEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerEvent.class, remap = false)
@@ -51,5 +52,11 @@ public abstract class MixinEventPlayer extends LivingEvent implements PlayerEven
     @Override
     public Player getUser() {
         return (Player) this.entityPlayer;
+    }
+
+    private static net.minecraftforge.event.entity.player.PlayerEvent fromSpongeEvent(PlayerEvent spongeEvent) {
+        net.minecraftforge.event.entity.player.PlayerEvent event = new net.minecraftforge.event.entity.player.PlayerEvent((EntityPlayer) spongeEvent.getEntity());
+        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
+        return event;
     }
 }

@@ -35,14 +35,19 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
 import org.spongepowered.api.event.entity.player.PlayerPlaceBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
+import org.spongepowered.mod.mixin.core.event.entity.item.MixinEventItem;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
-public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements PlayerPlaceBlockEvent {
+public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock implements PlayerPlaceBlockEvent {
 
     @Shadow
     public EntityPlayer player;
@@ -58,10 +63,6 @@ public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements P
 
     @Shadow
     public IBlockState placedAgainst;
-
-    public MixinEventPlayerPlaceBlock(World world, BlockPos pos, IBlockState state) {
-        super(world, pos, state);
-    }
 
     @Override
     public Player getEntity() {
@@ -83,13 +84,14 @@ public abstract class MixinEventPlayerPlaceBlock extends BlockEvent implements P
         return Optional.fromNullable(new Cause(null, this.player, null));
     }
 
-    @Override
-    public boolean isCancelled() {
-        return this.isCanceled();
-    }
+    private static BlockEvent.PlaceEvent fromSpongeEvent(PlayerPlaceBlockEvent spongeEvent) {
+        Location location = spongeEvent.getBlock();
+        World world = (World) spongeEvent.getBlock().getExtent();
+        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.setCanceled(cancelled);
+        BlockEvent.PlaceEvent event = new BlockEvent.PlaceEvent((net.minecraftforge.common.util.BlockSnapshot) spongeEvent.getReplacementBlock(), world.getBlockState(pos), (EntityPlayer) spongeEvent.getEntity());
+
+        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
+        return event;
     }
 }

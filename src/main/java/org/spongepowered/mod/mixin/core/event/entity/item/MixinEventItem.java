@@ -22,33 +22,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.world;
+package org.spongepowered.mod.mixin.core.event.entity.item;
 
-import net.minecraftforge.event.world.ChunkEvent;
-import org.spongepowered.api.event.world.ChunkUnloadEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.Chunk;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
+import net.minecraft.entity.item.EntityItem;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
-@NonnullByDefault
-@Mixin(value = net.minecraftforge.event.world.ChunkEvent.Unload.class, remap = false)
-@Implements(@Interface(iface = ChunkUnloadEvent.class, prefix = "chunkunload$"))
-public abstract class MixinEventChunkUnload extends ChunkEvent {
+@Mixin(value = net.minecraftforge.event.entity.item.ItemEvent.class, remap = false)
+public abstract class MixinEventItem extends MixinEventEntity {
 
-    public MixinEventChunkUnload(net.minecraft.world.chunk.Chunk chunk) {
-        super(chunk);
-    }
+    @Shadow public EntityItem entityItem;
 
-    public Chunk chunkunload$getChunk() {
-        return (Chunk) getChunk();
-    }
-
-    private static net.minecraftforge.event.world.ChunkEvent.Unload fromSpongeEvent(org.spongepowered.api.event.world.ChunkUnloadEvent spongeEvent) {
-        net.minecraftforge.event.world.ChunkEvent.Unload event = new net.minecraftforge.event.world.ChunkEvent.Unload(((net.minecraft.world.chunk.Chunk) spongeEvent.getChunk()));
-        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
-        return event;
-    }
 }

@@ -27,13 +27,20 @@ package org.spongepowered.mod.mixin.core.event.block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.BlockUpdateEvent;
+import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.Sponge;
+import org.spongepowered.common.interfaces.block.IMixinBlock;
+import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.mod.interfaces.IMixinEvent;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -67,4 +74,24 @@ public abstract class MixinBlockUpdateEvent extends BlockEvent implements BlockU
         return this.affectedBlocks;
     }
 
+    private static NeighborNotifyEvent fromSpongeEvent(BlockUpdateEvent blockUpdateEvent) {
+        Location location = blockUpdateEvent.getBlock();
+        SpongeGameRegistry registry = Sponge.getSpongeRegistry();
+
+        EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
+        for (Direction direction : Direction.values()) {
+            if ((direction.isCardinal() || direction == Direction.UP || direction == Direction.DOWN) && blockUpdateEvent.getAffectedBlocks().contains(location.getRelative(direction))) {
+                facings.add(registry.directionMap.get(direction));
+            }
+        }
+
+        NeighborNotifyEvent
+                event =
+                new NeighborNotifyEvent((World) (Object) blockUpdateEvent.getBlock().getExtent(),
+                                        new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+                                        (IBlockState) (Object) blockUpdateEvent.getBlock().getExtent()
+                                                .getBlock(blockUpdateEvent.getBlock().getBlockPosition()), facings);
+        ((IMixinEvent) event).setSpongeEvent(blockUpdateEvent);
+        return event;
+    }
 }

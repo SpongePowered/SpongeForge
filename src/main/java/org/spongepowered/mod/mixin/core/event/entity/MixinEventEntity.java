@@ -32,6 +32,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.EntityEvent.class, remap = false)
@@ -48,5 +49,11 @@ public abstract class MixinEventEntity extends Event implements EntityEvent {
     @Override
     public Game getGame() {
         return SpongeMod.instance.getGame();
+    }
+
+    private static net.minecraftforge.event.entity.EntityEvent fromSpongeEvent(EntityEvent spongeEvent) {
+        net.minecraftforge.event.entity.EntityEvent event = new net.minecraftforge.event.entity.EntityEvent((net.minecraft.entity.Entity) spongeEvent.getEntity());
+        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
+        return event;
     }
 }
