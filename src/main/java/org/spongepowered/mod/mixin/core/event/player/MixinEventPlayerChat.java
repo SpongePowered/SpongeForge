@@ -39,12 +39,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.text.SpongeTexts;
+import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
-public abstract class MixinEventPlayerChat extends Event implements PlayerChatEvent {
+public abstract class MixinEventPlayerChat extends Event implements PlayerChatEvent, IMixinEventPlayerChat {
 
     @Shadow
     public String message;
@@ -65,6 +66,8 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
 
     @Nullable
     private MessageSink sink;
+
+    private Text unformattedText;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayerMP player, String message, ChatComponentTranslation component, CallbackInfo ci) {
@@ -121,5 +124,15 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
     @Override
     public void setSink(MessageSink sink) {
         this.sink = sink;
+    }
+
+    @Override
+    public Text getUnformattedMessage() {
+        return this.unformattedText;
+    }
+
+    @Override
+    public void setUnformattedMessage(Text text) {
+        this.unformattedText = text;
     }
 }
