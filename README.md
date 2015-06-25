@@ -88,6 +88,13 @@ __Note:__ You must [Setup the environment](#setup) before you can build Sponge.
 In order to build Sponge you simply need to run the `gradle` command. You can find the compiled JAR files in `./build/libs` but in most cases
 you'll only need 'sponge-x.x.x-x-x.x-x.jar'.
 
+## Updating your Clone
+The following steps will update your clone with the official repo.
+
+1. `git remote add upstream git@github.com:SpongePowered/Sponge.git`
+2. `git pull --rebase upstream master`
+3. `git submodule update --recursive`
+
 ## FAQ
 __A dependency was added, but my IDE is missing it! How do I add it?__
 >If a new dependency was added, you can just restart your IDE and the Gradle plugin for that IDE should pull in the new dependencies.
