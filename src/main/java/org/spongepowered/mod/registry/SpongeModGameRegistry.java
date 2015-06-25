@@ -25,6 +25,7 @@
 package org.spongepowered.mod.registry;
 
 import com.google.common.base.Function;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.block.BlockType;
@@ -32,10 +33,10 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.common.entity.living.human.EntityHuman;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 
-@SuppressWarnings("unchecked")
 @NonnullByDefault
 public class SpongeModGameRegistry extends SpongeGameRegistry {
 
@@ -78,4 +79,15 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
             }
         });
     }
+
+    private void registerCustomEntities() {
+        EntityRegistry.registerModEntity(EntityHuman.class, "Human", -7, "Sponge", 512, 2, false);
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        registerCustomEntities();
+    }
+
 }
