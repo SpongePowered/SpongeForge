@@ -24,26 +24,19 @@
  */
 package org.spongepowered.mod.mixin.core.fml;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ListMultimap;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
-import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
-import org.apache.logging.log4j.Level;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.entity.SpongeEntityRegistry;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.registry.SpongeModGameRegistry;
-
-import java.util.Map;
 
 @NonnullByDefault
 @Mixin(value = EntityRegistry.class, remap = false)
@@ -51,46 +44,15 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
 
     private SpongeModGameRegistry gameRegistry = (SpongeModGameRegistry) SpongeMod.instance.getGame().getRegistry();
 
-    @Shadow
-    private ListMultimap<ModContainer, EntityRegistration> entityRegistrations;
-
-    @Shadow
-    private Map<String, ModContainer> entityNames;
-
-    @Shadow
-    private BiMap<Class<? extends Entity>, EntityRegistration> entityClassRegistrations;
-
-    @SuppressWarnings({"unchecked", "unused"})
-    private void doModEntityRegistration(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
-            int updateFrequency, boolean sendsVelocityUpdates) {
-        ModContainer mc = FMLCommonHandler.instance().findContainerFor(mod);
-        EntityRegistration er = EntityRegistry.instance().new EntityRegistration(mc, entityClass, entityName, id, trackingRange, updateFrequency,
-                sendsVelocityUpdates);
-        try {
-            this.entityClassRegistrations.put(entityClass, er);
-            this.entityNames.put(entityName, mc);
-            if (!EntityList.classToStringMapping.containsKey(entityClass)) {
-                String entityModName = String.format("%s.%s", mc.getModId(), entityName);
-                EntityList.classToStringMapping.put(entityClass, entityModName);
-                EntityList.stringToClassMapping.put(entityModName, entityClass);
-                FMLLog.finer("Automatically registered mod %s entity %s as %s", mc.getModId(), entityName, entityModName);
-            } else {
-                FMLLog.fine("Skipping automatic mod %s entity registration for already registered class %s", mc.getModId(), entityClass.getName());
-            }
-        } catch (IllegalArgumentException e) {
-            FMLLog.log(Level.WARN, e, "The mod %s tried to register the entity (name,class) (%s,%s) one or both of which are already registered",
-                    mc.getModId(), entityName, entityClass.getName());
-            return;
-        }
-        this.entityRegistrations.put(mc, er);
+    @Inject(method = "doModEntityRegistration", at = @At(value = "RETURN", ordinal = 1))
+    private void onModEntityRegistration(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
+            int updateFrequency, boolean sendsVelocityUpdates, CallbackInfo ci) {
         registerCustomEntity(entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
     }
 
     @Override
     public void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
             int updateFrequency, boolean sendsVelocityUpdates) {
-        final ModContainer activeModContainer = Loader.instance().activeModContainer();
-        String modId = "unknown";
         // fixup bad entity names from mods
         if (entityName.contains(".")) {
             if ((entityName.indexOf(".") + 1) < entityName.length()) {
@@ -102,6 +64,8 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
             entityName.replace("ent", "");
         }
         entityName = entityName.replaceAll("[^A-Za-z0-9]", ""); // remove all non-digits/alphanumeric
+        ModContainer activeModContainer = Loader.instance().activeModContainer();
+        String modId = "unknown";
         if (activeModContainer != null) {
             modId = activeModContainer.getModId();
         }
