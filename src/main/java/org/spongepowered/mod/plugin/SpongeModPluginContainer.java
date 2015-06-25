@@ -99,7 +99,7 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
 
             findStateEventHandlers(pluginClazz);
 
-            Injector injector = SpongeMod.instance.getInjector().createChildInjector(new SpongePluginGuiceModule(this));
+            Injector injector = SpongeMod.instance.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
             this.pluginInstance = injector.getInstance(pluginClazz);
         } catch (Throwable t) {
             this.fmlController.errorOccurred(this, t);

@@ -30,12 +30,11 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.common.AbstractPlatform;
 
-import java.util.Map;
-
 public class SpongeModPlatform extends AbstractPlatform {
 
     public SpongeModPlatform(MinecraftVersion minecraftVersion, String apiVersion, String version) {
         super(minecraftVersion, apiVersion, version);
+        this.platformMap.put("ForgeVersion", ForgeVersion.getVersion());
     }
 
     @Override
@@ -60,13 +59,6 @@ public class SpongeModPlatform extends AbstractPlatform {
             default:
                 return Type.UNKNOWN;
         }
-    }
-
-    @Override
-    public Map<String, Object> asMap() {
-        Map<String, Object> map = super.asMap();
-        map.put("ForgeVersion", ForgeVersion.getVersion());
-        return map;
     }
 
 }
