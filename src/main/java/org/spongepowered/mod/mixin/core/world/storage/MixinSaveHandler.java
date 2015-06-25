@@ -43,7 +43,7 @@ import java.io.IOException;
 @Mixin(value = SaveHandler.class, priority = 1001)
 public abstract class MixinSaveHandler {
     @Shadow private File worldDirectory;
-    @Shadow abstract void loadSpongeDatData(WorldInfo info);
+    @Shadow(remap = false) abstract void loadSpongeDatData(WorldInfo info);
 
     @Redirect(method = "saveWorldInfo", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;handleWorldDataSave"
             + "(Lnet/minecraft/world/storage/SaveHandler;Lnet/minecraft/world/storage/WorldInfo;Lnet/minecraft/nbt/NBTTagCompound;)V", remap = false))

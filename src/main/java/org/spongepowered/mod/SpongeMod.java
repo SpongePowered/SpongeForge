@@ -68,7 +68,7 @@ import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
 import org.spongepowered.common.service.persistence.SpongeSerializationService;
-import org.spongepowered.common.service.scheduler.SyncScheduler;
+import org.spongepowered.common.service.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.sql.SqlServiceImpl;
 import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.mod.event.SpongeEventHooks;
@@ -85,7 +85,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     public static SpongeMod instance;
     private final Game game;
     private LoadController controller;
-    private SpongeModGameRegistry registry;
+    private final SpongeModGameRegistry registry;
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
@@ -172,7 +172,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            ((SyncScheduler) SyncScheduler.getInstance()).tick();
+            SpongeScheduler.getInstance().tickSyncScheduler();
         }
     }
 
