@@ -82,15 +82,15 @@ Are you a talented programmer looking to contribute some code? We'd love the hel
 * Open a pull request with your changes, following our [guidelines](CONTRIBUTING.md).
 * Please follow the above guidelines for your pull request(s) to be accepted.
 
-[Eclipse]: http://www.eclipse.org/
-[Gradle]: http://www.gradle.org/
-[Homepage]: http://spongepowered.org/
-[IntelliJ]: http://www.jetbrains.com/idea/
-[Issues]: http://issues.spongepowered.org/
+[Eclipse]: https://www.eclipse.org/
+[Gradle]: https://www.gradle.org/
+[Homepage]: https://spongepowered.org/
+[IntelliJ]: https://www.jetbrains.com/idea/
+[Issues]: https://issues.spongepowered.org/
 [SpongeAPI Wiki]: https://github.com/SpongePowered/SpongeAPI/wiki/
 [Sponge Wiki]: https://github.com/SpongePowered/Sponge/wiki/
 [Java]: http://java.oracle.com/
 [Source]: https://github.com/SpongePowered/Sponge/
 [MIT License]: http://www.tldrlegal.com/license/mit-license
-[Community Chat]: https://webchat.esper.net/?channels=sponge
-[Development Chat]: https://webchat.esper.net/?channels=spongedev
+[Community Chat]: http://webchat.esper.net/?channels=sponge
+[Development Chat]: http://webchat.esper.net/?channels=spongedev
