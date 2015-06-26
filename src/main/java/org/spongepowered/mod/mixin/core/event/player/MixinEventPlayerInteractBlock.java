@@ -103,8 +103,6 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
 
     @Override
     public Optional<Vector3d> getClickedPosition() {
-        if (!clickedPosition.isPresent())
-            clickedPosition = Optional.of(VecHelper.toVector(this.pos).toDouble());
         return clickedPosition;
     }
 }
