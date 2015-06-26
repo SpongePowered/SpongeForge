@@ -53,6 +53,7 @@
         "network.MixinNetHandlerPlayServer",
         "server.MixinMinecraftServer",
         "server.MixinServerCommandManager",
+        "server.managment.MixinItemInWorldManager",
         "world.MixinChunk",
         "world.MixinWorldProvider",
         "world.storage.MixinSaveHandler"

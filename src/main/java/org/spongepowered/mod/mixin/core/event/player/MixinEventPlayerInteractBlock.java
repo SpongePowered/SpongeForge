@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
@@ -43,10 +44,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.mod.interfaces.IMixinEventPlayerInteractBlock;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implements PlayerInteractBlockEvent {
+public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implements PlayerInteractBlockEvent, IMixinEventPlayerInteractBlock {
 
     @Shadow
     public Action action;
@@ -58,6 +60,8 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
     public BlockPos pos;
 
     @Shadow public EnumFacing face;
+
+    public Optional<Vector3d> clickedPosition = Optional.absent();
 
     public MixinEventPlayerInteractBlock(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, World world) {
         super(player);
@@ -92,4 +96,15 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
         return Optional.fromNullable(new Cause(null, this.entityPlayer, null));
     }
 
+    @Override
+    public void setClickedPosition(Vector3d clickedPosition) {
+        this.clickedPosition = Optional.of(VecHelper.toVector(this.pos).toDouble().add(clickedPosition));
+    }
+
+    @Override
+    public Optional<Vector3d> getClickedPosition() {
+        if (!clickedPosition.isPresent())
+            clickedPosition = Optional.of(VecHelper.toVector(this.pos).toDouble());
+        return clickedPosition;
+    }
 }
