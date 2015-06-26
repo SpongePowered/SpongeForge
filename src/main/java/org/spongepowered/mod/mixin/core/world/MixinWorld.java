@@ -24,16 +24,21 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import com.flowpowered.math.vector.Vector3i;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldInfo;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.util.VecHelper;
 
 @Mixin(value = World.class, priority = 1001)
-public abstract class MixinWorld {
+public abstract class MixinWorld implements org.spongepowered.api.world.World {
+
     @Shadow public WorldInfo worldInfo;
     private long weatherStartTime;
 
@@ -45,7 +50,31 @@ public abstract class MixinWorld {
         this.weatherStartTime = this.worldInfo.getWorldTotalTime();
     }
 
+    @Override
     public long getRunningDuration() {
         return this.worldInfo.getWorldTotalTime() - this.weatherStartTime;
     }
+
+    @Override
+    public BlockSnapshot getBlockSnapshot(Vector3i position) {
+        return (BlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot((World) (Object) this, VecHelper.toBlockPos(position));
+    }
+
+    @Override
+    public BlockSnapshot getBlockSnapshot(int x, int y, int z) {
+        return (BlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot((World) (Object) this, new BlockPos(x, y, z));
+    }
+
+    @Override
+    public void setBlockSnapshot(Vector3i position, BlockSnapshot snapshot) {
+        net.minecraftforge.common.util.BlockSnapshot block = (net.minecraftforge.common.util.BlockSnapshot) snapshot;
+        ((World) (Object) this).setBlockState(VecHelper.toBlockPos(position), block.getReplacedBlock(), block.flag);
+    }
+
+    @Override
+    public void setBlockSnapshot(int x, int y, int z, BlockSnapshot snapshot) {
+        net.minecraftforge.common.util.BlockSnapshot block = (net.minecraftforge.common.util.BlockSnapshot) snapshot;
+        ((World) (Object) this).setBlockState(new BlockPos(x, y, z), block.getReplacedBlock(), block.flag);
+    }
+
 }
