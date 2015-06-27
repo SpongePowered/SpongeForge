@@ -42,8 +42,6 @@
         "event.world.MixinEventWorldLoad",
         "event.world.MixinEventWorldUnload",
         "fml.MixinEntityRegistry",
-        "fml.MixinModContainer",
-        "fml.common.eventhandler.MixinEvent",
         "fml.common.eventhandler.MixinEventBus",
         "fml.common.gameevent.MixinPlayerEvent",
         "fml.common.gameevent.MixinPlayerLoggedInEvent",

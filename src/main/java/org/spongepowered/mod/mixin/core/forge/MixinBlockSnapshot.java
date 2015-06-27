@@ -24,23 +24,69 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
+import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.service.persistence.NbtTranslator;
+import org.spongepowered.common.util.VecHelper;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.common.util.BlockSnapshot.class, remap = false)
 public abstract class MixinBlockSnapshot implements BlockSnapshot {
 
+    @Shadow public transient IBlockState replacedBlock;
+    @Shadow public BlockPos pos;
+    @Shadow public transient World world;
+    @Shadow private NBTTagCompound nbt;
+    @Shadow public int flag;
+
+    private Vector3i vecPos = VecHelper.toVector(this.pos);
+
     @Shadow
-    public transient IBlockState replacedBlock;
+    public abstract void writeToNBT(NBTTagCompound compound);
 
     @Override
     public BlockState getState() {
         return (BlockState) this.replacedBlock;
+    }
+
+    @Override
+    public DataContainer toContainer() {
+        NBTTagCompound nbt = new NBTTagCompound();
+        this.writeToNBT(nbt);
+        return NbtTranslator.getInstance().translateFrom(nbt);
+    }
+
+    @Override
+    public void setBlockState(BlockState blockState) {
+        this.replacedBlock = (IBlockState) blockState;
+    }
+
+    @Override
+    public Vector3i getLocation() {
+        return this.vecPos;
+    }
+
+    @Override
+    public void setLocation(Vector3i location) {
+        // TODO pos is final, how can this be done?
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BlockSnapshot copy() {
+        net.minecraftforge.common.util.BlockSnapshot snapshot =
+                new net.minecraftforge.common.util.BlockSnapshot(this.world, this.pos, this.replacedBlock, this.nbt);
+        snapshot.flag = this.flag;
+        return (BlockSnapshot) snapshot;
     }
 
 }
