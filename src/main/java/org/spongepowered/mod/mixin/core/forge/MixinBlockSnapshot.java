@@ -48,10 +48,9 @@ public abstract class MixinBlockSnapshot implements BlockSnapshot {
     @Shadow private NBTTagCompound nbt;
     @Shadow public int flag;
 
-    private Vector3i vecPos = VecHelper.toVector(this.pos);
+    private Vector3i vecPos;
 
-    @Shadow
-    public abstract void writeToNBT(NBTTagCompound compound);
+    @Shadow public abstract void writeToNBT(NBTTagCompound compound);
 
     @Override
     public BlockState getState() {
@@ -72,6 +71,9 @@ public abstract class MixinBlockSnapshot implements BlockSnapshot {
 
     @Override
     public Vector3i getLocation() {
+        if (this.vecPos == null) {
+            this.vecPos = VecHelper.toVector(this.pos);
+        }
         return this.vecPos;
     }
 
