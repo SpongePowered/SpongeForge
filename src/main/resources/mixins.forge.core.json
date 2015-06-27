@@ -42,6 +42,8 @@
         "event.world.MixinEventWorldLoad",
         "event.world.MixinEventWorldUnload",
         "fml.MixinEntityRegistry",
+        "fml.MixinModContainer",
+        "fml.common.eventhandler.MixinEvent",
         "fml.common.eventhandler.MixinEventBus",
         "fml.common.gameevent.MixinPlayerEvent",
         "fml.common.gameevent.MixinPlayerLoggedInEvent",
@@ -54,6 +56,7 @@
         "server.MixinMinecraftServer",
         "server.MixinServerCommandManager",
         "world.MixinChunk",
+        "world.MixinWorld",
         "world.MixinWorldProvider",
         "world.storage.MixinSaveHandler"
     ]
