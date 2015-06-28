@@ -111,6 +111,11 @@ public abstract class MixinEntity {
             entityplayermp1.theItemInWorldManager.setWorld(toWorld);
             entityplayermp1.addSelfToInternalCraftingInventory();
             entityplayermp1.setHealth(entityplayermp1.getHealth());
+            
+            for(Object effect : entityplayermp1.getActivePotionEffects()) {
+                entityplayermp1.playerNetServerHandler.sendPacket(new S1DPacketEntityEffect(entityplayermp1.getEntityId(), (PotionEffect) effect));
+            }
+            
             net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerChangedDimensionEvent(entityplayermp1, currentDim, targetDim);
         } else {
             toWorld.spawnEntityInWorld(entity);
