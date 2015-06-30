@@ -31,16 +31,20 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.event.block.BlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)
-public abstract class MixinEventBlock extends Event implements BlockEvent {
+public abstract class MixinEventBlock extends MixinEvent implements BlockEvent {
 
     @Shadow
     public BlockPos pos;
@@ -61,6 +65,25 @@ public abstract class MixinEventBlock extends Event implements BlockEvent {
     @Override
     public Game getGame() {
         return SpongeMod.instance.getGame();
+    }
+
+    private static net.minecraftforge.event.world.BlockEvent fromSpongeEvent(BlockEvent spongeEvent) {
+        net.minecraft.world.World world;
+        Extent extent = spongeEvent.getBlock().getExtent();
+        if (extent instanceof World) {
+            world = (net.minecraft.world.World) extent;
+        } else if (extent instanceof Chunk) {
+            world = (net.minecraft.world.World) ((Chunk) extent).getWorld();
+        } else {
+            throw new IllegalArgumentException("Implementing Extent through a plugin class is not currently supported!");
+        }
+
+        Location block = spongeEvent.getBlock();
+        BlockPos pos = new BlockPos(block.getBlockX(), block.getBlockY(), block.getBlockZ());
+
+        net.minecraftforge.event.world.BlockEvent event = new net.minecraftforge.event.world.BlockEvent(world, pos, world.getBlockState(pos));
+        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
+        return event;
     }
 
 }

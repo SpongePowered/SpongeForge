@@ -40,26 +40,26 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion("1.8")
 public class SpongeCoremod implements IFMLLoadingPlugin {
-    
+
     public static final class TokenProvider implements IEnvironmentTokenProvider {
-        
+
         @Override
         public int getPriority() {
             return IEnvironmentTokenProvider.DEFAULT_PRIORITY;
         }
-        
+
         @Override
         public Integer getToken(String token, MixinEnvironment env) {
             if ("FORGE".equals(token)) {
                 return Integer.valueOf(ForgeVersion.getBuildVersion());
             } else if ("FML".equals(token)) {
-                String fmlVersion = Loader.instance().getFMLVersionString(); 
+                String fmlVersion = Loader.instance().getFMLVersionString();
                 int build = Integer.parseInt(fmlVersion.substring(fmlVersion.lastIndexOf('.') + 1));
                 return Integer.valueOf(build);
             }
             return null;
         }
-        
+
     }
 
     public SpongeCoremod() {
@@ -93,6 +93,10 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.CauseTracked");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Cancellable");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.event.callback.CallbackList");
+        Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Event");
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.annotation.ImplementedBy");
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.AbstractEvent");
 
         // Transformer exclusions
         Launch.classLoader.addTransformerExclusion("ninja.leaping.configurate.");

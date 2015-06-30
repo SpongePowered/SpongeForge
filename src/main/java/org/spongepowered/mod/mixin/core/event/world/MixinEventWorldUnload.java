@@ -29,6 +29,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.event.world.WorldUnloadEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.WorldEvent.Unload.class, remap = false)
@@ -36,6 +37,12 @@ public abstract class MixinEventWorldUnload extends WorldEvent implements WorldU
 
     public MixinEventWorldUnload(World world) {
         super(world);
+    }
+
+    private static net.minecraftforge.event.world.WorldEvent.Unload fromSpongeEvent(org.spongepowered.api.event.world.WorldUnloadEvent spongeEvent) {
+        net.minecraftforge.event.world.WorldEvent.Unload event = new net.minecraftforge.event.world.WorldEvent.Unload((net.minecraft.world.World) spongeEvent.getWorld());
+        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
+        return event;
     }
 
 }

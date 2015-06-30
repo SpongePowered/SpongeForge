@@ -30,7 +30,10 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.EntityInteractionTypes;
 import org.spongepowered.api.event.cause.Cause;
@@ -43,6 +46,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
@@ -90,6 +94,25 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
     @Override
     public Optional<Cause> getCause() {
         return Optional.fromNullable(new Cause(null, this.entityPlayer, null));
+    }
+
+    private static Action actionFromSponge(EntityInteractionType type, BlockType blockType) {
+        if (type == EntityInteractionTypes.ATTACK) {
+            return Action.LEFT_CLICK_BLOCK;
+        } else if (type == EntityInteractionTypes.USE && blockType == BlockTypes.AIR) {
+            return Action.RIGHT_CLICK_AIR;
+        }
+        return Action.RIGHT_CLICK_BLOCK;
+    }
+
+    private static PlayerInteractEvent fromSpongeEvent(PlayerInteractBlockEvent spongeEvent) {
+        Action action = actionFromSponge(spongeEvent.getInteractionType(), spongeEvent.getBlock().getBlockType());
+        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getBlock().getPosition());
+        EnumFacing face = Sponge.getSpongeRegistry().directionMap.get(spongeEvent.getSide());
+
+        PlayerInteractEvent event = new PlayerInteractEvent((EntityPlayer) spongeEvent.getEntity(), action, pos, face, (World) spongeEvent.getEntity().getWorld());
+        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
+        return event;
     }
 
 }

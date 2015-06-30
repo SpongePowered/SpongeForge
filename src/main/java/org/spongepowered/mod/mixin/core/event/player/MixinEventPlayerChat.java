@@ -27,10 +27,12 @@ package org.spongepowered.mod.mixin.core.event.player;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
+import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,14 +40,17 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
+import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
-public abstract class MixinEventPlayerChat extends Event implements PlayerChatEvent, IMixinEventPlayerChat {
+public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerChatEvent, IMixinEventPlayerChat {
 
     @Shadow
     public String message;
@@ -134,5 +139,34 @@ public abstract class MixinEventPlayerChat extends Event implements PlayerChatEv
     @Override
     public void setUnformattedMessage(Text text) {
         this.unformattedText = text;
+    }
+
+    @Inject(method = "getComponent", at = @At("HEAD"), cancellable = true)
+    public void onGetComponent(CallbackInfoReturnable<IChatComponent> cir) {
+        if (this.spongeEvent != null) {
+            cir.setReturnValue(SpongeTexts.toComponent(((PlayerChatEvent) this.spongeEvent).getMessage()));
+        }
+    }
+
+    @Inject(method = "setComponent", at = @At("HEAD"), cancellable = true)
+    public void onSetComponent(IChatComponent component, CallbackInfo ci) {
+        if (this.spongeEvent != null) {
+            if (!(component instanceof ChatComponentTranslation)) {
+                component = new ChatComponentTranslation("%s", component);
+            }
+            ((PlayerChatEvent) this.spongeEvent).setNewMessage(SpongeTexts.toText(component));
+        }
+    }
+
+    private static ServerChatEvent fromSpongeEvent(PlayerChatEvent spongeEvent) {
+        IChatComponent component = SpongeTexts.toComponent(spongeEvent.getMessage(), spongeEvent.getEntity().getLocale());
+        if (!(component instanceof ChatComponentTranslation)) {
+           component = new ChatComponentTranslation("%s", component);
+        }
+
+        // Using toPlain here is fine, since the raw message from the client can't have formatting.
+        ServerChatEvent event = new ServerChatEvent((EntityPlayerMP) spongeEvent.getEntity(), Texts.toPlain(spongeEvent.getMessage()), (ChatComponentTranslation) component);
+        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
+        return event;
     }
 }
