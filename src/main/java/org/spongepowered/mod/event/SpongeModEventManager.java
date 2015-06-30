@@ -66,6 +66,7 @@ import org.spongepowered.api.event.world.WorldEvent;
 import org.spongepowered.api.event.world.WorldLoadEvent;
 import org.spongepowered.api.event.world.WorldUnloadEvent;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.common.Sponge;
 import org.spongepowered.common.event.RegisteredHandler;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
@@ -207,8 +208,8 @@ public class SpongeModEventManager extends SpongeEventManager {
                     }
 
                     return post(forgeEvent, forgeEvent.getListenerList().getListeners(((IMixinEventBus) bus).getBusID()));
-                } catch (Exception e) {
-                    throw new RuntimeException("Error while firing event!", e);
+                } catch (Throwable throwable) {
+                    Sponge.getLogger().error("Could not post {}", event.getClass().getSimpleName(), throwable);
                 }
             }
         }
