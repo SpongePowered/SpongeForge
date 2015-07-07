@@ -22,56 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.fml.common.gameevent;
+package org.spongepowered.mod.mixin.core.server;
 
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.entity.player.PlayerQuitEvent;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.sink.MessageSink;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 @NonnullByDefault
-@Mixin(value = PlayerEvent.PlayerLoggedOutEvent.class, remap = false)
-public abstract class MixinPlayerLoggedOutEvent extends MixinPlayerEvent implements PlayerQuitEvent {
+@Mixin(ServerConfigurationManager.class)
+public abstract class MixinServerConfigurationManager {
 
-    private Text message;
-    private Text originalMessage;
-    private MessageSink messageSink;
-
-    @Override
-    public Text getMessage() {
-        return this.originalMessage;
+    /**
+     * @author Simon816
+     *
+     * Remove call to firePlayerLoggedOut because SpongeCommon's
+     * MixinNetHandlerPlayServer.onDisconnectPlayer fires the event already.
+     *
+     * NOTE: ANY call to playerLoggedOut will need to fire the
+     * PlayerLoggedOutEvent manually!
+     */
+    @Redirect(method = "playerLoggedOut", at = @At(value = "INVOKE",
+            target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;firePlayerLoggedOut(Lnet/minecraft/entity/player/EntityPlayer;)V",
+            remap = false))
+    public void onFirePlayerLoggedOutCall(FMLCommonHandler thisCtx, EntityPlayer playerIn) {
+        // net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerLoggedOut(playerIn);
     }
-
-    @Override
-    public Text getNewMessage() {
-        return this.message;
-    }
-
-    @Override
-    public void setNewMessage(Text quitMessage) {
-        if (this.originalMessage == null) {
-            // setNewMessage is always called before event fired
-            this.originalMessage = quitMessage;
-        }
-        this.message = quitMessage;
-    }
-
-    @Override
-    public void setSink(MessageSink sink) {
-        this.messageSink = sink;
-    }
-
-    @Override
-    public MessageSink getSink() {
-        return this.messageSink;
-    }
-
-    @Override
-    public Player getSource() {
-        return (Player) this.player;
-    }
-
 }

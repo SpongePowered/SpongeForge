@@ -53,9 +53,13 @@
         "network.MixinNetHandlerPlayServer",
         "server.MixinMinecraftServer",
         "server.MixinServerCommandManager",
+        "server.MixinServerConfigurationManager",
         "world.MixinChunk",
         "world.MixinWorld",
         "world.MixinWorldProvider",
         "world.storage.MixinSaveHandler"
+    ],
+    "client": [
+        "server.MixinIntegratedServerAnonInner3"
     ]
 }

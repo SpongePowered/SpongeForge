@@ -31,6 +31,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
+import org.spongepowered.api.event.entity.player.PlayerQuitEvent;
 import org.spongepowered.api.event.entity.player.PlayerRespawnEvent;
 import org.spongepowered.api.event.world.WorldLoadEvent;
 import org.spongepowered.api.text.Text;
@@ -63,6 +64,14 @@ public abstract class MixinSpongeImplEventFactory {
         final PlayerRespawnEvent event = (PlayerRespawnEvent) new PlayerEvent.PlayerRespawnEvent((EntityPlayer) player);
         ((IMixinPlayerRespawnEvent) event).setIsBedSpawn(isBedSpawn);
         event.setNewRespawnLocation(respawnLocation);
+        return event;
+    }
+
+    @Overwrite
+    public static PlayerQuitEvent createPlayerQuit(Game game, Player player, Text message, MessageSink sink) {
+        final PlayerQuitEvent event = (PlayerQuitEvent) new PlayerEvent.PlayerLoggedOutEvent((EntityPlayer) player);
+        event.setNewMessage(message);
+        event.setSink(sink);
         return event;
     }
 }
