@@ -11,7 +11,7 @@
         <dependency org="net.minecraft" name="minecraft_server" rev="1.8" />
         
         <!-- Forge -->
-        <dependency org="net.minecraftforge" name="forge" rev="1.8-11.14.3.1446" branch="universal" />
+        <dependency org="net.minecraftforge" name="forge" rev="1.8-11.14.3.1487" branch="universal" />
         
         <!-- Forge Dependencies -->
         <dependency org="net.minecraft" name="launchwrapper" rev="1.9" />
