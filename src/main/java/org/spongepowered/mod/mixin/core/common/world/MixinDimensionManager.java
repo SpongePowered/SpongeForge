@@ -49,7 +49,6 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static void init() {
-        System.out.println("Proxying to Forge DimensionManager Init!");
         DimensionManager.init();
     }
 
@@ -114,8 +113,19 @@ public abstract class MixinDimensionManager {
     }
 
     @Overwrite
-    public static void unloadWorldFromDimId(int id) {
+    public static boolean unloadWorldFromDimId(int id) {
+        WorldServer world = DimensionManager.getWorld(id);
+        if (world == null) {
+            return true;
+        }
+        if (!world.playerEntities.isEmpty()) {
+            return false;
+        }
+        if (((org.spongepowered.api.world.World) world).doesKeepSpawnLoaded()) {
+            return false;
+        }
         DimensionManager.unloadWorld(id);
+        return true;
     }
 
     @Overwrite

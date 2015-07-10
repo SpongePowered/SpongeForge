@@ -28,7 +28,6 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -84,7 +83,8 @@ public abstract class MixinDimensionManager {
     @Overwrite
     public static void unloadWorld(int id) {
         WorldServer world = DimensionManager.getWorld(id);
-        if (world != null && !((WorldProperties) world.getWorldInfo()).doesKeepSpawnLoaded()) {
+        if (world == null || (world.playerEntities.isEmpty() && !((org.spongepowered.api.world.World) world).doesKeepSpawnLoaded())) {
+            // Purposely let a null world through so Forge can issue a warning
             unloadQueue.add(id);
         }
     }
