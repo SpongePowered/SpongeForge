@@ -43,7 +43,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.Sponge;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEvent;
@@ -86,7 +85,7 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
     @Override
     public Direction getSide() {
         if (this.face != null) {
-            return ((SpongeGameRegistry) Sponge.getGame().getRegistry()).directionMap.inverse().get(this.face);
+            return SpongeGameRegistry.directionMap.inverse().get(this.face);
         }
         return Direction.NONE;
     }
@@ -105,10 +104,11 @@ public abstract class MixinEventPlayerInteractBlock extends PlayerEvent implemen
         return Action.RIGHT_CLICK_BLOCK;
     }
 
+    @SuppressWarnings("unused")
     private static PlayerInteractEvent fromSpongeEvent(PlayerInteractBlockEvent spongeEvent) {
         Action action = actionFromSponge(spongeEvent.getInteractionType(), spongeEvent.getBlock().getBlockType());
         BlockPos pos = VecHelper.toBlockPos(spongeEvent.getBlock().getPosition());
-        EnumFacing face = Sponge.getSpongeRegistry().directionMap.get(spongeEvent.getSide());
+        EnumFacing face = SpongeGameRegistry.directionMap.get(spongeEvent.getSide());
 
         PlayerInteractEvent event = new PlayerInteractEvent((EntityPlayer) spongeEvent.getEntity(), action, pos, face, (World) spongeEvent.getEntity().getWorld());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);

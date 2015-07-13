@@ -24,15 +24,14 @@
  */
 package org.spongepowered.mod;
 
-import net.minecraftforge.fml.common.Loader;
-
-import net.minecraftforge.common.ForgeVersion;
-import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.common.ForgeVersion;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
+import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.launch.SpongeLaunch;
 

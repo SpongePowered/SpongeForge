@@ -37,8 +37,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 
-import java.lang.reflect.InvocationTargetException;
-
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.fml.common.eventhandler.Event.class, remap = false)
 public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEvent {
@@ -59,16 +57,16 @@ public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEve
 
     @Override
     public boolean isCancelled() {
-        if (spongeEvent instanceof Cancellable) {
-            return ((Cancellable) spongeEvent).isCancelled();
+        if (this.spongeEvent instanceof Cancellable) {
+            return ((Cancellable) this.spongeEvent).isCancelled();
         }
         return isCanceled();
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-        if (spongeEvent instanceof Cancellable) {
-            ((Cancellable) spongeEvent).setCancelled(cancel);
+        if (this.spongeEvent instanceof Cancellable) {
+            ((Cancellable) this.spongeEvent).setCancelled(cancel);
         }
         setCanceled(cancel);
     }

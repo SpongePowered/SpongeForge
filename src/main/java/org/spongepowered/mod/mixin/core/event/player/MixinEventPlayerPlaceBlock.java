@@ -32,10 +32,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
 import org.spongepowered.api.event.entity.player.PlayerPlaceBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -43,7 +41,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
-import org.spongepowered.mod.mixin.core.event.entity.item.MixinEventItem;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
@@ -84,6 +81,7 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
         return Optional.fromNullable(new Cause(null, this.player, null));
     }
 
+    @SuppressWarnings("unused")
     private static BlockEvent.PlaceEvent fromSpongeEvent(PlayerPlaceBlockEvent spongeEvent) {
         Location location = spongeEvent.getBlock();
         World world = (World) spongeEvent.getBlock().getExtent();

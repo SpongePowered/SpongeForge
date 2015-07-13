@@ -28,13 +28,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.text.sink.MessageSink;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,8 +41,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.text.SpongeTexts;
-import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import javax.annotation.Nullable;
@@ -158,6 +157,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
         }
     }
 
+    @SuppressWarnings("unused")
     private static ServerChatEvent fromSpongeEvent(PlayerChatEvent spongeEvent) {
         IChatComponent component = SpongeTexts.toComponent(spongeEvent.getMessage(), spongeEvent.getEntity().getLocale());
         if (!(component instanceof ChatComponentTranslation)) {
