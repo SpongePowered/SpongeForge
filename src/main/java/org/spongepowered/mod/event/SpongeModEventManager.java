@@ -32,7 +32,6 @@ import com.google.common.collect.Maps;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
@@ -42,6 +41,7 @@ import net.minecraftforge.event.terraingen.OreGenEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.terraingen.SaplingGrowTreeEvent;
 import net.minecraftforge.event.terraingen.WorldTypeEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
@@ -55,7 +55,6 @@ import org.spongepowered.api.event.entity.EntitySpawnEvent;
 import org.spongepowered.api.event.entity.living.LivingEvent;
 import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
-import org.spongepowered.api.event.entity.player.PlayerDropItemEvent;
 import org.spongepowered.api.event.entity.player.PlayerEvent;
 import org.spongepowered.api.event.entity.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.event.entity.player.PlayerPlaceBlockEvent;
@@ -72,7 +71,6 @@ import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
@@ -91,41 +89,44 @@ public class SpongeModEventManager extends SpongeEventManager {
             .put(EventPriority.LOWEST, Order.LAST)
             .build();
 
-    private final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventMappings = new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
-            .put(BlockEvent.class, net.minecraftforge.event.world.BlockEvent.class)
-            .put(BlockUpdateEvent.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
-            .put(LivingEvent.class, net.minecraftforge.event.entity.living.LivingEvent.class)
-            .put(EntityEvent.class, net.minecraftforge.event.entity.EntityEvent.class)
-            .put(EntityConstructingEvent.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
-            .put(EntitySpawnEvent.class, EntityJoinWorldEvent.class)
-            .put(PlayerEvent.class, net.minecraftforge.event.entity.player.PlayerEvent.class)
-            .put(PlayerBreakBlockEvent.class, net.minecraftforge.event.world.BlockEvent.BreakEvent.class)
-            .put(PlayerChatEvent.class, ServerChatEvent.class)
-            .put(PlayerInteractBlockEvent.class, PlayerInteractEvent.class)
-            .put(PlayerPlaceBlockEvent.class, net.minecraftforge.event.world.BlockEvent.PlaceEvent.class)
-            .put(ChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
-            .put(ChunkLoadEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
-            .put(ChunkUnloadEvent.class, net.minecraftforge.event.world.ChunkEvent.Unload.class)
-            .put(WorldEvent.class, net.minecraftforge.event.world.WorldEvent.class)
-            .put(WorldLoadEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
-            .put(WorldUnloadEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
-            .build();
+    private final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventMappings =
+            new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
+                    .put(BlockEvent.class, net.minecraftforge.event.world.BlockEvent.class)
+                    .put(BlockUpdateEvent.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
+                    .put(LivingEvent.class, net.minecraftforge.event.entity.living.LivingEvent.class)
+                    .put(EntityEvent.class, net.minecraftforge.event.entity.EntityEvent.class)
+                    .put(EntityConstructingEvent.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
+                    .put(EntitySpawnEvent.class, EntityJoinWorldEvent.class)
+                    .put(PlayerEvent.class, net.minecraftforge.event.entity.player.PlayerEvent.class)
+                    .put(PlayerBreakBlockEvent.class, net.minecraftforge.event.world.BlockEvent.BreakEvent.class)
+                    .put(PlayerChatEvent.class, ServerChatEvent.class)
+                    .put(PlayerInteractBlockEvent.class, PlayerInteractEvent.class)
+                    .put(PlayerPlaceBlockEvent.class, net.minecraftforge.event.world.BlockEvent.PlaceEvent.class)
+                    .put(ChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
+                    .put(ChunkLoadEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
+                    .put(ChunkUnloadEvent.class, net.minecraftforge.event.world.ChunkEvent.Unload.class)
+                    .put(WorldEvent.class, net.minecraftforge.event.world.WorldEvent.class)
+                    .put(WorldLoadEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
+                    .put(WorldUnloadEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
+                    .build();
 
-    private final ImmutableMap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus> busMappings = new ImmutableMap.Builder<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus>()
-            .put(OreGenEvent.class, MinecraftForge.ORE_GEN_BUS)
+    private final ImmutableMap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus> busMappings =
+            new ImmutableMap.Builder<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus>()
+                    .put(OreGenEvent.class, MinecraftForge.ORE_GEN_BUS)
 
-            .put(WorldTypeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-            .put(BiomeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-            .put(DecorateBiomeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-            .put(InitMapGenEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-            .put(InitNoiseGensEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-            .put(PopulateChunkEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-            .put(SaplingGrowTreeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
+                    .put(WorldTypeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
+                    .put(BiomeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
+                    .put(DecorateBiomeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
+                    .put(InitMapGenEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
+                    .put(InitNoiseGensEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
+                    .put(PopulateChunkEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
+                    .put(SaplingGrowTreeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
 
-            .build();
+                    .put(net.minecraftforge.fml.common.gameevent.PlayerEvent.class, FMLCommonHandler.instance().bus())
+
+                    .build();
 
     private final Map<Class<? extends Event>, Method> factoryMethodMappings = Maps.newHashMap();
-
 
     @Inject
     public SpongeModEventManager(PluginManager pluginManager) {
@@ -134,7 +135,8 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     private void buildFactoryMethodMappings() {
-        for (Map.Entry<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> entry: this.eventMappings.entrySet()) {
+        for (Map.Entry<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> entry : this.eventMappings
+                .entrySet()) {
             try {
                 Method method = entry.getValue().getDeclaredMethod("fromSpongeEvent", entry.getKey());
                 if (!Modifier.isStatic(method.getModifiers())) {
@@ -184,34 +186,37 @@ public class SpongeModEventManager extends SpongeEventManager {
         return forgeEvent.isCancelable() && forgeEvent.isCanceled();
     }
 
+    private boolean postForgeEvent(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
+        // Avoid separate mappings for events defined as inner classes
+        Class<?> enclosingClass = forgeEvent.getClass().getEnclosingClass();
+        EventBus bus = this.busMappings.get(enclosingClass == null ? forgeEvent.getClass() : enclosingClass);
+        if (bus == null) {
+            bus = MinecraftForge.EVENT_BUS;
+        }
+        return post(forgeEvent, forgeEvent.getListenerList().getListeners(((IMixinEventBus) bus).getBusID()));
+    }
+
     @Override
     public boolean post(Event event) {
         if (event.getClass().getCanonicalName().startsWith(PACKAGE_PREFIX)) {
             if (!(event.getClass().getInterfaces().length == 1)) {
-                throw new IllegalArgumentException("This isn't a real generated event class at all! Any class"
-                                                   + "created by the event generator should implement exactly one interface!"
-                                                   + "(If you're a plugin, nice try.)");
+                throw new IllegalArgumentException("This isn't a real generated event class at all! "
+                        + "Any class created by the event generator should implement exactly one interface! "
+                        + "(If you're a plugin, nice try.)");
             }
             Class<?> interfaceClazz = event.getClass().getInterfaces()[0];
             if (this.factoryMethodMappings.containsKey(interfaceClazz)) {
                 try {
-                    net.minecraftforge.fml.common.eventhandler.Event
-                            forgeEvent =
+                    net.minecraftforge.fml.common.eventhandler.Event forgeEvent =
                             (net.minecraftforge.fml.common.eventhandler.Event) this.factoryMethodMappings.get(interfaceClazz).invoke(null, event);
-                    Class<?>
-                            enclosingClass =
-                            forgeEvent.getClass().getEnclosingClass(); // Avoid separate mappings for events defined as inner classes
-
-                    EventBus bus = this.busMappings.get(enclosingClass == null ? forgeEvent.getClass() : enclosingClass);
-                    if (bus == null) {
-                        bus = MinecraftForge.EVENT_BUS;
-                    }
-
-                    return post(forgeEvent, forgeEvent.getListenerList().getListeners(((IMixinEventBus) bus).getBusID()));
+                    return postForgeEvent(forgeEvent);
                 } catch (Throwable throwable) {
                     Sponge.getLogger().error("Could not post {}", event.getClass().getSimpleName(), throwable);
                 }
             }
+        }
+        if (event instanceof net.minecraftforge.fml.common.eventhandler.Event) {
+            return postForgeEvent((net.minecraftforge.fml.common.eventhandler.Event) event);
         }
         return super.post(event);
     }
