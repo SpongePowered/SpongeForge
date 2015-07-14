@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.fml;
 
 import net.minecraft.entity.Entity;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -33,16 +34,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.Sponge;
 import org.spongepowered.common.entity.SpongeEntityRegistry;
 import org.spongepowered.common.entity.SpongeEntityType;
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.registry.SpongeModGameRegistry;
+import org.spongepowered.common.registry.SpongeGameRegistry;
 
 @NonnullByDefault
 @Mixin(value = EntityRegistry.class, remap = false)
 public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
-
-    private SpongeModGameRegistry gameRegistry = (SpongeModGameRegistry) SpongeMod.instance.getGame().getRegistry();
 
     @Inject(method = "doModEntityRegistration", at = @At(value = "RETURN", ordinal = 1))
     private void onModEntityRegistration(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
@@ -50,9 +49,25 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
         registerCustomEntity(entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
     }
 
+    @Inject(method = "registerGlobalEntityID(Ljava/lang/Class;Ljava/lang/String;I)V", at = @At(value = "RETURN", ordinal = 1))
+    private static void onRegisterGlobal(Class<? extends Entity> entityClass, String entityName, int id, CallbackInfo ci) {
+        registerCustomEntity(entityClass, entityName, id, Loader.instance().activeModContainer());
+    }
+
+    @Inject(method = "registerGlobalEntityID(Ljava/lang/Class;Ljava/lang/String;III)V", at = @At(value = "RETURN", ordinal = 1))
+    private static void onRegisterGlobal(Class<? extends Entity> entityClass, String entityName, int id, int backgroundEggColour, int foregroundEggColour,
+            CallbackInfo ci) {
+        registerCustomEntity(entityClass, entityName, id, Loader.instance().activeModContainer());
+    }
+
+    // TODO Why do we need SpongeEntityRegistry?
     @Override
     public void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
             int updateFrequency, boolean sendsVelocityUpdates) {
+        registerCustomEntity(entityClass, entityName, id, FMLCommonHandler.instance().findContainerFor(mod));
+    }
+
+    private static void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, ModContainer modContainer) {
         // fixup bad entity names from mods
         if (entityName.contains(".")) {
             if ((entityName.indexOf(".") + 1) < entityName.length()) {
@@ -64,15 +79,15 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
             entityName.replace("ent", "");
         }
         entityName = entityName.replaceAll("[^A-Za-z0-9]", ""); // remove all non-digits/alphanumeric
-        ModContainer activeModContainer = Loader.instance().activeModContainer();
         String modId = "unknown";
-        if (activeModContainer != null) {
-            modId = activeModContainer.getModId();
+        if (modContainer != null) {
+            modId = modContainer.getModId();
         }
         //entityName = modId + "-" + entityName;
         SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass);
-        this.gameRegistry.entityClassToTypeMappings.put(entityClass, entityType);
-        this.gameRegistry.entityIdToTypeMappings.put(entityType.getId(), entityType);
+        SpongeGameRegistry gameRegistry = Sponge.getSpongeRegistry();
+        gameRegistry.entityClassToTypeMappings.put(entityClass, entityType);
+        gameRegistry.entityIdToTypeMappings.put(entityType.getId(), entityType);
     }
 
 }
