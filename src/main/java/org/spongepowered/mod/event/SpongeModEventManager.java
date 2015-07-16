@@ -52,6 +52,7 @@ import org.spongepowered.api.event.block.BlockUpdateEvent;
 import org.spongepowered.api.event.entity.EntityConstructingEvent;
 import org.spongepowered.api.event.entity.EntityEvent;
 import org.spongepowered.api.event.entity.EntitySpawnEvent;
+import org.spongepowered.api.event.entity.living.LivingDeathEvent;
 import org.spongepowered.api.event.entity.living.LivingEvent;
 import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
@@ -94,6 +95,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(BlockEvent.class, net.minecraftforge.event.world.BlockEvent.class)
                     .put(BlockUpdateEvent.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
                     .put(LivingEvent.class, net.minecraftforge.event.entity.living.LivingEvent.class)
+                    // .put(LivingDeathEvent.class, net.minecraftforge.event.entity.living.LivingDeathEvent.class)
                     .put(EntityEvent.class, net.minecraftforge.event.entity.EntityEvent.class)
                     .put(EntityConstructingEvent.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
                     .put(EntitySpawnEvent.class, EntityJoinWorldEvent.class)
