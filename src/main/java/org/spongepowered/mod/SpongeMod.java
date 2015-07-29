@@ -182,7 +182,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             SpongeBootstrap.initializeRegistry();
             if (!this.game.getServiceManager().provide(PermissionService.class).isPresent()) {
                 try {
-                    final SpongePermissionService service = new SpongePermissionService();
+                    final SpongePermissionService service = new SpongePermissionService(this.game);
                     // Setup default permissions
                     service.getGroupForOpLevel(1).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.selector", Tristate.TRUE);
                     service.getGroupForOpLevel(2).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.commandblock", Tristate.TRUE);
