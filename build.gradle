@@ -28,7 +28,7 @@ apply plugin: 'forge'
 ext {
     minecraftPlugin = plugins.getPlugin('forge')
 
-    forgeBuild = '1487'
+    forgeBuild = '1499'
     forgeVersion = "11.14.3.$forgeBuild"
 }
 
