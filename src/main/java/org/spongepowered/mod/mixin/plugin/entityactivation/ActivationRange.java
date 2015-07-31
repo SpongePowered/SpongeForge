@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.plugin.entityactivation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.IRangedAttackMob;
@@ -53,6 +52,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.FakePlayer;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.configuration.SpongeConfig;
+import org.spongepowered.common.configuration.SpongeConfig.WorldConfig;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.interfaces.IMixinEntity;
 import org.spongepowered.common.interfaces.IMixinWorld;
@@ -347,7 +347,7 @@ public class ActivationRange {
     }
 
     public static SpongeConfig<?> getActiveConfig(World world) {
-        SpongeConfig<?> config = ((IMixinWorld) world).getWorldConfig();
+        SpongeConfig<WorldConfig> config = ((IMixinWorld) world).getWorldConfig();
         if (config.getConfig().isConfigEnabled()) {
             return config;
         } else if (((IMixinWorldProvider) world.provider).getDimensionConfig() != null && ((IMixinWorldProvider) world.provider)
