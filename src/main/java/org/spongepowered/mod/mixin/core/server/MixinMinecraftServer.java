@@ -25,16 +25,27 @@
 package org.spongepowered.mod.mixin.core.server;
 
 import net.minecraft.server.MinecraftServer;
+import org.spongepowered.api.Server;
+import org.spongepowered.api.service.world.ChunkLoadService;
+import org.spongepowered.mod.service.world.SpongeChunkLoadService;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Hashtable;
 
 @Mixin(value = MinecraftServer.class, priority = 1001, remap = false)
-public abstract class MixinMinecraftServer {
+public abstract class MixinMinecraftServer implements Server {
+
+    public ChunkLoadService chunkLoadService = new SpongeChunkLoadService();
+
     @Shadow public Hashtable<Integer, long[]> worldTickTimes = new Hashtable<Integer, long[]>();
 
     public Hashtable<Integer, long[]> getWorldTickTimes() {
         return this.worldTickTimes;
+    }
+
+    @Override
+    public ChunkLoadService getChunkLoadService() {
+        return this.chunkLoadService;
     }
 }

@@ -59,6 +59,7 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.persistence.SerializationService;
 import org.spongepowered.api.service.sql.SqlService;
+import org.spongepowered.api.service.world.ChunkLoadService;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.command.CommandMapping;
 import org.spongepowered.common.Sponge;
@@ -75,6 +76,7 @@ import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.registry.SpongeModGameRegistry;
+import org.spongepowered.mod.service.world.SpongeChunkLoadService;
 
 import java.io.File;
 import java.io.IOException;
@@ -134,6 +136,16 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         return Sponge.getConfigDirectory();
     }
 
+    private <T> boolean registerService(Class<T> serviceClass, T serviceImpl) {
+        try {
+            Sponge.getGame().getServiceManager().setProvider(Sponge.getPlugin(), serviceClass, serviceImpl);
+            return true;
+        } catch (ProviderExistsException e) {
+            Sponge.getLogger().warn("Non-Sponge {} already registered: {}", serviceClass.getSimpleName(), e.getLocalizedMessage());
+            return false;
+        }
+    }
+
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
@@ -144,6 +156,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onPreInit(FMLPreInitializationEvent event) {
         try {
+            registerService(ChunkLoadService.class, new SpongeChunkLoadService());
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.preInitializeRegistry();
 
