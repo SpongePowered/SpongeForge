@@ -98,7 +98,7 @@ public abstract class MixinNetHandlerPlayServer {
             + "Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraftforge/event/entity/player/PlayerInteractEvent$Action;"
             + "Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;"
             + "Lnet/minecraft/util/EnumFacing;)"
-            + "Lnet/minecraftforge/event/entity/player/PlayerInteractEvent;"))
+            + "Lnet/minecraftforge/event/entity/player/PlayerInteractEvent;"), remap = false)
     public PlayerInteractEvent onFirePlayerInteractEvent(EntityPlayer player, PlayerInteractEvent.Action action, World world, BlockPos pos, EnumFacing face) {
         PlayerInteractEvent event = new PlayerInteractEvent(playerEntity, PlayerInteractEvent.Action.RIGHT_CLICK_AIR, new BlockPos(0, 0, 0), null, world);
         double reach = this.playerEntity.theItemInWorldManager.getGameType() == WorldSettings.GameType.CREATIVE ? 5 : 4.5;
