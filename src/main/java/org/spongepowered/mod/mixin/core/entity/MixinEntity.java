@@ -28,6 +28,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.S07PacketRespawn;
+import net.minecraft.network.play.server.S1DPacketEntityEffect;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
@@ -111,6 +113,11 @@ public abstract class MixinEntity {
             entityplayermp1.theItemInWorldManager.setWorld(toWorld);
             entityplayermp1.addSelfToInternalCraftingInventory();
             entityplayermp1.setHealth(entityplayermp1.getHealth());
+            
+            for(Object effect : entityplayermp1.getActivePotionEffects()) {
+                entityplayermp1.playerNetServerHandler.sendPacket(new S1DPacketEntityEffect(entityplayermp1.getEntityId(), (PotionEffect) effect));
+            }
+            
             net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerChangedDimensionEvent(entityplayermp1, currentDim, targetDim);
         } else {
             toWorld.spawnEntityInWorld(entity);
