@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Mixin(HarvestDropsEvent.class)
+@Mixin(value = HarvestDropsEvent.class, remap = false)
 public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock implements PlayerHarvestBlockEvent {
 
     // TODO: add support for fortuneLevel
