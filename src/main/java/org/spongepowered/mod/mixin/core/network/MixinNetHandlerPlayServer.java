@@ -100,7 +100,7 @@ public abstract class MixinNetHandlerPlayServer {
             + "Lnet/minecraft/util/EnumFacing;)"
             + "Lnet/minecraftforge/event/entity/player/PlayerInteractEvent;", remap = false))
     public PlayerInteractEvent onFirePlayerInteractEvent(EntityPlayer player, PlayerInteractEvent.Action action, World world, BlockPos pos, EnumFacing face) {
-        PlayerInteractEvent event = new PlayerInteractEvent(playerEntity, PlayerInteractEvent.Action.RIGHT_CLICK_AIR, new BlockPos(0, 0, 0), null, world);
+        PlayerInteractEvent event = new PlayerInteractEvent(player, action, pos, face, world);
         double reach = this.playerEntity.theItemInWorldManager.getGameType() == WorldSettings.GameType.CREATIVE ? 5 : 4.5;
         Optional<BlockRayHit> attempt =
         BlockRay.from((Player)this.playerEntity)
