@@ -24,23 +24,18 @@
  */
 package org.spongepowered.mod.mixin.core.event.entity.living;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraftforge.event.entity.EntityEvent;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.event.entity.living.LivingEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
 @Mixin(value = net.minecraftforge.event.entity.living.LivingEvent.class, remap = false)
-public abstract class MixinEventLiving extends EntityEvent implements LivingEvent {
+public abstract class MixinEventLiving extends MixinEventEntity implements LivingEvent {
 
     @Shadow public EntityLivingBase entityLiving;
-
-    public MixinEventLiving(Entity entity) {
-        super(entity);
-    }
 
     @Override
     public Living getEntity() {

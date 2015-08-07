@@ -55,10 +55,6 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     @Shadow public BlockPos pos;
     @Shadow public EnumFacing face;
 
-    public MixinEventPlayerInteractBlock(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, World world) {
-        super(player);
-    }
-
     @Override
     public Location getBlock() {
         return new Location((org.spongepowered.api.world.World) this.world, VecHelper.toVector(this.pos).toDouble());

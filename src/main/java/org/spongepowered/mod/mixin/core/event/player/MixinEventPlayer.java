@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerEvent;
@@ -39,10 +38,6 @@ import org.spongepowered.mod.mixin.core.event.entity.living.MixinEventLiving;
 public abstract class MixinEventPlayer extends MixinEventLiving implements PlayerEvent {
 
     @Shadow public EntityPlayer entityPlayer;
-
-    public MixinEventPlayer(EntityLivingBase entity) {
-        super(entity);
-    }
 
     @Override
     public Player getEntity() {
