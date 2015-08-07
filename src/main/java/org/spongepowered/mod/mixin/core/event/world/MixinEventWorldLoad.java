@@ -24,8 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
-import net.minecraft.world.World;
-import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.event.world.WorldLoadEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,14 +31,12 @@ import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.WorldEvent.Load.class, remap = false)
-public abstract class MixinEventWorldLoad extends WorldEvent implements WorldLoadEvent {
+public abstract class MixinEventWorldLoad extends MixinEventWorld implements WorldLoadEvent {
 
-    public MixinEventWorldLoad(World world) {
-        super(world);
-    }
-
+    @SuppressWarnings("unused")
     private static net.minecraftforge.event.world.WorldEvent.Load fromSpongeEvent(org.spongepowered.api.event.world.WorldLoadEvent spongeEvent) {
-        net.minecraftforge.event.world.WorldEvent.Load event = new net.minecraftforge.event.world.WorldEvent.Load((net.minecraft.world.World) spongeEvent.getWorld());
+        net.minecraftforge.event.world.WorldEvent.Load event =
+                new net.minecraftforge.event.world.WorldEvent.Load((net.minecraft.world.World) spongeEvent.getWorld());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

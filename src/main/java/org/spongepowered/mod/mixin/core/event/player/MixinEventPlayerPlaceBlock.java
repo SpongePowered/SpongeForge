@@ -46,20 +46,11 @@ import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 @Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
 public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock implements PlayerPlaceBlockEvent {
 
-    @Shadow
-    public EntityPlayer player;
-
-    @Shadow
-    public ItemStack itemInHand;
-
-    @Shadow
-    public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
-
-    @Shadow
-    public IBlockState placedBlock;
-
-    @Shadow
-    public IBlockState placedAgainst;
+    @Shadow public EntityPlayer player;
+    @Shadow public ItemStack itemInHand;
+    @Shadow public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
+    @Shadow public IBlockState placedBlock;
+    @Shadow public IBlockState placedAgainst;
 
     @Override
     public Player getEntity() {
@@ -87,7 +78,9 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
         World world = (World) spongeEvent.getBlock().getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
-        BlockEvent.PlaceEvent event = new BlockEvent.PlaceEvent((net.minecraftforge.common.util.BlockSnapshot) spongeEvent.getReplacementBlock(), world.getBlockState(pos), (EntityPlayer) spongeEvent.getEntity());
+        BlockEvent.PlaceEvent event =
+                new BlockEvent.PlaceEvent((net.minecraftforge.common.util.BlockSnapshot) spongeEvent.getReplacementBlock(), world.getBlockState(pos),
+                        (EntityPlayer) spongeEvent.getEntity());
 
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;

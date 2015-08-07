@@ -25,12 +25,11 @@
 package org.spongepowered.mod.mixin.core.event.state;
 
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
 import org.spongepowered.api.event.state.ServerStoppedEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(FMLServerStoppedEvent.class)
-public abstract class MixinEventServerStopped extends FMLStateEvent implements ServerStoppedEvent {
+public abstract class MixinEventServerStopped extends MixinEventState implements ServerStoppedEvent {
 }

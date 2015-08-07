@@ -25,12 +25,11 @@
 package org.spongepowered.mod.mixin.core.event.state;
 
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
 import org.spongepowered.api.event.state.ServerStartingEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(FMLServerStartingEvent.class)
-public abstract class MixinEventServerStarting extends FMLStateEvent implements ServerStartingEvent {
+public abstract class MixinEventServerStarting extends MixinEventState implements ServerStartingEvent {
 }

@@ -24,8 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.event.entity;
 
-import net.minecraft.entity.Entity;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 import org.spongepowered.api.event.entity.EntityConstructingEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,12 +33,9 @@ import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @NonnullByDefault
 @Mixin(value = EntityEvent.EntityConstructing.class, remap = false)
-public abstract class MixinEventEntityConstructing extends EntityEvent implements EntityConstructingEvent {
+public abstract class MixinEventEntityConstructing extends MixinEventEntity implements EntityConstructingEvent {
 
-    public MixinEventEntityConstructing(Entity entity) {
-        super(entity);
-    }
-
+    @SuppressWarnings("unused")
     private static EntityConstructing fromSpongeEvent(EntityConstructingEvent spongeEvent) {
         EntityConstructing event = new EntityConstructing((net.minecraft.entity.Entity) spongeEvent.getEntity());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);

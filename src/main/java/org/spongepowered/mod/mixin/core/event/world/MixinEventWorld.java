@@ -24,35 +24,29 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.event.world.WorldEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.WorldEvent.class, remap = false)
-public abstract class MixinEventWorld extends Event implements WorldEvent {
+public abstract class MixinEventWorld extends MixinEvent implements WorldEvent {
 
-    @Shadow
-    public net.minecraft.world.World world;
+    @Shadow public net.minecraft.world.World world;
 
     @Override
     public World getWorld() {
         return (World) this.world;
     }
 
-    @Override
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
-    }
-
+    @SuppressWarnings("unused")
     private static net.minecraftforge.event.world.WorldEvent fromSpongeEvent(WorldEvent spongeEvent) {
-        net.minecraftforge.event.world.WorldEvent event = new net.minecraftforge.event.world.WorldEvent((net.minecraft.world.World) spongeEvent.getWorld());
+        net.minecraftforge.event.world.WorldEvent event =
+                new net.minecraftforge.event.world.WorldEvent((net.minecraft.world.World) spongeEvent.getWorld());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

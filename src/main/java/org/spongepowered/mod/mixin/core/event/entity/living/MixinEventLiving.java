@@ -36,8 +36,7 @@ import org.spongepowered.mod.interfaces.IMixinEvent;
 @Mixin(value = net.minecraftforge.event.entity.living.LivingEvent.class, remap = false)
 public abstract class MixinEventLiving extends EntityEvent implements LivingEvent {
 
-    @Shadow
-    public EntityLivingBase entityLiving;
+    @Shadow public EntityLivingBase entityLiving;
 
     public MixinEventLiving(Entity entity) {
         super(entity);
@@ -48,6 +47,7 @@ public abstract class MixinEventLiving extends EntityEvent implements LivingEven
         return (Living) this.entityLiving;
     }
 
+    @SuppressWarnings("unused")
     private static net.minecraftforge.event.entity.living.LivingEvent fromSpongeEvent(LivingEvent spongeEvent) {
         net.minecraftforge.event.entity.living.LivingEvent event = new net.minecraftforge.event.entity.living.LivingEvent((EntityLivingBase) spongeEvent.getEntity());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);

@@ -51,27 +51,15 @@ import javax.annotation.Nullable;
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
 public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerChatEvent, IMixinEventPlayerChat {
 
-    @Shadow
-    public String message;
-
-    @Shadow
-    public String username;
-
-    @Shadow
-    public EntityPlayerMP player;
-
-    @Shadow
-    public ChatComponentTranslation component;
-
     private Text spongeText;
-
-    @Nullable
-    private Text spongeNewText;
-
-    @Nullable
-    private MessageSink sink;
-
     private Text unformattedText;
+    @Nullable private Text spongeNewText;
+    @Nullable private MessageSink sink;
+
+    @Shadow public String message;
+    @Shadow public String username;
+    @Shadow public EntityPlayerMP player;
+    @Shadow public ChatComponentTranslation component;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayerMP player, String message, ChatComponentTranslation component, CallbackInfo ci) {
@@ -96,8 +84,10 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
         return this.spongeNewText;
     }
 
-    @Override // TODO: Better integration with forge mods?
-    public void setNewMessage(Text text) {
+    @Override
+    // TODO: Better integration with forge mods?
+            public
+            void setNewMessage(Text text) {
         this.spongeNewText = text;
         final IChatComponent component = SpongeTexts.toComponent(text, ((Player) this.player).getLocale());
         if (component instanceof ChatComponentTranslation) {
@@ -161,11 +151,14 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
     private static ServerChatEvent fromSpongeEvent(PlayerChatEvent spongeEvent) {
         IChatComponent component = SpongeTexts.toComponent(spongeEvent.getMessage(), spongeEvent.getEntity().getLocale());
         if (!(component instanceof ChatComponentTranslation)) {
-           component = new ChatComponentTranslation("%s", component);
+            component = new ChatComponentTranslation("%s", component);
         }
 
-        // Using toPlain here is fine, since the raw message from the client can't have formatting.
-        ServerChatEvent event = new ServerChatEvent((EntityPlayerMP) spongeEvent.getEntity(), Texts.toPlain(spongeEvent.getMessage()), (ChatComponentTranslation) component);
+        // Using toPlain here is fine, since the raw message from the client
+        // can't have formatting.
+        ServerChatEvent event =
+                new ServerChatEvent((EntityPlayerMP) spongeEvent.getEntity(), Texts.toPlain(spongeEvent.getMessage()),
+                        (ChatComponentTranslation) component);
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

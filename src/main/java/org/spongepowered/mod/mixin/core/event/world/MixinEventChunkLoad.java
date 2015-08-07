@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
-import net.minecraftforge.event.world.ChunkEvent;
 import org.spongepowered.api.event.world.ChunkLoadEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
@@ -36,18 +35,16 @@ import org.spongepowered.mod.interfaces.IMixinEvent;
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.ChunkEvent.Load.class, remap = false)
 @Implements(@Interface(iface = ChunkLoadEvent.class, prefix = "chunkload$"))
-public abstract class MixinEventChunkLoad extends ChunkEvent {
-
-    public MixinEventChunkLoad(net.minecraft.world.chunk.Chunk chunk) {
-        super(chunk);
-    }
+public abstract class MixinEventChunkLoad extends MixinEventChunk {
 
     public Chunk chunkload$getChunk() {
-        return (Chunk) getChunk();
+        return getChunk();
     }
 
+    @SuppressWarnings("unused")
     private static net.minecraftforge.event.world.ChunkEvent.Load fromSpongeEvent(org.spongepowered.api.event.world.ChunkLoadEvent spongeEvent) {
-        net.minecraftforge.event.world.ChunkEvent.Load event = new net.minecraftforge.event.world.ChunkEvent.Load(((net.minecraft.world.chunk.Chunk) spongeEvent.getChunk()));
+        net.minecraftforge.event.world.ChunkEvent.Load event =
+                new net.minecraftforge.event.world.ChunkEvent.Load(((net.minecraft.world.chunk.Chunk) spongeEvent.getChunk()));
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

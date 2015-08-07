@@ -24,35 +24,29 @@
  */
 package org.spongepowered.mod.mixin.core.event.entity;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.event.entity.EntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.EntityEvent.class, remap = false)
-public abstract class MixinEventEntity extends Event implements EntityEvent {
+public abstract class MixinEventEntity extends MixinEvent implements EntityEvent {
 
-    @Shadow
-    public net.minecraft.entity.Entity entity;
+    @Shadow public net.minecraft.entity.Entity entity;
 
     @Override
     public Entity getEntity() {
         return (Entity) this.entity;
     }
 
-    @Override
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
-    }
-
+    @SuppressWarnings("unused")
     private static net.minecraftforge.event.entity.EntityEvent fromSpongeEvent(EntityEvent spongeEvent) {
-        net.minecraftforge.event.entity.EntityEvent event = new net.minecraftforge.event.entity.EntityEvent((net.minecraft.entity.Entity) spongeEvent.getEntity());
+        net.minecraftforge.event.entity.EntityEvent event =
+                new net.minecraftforge.event.entity.EntityEvent((net.minecraft.entity.Entity) spongeEvent.getEntity());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

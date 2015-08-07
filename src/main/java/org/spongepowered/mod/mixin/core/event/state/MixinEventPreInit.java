@@ -25,12 +25,11 @@
 package org.spongepowered.mod.mixin.core.event.state;
 
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
 import org.spongepowered.api.event.state.PreInitializationEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(value = FMLPreInitializationEvent.class, remap = false)
-public abstract class MixinEventPreInit extends FMLStateEvent implements PreInitializationEvent {
+public abstract class MixinEventPreInit extends MixinEventState implements PreInitializationEvent {
 }

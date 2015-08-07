@@ -24,12 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
-import net.minecraft.block.state.IBlockState;
+import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
+
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.player.Player;
@@ -45,7 +43,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Mixin(HarvestDropsEvent.class)
-public abstract class MixinEventPlayerHarvestBlock extends BlockEvent implements PlayerHarvestBlockEvent {
+public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock implements PlayerHarvestBlockEvent {
 
     // TODO: add support for fortuneLevel
     @Shadow public int fortuneLevel;
@@ -53,10 +51,6 @@ public abstract class MixinEventPlayerHarvestBlock extends BlockEvent implements
     @Shadow public boolean isSilkTouching;
     @Shadow public float dropChance;
     @Shadow public EntityPlayer harvester;
-
-    public MixinEventPlayerHarvestBlock(World world, BlockPos pos, IBlockState state) {
-        super(world, pos, state);
-    }
 
     @Override
     public void setDroppedItems(Collection<Item> items) {

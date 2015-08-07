@@ -26,8 +26,6 @@ package org.spongepowered.mod.mixin.core.event.block;
 
 import com.google.common.base.Optional;
 import net.minecraft.util.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.event.block.BlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -38,7 +36,6 @@ import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
@@ -46,11 +43,9 @@ import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 @Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)
 public abstract class MixinEventBlock extends MixinEvent implements BlockEvent {
 
-    @Shadow
-    public BlockPos pos;
+    @Shadow public BlockPos pos;
 
-    @Shadow
-    public net.minecraft.world.World world;
+    @Shadow public net.minecraft.world.World world;
 
     @Override
     public Location getBlock() {
@@ -62,11 +57,7 @@ public abstract class MixinEventBlock extends MixinEvent implements BlockEvent {
         return Optional.of(new Cause(null, getBlock(), null));
     }
 
-    @Override
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
-    }
-
+    @SuppressWarnings("unused")
     private static net.minecraftforge.event.world.BlockEvent fromSpongeEvent(BlockEvent spongeEvent) {
         net.minecraft.world.World world;
         Extent extent = spongeEvent.getBlock().getExtent();

@@ -29,6 +29,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import org.spongepowered.api.event.block.BlockUpdateEvent;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -45,18 +46,11 @@ import java.util.Set;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.NeighborNotifyEvent.class, remap = false)
-public abstract class MixinBlockUpdateEvent extends BlockEvent implements BlockUpdateEvent {
-
-    @Shadow
-    private final EnumSet<EnumFacing> notifiedSides;
+public abstract class MixinEventBlockUpdate extends MixinEventBlock implements BlockUpdateEvent {
 
     private Set<Location> affectedBlocks;
 
-    public MixinBlockUpdateEvent(World world, BlockPos pos, IBlockState state, EnumSet<EnumFacing> notifiedSides) {
-        super(world, pos, state);
-
-        this.notifiedSides = notifiedSides;
-    }
+    @Shadow private EnumSet<EnumFacing> notifiedSides;
 
     @Override
     public Collection<Location> getAffectedBlocks() {
@@ -76,17 +70,17 @@ public abstract class MixinBlockUpdateEvent extends BlockEvent implements BlockU
 
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
         for (Direction direction : Direction.values()) {
-            if ((direction.isCardinal() || direction == Direction.UP || direction == Direction.DOWN) && blockUpdateEvent.getAffectedBlocks().contains(location.getRelative(direction))) {
+            if ((direction.isCardinal() || direction == Direction.UP || direction == Direction.DOWN)
+                    && blockUpdateEvent.getAffectedBlocks().contains(location.getRelative(direction))) {
                 facings.add(SpongeGameRegistry.directionMap.get(direction));
             }
         }
 
-        NeighborNotifyEvent
-                event =
-                new NeighborNotifyEvent((World) (Object) blockUpdateEvent.getBlock().getExtent(),
-                                        new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                                        (IBlockState) (Object) blockUpdateEvent.getBlock().getExtent()
-                                                .getBlock(blockUpdateEvent.getBlock().getBlockPosition()), facings);
+        NeighborNotifyEvent event =
+                new NeighborNotifyEvent((World) blockUpdateEvent.getBlock().getExtent(),
+                        new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+                        (IBlockState) blockUpdateEvent.getBlock().getExtent()
+                                .getBlock(blockUpdateEvent.getBlock().getBlockPosition()), facings);
         ((IMixinEvent) event).setSpongeEvent(blockUpdateEvent);
         return event;
     }

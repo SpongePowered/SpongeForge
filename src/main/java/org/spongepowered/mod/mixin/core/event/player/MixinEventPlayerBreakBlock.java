@@ -31,8 +31,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.entity.Item;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
@@ -46,23 +44,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
-import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.BreakEvent.class, remap = false)
 public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements PlayerBreakBlockEvent {
 
     private net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
-    private List<Item> droppedItems = new ArrayList<Item>();
 
-    @Shadow
-    private int exp;
-
-    @Shadow
-    private EntityPlayer player;
+    @Shadow private int exp;
+    @Shadow private EntityPlayer player;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onInit(World world, BlockPos pos, IBlockState state, EntityPlayer player, CallbackInfo ci) {
@@ -122,6 +112,7 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
         }
     }
 
+    @SuppressWarnings("unused")
     private static BlockEvent.BreakEvent fromSpongeEvent(PlayerBreakBlockEvent spongeEvent) {
         Location location = spongeEvent.getBlock();
         World world = (World) spongeEvent.getBlock().getExtent();

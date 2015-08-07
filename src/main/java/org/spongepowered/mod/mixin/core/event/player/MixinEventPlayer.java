@@ -26,17 +26,17 @@ package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.mixin.core.event.entity.living.MixinEventLiving;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerEvent.class, remap = false)
-public abstract class MixinEventPlayer extends LivingEvent implements PlayerEvent {
+public abstract class MixinEventPlayer extends MixinEventLiving implements PlayerEvent {
 
     @Shadow public EntityPlayer entityPlayer;
 
@@ -54,8 +54,10 @@ public abstract class MixinEventPlayer extends LivingEvent implements PlayerEven
         return (Player) this.entityPlayer;
     }
 
+    @SuppressWarnings("unused")
     private static net.minecraftforge.event.entity.player.PlayerEvent fromSpongeEvent(PlayerEvent spongeEvent) {
-        net.minecraftforge.event.entity.player.PlayerEvent event = new net.minecraftforge.event.entity.player.PlayerEvent((EntityPlayer) spongeEvent.getEntity());
+        net.minecraftforge.event.entity.player.PlayerEvent event =
+                new net.minecraftforge.event.entity.player.PlayerEvent((EntityPlayer) spongeEvent.getEntity());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

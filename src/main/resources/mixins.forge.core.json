@@ -12,7 +12,7 @@
         "entity.player.MixinEntityPlayerMP",
         "entity.vehicle.MixinEntityMinecart",
         "event.block.MixinEventBlock",
-        "event.block.MixinBlockUpdateEvent",
+        "event.block.MixinEventBlockUpdate",
         "event.entity.MixinEventEntity",
         "event.entity.MixinEventEntityConstructing",
         "event.entity.MixinEventEntityJoinWorld",
