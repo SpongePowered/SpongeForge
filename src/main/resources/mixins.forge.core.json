@@ -23,6 +23,7 @@
         "event.player.MixinEventPlayerDropItem",
         "event.player.MixinEventPlayerChat",
         "event.player.MixinEventPlayerInteractBlock",
+        "event.player.MixinEventPlayerHarvestBlock",
         "event.player.MixinEventPlayerPlaceBlock",
         "event.state.MixinEventConstruction",
         "event.state.MixinEventInit",
