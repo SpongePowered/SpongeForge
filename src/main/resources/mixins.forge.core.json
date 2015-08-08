@@ -41,7 +41,10 @@
         "event.world.MixinEventChunkLoad",
         "event.world.MixinEventChunkUnload",
         "event.world.MixinEventWorld",
+        "event.world.MixinEventWorldExplosion",
         "event.world.MixinEventWorldLoad",
+        "event.world.MixinEventWorldOnExplosion",
+        "event.world.MixinEventWorldPreExplosion",
         "event.world.MixinEventWorldUnload",
         "fml.MixinEntityRegistry",
         "fml.common.eventhandler.MixinEventBus",
@@ -57,6 +60,7 @@
         "server.MixinServerCommandManager",
         "server.MixinServerConfigurationManager",
         "world.MixinChunk",
+        "world.MixinExplosion",
         "world.MixinWorld",
         "world.MixinWorldProvider",
         "world.storage.MixinSaveHandler"
