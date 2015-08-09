@@ -26,20 +26,12 @@ package org.spongepowered.mod.mixin.core.event.world;
 
 import org.spongepowered.api.event.world.ChunkUnloadEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.Chunk;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.ChunkEvent.Unload.class, remap = false)
-@Implements(@Interface(iface = ChunkUnloadEvent.class, prefix = "chunkunload$"))
-public abstract class MixinEventChunkUnload extends MixinEventChunk {
-
-    public Chunk chunkunload$getChunk() {
-        return getChunk();
-    }
+public abstract class MixinEventChunkUnload extends MixinEventChunk implements ChunkUnloadEvent {
 
     @SuppressWarnings("unused")
     private static net.minecraftforge.event.world.ChunkEvent.Unload fromSpongeEvent(org.spongepowered.api.event.world.ChunkUnloadEvent spongeEvent) {
