@@ -48,8 +48,8 @@ public abstract class MixinC00Handshake {
      *
      * Forge strips out its FML marker when clients connect. This causes
      * BungeeCord's IP forwarding data to be stripped. In order to 
-     * workaround the issue, we will only strip data if BungeeCord is
-     * disabled or BungeeCord's IP forwarding is disabled.
+     * workaround the issue, we will only strip data if the FML marker
+     * is found.
      */
     @Overwrite
     public void readPacketData(PacketBuffer buf) throws IOException {
@@ -60,10 +60,14 @@ public abstract class MixinC00Handshake {
         if (!Sponge.getGlobalConfig().getConfig().getModules().usePluginBungeeCord()
                 || !Sponge.getGlobalConfig().getConfig().getBungeeCord().getIpForwarding()) {
             this.ip = buf.readStringFromBuffer(255);
-            this.hasFMLMarker = this.ip.contains("\0FML\0");
-            this.ip = this.ip.split("\0")[0];
         } else {
             this.ip = buf.readStringFromBuffer(Short.MAX_VALUE);
+        }
+
+        // Check for FML marker and strip if found
+        this.hasFMLMarker = this.ip.contains("\0FML\0");
+        if (this.hasFMLMarker) {
+            this.ip = this.ip.split("\0")[0];
         }
 
         this.port = buf.readUnsignedShort();
