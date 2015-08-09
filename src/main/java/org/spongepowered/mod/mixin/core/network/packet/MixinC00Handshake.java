@@ -60,6 +60,7 @@ public abstract class MixinC00Handshake {
         if (!Sponge.getGlobalConfig().getConfig().getModules().usePluginBungeeCord()
                 || !Sponge.getGlobalConfig().getConfig().getBungeeCord().getIpForwarding()) {
             this.ip = buf.readStringFromBuffer(255);
+            this.hasFMLMarker = this.ip.contains("\0FML\0");
             this.ip = this.ip.split("\0")[0];
         } else {
             this.ip = buf.readStringFromBuffer(Short.MAX_VALUE);
@@ -67,7 +68,6 @@ public abstract class MixinC00Handshake {
 
         this.port = buf.readUnsignedShort();
         this.requestedState = EnumConnectionState.getById(buf.readVarIntFromBuffer());
-        this.hasFMLMarker = this.ip.contains("\0FML\0");
         // Sponge end
     }
 }
