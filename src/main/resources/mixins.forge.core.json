@@ -67,5 +67,8 @@
     ],
     "client": [
         "server.MixinIntegratedServerAnonInner3"
+    ],
+    "server": [
+        "network.packet.MixinC00Handshake"
     ]
 }
