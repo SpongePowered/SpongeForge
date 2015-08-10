@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.event.block;
 
+import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -37,50 +38,47 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 
-import java.util.Collection;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.NeighborNotifyEvent.class, remap = false)
 public abstract class MixinEventBlockUpdate extends MixinEventBlock implements BlockUpdateEvent {
 
-    private Set<Location> affectedBlocks;
-
     @Shadow private EnumSet<EnumFacing> notifiedSides;
 
+    private List<Location> affectedLocations;
+
     @Override
-    public Collection<Location> getAffectedBlocks() {
-        if (this.affectedBlocks == null) {
-            this.affectedBlocks = new HashSet<Location>();
+    public List<Location> getLocations() {
+        if (this.affectedLocations == null) {
+            this.affectedLocations = Lists.newArrayList();
             for (EnumFacing notifiedSide : this.notifiedSides) {
                 BlockPos offset = this.pos.offset(notifiedSide);
-                this.affectedBlocks.add(((org.spongepowered.api.world.World) this.world).getLocation(offset.getX(), offset.getY(), offset.getZ()));
+                this.affectedLocations.add(((org.spongepowered.api.world.World) this.world).getLocation(offset.getX(), offset.getY(), offset.getZ()));
             }
         }
-        return this.affectedBlocks;
+        return this.affectedLocations;
     }
 
     @SuppressWarnings("unused")
     private static NeighborNotifyEvent fromSpongeEvent(BlockUpdateEvent blockUpdateEvent) {
-        Location location = blockUpdateEvent.getBlock();
+        final Location location = blockUpdateEvent.getLocation();
 
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
         for (Direction direction : Direction.values()) {
             if ((direction.isCardinal() || direction == Direction.UP || direction == Direction.DOWN)
-                    && blockUpdateEvent.getAffectedBlocks().contains(location.getRelative(direction))) {
+                    && blockUpdateEvent.getLocations().contains(location.getRelative(direction))) {
                 facings.add(SpongeGameRegistry.directionMap.get(direction));
             }
         }
 
-        NeighborNotifyEvent event =
-                new NeighborNotifyEvent((World) blockUpdateEvent.getBlock().getExtent(),
-                        new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
-                        (IBlockState) blockUpdateEvent.getBlock().getExtent()
-                                .getBlock(blockUpdateEvent.getBlock().getBlockPosition()), facings);
+        final NeighborNotifyEvent event =
+                new NeighborNotifyEvent((World) blockUpdateEvent.getLocation().getExtent(), VecHelper.toBlockPos(location.getBlockPosition()),
+                        (IBlockState) blockUpdateEvent.getLocation().getBlock(), facings);
         ((IMixinEvent) event).setSpongeEvent(blockUpdateEvent);
         return event;
     }

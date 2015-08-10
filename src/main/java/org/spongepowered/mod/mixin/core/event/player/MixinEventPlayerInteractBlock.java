@@ -31,6 +31,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.EntityInteractionType;
@@ -56,8 +57,13 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     @Shadow public EnumFacing face;
 
     @Override
-    public Location getBlock() {
+    public Location getLocation() {
         return new Location((org.spongepowered.api.world.World) this.world, VecHelper.toVector(this.pos).toDouble());
+    }
+
+    @Override
+    public BlockState getBlock() {
+        return getLocation().getBlock();
     }
 
     @Override
@@ -95,8 +101,8 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @SuppressWarnings("unused")
     private static PlayerInteractEvent fromSpongeEvent(PlayerInteractBlockEvent spongeEvent) {
-        Action action = actionFromSponge(spongeEvent.getInteractionType(), spongeEvent.getBlock().getBlockType());
-        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getBlock().getPosition());
+        Action action = actionFromSponge(spongeEvent.getInteractionType(), spongeEvent.getLocation().getBlockType());
+        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getLocation().getBlockPosition());
         EnumFacing face = SpongeGameRegistry.directionMap.get(spongeEvent.getSide());
 
         PlayerInteractEvent event =

@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.event.block;
 
 import com.google.common.base.Optional;
 import net.minecraft.util.BlockPos;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.event.block.BlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -48,8 +49,13 @@ public abstract class MixinEventBlock extends MixinEvent implements BlockEvent {
     @Shadow public net.minecraft.world.World world;
 
     @Override
-    public Location getBlock() {
+    public Location getLocation() {
         return new Location((World) this.world, VecHelper.toVector(this.pos).toDouble());
+    }
+
+    @Override
+    public BlockState getBlock() {
+        return getLocation().getBlock();
     }
 
     @Override
@@ -60,7 +66,7 @@ public abstract class MixinEventBlock extends MixinEvent implements BlockEvent {
     @SuppressWarnings("unused")
     private static net.minecraftforge.event.world.BlockEvent fromSpongeEvent(BlockEvent spongeEvent) {
         net.minecraft.world.World world;
-        Extent extent = spongeEvent.getBlock().getExtent();
+        Extent extent = spongeEvent.getLocation().getExtent();
         if (extent instanceof World) {
             world = (net.minecraft.world.World) extent;
         } else if (extent instanceof Chunk) {
@@ -69,8 +75,8 @@ public abstract class MixinEventBlock extends MixinEvent implements BlockEvent {
             throw new IllegalArgumentException("Implementing Extent through a plugin class is not currently supported!");
         }
 
-        Location block = spongeEvent.getBlock();
-        BlockPos pos = new BlockPos(block.getBlockX(), block.getBlockY(), block.getBlockZ());
+        Location location = spongeEvent.getLocation();
+        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
         net.minecraftforge.event.world.BlockEvent event = new net.minecraftforge.event.world.BlockEvent(world, pos, world.getBlockState(pos));
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);

@@ -41,7 +41,7 @@ public abstract class MixinC00Handshake {
     @Shadow public String ip;
     @Shadow public int port;
     @Shadow private EnumConnectionState requestedState;
-    @Shadow private boolean hasFMLMarker = false;
+    @Shadow(remap = false) private boolean hasFMLMarker = false;
 
     /**
      * @author bloodmc, dualspiral

@@ -26,13 +26,13 @@ package org.spongepowered.mod.mixin.core.event.world;
 
 import net.minecraftforge.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.WorldExplosionEvent;
-import org.spongepowered.api.world.Explosion;
+import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
-@Mixin(ExplosionEvent.class)
+@Mixin(value = ExplosionEvent.class, remap = false)
 public abstract class MixinEventWorldExplosion extends MixinEvent implements WorldExplosionEvent {
 
     @Shadow public net.minecraft.world.World world;

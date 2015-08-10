@@ -114,8 +114,8 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
 
     @SuppressWarnings("unused")
     private static BlockEvent.BreakEvent fromSpongeEvent(PlayerBreakBlockEvent spongeEvent) {
-        Location location = spongeEvent.getBlock();
-        World world = (World) spongeEvent.getBlock().getExtent();
+        Location location = spongeEvent.getLocation();
+        World world = (World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
         BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos), (EntityPlayer) spongeEvent.getEntity());

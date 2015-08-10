@@ -103,8 +103,8 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
         }
 
         HarvestDropsEvent event =
-                new HarvestDropsEvent((net.minecraft.world.World) spongeEvent.getBlock().getExtent(), VecHelper.toBlockPos(spongeEvent.getBlock()
-                        .getBlockPosition()), (net.minecraft.block.state.IBlockState) spongeEvent.getBlock().getBlock(), 0,
+                new HarvestDropsEvent((net.minecraft.world.World) spongeEvent.getLocation().getExtent(), VecHelper.toBlockPos(spongeEvent.getLocation()
+                        .getBlockPosition()), (net.minecraft.block.state.IBlockState) spongeEvent.getLocation().getBlock(), 0,
                         spongeEvent.getDropChance(), droppedItems, (EntityPlayer) spongeEvent.getEntity(), spongeEvent.isSilkTouch());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
