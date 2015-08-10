@@ -67,7 +67,8 @@ public class SpongePluginManager implements PluginManager {
     @Override
     @SuppressWarnings("unchecked")
     public Collection<PluginContainer> getPlugins() {
-        return ImmutableSet.builder().add(Loader.instance().getMinecraftModContainer()).addAll((List) Loader.instance().getActiveModList()).build();
+        return (ImmutableSet) ImmutableSet.builder().add(Loader.instance().getMinecraftModContainer()).addAll((List) Loader.instance()
+                .getActiveModList()).build();
     }
 
     @Override
