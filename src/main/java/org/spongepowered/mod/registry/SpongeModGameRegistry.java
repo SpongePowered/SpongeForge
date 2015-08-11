@@ -65,7 +65,7 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
             @Override
             public BlockType apply(String fieldName) {
                 final BlockType blockType = getBlock(fieldName.toLowerCase()).get();
-                SpongeModGameRegistry.this.blockTypeMappings.put(fieldName.toLowerCase(), blockType);
+                SpongeModGameRegistry.this.blockTypeMappings.put("minecraft:" + fieldName.toLowerCase(), blockType);
                 return blockType;
             }
         });
@@ -76,7 +76,7 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
 
             @Override
             public ItemType apply(String fieldName) {
-                return getItem(fieldName.toLowerCase()).get();
+                return getItem("minecraft:" + fieldName.toLowerCase()).get();
             }
         });
     }
