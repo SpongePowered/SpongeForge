@@ -59,6 +59,7 @@
         "server.MixinMinecraftServer",
         "server.MixinServerCommandManager",
         "server.MixinServerConfigurationManager",
+        "server.management.MixinItemInWorldManager",
         "world.MixinChunk",
         "world.MixinExplosion",
         "world.MixinWorld",

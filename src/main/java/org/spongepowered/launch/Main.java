@@ -91,7 +91,7 @@ public class Main {
         String dialogTitle = "Cannot start this jar directly - " + Main.getManifestAttribute("Implementation-Version", "DEV");
         JDialog dialog = messagePane.createDialog(null, dialogTitle);
         try {
-            dialog.setIconImage(ImageIO.read(LaunchInfoPanel.class.getResourceAsStream("temp_icon.png")));
+            dialog.setIconImage(ImageIO.read(LaunchInfoPanel.class.getResourceAsStream("sponge_icon.png")));
         } catch (IOException ex) {
             // load icon failed :(
         }

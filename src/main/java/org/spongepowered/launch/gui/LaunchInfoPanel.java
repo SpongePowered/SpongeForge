@@ -93,7 +93,7 @@ public class LaunchInfoPanel extends JPanel {
         this.panelBanner.add(this.lblTitle, BorderLayout.CENTER);
         
         this.lblIcon = new JLabel("");
-        this.lblIcon.setIcon(new ImageIcon(LaunchInfoPanel.class.getResource("temp_logo.png")));
+        this.lblIcon.setIcon(new ImageIcon(LaunchInfoPanel.class.getResource("sponge_logo.png")));
         this.lblIcon.setMinimumSize(new Dimension(72, 72));
         this.lblIcon.setPreferredSize(new Dimension(72, 72));
         this.panelBanner.add(this.lblIcon, BorderLayout.WEST);
