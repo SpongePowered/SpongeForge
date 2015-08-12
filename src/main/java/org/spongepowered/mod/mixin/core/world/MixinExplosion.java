@@ -50,7 +50,6 @@ public abstract class MixinExplosion implements Explosion {
         List<Location> spongeBlockPositions = ((WorldOnExplosionEvent) event).getLocations();
         List affectedBlockPositions = explosion.func_180343_e();
         affectedBlockPositions.clear();
-
         if (shouldBreakBlocks()) {
             for (Location location : spongeBlockPositions) {
                 affectedBlockPositions.add(VecHelper.toBlockPos(location.getBlockPosition()));
