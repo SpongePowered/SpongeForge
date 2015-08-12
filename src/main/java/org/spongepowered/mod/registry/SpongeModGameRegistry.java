@@ -24,8 +24,11 @@
  */
 package org.spongepowered.mod.registry;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Function;
 import net.minecraftforge.fml.common.registry.GameData;
+import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
@@ -35,7 +38,8 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 
-@SuppressWarnings("unchecked")
+import java.util.Map;
+
 @NonnullByDefault
 public class SpongeModGameRegistry extends SpongeGameRegistry {
 
@@ -52,10 +56,16 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
     }
 
     public com.google.common.base.Optional<BlockType> getBlock(String id) {
+        if (!id.contains(":")) {
+            id = "minecraft:" + id; // assume vanilla
+        }
         return com.google.common.base.Optional.fromNullable((BlockType) GameData.getBlockRegistry().getObject(id));
     }
 
     public com.google.common.base.Optional<ItemType> getItem(String id) {
+        if (!id.contains(":")) {
+            id = "minecraft:" + id; // assume vanilla
+        }
         return com.google.common.base.Optional.fromNullable((ItemType) GameData.getItemRegistry().getObject(id));
     }
 
@@ -64,9 +74,7 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
 
             @Override
             public BlockType apply(String fieldName) {
-                final BlockType blockType = getBlock(fieldName.toLowerCase()).get();
-                SpongeModGameRegistry.this.blockTypeMappings.put("minecraft:" + fieldName.toLowerCase(), blockType);
-                return blockType;
+                return getBlock(fieldName.toLowerCase()).get();
             }
         });
     }
@@ -76,8 +84,30 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
 
             @Override
             public ItemType apply(String fieldName) {
-                return getItem("minecraft:" + fieldName.toLowerCase()).get();
+                return getItem(fieldName.toLowerCase()).get();
             }
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends CatalogType> com.google.common.base.Optional<T> getType(Class<T> typeClass, String id) {
+        Map<String, ? extends CatalogType> tempMap = this.catalogTypeMap.get(checkNotNull(typeClass, "null type class"));
+        if (tempMap == null) {
+            return com.google.common.base.Optional.absent();
+        } else {
+            if (BlockType.class.isAssignableFrom(typeClass) || ItemType.class.isAssignableFrom(typeClass)) {
+                if (!id.contains(":")) {
+                    id = "minecraft:" + id; // assume vanilla
+                }
+            }
+
+            T type = (T) tempMap.get(id.toLowerCase());
+            if (type == null) {
+                return com.google.common.base.Optional.absent();
+            } else {
+                return com.google.common.base.Optional.of(type);
+            }
+        }
     }
 }
