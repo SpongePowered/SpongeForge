@@ -23,6 +23,7 @@
         "event.player.MixinEventPlayerDropItem",
         "event.player.MixinEventPlayerChat",
         "event.player.MixinEventPlayerInteractBlock",
+        "event.player.MixinEventPlayerInteractEntity",
         "event.player.MixinEventPlayerItemConsume",
         "event.player.MixinEventPlayerHarvestBlock",
         "event.player.MixinEventPlayerPlaceBlock",
