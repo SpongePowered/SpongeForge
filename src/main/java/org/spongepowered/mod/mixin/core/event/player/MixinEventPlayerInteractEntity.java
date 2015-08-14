@@ -30,10 +30,12 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.EntityInteractionTypes;
 import org.spongepowered.api.event.entity.player.PlayerInteractEntityEvent;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(net.minecraftforge.event.entity.player.EntityInteractEvent.class)
+@NonnullByDefault
+@Mixin(value = net.minecraftforge.event.entity.player.EntityInteractEvent.class, remap = false)
 public abstract class MixinEventPlayerInteractEntity extends MixinEventPlayer implements PlayerInteractEntityEvent {
 
     @Shadow public net.minecraft.entity.Entity target;
