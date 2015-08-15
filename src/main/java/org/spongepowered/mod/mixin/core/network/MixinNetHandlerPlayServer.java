@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.network;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -46,6 +47,8 @@ import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.blockray.BlockRay;
 import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.asm.mixin.Mixin;
@@ -56,7 +59,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.text.SpongeTexts;
-import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 
 @Mixin(NetHandlerPlayServer.class)
 public abstract class MixinNetHandlerPlayServer {
@@ -77,11 +79,14 @@ public abstract class MixinNetHandlerPlayServer {
             cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     public void injectChatEvent(C01PacketChatMessage packetIn, CallbackInfo ci, String s, ChatComponentTranslation component) {
         final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
-        ((IMixinEventPlayerChat) event).setUnformattedMessage(SpongeTexts.toText((IChatComponent) component.getFormatArgs()[1]));
+        final Text playerName = SpongeTexts.toText((IChatComponent) component.getFormatArgs()[0]);
+        ((PlayerChatEvent) event).setUnformattedMessage(SpongeTexts.toText((IChatComponent) component.getFormatArgs()[1]));
 
         if (!MinecraftForge.EVENT_BUS.post(event)) {
             PlayerChatEvent spongeEvent = (PlayerChatEvent) event;
-            spongeEvent.getSink().sendMessage(spongeEvent.getNewMessage());
+            Text returned = Texts.format(spongeEvent.getNewMessage(), ImmutableMap.of(PlayerChatEvent.PLACEHOLDER_NAME, playerName,
+                    PlayerChatEvent.PLACEHOLDER_MESSAGE, spongeEvent.getUnformattedMessage()));
+            spongeEvent.getSink().sendMessage(returned);
 
             // Chat spam suppression from MC
             this.chatSpamThresholdCount += 20;

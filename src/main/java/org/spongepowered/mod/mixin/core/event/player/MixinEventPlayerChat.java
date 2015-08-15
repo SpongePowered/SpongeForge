@@ -42,14 +42,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.mod.interfaces.IMixinEvent;
-import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
-public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerChatEvent, IMixinEventPlayerChat {
+public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerChatEvent {
 
     private Text spongeText;
     private Text unformattedText;
@@ -86,8 +85,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
 
     @Override
     // TODO: Better integration with forge mods?
-            public
-            void setNewMessage(Text text) {
+    public void setNewMessage(Text text) {
         this.spongeNewText = text;
         final IChatComponent component = SpongeTexts.toComponent(text, ((Player) this.player).getLocale());
         if (component instanceof ChatComponentTranslation) {
