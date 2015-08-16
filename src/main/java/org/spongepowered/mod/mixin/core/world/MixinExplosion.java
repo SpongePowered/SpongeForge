@@ -28,6 +28,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.WorldOnExplosionEvent;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,11 +48,11 @@ public abstract class MixinExplosion implements Explosion {
         ExplosionEvent.Detonate event = new ExplosionEvent.Detonate(world, explosion, list);
         MinecraftForge.EVENT_BUS.post(event);
         // Convert our Vector3i positions to BlockPos and sync to vanilla list
-        List<Location> spongeBlockPositions = ((WorldOnExplosionEvent) event).getLocations();
+        List<Location<World>> spongeBlockPositions = ((WorldOnExplosionEvent) event).getLocations();
         List affectedBlockPositions = explosion.func_180343_e();
         affectedBlockPositions.clear();
         if (shouldBreakBlocks()) {
-            for (Location location : spongeBlockPositions) {
+            for (Location<World> location : spongeBlockPositions) {
                 affectedBlockPositions.add(VecHelper.toBlockPos(location.getBlockPosition()));
             }
         }

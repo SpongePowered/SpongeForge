@@ -75,9 +75,9 @@ public abstract class MixinEntityRegistry implements SpongeEntityRegistry {
                 entityName = entityName.substring(entityName.indexOf(".") + 1, entityName.length());
             }
         }
-        entityName.replace("entity", "");
+        entityName = entityName.replace("entity", "");
         if (entityName.startsWith("ent")) {
-            entityName.replace("ent", "");
+            entityName = entityName.replace("ent", "");
         }
         entityName = entityName.replaceAll("[^A-Za-z0-9]", ""); // remove all non-digits/alphanumeric
         String modId = "unknown";

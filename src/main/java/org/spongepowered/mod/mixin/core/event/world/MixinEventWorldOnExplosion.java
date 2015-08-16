@@ -32,6 +32,7 @@ import net.minecraftforge.event.world.ExplosionEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.event.world.WorldOnExplosionEvent;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.util.VecHelper;
@@ -43,15 +44,15 @@ import java.util.List;
 public abstract class MixinEventWorldOnExplosion extends MixinEventWorldExplosion implements WorldOnExplosionEvent {
 
     @Shadow private List<net.minecraft.entity.Entity> entityList;
-    private List<Location> locations, originalLocations;
+    private List<Location<World>> locations, originalLocations;
     private List<Entity> originalEntities;
 
     @Override
-    public List<Location> getLocations() {
+    public List<Location<World>> getLocations() {
         if (this.locations == null) {
             this.locations = Lists.newArrayList();
             for (Object pos : this.explosion.func_180343_e()) {
-                this.locations.add(new Location(getWorld(), VecHelper.toVector((BlockPos) pos)));
+                this.locations.add(new Location<World>(getWorld(), VecHelper.toVector((BlockPos) pos)));
             }
 
             this.originalLocations = ImmutableList.copyOf(locations);
@@ -60,9 +61,9 @@ public abstract class MixinEventWorldOnExplosion extends MixinEventWorldExplosio
     }
 
     @Override
-    public void filterLocations(Predicate<Location> predicate) {
+    public void filterLocations(Predicate<Location<World>> predicate) {
         if (((ExplosionEvent.Detonate) (Object) this).isCancelable()) {
-            Iterator<Location> iterator = this.getLocations().iterator();
+            Iterator<Location<World>> iterator = this.getLocations().iterator();
             while (iterator.hasNext()) {
                 if (!predicate.apply(iterator.next())) {
                     iterator.remove();
@@ -93,7 +94,7 @@ public abstract class MixinEventWorldOnExplosion extends MixinEventWorldExplosio
     }
 
     @Override
-    public List<Location> getOriginalLocations() {
+    public List<Location<World>> getOriginalLocations() {
         return originalLocations;
     }
 

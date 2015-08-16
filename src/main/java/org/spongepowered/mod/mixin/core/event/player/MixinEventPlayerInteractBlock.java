@@ -28,7 +28,6 @@ import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import org.spongepowered.api.block.BlockState;
@@ -41,24 +40,26 @@ import org.spongepowered.api.event.entity.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 
+@SuppressWarnings("ConstantConditions")
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
 public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer implements PlayerInteractBlockEvent {
 
     @Shadow public Action action;
-    @Shadow public World world;
+    @Shadow public net.minecraft.world.World world;
     @Shadow public BlockPos pos;
     @Shadow public EnumFacing face;
 
     @Override
-    public Location getLocation() {
-        return new Location((org.spongepowered.api.world.World) this.world, VecHelper.toVector(this.pos).toDouble());
+    public Location<World> getLocation() {
+        return new Location<World>((World) this.world, VecHelper.toVector(this.pos).toDouble());
     }
 
     @Override
@@ -105,8 +106,8 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
         BlockPos pos = VecHelper.toBlockPos(spongeEvent.getLocation().getBlockPosition());
         EnumFacing face = SpongeGameRegistry.directionMap.get(spongeEvent.getSide());
 
-        PlayerInteractEvent event =
-                new PlayerInteractEvent((EntityPlayer) spongeEvent.getEntity(), action, pos, face, (World) spongeEvent.getEntity().getWorld());
+        PlayerInteractEvent event = new PlayerInteractEvent((EntityPlayer) spongeEvent.getEntity(), action, pos, face,
+            (net.minecraft.world.World) spongeEvent.getEntity().getWorld());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

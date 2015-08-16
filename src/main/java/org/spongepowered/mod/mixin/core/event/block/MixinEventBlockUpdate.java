@@ -28,13 +28,13 @@ import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import org.spongepowered.api.event.block.BlockUpdateEvent;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.registry.SpongeGameRegistry;
@@ -44,21 +44,23 @@ import org.spongepowered.mod.interfaces.IMixinEvent;
 import java.util.EnumSet;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 @NonnullByDefault
 @Mixin(value = BlockEvent.NeighborNotifyEvent.class, remap = false)
 public abstract class MixinEventBlockUpdate extends MixinEventBlock implements BlockUpdateEvent {
 
     @Shadow private EnumSet<EnumFacing> notifiedSides;
 
-    private List<Location> affectedLocations;
+    @Nullable private List<Location<World>> affectedLocations;
 
     @Override
-    public List<Location> getLocations() {
+    public List<Location<World>> getLocations() {
         if (this.affectedLocations == null) {
             this.affectedLocations = Lists.newArrayList();
             for (EnumFacing notifiedSide : this.notifiedSides) {
                 BlockPos offset = this.pos.offset(notifiedSide);
-                this.affectedLocations.add(((org.spongepowered.api.world.World) this.world).getLocation(offset.getX(), offset.getY(), offset.getZ()));
+                this.affectedLocations.add(((World) this.world).getLocation(offset.getX(), offset.getY(), offset.getZ()));
             }
         }
         return this.affectedLocations;
@@ -66,7 +68,7 @@ public abstract class MixinEventBlockUpdate extends MixinEventBlock implements B
 
     @SuppressWarnings("unused")
     private static NeighborNotifyEvent fromSpongeEvent(BlockUpdateEvent blockUpdateEvent) {
-        final Location location = blockUpdateEvent.getLocation();
+        final Location<World> location = blockUpdateEvent.getLocation();
 
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
         for (Direction direction : Direction.values()) {
@@ -76,9 +78,8 @@ public abstract class MixinEventBlockUpdate extends MixinEventBlock implements B
             }
         }
 
-        final NeighborNotifyEvent event =
-                new NeighborNotifyEvent((World) blockUpdateEvent.getLocation().getExtent(), VecHelper.toBlockPos(location.getBlockPosition()),
-                        (IBlockState) blockUpdateEvent.getLocation().getBlock(), facings);
+        final NeighborNotifyEvent event = new NeighborNotifyEvent((net.minecraft.world.World) blockUpdateEvent.getLocation().getExtent(),
+            VecHelper.toBlockPos(location.getBlockPosition()), (IBlockState) blockUpdateEvent.getLocation().getBlock(), facings);
         ((IMixinEvent) event).setSpongeEvent(blockUpdateEvent);
         return event;
     }

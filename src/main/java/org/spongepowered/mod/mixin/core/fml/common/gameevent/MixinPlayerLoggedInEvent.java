@@ -31,6 +31,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
@@ -39,7 +40,7 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
 
     private Text message;
     private Text originalMessage;
-    private Location location;
+    private Location<World> location;
     private MessageSink sink;
 
     @Override
@@ -52,6 +53,7 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
         return this.message;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void setNewMessage(Text joinMessage) {
         if (this.originalMessage == null) {
@@ -77,12 +79,12 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
     }
 
     @Override
-    public Location getLocation() {
+    public Location<World> getLocation() {
         return this.location;
     }
 
     @Override
-    public void setLocation(Location location) {
+    public void setLocation(Location<World> location) {
         this.location = location;
     }
 }

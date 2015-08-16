@@ -30,10 +30,8 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.event.block.BlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.util.VecHelper;
@@ -49,8 +47,8 @@ public abstract class MixinEventBlock extends MixinEvent implements BlockEvent {
     @Shadow public net.minecraft.world.World world;
 
     @Override
-    public Location getLocation() {
-        return new Location((World) this.world, VecHelper.toVector(this.pos).toDouble());
+    public Location<World> getLocation() {
+        return new Location<World>((World) this.world, VecHelper.toVector(this.pos).toDouble());
     }
 
     @Override
@@ -65,17 +63,9 @@ public abstract class MixinEventBlock extends MixinEvent implements BlockEvent {
 
     @SuppressWarnings("unused")
     private static net.minecraftforge.event.world.BlockEvent fromSpongeEvent(BlockEvent spongeEvent) {
-        net.minecraft.world.World world;
-        Extent extent = spongeEvent.getLocation().getExtent();
-        if (extent instanceof World) {
-            world = (net.minecraft.world.World) extent;
-        } else if (extent instanceof Chunk) {
-            world = (net.minecraft.world.World) ((Chunk) extent).getWorld();
-        } else {
-            throw new IllegalArgumentException("Implementing Extent through a plugin class is not currently supported!");
-        }
+        net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getLocation().getExtent();
 
-        Location location = spongeEvent.getLocation();
+        Location<World> location = spongeEvent.getLocation();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
         net.minecraftforge.event.world.BlockEvent event = new net.minecraftforge.event.world.BlockEvent(world, pos, world.getBlockState(pos));

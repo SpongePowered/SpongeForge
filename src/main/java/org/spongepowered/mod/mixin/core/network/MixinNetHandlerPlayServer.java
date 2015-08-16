@@ -37,7 +37,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
@@ -51,6 +50,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.blockray.BlockRay;
 import org.spongepowered.api.util.blockray.BlockRayHit;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -104,17 +104,20 @@ public abstract class MixinNetHandlerPlayServer {
             + "Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;"
             + "Lnet/minecraft/util/EnumFacing;)"
             + "Lnet/minecraftforge/event/entity/player/PlayerInteractEvent;", remap = false))
-    public PlayerInteractEvent onFirePlayerInteractEvent(EntityPlayer player, PlayerInteractEvent.Action action, World world, BlockPos pos, EnumFacing face) {
+    public PlayerInteractEvent onFirePlayerInteractEvent(EntityPlayer player, PlayerInteractEvent.Action action, net.minecraft.world.World world,
+        BlockPos pos,
+        EnumFacing face) {
+
         PlayerInteractEvent event = new PlayerInteractEvent(player, action, pos, face, world);
         double reach = this.playerEntity.theItemInWorldManager.getGameType() == WorldSettings.GameType.CREATIVE ? 5 : 4.5;
-        Optional<BlockRayHit> attempt =
-        BlockRay.from((Player)this.playerEntity)
-        .filter(BlockRay.maxDistanceFilter(((Player) this.playerEntity).getLocation().getPosition(), reach))
-        .end();
+        Optional<BlockRayHit<World>> attempt =
+            BlockRay.from((Player)this.playerEntity)
+            .filter(BlockRay.<World>maxDistanceFilter(((Player) this.playerEntity).getLocation().getPosition(), reach))
+            .end();
         boolean missed;
 
         if (attempt.isPresent()) {
-            BlockRayHit hit = attempt.get();
+            BlockRayHit<World> hit = attempt.get();
             missed = hit.getExtent().getBlockType(hit.getBlockPosition()).equals(BlockTypes.AIR);
         } else {
             missed = true;

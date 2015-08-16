@@ -74,7 +74,7 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
 
     @SuppressWarnings("unused")
     private static BlockEvent.PlaceEvent fromSpongeEvent(PlayerPlaceBlockEvent spongeEvent) {
-        Location location = spongeEvent.getLocation();
+        Location<org.spongepowered.api.world.World> location = spongeEvent.getLocation();
         World world = (World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 

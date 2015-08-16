@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.common.event;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.Game;
@@ -37,6 +36,7 @@ import org.spongepowered.api.event.world.WorldLoadEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.event.SpongeImplEventFactory;
@@ -46,12 +46,12 @@ import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
 public abstract class MixinSpongeImplEventFactory {
 
     @Overwrite
-    public static WorldLoadEvent createWorldLoad(Game game, org.spongepowered.api.world.World world) {
-        return (WorldLoadEvent) new WorldEvent.Load((World) world);
+    public static WorldLoadEvent createWorldLoad(Game game, World world) {
+        return (WorldLoadEvent) new WorldEvent.Load((net.minecraft.world.World) world);
     }
 
     @Overwrite
-    public static PlayerJoinEvent createPlayerJoin(Game game, Player player, Location location, Text text, MessageSink sink) {
+    public static PlayerJoinEvent createPlayerJoin(Game game, Player player, Location<World> location, Text text, MessageSink sink) {
         final PlayerJoinEvent event = (PlayerJoinEvent) new PlayerEvent.PlayerLoggedInEvent((EntityPlayer) player);
         event.setLocation(location);
         event.setSink(sink);
@@ -60,7 +60,7 @@ public abstract class MixinSpongeImplEventFactory {
     }
 
     @Overwrite
-    public static PlayerRespawnEvent createPlayerRespawn(Game game, Player player, boolean isBedSpawn, Location respawnLocation) {
+    public static PlayerRespawnEvent createPlayerRespawn(Game game, Player player, boolean isBedSpawn, Location<World> respawnLocation) {
         final PlayerRespawnEvent event = (PlayerRespawnEvent) new PlayerEvent.PlayerRespawnEvent((EntityPlayer) player);
         ((IMixinPlayerRespawnEvent) event).setIsBedSpawn(isBedSpawn);
         event.setNewRespawnLocation(respawnLocation);

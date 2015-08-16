@@ -37,6 +37,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 
+import javax.annotation.Nullable;
+
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.fml.common.eventhandler.Event.class, remap = false)
 public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEvent {
@@ -44,7 +46,7 @@ public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEve
     @Shadow public abstract void setCanceled(boolean cancel);
     @Shadow public abstract boolean isCanceled();
 
-    protected Event spongeEvent;
+    @Nullable protected Event spongeEvent;
 
     public Game getGame() {
         return SpongeMod.instance.getGame();
