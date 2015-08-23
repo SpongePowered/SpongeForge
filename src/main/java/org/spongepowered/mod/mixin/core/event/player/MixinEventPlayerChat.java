@@ -29,7 +29,7 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.event.ServerChatEvent;
 import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.entity.player.PlayerChatEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerChatEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.sink.MessageSink;
@@ -97,11 +97,6 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
 
     @Override
     public Player getEntity() {
-        return (Player) this.player;
-    }
-
-    @Override
-    public Player getUser() {
         return (Player) this.player;
     }
 

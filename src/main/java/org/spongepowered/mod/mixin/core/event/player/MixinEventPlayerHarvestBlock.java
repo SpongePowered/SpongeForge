@@ -34,7 +34,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.entity.player.PlayerHarvestBlockEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerHarvestBlockEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -132,11 +132,6 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
 
     @Override
     public Player getEntity() {
-        return (Player) this.harvester;
-    }
-
-    @Override
-    public Player getUser() {
         return (Player) this.harvester;
     }
 

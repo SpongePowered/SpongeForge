@@ -24,13 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.event.state;
 
-import org.spongepowered.api.event.state.LoadCompleteEvent;
-
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
+import org.spongepowered.api.event.source.game.state.GameLoadCompleteEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(FMLLoadCompleteEvent.class)
-public abstract class MixinEventLoadComplete extends MixinEventState implements LoadCompleteEvent {
+public abstract class MixinEventLoadComplete extends MixinEventState implements GameLoadCompleteEvent {
 }

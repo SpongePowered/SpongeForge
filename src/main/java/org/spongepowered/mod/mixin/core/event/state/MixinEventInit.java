@@ -24,13 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.event.state;
 
-import org.spongepowered.api.event.state.InitializationEvent;
-
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import org.spongepowered.api.event.source.game.state.GameInitializationEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(FMLInitializationEvent.class)
-public abstract class MixinEventInit extends MixinEventState implements InitializationEvent {
+public abstract class MixinEventInit extends MixinEventState implements GameInitializationEvent {
 }

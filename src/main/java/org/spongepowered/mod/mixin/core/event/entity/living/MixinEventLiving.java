@@ -25,26 +25,27 @@
 package org.spongepowered.mod.mixin.core.event.entity.living;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import org.spongepowered.api.entity.living.Living;
-import org.spongepowered.api.event.entity.living.LivingEvent;
+import org.spongepowered.api.event.target.entity.living.TargetLivingEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
-@Mixin(value = net.minecraftforge.event.entity.living.LivingEvent.class, remap = false)
-public abstract class MixinEventLiving extends MixinEventEntity implements LivingEvent {
+@Mixin(value = LivingEvent.class, remap = false)
+public abstract class MixinEventLiving extends MixinEventEntity implements TargetLivingEvent {
 
     @Shadow public EntityLivingBase entityLiving;
 
     @Override
-    public Living getEntity() {
+    public Living getTargetEntity() {
         return (Living) this.entityLiving;
     }
 
     @SuppressWarnings("unused")
-    private static net.minecraftforge.event.entity.living.LivingEvent fromSpongeEvent(LivingEvent spongeEvent) {
-        net.minecraftforge.event.entity.living.LivingEvent event = new net.minecraftforge.event.entity.living.LivingEvent((EntityLivingBase) spongeEvent.getEntity());
+    private static LivingEvent fromSpongeEvent(TargetLivingEvent spongeEvent) {
+        LivingEvent event = new LivingEvent((EntityLivingBase) spongeEvent.getTargetEntity());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

@@ -24,6 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import org.spongepowered.api.event.source.entity.EntityEvent;
 import org.spongepowered.api.world.World;
 
 import org.spongepowered.api.entity.Transform;
@@ -38,7 +41,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(value = PlayerEvent.class, remap = false)
-public abstract class MixinPlayerEvent extends Event implements org.spongepowered.api.event.entity.player.PlayerEvent {
+public abstract class MixinPlayerEvent extends Event implements org.spongepowered.api.event.source.entity.living.player.PlayerEvent {
     private Transform<World> transform;
 
     @Shadow public EntityPlayer player;
@@ -54,11 +57,13 @@ public abstract class MixinPlayerEvent extends Event implements org.spongepowere
     }
 
     @Override
-    public Player getUser() {
-        return (Player) this.player;
-    }
-
     public Transform<World> getTransform() {
         return this.transform;
+    }
+
+    @Override
+    public EntityEvent setTransform(Transform<World> transform) {
+        this.transform = checkNotNull(transform);
+        return this;
     }
 }

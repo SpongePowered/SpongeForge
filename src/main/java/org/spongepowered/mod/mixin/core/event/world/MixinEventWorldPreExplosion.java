@@ -25,7 +25,7 @@
 package org.spongepowered.mod.mixin.core.event.world;
 
 import net.minecraftforge.event.world.ExplosionEvent;
-import org.spongepowered.api.event.world.WorldPreExplosionEvent;
+import org.spongepowered.api.event.source.world.WorldPreExplosionEvent;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(value = ExplosionEvent.Start.class, remap = false)

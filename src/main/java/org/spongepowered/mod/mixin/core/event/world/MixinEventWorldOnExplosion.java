@@ -30,7 +30,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.world.ExplosionEvent;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.event.world.WorldOnExplosionEvent;
+import org.spongepowered.api.event.source.world.WorldOnExplosionEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -55,7 +55,7 @@ public abstract class MixinEventWorldOnExplosion extends MixinEventWorldExplosio
                 this.locations.add(new Location<World>(getWorld(), VecHelper.toVector((BlockPos) pos)));
             }
 
-            this.originalLocations = ImmutableList.copyOf(locations);
+            this.originalLocations = ImmutableList.copyOf(this.locations);
         }
         return this.locations;
     }

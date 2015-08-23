@@ -24,17 +24,15 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
-import org.spongepowered.api.entity.Transform;
-
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.event.entity.player.PlayerRespawnEvent;
+import org.spongepowered.api.event.target.entity.living.player.RespawnPlayerEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
 
 @Mixin(PlayerEvent.PlayerRespawnEvent.class)
-public abstract class MixinPlayerRespawnEvent extends MixinPlayerEvent implements PlayerRespawnEvent, IMixinPlayerRespawnEvent {
+public abstract class MixinPlayerRespawnEvent extends MixinPlayerEvent implements RespawnPlayerEvent, IMixinPlayerRespawnEvent {
 
     private Location<World> originalLocation;
     private Location<World> newLocation;

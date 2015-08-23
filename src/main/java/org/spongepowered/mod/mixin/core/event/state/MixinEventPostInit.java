@@ -24,13 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.event.state;
 
-import org.spongepowered.api.event.state.PostInitializationEvent;
-
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import org.spongepowered.api.event.source.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(FMLPostInitializationEvent.class)
-public abstract class MixinEventPostInit extends MixinEventState implements PostInitializationEvent {
+public abstract class MixinEventPostInit extends MixinEventState implements GamePostInitializationEvent {
 }

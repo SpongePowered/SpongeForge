@@ -24,14 +24,8 @@
  */
 package org.spongepowered.mod.event;
 
-import org.spongepowered.api.event.action.UnloadWorldEvent;
-
-import org.spongepowered.api.event.action.LoadWorldEvent;
-import org.spongepowered.api.event.action.UnloadChunkEvent;
-import org.spongepowered.api.event.action.LoadChunkEvent;
-import org.spongepowered.api.event.action.ChangeChunkEvent;
-import org.spongepowered.api.event.block.BlockUpdateNeighborBlockEvent;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -50,18 +44,24 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.block.BlockEvent;
-import org.spongepowered.api.event.entity.EntityConstructingEvent;
-import org.spongepowered.api.event.entity.EntityEvent;
-import org.spongepowered.api.event.entity.EntitySpawnEvent;
-import org.spongepowered.api.event.entity.living.LivingEvent;
-import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
-import org.spongepowered.api.event.entity.player.PlayerChatEvent;
-import org.spongepowered.api.event.entity.player.PlayerEvent;
-import org.spongepowered.api.event.entity.player.PlayerHarvestBlockEvent;
-import org.spongepowered.api.event.entity.player.PlayerInteractBlockEvent;
-import org.spongepowered.api.event.entity.player.PlayerPlaceBlockEvent;
-import org.spongepowered.api.event.world.WorldEvent;
+import org.spongepowered.api.event.source.block.BlockEvent;
+import org.spongepowered.api.event.source.block.BlockUpdateNeighborBlockEvent;
+import org.spongepowered.api.event.source.entity.EntityEvent;
+import org.spongepowered.api.event.source.entity.living.LivingEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerBreakBlockEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerChatEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerHarvestBlockEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerInteractBlockEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerPlaceBlockEvent;
+import org.spongepowered.api.event.source.world.WorldEvent;
+import org.spongepowered.api.event.target.entity.ConstructEntityEvent;
+import org.spongepowered.api.event.target.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.target.world.LoadWorldEvent;
+import org.spongepowered.api.event.target.world.UnloadWorldEvent;
+import org.spongepowered.api.event.target.world.chunk.ChangeChunkEvent;
+import org.spongepowered.api.event.target.world.chunk.LoadChunkEvent;
+import org.spongepowered.api.event.target.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.event.RegisteredHandler;
@@ -94,9 +94,9 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(ChangeChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
                     .put(LoadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
                     .put(UnloadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Unload.class)
-                    .put(EntityConstructingEvent.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
+                    .put(ConstructEntityEvent.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
                     .put(EntityEvent.class, net.minecraftforge.event.entity.EntityEvent.class)
-                    .put(EntitySpawnEvent.class, net.minecraftforge.event.entity.EntityJoinWorldEvent.class)
+                    .put(SpawnEntityEvent.class, net.minecraftforge.event.entity.EntityJoinWorldEvent.class)
                     .put(LivingEvent.class, net.minecraftforge.event.entity.living.LivingEvent.class)
                     .put(PlayerBreakBlockEvent.class, net.minecraftforge.event.world.BlockEvent.BreakEvent.class)
                     .put(PlayerChatEvent.class, net.minecraftforge.event.ServerChatEvent.class)
@@ -130,7 +130,7 @@ public class SpongeModEventManager extends SpongeEventManager {
     @Inject
     public SpongeModEventManager(PluginManager pluginManager) {
         super(pluginManager);
-        this.buildFactoryMethodMappings();
+        // this.buildFactoryMethodMappings(); disable for now
     }
 
     private void buildFactoryMethodMappings() {

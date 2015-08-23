@@ -24,16 +24,15 @@
  */
 package org.spongepowered.mod.mixin.core.common.event;
 
-import org.spongepowered.api.event.action.LoadWorldEvent;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
-import org.spongepowered.api.event.entity.player.PlayerQuitEvent;
-import org.spongepowered.api.event.entity.player.PlayerRespawnEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerJoinEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerQuitEvent;
+import org.spongepowered.api.event.target.entity.living.player.RespawnPlayerEvent;
+import org.spongepowered.api.event.target.world.LoadWorldEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.world.Location;
@@ -61,8 +60,8 @@ public abstract class MixinSpongeImplEventFactory {
     }
 
     @Overwrite
-    public static PlayerRespawnEvent createPlayerRespawn(Game game, Player player, boolean isBedSpawn, Location<World> respawnLocation) {
-        final PlayerRespawnEvent event = (PlayerRespawnEvent) new PlayerEvent.PlayerRespawnEvent((EntityPlayer) player);
+    public static RespawnPlayerEvent createPlayerRespawn(Game game, Player player, boolean isBedSpawn, Location<World> respawnLocation) {
+        final RespawnPlayerEvent event = (RespawnPlayerEvent) new PlayerEvent.PlayerRespawnEvent((EntityPlayer) player);
         ((IMixinPlayerRespawnEvent) event).setIsBedSpawn(isBedSpawn);
         event.getTransform().setLocation(respawnLocation);
         return event;

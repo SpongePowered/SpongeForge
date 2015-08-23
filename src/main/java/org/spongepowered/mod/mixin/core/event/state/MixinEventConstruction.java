@@ -24,14 +24,13 @@
  */
 package org.spongepowered.mod.mixin.core.event.state;
 
-import org.spongepowered.api.event.state.ConstructionEvent;
-
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
+import org.spongepowered.api.event.source.game.state.GameConstructionEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(FMLConstructionEvent.class)
-public abstract class MixinEventConstruction extends FMLStateEvent implements ConstructionEvent {
+public abstract class MixinEventConstruction extends FMLStateEvent implements GameConstructionEvent {
 }

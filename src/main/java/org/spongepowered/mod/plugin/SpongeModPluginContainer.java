@@ -24,8 +24,6 @@
  */
 package org.spongepowered.mod.plugin;
 
-import org.spongepowered.api.event.state.StateEvent;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -52,6 +50,7 @@ import net.minecraftforge.fml.common.versioning.VersionRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.source.game.state.GameStateEvent;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
 import org.spongepowered.common.plugin.SpongePluginContainer;
@@ -138,9 +137,9 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
             for (Annotation a : m.getAnnotations()) {
                 if (a.annotationType().equals(org.spongepowered.api.event.Subscribe.class)) {
                     Class<?>[] paramTypes = m.getParameterTypes();
-                    if ((paramTypes.length == 1) && StateEvent.class.isAssignableFrom(paramTypes[0])) {
+                    if ((paramTypes.length == 1) && GameStateEvent.class.isAssignableFrom(paramTypes[0])) {
                         m.setAccessible(true);
-                        this.stateEventHandlers.put((Class<? extends StateEvent>) paramTypes[0], m);
+                        this.stateEventHandlers.put((Class<? extends GameStateEvent>) paramTypes[0], m);
                     }
                 }
             }

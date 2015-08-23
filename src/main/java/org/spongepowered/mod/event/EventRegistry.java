@@ -24,17 +24,6 @@
  */
 package org.spongepowered.mod.event;
 
-import org.spongepowered.api.event.state.ConstructionEvent;
-import org.spongepowered.api.event.state.InitializationEvent;
-import org.spongepowered.api.event.state.LoadCompleteEvent;
-import org.spongepowered.api.event.state.PostInitializationEvent;
-import org.spongepowered.api.event.state.PreInitializationEvent;
-import org.spongepowered.api.event.state.ServerAboutToStartEvent;
-import org.spongepowered.api.event.state.ServerStartedEvent;
-import org.spongepowered.api.event.state.ServerStartingEvent;
-import org.spongepowered.api.event.state.ServerStoppedEvent;
-import org.spongepowered.api.event.state.ServerStoppingEvent;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
@@ -48,8 +37,18 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
-import org.spongepowered.api.event.entity.player.PlayerQuitEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerJoinEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerQuitEvent;
+import org.spongepowered.api.event.source.game.state.GameAboutToStartServerEvent;
+import org.spongepowered.api.event.source.game.state.GameConstructionEvent;
+import org.spongepowered.api.event.source.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.source.game.state.GameLoadCompleteEvent;
+import org.spongepowered.api.event.source.game.state.GamePostInitializationEvent;
+import org.spongepowered.api.event.source.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.source.game.state.GameStartedServerEvent;
+import org.spongepowered.api.event.source.game.state.GameStartingServerEvent;
+import org.spongepowered.api.event.source.game.state.GameStoppedServerEvent;
+import org.spongepowered.api.event.source.game.state.GameStoppingServerEvent;
 
 public class EventRegistry {
 
@@ -60,17 +59,17 @@ public class EventRegistry {
 
     static {
         // FML state events
-        register(FMLConstructionEvent.class, ConstructionEvent.class);
-        register(FMLPreInitializationEvent.class, PreInitializationEvent.class);
-        register(FMLInitializationEvent.class, InitializationEvent.class);
-        register(FMLPostInitializationEvent.class, PostInitializationEvent.class);
-        register(FMLLoadCompleteEvent.class, LoadCompleteEvent.class);
+        register(FMLConstructionEvent.class, GameConstructionEvent.class);
+        register(FMLPreInitializationEvent.class, GamePreInitializationEvent.class);
+        register(FMLInitializationEvent.class, GameInitializationEvent.class);
+        register(FMLPostInitializationEvent.class, GamePostInitializationEvent.class);
+        register(FMLLoadCompleteEvent.class, GameLoadCompleteEvent.class);
 
-        register(FMLServerAboutToStartEvent.class, ServerAboutToStartEvent.class);
-        register(FMLServerStartingEvent.class, ServerStartingEvent.class);
-        register(FMLServerStartedEvent.class, ServerStartedEvent.class);
-        register(FMLServerStoppingEvent.class, ServerStoppingEvent.class);
-        register(FMLServerStoppedEvent.class, ServerStoppedEvent.class);
+        register(FMLServerAboutToStartEvent.class, GameAboutToStartServerEvent.class);
+        register(FMLServerStartingEvent.class, GameStartingServerEvent.class);
+        register(FMLServerStartedEvent.class, GameStartedServerEvent.class);
+        register(FMLServerStoppingEvent.class, GameStoppingServerEvent.class);
+        register(FMLServerStoppedEvent.class, GameStoppedServerEvent.class);
 
         // FML game events
         register(PlayerEvent.PlayerLoggedInEvent.class, PlayerJoinEvent.class);

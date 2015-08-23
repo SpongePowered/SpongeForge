@@ -24,11 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
-import org.spongepowered.api.event.entity.player.PlayerConsumeItemEvent;
-
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.api.event.source.entity.living.player.PlayerConsumeItemEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish.class, remap = false)
 public abstract class MixinEventPlayerItemConsume extends MixinEventPlayer implements PlayerConsumeItemEvent {

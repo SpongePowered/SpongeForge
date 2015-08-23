@@ -25,12 +25,11 @@
 package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.item.EntityItem;
-
-import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.entity.player.PlayerDropItemEvent;
+import org.spongepowered.api.event.source.entity.living.player.PlayerDropItemEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -59,8 +58,4 @@ public abstract class MixinEventPlayerDropItem extends ItemEvent implements Play
         return (Player) this.player;
     }
 
-    @Override
-    public Player getUser() {
-        return (Player) this.player;
-    }
 }

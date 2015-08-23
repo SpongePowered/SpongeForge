@@ -24,14 +24,13 @@
  */
 package org.spongepowered.mod.mixin.core.event.block;
 
-import org.spongepowered.api.event.block.BlockUpdateNeighborBlockEvent;
-
 import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
+import org.spongepowered.api.event.source.block.BlockUpdateNeighborBlockEvent;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
