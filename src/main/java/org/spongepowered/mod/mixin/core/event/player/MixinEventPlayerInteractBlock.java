@@ -24,6 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
+import net.minecraft.block.state.IBlockState;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import org.spongepowered.api.block.BlockSnapshot;
 import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
@@ -52,34 +58,30 @@ import org.spongepowered.mod.interfaces.IMixinEvent;
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
 public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer implements PlayerInteractBlockEvent {
 
+    private BlockState blockState;
+
     @Shadow public Action action;
     @Shadow public net.minecraft.world.World world;
     @Shadow public BlockPos pos;
     @Shadow public EnumFacing face;
 
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onConstructed(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, net.minecraft.world.World world, CallbackInfo ci) {
+        this.blockState = (BlockState) world.getBlockState(pos);
+    }
+
     @Override
-    public Location<World> getLocation() {
+    public Location<World> getTargetLocation() {
         return new Location<World>((World) this.world, VecHelper.toVector(this.pos).toDouble());
     }
 
     @Override
-    public BlockState getBlock() {
-        return getLocation().getBlock();
+    public BlockState getTargetBlock() {
+        return this.blockState;
     }
 
     @Override
-    public EntityInteractionType getInteractionType() {
-        if (this.action == Action.LEFT_CLICK_BLOCK) {
-            return EntityInteractionTypes.ATTACK;
-        } else if (this.action == Action.RIGHT_CLICK_AIR || this.action == Action.RIGHT_CLICK_BLOCK) {
-            return EntityInteractionTypes.USE;
-        } else {
-            return EntityInteractionTypes.PICK_BLOCK;
-        }
-    }
-
-    @Override
-    public Direction getSide() {
+    public Direction getTargetSide() {
         if (this.face != null) {
             return SpongeGameRegistry.directionMap.inverse().get(this.face);
         }
@@ -87,8 +89,8 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     }
 
     @Override
-    public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, this.entityPlayer, null));
+    public Cause getCause() {
+        return Cause.of(this.entityPlayer);
     }
 
     private static Action actionFromSponge(EntityInteractionType type, BlockType blockType) {
@@ -102,11 +104,11 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @SuppressWarnings("unused")
     private static PlayerInteractEvent fromSpongeEvent(PlayerInteractBlockEvent spongeEvent) {
-        Action action = actionFromSponge(spongeEvent.getInteractionType(), spongeEvent.getLocation().getBlockType());
-        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getLocation().getBlockPosition());
-        EnumFacing face = SpongeGameRegistry.directionMap.get(spongeEvent.getSide());
+        //Action action = actionFromSponge(spongeEvent.getInteractionType(), spongeEvent.getLocation().getBlockType());
+        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetLocation().getBlockPosition());
+        EnumFacing face = SpongeGameRegistry.directionMap.get(spongeEvent.getTargetSide());
 
-        PlayerInteractEvent event = new PlayerInteractEvent((EntityPlayer) spongeEvent.getEntity(), action, pos, face,
+        PlayerInteractEvent event = new PlayerInteractEvent((EntityPlayer) spongeEvent.getEntity(), Action.RIGHT_CLICK_BLOCK, pos, face,
             (net.minecraft.world.World) spongeEvent.getEntity().getWorld());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;

@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.plugin;
 
+import org.spongepowered.api.event.state.StateEvent;
+
 import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -50,7 +52,6 @@ import net.minecraftforge.fml.common.versioning.VersionRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.Event;
-import org.spongepowered.api.event.state.StateEvent;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
 import org.spongepowered.common.plugin.SpongePluginContainer;

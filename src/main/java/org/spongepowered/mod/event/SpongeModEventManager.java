@@ -24,6 +24,13 @@
  */
 package org.spongepowered.mod.event;
 
+import org.spongepowered.api.event.action.UnloadWorldEvent;
+
+import org.spongepowered.api.event.action.LoadWorldEvent;
+import org.spongepowered.api.event.action.UnloadChunkEvent;
+import org.spongepowered.api.event.action.LoadChunkEvent;
+import org.spongepowered.api.event.action.ChangeChunkEvent;
+import org.spongepowered.api.event.block.BlockUpdateNeighborBlockEvent;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
@@ -44,7 +51,6 @@ import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.BlockEvent;
-import org.spongepowered.api.event.block.BlockUpdateEvent;
 import org.spongepowered.api.event.entity.EntityConstructingEvent;
 import org.spongepowered.api.event.entity.EntityEvent;
 import org.spongepowered.api.event.entity.EntitySpawnEvent;
@@ -55,12 +61,7 @@ import org.spongepowered.api.event.entity.player.PlayerEvent;
 import org.spongepowered.api.event.entity.player.PlayerHarvestBlockEvent;
 import org.spongepowered.api.event.entity.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.event.entity.player.PlayerPlaceBlockEvent;
-import org.spongepowered.api.event.world.ChunkEvent;
-import org.spongepowered.api.event.world.ChunkLoadEvent;
-import org.spongepowered.api.event.world.ChunkUnloadEvent;
 import org.spongepowered.api.event.world.WorldEvent;
-import org.spongepowered.api.event.world.WorldLoadEvent;
-import org.spongepowered.api.event.world.WorldUnloadEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.event.RegisteredHandler;
@@ -89,10 +90,10 @@ public class SpongeModEventManager extends SpongeEventManager {
     private final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventMappings =
             new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
                     .put(BlockEvent.class, net.minecraftforge.event.world.BlockEvent.class)
-                    .put(BlockUpdateEvent.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
-                    .put(ChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
-                    .put(ChunkLoadEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
-                    .put(ChunkUnloadEvent.class, net.minecraftforge.event.world.ChunkEvent.Unload.class)
+                    .put(BlockUpdateNeighborBlockEvent.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
+                    .put(ChangeChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
+                    .put(LoadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
+                    .put(UnloadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Unload.class)
                     .put(EntityConstructingEvent.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
                     .put(EntityEvent.class, net.minecraftforge.event.entity.EntityEvent.class)
                     .put(EntitySpawnEvent.class, net.minecraftforge.event.entity.EntityJoinWorldEvent.class)
@@ -104,8 +105,8 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(PlayerInteractBlockEvent.class, net.minecraftforge.event.entity.player.PlayerInteractEvent.class)
                     .put(PlayerPlaceBlockEvent.class, net.minecraftforge.event.world.BlockEvent.PlaceEvent.class)
                     .put(WorldEvent.class, net.minecraftforge.event.world.WorldEvent.class)
-                    .put(WorldLoadEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
-                    .put(WorldUnloadEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
+                    .put(LoadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
+                    .put(UnloadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
                     .build();
 
     private final ImmutableMap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus> busMappings =

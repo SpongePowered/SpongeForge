@@ -24,6 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
+import org.spongepowered.common.Sponge;
+
+import org.spongepowered.api.entity.Transform;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
@@ -78,13 +81,14 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
         this.sink = sink;
     }
 
+    // todo
     @Override
-    public Location<World> getLocation() {
-        return this.location;
+    public Transform<World> getTransform() {
+        return Sponge.getGame().getRegistry().createTransform();
     }
 
     @Override
-    public void setLocation(Location<World> location) {
+    public void setTransform(Transform<World> transform) {
         this.location = location;
     }
 }

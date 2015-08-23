@@ -24,6 +24,17 @@
  */
 package org.spongepowered.mod.event;
 
+import org.spongepowered.api.event.state.ConstructionEvent;
+import org.spongepowered.api.event.state.InitializationEvent;
+import org.spongepowered.api.event.state.LoadCompleteEvent;
+import org.spongepowered.api.event.state.PostInitializationEvent;
+import org.spongepowered.api.event.state.PreInitializationEvent;
+import org.spongepowered.api.event.state.ServerAboutToStartEvent;
+import org.spongepowered.api.event.state.ServerStartedEvent;
+import org.spongepowered.api.event.state.ServerStartingEvent;
+import org.spongepowered.api.event.state.ServerStoppedEvent;
+import org.spongepowered.api.event.state.ServerStoppingEvent;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
@@ -39,16 +50,6 @@ import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
 import org.spongepowered.api.event.entity.player.PlayerQuitEvent;
-import org.spongepowered.api.event.state.ConstructionEvent;
-import org.spongepowered.api.event.state.InitializationEvent;
-import org.spongepowered.api.event.state.LoadCompleteEvent;
-import org.spongepowered.api.event.state.PostInitializationEvent;
-import org.spongepowered.api.event.state.PreInitializationEvent;
-import org.spongepowered.api.event.state.ServerAboutToStartEvent;
-import org.spongepowered.api.event.state.ServerStartedEvent;
-import org.spongepowered.api.event.state.ServerStartingEvent;
-import org.spongepowered.api.event.state.ServerStoppedEvent;
-import org.spongepowered.api.event.state.ServerStoppingEvent;
 
 public class EventRegistry {
 

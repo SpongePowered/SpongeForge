@@ -24,13 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
-import com.google.common.base.Optional;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
-import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
@@ -38,10 +35,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 
@@ -49,15 +42,8 @@ import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 @Mixin(value = BlockEvent.BreakEvent.class, remap = false)
 public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements PlayerBreakBlockEvent {
 
-    private net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
-
     @Shadow private int exp;
     @Shadow private EntityPlayer player;
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onInit(World world, BlockPos pos, IBlockState state, EntityPlayer player, CallbackInfo ci) {
-        this.blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
-    }
 
     @Override
     public Player getEntity() {
@@ -70,30 +56,24 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
     }
 
     @Override
-    public BlockSnapshot getReplacementBlock() {
-        if (this.spongeEvent != null) {
-            return ((PlayerBreakBlockEvent) this.spongeEvent).getReplacementBlock();
-        }
-        return (BlockSnapshot) this.blockSnapshot;
+    public Cause getCause() {
+        return Cause.of(this.player);
     }
 
+    // TODO - handle this in event factory class
+    /*
     @Override
-    public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, this.player, null));
-    }
-
-    @Override
-    public int getExp() {
+    public int getExperience() {
         if (this.spongeEvent != null) {
-            return ((PlayerBreakBlockEvent) this.spongeEvent).getExp();
+            return ((PlayerBreakBlockEvent) this.spongeEvent).getExperience();
         }
         return this.exp;
     }
 
     @Override
-    public void setExp(int exp) {
+    public void setExperience(int exp) {
         if (this.spongeEvent != null) {
-            ((PlayerBreakBlockEvent) this.spongeEvent).setExp(exp);
+            ((PlayerBreakBlockEvent) this.spongeEvent).setExperience(exp);
         }
         this.exp = exp;
     }
@@ -101,25 +81,25 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
     @Inject(method = "getExpToDrop", at = @At("HEAD"), cancellable = true)
     public void onGetExpToDrop(CallbackInfoReturnable<Integer> cir) {
         if (this.spongeEvent != null) {
-            cir.setReturnValue(((PlayerBreakBlockEvent) this.spongeEvent).getExp());
+            cir.setReturnValue(((PlayerBreakBlockEvent) this.spongeEvent).getExperience());
         }
     }
 
     @Inject(method = "setExpToDrop", at = @At("HEAD"))
     public void onSetExpToDrop(int exp, CallbackInfo ci) {
         if (this.spongeEvent != null) {
-            ((PlayerBreakBlockEvent) this.spongeEvent).setExp(exp);
+            ((PlayerBreakBlockEvent) this.spongeEvent).setExperience(exp);
         }
-    }
+    }*/
 
     @SuppressWarnings("unused")
     private static BlockEvent.BreakEvent fromSpongeEvent(PlayerBreakBlockEvent spongeEvent) {
-        Location<org.spongepowered.api.world.World> location = spongeEvent.getLocation();
+        Location<org.spongepowered.api.world.World> location = spongeEvent.getTargetLocation();
         World world = (World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
         BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos), (EntityPlayer) spongeEvent.getEntity());
-        event.setExpToDrop(spongeEvent.getExp());
+        //event.setExpToDrop(spongeEvent.getExperience());
 
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;

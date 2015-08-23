@@ -24,6 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
+import org.spongepowered.api.world.World;
+
+import org.spongepowered.api.entity.Transform;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -33,7 +39,14 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(value = PlayerEvent.class, remap = false)
 public abstract class MixinPlayerEvent extends Event implements org.spongepowered.api.event.entity.player.PlayerEvent {
+    private Transform<World> transform;
+
     @Shadow public EntityPlayer player;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onConstructed(EntityPlayer player, CallbackInfo ci) {
+        this.transform = ((Player) player).getTransform();
+    }
 
     @Override
     public Player getEntity() {
@@ -43,5 +56,9 @@ public abstract class MixinPlayerEvent extends Event implements org.spongepowere
     @Override
     public Player getUser() {
         return (Player) this.player;
+    }
+
+    public Transform<World> getTransform() {
+        return this.transform;
     }
 }

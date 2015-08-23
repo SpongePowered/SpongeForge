@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
-import com.google.common.base.Optional;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
@@ -53,8 +52,8 @@ public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEve
     }
 
     @Override
-    public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, Optional.absent(), null));
+    public Cause getCause() {
+        return Cause.empty();
     }
 
     @Override

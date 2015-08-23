@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
+import org.spongepowered.api.entity.Transform;
+
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.event.entity.player.PlayerRespawnEvent;
 import org.spongepowered.api.world.Location;
@@ -43,13 +45,8 @@ public abstract class MixinPlayerRespawnEvent extends MixinPlayerEvent implement
         this.isBedSpawn = isBedSpawn;
     }
 
-    @Override
-    public Location<World> getRespawnLocation() {
-        return this.originalLocation;
-    }
-
-    @Override
-    public Location<World> getNewRespawnLocation() {
+    /*@Override
+    public Transform<World> getOriginTransform() {
         return this.newLocation;
     }
 
@@ -59,10 +56,10 @@ public abstract class MixinPlayerRespawnEvent extends MixinPlayerEvent implement
     }
 
     @Override
-    public void setNewRespawnLocation(Location<World> respawnLocation) {
+    public void setRespawnTransform(Transform<World> respawnLocation) {
         if (this.originalLocation == null) {
             this.originalLocation = respawnLocation;
         }
         this.newLocation = respawnLocation;
-    }
+    }*/
 }

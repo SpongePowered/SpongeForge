@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
+import org.spongepowered.api.block.BlockState;
+
 import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -63,18 +65,18 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
     }
 
     @Override
-    public BlockSnapshot getReplacementBlock() {
-        return (BlockSnapshot) this.blockSnapshot;
+    public BlockState getReplacementBlock() {
+        return (BlockState) placedBlock;
     }
 
     @Override
-    public Optional<Cause> getCause() {
-        return Optional.fromNullable(new Cause(null, this.player, null));
+    public Cause getCause() {
+        return Cause.of(this.player);
     }
 
     @SuppressWarnings("unused")
     private static BlockEvent.PlaceEvent fromSpongeEvent(PlayerPlaceBlockEvent spongeEvent) {
-        Location<org.spongepowered.api.world.World> location = spongeEvent.getLocation();
+        Location<org.spongepowered.api.world.World> location = spongeEvent.getTargetLocation();
         World world = (World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 

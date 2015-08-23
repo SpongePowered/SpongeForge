@@ -65,22 +65,11 @@ public abstract class MixinBlockSnapshot implements BlockSnapshot {
     }
 
     @Override
-    public void setBlockState(BlockState blockState) {
-        this.replacedBlock = (IBlockState) blockState;
-    }
-
-    @Override
-    public Vector3i getLocation() {
+    public Vector3i getPosition() {
         if (this.vecPos == null) {
             this.vecPos = VecHelper.toVector(this.pos);
         }
         return this.vecPos;
-    }
-
-    @Override
-    public void setLocation(Vector3i location) {
-        // TODO pos is final, how can this be done?
-        throw new UnsupportedOperationException();
     }
 
     @Override

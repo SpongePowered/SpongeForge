@@ -24,8 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.event.state;
 
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.spongepowered.api.event.state.PreInitializationEvent;
+
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 

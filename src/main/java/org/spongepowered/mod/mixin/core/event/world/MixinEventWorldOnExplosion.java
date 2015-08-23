@@ -61,7 +61,7 @@ public abstract class MixinEventWorldOnExplosion extends MixinEventWorldExplosio
     }
 
     @Override
-    public void filterLocations(Predicate<Location<World>> predicate) {
+    public List<Location<World>> filterBlockLocations(Predicate<Location<World>> predicate) {
         if (((ExplosionEvent.Detonate) (Object) this).isCancelable()) {
             Iterator<Location<World>> iterator = this.getLocations().iterator();
             while (iterator.hasNext()) {
@@ -70,8 +70,10 @@ public abstract class MixinEventWorldOnExplosion extends MixinEventWorldExplosio
                 }
             }
         }
+        return this.getLocations();
     }
 
+    /* TODO
     @SuppressWarnings("unchecked")
     @Override
     public List<Entity> getEntities() {
@@ -82,7 +84,7 @@ public abstract class MixinEventWorldOnExplosion extends MixinEventWorldExplosio
     }
 
     @Override
-    public void filterEntities(Predicate<Entity> predicate) {
+    public List<Entity> filterEntities(Predicate<Entity> predicate) {
         if (((ExplosionEvent.Detonate) (Object) this).isCancelable()) {
             Iterator<Entity> iterator = this.getEntities().iterator();
             while (iterator.hasNext()) {
@@ -94,12 +96,9 @@ public abstract class MixinEventWorldOnExplosion extends MixinEventWorldExplosio
     }
 
     @Override
-    public List<Location<World>> getOriginalLocations() {
-        return originalLocations;
-    }
-
-    @Override
     public List<Entity> getOriginalEntities() {
         return originalEntities;
     }
+    */
+
 }

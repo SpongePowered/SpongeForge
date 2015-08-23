@@ -24,13 +24,14 @@
  */
 package org.spongepowered.mod.mixin.core.event.block;
 
+import org.spongepowered.api.event.block.BlockUpdateNeighborBlockEvent;
+
 import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
-import org.spongepowered.api.event.block.BlockUpdateEvent;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -48,7 +49,7 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.NeighborNotifyEvent.class, remap = false)
-public abstract class MixinEventBlockUpdate extends MixinEventBlock implements BlockUpdateEvent {
+public abstract class MixinEventBlockUpdate extends MixinEventBlock implements BlockUpdateNeighborBlockEvent {
 
     @Shadow private EnumSet<EnumFacing> notifiedSides;
 
@@ -67,8 +68,8 @@ public abstract class MixinEventBlockUpdate extends MixinEventBlock implements B
     }
 
     @SuppressWarnings("unused")
-    private static NeighborNotifyEvent fromSpongeEvent(BlockUpdateEvent blockUpdateEvent) {
-        final Location<World> location = blockUpdateEvent.getLocation();
+    private static NeighborNotifyEvent fromSpongeEvent(BlockUpdateNeighborBlockEvent blockUpdateEvent) {
+        final Location<World> location = blockUpdateEvent.getTargetLocation();
 
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
         for (Direction direction : Direction.values()) {
@@ -78,8 +79,8 @@ public abstract class MixinEventBlockUpdate extends MixinEventBlock implements B
             }
         }
 
-        final NeighborNotifyEvent event = new NeighborNotifyEvent((net.minecraft.world.World) blockUpdateEvent.getLocation().getExtent(),
-            VecHelper.toBlockPos(location.getBlockPosition()), (IBlockState) blockUpdateEvent.getLocation().getBlock(), facings);
+        final NeighborNotifyEvent event = new NeighborNotifyEvent((net.minecraft.world.World) blockUpdateEvent.getTargetLocation().getExtent(),
+            VecHelper.toBlockPos(location.getBlockPosition()), (IBlockState) blockUpdateEvent.getTargetLocation().getBlock(), facings);
         ((IMixinEvent) event).setSpongeEvent(blockUpdateEvent);
         return event;
     }

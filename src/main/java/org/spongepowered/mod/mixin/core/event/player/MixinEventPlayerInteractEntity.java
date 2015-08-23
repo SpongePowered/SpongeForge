@@ -41,12 +41,7 @@ public abstract class MixinEventPlayerInteractEntity extends MixinEventPlayer im
     @Shadow public net.minecraft.entity.Entity target;
 
     @Override
-    public EntityInteractionType getInteractionType() {
-        return EntityInteractionTypes.USE;
-    }
-
-    @Override
-    public Optional<Vector3d> getClickedPosition() {
+    public Optional<Vector3d> getInteractionPoint() {
         return Optional.absent();
     }
 
