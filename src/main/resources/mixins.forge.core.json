@@ -55,6 +55,7 @@
         "fml.common.gameevent.MixinPlayerRespawnEvent",
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",
+        "forge.MixinForgeEventFactory",
         "item.MixinEnchantment",
         "network.MixinNetHandlerPlayServer",
         "server.MixinMinecraftServer",

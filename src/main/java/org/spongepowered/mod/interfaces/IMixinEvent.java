@@ -30,4 +30,5 @@ public interface IMixinEvent {
 
     void setSpongeEvent(Event spongeEvent);
 
+    net.minecraftforge.fml.common.eventhandler.Event fromSpongeEvent(Event event);
 }

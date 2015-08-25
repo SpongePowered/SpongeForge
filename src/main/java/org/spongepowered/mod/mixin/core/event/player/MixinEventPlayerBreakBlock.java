@@ -29,6 +29,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.source.entity.living.player.PlayerBreakBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -69,14 +70,16 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
         return Cause.of(this.player);
     }
 
-    @SuppressWarnings("unused")
-    private static BlockEvent.BreakEvent fromSpongeEvent(PlayerBreakBlockEvent spongeEvent) {
+    
+    @Override
+    public net.minecraftforge.fml.common.eventhandler.Event fromSpongeEvent(Event event) {
+        PlayerBreakBlockEvent spongeEvent = (PlayerBreakBlockEvent) event;
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
-        BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos), (EntityPlayer) spongeEvent.getEntity());
-        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
-        return event;
+        BlockEvent.BreakEvent forgeEvent = new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos), (EntityPlayer) spongeEvent.getEntity());
+        ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);
+        return forgeEvent;
     }
 }

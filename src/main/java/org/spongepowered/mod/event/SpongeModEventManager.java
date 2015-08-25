@@ -42,6 +42,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
+import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.source.block.BlockEvent;
@@ -67,10 +68,12 @@ import org.spongepowered.common.Sponge;
 import org.spongepowered.common.event.RegisteredHandler;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -156,20 +159,20 @@ public class SpongeModEventManager extends SpongeEventManager {
     public boolean post(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, IEventListener[] listeners) {
         checkNotNull(forgeEvent, "forgeEvent");
         Event event = (Event) forgeEvent;
-
-        Order orderStart = Order.PRE;
         RegisteredHandler.Cache handlerCache = getHandlerCache(event);
 
-        for (IEventListener listener : listeners) {
-            if (listener instanceof EventPriority) {
-                Order order = this.priorityMappings.get(listener);
+        // Fire events to plugins before modifications
+        for (Order order : Order.values()) {
+            postBeforeModifications(event, handlerCache.getHandlersByOrder(order));
+        }
 
-                for (int orderIndex = 0; orderIndex <= order.ordinal(); orderIndex++) {
-                    Order currentOrder = Order.values()[orderIndex];
-                    post(event, handlerCache.getHandlersByOrder(currentOrder));
-                }
-                orderStart = Order.values()[order.ordinal() + 1];
+        // Sync plugin data then fire off to Forge
+        // TODO: finish other events
+        if (event instanceof PlayerBreakBlockEvent || event instanceof PlayerPlaceBlockEvent) {
+            forgeEvent = ((IMixinEvent) event).fromSpongeEvent(event);
+            event = (Event) forgeEvent;
             }
+        for (IEventListener listener : listeners) {
             try {
                 listener.invoke(forgeEvent);
             } catch (Throwable throwable) {
@@ -177,9 +180,9 @@ public class SpongeModEventManager extends SpongeEventManager {
             }
         }
 
-        for (int orderIndex = orderStart.ordinal(); orderIndex <= Order.POST.ordinal(); orderIndex++) {
-            Order currentOrder = Order.values()[orderIndex];
-            post(event, handlerCache.getHandlersByOrder(currentOrder));
+        // Fire events to plugins after modifications (default)
+        for (Order order : Order.values()) {
+            post(event, handlerCache.getHandlersByOrder(order));
         }
 
         return forgeEvent.isCancelable() && forgeEvent.isCanceled();
@@ -193,6 +196,36 @@ public class SpongeModEventManager extends SpongeEventManager {
             bus = MinecraftForge.EVENT_BUS;
         }
         return post(forgeEvent, forgeEvent.getListenerList().getListeners(((IMixinEventBus) bus).getBusID()));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected static boolean postBeforeModifications(Event event, List<RegisteredHandler<?>> handlers) {
+        for (@SuppressWarnings("rawtypes") RegisteredHandler handler : handlers) {
+            try {
+                if (handler.isBeforeModifications()) {
+                    handler.handle(event);
+                }
+            } catch (Throwable e) {
+                Sponge.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), handler.getPlugin(), e);
+            }
+        }
+
+        return event instanceof Cancellable && ((Cancellable) event).isCancelled();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected static boolean post(Event event, List<RegisteredHandler<?>> handlers) {
+        for (@SuppressWarnings("rawtypes") RegisteredHandler handler : handlers) {
+            try {
+                if (!handler.isBeforeModifications()) {
+                    handler.handle(event);
+                }
+            } catch (Throwable e) {
+                Sponge.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), handler.getPlugin(), e);
+            }
+        }
+
+        return event instanceof Cancellable && ((Cancellable) event).isCancelled();
     }
 
     @Override

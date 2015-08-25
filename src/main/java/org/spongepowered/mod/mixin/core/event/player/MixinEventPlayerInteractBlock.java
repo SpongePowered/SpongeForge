@@ -30,10 +30,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.entity.EntityInteractionType;
-import org.spongepowered.api.entity.EntityInteractionTypes;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.source.entity.living.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.util.Direction;
@@ -49,7 +45,6 @@ import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 
-@SuppressWarnings("ConstantConditions")
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
 public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer implements PlayerInteractBlockEvent {
@@ -89,22 +84,19 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
         return Cause.of(this.entityPlayer);
     }
 
-    private static Action actionFromSponge(EntityInteractionType type, BlockType blockType) {
-        if (type == EntityInteractionTypes.ATTACK) {
-            return Action.LEFT_CLICK_BLOCK;
-        } else if (type == EntityInteractionTypes.USE && blockType == BlockTypes.AIR) {
-            return Action.RIGHT_CLICK_AIR;
-        }
-        return Action.RIGHT_CLICK_BLOCK;
-    }
-
     @SuppressWarnings("unused")
     private static PlayerInteractEvent fromSpongeEvent(PlayerInteractBlockEvent spongeEvent) {
-        //Action action = actionFromSponge(spongeEvent.getInteractionType(), spongeEvent.getLocation().getBlockType());
         BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetLocation().getBlockPosition());
         EnumFacing face = SpongeGameRegistry.directionMap.get(spongeEvent.getTargetSide());
+        EntityPlayer player = (EntityPlayer) spongeEvent.getEntity();
+        Action action = Action.RIGHT_CLICK_BLOCK;
+        if (player.isUsingItem()) {
+            action = Action.LEFT_CLICK_BLOCK;
+        } else if (player.worldObj.isAirBlock(pos)) {
+            action = Action.RIGHT_CLICK_AIR;
+        }
 
-        PlayerInteractEvent event = new PlayerInteractEvent((EntityPlayer) spongeEvent.getEntity(), Action.RIGHT_CLICK_BLOCK, pos, face,
+        PlayerInteractEvent event = new PlayerInteractEvent((EntityPlayer) spongeEvent.getEntity(), action, pos, face,
             (net.minecraft.world.World) spongeEvent.getEntity().getWorld());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
