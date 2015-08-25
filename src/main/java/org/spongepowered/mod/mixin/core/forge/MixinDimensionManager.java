@@ -29,6 +29,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.api.world.WorldBuilder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -36,6 +37,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.world.SpongeDimensionType;
+import org.spongepowered.common.world.SpongeWorldBuilder;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -91,7 +93,6 @@ public abstract class MixinDimensionManager {
         }
     }
 
-    // TODO: Test to make sure this works
     @Overwrite
     public static void initDimension(int dim) {
         if (dim == 0) {
@@ -110,7 +111,9 @@ public abstract class MixinDimensionManager {
             return; // If a provider hasn't been registered then we can't hotload the dim
         }
         WorldBuilder builder = Sponge.getSpongeRegistry().createWorldBuilder();
-        Optional<org.spongepowered.api.world.World> world = builder.dimensionType(Sponge.getSpongeRegistry().getDimensionTypeFromProvider(providerId)).keepsSpawnLoaded(spawnSettings.get(providerId)).build();
+        builder = builder.dimensionType(Sponge.getSpongeRegistry().getDimensionTypeFromProvider(providerId))
+                .keepsSpawnLoaded(spawnSettings.get(providerId)).generator(GeneratorTypes.DEFAULT); 
+        Optional<org.spongepowered.api.world.World> world = ((SpongeWorldBuilder) builder).dimensionId(dim).build();
         // load world
         if (world.isPresent()) {
             Sponge.getGame().getServer().loadWorld(world.get().getProperties());

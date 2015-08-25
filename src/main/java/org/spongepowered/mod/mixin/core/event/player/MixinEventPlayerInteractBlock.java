@@ -58,7 +58,11 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, net.minecraft.world.World world, CallbackInfo ci) {
-        this.blockState = (BlockState) world.getBlockState(pos);
+        if (pos != null) {
+            this.blockState = (BlockState) world.getBlockState(pos);
+        } else {
+            this.blockState = BlockTypes.AIR.getDefaultState();
+        }
     }
 
     @Override
