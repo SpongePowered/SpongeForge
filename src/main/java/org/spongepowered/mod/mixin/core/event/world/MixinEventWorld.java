@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.source.world.WorldEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
@@ -41,6 +42,11 @@ public abstract class MixinEventWorld extends MixinEvent implements WorldEvent {
     @Override
     public World getWorld() {
         return (World) this.world;
+    }
+
+    @Override
+    public Cause getCause() {
+        return Cause.of(getWorld());
     }
 
     @SuppressWarnings("unused")

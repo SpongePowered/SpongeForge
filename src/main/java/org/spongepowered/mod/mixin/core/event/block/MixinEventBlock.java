@@ -29,9 +29,8 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.source.block.BlockEvent;
 import org.spongepowered.api.event.target.block.ChangeBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -42,91 +41,59 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)
 public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockEvent {
 
-    private BlockSnapshot blockSnapshot;
-    private BlockState replacementBlock;
-    private List<Location<World>> blockLocations;
-    private ImmutableList<BlockSnapshot> blockSnapshots;
+    private BlockSnapshot blockOriginal;
+    private BlockSnapshot blockReplacement;
+    protected int experience; // Need to do this here until Forge moves experience to Harvest
+    protected ImmutableList<BlockTransaction> blockTransactions;
 
     @Shadow public BlockPos pos;
     @Shadow public net.minecraft.world.World world;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, CallbackInfo ci) {
-        this.blockSnapshot = (BlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(world, pos);
-        this.blockSnapshots = ImmutableList.of(this.blockSnapshot);
-        this.blockLocations = new ArrayList<Location<World>>();
-        this.blockLocations.add(new Location<World>((World) world, VecHelper.toVector(pos)));
-        this.replacementBlock = BlockTypes.AIR.getDefaultState();
+        this.blockOriginal = (BlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(world, pos);
+        this.blockReplacement = this.blockOriginal.setState(BlockTypes.AIR.getDefaultState());
+    }
+
+    public ImmutableList<BlockTransaction> generateTransactions() {
+        this.blockTransactions =
+                new ImmutableList.Builder<BlockTransaction>().add(new BlockTransaction(this.blockOriginal, this.blockReplacement)).build();
+        return this.blockTransactions;
     }
 
     @Override
-    public Location<World> getTargetLocation() {
-        return new Location<World>((World) this.world, VecHelper.toVector(this.pos).toDouble());
+    public ImmutableList<BlockTransaction> getTransactions() {
+        if (this.blockTransactions == null) {
+            generateTransactions();
+        }
+        return this.blockTransactions;
     }
 
     @Override
-    public BlockSnapshot getSnapshot() {
-        return this.blockSnapshot;
-    }
-
-    @Override
-    public ImmutableList<BlockSnapshot> getSnapshots() {
-        return this.blockSnapshots;
-    }
-
-    @Override
-    public BlockState getReplacementBlock() {
-        return BlockTypes.AIR.getDefaultState();
-    }
-
-    @Override
-    public Cause getCause() {
-        return Cause.of(this.blockSnapshot);
-    }
-
-    @Override
-    public List<Location<World>> getLocations() {
-        return this.blockLocations;
-    }
-
-    @Override
-    public BlockState getOriginalReplacementBlock() {
-        return BlockTypes.AIR.getDefaultState();
-    }
-
-    @Override
-    public void setReplacementBlock(BlockState block) {
-        this.replacementBlock = block;
-    }
-
-    @Override
-    public List<Location<World>> filterBlockLocations(Predicate<Location<World>> predicate) {
-        Iterator<Location<World>> iterator = this.getLocations().iterator();
+    public void invalidateTransactions(Predicate<Location<World>> predicate) {
+        Iterator<BlockTransaction> iterator = getTransactions().iterator();
         while (iterator.hasNext()) {
-            if (!predicate.apply(iterator.next())) {
-                iterator.remove();
+            BlockTransaction transaction = iterator.next();
+            if (transaction.getFinalReplacement().getLocation().isPresent()
+                    && !predicate.apply(transaction.getFinalReplacement().getLocation().get())) {
+                transaction.setIsValid(false);
             }
         }
-        return this.getLocations();
     }
 
     @SuppressWarnings("unused")
-    private static net.minecraftforge.event.world.BlockEvent fromSpongeEvent(BlockEvent spongeEvent) {
-        net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getLocation().getExtent();
-
-        Location<World> location = spongeEvent.getLocation();
+    private static net.minecraftforge.event.world.BlockEvent fromSpongeEvent(ChangeBlockEvent spongeEvent) {
+        Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
+        net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
         net.minecraftforge.event.world.BlockEvent event = new net.minecraftforge.event.world.BlockEvent(world, pos, world.getBlockState(pos));

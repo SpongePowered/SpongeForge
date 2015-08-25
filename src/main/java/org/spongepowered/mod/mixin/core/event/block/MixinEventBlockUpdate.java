@@ -24,12 +24,16 @@
  */
 package org.spongepowered.mod.mixin.core.event.block;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockTransaction;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.event.source.block.BlockUpdateNeighborBlockEvent;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -44,42 +48,45 @@ import org.spongepowered.mod.interfaces.IMixinEvent;
 import java.util.EnumSet;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 @NonnullByDefault
 @Mixin(value = BlockEvent.NeighborNotifyEvent.class, remap = false)
 public abstract class MixinEventBlockUpdate extends MixinEventBlock implements BlockUpdateNeighborBlockEvent {
 
     @Shadow private EnumSet<EnumFacing> notifiedSides;
 
-    @Nullable private List<Location<World>> affectedLocations;
-
     @Override
-    public List<Location<World>> getLocations() {
-        if (this.affectedLocations == null) {
-            this.affectedLocations = Lists.newArrayList();
-            for (EnumFacing notifiedSide : this.notifiedSides) {
-                BlockPos offset = this.pos.offset(notifiedSide);
-                this.affectedLocations.add(((World) this.world).getLocation(offset.getX(), offset.getY(), offset.getZ()));
-            }
+    public ImmutableList<BlockTransaction> generateTransactions() {
+        List<BlockTransaction> transactions = Lists.newArrayList();
+        for (EnumFacing notifiedSide : this.notifiedSides) {
+            BlockPos offset = this.pos.offset(notifiedSide);
+            BlockSnapshot replacementSnapshot =
+                    ((World) this.world).getBlockSnapshot(VecHelper.toVector(offset)).setState(BlockTypes.AIR.getDefaultState());
+            BlockSnapshot originalSnapshot = ((World) this.world).getBlockSnapshot(VecHelper.toVector(offset));
+            transactions.add(new BlockTransaction(originalSnapshot, replacementSnapshot));
         }
-        return this.affectedLocations;
+        this.blockTransactions = ImmutableList.copyOf(transactions);
+        return this.blockTransactions;
     }
 
     @SuppressWarnings("unused")
     private static NeighborNotifyEvent fromSpongeEvent(BlockUpdateNeighborBlockEvent blockUpdateEvent) {
-        final Location<World> location = blockUpdateEvent.getTargetLocation();
-
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
-        for (Direction direction : Direction.values()) {
-            if ((direction.isCardinal() || direction == Direction.UP || direction == Direction.DOWN)
-                    && blockUpdateEvent.getLocations().contains(location.getRelative(direction))) {
-                facings.add(SpongeGameRegistry.directionMap.get(direction));
+        net.minecraft.world.World world =
+                (net.minecraft.world.World) blockUpdateEvent.getTransactions().get(0).getOriginal().getLocation().get().getExtent();
+        Location<World> targetLocation = blockUpdateEvent.getTransactions().get(0).getOriginal().getLocation().get();
+
+        for (BlockTransaction transaction : blockUpdateEvent.getTransactions()) {
+            for (Direction direction : Direction.values()) {
+                Location<World> location = transaction.getOriginal().getLocation().get();
+                if ((direction.isCardinal() || direction == Direction.UP || direction == Direction.DOWN)
+                        && location.equals(location.getRelative(direction))) {
+                    facings.add(SpongeGameRegistry.directionMap.get(direction));
+                }
             }
         }
 
-        final NeighborNotifyEvent event = new NeighborNotifyEvent((net.minecraft.world.World) blockUpdateEvent.getTargetLocation().getExtent(),
-            VecHelper.toBlockPos(location.getBlockPosition()), (IBlockState) blockUpdateEvent.getTargetLocation().getBlock(), facings);
+        final NeighborNotifyEvent event = new NeighborNotifyEvent(world,
+                VecHelper.toBlockPos(targetLocation.getBlockPosition()), (IBlockState) targetLocation.getBlock(), facings);
         ((IMixinEvent) event).setSpongeEvent(blockUpdateEvent);
         return event;
     }

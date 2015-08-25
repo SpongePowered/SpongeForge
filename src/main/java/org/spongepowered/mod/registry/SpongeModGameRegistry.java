@@ -24,15 +24,6 @@
  */
 package org.spongepowered.mod.registry;
 
-import org.spongepowered.api.event.cause.entity.damage.source.BlockDamageSourceBuilder;
-import org.spongepowered.api.event.cause.entity.damage.source.DamageSourceBuilder;
-import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSourceBuilder;
-import org.spongepowered.api.event.cause.entity.damage.source.FallingBlockDamageSourceBuilder;
-import org.spongepowered.api.event.cause.entity.damage.source.ProjectileDamageSourceBuilder;
-
-import org.spongepowered.api.block.BlockSnapshotBuilder;
-import org.spongepowered.api.block.BlockStateBuilder;
-import org.spongepowered.api.entity.EntitySnapshotBuilder;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Function;
 import net.minecraftforge.fml.common.registry.GameData;
@@ -119,51 +110,4 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
         }
     }
 
-    @Override
-    public BlockStateBuilder createBlockStateBuilder() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public BlockSnapshotBuilder createBlockSnapshotBuilder() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public EntitySnapshotBuilder createEntitySnapshotBuilder() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public BlockDamageSourceBuilder createBlockDamageSourceBuilder() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public DamageSourceBuilder createDamageSourceBuilder() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public EntityDamageSourceBuilder createEntityDamageSourceBuilder() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public FallingBlockDamageSourceBuilder createFallingBlockDamageSourceBuilder() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ProjectileDamageSourceBuilder createProjectileDamageSourceBuilder() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

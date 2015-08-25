@@ -24,20 +24,21 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
+import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
-import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.source.entity.living.player.PlayerPlaceBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 
@@ -57,23 +58,19 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
     }
 
     @Override
-    public BlockState getReplacementBlock() {
-        return (BlockState) this.placedBlock;
-    }
-
-    @Override
     public Cause getCause() {
         return Cause.of(this.player);
     }
 
     @SuppressWarnings("unused")
     private static BlockEvent.PlaceEvent fromSpongeEvent(PlayerPlaceBlockEvent spongeEvent) {
-        Location<org.spongepowered.api.world.World> location = spongeEvent.getTargetLocation();
-        World world = (World) location.getExtent();
+        Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
+        net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        Vector3i replacementPos = spongeEvent.getTransactions().get(0).getFinalReplacement().getLocation().get().getBlockPosition();
 
         BlockEvent.PlaceEvent event =
-                new BlockEvent.PlaceEvent((net.minecraftforge.common.util.BlockSnapshot) spongeEvent.getReplacementBlock(), world.getBlockState(pos),
+                new BlockEvent.PlaceEvent(net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(world, VecHelper.toBlockPos(replacementPos)), world.getBlockState(pos),
                         (EntityPlayer) spongeEvent.getEntity());
 
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);

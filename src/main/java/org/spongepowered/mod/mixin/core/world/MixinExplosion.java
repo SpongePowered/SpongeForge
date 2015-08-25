@@ -40,7 +40,8 @@ import java.util.List;
 @Mixin(net.minecraft.world.Explosion.class)
 public abstract class MixinExplosion implements Explosion {
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    // TODO
+    /*@SuppressWarnings({"rawtypes", "unchecked"})
     @Redirect(method = "doExplosionA", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;onExplosionDetonate("
             + "Lnet/minecraft/world/World;Lnet/minecraft/world/Explosion;Ljava/util/List;D)V", remap = false))
     public void onFireExplosionDetonate(net.minecraft.world.World world, net.minecraft.world.Explosion explosion,
@@ -56,6 +57,6 @@ public abstract class MixinExplosion implements Explosion {
                 affectedBlockPositions.add(VecHelper.toBlockPos(location.getBlockPosition()));
             }
         }
-    }
+    }*/
 
 }

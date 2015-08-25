@@ -47,6 +47,7 @@ public abstract class MixinEventWorldOnExplosion extends MixinEventWorldExplosio
     private List<Location<World>> locations, originalLocations;
     private List<Entity> originalEntities;
 
+    /* TODO
     @Override
     public List<Location<World>> getLocations() {
         if (this.locations == null) {
