@@ -91,6 +91,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
         // Classloader exclusions - TODO: revise when event pkg refactor reaches impl
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.CauseTracked");
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.Cause");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Cancellable");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.event.callback.CallbackList");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
