@@ -52,17 +52,17 @@ public abstract class MixinPlayerEvent extends Event implements org.spongepowere
     }
 
     @Override
-    public Player getEntity() {
+    public Player getSourceEntity() {
         return (Player) this.player;
     }
 
     @Override
-    public Transform<World> getTransform() {
+    public Transform<World> getSourceTransform() {
         return this.transform;
     }
 
     @Override
-    public EntityEvent setTransform(Transform<World> transform) {
+    public EntityEvent setSourceTransform(Transform<World> transform) {
         this.transform = checkNotNull(transform);
         return this;
     }

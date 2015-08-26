@@ -61,7 +61,7 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
     }
 
     @Override
-    public Player getEntity() {
+    public Player getSourceEntity() {
         return (Player) this.player;
     }
 
@@ -78,7 +78,7 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
-        BlockEvent.BreakEvent forgeEvent = new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos), (EntityPlayer) spongeEvent.getEntity());
+        BlockEvent.BreakEvent forgeEvent = new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos), (EntityPlayer) spongeEvent.getSourceEntity());
         ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);
         return forgeEvent;
     }

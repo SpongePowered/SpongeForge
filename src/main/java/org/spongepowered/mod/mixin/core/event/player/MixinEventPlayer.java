@@ -40,14 +40,14 @@ public abstract class MixinEventPlayer extends MixinEventLiving implements Playe
     @Shadow public EntityPlayer entityPlayer;
 
     @Override
-    public Player getEntity() {
+    public Player getSourceEntity() {
         return (Player) this.entityPlayer;
     }
 
     @SuppressWarnings("unused")
     private static net.minecraftforge.event.entity.player.PlayerEvent fromSpongeEvent(PlayerEvent spongeEvent) {
         net.minecraftforge.event.entity.player.PlayerEvent event =
-                new net.minecraftforge.event.entity.player.PlayerEvent((EntityPlayer) spongeEvent.getEntity());
+                new net.minecraftforge.event.entity.player.PlayerEvent((EntityPlayer) spongeEvent.getSourceEntity());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

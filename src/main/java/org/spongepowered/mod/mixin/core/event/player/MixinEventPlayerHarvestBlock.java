@@ -131,7 +131,7 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
     }
 
     @Override
-    public Player getEntity() {
+    public Player getSourceEntity() {
         return (Player) this.harvester;
     }
 
@@ -166,7 +166,7 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
                 new HarvestDropsEvent((net.minecraft.world.World) spongeEvent.getTargetLocation().getExtent(), VecHelper.toBlockPos(spongeEvent
                         .getTargetLocation()
                         .getBlockPosition()), (net.minecraft.block.state.IBlockState) spongeEvent.getTargetLocation().getBlock(), 0,
-                        spongeEvent.getDropChance(), droppedItems, (EntityPlayer) spongeEvent.getEntity(), spongeEvent.isSilkTouchHarvest());
+                        spongeEvent.getDropChance(), droppedItems, (EntityPlayer) spongeEvent.getSourceEntity(), spongeEvent.isSilkTouchHarvest());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

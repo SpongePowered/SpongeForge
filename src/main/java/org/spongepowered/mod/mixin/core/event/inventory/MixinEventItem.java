@@ -34,7 +34,7 @@ import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
 @NonnullByDefault
 @Mixin(net.minecraftforge.event.entity.item.ItemEvent.class)
-public abstract class MixinEventItem extends MixinEventEntity  {
+public abstract class MixinEventItem extends MixinEventEntity {
 
     @Shadow(remap = false) public EntityItem entityItem;
 

@@ -96,14 +96,14 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
     }
 
     @Override
-    public Player getEntity() {
+    public Player getSourceEntity() {
         return (Player) this.player;
     }
 
     @Override
     public MessageSink getSink() {
         if (this.sink == null) {
-            this.sink = getEntity().getMessageSink();
+            this.sink = getSourceEntity().getMessageSink();
         }
         return this.sink;
     }
@@ -142,7 +142,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
 
     @SuppressWarnings("unused")
     private static ServerChatEvent fromSpongeEvent(PlayerChatEvent spongeEvent) {
-        IChatComponent component = SpongeTexts.toComponent(spongeEvent.getMessage(), spongeEvent.getEntity().getLocale());
+        IChatComponent component = SpongeTexts.toComponent(spongeEvent.getMessage(), spongeEvent.getSourceEntity().getLocale());
         if (!(component instanceof ChatComponentTranslation)) {
             component = new ChatComponentTranslation("%s", component);
         }
@@ -150,7 +150,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
         // Using toPlain here is fine, since the raw message from the client
         // can't have formatting.
         ServerChatEvent event =
-                new ServerChatEvent((EntityPlayerMP) spongeEvent.getEntity(), Texts.toPlain(spongeEvent.getMessage()),
+                new ServerChatEvent((EntityPlayerMP) spongeEvent.getSourceEntity(), Texts.toPlain(spongeEvent.getMessage()),
                         (ChatComponentTranslation) component);
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;

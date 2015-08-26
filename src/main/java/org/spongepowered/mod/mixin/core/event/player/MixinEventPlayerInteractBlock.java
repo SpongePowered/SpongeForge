@@ -93,7 +93,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     private static PlayerInteractEvent fromSpongeEvent(PlayerInteractBlockEvent spongeEvent) {
         BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetLocation().getBlockPosition());
         EnumFacing face = SpongeGameRegistry.directionMap.get(spongeEvent.getTargetSide());
-        EntityPlayer player = (EntityPlayer) spongeEvent.getEntity();
+        EntityPlayer player = (EntityPlayer) spongeEvent.getSourceEntity();
         Action action = Action.RIGHT_CLICK_BLOCK;
         if (player.isUsingItem()) {
             action = Action.LEFT_CLICK_BLOCK;
@@ -101,8 +101,8 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
             action = Action.RIGHT_CLICK_AIR;
         }
 
-        PlayerInteractEvent event = new PlayerInteractEvent((EntityPlayer) spongeEvent.getEntity(), action, pos, face,
-            (net.minecraft.world.World) spongeEvent.getEntity().getWorld());
+        PlayerInteractEvent event = new PlayerInteractEvent((EntityPlayer) spongeEvent.getSourceEntity(), action, pos, face,
+            (net.minecraft.world.World) spongeEvent.getSourceEntity().getWorld());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

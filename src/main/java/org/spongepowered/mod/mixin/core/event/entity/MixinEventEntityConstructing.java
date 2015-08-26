@@ -37,7 +37,7 @@ public abstract class MixinEventEntityConstructing extends MixinEventEntity impl
 
     @SuppressWarnings("unused")
     private static EntityConstructing fromSpongeEvent(ConstructEntityEvent spongeEvent) {
-        EntityConstructing event = new EntityConstructing((net.minecraft.entity.Entity) spongeEvent.getEntity());
+        EntityConstructing event = new EntityConstructing((net.minecraft.entity.Entity) spongeEvent.getSourceEntity());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

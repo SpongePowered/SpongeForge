@@ -42,11 +42,4 @@ public abstract class MixinEventPlayerInteractEntity extends MixinEventPlayer im
         return Optional.absent();
     }
 
-    /* Can't physically do this
-    @Override
-    public Entity getTargetEntity() {
-        return (Entity) this.target;
-    }
-    */
-
 }

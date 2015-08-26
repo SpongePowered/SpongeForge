@@ -25,15 +25,18 @@
 package org.spongepowered.mod.registry;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Function;
 import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 
@@ -88,6 +91,12 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
         });
     }
 
+    // used by EntityRegistry
+    public void registerEntityType(String id, EntityType type) {
+        this.entityTypeMappings.put(id, type);
+        this.entityClassToTypeMappings.put(((SpongeEntityType) type).entityClass, type);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <T extends CatalogType> com.google.common.base.Optional<T> getType(Class<T> typeClass, String id) {
@@ -95,7 +104,8 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
         if (tempMap == null) {
             return com.google.common.base.Optional.absent();
         } else {
-            if (BlockType.class.isAssignableFrom(typeClass) || ItemType.class.isAssignableFrom(typeClass)) {
+            if (BlockType.class.isAssignableFrom(typeClass) || ItemType.class.isAssignableFrom(typeClass)
+                    || EntityType.class.isAssignableFrom(typeClass)) {
                 if (!id.contains(":")) {
                     id = "minecraft:" + id; // assume vanilla
                 }

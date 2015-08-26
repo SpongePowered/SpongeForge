@@ -54,7 +54,7 @@ public abstract class MixinEventPlayerDropItem extends ItemEvent implements Play
     }
 
     @Override
-    public Player getEntity() {
+    public Player getSourceEntity() {
         return (Player) this.player;
     }
 

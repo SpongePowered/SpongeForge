@@ -54,7 +54,7 @@ public abstract class MixinSpongeImplEventFactory {
     @Overwrite
     public static PlayerJoinEvent createPlayerJoin(Game game, Player player, Location<World> location, Text text, MessageSink sink) {
         final PlayerJoinEvent event = (PlayerJoinEvent) new PlayerEvent.PlayerLoggedInEvent((EntityPlayer) player);
-        event.getTransform().setLocation(location);
+        event.getSourceTransform().setLocation(location);
         event.setSink(sink);
         event.setNewMessage(text);
         return event;
@@ -64,7 +64,7 @@ public abstract class MixinSpongeImplEventFactory {
     public static RespawnPlayerEvent createPlayerRespawn(Game game, Player player, boolean isBedSpawn, Location<World> respawnLocation) {
         final RespawnPlayerEvent event = (RespawnPlayerEvent) new PlayerEvent.PlayerRespawnEvent((EntityPlayer) player);
         ((IMixinPlayerRespawnEvent) event).setIsBedSpawn(isBedSpawn);
-        event.getTransform().setLocation(respawnLocation);
+        event.getOriginTransform().setLocation(respawnLocation);
         return event;
     }
 

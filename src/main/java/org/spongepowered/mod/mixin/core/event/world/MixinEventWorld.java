@@ -40,19 +40,19 @@ public abstract class MixinEventWorld extends MixinEvent implements WorldEvent {
     @Shadow public net.minecraft.world.World world;
 
     @Override
-    public World getWorld() {
+    public World getSourceWorld() {
         return (World) this.world;
     }
 
     @Override
     public Cause getCause() {
-        return Cause.of(getWorld());
+        return Cause.of(getSourceWorld());
     }
 
     @SuppressWarnings("unused")
     private static net.minecraftforge.event.world.WorldEvent fromSpongeEvent(WorldEvent spongeEvent) {
         net.minecraftforge.event.world.WorldEvent event =
-                new net.minecraftforge.event.world.WorldEvent((net.minecraft.world.World) spongeEvent.getWorld());
+                new net.minecraftforge.event.world.WorldEvent((net.minecraft.world.World) spongeEvent.getSourceWorld());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

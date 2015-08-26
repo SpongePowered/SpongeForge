@@ -53,7 +53,7 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
     @Shadow public IBlockState placedAgainst;
 
     @Override
-    public Player getEntity() {
+    public Player getSourceEntity() {
         return (Player) this.player;
     }
 
@@ -71,7 +71,7 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
 
         BlockEvent.PlaceEvent forgeEvent =
                 new BlockEvent.PlaceEvent((net.minecraftforge.common.util.BlockSnapshot) replacementBlock, world.getBlockState(pos) ,
-                        (EntityPlayer) spongeEvent.getEntity());
+                        (EntityPlayer) spongeEvent.getSourceEntity());
 
         ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);
         return forgeEvent;
