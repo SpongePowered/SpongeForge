@@ -29,7 +29,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.GeneratorTypes;
+import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.WorldBuilder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -102,21 +102,22 @@ public abstract class MixinDimensionManager {
         int providerId = 0;
         WorldServer overworld = DimensionManager.getWorld(0);
         if (overworld == null) {
-            throw new RuntimeException("Cannot Hotload Dim: Overworld is not Loaded!");
+            throw new RuntimeException("Error during initDimension. Cannot Hotload Dim: " + dim + ", Overworld is not Loaded!");
         }
         try {
             providerId = DimensionManager.getProviderType(dim);
         } catch (Exception e) {
-            System.err.println("Cannot Hotload Dim: " + e.getMessage());
+            Sponge.getLogger().error("Error during initDimension. Cannot Hotload Dim: " + e.getMessage());
             return; // If a provider hasn't been registered then we can't hotload the dim
         }
+
+        WorldProvider provider = WorldProvider.getProviderForDimension(dim);
         WorldBuilder builder = Sponge.getSpongeRegistry().createWorldBuilder();
-        builder = builder.dimensionType(Sponge.getSpongeRegistry().getDimensionTypeFromProvider(providerId))
-                .keepsSpawnLoaded(spawnSettings.get(providerId)).generator(GeneratorTypes.DEFAULT); 
-        Optional<org.spongepowered.api.world.World> world = ((SpongeWorldBuilder) builder).dimensionId(dim).build();
-        // load world
-        if (world.isPresent()) {
-            Sponge.getGame().getServer().loadWorld(world.get().getProperties());
+        builder = builder.dimensionType(((Dimension) provider).getType()).name(provider.getDimensionName())
+                .keepsSpawnLoaded(spawnSettings.get(providerId));
+        Optional<org.spongepowered.api.world.World> world = ((SpongeWorldBuilder) builder).dimensionId(dim).isMod(true).build();
+        if (!world.isPresent()) {
+            Sponge.getLogger().error("Error during initDimension. Cannot Hotload Dim: " + dim + " for provider " + provider.getClass().getName());
         }
     }
 

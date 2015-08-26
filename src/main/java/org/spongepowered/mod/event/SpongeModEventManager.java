@@ -55,6 +55,8 @@ import org.spongepowered.api.event.source.entity.living.player.PlayerEvent;
 import org.spongepowered.api.event.source.entity.living.player.PlayerHarvestBlockEvent;
 import org.spongepowered.api.event.source.entity.living.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.event.source.entity.living.player.PlayerPlaceBlockEvent;
+import org.spongepowered.api.event.source.server.ServerUnloadWorldEvent;
+import org.spongepowered.api.event.source.server.ServerLoadWorldEvent;
 import org.spongepowered.api.event.source.world.WorldEvent;
 import org.spongepowered.api.event.target.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.target.entity.SpawnEntityEvent;
@@ -108,8 +110,8 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(PlayerInteractBlockEvent.class, net.minecraftforge.event.entity.player.PlayerInteractEvent.class)
                     .put(PlayerPlaceBlockEvent.class, net.minecraftforge.event.world.BlockEvent.PlaceEvent.class)
                     .put(WorldEvent.class, net.minecraftforge.event.world.WorldEvent.class)
-                    .put(LoadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
-                    .put(UnloadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
+                    .put(ServerLoadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
+                    .put(ServerUnloadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
                     .build();
 
     private final ImmutableMap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus> busMappings =
@@ -171,7 +173,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         if (event instanceof PlayerBreakBlockEvent || event instanceof PlayerPlaceBlockEvent) {
             forgeEvent = ((IMixinEvent) event).fromSpongeEvent(event);
             event = (Event) forgeEvent;
-            }
+        }
         for (IEventListener listener : listeners) {
             try {
                 listener.invoke(forgeEvent);

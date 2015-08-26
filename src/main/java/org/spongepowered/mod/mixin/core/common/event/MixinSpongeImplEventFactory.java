@@ -32,6 +32,7 @@ import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.source.entity.living.player.PlayerJoinEvent;
 import org.spongepowered.api.event.source.entity.living.player.PlayerQuitEvent;
 import org.spongepowered.api.event.target.entity.living.player.RespawnPlayerEvent;
+import org.spongepowered.api.event.source.server.ServerLoadWorldEvent;
 import org.spongepowered.api.event.target.world.LoadWorldEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
@@ -46,8 +47,8 @@ import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
 public abstract class MixinSpongeImplEventFactory {
 
     @Overwrite
-    public static LoadWorldEvent createWorldLoad(Game game, World world) {
-        return (LoadWorldEvent) new WorldEvent.Load((net.minecraft.world.World) world);
+    public static ServerLoadWorldEvent createServerLoadWorld(Game game, World world) {
+        return (ServerLoadWorldEvent) new WorldEvent.Load((net.minecraft.world.World) world);
     }
 
     @Overwrite

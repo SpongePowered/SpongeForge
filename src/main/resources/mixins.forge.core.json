@@ -66,6 +66,7 @@
         "world.MixinExplosion",
         "world.MixinWorld",
         "world.MixinWorldProvider",
+        "world.MixinWorldServer",
         "world.storage.MixinSaveHandler"
     ],
     "client": [
