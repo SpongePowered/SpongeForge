@@ -24,21 +24,17 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import org.spongepowered.api.event.source.entity.EntityEvent;
-import org.spongepowered.api.world.World;
-
-import org.spongepowered.api.entity.Transform;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = PlayerEvent.class, remap = false)
 public abstract class MixinPlayerEvent extends Event implements org.spongepowered.api.event.source.entity.living.player.PlayerEvent {
@@ -61,9 +57,4 @@ public abstract class MixinPlayerEvent extends Event implements org.spongepowere
         return this.transform;
     }
 
-    @Override
-    public EntityEvent setSourceTransform(Transform<World> transform) {
-        this.transform = checkNotNull(transform);
-        return this;
-    }
 }

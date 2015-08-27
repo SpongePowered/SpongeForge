@@ -24,24 +24,34 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
-import org.spongepowered.api.event.source.entity.living.player.PlayerConsumeItemEvent;
-import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.event.source.entity.living.player.PlayerUseItemStackEvent;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish.class, remap = false)
-public abstract class MixinEventPlayerItemConsume extends MixinEventPlayer implements PlayerConsumeItemEvent {
+@Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.class, remap = false)
+public abstract class MixinEventPlayerItemConsume extends MixinEventPlayer implements PlayerUseItemStackEvent {
 
     @Shadow public net.minecraft.item.ItemStack result;
 
     @Override
-    public ItemStack getConsumedItem() {
-        return (ItemStack) this.result;
+    public Transform<World> getSourceTransform() {
+        return null;
     }
 
     @Override
-    public void setItem(ItemStack item) {
-        this.result = (net.minecraft.item.ItemStack) item;
+    public void setCanceled(boolean cancel) {
+
     }
 
+    @Override
+    public boolean isCanceled() {
+        return false;
+    }
+
+    @Override
+    public Transform<World> getTargetTransform() {
+        return null;
+    }
 }

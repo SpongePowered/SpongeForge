@@ -60,8 +60,8 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, CallbackInfo ci) {
-        this.blockOriginal = (BlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(world, pos);
-        this.blockReplacement = this.blockOriginal.setState(BlockTypes.AIR.getDefaultState());
+        this.blockOriginal = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
+        this.blockReplacement = this.blockOriginal.withState(BlockTypes.AIR.getDefaultState());
     }
 
     public ImmutableList<BlockTransaction> generateTransactions() {
@@ -79,7 +79,7 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
     }
 
     @Override
-    public void invalidateTransactions(Predicate<Location<World>> predicate) {
+    public void filter(Predicate<Location<World>> predicate) {
         Iterator<BlockTransaction> iterator = getTransactions().iterator();
         while (iterator.hasNext()) {
             BlockTransaction transaction = iterator.next();

@@ -55,13 +55,11 @@ import org.spongepowered.api.event.source.entity.living.player.PlayerEvent;
 import org.spongepowered.api.event.source.entity.living.player.PlayerHarvestBlockEvent;
 import org.spongepowered.api.event.source.entity.living.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.event.source.entity.living.player.PlayerPlaceBlockEvent;
-import org.spongepowered.api.event.source.server.ServerUnloadWorldEvent;
 import org.spongepowered.api.event.source.server.ServerLoadWorldEvent;
+import org.spongepowered.api.event.source.server.ServerUnloadWorldEvent;
 import org.spongepowered.api.event.source.world.WorldEvent;
-import org.spongepowered.api.event.target.entity.ConstructEntityEvent;
+import org.spongepowered.api.event.target.entity.CreateEntityEvent;
 import org.spongepowered.api.event.target.entity.SpawnEntityEvent;
-import org.spongepowered.api.event.target.world.LoadWorldEvent;
-import org.spongepowered.api.event.target.world.UnloadWorldEvent;
 import org.spongepowered.api.event.target.world.chunk.ChangeChunkEvent;
 import org.spongepowered.api.event.target.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.event.target.world.chunk.UnloadChunkEvent;
@@ -99,7 +97,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(ChangeChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
                     .put(LoadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
                     .put(UnloadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Unload.class)
-                    .put(ConstructEntityEvent.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
+                    .put(CreateEntityEvent.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
                     .put(EntityEvent.class, net.minecraftforge.event.entity.EntityEvent.class)
                     .put(SpawnEntityEvent.class, net.minecraftforge.event.entity.EntityJoinWorldEvent.class)
                     .put(LivingEvent.class, net.minecraftforge.event.entity.living.LivingEvent.class)

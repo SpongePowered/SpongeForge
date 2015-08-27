@@ -61,14 +61,8 @@ public abstract class MixinBlockSnapshot implements BlockSnapshot {
     }
 
     @Override
-    public BlockSnapshot setState(BlockState state) {
-        this.replacedBlock = (net.minecraft.block.state.IBlockState) state;
-        return copy();
-    }
-
-    @Override
     public Optional<Location<World>> getLocation() {
-        return Optional.of(new Location<World>((World) world, VecHelper.toVector3d(pos)));
+        return Optional.of(new Location<World>((World) this.world, VecHelper.toVector3d(this.pos)));
     }
 
     @Override

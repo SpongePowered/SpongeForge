@@ -60,8 +60,8 @@ public abstract class MixinEventBlockUpdate extends MixinEventBlock implements B
         for (EnumFacing notifiedSide : this.notifiedSides) {
             BlockPos offset = this.pos.offset(notifiedSide);
             BlockSnapshot replacementSnapshot =
-                    ((World) this.world).getBlockSnapshot(VecHelper.toVector(offset)).setState(BlockTypes.AIR.getDefaultState());
-            BlockSnapshot originalSnapshot = ((World) this.world).getBlockSnapshot(VecHelper.toVector(offset));
+                    ((World) this.world).createSnapshot(VecHelper.toVector(offset)).withState(BlockTypes.AIR.getDefaultState());
+            BlockSnapshot originalSnapshot = ((World) this.world).createSnapshot(VecHelper.toVector(offset));
             transactions.add(new BlockTransaction(originalSnapshot, replacementSnapshot));
         }
         this.blockTransactions = ImmutableList.copyOf(transactions);

@@ -24,13 +24,16 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.source.entity.living.player.PlayerInteractBlockEvent;
 import org.spongepowered.api.util.Direction;
@@ -42,6 +45,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.block.SpongeBlockSnapshot;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEvent;
@@ -51,6 +55,7 @@ import org.spongepowered.mod.interfaces.IMixinEvent;
 public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer implements PlayerInteractBlockEvent {
 
     private BlockState blockState;
+    private BlockSnapshot blockSnapshot;
 
     @Shadow public Action action;
     @Shadow public net.minecraft.world.World world;
@@ -60,9 +65,9 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, net.minecraft.world.World world, CallbackInfo ci) {
         if (pos != null) {
-            this.blockState = (BlockState) world.getBlockState(pos);
+            this.blockSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         } else {
-            this.blockState = BlockTypes.AIR.getDefaultState();
+            this.blockSnapshot = new SpongeBlockSnapshot(BlockTypes.AIR.getDefaultState(), null, ImmutableList.<ImmutableDataManipulator<?, ?>>of());
         }
     }
 
@@ -72,8 +77,8 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     }
 
     @Override
-    public BlockState getTargetBlock() {
-        return this.blockState;
+    public BlockSnapshot getTargetBlock() {
+        return this.blockSnapshot;
     }
 
     @Override

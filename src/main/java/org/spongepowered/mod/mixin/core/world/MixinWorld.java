@@ -56,23 +56,23 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World {
     }
 
     @Override
-    public BlockSnapshot getBlockSnapshot(Vector3i position) {
+    public BlockSnapshot createSnapshot(Vector3i position) {
         return (BlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot((World) (Object) this, VecHelper.toBlockPos(position));
     }
 
     @Override
-    public BlockSnapshot getBlockSnapshot(int x, int y, int z) {
+    public BlockSnapshot createSnapshot(int x, int y, int z) {
         return (BlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot((World) (Object) this, new BlockPos(x, y, z));
     }
 
     @Override
-    public void setBlockSnapshot(Vector3i position, BlockSnapshot snapshot) {
+    public void restoreSnapshot(Vector3i position, BlockSnapshot snapshot) {
         net.minecraftforge.common.util.BlockSnapshot block = (net.minecraftforge.common.util.BlockSnapshot) snapshot;
         ((World) (Object) this).setBlockState(VecHelper.toBlockPos(position), block.getReplacedBlock(), block.flag);
     }
 
     @Override
-    public void setBlockSnapshot(int x, int y, int z, BlockSnapshot snapshot) {
+    public void restoreSnapshot(int x, int y, int z, BlockSnapshot snapshot) {
         net.minecraftforge.common.util.BlockSnapshot block = (net.minecraftforge.common.util.BlockSnapshot) snapshot;
         ((World) (Object) this).setBlockState(new BlockPos(x, y, z), block.getReplacedBlock(), block.flag);
     }
