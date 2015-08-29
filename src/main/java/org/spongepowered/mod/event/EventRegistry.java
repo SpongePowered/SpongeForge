@@ -37,18 +37,18 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.event.source.entity.living.human.player.PlayerJoinEvent;
-import org.spongepowered.api.event.source.entity.living.human.player.PlayerQuitEvent;
-import org.spongepowered.api.event.source.game.state.GameAboutToStartServerEvent;
-import org.spongepowered.api.event.source.game.state.GameConstructionEvent;
-import org.spongepowered.api.event.source.game.state.GameInitializationEvent;
-import org.spongepowered.api.event.source.game.state.GameLoadCompleteEvent;
-import org.spongepowered.api.event.source.game.state.GamePostInitializationEvent;
-import org.spongepowered.api.event.source.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.source.game.state.GameStartedServerEvent;
-import org.spongepowered.api.event.source.game.state.GameStartingServerEvent;
-import org.spongepowered.api.event.source.game.state.GameStoppedServerEvent;
-import org.spongepowered.api.event.source.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerJoinEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerQuitEvent;
+import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;
+import org.spongepowered.api.event.game.state.GameConstructionEvent;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GameLoadCompleteEvent;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+import org.spongepowered.api.event.game.state.GameStartingServerEvent;
+import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
+import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 
 public class EventRegistry {
 

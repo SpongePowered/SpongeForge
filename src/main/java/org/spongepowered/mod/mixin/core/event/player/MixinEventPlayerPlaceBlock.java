@@ -33,7 +33,7 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.target.block.PlaceBlockEvent;
+import org.spongepowered.api.event.block.PlaceBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;

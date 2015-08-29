@@ -45,7 +45,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.source.entity.living.human.player.PlayerChatEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.blockray.BlockRay;

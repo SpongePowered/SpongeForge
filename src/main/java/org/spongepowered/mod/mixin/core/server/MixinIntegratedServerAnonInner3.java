@@ -29,7 +29,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.source.entity.living.human.player.PlayerQuitEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerQuitEvent;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

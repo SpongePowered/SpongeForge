@@ -30,7 +30,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import org.spongepowered.api.block.BlockTransaction;
-import org.spongepowered.api.event.target.block.PlaceBlockEvent;
+import org.spongepowered.api.event.block.PlaceBlockEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

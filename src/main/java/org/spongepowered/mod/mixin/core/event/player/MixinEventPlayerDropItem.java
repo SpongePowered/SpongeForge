@@ -34,7 +34,7 @@ import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.target.inventory.DropItemStackEvent;
+import org.spongepowered.api.event.inventory.DropItemStackEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;

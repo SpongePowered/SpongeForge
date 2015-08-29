@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.world;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.ExplosionEvent;
-import org.spongepowered.api.event.source.world.WorldExplosionEvent.OnExplosion;
+import org.spongepowered.api.event.world.WorldExplosionEvent.OnExplosion;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;

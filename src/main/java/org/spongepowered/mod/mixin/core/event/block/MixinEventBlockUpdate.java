@@ -34,7 +34,8 @@ import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.event.source.block.BlockUpdateNeighborBlockEvent;
+import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.block.UpdateNeighborBlockEvent;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -50,7 +51,7 @@ import java.util.List;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.NeighborNotifyEvent.class, remap = false)
-public abstract class MixinEventBlockUpdate extends MixinEventBlock implements BlockUpdateNeighborBlockEvent {
+public abstract class MixinEventBlockUpdate extends MixinEventBlock implements UpdateNeighborBlockEvent.SourceBlock {
 
     @Shadow private EnumSet<EnumFacing> notifiedSides;
 
@@ -68,14 +69,15 @@ public abstract class MixinEventBlockUpdate extends MixinEventBlock implements B
         return this.blockTransactions;
     }
 
-    @SuppressWarnings("unused")
-    private static NeighborNotifyEvent fromSpongeEvent(BlockUpdateNeighborBlockEvent blockUpdateEvent) {
+    @Override
+    public net.minecraftforge.fml.common.eventhandler.Event fromSpongeEvent(Event event) {
+        UpdateNeighborBlockEvent.SourceBlock spongeEvent = (UpdateNeighborBlockEvent.SourceBlock) event;
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
         net.minecraft.world.World world =
-                (net.minecraft.world.World) blockUpdateEvent.getTransactions().get(0).getOriginal().getLocation().get().getExtent();
-        Location<World> targetLocation = blockUpdateEvent.getTransactions().get(0).getOriginal().getLocation().get();
+                (net.minecraft.world.World) spongeEvent.getTransactions().get(0).getOriginal().getLocation().get().getExtent();
+        Location<World> targetLocation = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
 
-        for (BlockTransaction transaction : blockUpdateEvent.getTransactions()) {
+        for (BlockTransaction transaction : spongeEvent.getTransactions()) {
             for (Direction direction : Direction.values()) {
                 Location<World> location = transaction.getOriginal().getLocation().get();
                 if ((direction.isCardinal() || direction == Direction.UP || direction == Direction.DOWN)
@@ -85,9 +87,9 @@ public abstract class MixinEventBlockUpdate extends MixinEventBlock implements B
             }
         }
 
-        final NeighborNotifyEvent event = new NeighborNotifyEvent(world,
+        final NeighborNotifyEvent forgeEvent = new NeighborNotifyEvent(world,
                 VecHelper.toBlockPos(targetLocation.getBlockPosition()), (IBlockState) targetLocation.getBlock(), facings);
-        ((IMixinEvent) event).setSpongeEvent(blockUpdateEvent);
-        return event;
+        ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);
+        return forgeEvent;
     }
 }

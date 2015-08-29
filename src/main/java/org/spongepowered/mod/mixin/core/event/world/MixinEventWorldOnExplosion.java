@@ -30,7 +30,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.world.ExplosionEvent;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.event.source.world.WorldExplosionEvent;
+import org.spongepowered.api.event.world.WorldExplosionEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;

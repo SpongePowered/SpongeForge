@@ -50,7 +50,7 @@ import net.minecraftforge.fml.common.versioning.VersionRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.Event;
-import org.spongepowered.api.event.source.game.state.GameStateEvent;
+import org.spongepowered.api.event.game.state.GameStateEvent;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
 import org.spongepowered.common.plugin.SpongePluginContainer;

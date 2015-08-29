@@ -25,7 +25,7 @@
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.event.target.entity.living.human.player.RespawnPlayerEvent;
+import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;

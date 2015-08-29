@@ -25,7 +25,7 @@
 package org.spongepowered.mod.mixin.core.event.state;
 
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
-import org.spongepowered.api.event.source.game.state.GameAboutToStartServerEvent;
+import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 

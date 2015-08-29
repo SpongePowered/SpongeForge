@@ -31,7 +31,8 @@ import net.minecraft.util.BlockPos;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.event.target.block.ChangeBlockEvent;
+import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -88,15 +89,16 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
         }
     }
 
-    @SuppressWarnings("unused")
-    private static net.minecraftforge.event.world.BlockEvent fromSpongeEvent(ChangeBlockEvent spongeEvent) {
+    @Override
+    public net.minecraftforge.fml.common.eventhandler.Event fromSpongeEvent(Event event) {
+        ChangeBlockEvent spongeEvent = (ChangeBlockEvent) event;
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
-        net.minecraftforge.event.world.BlockEvent event = new net.minecraftforge.event.world.BlockEvent(world, pos, world.getBlockState(pos));
-        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
-        return event;
+        net.minecraftforge.event.world.BlockEvent forgeEvent = new net.minecraftforge.event.world.BlockEvent(world, pos, world.getBlockState(pos));
+        ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);
+        return forgeEvent;
     }
 
 }

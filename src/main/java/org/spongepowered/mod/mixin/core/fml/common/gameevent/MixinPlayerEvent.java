@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = PlayerEvent.class, remap = false)
-public abstract class MixinPlayerEvent extends Event implements org.spongepowered.api.event.source.entity.living.human.player.PlayerEvent {
+public abstract class MixinPlayerEvent extends Event implements org.spongepowered.api.event.entity.living.player.PlayerEvent {
     private Transform<World> transform;
 
     @Shadow public EntityPlayer player;

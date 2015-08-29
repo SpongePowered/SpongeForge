@@ -45,24 +45,24 @@ import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.source.block.BlockEvent;
-import org.spongepowered.api.event.source.block.BlockUpdateNeighborBlockEvent;
-import org.spongepowered.api.event.source.entity.EntityEvent;
-import org.spongepowered.api.event.source.entity.living.LivingEvent;
-import org.spongepowered.api.event.source.entity.living.human.player.PlayerChatEvent;
-import org.spongepowered.api.event.source.entity.living.human.player.PlayerEvent;
-import org.spongepowered.api.event.source.server.ServerLoadWorldEvent;
-import org.spongepowered.api.event.source.server.ServerUnloadWorldEvent;
-import org.spongepowered.api.event.source.world.WorldEvent;
-import org.spongepowered.api.event.target.block.BreakBlockEvent;
-import org.spongepowered.api.event.target.block.HarvestBlockEvent;
-import org.spongepowered.api.event.target.block.InteractBlockEvent;
-import org.spongepowered.api.event.target.block.PlaceBlockEvent;
-import org.spongepowered.api.event.target.entity.CreateEntityEvent;
-import org.spongepowered.api.event.target.entity.SpawnEntityEvent;
-import org.spongepowered.api.event.target.world.chunk.ChangeChunkEvent;
-import org.spongepowered.api.event.target.world.chunk.LoadChunkEvent;
-import org.spongepowered.api.event.target.world.chunk.UnloadChunkEvent;
+import org.spongepowered.api.event.block.BlockEvent;
+import org.spongepowered.api.event.block.UpdateNeighborBlockEvent;
+import org.spongepowered.api.event.entity.EntityEvent;
+import org.spongepowered.api.event.entity.living.LivingEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerEvent;
+import org.spongepowered.api.event.server.ServerLoadWorldEvent;
+import org.spongepowered.api.event.server.ServerUnloadWorldEvent;
+import org.spongepowered.api.event.world.WorldEvent;
+import org.spongepowered.api.event.block.BreakBlockEvent;
+import org.spongepowered.api.event.block.HarvestBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.block.PlaceBlockEvent;
+import org.spongepowered.api.event.entity.CreateEntityEvent;
+import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.world.chunk.ChangeChunkEvent;
+import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
+import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.event.RegisteredHandler;
@@ -93,7 +93,7 @@ public class SpongeModEventManager extends SpongeEventManager {
     private final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventMappings =
             new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
                     .put(BlockEvent.class, net.minecraftforge.event.world.BlockEvent.class)
-                    .put(BlockUpdateNeighborBlockEvent.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
+                    .put(UpdateNeighborBlockEvent.SourceBlock.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
                     .put(ChangeChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
                     .put(LoadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
                     .put(UnloadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Unload.class)

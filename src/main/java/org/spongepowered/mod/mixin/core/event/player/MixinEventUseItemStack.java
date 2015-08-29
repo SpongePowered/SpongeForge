@@ -27,7 +27,7 @@ package org.spongepowered.mod.mixin.core.event.player;
 import net.minecraft.entity.player.EntityPlayer;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.target.inventory.UseItemStackEvent;
+import org.spongepowered.api.event.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.ItemStackTransaction;
 import org.spongepowered.api.world.World;
@@ -75,15 +75,14 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
     }
 
     @Override
-    public ItemStackTransaction getConsumedItem() {
-        // TODO Auto-generated method stub
+    public ItemStackTransaction getItemStackInUse() {
+        // TODO
         return null;
     }
 
     @Override
-    public void setItem(ItemStackSnapshot item) {
-        // TODO Auto-generated method stub
-
+    public void setItemStackInUse(ItemStackSnapshot item) {
+        // TODO
     }
 
 }

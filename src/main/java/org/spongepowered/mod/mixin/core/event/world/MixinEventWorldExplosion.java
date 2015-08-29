@@ -25,7 +25,7 @@
 package org.spongepowered.mod.mixin.core.event.world;
 
 import net.minecraftforge.event.world.ExplosionEvent;
-import org.spongepowered.api.event.source.world.WorldExplosionEvent;
+import org.spongepowered.api.event.world.WorldExplosionEvent;
 import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

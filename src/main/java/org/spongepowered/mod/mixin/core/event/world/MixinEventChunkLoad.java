@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
-import org.spongepowered.api.event.source.world.WorldLoadChunkEvent;
+import org.spongepowered.api.event.world.WorldLoadChunkEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.interfaces.IMixinEvent;

@@ -24,8 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
-import org.spongepowered.api.event.source.server.ServerUnloadWorldEvent;
-import org.spongepowered.api.event.target.world.UnloadWorldEvent;
+import org.spongepowered.api.event.server.ServerUnloadWorldEvent;
+import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
