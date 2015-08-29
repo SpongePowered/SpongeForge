@@ -30,7 +30,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import org.spongepowered.api.block.BlockTransaction;
-import org.spongepowered.api.event.source.entity.living.player.PlayerPlaceBlockEvent;
+import org.spongepowered.api.event.target.block.PlaceBlockEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -43,7 +43,7 @@ public class MixinForgeEventFactory {
     @Inject(method = "onPlayerBlockPlace", at = @At(value = "RETURN", remap = false), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     private static void onPlayerPlaceBlock(EntityPlayer player, BlockSnapshot blockSnapshot, EnumFacing direction,
             CallbackInfoReturnable<PlaceEvent> cir, IBlockState state, PlaceEvent event) {
-        PlayerPlaceBlockEvent spongeEvent = (PlayerPlaceBlockEvent) event;
+        PlaceBlockEvent.SourcePlayer spongeEvent = (PlaceBlockEvent.SourcePlayer) event;
         if (!spongeEvent.isCancelled()) {
             for (BlockTransaction transaction : spongeEvent.getTransactions()) {
                 if (transaction.isValid() && transaction.getCustomReplacement().isPresent()) {

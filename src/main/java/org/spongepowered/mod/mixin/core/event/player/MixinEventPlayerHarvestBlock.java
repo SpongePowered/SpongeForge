@@ -33,8 +33,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.source.entity.living.player.PlayerHarvestBlockEvent;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.target.block.HarvestBlockEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -51,7 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Mixin(value = HarvestDropsEvent.class, remap = false)
-public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock implements PlayerHarvestBlockEvent {
+public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock implements HarvestBlockEvent.SourcePlayer {
 
     private ImmutableList<ItemStack> originalDrops;
     private int originalExperience;
@@ -125,10 +125,11 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
         this.dropChance = chance;
     }
 
-    @Override
-    public boolean isSilkTouchHarvest() {
-        return this.isSilkTouching;
+    /* TODO
+    @Override public boolean isSilkTouchHarvest() { 
+        return this.isSilkTouching; 
     }
+    */
 
     @Override
     public Player getSourceEntity() {
@@ -156,7 +157,7 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
     }
 
     @SuppressWarnings("unused")
-    private static HarvestDropsEvent fromSpongeEvent(PlayerHarvestBlockEvent spongeEvent) {
+    private static HarvestDropsEvent fromSpongeEvent(HarvestBlockEvent.SourcePlayer spongeEvent) {
         List<net.minecraft.item.ItemStack> droppedItems = new ArrayList<net.minecraft.item.ItemStack>();
         for (ItemStack itemstack : spongeEvent.getItemStacks()) {
             droppedItems.add(((EntityItem) itemstack).getEntityItem());
@@ -166,7 +167,7 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
                 new HarvestDropsEvent((net.minecraft.world.World) spongeEvent.getTargetLocation().getExtent(), VecHelper.toBlockPos(spongeEvent
                         .getTargetLocation()
                         .getBlockPosition()), (net.minecraft.block.state.IBlockState) spongeEvent.getTargetLocation().getBlock(), 0,
-                        spongeEvent.getDropChance(), droppedItems, (EntityPlayer) spongeEvent.getSourceEntity(), spongeEvent.isSilkTouchHarvest());
+                        spongeEvent.getDropChance(), droppedItems, (EntityPlayer) spongeEvent.getSourceEntity(), false);// spongeEvent.isSilkTouchHarvest());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

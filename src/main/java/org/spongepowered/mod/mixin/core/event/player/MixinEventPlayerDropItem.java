@@ -24,55 +24,69 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
-import net.minecraft.entity.item.EntityItem;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
-import org.spongepowered.api.Game;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.target.entity.item.CreateItemEvent;
+import org.spongepowered.api.event.target.inventory.DropItemStackEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.util.event.callback.CallbackList;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.mixin.core.event.inventory.MixinEventItem;
+
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(value = ItemTossEvent.class, remap = false)
-public abstract class MixinEventPlayerDropItem extends ItemEvent implements CreateItemEvent {
+public abstract class MixinEventPlayerDropItem extends MixinEventItem implements DropItemStackEvent.Post.SourcePlayer {
 
     @Shadow public EntityPlayer player;
-    private final Cause cause = Cause.of(this.player);
 
-    public MixinEventPlayerDropItem(EntityItem itemEntity) {
-        super(itemEntity);
+    @Override
+    public Player getSourceEntity() {
+        return (Player) this.player;
     }
 
     @Override
-    public Cause getCause() {
-        return this.cause;
-    }
-
-    @Override
-    public Transform<World> getTargetTransform() {
+    public ImmutableList<EntitySnapshot> getEntitySnapshots() {
+        // TODO
         return null;
     }
 
     @Override
-    public Item getTargetEntity() {
-        return (Item) this.entityItem;
+    public List<Item> getEntities() {
+        // TODO
+        return null;
     }
 
     @Override
-    public boolean isCancelled() {
-        return this.isCanceled();
+    public List<Item> filterEntityLocations(Predicate<Location<World>> predicate) {
+        // TODO
+        return null;
     }
 
     @Override
-    public void setCancelled(boolean cancel) {
-        this.setCanceled(cancel);
+    public List<Item> filterEntities(Predicate<? extends Entity> predicate) {
+        // TODO
+        return null;
     }
 
+    @Override
+    public Transform<World> getSourceTransform() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Cause getCause() {
+        return Cause.of(this.player);
+    }
 }

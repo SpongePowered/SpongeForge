@@ -44,7 +44,7 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
     @SuppressWarnings("unused")
     private static EntityJoinWorldEvent fromSpongeEvent(SpawnEntityEvent spongeEvent) {
         EntityJoinWorldEvent event = new EntityJoinWorldEvent((net.minecraft.entity.Entity) spongeEvent.getTargetEntity(),
-            (net.minecraft.world.World) spongeEvent.getTargetTransform().getLocation().getExtent());
+                (net.minecraft.world.World) spongeEvent.getTargetTransform().getLocation().getExtent());
         ((IMixinEvent) event).setSpongeEvent(spongeEvent);
         return event;
     }

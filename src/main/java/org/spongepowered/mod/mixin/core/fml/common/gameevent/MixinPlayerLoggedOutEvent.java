@@ -25,8 +25,8 @@
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.source.entity.living.player.PlayerQuitEvent;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.source.entity.living.human.player.PlayerQuitEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.util.annotation.NonnullByDefault;

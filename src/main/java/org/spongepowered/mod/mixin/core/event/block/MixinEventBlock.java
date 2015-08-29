@@ -31,7 +31,6 @@ import net.minecraft.util.BlockPos;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.event.source.block.BlockEvent;
 import org.spongepowered.api.event.target.block.ChangeBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -52,7 +51,6 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
 
     private BlockSnapshot blockOriginal;
     private BlockSnapshot blockReplacement;
-    protected int experience; // Need to do this here until Forge moves experience to Harvest
     protected ImmutableList<BlockTransaction> blockTransactions;
 
     @Shadow public BlockPos pos;

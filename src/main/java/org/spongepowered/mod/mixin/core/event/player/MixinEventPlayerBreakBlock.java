@@ -24,41 +24,27 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.world.BlockEvent;
-import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.source.entity.living.player.PlayerBreakBlockEvent;
+import org.spongepowered.api.event.target.block.BreakBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.BreakEvent.class, remap = false)
-public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements PlayerBreakBlockEvent {
+public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements BreakBlockEvent.SourcePlayer {
 
     @Shadow private int exp;
     @Shadow private EntityPlayer player;
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EntityPlayer player, CallbackInfo ci) {
-        this.experience = this.exp;
-    }
-
-    @Inject(method = "setExpToDrop", at = @At("RETURN"))
-    public void onSetExpToDrop(int exp, CallbackInfo ci) {
-        this.experience = exp;
-    }
 
     @Override
     public Player getSourceEntity() {
@@ -70,15 +56,15 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
         return Cause.of(this.player);
     }
 
-    
     @Override
     public net.minecraftforge.fml.common.eventhandler.Event fromSpongeEvent(Event event) {
-        PlayerBreakBlockEvent spongeEvent = (PlayerBreakBlockEvent) event;
+        BreakBlockEvent.SourcePlayer spongeEvent = (BreakBlockEvent.SourcePlayer) event;
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
-        BlockEvent.BreakEvent forgeEvent = new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos), (EntityPlayer) spongeEvent.getSourceEntity());
+        BlockEvent.BreakEvent forgeEvent =
+                new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos), (EntityPlayer) spongeEvent.getSourceEntity());
         ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);
         return forgeEvent;
     }

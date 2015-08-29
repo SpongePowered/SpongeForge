@@ -30,10 +30,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.source.entity.living.player.PlayerPlaceBlockEvent;
+import org.spongepowered.api.event.target.block.PlaceBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -44,7 +44,7 @@ import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
-public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock implements PlayerPlaceBlockEvent {
+public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock implements PlaceBlockEvent.SourcePlayer {
 
     @Shadow public EntityPlayer player;
     @Shadow public ItemStack itemInHand;
@@ -62,15 +62,16 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
         return Cause.of(this.player);
     }
 
+    @Override
     public net.minecraftforge.fml.common.eventhandler.Event fromSpongeEvent(Event event) {
-        PlayerPlaceBlockEvent spongeEvent = (PlayerPlaceBlockEvent) event;
+        PlaceBlockEvent.SourcePlayer spongeEvent = (PlaceBlockEvent.SourcePlayer) event;
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         BlockSnapshot replacementBlock = spongeEvent.getTransactions().get(0).getFinalReplacement();
 
         BlockEvent.PlaceEvent forgeEvent =
-                new BlockEvent.PlaceEvent((net.minecraftforge.common.util.BlockSnapshot) replacementBlock, world.getBlockState(pos) ,
+                new BlockEvent.PlaceEvent((net.minecraftforge.common.util.BlockSnapshot) replacementBlock, world.getBlockState(pos),
                         (EntityPlayer) spongeEvent.getSourceEntity());
 
         ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);

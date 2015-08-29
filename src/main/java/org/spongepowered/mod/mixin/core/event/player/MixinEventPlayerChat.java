@@ -28,8 +28,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.event.ServerChatEvent;
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.source.entity.living.player.PlayerChatEvent;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.source.entity.living.human.player.PlayerChatEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.sink.MessageSink;
@@ -83,8 +83,8 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
         return this.spongeNewText;
     }
 
-    @Override
     // TODO: Better integration with forge mods?
+    @Override
     public void setNewMessage(Text text) {
         this.spongeNewText = text;
         final IChatComponent component = SpongeTexts.toComponent(text, ((Player) this.player).getLocale());

@@ -26,14 +26,14 @@ package org.spongepowered.mod.mixin.core.event.player;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
-import org.spongepowered.api.event.source.entity.living.player.PlayerInteractEntityEvent;
+import org.spongepowered.api.event.target.entity.InteractEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.EntityInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteractEntity extends MixinEventPlayer implements PlayerInteractEntityEvent {
+public abstract class MixinEventPlayerInteractEntity extends MixinEventPlayer implements InteractEntityEvent.SourcePlayer {
 
     @Shadow public net.minecraft.entity.Entity target;
 

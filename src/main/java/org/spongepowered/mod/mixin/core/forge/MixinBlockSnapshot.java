@@ -73,6 +73,14 @@ public abstract class MixinBlockSnapshot implements BlockSnapshot {
     }
 
     @Override
+    public BlockSnapshot withState(BlockState state) {
+        net.minecraftforge.common.util.BlockSnapshot snapshot =
+                new net.minecraftforge.common.util.BlockSnapshot(this.world, this.pos, (IBlockState) state, this.nbt);
+        snapshot.flag = this.flag;
+        return (BlockSnapshot) snapshot;
+    }
+
+    @Override
     public BlockSnapshot copy() {
         net.minecraftforge.common.util.BlockSnapshot snapshot =
                 new net.minecraftforge.common.util.BlockSnapshot(this.world, this.pos, this.replacedBlock, this.nbt);
