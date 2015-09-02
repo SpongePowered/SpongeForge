@@ -53,7 +53,6 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
         return this.message;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void setNewMessage(Text joinMessage) {
         if (this.originalMessage == null) {

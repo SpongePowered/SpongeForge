@@ -31,7 +31,6 @@ import net.minecraft.util.BlockPos;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -41,7 +40,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import java.util.Iterator;
@@ -50,7 +48,7 @@ import java.util.Iterator;
 @Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)
 public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockEvent {
 
-    private BlockSnapshot blockOriginal;
+    public BlockSnapshot blockOriginal;
     private BlockSnapshot blockReplacement;
     protected ImmutableList<BlockTransaction> blockTransactions;
 
@@ -63,16 +61,15 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
         this.blockReplacement = this.blockOriginal.withState(BlockTypes.AIR.getDefaultState());
     }
 
-    public ImmutableList<BlockTransaction> generateTransactions() {
+    public void createSpongeEventData() {
         this.blockTransactions =
                 new ImmutableList.Builder<BlockTransaction>().add(new BlockTransaction(this.blockOriginal, this.blockReplacement)).build();
-        return this.blockTransactions;
     }
 
     @Override
     public ImmutableList<BlockTransaction> getTransactions() {
         if (this.blockTransactions == null) {
-            generateTransactions();
+            createSpongeEventData();
         }
         return this.blockTransactions;
     }
@@ -87,18 +84,6 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
                 transaction.setIsValid(false);
             }
         }
-    }
-
-    @Override
-    public net.minecraftforge.fml.common.eventhandler.Event fromSpongeEvent(Event event) {
-        ChangeBlockEvent spongeEvent = (ChangeBlockEvent) event;
-        Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
-        net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
-        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-
-        net.minecraftforge.event.world.BlockEvent forgeEvent = new net.minecraftforge.event.world.BlockEvent(world, pos, world.getBlockState(pos));
-        ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);
-        return forgeEvent;
     }
 
 }

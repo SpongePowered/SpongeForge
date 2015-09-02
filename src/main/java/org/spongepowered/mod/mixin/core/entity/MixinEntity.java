@@ -94,7 +94,7 @@ public abstract class MixinEntity {
                 // Send bogus dimension change for same worlds on Vanilla client
                 if (currentDim != targetDim && (currentDim == clientDimension || targetDim == clientDimension)) {
                     entityplayermp1.playerNetServerHandler.sendPacket(
-                            new S07PacketRespawn(((clientDimension + 2) % 3) - 1, toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
+                            new S07PacketRespawn((byte) (clientDimension >= 0 ? -1 : 0), toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
                                     entityplayermp1.theItemInWorldManager.getGameType()));
                 }
             }

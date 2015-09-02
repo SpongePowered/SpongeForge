@@ -30,7 +30,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 @NonnullByDefault
@@ -49,11 +48,4 @@ public abstract class MixinEventWorld extends MixinEvent implements WorldEvent {
         return Cause.of(getSourceWorld());
     }
 
-    @SuppressWarnings("unused")
-    private static net.minecraftforge.event.world.WorldEvent fromSpongeEvent(WorldEvent spongeEvent) {
-        net.minecraftforge.event.world.WorldEvent event =
-                new net.minecraftforge.event.world.WorldEvent((net.minecraft.world.World) spongeEvent.getSourceWorld());
-        ((IMixinEvent) event).setSpongeEvent(spongeEvent);
-        return event;
-    }
 }

@@ -46,7 +46,7 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, CallbackInfo ci) {
-        // itemSnapshot = ((ItemStack) item).createSnapshot();
+        // TODO itemSnapshot = ((ItemStack) item).createSnapshot();
     }
 
     @Override

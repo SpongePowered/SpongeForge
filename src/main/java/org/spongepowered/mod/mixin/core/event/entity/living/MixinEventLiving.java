@@ -27,11 +27,9 @@ package org.spongepowered.mod.mixin.core.event.entity.living;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import org.spongepowered.api.entity.living.Living;
-import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.entity.living.TargetLivingEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
 @Mixin(value = LivingEvent.class, remap = false)
@@ -44,12 +42,4 @@ public abstract class MixinEventLiving extends MixinEventEntity implements Targe
         return (Living) this.entityLiving;
     }
 
-    @Override
-    public net.minecraftforge.fml.common.eventhandler.Event fromSpongeEvent(Event event) {
-        TargetLivingEvent spongeEvent = (TargetLivingEvent) event;
-
-        LivingEvent forgeEvent = new LivingEvent((EntityLivingBase) spongeEvent.getTargetEntity());
-        ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);
-        return forgeEvent;
-    }
 }

@@ -24,12 +24,32 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.world.ExplosionEvent;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.BlockTransaction;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.event.world.WorldExplosionEvent;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.block.SpongeBlockSnapshot;
+import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
+
+import java.util.Iterator;
+import java.util.List;
 
 @Mixin(value = ExplosionEvent.class, remap = false)
 public abstract class MixinEventWorldExplosion extends MixinEvent implements WorldExplosionEvent {
@@ -42,4 +62,96 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Wor
         return (Explosion) this.explosion;
     }
 
+    @Override
+    public World getSourceWorld() {
+        return (World) this.world;
+    }
+
+    @Mixin(value = ExplosionEvent.Start.class, remap = false)
+    static abstract class Pre extends MixinEventWorldExplosion implements WorldExplosionEvent.Pre {
+
+    }
+
+    @Mixin(value = ExplosionEvent.Detonate.class, remap = false)
+    static abstract class Detonate extends MixinEventWorldExplosion implements WorldExplosionEvent.OnExplosion {
+
+        private ImmutableList<EntitySnapshot> entitySnapshots;
+        private ImmutableList<BlockTransaction> blockTransactions;
+
+        @Shadow private List<net.minecraft.entity.Entity> entityList;
+
+        @SuppressWarnings("unchecked")
+        @Inject(method = "<init>", at = @At("RETURN"))
+        public void onConstructed(net.minecraft.world.World world, net.minecraft.world.Explosion explosion, List<Entity> entityList, CallbackInfo ci) {
+            List<BlockPos> affectedPositions = explosion.func_180343_e();
+            ImmutableList.Builder<BlockTransaction> builder = new ImmutableList.Builder<BlockTransaction>();
+            for (BlockPos pos : affectedPositions) {
+                Location<World> location = new Location<World>((World) world, VecHelper.toVector(pos));
+                BlockSnapshot replacementSnapshot =
+                        new SpongeBlockSnapshot(BlockTypes.AIR.getDefaultState(), location, ImmutableList.<ImmutableDataManipulator<?, ?>>of());
+                BlockSnapshot originalSnapshot =
+                        new SpongeBlockSnapshot((BlockState) world.getBlockState(pos), location, ImmutableList.<ImmutableDataManipulator<?, ?>>of());
+                builder.add(new BlockTransaction(replacementSnapshot, originalSnapshot)).build();
+            }
+            this.blockTransactions = builder.build();
+        }
+
+        @Override
+        public ImmutableList<BlockTransaction> getTransactions() {
+            return this.blockTransactions;
+        }
+
+        @Override
+        public void filter(Predicate<Location<World>> predicate) {
+            Iterator<BlockTransaction> iterator = getTransactions().iterator();
+            while (iterator.hasNext()) {
+                BlockTransaction transaction = iterator.next();
+                Location<World> location = transaction.getOriginal().getLocation().get();
+                if (!predicate.apply(location)) {
+                    transaction.setIsValid(false);
+                }
+            }
+        }
+
+        @Override
+        public ImmutableList<EntitySnapshot> getEntitySnapshots() {
+            return this.entitySnapshots;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public List<? extends Entity> getEntities() {
+            return (List<Entity>) (List<?>) this.entityList;
+        }
+
+        @Override
+        public List<? extends Entity> filterEntityLocations(Predicate<Location<World>> predicate) {
+            if (((ExplosionEvent.Detonate) (Object) this).isCancelable()) {
+                Iterator<? extends Entity> iterator = this.getEntities().iterator();
+                while (iterator.hasNext()) {
+                    Entity entity = iterator.next();
+                    Location<World> location = entity.getLocation();
+                    if (!predicate.apply(location)) {
+                        iterator.remove();
+                    }
+                }
+            }
+            return this.getEntities();
+        }
+
+        @Override
+        public List<? extends Entity> filterEntities(Predicate<? extends Entity> predicate) {
+            /* TODO if (((ExplosionEvent.Detonate) (Object) this).isCancelable()) {
+                Iterator<? extends Entity> iterator = this.getEntities().iterator();
+                while (iterator.hasNext()) {
+                    Entity entity = (Entity) iterator.next();
+                    if (!predicate.apply(entity)) {
+                        iterator.remove();
+                    }
+                }
+            }*/
+            return this.getEntities();
+        }
+
+    }
 }

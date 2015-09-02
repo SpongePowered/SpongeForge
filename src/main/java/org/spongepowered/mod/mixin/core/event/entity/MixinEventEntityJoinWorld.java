@@ -24,14 +24,11 @@
  */
 package org.spongepowered.mod.mixin.core.event.entity;
 
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.spongepowered.api.entity.Transform;
-import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.EntityJoinWorldEvent.class, remap = false)
@@ -42,13 +39,4 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
         return getTargetEntity().getTransform();
     }
 
-    @Override
-    public net.minecraftforge.fml.common.eventhandler.Event fromSpongeEvent(Event event) {
-        SpawnEntityEvent spongeEvent = (SpawnEntityEvent) event;
-
-        EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((net.minecraft.entity.Entity) spongeEvent.getTargetEntity(),
-                (net.minecraft.world.World) spongeEvent.getTargetTransform().getLocation().getExtent());
-        ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);
-        return forgeEvent;
-    }
 }

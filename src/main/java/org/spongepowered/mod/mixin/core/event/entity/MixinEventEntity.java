@@ -25,12 +25,10 @@
 package org.spongepowered.mod.mixin.core.event.entity;
 
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 @NonnullByDefault
@@ -44,13 +42,4 @@ public abstract class MixinEventEntity extends MixinEvent implements TargetEntit
         return (Entity) this.entity;
     }
 
-    @Override
-    public net.minecraftforge.fml.common.eventhandler.Event fromSpongeEvent(Event event) {
-        TargetEntityEvent spongeEvent = (TargetEntityEvent) event;
-
-        net.minecraftforge.event.entity.EntityEvent forgeEvent =
-                new net.minecraftforge.event.entity.EntityEvent((net.minecraft.entity.Entity) spongeEvent.getTargetEntity());
-        ((IMixinEvent) forgeEvent).setSpongeEvent(spongeEvent);
-        return forgeEvent;
-    }
 }
