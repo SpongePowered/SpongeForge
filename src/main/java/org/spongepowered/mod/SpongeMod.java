@@ -104,7 +104,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         this.game = Sponge.getGame();
         this.registry = (SpongeModGameRegistry) this.game.getRegistry();
 
-        this.game.getEventManager().register(this, this);
+        this.game.getEventManager().registerListeners(this, this);
     }
 
     @Override

@@ -45,7 +45,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
+import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.blockray.BlockRay;
@@ -80,12 +80,12 @@ public abstract class MixinNetHandlerPlayServer {
     public void injectChatEvent(C01PacketChatMessage packetIn, CallbackInfo ci, String s, ChatComponentTranslation component) {
         final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
         final Text playerName = SpongeTexts.toText((IChatComponent) component.getFormatArgs()[0]);
-        ((PlayerChatEvent) event).setUnformattedMessage(SpongeTexts.toText((IChatComponent) component.getFormatArgs()[1]));
+        ((MessageSinkEvent.SourcePlayer) event).setUnformattedMessage(SpongeTexts.toText((IChatComponent) component.getFormatArgs()[1]));
 
         if (!MinecraftForge.EVENT_BUS.post(event)) {
-            PlayerChatEvent spongeEvent = (PlayerChatEvent) event;
-            Text returned = Texts.format(spongeEvent.getNewMessage(), ImmutableMap.of(PlayerChatEvent.PLACEHOLDER_NAME, playerName,
-                    PlayerChatEvent.PLACEHOLDER_MESSAGE, spongeEvent.getUnformattedMessage()));
+            MessageSinkEvent.SourcePlayer spongeEvent = (MessageSinkEvent.SourcePlayer) event;
+            Text returned = Texts.format(spongeEvent.getMessage(), ImmutableMap.of(MessageSinkEvent.SourcePlayer.PLACEHOLDER_NAME, playerName,
+                    MessageSinkEvent.SourcePlayer.PLACEHOLDER_MESSAGE, spongeEvent.getUnformattedMessage()));
             spongeEvent.getSink().sendMessage(returned);
 
             // Chat spam suppression from MC

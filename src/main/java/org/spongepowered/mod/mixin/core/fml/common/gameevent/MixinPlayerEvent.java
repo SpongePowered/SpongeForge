@@ -52,9 +52,4 @@ public abstract class MixinPlayerEvent extends Event implements org.spongepowere
         return (Player) this.player;
     }
 
-    @Override
-    public Transform<World> getSourceTransform() {
-        return this.transform;
-    }
-
 }

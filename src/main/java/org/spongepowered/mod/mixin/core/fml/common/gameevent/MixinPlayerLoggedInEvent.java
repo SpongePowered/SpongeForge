@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.entity.living.player.PlayerJoinEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(value = PlayerEvent.PlayerLoggedInEvent.class, remap = false)
-public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implements PlayerJoinEvent {
+public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implements ClientConnectionEvent.Login {
 
     private Text message;
     private Text originalMessage;
@@ -44,17 +44,17 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
     private MessageSink sink;
 
     @Override
-    public Text getMessage() {
+    public Text getOriginalMessage() {
         return this.originalMessage;
     }
 
     @Override
-    public Text getNewMessage() {
+    public Text getMessage() {
         return this.message;
     }
 
     @Override
-    public void setNewMessage(Text joinMessage) {
+    public void setMessage(Text joinMessage) {
         if (this.originalMessage == null) {
             // setNewMessage is always called before event fired
             this.originalMessage = joinMessage;
@@ -63,7 +63,7 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
     }
 
     @Override
-    public Player getSource() {
+    public Player getSourceEntity() {
         return (Player) this.player;
     }
 

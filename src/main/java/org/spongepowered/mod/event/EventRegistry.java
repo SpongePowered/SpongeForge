@@ -37,8 +37,6 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.event.entity.living.player.PlayerJoinEvent;
-import org.spongepowered.api.event.entity.living.player.PlayerQuitEvent;
 import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -49,6 +47,7 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 public class EventRegistry {
 
@@ -72,8 +71,8 @@ public class EventRegistry {
         register(FMLServerStoppedEvent.class, GameStoppedServerEvent.class);
 
         // FML game events
-        register(PlayerEvent.PlayerLoggedInEvent.class, PlayerJoinEvent.class);
-        register(PlayerEvent.PlayerLoggedOutEvent.class, PlayerQuitEvent.class);
+        register(PlayerEvent.PlayerLoggedInEvent.class, ClientConnectionEvent.Join.class);
+        register(PlayerEvent.PlayerLoggedOutEvent.class, ClientConnectionEvent.Disconnect.class);
     }
 
     private static void register(Class<?> otherEvent, Class<?> spongeEvent) {

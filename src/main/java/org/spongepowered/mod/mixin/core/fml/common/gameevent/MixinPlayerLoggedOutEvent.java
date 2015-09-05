@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.entity.living.player.PlayerQuitEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -34,24 +34,24 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(value = PlayerEvent.PlayerLoggedOutEvent.class, remap = false)
-public abstract class MixinPlayerLoggedOutEvent extends MixinPlayerEvent implements PlayerQuitEvent {
+public abstract class MixinPlayerLoggedOutEvent extends MixinPlayerEvent implements ClientConnectionEvent.Disconnect {
 
     private Text message;
     private Text originalMessage;
     private MessageSink messageSink;
 
     @Override
-    public Text getMessage() {
+    public Text getOriginalMessage() {
         return this.originalMessage;
     }
 
     @Override
-    public Text getNewMessage() {
+    public Text getMessage() {
         return this.message;
     }
 
     @Override
-    public void setNewMessage(Text quitMessage) {
+    public void setMessage(Text quitMessage) {
         if (this.originalMessage == null) {
             // setNewMessage is always called before event fired
             this.originalMessage = quitMessage;
@@ -70,7 +70,7 @@ public abstract class MixinPlayerLoggedOutEvent extends MixinPlayerEvent impleme
     }
 
     @Override
-    public Player getSource() {
+    public Player getSourceEntity() {
         return (Player) this.player;
     }
 

@@ -135,7 +135,7 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
     protected void findStateEventHandlers(Class<?> clazz) throws Exception {
         for (Method m : clazz.getDeclaredMethods()) {
             for (Annotation a : m.getAnnotations()) {
-                if (a.annotationType().equals(org.spongepowered.api.event.Subscribe.class)) {
+                if (a.annotationType().equals(org.spongepowered.api.event.Listener.class)) {
                     Class<?>[] paramTypes = m.getParameterTypes();
                     if ((paramTypes.length == 1) && GameStateEvent.class.isAssignableFrom(paramTypes[0])) {
                         m.setAccessible(true);

@@ -24,9 +24,8 @@
  */
 package org.spongepowered.launch.handlers;
 
-import org.spongepowered.launch.Main;
-
 import org.spongepowered.launch.IvyHandler;
+import org.spongepowered.launch.Main;
 
 import java.io.File;
 import java.lang.reflect.Method;

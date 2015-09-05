@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
-import org.spongepowered.api.event.server.ServerUnloadWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
@@ -32,7 +31,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.WorldEvent.Unload.class, remap = false)
-public abstract class MixinEventWorldUnload extends MixinEventWorld implements ServerUnloadWorldEvent {
+public abstract class MixinEventWorldUnload extends MixinEventWorld implements UnloadWorldEvent {
 
     @SuppressWarnings("unused")
     private static net.minecraftforge.event.world.WorldEvent.Unload fromSpongeEvent(UnloadWorldEvent spongeEvent) {

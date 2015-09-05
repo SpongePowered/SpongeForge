@@ -24,19 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.event.entity;
 
-import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.EntityJoinWorldEvent.class, remap = false)
 public abstract class MixinEventEntityJoinWorld extends MixinEventEntity implements SpawnEntityEvent {
-
-    @Override
-    public Transform<World> getTargetTransform() {
-        return getTargetEntity().getTransform();
-    }
 
 }

@@ -50,21 +50,21 @@ import org.spongepowered.api.event.block.HarvestBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.block.PlaceBlockEvent;
-import org.spongepowered.api.event.entity.CreateEntityEvent;
+import org.spongepowered.api.event.command.MessageSinkEvent;
+import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.living.LivingEvent;
-import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
 import org.spongepowered.api.event.entity.living.player.PlayerEvent;
-import org.spongepowered.api.event.server.ServerLoadWorldEvent;
-import org.spongepowered.api.event.server.ServerUnloadWorldEvent;
+import org.spongepowered.api.event.world.LoadWorldEvent;
+import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.WorldEvent;
-import org.spongepowered.api.event.world.chunk.ChangeChunkEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
+import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.Sponge;
-import org.spongepowered.common.event.RegisteredHandler;
+import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
@@ -88,22 +88,22 @@ public class SpongeModEventManager extends SpongeEventManager {
             new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
                      //.put(BlockEvent.class, net.minecraftforge.event.world.BlockEvent.class)
                     .put(NotifyNeighborBlockEvent.SourceBlock.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
-                    .put(ChangeChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
+                    .put(TargetChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
                     .put(LoadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
                     .put(UnloadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Unload.class)
-                    .put(CreateEntityEvent.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
+                    .put(ConstructEntityEvent.Post.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
                     .put(TargetEntityEvent.class, net.minecraftforge.event.entity.EntityEvent.class)
                     .put(SpawnEntityEvent.class, net.minecraftforge.event.entity.EntityJoinWorldEvent.class)
                     .put(LivingEvent.class, net.minecraftforge.event.entity.living.LivingEvent.class)
                     .put(BreakBlockEvent.SourcePlayer.class, net.minecraftforge.event.world.BlockEvent.BreakEvent.class)
-                    .put(PlayerChatEvent.class, net.minecraftforge.event.ServerChatEvent.class)
+                    .put(MessageSinkEvent.SourcePlayer.class, net.minecraftforge.event.ServerChatEvent.class)
                     .put(PlayerEvent.class, net.minecraftforge.event.entity.player.PlayerEvent.class)
                     .put(HarvestBlockEvent.SourcePlayer.class, net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent.class)
                     .put(InteractBlockEvent.SourcePlayer.class, net.minecraftforge.event.entity.player.PlayerInteractEvent.class)
                     .put(PlaceBlockEvent.SourcePlayer.class, net.minecraftforge.event.world.BlockEvent.PlaceEvent.class)
                     .put(WorldEvent.class, net.minecraftforge.event.world.WorldEvent.class)
-                    .put(ServerLoadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
-                    .put(ServerUnloadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
+                    .put(LoadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
+                    .put(UnloadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
                     .build();
 
     private final ImmutableMap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus> busMappings =
@@ -126,11 +126,11 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     public boolean post(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, IEventListener[] listeners) {
         checkNotNull(forgeEvent, "forgeEvent");
-        RegisteredHandler.Cache handlerCache = getHandlerCache((Event) forgeEvent);
+        RegisteredListener.Cache listenerCache = getHandlerCache((Event) forgeEvent);
 
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
-            postBeforeModifications((Event) forgeEvent, handlerCache.getHandlersByOrder(order));
+            postBeforeModifications((Event) forgeEvent, listenerCache.getListenersByOrder(order));
         }
 
         // Create new Forge event to sync plugin data then pass to Forge handlers
@@ -146,22 +146,22 @@ public class SpongeModEventManager extends SpongeEventManager {
 
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
-            post((Event) forgeEvent, handlerCache.getHandlersByOrder(order));
+            post((Event) forgeEvent, listenerCache.getListenersByOrder(order));
         }
 
         return forgeEvent.isCancelable() && forgeEvent.isCanceled();
     }
 
     @SuppressWarnings("unchecked")
-    protected static boolean postBeforeModifications(Event event, List<RegisteredHandler<?>> handlers) {
+    protected static boolean postBeforeModifications(Event event, List<RegisteredListener<?>> listeners) {
         for (@SuppressWarnings("rawtypes")
-        RegisteredHandler handler : handlers) {
+        RegisteredListener listener : listeners) {
             try {
-                if (handler.isBeforeModifications()) {
-                    handler.handle(event);
+                if (listener.isBeforeModifications()) {
+                    listener.handle(event);
                 }
             } catch (Throwable e) {
-                Sponge.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), handler.getPlugin(), e);
+                Sponge.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
             }
         }
 
@@ -169,15 +169,15 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     @SuppressWarnings("unchecked")
-    protected static boolean post(Event event, List<RegisteredHandler<?>> handlers) {
+    protected static boolean post(Event event, List<RegisteredListener<?>> listeners) {
         for (@SuppressWarnings("rawtypes")
-        RegisteredHandler handler : handlers) {
+        RegisteredListener listener : listeners) {
             try {
-                if (!handler.isBeforeModifications()) {
-                    handler.handle(event);
+                if (!listener.isBeforeModifications()) {
+                    listener.handle(event);
                 }
             } catch (Throwable e) {
-                Sponge.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), handler.getPlugin(), e);
+                Sponge.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
             }
         }
 

@@ -25,12 +25,9 @@
 package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.player.EntityPlayer;
-import org.spongepowered.api.entity.Transform;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.ItemStackTransaction;
-import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,11 +44,6 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, CallbackInfo ci) {
         // TODO itemSnapshot = ((ItemStack) item).createSnapshot();
-    }
-
-    @Override
-    public Transform<World> getSourceTransform() {
-        return ((Player) this.entityPlayer).getTransform();
     }
 
     @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start.class, remap = false)

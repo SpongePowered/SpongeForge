@@ -28,7 +28,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
+import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -44,7 +44,7 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
-public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerChatEvent {
+public abstract class MixinEventPlayerChat extends MixinEvent implements MessageSinkEvent.SourcePlayer {
 
     private Text spongeText;
     private Text unformattedText;
@@ -67,12 +67,12 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
     }
 
     @Override
-    public Text getMessage() {
+    public Text getOriginalMessage() {
         return this.spongeText;
     }
 
     @Override
-    public Text getNewMessage() {
+    public Text getMessage() {
         if (this.spongeNewText == null) {
             this.spongeNewText = SpongeTexts.toText(this.component);
         }
@@ -81,7 +81,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements PlayerC
 
     // TODO: Better integration with forge mods?
     @Override
-    public void setNewMessage(Text text) {
+    public void setMessage(Text text) {
         this.spongeNewText = text;
         final IChatComponent component = SpongeTexts.toComponent(text, ((Player) this.player).getLocale());
         if (component instanceof ChatComponentTranslation) {

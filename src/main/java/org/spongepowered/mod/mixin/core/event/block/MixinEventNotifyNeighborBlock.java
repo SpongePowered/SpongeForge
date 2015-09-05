@@ -32,7 +32,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.util.Direction;
@@ -45,6 +44,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.util.VecHelper;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -55,8 +55,8 @@ import java.util.Map;
 @Mixin(value = BlockEvent.NeighborNotifyEvent.class, remap = false)
 public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock implements NotifyNeighborBlockEvent.SourceBlock {
 
-    private ImmutableMap<Direction, BlockState> originalRelatives;
-    private Map<Direction, BlockState> relatives;
+    private ImmutableMap<Direction, BlockSnapshot> originalRelatives;
+    private Map<Direction, Location<World>> relatives;
     @Shadow private EnumSet<EnumFacing> notifiedSides;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -65,12 +65,12 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
     }
 
     @Override
-    public ImmutableMap<Direction, BlockState> getOriginalRelatives() {
+    public ImmutableMap<Direction, BlockSnapshot> getOriginalRelatives() {
         return this.originalRelatives;
     }
 
     @Override
-    public Map<Direction, BlockState> getRelatives() {
+    public Map<Direction, Location<World>> getRelatives() {
         return this.relatives;
     }
 
@@ -94,15 +94,21 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
 
     @Override
     public void createSpongeEventData() {
-        this.relatives = new HashMap<Direction, BlockState>();
+        this.relatives = new HashMap<Direction, Location<World>>();
         if (this.notifiedSides != null) {
             for (EnumFacing notifiedSide : this.notifiedSides) {
                 BlockPos offset = this.pos.offset(notifiedSide);
                 Direction direction = SpongeGameRegistry.directionMap.inverse().get(notifiedSide);
-                this.relatives.put(direction, (BlockState) this.world.getBlockState(offset));
+                Location<World> location = new Location<World>((World) this.world, VecHelper.toVector(offset));
+                this.relatives.put(direction, location);
             }
         }
-        this.originalRelatives = ImmutableMap.copyOf(this.relatives);
+        ImmutableMap.Builder<Direction, BlockSnapshot> builder = new ImmutableMap.Builder<Direction, BlockSnapshot>(); 
+        for (Map.Entry<Direction, Location<World>> mapEntry : this.relatives.entrySet()) {
+            BlockSnapshot blockSnapshot = mapEntry.getValue().createSnapshot();
+            builder.put(mapEntry.getKey(), blockSnapshot);
+        }
+        this.originalRelatives = builder.build();
     }
 
     @Override

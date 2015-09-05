@@ -73,7 +73,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Wor
     }
 
     @Mixin(value = ExplosionEvent.Detonate.class, remap = false)
-    static abstract class Detonate extends MixinEventWorldExplosion implements WorldExplosionEvent.OnExplosion {
+    static abstract class Detonate extends MixinEventWorldExplosion implements WorldExplosionEvent.Detonate {
 
         private ImmutableList<EntitySnapshot> entitySnapshots;
         private ImmutableList<BlockTransaction> blockTransactions;

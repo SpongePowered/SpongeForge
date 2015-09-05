@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.plugin.entityactivation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.IRangedAttackMob;

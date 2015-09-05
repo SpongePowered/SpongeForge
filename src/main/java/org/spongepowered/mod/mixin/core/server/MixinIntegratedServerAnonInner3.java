@@ -29,8 +29,10 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.entity.living.player.PlayerQuitEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.sink.MessageSink;
+import org.spongepowered.api.text.sink.MessageSinks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -51,8 +53,10 @@ public class MixinIntegratedServerAnonInner3 {
     @ModifyArg(method = "run()V", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/management/ServerConfigurationManager;playerLoggedOut(Lnet/minecraft/entity/player/EntityPlayerMP;)V"))
     public EntityPlayerMP beforeFirePlayerLoggedOut(EntityPlayerMP playerIn) {
-        PlayerQuitEvent event =
-                SpongeImplEventFactory.createPlayerQuit(Sponge.getGame(), (Player) playerIn, Texts.of(), ((Player) playerIn).getMessageSink());
+        Player player = (Player) playerIn;
+        MessageSink originalSink = MessageSinks.toAll();
+        ClientConnectionEvent.Disconnect event =
+                SpongeImplEventFactory.createClientConnectionEventDisconnect(player.getConnection(), Sponge.getGame(), Texts.of(), Texts.of(), originalSink, player.getProfile(), player.getMessageSink(), player);
         Sponge.getGame().getEventManager().post(event);
         // Doesn't make sense to send the event's message because all players
         // are quitting anyway

@@ -25,12 +25,12 @@
 package org.spongepowered.mod.mixin.core.event.entity;
 
 import net.minecraftforge.event.entity.EntityEvent;
-import org.spongepowered.api.event.entity.CreateEntityEvent;
+import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
 @Mixin(value = EntityEvent.EntityConstructing.class, remap = false)
-public abstract class MixinEventEntityConstructing extends MixinEventEntity implements CreateEntityEvent {
+public abstract class MixinEventEntityConstructing extends MixinEventEntity implements ConstructEntityEvent.Post {
 
 }

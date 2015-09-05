@@ -25,9 +25,6 @@
 package org.spongepowered.mod.mixin.core.event.inventory;
 
 import net.minecraft.entity.item.EntityItem;
-import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.Transform;
-import org.spongepowered.api.world.World;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,10 +35,5 @@ import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 public abstract class MixinEventItem extends MixinEventEntity {
 
     @Shadow(remap = false) public EntityItem entityItem;
-
-    @Override
-    public Transform<World> getTargetTransform() {
-        return ((Entity) this.entityItem).getTransform();
-    }
 
 }

@@ -31,7 +31,6 @@ import net.minecraftforge.event.entity.item.ItemTossEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.Item;
-import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.inventory.DropItemStackEvent;
@@ -75,12 +74,6 @@ public abstract class MixinEventPlayerDropItem extends MixinEventItem implements
 
     @Override
     public List<Item> filterEntities(Predicate<? extends Entity> predicate) {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public Transform<World> getSourceTransform() {
         // TODO
         return null;
     }
