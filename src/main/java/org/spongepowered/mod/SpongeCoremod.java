@@ -95,9 +95,6 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Cancellable");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.event.callback.CallbackList");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Event");
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.annotation.ImplementedBy");
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.AbstractEvent");
 
         // Transformer exclusions
         Launch.classLoader.addTransformerExclusion("ninja.leaping.configurate.");

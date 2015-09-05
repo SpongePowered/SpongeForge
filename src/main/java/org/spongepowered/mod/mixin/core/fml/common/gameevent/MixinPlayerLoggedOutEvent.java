@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
@@ -67,11 +66,6 @@ public abstract class MixinPlayerLoggedOutEvent extends MixinPlayerEvent impleme
     @Override
     public MessageSink getSink() {
         return this.messageSink;
-    }
-
-    @Override
-    public Player getSourceEntity() {
-        return (Player) this.player;
     }
 
 }
