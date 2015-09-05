@@ -525,7 +525,7 @@ public class SpongeForgeEventFactory {
         net.minecraft.world.Explosion explosion = (net.minecraft.world.Explosion) spongeEvent.getExplosion();
         net.minecraftforge.event.world.ExplosionEvent.Detonate forgeEvent =
                 new net.minecraftforge.event.world.ExplosionEvent.Detonate(world, explosion,
-                        (List<net.minecraft.entity.Entity>) spongeEvent.getEntities());
+                        (List<net.minecraft.entity.Entity>) (Object) spongeEvent.getEntities());
         return forgeEvent;
     }
 

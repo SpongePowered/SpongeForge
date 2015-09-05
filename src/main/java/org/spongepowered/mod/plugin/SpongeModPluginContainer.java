@@ -110,7 +110,7 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
     @Subscribe
     public void registerMod(FMLPreInitializationEvent event) {
         SpongeEventManager spongeBus = (SpongeEventManager) SpongeMod.instance.getGame().getEventManager();
-        spongeBus.register(this, this.pluginInstance);
+        spongeBus.registerListener(this, this.pluginInstance);
     }
 
     @Subscribe
