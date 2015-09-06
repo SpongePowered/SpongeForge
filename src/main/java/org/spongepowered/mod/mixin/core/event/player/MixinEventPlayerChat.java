@@ -28,6 +28,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
@@ -44,7 +45,7 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
-public abstract class MixinEventPlayerChat extends MixinEvent implements MessageSinkEvent.SourcePlayer {
+public abstract class MixinEventPlayerChat extends MixinEvent implements MessageSinkEvent {
 
     private Text spongeText;
     private Text unformattedText;
@@ -62,8 +63,8 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     }
 
     @Override
-    public Player getSource() {
-        return (Player) this.player;
+    public Cause getCause() {
+        return Cause.of(this.player);
     }
 
     @Override
@@ -92,14 +93,9 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     }
 
     @Override
-    public Player getSourceEntity() {
-        return (Player) this.player;
-    }
-
-    @Override
     public MessageSink getSink() {
         if (this.sink == null) {
-            this.sink = getSourceEntity().getMessageSink();
+            this.sink = ((Player)this.player).getMessageSink();
         }
         return this.sink;
     }
@@ -107,16 +103,6 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     @Override
     public void setSink(MessageSink sink) {
         this.sink = sink;
-    }
-
-    @Override
-    public Text getUnformattedMessage() {
-        return this.unformattedText;
-    }
-
-    @Override
-    public void setUnformattedMessage(Text text) {
-        this.unformattedText = text;
     }
 
 }

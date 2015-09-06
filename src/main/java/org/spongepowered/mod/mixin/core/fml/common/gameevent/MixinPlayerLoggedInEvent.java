@@ -24,10 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.entity.Transform;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
@@ -35,9 +33,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @NonnullByDefault
 @Mixin(value = PlayerEvent.PlayerLoggedInEvent.class, remap = false)
@@ -47,15 +42,6 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
     private Text originalMessage;
     private Location<World> location;
     private MessageSink sink;
-
-    private Transform<World> fromTransform;
-    private Transform<World> toTransform;
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(EntityPlayer player, CallbackInfo ci) {
-        this.fromTransform = ((Player) player).getTransform();
-        this.toTransform = ((Player) player).getTransform();
-    }
 
     @Override
     public Text getOriginalMessage() {

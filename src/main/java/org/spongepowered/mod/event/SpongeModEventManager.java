@@ -54,11 +54,9 @@ import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
-import org.spongepowered.api.event.entity.living.LivingEvent;
-import org.spongepowered.api.event.entity.living.player.PlayerEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
+import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
-import org.spongepowered.api.event.world.WorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
@@ -87,21 +85,19 @@ public class SpongeModEventManager extends SpongeEventManager {
     private final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventMappings =
             new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
                      //.put(BlockEvent.class, net.minecraftforge.event.world.BlockEvent.class)
-                    .put(NotifyNeighborBlockEvent.SourceBlock.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
+                    .put(NotifyNeighborBlockEvent.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
                     .put(TargetChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
                     .put(LoadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
                     .put(UnloadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Unload.class)
                     .put(ConstructEntityEvent.Post.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
                     .put(TargetEntityEvent.class, net.minecraftforge.event.entity.EntityEvent.class)
                     .put(SpawnEntityEvent.class, net.minecraftforge.event.entity.EntityJoinWorldEvent.class)
-                    .put(LivingEvent.class, net.minecraftforge.event.entity.living.LivingEvent.class)
-                    .put(BreakBlockEvent.SourcePlayer.class, net.minecraftforge.event.world.BlockEvent.BreakEvent.class)
-                    .put(MessageSinkEvent.SourcePlayer.class, net.minecraftforge.event.ServerChatEvent.class)
-                    .put(PlayerEvent.class, net.minecraftforge.event.entity.player.PlayerEvent.class)
-                    .put(HarvestBlockEvent.SourcePlayer.class, net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent.class)
-                    .put(InteractBlockEvent.SourcePlayer.class, net.minecraftforge.event.entity.player.PlayerInteractEvent.class)
-                    .put(PlaceBlockEvent.SourcePlayer.class, net.minecraftforge.event.world.BlockEvent.PlaceEvent.class)
-                    .put(WorldEvent.class, net.minecraftforge.event.world.WorldEvent.class)
+                    .put(BreakBlockEvent.class, net.minecraftforge.event.world.BlockEvent.BreakEvent.class)
+                    .put(MessageSinkEvent.class, net.minecraftforge.event.ServerChatEvent.class)
+                    .put(HarvestBlockEvent.class, net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent.class)
+                    .put(InteractBlockEvent.class, net.minecraftforge.event.entity.player.PlayerInteractEvent.class)
+                    .put(PlaceBlockEvent.class, net.minecraftforge.event.world.BlockEvent.PlaceEvent.class)
+                    .put(TargetWorldEvent.class, net.minecraftforge.event.world.WorldEvent.class)
                     .put(LoadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
                     .put(UnloadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
                     .build();

@@ -43,7 +43,7 @@ public class MixinForgeEventFactory {
     @Inject(method = "onPlayerBlockPlace", at = @At(value = "RETURN", remap = false), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     private static void onPlayerPlaceBlock(EntityPlayer player, BlockSnapshot blockSnapshot, EnumFacing direction,
             CallbackInfoReturnable<PlaceEvent> cir, IBlockState state, PlaceEvent event) {
-        PlaceBlockEvent.SourcePlayer spongeEvent = (PlaceBlockEvent.SourcePlayer) event;
+        PlaceBlockEvent spongeEvent = (PlaceBlockEvent) event;
         if (!spongeEvent.isCancelled()) {
             for (BlockTransaction transaction : spongeEvent.getTransactions()) {
                 if (transaction.isValid() && transaction.getCustomReplacement().isPresent()) {

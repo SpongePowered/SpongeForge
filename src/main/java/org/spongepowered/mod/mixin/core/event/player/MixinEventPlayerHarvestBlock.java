@@ -32,8 +32,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.HarvestBlockEvent;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -51,7 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Mixin(value = HarvestDropsEvent.class, remap = false)
-public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock implements HarvestBlockEvent.SourcePlayer {
+public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock implements HarvestBlockEvent {
 
     private ImmutableList<ItemStack> originalDrops;
     private Location<World> targetLocation;
@@ -134,8 +135,13 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
      */
 
     @Override
-    public Player getSourceEntity() {
-        return (Player) this.harvester;
+    public Cause getCause() {
+        return Cause.of(this.harvester);
+    }
+
+    @Override
+    public BlockSnapshot getBlockSnapshot() {
+        return this.blockOriginal;
     }
 
     @Override
@@ -146,11 +152,6 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
     @Override
     public int getOriginalExperience() {
         return this.originalExperience;
-    }
-
-    @Override
-    public Location<World> getTargetLocation() {
-        return this.targetLocation;
     }
 
     @Override

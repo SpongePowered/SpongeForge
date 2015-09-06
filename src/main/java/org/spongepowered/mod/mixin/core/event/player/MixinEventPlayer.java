@@ -25,8 +25,7 @@
 package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.player.EntityPlayer;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.entity.living.player.PlayerEvent;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,19 +33,12 @@ import org.spongepowered.mod.mixin.core.event.entity.living.MixinEventLiving;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerEvent.class, remap = false)
-public abstract class MixinEventPlayer extends MixinEventLiving implements PlayerEvent {
+public abstract class MixinEventPlayer extends MixinEventLiving {
 
     @Shadow public EntityPlayer entityPlayer;
 
     @Override
-    public Player getSourceEntity() {
-        return (Player) this.entityPlayer;
-    }
-
-    @SuppressWarnings("unused")
-    private static net.minecraftforge.event.entity.player.PlayerEvent fromSpongeEvent(PlayerEvent spongeEvent) {
-        net.minecraftforge.event.entity.player.PlayerEvent event =
-                new net.minecraftforge.event.entity.player.PlayerEvent((EntityPlayer) spongeEvent.getSourceEntity());
-        return event;
+    public Cause getCause() {
+        return Cause.of(this.entityPlayer);
     }
 }

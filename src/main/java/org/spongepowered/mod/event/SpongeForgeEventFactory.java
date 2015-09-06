@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.event;
 
+import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -37,6 +38,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.BreakBlockEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
@@ -50,11 +52,10 @@ import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
 import org.spongepowered.api.event.entity.living.TargetLivingEvent;
-import org.spongepowered.api.event.entity.living.player.PlayerEvent;
+import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
+import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
-import org.spongepowered.api.event.world.WorldEvent;
-import org.spongepowered.api.event.world.WorldExplosionEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
@@ -135,7 +136,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == net.minecraftforge.event.entity.player.PlayerWakeUpEvent.class) {
 
             } else {
-                return createPlayerEvent(event);
+                return (net.minecraftforge.fml.common.eventhandler.Event) event;
             }
         }
 
@@ -243,8 +244,8 @@ public class SpongeForgeEventFactory {
 
     // Block events
     public static net.minecraftforge.event.world.BlockEvent createBlockEvent(Event event) {
-        if (!(event instanceof ChangeBlockEvent.SourcePlayer)) {
-            throw new IllegalArgumentException("Event is not a valid BlockEvent.");
+        if (!(event instanceof ChangeBlockEvent)) {
+            throw new IllegalArgumentException("Event is not a valid ChangeBlockEvent.");
         }
 
         ChangeBlockEvent spongeEvent = (ChangeBlockEvent) event;
@@ -256,37 +257,45 @@ public class SpongeForgeEventFactory {
     }
 
     public static net.minecraftforge.event.world.BlockEvent.PlaceEvent createBlockPlaceEvent(Event event) {
-        if (!(event instanceof PlaceBlockEvent.SourcePlayer)) {
+        if (!(event instanceof PlaceBlockEvent)) {
             throw new IllegalArgumentException("Event is not a valid PlaceBlockEvent.");
         }
 
-        PlaceBlockEvent.SourcePlayer spongeEvent = (PlaceBlockEvent.SourcePlayer) event;
+        PlaceBlockEvent spongeEvent = (PlaceBlockEvent) event;
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         BlockSnapshot replacementBlock = spongeEvent.getTransactions().get(0).getFinalReplacement();
         IBlockState state = (IBlockState) replacementBlock.getState();
-        net.minecraftforge.common.util.BlockSnapshot forgeSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
+        Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
 
+        net.minecraftforge.common.util.BlockSnapshot forgeSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
         net.minecraftforge.event.world.BlockEvent.PlaceEvent forgeEvent =
                 new net.minecraftforge.event.world.BlockEvent.PlaceEvent(forgeSnapshot, world.getBlockState(pos),
-                        (EntityPlayer) spongeEvent.getSourceEntity());
+                        (EntityPlayer) player.get());
         return forgeEvent;
     }
 
     public static net.minecraftforge.event.world.BlockEvent.BreakEvent createBlockBreakEvent(Event event) {
-        if (!(event instanceof BreakBlockEvent.SourcePlayer)) {
+        if (!(event instanceof BreakBlockEvent)) {
             throw new IllegalArgumentException("Event is not a valid BreakBlockEvent.");
         }
 
-        BreakBlockEvent.SourcePlayer spongeEvent = (BreakBlockEvent.SourcePlayer) event;
+        BreakBlockEvent spongeEvent = (BreakBlockEvent) event;
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
 
         net.minecraftforge.event.world.BlockEvent.BreakEvent forgeEvent =
                 new net.minecraftforge.event.world.BlockEvent.BreakEvent(world, pos, world.getBlockState(pos),
-                        (EntityPlayer) spongeEvent.getSourceEntity());
+                        (EntityPlayer) player.get());
         return forgeEvent;
     }
 
@@ -295,36 +304,43 @@ public class SpongeForgeEventFactory {
             throw new IllegalArgumentException("Event is not a valid HarvestBlockEvent.");
         }
 
-        HarvestBlockEvent.SourcePlayer spongeEvent = (HarvestBlockEvent.SourcePlayer) event;
+        HarvestBlockEvent spongeEvent = (HarvestBlockEvent) event;
         List<net.minecraft.item.ItemStack> droppedItems = new ArrayList<net.minecraft.item.ItemStack>();
         for (ItemStack itemstack : spongeEvent.getItemStacks()) {
            // EntityItem entityItem = new EntityItem((net.minecraft.world.World) spongeEvent.getTargetLocation().getExtent(), spongeEvent.getTargetLocation().getBlockX(), spongeEvent.getTargetLocation().getBlockY(), spongeEvent.getTargetLocation().getBlockZ(), (net.minecraft.item.ItemStack) itemstack);
             droppedItems.add((net.minecraft.item.ItemStack) itemstack);
         }
+        Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
 
+        Location<World> location = spongeEvent.getBlockSnapshot().getLocation().get();
         net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent forgeEvent =
-                new net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent((net.minecraft.world.World) spongeEvent.getTargetLocation()
-                        .getExtent(), VecHelper.toBlockPos(spongeEvent
-                        .getTargetLocation()
-                        .getBlockPosition()), (net.minecraft.block.state.IBlockState) spongeEvent.getTargetLocation().getBlock(), 0,
-                        spongeEvent.getDropChance(), droppedItems, (EntityPlayer) spongeEvent.getSourceEntity(), false);// spongeEvent.isSilkTouchHarvest());
+                new net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent((net.minecraft.world.World) location.getExtent(), VecHelper.toBlockPos(location.getPosition()), (net.minecraft.block.state.IBlockState) location.getBlock(), 0,
+                        spongeEvent.getDropChance(), droppedItems, (EntityPlayer) player.get(), false);// spongeEvent.isSilkTouchHarvest());
         return forgeEvent;
     }
 
     public static net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent createBlockNeighborNotifyEvent(Event event) {
-        if (!(event instanceof NotifyNeighborBlockEvent.SourceBlock)) {
+        if (!(event instanceof NotifyNeighborBlockEvent)) {
             throw new IllegalArgumentException("Event " + event.getClass() + " is not a valid NotifyNeighborBlockEvent.");
         }
 
-        NotifyNeighborBlockEvent.SourceBlock spongeEvent = (NotifyNeighborBlockEvent.SourceBlock) event;
+        NotifyNeighborBlockEvent spongeEvent = (NotifyNeighborBlockEvent) event;
+        Optional<BlockSnapshot> blockSnapshot = spongeEvent.getCause().getFirst(BlockSnapshot.class);
+        if (!blockSnapshot.isPresent() || !blockSnapshot.get().getLocation().isPresent()) {
+            return null;
+        }
+
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
         for (Map.Entry<Direction, Location<World>> mapEntry : spongeEvent.getRelatives().entrySet()) {
             facings.add(SpongeGameRegistry.directionMap.get(mapEntry.getKey()));
         }
 
-        IBlockState state = (IBlockState) spongeEvent.getSourceBlock().getState();
-        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getSourceLocation().getBlockPosition());
-        net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getSourceLocation().getExtent();
+        IBlockState state = (IBlockState) blockSnapshot.get().getState();
+        BlockPos pos = VecHelper.toBlockPos(blockSnapshot.get().getLocation().get().getBlockPosition());
+        net.minecraft.world.World world = (net.minecraft.world.World) blockSnapshot.get().getLocation().get().getExtent();
 
         final NeighborNotifyEvent forgeEvent = new NeighborNotifyEvent(world, pos, state, facings);
         return forgeEvent;
@@ -377,36 +393,41 @@ public class SpongeForgeEventFactory {
     }
 
     // Player events
-    public static net.minecraftforge.event.entity.player.PlayerEvent createPlayerEvent(Event event) {
-        if (!(event instanceof PlayerEvent)) {
-            throw new IllegalArgumentException("Event is not a valid PlayerEvent.");
+    /*public static net.minecraftforge.event.entity.player.PlayerEvent createPlayerEvent(Event event) {
+        if (!(event instanceof TargetPlayerEvent)) {
+            throw new IllegalArgumentException("Event is not a valid TargetPlayerEvent.");
         }
 
-        PlayerEvent spongeEvent = (PlayerEvent) event;
+        TargetPlayerEvent spongeEvent = (TargetPlayerEvent) event;
         net.minecraftforge.event.entity.player.PlayerEvent forgeEvent =
-                new net.minecraftforge.event.entity.player.PlayerEvent((EntityPlayer) spongeEvent.getSourceEntity());
+                new net.minecraftforge.event.entity.player.PlayerEvent((EntityPlayer) spongeEvent.getTargetEntity());
         return forgeEvent;
-    }
+    }*/
 
     private static net.minecraftforge.event.entity.player.PlayerInteractEvent createPlayerInteractEvent(Event event) {
-        if (!(event instanceof InteractBlockEvent.SourcePlayer)) {
+        if (!(event instanceof InteractBlockEvent)) {
             throw new IllegalArgumentException("Event is not a valid InteractBlockEvent.SourcePlayer.");
         }
 
-        InteractBlockEvent.SourcePlayer spongeEvent = (InteractBlockEvent.SourcePlayer) event;
-        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetLocation().getBlockPosition());
+        InteractBlockEvent spongeEvent = (InteractBlockEvent) event;
+        Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
+
+        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getBlockSnapshot().getLocation().get().getPosition());
         EnumFacing face = SpongeGameRegistry.directionMap.get(spongeEvent.getTargetSide());
-        EntityPlayer player = (EntityPlayer) spongeEvent.getSourceEntity();
+        EntityPlayer entityplayer = (EntityPlayer) player.get();
         Action action = Action.RIGHT_CLICK_BLOCK;
-        if (player.isUsingItem()) {
+        if (entityplayer.isUsingItem()) {
             action = Action.LEFT_CLICK_BLOCK;
-        } else if (player.worldObj.isAirBlock(pos)) {
+        } else if (entityplayer.worldObj.isAirBlock(pos)) {
             action = Action.RIGHT_CLICK_AIR;
         }
 
         net.minecraftforge.event.entity.player.PlayerInteractEvent forgeEvent =
-                new net.minecraftforge.event.entity.player.PlayerInteractEvent((EntityPlayer) spongeEvent.getSourceEntity(), action, pos, face,
-                        (net.minecraft.world.World) spongeEvent.getSourceEntity().getWorld());
+                new net.minecraftforge.event.entity.player.PlayerInteractEvent((EntityPlayer) player.get(), action, pos, face,
+                        (net.minecraft.world.World) player.get().getWorld());
         return forgeEvent;
     }
 
@@ -424,13 +445,13 @@ public class SpongeForgeEventFactory {
 
     // World events
     public static net.minecraftforge.event.world.WorldEvent createWorldEvent(Event event) {
-        if (!(event instanceof WorldEvent)) {
-            throw new IllegalArgumentException("Event is not a valid WorldEvent.");
+        if (!(event instanceof TargetWorldEvent)) {
+            throw new IllegalArgumentException("Event is not a valid TargetWorldEvent.");
         }
 
-        WorldEvent spongeEvent = (WorldEvent) event;
+        TargetWorldEvent spongeEvent = (TargetWorldEvent) event;
         net.minecraftforge.event.world.WorldEvent forgeEvent =
-                new net.minecraftforge.event.world.WorldEvent((net.minecraft.world.World) spongeEvent.getSourceWorld());
+                new net.minecraftforge.event.world.WorldEvent((net.minecraft.world.World) spongeEvent.getTargetWorld());
         return forgeEvent;
     }
 
@@ -480,7 +501,7 @@ public class SpongeForgeEventFactory {
 
     public static net.minecraftforge.event.world.ChunkEvent.Unload createChunkUnloadEvent(Event event) {
         if (!(event instanceof UnloadChunkEvent)) {
-            throw new IllegalArgumentException("Event is not a valid WorldUnloadChunkEvent.");
+            throw new IllegalArgumentException("Event is not a valid UnloadChunkEvent.");
         }
 
         UnloadChunkEvent spongeEvent = (UnloadChunkEvent) event;
@@ -491,59 +512,79 @@ public class SpongeForgeEventFactory {
 
     // Explosion events
     public static net.minecraftforge.event.world.ExplosionEvent createExplosionEvent(Event event) {
-        if (!(event instanceof WorldExplosionEvent)) {
-            throw new IllegalArgumentException("Event is not a valid WorldExplosionEvent.");
+        if (!(event instanceof ExplosionEvent)) {
+            throw new IllegalArgumentException("Event is not a valid ExplosionEvent.");
         }
 
-        WorldExplosionEvent spongeEvent = (WorldExplosionEvent) event;
-        net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getSourceWorld();
+        ExplosionEvent spongeEvent = (ExplosionEvent) event;
+        Optional<World> world = spongeEvent.getCause().getFirst(World.class);
+        if (!world.isPresent()) {
+            return null;
+        }
+
+        net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
         net.minecraft.world.Explosion explosion = (net.minecraft.world.Explosion) spongeEvent.getExplosion();
-        net.minecraftforge.event.world.ExplosionEvent forgeEvent = new net.minecraftforge.event.world.ExplosionEvent(world, explosion);
+        net.minecraftforge.event.world.ExplosionEvent forgeEvent = new net.minecraftforge.event.world.ExplosionEvent(forgeWorld, explosion);
         return forgeEvent;
     }
 
     public static net.minecraftforge.event.world.ExplosionEvent.Start createExplosionStartEvent(Event event) {
-        if (!(event instanceof WorldExplosionEvent.Pre)) {
-            throw new IllegalArgumentException("Event is not a valid WorldExplosionEvent.Pre.");
+        if (!(event instanceof ExplosionEvent.Pre)) {
+            throw new IllegalArgumentException("Event is not a valid ExplosionEvent.Pre.");
         }
 
-        WorldExplosionEvent.Pre spongeEvent = (WorldExplosionEvent.Pre) event;
-        net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getSourceWorld();
+        ExplosionEvent.Pre spongeEvent = (ExplosionEvent.Pre) event;
+        Optional<World> world = spongeEvent.getCause().getFirst(World.class);
+        if (!world.isPresent()) {
+            return null;
+        }
+
+        net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
         net.minecraft.world.Explosion explosion = (net.minecraft.world.Explosion) spongeEvent.getExplosion();
-        net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent = new net.minecraftforge.event.world.ExplosionEvent.Start(world, explosion);
+        net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent = new net.minecraftforge.event.world.ExplosionEvent.Start(forgeWorld, explosion);
         return forgeEvent;
     }
 
     @SuppressWarnings("unchecked")
     public static net.minecraftforge.event.world.ExplosionEvent.Detonate createExplosionDetonateEvent(Event event) {
-        if (!(event instanceof WorldExplosionEvent.Detonate)) {
-            throw new IllegalArgumentException("Event is not a valid WorldExplosionEvent.OnExplosion.");
+        if (!(event instanceof ExplosionEvent.Detonate)) {
+            throw new IllegalArgumentException("Event is not a valid ExplosionEvent.Detonate.");
         }
 
-        WorldExplosionEvent.Detonate spongeEvent = (WorldExplosionEvent.Detonate) event;
-        net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getSourceWorld();
+        ExplosionEvent.Detonate spongeEvent = (ExplosionEvent.Detonate) event;
+        Optional<World> world = spongeEvent.getCause().getFirst(World.class);
+        if (!world.isPresent()) {
+            return null;
+        }
+
+        net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
         net.minecraft.world.Explosion explosion = (net.minecraft.world.Explosion) spongeEvent.getExplosion();
         net.minecraftforge.event.world.ExplosionEvent.Detonate forgeEvent =
-                new net.minecraftforge.event.world.ExplosionEvent.Detonate(world, explosion,
+                new net.minecraftforge.event.world.ExplosionEvent.Detonate(forgeWorld, explosion,
                         (List<net.minecraft.entity.Entity>) (Object) spongeEvent.getEntities());
         return forgeEvent;
     }
 
     // Server events
     private static net.minecraftforge.event.ServerChatEvent createServerChatEvent(Event event) {
-        if (!(event instanceof MessageSinkEvent.SourcePlayer)) {
-            throw new IllegalArgumentException("Event is not a valid PlayerChatEvent.");
+        if (!(event instanceof MessageSinkEvent)) {
+            throw new IllegalArgumentException("Event is not a valid MessageSinkEvent.");
         }
 
-        MessageSinkEvent.SourcePlayer spongeEvent = (MessageSinkEvent.SourcePlayer) event;
-        IChatComponent component = SpongeTexts.toComponent(spongeEvent.getOriginalMessage(), spongeEvent.getSourceEntity().getLocale());
+        MessageSinkEvent spongeEvent = (MessageSinkEvent) event;
+        Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
+
+        IChatComponent component = SpongeTexts.toComponent(spongeEvent.getOriginalMessage(), player.get().getLocale());
         if (!(component instanceof ChatComponentTranslation)) {
             component = new ChatComponentTranslation("%s", component);
         }
 
         // Using toPlain here is fine, since the raw message from the client can't have formatting.
         net.minecraftforge.event.ServerChatEvent forgeEvent =
-                new net.minecraftforge.event.ServerChatEvent((EntityPlayerMP) spongeEvent.getSourceEntity(), Texts.toPlain(spongeEvent.getOriginalMessage()),
+                new net.minecraftforge.event.ServerChatEvent((EntityPlayerMP) player.get(), Texts.toPlain(spongeEvent.getOriginalMessage()),
                         (ChatComponentTranslation) component);
         return forgeEvent;
     }

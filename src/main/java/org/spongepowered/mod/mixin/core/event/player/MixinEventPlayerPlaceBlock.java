@@ -28,7 +28,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.world.BlockEvent;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.block.PlaceBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -38,18 +37,13 @@ import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
-public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock implements PlaceBlockEvent.SourcePlayer {
+public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock implements PlaceBlockEvent{
 
     @Shadow public EntityPlayer player;
     @Shadow public ItemStack itemInHand;
     @Shadow public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
     @Shadow public IBlockState placedBlock;
     @Shadow public IBlockState placedAgainst;
-
-    @Override
-    public Player getSourceEntity() {
-        return (Player) this.player;
-    }
 
     @Override
     public Cause getCause() {

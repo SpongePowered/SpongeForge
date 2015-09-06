@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.world.BlockEvent;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.block.BreakBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -36,15 +35,10 @@ import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.BreakEvent.class, remap = false)
-public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements BreakBlockEvent.SourcePlayer {
+public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements BreakBlockEvent {
 
     @Shadow private int exp;
     @Shadow private EntityPlayer player;
-
-    @Override
-    public Player getSourceEntity() {
-        return (Player) this.player;
-    }
 
     @Override
     public Cause getCause() {

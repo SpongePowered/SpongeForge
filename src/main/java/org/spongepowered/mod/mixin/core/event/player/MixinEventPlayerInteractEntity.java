@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.EntityInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteractEntity extends MixinEventPlayer implements InteractEntityEvent.SourcePlayer {
+public abstract class MixinEventPlayerInteractEntity extends MixinEventPlayer implements InteractEntityEvent {
 
     @Shadow public net.minecraft.entity.Entity target;
 

@@ -25,8 +25,8 @@
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
-import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
@@ -34,18 +34,11 @@ import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
 @Mixin(PlayerEvent.PlayerRespawnEvent.class)
 public abstract class MixinPlayerRespawnEvent extends MixinPlayerEvent implements RespawnPlayerEvent, IMixinPlayerRespawnEvent {
 
-    private Location<World> originalLocation;
-    private Location<World> newLocation;
     private boolean isBedSpawn;
 
     @Override
     public void setIsBedSpawn(boolean isBedSpawn) {
         this.isBedSpawn = isBedSpawn;
-    }
-
-    /*@Override
-    public Transform<World> getOriginTransform() {
-        return this.newLocation;
     }
 
     @Override
@@ -54,10 +47,17 @@ public abstract class MixinPlayerRespawnEvent extends MixinPlayerEvent implement
     }
 
     @Override
-    public void setRespawnTransform(Transform<World> respawnLocation) {
-        if (this.originalLocation == null) {
-            this.originalLocation = respawnLocation;
-        }
-        this.newLocation = respawnLocation;
-    }*/
+    public void setToTransform(Transform<World> toTransform) {
+        this.toTransform = toTransform;
+    }
+
+    @Override
+    public Transform<World> getFromTransform() {
+        return this.fromTransform;
+    }
+
+    @Override
+    public Transform<World> getToTransform() {
+        return this.toTransform;
+    }
 }

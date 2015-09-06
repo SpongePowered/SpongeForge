@@ -36,7 +36,6 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -45,11 +44,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
 import org.spongepowered.common.registry.SpongeGameRegistry;
-import org.spongepowered.common.util.VecHelper;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer implements InteractBlockEvent.SourcePlayer {
+public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer implements InteractBlockEvent {
 
     private BlockSnapshot blockSnapshot;
 
@@ -74,12 +72,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     }
 
     @Override
-    public Location<World> getTargetLocation() {
-        return new Location<World>((World) this.world, VecHelper.toVector(this.pos).toDouble());
-    }
-
-    @Override
-    public BlockSnapshot getTargetBlock() {
+    public BlockSnapshot getBlockSnapshot() {
         return this.blockSnapshot;
     }
 

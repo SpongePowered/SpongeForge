@@ -31,7 +31,6 @@ import net.minecraftforge.event.entity.item.ItemTossEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.Item;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.inventory.DropItemStackEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -45,14 +44,9 @@ import java.util.List;
 
 @NonnullByDefault
 @Mixin(value = ItemTossEvent.class, remap = false)
-public abstract class MixinEventPlayerDropItem extends MixinEventItem implements DropItemStackEvent.Post.SourcePlayer {
+public abstract class MixinEventPlayerDropItem extends MixinEventItem implements DropItemStackEvent.Drop {
 
     @Shadow public EntityPlayer player;
-
-    @Override
-    public Player getSourceEntity() {
-        return (Player) this.player;
-    }
 
     @Override
     public ImmutableList<EntitySnapshot> getEntitySnapshots() {

@@ -53,7 +53,7 @@ import java.util.Map;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.NeighborNotifyEvent.class, remap = false)
-public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock implements NotifyNeighborBlockEvent.SourceBlock {
+public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock implements NotifyNeighborBlockEvent {
 
     private ImmutableMap<Direction, BlockSnapshot> originalRelatives;
     private Map<Direction, Location<World>> relatives;
@@ -72,16 +72,6 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
     @Override
     public Map<Direction, Location<World>> getRelatives() {
         return this.relatives;
-    }
-
-    @Override
-    public BlockSnapshot getSourceBlock() {
-        return this.blockOriginal;
-    }
-
-    @Override
-    public Location<World> getSourceLocation() {
-        return this.blockOriginal.getLocation().get();
     }
 
     @Override

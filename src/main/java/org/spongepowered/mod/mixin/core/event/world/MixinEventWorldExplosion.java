@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.core.event.world;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.util.BlockPos;
-import net.minecraftforge.event.world.ExplosionEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTransaction;
@@ -35,7 +34,7 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
-import org.spongepowered.api.event.world.WorldExplosionEvent;
+import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
@@ -51,8 +50,8 @@ import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 import java.util.Iterator;
 import java.util.List;
 
-@Mixin(value = ExplosionEvent.class, remap = false)
-public abstract class MixinEventWorldExplosion extends MixinEvent implements WorldExplosionEvent {
+@Mixin(value = net.minecraftforge.event.world.ExplosionEvent.class, remap = false)
+public abstract class MixinEventWorldExplosion extends MixinEvent implements ExplosionEvent {
 
     @Shadow public net.minecraft.world.World world;
     @Shadow public net.minecraft.world.Explosion explosion;
@@ -62,18 +61,13 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Wor
         return (Explosion) this.explosion;
     }
 
-    @Override
-    public World getSourceWorld() {
-        return (World) this.world;
-    }
-
-    @Mixin(value = ExplosionEvent.Start.class, remap = false)
-    static abstract class Pre extends MixinEventWorldExplosion implements WorldExplosionEvent.Pre {
+    @Mixin(value = net.minecraftforge.event.world.ExplosionEvent.Start.class, remap = false)
+    static abstract class Pre extends MixinEventWorldExplosion implements ExplosionEvent.Pre {
 
     }
 
-    @Mixin(value = ExplosionEvent.Detonate.class, remap = false)
-    static abstract class Detonate extends MixinEventWorldExplosion implements WorldExplosionEvent.Detonate {
+    @Mixin(value = net.minecraftforge.event.world.ExplosionEvent.Detonate.class, remap = false)
+    static abstract class Detonate extends MixinEventWorldExplosion implements ExplosionEvent.Detonate {
 
         private ImmutableList<EntitySnapshot> entitySnapshots;
         private ImmutableList<BlockTransaction> blockTransactions;
@@ -126,7 +120,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Wor
 
         @Override
         public List<? extends Entity> filterEntityLocations(Predicate<Location<World>> predicate) {
-            if (((ExplosionEvent.Detonate) (Object) this).isCancelable()) {
+            if (((net.minecraftforge.event.world.ExplosionEvent.Detonate) (Object) this).isCancelable()) {
                 Iterator<? extends Entity> iterator = this.getEntities().iterator();
                 while (iterator.hasNext()) {
                     Entity entity = iterator.next();
