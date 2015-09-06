@@ -136,7 +136,11 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
 
     @Override
     public Cause getCause() {
-        return Cause.of(this.harvester);
+        if (this.harvester != null) {
+            return Cause.of(this.harvester);
+        } else {
+            return Cause.of(this.world);
+        }
     }
 
     @Override

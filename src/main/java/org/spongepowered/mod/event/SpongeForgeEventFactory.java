@@ -311,14 +311,11 @@ public class SpongeForgeEventFactory {
             droppedItems.add((net.minecraft.item.ItemStack) itemstack);
         }
         Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
-        if (!player.isPresent()) {
-            return null;
-        }
 
         Location<World> location = spongeEvent.getBlockSnapshot().getLocation().get();
         net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent forgeEvent =
                 new net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent((net.minecraft.world.World) location.getExtent(), VecHelper.toBlockPos(location.getPosition()), (net.minecraft.block.state.IBlockState) location.getBlock(), 0,
-                        spongeEvent.getDropChance(), droppedItems, (EntityPlayer) player.get(), false);// spongeEvent.isSilkTouchHarvest());
+                        spongeEvent.getDropChance(), droppedItems, player.isPresent() ? (EntityPlayer) player.get() : null, false);// spongeEvent.isSilkTouchHarvest());
         return forgeEvent;
     }
 

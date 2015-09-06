@@ -130,11 +130,15 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
 
         // Create new Forge event to sync plugin data then pass to Forge handlers
-        forgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent((Event) forgeEvent, forgeEvent.getClass());
+        net.minecraftforge.fml.common.eventhandler.Event newForgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent((Event) forgeEvent, forgeEvent.getClass());
+        if (newForgeEvent == null) {
+            Sponge.getLogger().warn("SpongeForgeEventFactory returned null event for " + forgeEvent +". This should not happen, report to Sponge.");
+            return false;
+        }
 
         for (IEventListener listener : listeners) {
             try {
-                listener.invoke(forgeEvent);
+                listener.invoke(newForgeEvent);
             } catch (Throwable throwable) {
                 SpongeMod.instance.getLogger().catching(throwable);
             }
@@ -142,10 +146,10 @@ public class SpongeModEventManager extends SpongeEventManager {
 
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
-            post((Event) forgeEvent, listenerCache.getListenersByOrder(order));
+            post((Event) newForgeEvent, listenerCache.getListenersByOrder(order));
         }
 
-        return forgeEvent.isCancelable() && forgeEvent.isCanceled();
+        return newForgeEvent.isCancelable() && newForgeEvent.isCanceled();
     }
 
     @SuppressWarnings("unchecked")

@@ -34,6 +34,7 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -59,6 +60,11 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
     @Override
     public Explosion getExplosion() {
         return (Explosion) this.explosion;
+    }
+
+    @Override
+    public Cause getCause() {
+        return Cause.of(this.world);
     }
 
     @Mixin(value = net.minecraftforge.event.world.ExplosionEvent.Start.class, remap = false)
