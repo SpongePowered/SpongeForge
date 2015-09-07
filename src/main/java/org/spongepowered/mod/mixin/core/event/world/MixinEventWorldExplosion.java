@@ -102,7 +102,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         }
 
         @Override
-        public void filter(Predicate<Location<World>> predicate) {
+        public List<BlockTransaction> filter(Predicate<Location<World>> predicate) {
             Iterator<BlockTransaction> iterator = getTransactions().iterator();
             while (iterator.hasNext()) {
                 BlockTransaction transaction = iterator.next();
@@ -111,6 +111,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
                     transaction.setIsValid(false);
                 }
             }
+            return this.blockTransactions;
         }
 
         @Override
@@ -120,7 +121,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
         @SuppressWarnings("unchecked")
         @Override
-        public List<? extends Entity> getEntities() {
+        public List<Entity> getEntities() {
             return (List<Entity>) (List<?>) this.entityList;
         }
 
@@ -140,7 +141,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         }
 
         @Override
-        public List<? extends Entity> filterEntities(Predicate<? extends Entity> predicate) {
+        public List<Entity> filterEntities(Predicate<Entity> predicate) {
             /* TODO if (((ExplosionEvent.Detonate) (Object) this).isCancelable()) {
                 Iterator<? extends Entity> iterator = this.getEntities().iterator();
                 while (iterator.hasNext()) {

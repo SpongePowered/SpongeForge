@@ -44,6 +44,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import java.util.Iterator;
+import java.util.List;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)
@@ -76,7 +77,7 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
     }
 
     @Override
-    public void filter(Predicate<Location<World>> predicate) {
+    public List<BlockTransaction> filter(Predicate<Location<World>> predicate) {
         Iterator<BlockTransaction> iterator = getTransactions().iterator();
         while (iterator.hasNext()) {
             BlockTransaction transaction = iterator.next();
@@ -85,6 +86,7 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
                 transaction.setIsValid(false);
             }
         }
+        return this.blockTransactions;
     }
 
     @Override

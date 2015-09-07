@@ -144,7 +144,7 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
     }
 
     @Override
-    public BlockSnapshot getBlockSnapshot() {
+    public BlockSnapshot getTargetBlock() {
         return this.blockOriginal;
     }
 

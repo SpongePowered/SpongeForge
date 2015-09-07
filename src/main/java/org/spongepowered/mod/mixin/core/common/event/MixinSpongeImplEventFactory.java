@@ -28,14 +28,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.GameProfile;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
-import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.world.World;
@@ -53,7 +51,7 @@ public abstract class MixinSpongeImplEventFactory {
     }
 
     @Overwrite
-    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Game game, Cause cause, Text originalMessage, Text message, MessageSink originalSink, MessageSink sink, Transform<World> fromTransform, Transform<World> toTransform, RemoteConnection connection, GameProfile profile, Player targetEntity) {
+    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Game game, Cause cause, Text originalMessage, Text message, MessageSink originalSink, MessageSink sink, Transform<World> fromTransform, Transform<World> toTransform, Player targetEntity) {
         final ClientConnectionEvent.Join event = (ClientConnectionEvent.Join) new PlayerEvent.PlayerLoggedInEvent((EntityPlayer) targetEntity);
         event.getTargetEntity().setLocation(toTransform.getLocation());
         event.setSink(sink);
@@ -70,7 +68,7 @@ public abstract class MixinSpongeImplEventFactory {
     }
 
     @Overwrite
-    public static ClientConnectionEvent.Disconnect createClientConnectionEventDisconnect(Game game, Cause cause, Text originalMessage, Text message, MessageSink originalSink, MessageSink sink, RemoteConnection connection, GameProfile profile, Player targetEntity) {
+    public static ClientConnectionEvent.Disconnect createClientConnectionEventDisconnect(Game game, Cause cause, Text originalMessage, Text message, MessageSink originalSink, MessageSink sink, Player targetEntity) {
         final ClientConnectionEvent.Disconnect event = (ClientConnectionEvent.Disconnect) new PlayerEvent.PlayerLoggedOutEvent((EntityPlayer) targetEntity);
         event.setMessage(message);
         event.setSink(sink);

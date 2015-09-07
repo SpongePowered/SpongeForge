@@ -267,7 +267,7 @@ public class SpongeForgeEventFactory {
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         BlockSnapshot replacementBlock = spongeEvent.getTransactions().get(0).getFinalReplacement();
         IBlockState state = (IBlockState) replacementBlock.getState();
-        Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
         if (!player.isPresent()) {
             return null;
         }
@@ -288,7 +288,7 @@ public class SpongeForgeEventFactory {
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
         if (!player.isPresent()) {
             return null;
         }
@@ -310,9 +310,9 @@ public class SpongeForgeEventFactory {
            // EntityItem entityItem = new EntityItem((net.minecraft.world.World) spongeEvent.getTargetLocation().getExtent(), spongeEvent.getTargetLocation().getBlockX(), spongeEvent.getTargetLocation().getBlockY(), spongeEvent.getTargetLocation().getBlockZ(), (net.minecraft.item.ItemStack) itemstack);
             droppedItems.add((net.minecraft.item.ItemStack) itemstack);
         }
-        Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
 
-        Location<World> location = spongeEvent.getBlockSnapshot().getLocation().get();
+        Location<World> location = spongeEvent.getTargetBlock().getLocation().get();
         net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent forgeEvent =
                 new net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent((net.minecraft.world.World) location.getExtent(), VecHelper.toBlockPos(location.getPosition()), (net.minecraft.block.state.IBlockState) location.getBlock(), 0,
                         spongeEvent.getDropChance(), droppedItems, player.isPresent() ? (EntityPlayer) player.get() : null, false);// spongeEvent.isSilkTouchHarvest());
@@ -325,7 +325,7 @@ public class SpongeForgeEventFactory {
         }
 
         NotifyNeighborBlockEvent spongeEvent = (NotifyNeighborBlockEvent) event;
-        Optional<BlockSnapshot> blockSnapshot = spongeEvent.getCause().getFirst(BlockSnapshot.class);
+        Optional<BlockSnapshot> blockSnapshot = spongeEvent.getCause().first(BlockSnapshot.class);
         if (!blockSnapshot.isPresent() || !blockSnapshot.get().getLocation().isPresent()) {
             return null;
         }
@@ -403,16 +403,16 @@ public class SpongeForgeEventFactory {
 
     private static net.minecraftforge.event.entity.player.PlayerInteractEvent createPlayerInteractEvent(Event event) {
         if (!(event instanceof InteractBlockEvent)) {
-            throw new IllegalArgumentException("Event is not a valid InteractBlockEvent.SourcePlayer.");
+            throw new IllegalArgumentException("Event " + event + " is not a valid InteractBlockEvent. Thread = " + Thread.currentThread().getName());
         }
 
         InteractBlockEvent spongeEvent = (InteractBlockEvent) event;
-        Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
         if (!player.isPresent()) {
             return null;
         }
 
-        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getBlockSnapshot().getLocation().get().getPosition());
+        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetBlock().getLocation().get().getPosition());
         EnumFacing face = SpongeGameRegistry.directionMap.get(spongeEvent.getTargetSide());
         EntityPlayer entityplayer = (EntityPlayer) player.get();
         Action action = Action.RIGHT_CLICK_BLOCK;
@@ -514,7 +514,7 @@ public class SpongeForgeEventFactory {
         }
 
         ExplosionEvent spongeEvent = (ExplosionEvent) event;
-        Optional<World> world = spongeEvent.getCause().getFirst(World.class);
+        Optional<World> world = spongeEvent.getCause().first(World.class);
         if (!world.isPresent()) {
             return null;
         }
@@ -531,7 +531,7 @@ public class SpongeForgeEventFactory {
         }
 
         ExplosionEvent.Pre spongeEvent = (ExplosionEvent.Pre) event;
-        Optional<World> world = spongeEvent.getCause().getFirst(World.class);
+        Optional<World> world = spongeEvent.getCause().first(World.class);
         if (!world.isPresent()) {
             return null;
         }
@@ -549,7 +549,7 @@ public class SpongeForgeEventFactory {
         }
 
         ExplosionEvent.Detonate spongeEvent = (ExplosionEvent.Detonate) event;
-        Optional<World> world = spongeEvent.getCause().getFirst(World.class);
+        Optional<World> world = spongeEvent.getCause().first(World.class);
         if (!world.isPresent()) {
             return null;
         }
@@ -569,7 +569,7 @@ public class SpongeForgeEventFactory {
         }
 
         MessageSinkEvent spongeEvent = (MessageSinkEvent) event;
-        Optional<Player> player = spongeEvent.getCause().getFirst(Player.class);
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
         if (!player.isPresent()) {
             return null;
         }

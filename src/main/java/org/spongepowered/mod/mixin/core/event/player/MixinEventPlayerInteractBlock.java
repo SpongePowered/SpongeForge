@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
+import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
@@ -36,6 +37,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -58,21 +60,17 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, net.minecraft.world.World world, CallbackInfo ci) {
-        // TODO - SpongeBlockSnapshot still needs to be finished
-        if (pos != null) {
+        if (pos != null) { // Forge fires this event on client side and passes a null pos and face
             this.blockSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         } else {
-            this.blockSnapshot = new SpongeBlockSnapshot(BlockTypes.AIR.getDefaultState(), null, ImmutableList.<ImmutableDataManipulator<?, ?>>of());
+            this.blockSnapshot =
+                    new SpongeBlockSnapshot(BlockTypes.AIR.getDefaultState(), new Location<World>((World) world, new Vector3i(0, 0, 0)),
+                            ImmutableList.<ImmutableDataManipulator<?, ?>>of());
         }
-        /*
-         * if (pos != null) { this.blockSnapshot = (BlockSnapshot) new
-         * net.minecraftforge.common.util.BlockSnapshot(world, pos,
-         * (IBlockState) BlockTypes.AIR.getDefaultState()); }
-         */
     }
 
     @Override
-    public BlockSnapshot getBlockSnapshot() {
+    public BlockSnapshot getTargetBlock() {
         return this.blockSnapshot;
     }
 

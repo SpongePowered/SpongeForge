@@ -67,7 +67,7 @@ public abstract class MixinEventPlayerDropItem extends MixinEventItem implements
     }
 
     @Override
-    public List<Item> filterEntities(Predicate<? extends Entity> predicate) {
+    public List<Item> filterEntities(Predicate<Entity> predicate) {
         // TODO
         return null;
     }
@@ -76,4 +76,10 @@ public abstract class MixinEventPlayerDropItem extends MixinEventItem implements
     public Cause getCause() {
         return Cause.of(this.player);
     }
+
+    @Override
+    public World getTargetWorld() {
+        return (World) this.player.worldObj;
+    }
+
 }
