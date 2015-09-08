@@ -65,6 +65,7 @@ import org.spongepowered.common.Sponge;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 import java.util.List;
@@ -129,6 +130,9 @@ public class SpongeModEventManager extends SpongeEventManager {
             postBeforeModifications((Event) forgeEvent, listenerCache.getListenersByOrder(order));
         }
 
+        // sync plugin data for Mods
+        ((IMixinEvent) forgeEvent).syncDataToForge();
+
         for (IEventListener listener : listeners) {
             try {
                 listener.invoke(forgeEvent);
@@ -137,10 +141,16 @@ public class SpongeModEventManager extends SpongeEventManager {
             }
         }
 
+        // sync Forge data for Plugins
+        ((IMixinEvent) forgeEvent).syncDataToSponge();
+
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
             post((Event) forgeEvent, listenerCache.getListenersByOrder(order));
         }
+
+        // sync plugin data for Forge
+        ((IMixinEvent) forgeEvent).syncDataToForge();
 
         return forgeEvent.isCancelable() && forgeEvent.isCanceled();
     }

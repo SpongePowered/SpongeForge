@@ -77,6 +77,11 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
     @Override
     public void setItemStackInUse(ItemStackSnapshot item) {
         this.itemTransaction.setCustom(item);
+        this.item = (net.minecraft.item.ItemStack) item.createStack();
     }
 
+    @Override
+    public void syncDataToSponge() {
+        this.itemTransaction.setCustom(((ItemStack) this.item).createSnapshot());
+    }
 }

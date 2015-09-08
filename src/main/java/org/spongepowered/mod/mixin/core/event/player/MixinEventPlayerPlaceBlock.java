@@ -50,4 +50,9 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
         return Cause.of(this.player);
     }
 
+    @Override
+    public void syncDataToForge() {
+        super.syncDataToForge();
+        this.placedBlock = (IBlockState) getTransactions().get(0).getFinalReplacement().getState();
+    }
 }

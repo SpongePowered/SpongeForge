@@ -168,4 +168,15 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
         this.experience = exp;
     }
 
+    @Override
+    public void syncDataToForge() {
+        super.syncDataToForge();
+
+        List<net.minecraft.item.ItemStack> droppedItems = new ArrayList<net.minecraft.item.ItemStack>();
+        for (ItemStack itemstack : getItemStacks()) {
+            droppedItems.add((net.minecraft.item.ItemStack) itemstack);
+        }
+
+        this.drops = droppedItems;
+    }
 }

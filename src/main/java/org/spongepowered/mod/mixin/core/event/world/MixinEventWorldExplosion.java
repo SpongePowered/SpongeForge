@@ -80,10 +80,14 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
         @Shadow private List<net.minecraft.entity.Entity> entityList;
 
-        @SuppressWarnings("unchecked")
         @Inject(method = "<init>", at = @At("RETURN"))
         public void onConstructed(net.minecraft.world.World world, net.minecraft.world.Explosion explosion, List<Entity> entityList, CallbackInfo ci) {
-            List<BlockPos> affectedPositions = explosion.func_180343_e();
+            createSpongeData();
+        }
+
+        @SuppressWarnings("unchecked")
+        public void createSpongeData() {
+            List<BlockPos> affectedPositions = this.explosion.func_180343_e();
             ImmutableList.Builder<BlockTransaction> builder = new ImmutableList.Builder<BlockTransaction>();
             for (BlockPos pos : affectedPositions) {
                 Location<World> location = new Location<World>((World) world, VecHelper.toVector(pos));
@@ -142,7 +146,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
         @Override
         public List<Entity> filterEntities(Predicate<Entity> predicate) {
-            /* TODO if (((ExplosionEvent.Detonate) (Object) this).isCancelable()) {
+            if (((net.minecraftforge.event.world.ExplosionEvent.Detonate) (Object) this).isCancelable()) {
                 Iterator<? extends Entity> iterator = this.getEntities().iterator();
                 while (iterator.hasNext()) {
                     Entity entity = (Entity) iterator.next();
@@ -150,9 +154,42 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
                         iterator.remove();
                     }
                 }
-            }*/
+            }
             return this.getEntities();
         }
 
+        @SuppressWarnings({"unchecked"})
+        @Override
+        public void syncDataToForge() {
+            super.syncDataToForge();
+            List<BlockPos> affectedBlocks = this.explosion.func_180343_e();
+            affectedBlocks.clear();
+
+            for (BlockTransaction blockTransaction : this.blockTransactions) {
+                if (blockTransaction.isValid()) {
+                    affectedBlocks.add(VecHelper.toBlockPos(blockTransaction.getFinalReplacement().getPosition()));
+                }
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public void syncDataToSponge() {
+            // TODO - handle this better
+            List<BlockPos> affectedBlocks = this.explosion.func_180343_e();
+            for (BlockTransaction transaction : this.blockTransactions) {
+                BlockPos pos = VecHelper.toBlockPos(transaction.getFinalReplacement().getPosition());
+                boolean match = false;
+                for (BlockPos forgePos : affectedBlocks) {
+                    if (forgePos.getX() == pos.getX() && forgePos.getY() == pos.getY() && forgePos.getZ() == pos.getZ()) {
+                        match = true;
+                    }
+                }
+                if (!match) {
+                    transaction.setIsValid(false);
+                }
+            }
+        }
     }
+
 }

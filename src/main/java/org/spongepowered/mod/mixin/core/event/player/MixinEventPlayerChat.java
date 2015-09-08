@@ -105,4 +105,8 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
         this.sink = sink;
     }
 
+    @Override
+    public void syncDataToSponge() {
+        this.spongeNewText = SpongeTexts.toText(this.component);
+    }
 }

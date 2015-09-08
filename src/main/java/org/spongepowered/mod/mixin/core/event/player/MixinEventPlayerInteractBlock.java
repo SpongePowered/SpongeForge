@@ -46,6 +46,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
 import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.util.VecHelper;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
@@ -87,4 +88,16 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
         return Cause.of(this.entityPlayer);
     }
 
+    @Override
+    public void syncDataToForge() {
+        super.syncDataToForge();
+        this.pos = VecHelper.toBlockPos(getTargetBlock().getLocation().get().getPosition());
+        this.face = SpongeGameRegistry.directionMap.get(getTargetSide());
+        this.action = Action.RIGHT_CLICK_BLOCK;
+        if (this.entityPlayer.isUsingItem()) {
+            this.action = Action.LEFT_CLICK_BLOCK;
+        } else if (this.entityPlayer.worldObj.isAirBlock(pos)) {
+            this.action = Action.RIGHT_CLICK_AIR;
+        }
+    }
 }

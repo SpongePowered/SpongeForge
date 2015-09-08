@@ -33,10 +33,11 @@ import org.spongepowered.api.util.event.callback.CallbackList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.fml.common.eventhandler.Event.class, remap = false)
-public abstract class MixinEvent implements CauseTracked, Cancellable {
+public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEvent {
 
     @Shadow public abstract void setCanceled(boolean cancel);
     @Shadow public abstract boolean isCanceled();
@@ -64,4 +65,10 @@ public abstract class MixinEvent implements CauseTracked, Cancellable {
         // TODO Implement callbacks
         return new CallbackList();
     }
+
+    @Override
+    public void syncDataToForge() { }
+
+    @Override
+    public void syncDataToSponge() { }
 }

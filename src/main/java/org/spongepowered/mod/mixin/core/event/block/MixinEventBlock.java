@@ -41,6 +41,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import java.util.Iterator;
@@ -56,23 +57,17 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
 
     @Shadow public BlockPos pos;
     @Shadow public net.minecraft.world.World world;
+    @Shadow public IBlockState state;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, CallbackInfo ci) {
         this.blockOriginal = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         this.blockReplacement = this.blockOriginal.withState(BlockTypes.AIR.getDefaultState());
-    }
-
-    public void createSpongeEventData() {
-        this.blockTransactions =
-                new ImmutableList.Builder<BlockTransaction>().add(new BlockTransaction(this.blockOriginal, this.blockReplacement)).build();
+        this.blockTransactions = new ImmutableList.Builder<BlockTransaction>().add(new BlockTransaction(this.blockOriginal, this.blockReplacement)).build();
     }
 
     @Override
     public ImmutableList<BlockTransaction> getTransactions() {
-        if (this.blockTransactions == null) {
-            createSpongeEventData();
-        }
         return this.blockTransactions;
     }
 
@@ -92,5 +87,12 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
     @Override
     public Cause getCause() {
         return Cause.of(this.blockOriginal);
+    }
+
+    @Override
+    public void syncDataToForge() {
+        super.syncDataToForge();
+        this.pos = VecHelper.toBlockPos(getTransactions().get(0).getFinalReplacement().getPosition());
+        this.state = ((IBlockState) getTransactions().get(0).getFinalReplacement().getState());
     }
 }

@@ -24,15 +24,14 @@
  */
 package org.spongepowered.mod.mixin.core.event.block;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -82,7 +81,6 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
         }
     }
 
-    @Override
     public void createSpongeEventData() {
         this.relatives = new HashMap<Direction, Location<World>>();
         if (this.notifiedSides != null) {
@@ -102,11 +100,14 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
     }
 
     @Override
-    public ImmutableList<BlockTransaction> getTransactions() {
-        if (this.blockTransactions == null) {
-            createSpongeEventData();
-        }
-        return this.blockTransactions;
-    }
+    public void syncDataToForge() {
+        super.syncDataToForge();
 
+        EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
+        for (Map.Entry<Direction, Location<World>> mapEntry : getRelatives().entrySet()) {
+            facings.add(SpongeGameRegistry.directionMap.get(mapEntry.getKey()));
+        }
+
+        this.notifiedSides = facings;
+    }
 }
