@@ -27,40 +27,38 @@ package org.spongepowered.mod.mixin.core.event.player;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockTransaction;
-import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.event.block.BreakBlockEvent;
-import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.block.PlaceBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
+import org.spongepowered.common.block.SpongeBlockSnapshot;
+import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
+
+import java.util.List;
 
 @NonnullByDefault
-@Mixin(value = BlockEvent.BreakEvent.class, remap = false)
-public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements BreakBlockEvent {
+@Mixin(value = BlockEvent.MultiPlaceEvent.class, remap = false)
+public abstract class MixinEventPlayerPlaceMultiBlock extends MixinEventPlayerPlaceBlock implements PlaceBlockEvent {
 
-    @Shadow private int exp;
-    @Shadow private EntityPlayer player;
+    @Shadow public List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EntityPlayer player, CallbackInfo ci) {
-        this.blockOriginal = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-        this.blockReplacement = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<World>((World) world, VecHelper.toVector(pos)));
-        this.blockTransactions = new ImmutableList.Builder<BlockTransaction>().add(new BlockTransaction(this.blockOriginal, this.blockReplacement)).build();
-    }
+    public void onConstructed(List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots, IBlockState placedAgainst, EntityPlayer player,
+            CallbackInfo ci) {
+        ImmutableList.Builder<BlockTransaction> builder = new ImmutableList.Builder<BlockTransaction>();
+        for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : blockSnapshots) {
+            SpongeBlockSnapshot spongeOriginalBlockSnapshot = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
+            SpongeBlockSnapshot spongeReplacementBlockSnapshot =
+                    ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(blockSnapshot.world, blockSnapshot.pos))
+                            .createSpongeBlockSnapshot();
 
-    @Override
-    public Cause getCause() {
-        return Cause.of(this.player);
+            builder.add(new BlockTransaction(spongeOriginalBlockSnapshot, spongeReplacementBlockSnapshot));
+        }
+        this.blockTransactions = builder.build();
     }
-
 }

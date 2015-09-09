@@ -28,7 +28,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.util.BlockPos;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
@@ -46,6 +45,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import java.util.Iterator;
@@ -91,11 +91,10 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
             ImmutableList.Builder<BlockTransaction> builder = new ImmutableList.Builder<BlockTransaction>();
             for (BlockPos pos : affectedPositions) {
                 Location<World> location = new Location<World>((World) world, VecHelper.toVector(pos));
+                BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(world, pos)).createSpongeBlockSnapshot();
                 BlockSnapshot replacementSnapshot =
                         new SpongeBlockSnapshot(BlockTypes.AIR.getDefaultState(), location, ImmutableList.<ImmutableDataManipulator<?, ?>>of());
-                BlockSnapshot originalSnapshot =
-                        new SpongeBlockSnapshot((BlockState) world.getBlockState(pos), location, ImmutableList.<ImmutableDataManipulator<?, ?>>of());
-                builder.add(new BlockTransaction(replacementSnapshot, originalSnapshot)).build();
+                builder.add(new BlockTransaction(originalSnapshot, replacementSnapshot)).build();
             }
             this.blockTransactions = builder.build();
         }

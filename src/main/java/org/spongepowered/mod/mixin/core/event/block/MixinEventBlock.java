@@ -30,7 +30,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTransaction;
-import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -38,9 +37,6 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
@@ -52,22 +48,18 @@ import java.util.List;
 public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockEvent {
 
     public BlockSnapshot blockOriginal;
-    private BlockSnapshot blockReplacement;
+    protected BlockSnapshot blockReplacement;
     protected ImmutableList<BlockTransaction> blockTransactions;
 
     @Shadow public BlockPos pos;
     @Shadow public net.minecraft.world.World world;
     @Shadow public IBlockState state;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, CallbackInfo ci) {
-        this.blockOriginal = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-        this.blockReplacement = this.blockOriginal.withState(BlockTypes.AIR.getDefaultState());
-        this.blockTransactions = new ImmutableList.Builder<BlockTransaction>().add(new BlockTransaction(this.blockOriginal, this.blockReplacement)).build();
-    }
-
     @Override
     public ImmutableList<BlockTransaction> getTransactions() {
+        if (this.blockTransactions == null) {
+            this.blockTransactions = new ImmutableList.Builder<BlockTransaction>().build();
+        }
         return this.blockTransactions;
     }
 
@@ -92,7 +84,9 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
     @Override
     public void syncDataToForge() {
         super.syncDataToForge();
-        this.pos = VecHelper.toBlockPos(getTransactions().get(0).getFinalReplacement().getPosition());
-        this.state = ((IBlockState) getTransactions().get(0).getFinalReplacement().getState());
+        if (this.blockTransactions != null && this.blockTransactions.size() > 0) {
+            this.pos = VecHelper.toBlockPos(getTransactions().get(0).getFinalReplacement().getPosition());
+            this.state = ((IBlockState) getTransactions().get(0).getFinalReplacement().getState());
+        }
     }
 }

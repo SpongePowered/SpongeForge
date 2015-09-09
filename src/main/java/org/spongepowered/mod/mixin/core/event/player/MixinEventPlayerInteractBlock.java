@@ -25,14 +25,12 @@
 package org.spongepowered.mod.mixin.core.event.player;
 
 import com.flowpowered.math.vector.Vector3i;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.Direction;
@@ -44,7 +42,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.block.SpongeBlockSnapshot;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.util.VecHelper;
 
@@ -64,9 +61,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
         if (pos != null) { // Forge fires this event on client side and passes a null pos and face
             this.blockSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         } else {
-            this.blockSnapshot =
-                    new SpongeBlockSnapshot(BlockTypes.AIR.getDefaultState(), new Location<World>((World) world, new Vector3i(0, 0, 0)),
-                            ImmutableList.<ImmutableDataManipulator<?, ?>>of());
+            this.blockSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<World>((World) world, Vector3i.ZERO));
         }
     }
 
