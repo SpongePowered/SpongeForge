@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.entity.Transform;
@@ -46,8 +47,10 @@ public abstract class MixinPlayerEvent extends Event implements TargetPlayerEven
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, CallbackInfo ci) {
-        this.fromTransform = ((Player) player).getTransform();
-        this.toTransform = ((Player) player).getTransform();
+        if (player instanceof EntityPlayerMP) {
+            this.fromTransform = ((Player) player).getTransform();
+            this.toTransform = ((Player) player).getTransform();
+        }
     }
 
     @Override
