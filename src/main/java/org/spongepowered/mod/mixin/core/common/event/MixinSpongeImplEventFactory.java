@@ -63,7 +63,7 @@ public abstract class MixinSpongeImplEventFactory {
     public static RespawnPlayerEvent createRespawnPlayerEvent(Game game, Cause cause, Transform<World> fromTransform, Transform<World> toTransform, Player targetEntity, boolean bedSpawn) {
         final RespawnPlayerEvent event = (RespawnPlayerEvent) new PlayerEvent.PlayerRespawnEvent((EntityPlayer) targetEntity);
         ((IMixinPlayerRespawnEvent) event).setIsBedSpawn(bedSpawn);
-        event.getFromTransform().setLocation(toTransform.getLocation());
+        ((IMixinPlayerRespawnEvent) event).setToTransform(toTransform);
         return event;
     }
 

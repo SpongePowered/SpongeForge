@@ -24,6 +24,14 @@
  */
 package org.spongepowered.mod.interfaces;
 
+import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.world.World;
+
 public interface IMixinPlayerRespawnEvent {
+
     void setIsBedSpawn(boolean isBedSpawn);
+
+    void setToTransform(Transform<World> toTransform);
+
+    void setFromTransform(Transform<World> fromTransform);
 }
