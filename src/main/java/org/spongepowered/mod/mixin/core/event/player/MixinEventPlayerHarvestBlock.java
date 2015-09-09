@@ -26,11 +26,11 @@ package org.spongepowered.mod.mixin.core.event.player;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.HarvestBlockEvent;
@@ -73,15 +73,15 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
             List<net.minecraft.item.ItemStack> drops, EntityPlayer harvester, boolean isSilkTouching,
             CallbackInfo ci) {
         this.originalDrops = ImmutableList.copyOf((List<ItemStack>) (List<?>) drops);
-        if (state == null || !(harvester instanceof EntityPlayer) || !ForgeHooks.canHarvestBlock(state.getBlock(), harvester, world, pos)
-                || (state.getBlock().canSilkHarvest(world, pos, world.getBlockState(pos), harvester) && EnchantmentHelper
-                        .getSilkTouchModifier(harvester)))
-        {
+        if (state == null || !(harvester instanceof EntityPlayer) || !canHarvestBlock(state, harvester)
+                || (state.getBlock().canSilkHarvest(world, pos, state, harvester) && EnchantmentHelper
+                        .getSilkTouchModifier(harvester))) {
             this.experience = 0;
         } else {
             int bonusLevel = EnchantmentHelper.getFortuneModifier(harvester);
             this.experience = state.getBlock().getExpDrop(world, pos, bonusLevel);
         }
+
         this.originalExperience = this.experience;
         this.originalDropChance = dropChance;
         this.targetLocation = new Location<World>((World) world, VecHelper.toVector(pos));
@@ -128,12 +128,6 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
         this.dropChance = chance;
     }
 
-    /*
-     * TODO
-     * @Override public boolean isSilkTouchHarvest() { return
-     * this.isSilkTouching; }
-     */
-
     @Override
     public Cause getCause() {
         if (this.harvester != null) {
@@ -178,5 +172,25 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
         }
 
         this.drops = droppedItems;
+    }
+
+    private boolean canHarvestBlock(IBlockState state, EntityPlayer player) {
+        Block block = state.getBlock();
+        if (block.getMaterial().isToolNotRequired()) {
+            return true;
+        }
+
+        net.minecraft.item.ItemStack stack = player.inventory.getCurrentItem();
+        String tool = block.getHarvestTool(state);
+        if (stack == null || tool == null) {
+            return player.canHarvestBlock(block);
+        }
+
+        int toolLevel = stack.getItem().getHarvestLevel(stack, tool);
+        if (toolLevel < 0) {
+            return player.canHarvestBlock(block);
+        }
+
+        return toolLevel >= block.getHarvestLevel(state);
     }
 }
