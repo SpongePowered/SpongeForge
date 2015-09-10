@@ -76,7 +76,9 @@
         "world.storage.MixinSaveHandler"
     ],
     "client": [
-        "server.MixinIntegratedServerAnonInner3"
+        "server.MixinIntegratedServerAnonInner3",
+        "client.MixinMinecraft",
+        "client.server.MixinIntegratedServer"
     ],
     "server": [
         "network.packet.MixinC00Handshake"
