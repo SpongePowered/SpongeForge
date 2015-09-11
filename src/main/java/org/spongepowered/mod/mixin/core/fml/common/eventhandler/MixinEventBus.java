@@ -25,12 +25,10 @@
 package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
 import com.google.common.base.Throwables;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
-import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -52,7 +50,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
     public boolean post(Event event) {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
-        if (event instanceof org.spongepowered.api.event.Event && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+        if (event instanceof org.spongepowered.api.event.Event && !SpongeMod.instance.isClientThread()) {
             return ((SpongeModEventManager) SpongeMod.instance.getGame().getEventManager()).post(event, listeners);
         } else {
             listeners = event.getListenerList().getListeners(this.busID);

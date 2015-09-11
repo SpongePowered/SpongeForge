@@ -41,7 +41,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
-import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
@@ -189,8 +188,7 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @Override
     public boolean post(Event event) {
-        // TODO move thread check to Forge
-        if (FMLCommonHandler.instance().getEffectiveSide() != Side.SERVER && !Thread.currentThread().getName().startsWith("User Authenticator")) {
+        if (SpongeMod.instance.isClientThread()) {
             return false;
         }
 

@@ -78,6 +78,9 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
 
     @Override
     public Cause getCause() {
+        if (this.blockOriginal == null) {
+            this.blockOriginal = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
+        }
         return Cause.of(this.blockOriginal);
     }
 
