@@ -189,7 +189,8 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @Override
     public boolean post(Event event) {
-        if (FMLCommonHandler.instance().getEffectiveSide() != Side.SERVER) {
+        // TODO move thread check to Forge
+        if (FMLCommonHandler.instance().getEffectiveSide() != Side.SERVER && !Thread.currentThread().getName().startsWith("User Authenticator")) {
             return false;
         }
 
