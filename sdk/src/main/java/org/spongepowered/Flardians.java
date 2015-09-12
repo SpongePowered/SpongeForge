@@ -11,8 +11,8 @@ import org.spongepowered.api.data.type.Careers;
 import org.spongepowered.api.data.value.mutable.ListValue;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.api.event.Subscribe;
-import org.spongepowered.api.event.entity.EntitySpawnEvent;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -50,14 +50,14 @@ public class Flardians {
     @Inject private Game game;
 
 
-    @Subscribe
-    public void onSpawn(EntitySpawnEvent event) {
-        if (event.getEntity().getType() == EntityTypes.VILLAGER && Math.random() > 0.7) {
-            final Entity entity = event.getEntity();
+    @Listener
+    public void onSpawn(SpawnEntityEvent event) {
+        if (event.getTargetEntity().getType() == EntityTypes.VILLAGER && Math.random() > 0.7) {
+            final Entity entity = event.getTargetEntity();
             entity.offer(Keys.CAREER, Careers.CLERIC);
             entity.offer(Keys.DISPLAY_NAME, FLARDARIAN);
             entity.offer(Keys.SHOWS_DISPLAY_NAME, true);
-            entity.offer(Keys.INVULNERABILITY, 10000D);
+            entity.offer(Keys.INVULNERABILITY, 10000);
             entity.offer(generateTradeOffer());
         }
     }
@@ -66,17 +66,17 @@ public class Flardians {
         final int rand = RANDOM.nextInt(7);
         final int itemRand = RANDOM.nextInt(BUYING_TYPES.size());
 
-        final DisplayNameData itemName = game.getRegistry().getManipulatorRegistry().getBuilder(DisplayNameData.class).get().create();
+        final DisplayNameData itemName = this.game.getRegistry().getManipulatorRegistry().getBuilder(DisplayNameData.class).get().create();
         itemName.set(Keys.DISPLAY_NAME, ITEM_DISPLAY);
 
         // Set up the lore data.
-        final LoreData loreData = game.getRegistry().getManipulatorRegistry().getBuilder(LoreData.class).get().create();
+        final LoreData loreData = this.game.getRegistry().getManipulatorRegistry().getBuilder(LoreData.class).get().create();
         final ListValue<Text> lore = loreData.lore();
         lore.addAll(ImmutableList.of(LORE_FIRST, LORE_SECOND, LORE_THIRD, LORE_FOURTH, LORE_FIFTH, LORE_SIXTH));
         loreData.set(lore);
 
         // Create the selling item
-        final ItemStack selling = game.getRegistry().getItemBuilder()
+        final ItemStack selling = this.game.getRegistry().createItemBuilder()
             .itemType(BUYING_TYPES.get(itemRand))
             .itemData(itemName)
             .itemData(loreData)
@@ -84,14 +84,14 @@ public class Flardians {
             .build();
 
         // Create the buying item
-        final ItemStack buying = game.getRegistry().getItemBuilder()
+        final ItemStack buying = this.game.getRegistry().createItemBuilder()
             .itemType(SELL_TYPES[rand])
             .quantity(1)
             .build();
 
-        final TradeOfferBuilder builder = game.getRegistry().getTradeOfferBuilder();
+        final TradeOfferBuilder builder = this.game.getRegistry().createTradeOfferBuilder();
 
-        final TradeOfferData tradeOfferData = game.getRegistry().getManipulatorRegistry().getBuilder(TradeOfferData.class).get().create();
+        final TradeOfferData tradeOfferData = this.game.getRegistry().getManipulatorRegistry().getBuilder(TradeOfferData.class).get().create();
         tradeOfferData.set(tradeOfferData.tradeOffers().add(builder.firstBuyingItem(buying).maxUses(10000).sellingItem(selling).build()));
         return tradeOfferData;
     }
