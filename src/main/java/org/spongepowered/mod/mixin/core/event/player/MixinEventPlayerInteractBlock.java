@@ -88,11 +88,5 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
         super.syncDataToForge();
         this.pos = VecHelper.toBlockPos(getTargetBlock().getLocation().get().getPosition());
         this.face = SpongeGameRegistry.directionMap.get(getTargetSide());
-        this.action = Action.RIGHT_CLICK_BLOCK;
-        if (this.entityPlayer.isUsingItem()) {
-            this.action = Action.LEFT_CLICK_BLOCK;
-        } else if (this.entityPlayer.worldObj.isAirBlock(pos)) {
-            this.action = Action.RIGHT_CLICK_AIR;
-        }
     }
 }
