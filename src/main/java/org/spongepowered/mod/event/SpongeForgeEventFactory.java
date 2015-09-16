@@ -52,6 +52,7 @@ import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
 import org.spongepowered.api.event.entity.living.TargetLivingEvent;
+import org.spongepowered.api.event.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.TargetWorldEvent;
@@ -131,8 +132,14 @@ public class SpongeForgeEventFactory {
 
             } else if (clazz == net.minecraftforge.event.entity.player.PlayerSleepInBedEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerUseItemEvent.class) {
-
+            } else if (clazz == net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start.class) {
+                return createPlayerUseItemStartEvent(event);
+            } else if (clazz == net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick.class) {
+                return createPlayerUseItemTickEvent(event);
+            } else if (clazz == net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop.class) {
+                return createPlayerUseItemStopEvent(event);
+            } else if (clazz == net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish.class) {
+                return createPlayerUseItemFinishEvent(event);
             } else if (clazz == net.minecraftforge.event.entity.player.PlayerWakeUpEvent.class) {
 
             } else {
@@ -403,7 +410,7 @@ public class SpongeForgeEventFactory {
 
     private static net.minecraftforge.event.entity.player.PlayerInteractEvent createPlayerInteractEvent(Event event) {
         if (!(event instanceof InteractBlockEvent)) {
-            throw new IllegalArgumentException("Event " + event + " is not a valid InteractBlockEvent. Thread = " + Thread.currentThread().getName());
+            throw new IllegalArgumentException("Event " + event + " is not a valid InteractBlockEvent.");
         }
 
         InteractBlockEvent spongeEvent = (InteractBlockEvent) event;
@@ -425,6 +432,71 @@ public class SpongeForgeEventFactory {
         net.minecraftforge.event.entity.player.PlayerInteractEvent forgeEvent =
                 new net.minecraftforge.event.entity.player.PlayerInteractEvent((EntityPlayer) player.get(), action, pos, face,
                         (net.minecraft.world.World) player.get().getWorld());
+        return forgeEvent;
+    }
+
+    public static net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start createPlayerUseItemStartEvent(Event event) {
+        if (!(event instanceof UseItemStackEvent.Start)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid UseItemStackEvent.Start event.");
+        }
+
+        UseItemStackEvent.Start spongeEvent = (UseItemStackEvent.Start) event;
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
+
+        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
+        net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start forgeEvent = new net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
+        return forgeEvent;
+    }
+
+    public static net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick createPlayerUseItemTickEvent(Event event) {
+        if (!(event instanceof UseItemStackEvent.Tick)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid UseItemStackEvent.Tick event.");
+        }
+
+        UseItemStackEvent.Tick spongeEvent = (UseItemStackEvent.Tick) event;
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
+
+        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
+        net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick forgeEvent = new net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
+        return forgeEvent;
+    }
+
+    public static net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop createPlayerUseItemStopEvent(Event event) {
+        if (!(event instanceof UseItemStackEvent.Stop)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid UseItemStackEvent.Stop event.");
+        }
+
+        UseItemStackEvent.Stop spongeEvent = (UseItemStackEvent.Stop) event;
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
+
+        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
+        net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop forgeEvent = new net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
+        return forgeEvent;
+    }
+
+    public static net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish createPlayerUseItemFinishEvent(Event event) {
+        if (!(event instanceof UseItemStackEvent.Finish)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid UseItemStackEvent.Finish event.");
+        }
+
+        UseItemStackEvent.Finish spongeEvent = (UseItemStackEvent.Finish) event;
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
+
+        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
+        net.minecraft.item.ItemStack resultItemStack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackResult().getFinalSnapshot().createStack();
+        net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish forgeEvent = new net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration(), resultItemStack);
         return forgeEvent;
     }
 

@@ -163,6 +163,17 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
     }
 
     @Override
+    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeSyncEvent) {
+        super.syncDataToSponge(forgeSyncEvent);
+
+        HarvestDropsEvent forgeEvent = (HarvestDropsEvent) forgeSyncEvent;
+        getItemStacks().clear();
+        for (net.minecraft.item.ItemStack itemstack : forgeEvent.drops) {
+            getItemStacks().add((ItemStack) itemstack);
+        }
+    }
+
+    @Override
     public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
         super.syncDataToForge(spongeEvent);
 

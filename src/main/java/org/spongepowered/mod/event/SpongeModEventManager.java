@@ -53,6 +53,7 @@ import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
+import org.spongepowered.api.event.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
@@ -100,6 +101,10 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(TargetWorldEvent.class, net.minecraftforge.event.world.WorldEvent.class)
                     .put(LoadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
                     .put(UnloadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
+                    .put(UseItemStackEvent.Start.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start.class)
+                    .put(UseItemStackEvent.Tick.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick.class)
+                    .put(UseItemStackEvent.Stop.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop.class)
+                    .put(UseItemStackEvent.Finish.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish.class)
                     .build();
 
     private final ImmutableMap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus> busMappings =
