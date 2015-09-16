@@ -81,7 +81,10 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
     }
 
     @Override
-    public void syncDataToSponge() {
-        this.itemTransaction.setCustom(((ItemStack) this.item).createSnapshot());
+    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
+        super.syncDataToSponge(forgeEvent);
+
+        net.minecraftforge.event.entity.player.PlayerUseItemEvent event = (net.minecraftforge.event.entity.player.PlayerUseItemEvent) forgeEvent;
+        this.itemTransaction.setCustom(((ItemStack) event.item).createSnapshot());
     }
 }

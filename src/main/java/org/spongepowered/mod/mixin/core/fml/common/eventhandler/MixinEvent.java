@@ -67,8 +67,13 @@ public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEve
     }
 
     @Override
-    public void syncDataToForge() { }
+    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) { }
 
     @Override
-    public void syncDataToSponge() { }
+    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) { }
+
+    @Override
+    public org.spongepowered.api.event.Event createSpongeEvent() {
+        return (org.spongepowered.api.event.Event) this;
+    }
 }

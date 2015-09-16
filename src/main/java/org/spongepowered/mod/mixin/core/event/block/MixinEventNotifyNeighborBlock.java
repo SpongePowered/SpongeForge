@@ -99,11 +99,12 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
     }
 
     @Override
-    public void syncDataToForge() {
-        super.syncDataToForge();
+    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
+        super.syncDataToForge(spongeEvent);
 
+        NotifyNeighborBlockEvent event = (NotifyNeighborBlockEvent) spongeEvent;
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
-        for (Map.Entry<Direction, Location<World>> mapEntry : getRelatives().entrySet()) {
+        for (Map.Entry<Direction, Location<World>> mapEntry : event.getRelatives().entrySet()) {
             facings.add(SpongeGameRegistry.directionMap.get(mapEntry.getKey()));
         }
 

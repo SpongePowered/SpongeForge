@@ -22,14 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.mixin.core.api.event;
 
+import org.spongepowered.api.event.Event;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.interfaces.IMixinEvent;
 
-public interface IMixinEvent {
+@Mixin(org.spongepowered.api.event.impl.AbstractEvent.class)
+public class MixinAbstractEvent implements IMixinEvent {
 
-    void syncDataToForge(org.spongepowered.api.event.Event spongeEvent);
+    @Override
+    public void syncDataToForge(Event spongeEvent) { }
 
-    void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent);
+    @Override
+    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) { }
 
-    org.spongepowered.api.event.Event createSpongeEvent();
+    @Override
+    public Event createSpongeEvent() {
+        return (Event) this;
+    }
+
 }

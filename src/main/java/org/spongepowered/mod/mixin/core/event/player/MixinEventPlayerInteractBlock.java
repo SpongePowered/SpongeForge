@@ -24,13 +24,17 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
+import com.google.common.base.Optional;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.Direction;
@@ -58,10 +62,12 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, net.minecraft.world.World world, CallbackInfo ci) {
-        if (pos != null) { // Forge fires this event on client side and passes a null pos and face
-            this.blockSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-        } else {
-            this.blockSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<World>((World) world, Vector3i.ZERO));
+        if (player instanceof EntityPlayerMP) {
+            if (pos != null) { // Forge fires this event on client side and passes a null pos and face
+                this.blockSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
+            } else {
+                this.blockSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<World>((World) world, Vector3i.ZERO));
+            }
         }
     }
 
@@ -84,9 +90,25 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     }
 
     @Override
-    public void syncDataToForge() {
-        super.syncDataToForge();
-        this.pos = VecHelper.toBlockPos(getTargetBlock().getLocation().get().getPosition());
-        this.face = SpongeGameRegistry.directionMap.get(getTargetSide());
+    public Optional<Vector3d> getInteractionPoint() {
+        return Optional.absent();
+    }
+
+    @Override
+    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
+        super.syncDataToForge(spongeEvent);
+
+        InteractBlockEvent event = (InteractBlockEvent) spongeEvent;
+        this.pos = VecHelper.toBlockPos(event.getTargetBlock().getLocation().get().getPosition());
+        this.face = SpongeGameRegistry.directionMap.get(event.getTargetSide());
+    }
+
+    @Override
+    public org.spongepowered.api.event.Event createSpongeEvent() {
+        if (this.action == Action.LEFT_CLICK_BLOCK) {
+            return SpongeEventFactory.createInteractBlockEventPrimary(getGame(), getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
+        } else {
+            return SpongeEventFactory.createInteractBlockEventSecondary(getGame(), getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
+        }
     }
 }

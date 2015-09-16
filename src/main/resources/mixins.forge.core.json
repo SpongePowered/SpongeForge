@@ -5,6 +5,7 @@
     "refmap": "mixins.forge.refmap.json",
     "priority": 1111,
     "mixins": [
+        "api.event.MixinAbstractEvent",
         "block.data.MixinTileEntity",
         "common.event.MixinSpongeImplEventFactory",
         "common.world.MixinDimensionManager",

@@ -122,15 +122,16 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     public boolean post(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, IEventListener[] listeners) {
         checkNotNull(forgeEvent, "forgeEvent");
-        RegisteredListener.Cache listenerCache = getHandlerCache((Event) forgeEvent);
 
+        Event spongeEvent = ((IMixinEvent) forgeEvent).createSpongeEvent();
+        RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
-            postBeforeModifications((Event) forgeEvent, listenerCache.getListenersByOrder(order));
+            postBeforeModifications(spongeEvent, listenerCache.getListenersByOrder(order));
         }
 
         // sync plugin data for Mods
-        ((IMixinEvent) forgeEvent).syncDataToForge();
+        ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
 
         for (IEventListener listener : listeners) {
             try {
@@ -141,16 +142,21 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
 
         // sync Forge data for Plugins
-        ((IMixinEvent) forgeEvent).syncDataToSponge();
+        ((IMixinEvent)spongeEvent).syncDataToSponge(forgeEvent);
 
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
-            post((Event) forgeEvent, listenerCache.getListenersByOrder(order));
+            post(spongeEvent, listenerCache.getListenersByOrder(order));
         }
 
         // sync plugin data for Forge
-        ((IMixinEvent) forgeEvent).syncDataToForge();
+        ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
 
+        if (spongeEvent instanceof Cancellable) {
+            if (((Cancellable) spongeEvent).isCancelled()) {
+                forgeEvent.setCanceled(true);
+            }
+        }
         return forgeEvent.isCancelable() && forgeEvent.isCanceled();
     }
 

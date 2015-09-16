@@ -85,11 +85,12 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
     }
 
     @Override
-    public void syncDataToForge() {
-        super.syncDataToForge();
-        if (this.blockTransactions != null && this.blockTransactions.size() > 0) {
-            this.pos = VecHelper.toBlockPos(getTransactions().get(0).getFinalReplacement().getPosition());
-            this.state = ((IBlockState) getTransactions().get(0).getFinalReplacement().getState());
+    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
+        super.syncDataToForge(spongeEvent);
+        ChangeBlockEvent event = (ChangeBlockEvent) spongeEvent;
+        if (event.getTransactions() != null && event.getTransactions().size() > 0) {
+            this.pos = VecHelper.toBlockPos(event.getTransactions().get(0).getFinalReplacement().getPosition());
+            this.state = ((IBlockState) event.getTransactions().get(0).getFinalReplacement().getState());
         }
     }
 }

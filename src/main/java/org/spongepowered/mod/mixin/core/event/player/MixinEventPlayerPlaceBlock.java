@@ -64,8 +64,10 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
     }
 
     @Override
-    public void syncDataToForge() {
-        super.syncDataToForge();
-        this.placedBlock = (IBlockState) getTransactions().get(0).getFinalReplacement().getState();
+    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
+        super.syncDataToForge(spongeEvent);
+
+        PlaceBlockEvent event = (PlaceBlockEvent) spongeEvent;
+        this.placedBlock = (IBlockState) event.getTransactions().get(0).getFinalReplacement().getState();
     }
 }

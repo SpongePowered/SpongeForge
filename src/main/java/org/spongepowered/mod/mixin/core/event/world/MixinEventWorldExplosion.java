@@ -159,12 +159,14 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
         @SuppressWarnings({"unchecked"})
         @Override
-        public void syncDataToForge() {
-            super.syncDataToForge();
+        public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
+            super.syncDataToForge(spongeEvent);
+
+            ExplosionEvent.Detonate event = (ExplosionEvent.Detonate) spongeEvent;
             List<BlockPos> affectedBlocks = this.explosion.func_180343_e();
             affectedBlocks.clear();
 
-            for (BlockTransaction blockTransaction : this.blockTransactions) {
+            for (BlockTransaction blockTransaction : event.getTransactions()) {
                 if (blockTransaction.isValid()) {
                     affectedBlocks.add(VecHelper.toBlockPos(blockTransaction.getFinalReplacement().getPosition()));
                 }
@@ -173,9 +175,12 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
         @SuppressWarnings("unchecked")
         @Override
-        public void syncDataToSponge() {
+        public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
+            super.syncDataToSponge(forgeEvent);
+
+            net.minecraftforge.event.world.ExplosionEvent event = (net.minecraftforge.event.world.ExplosionEvent) forgeEvent;
             // TODO - handle this better
-            List<BlockPos> affectedBlocks = this.explosion.func_180343_e();
+            List<BlockPos> affectedBlocks = event.explosion.func_180343_e();
             for (BlockTransaction transaction : this.blockTransactions) {
                 BlockPos pos = VecHelper.toBlockPos(transaction.getFinalReplacement().getPosition());
                 boolean match = false;

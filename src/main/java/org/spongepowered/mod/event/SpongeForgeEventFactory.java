@@ -585,4 +585,17 @@ public class SpongeForgeEventFactory {
                         (ChatComponentTranslation) component);
         return forgeEvent;
     }
+
+
+    // Special handling before Forge event posts
+    @SuppressWarnings("unchecked")
+    public static void onForgePost(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
+        if (forgeEvent instanceof net.minecraftforge.event.world.ExplosionEvent.Detonate) {
+            net.minecraftforge.event.world.ExplosionEvent.Detonate explosionEvent = (net.minecraftforge.event.world.ExplosionEvent.Detonate) forgeEvent;
+            if (!explosionEvent.explosion.isSmoking) { // shouldBreakBlocks
+                List<BlockPos> affectedBlocks = explosionEvent.explosion.func_180343_e();
+                affectedBlocks.clear();
+            }
+        }
+    }
 }

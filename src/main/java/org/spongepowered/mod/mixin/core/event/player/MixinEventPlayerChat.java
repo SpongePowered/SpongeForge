@@ -106,7 +106,10 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     }
 
     @Override
-    public void syncDataToSponge() {
-        this.spongeNewText = SpongeTexts.toText(this.component);
+    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
+        super.syncDataToSponge(forgeEvent);
+
+        net.minecraftforge.event.ServerChatEvent event = (net.minecraftforge.event.ServerChatEvent) forgeEvent;
+        this.spongeNewText = SpongeTexts.toText(event.getComponent());
     }
 }
