@@ -18,6 +18,7 @@
         "event.entity.MixinEventEntityConstructing",
         "event.entity.MixinEventEntityJoinWorld",
         "event.entity.living.MixinEventLiving",
+        "event.entity.living.MixinEventLivingDeath",
         "event.inventory.MixinEventItem",
         "event.player.MixinEventPlayer",
         "event.player.MixinEventPlayerBreakBlock",

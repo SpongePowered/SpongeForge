@@ -28,10 +28,13 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(value = EntityPlayerMP.class, priority = 1001)
 public abstract class MixinEntityPlayerMP extends EntityPlayer {
@@ -39,6 +42,11 @@ public abstract class MixinEntityPlayerMP extends EntityPlayer {
 
     public MixinEntityPlayerMP(World worldIn, GameProfile gameProfileIn) {
         super(worldIn, gameProfileIn);
+    }
+
+    @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/GameRules;getGameRuleBooleanValue(Ljava/lang/String;)Z"))
+    public boolean onGetGameRules(GameRules gameRules, String gameRule) {
+        return false; // suppress death messages since this is handled in SpongeForgeEventFactory onForgePost
     }
 
     public boolean usesCustomClient() {

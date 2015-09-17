@@ -51,6 +51,7 @@ import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.block.PlaceBlockEvent;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
+import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.inventory.UseItemStackEvent;
@@ -85,7 +86,6 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     private final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventMappings =
             new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
-                     //.put(BlockEvent.class, net.minecraftforge.event.world.BlockEvent.class)
                     .put(NotifyNeighborBlockEvent.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
                     .put(TargetChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
                     .put(LoadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
@@ -93,6 +93,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(ConstructEntityEvent.Post.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
                     .put(TargetEntityEvent.class, net.minecraftforge.event.entity.EntityEvent.class)
                     .put(SpawnEntityEvent.class, net.minecraftforge.event.entity.EntityJoinWorldEvent.class)
+                    .put(DestructEntityEvent.Death.class, net.minecraftforge.event.entity.living.LivingDeathEvent.class)
                     .put(BreakBlockEvent.class, net.minecraftforge.event.world.BlockEvent.BreakEvent.class)
                     .put(MessageSinkEvent.class, net.minecraftforge.event.ServerChatEvent.class)
                     .put(HarvestBlockEvent.class, net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent.class)

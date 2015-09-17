@@ -46,8 +46,10 @@ import org.spongepowered.api.event.block.HarvestBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.block.PlaceBlockEvent;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
+import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
@@ -61,6 +63,7 @@ import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
@@ -152,7 +155,7 @@ public class SpongeForgeEventFactory {
             if (clazz == net.minecraftforge.event.entity.living.LivingAttackEvent.class) {
 
             } else if (clazz == net.minecraftforge.event.entity.living.LivingDeathEvent.class) {
-
+                return createLivingDeathEvent(event);
             } else if (clazz == net.minecraftforge.event.entity.living.LivingDropsEvent.class) {
 
             } else if (clazz == net.minecraftforge.event.entity.living.LivingExperienceDropEvent.class) {
@@ -393,6 +396,22 @@ public class SpongeForgeEventFactory {
         TargetLivingEvent spongeEvent = (TargetLivingEvent) event;
         net.minecraftforge.event.entity.living.LivingEvent forgeEvent =
                 new net.minecraftforge.event.entity.living.LivingEvent((EntityLivingBase) spongeEvent.getTargetEntity());
+        return forgeEvent;
+    }
+
+    public static net.minecraftforge.event.entity.living.LivingDeathEvent createLivingDeathEvent(Event event) {
+        if (!(event instanceof DestructEntityEvent.Death)) {
+            throw new IllegalArgumentException("Event is not a valid DestructEntityEvent.Death event.");
+        }
+
+        DestructEntityEvent.Death spongeEvent = (DestructEntityEvent.Death) event;
+        Optional<DamageSource> source = spongeEvent.getCause().first(DamageSource.class);
+        if (!source.isPresent()) {
+            return null;
+        }
+
+        net.minecraftforge.event.entity.living.LivingDeathEvent forgeEvent =
+                new net.minecraftforge.event.entity.living.LivingDeathEvent((EntityLivingBase) spongeEvent.getTargetEntity(), (net.minecraft.util.DamageSource) source.get());
         return forgeEvent;
     }
 
@@ -659,7 +678,7 @@ public class SpongeForgeEventFactory {
     }
 
 
-    // Special handling before Forge event posts
+    // Special handling before Forge events post
     @SuppressWarnings("unchecked")
     public static void onForgePost(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
         if (forgeEvent instanceof net.minecraftforge.event.world.ExplosionEvent.Detonate) {
@@ -668,6 +687,10 @@ public class SpongeForgeEventFactory {
                 List<BlockPos> affectedBlocks = explosionEvent.explosion.func_180343_e();
                 affectedBlocks.clear();
             }
+        } else if (forgeEvent instanceof net.minecraftforge.event.entity.living.LivingDeathEvent) {
+            MessageSinkEvent spongeEvent = (MessageSinkEvent) forgeEvent;
+            Text returned = Texts.format(spongeEvent.getMessage());
+            spongeEvent.getSink().sendMessage(returned);
         }
     }
 }
