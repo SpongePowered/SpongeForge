@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.registry;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.item.ItemType;
@@ -36,13 +38,27 @@ import org.spongepowered.common.registry.SpongeGameRegistry;
 @Mixin(value = GameData.class, remap = false)
 public abstract class MixinGameData {
 
-    @Inject(method = "register", at = @At("HEAD"), remap = false)
+    // Vanilla
+
+    @Inject(method = "register", at = @At("HEAD"))
     public void onRegister(Object material, String id, int idHint, CallbackInfoReturnable<Integer> cir) {
         if (material instanceof net.minecraft.block.Block) {
             SpongeGameRegistry.blockTypeMappings.put(id, (BlockType) material);
         } else if (material instanceof net.minecraft.item.Item) {
             SpongeGameRegistry.itemTypeMappings.put(id, (ItemType) material);
         }
+    }
+
+    // Mods
+
+    @Inject(method = "registerBlock(Lnet/minecraft/block/Block;Ljava/lang/String;I)I", at = @At(value = "HEAD"))
+    private void onRegisterBlock(Block block, String name, int idHint, CallbackInfoReturnable<Integer> cir) {
+        SpongeGameRegistry.blockTypeMappings.put(name, (BlockType) block);
+    }
+
+    @Inject(method = "registerItem(Lnet/minecraft/item/Item;Ljava/lang/String;I)I", at = @At(value = "HEAD"))
+    private void onRegisterItem(Item item, String name, int idHint, CallbackInfoReturnable<Integer> cir) {
+        SpongeGameRegistry.itemTypeMappings.put(name, (ItemType) item);
     }
 
 }

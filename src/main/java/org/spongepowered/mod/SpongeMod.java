@@ -35,7 +35,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.MetadataCollection;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -282,5 +284,18 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     public boolean isClientThread() {
         return (Thread.currentThread().getName().equals("Client thread"));
+    }
+
+    public String getModIdFromBlock(String name) {
+        String prefix;
+        ModContainer mc = Loader.instance().activeModContainer();
+
+        if (mc != null) {
+            prefix = mc.getModId();
+        } else {
+            prefix = "minecraft";
+        }
+
+        return prefix;
     }
 }
