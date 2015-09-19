@@ -41,6 +41,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
@@ -55,6 +56,7 @@ import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.inventory.UseItemStackEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
@@ -106,6 +108,8 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(UseItemStackEvent.Tick.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick.class)
                     .put(UseItemStackEvent.Stop.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop.class)
                     .put(UseItemStackEvent.Finish.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish.class)
+                    .put(ClientConnectionEvent.Join.class, PlayerEvent.PlayerLoggedInEvent.class)
+                    .put(ClientConnectionEvent.Disconnect.class, PlayerEvent.PlayerLoggedOutEvent.class)
                     .build();
 
     private final ImmutableMap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus> busMappings =
