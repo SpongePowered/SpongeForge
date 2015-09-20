@@ -28,7 +28,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
@@ -49,7 +48,6 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
     private MessageSink originalSink;
     private Text originalMessage;
     private Text message;
-    private net.minecraft.entity.EntityLivingBase entityLiving;
 
     @Shadow public DamageSource source;
 
@@ -66,7 +64,6 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
 
         this.originalMessage = SpongeTexts.toText(entity.getCombatTracker().getDeathMessage());
         this.message = SpongeTexts.toText(entity.getCombatTracker().getDeathMessage());
-        this.entityLiving = entity;
     }
 
     @Override
@@ -97,11 +94,6 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
     @Override
     public void setMessage(Text message) {
         this.message = message;
-    }
-
-    @Override
-    public Living getTargetEntity() {
-        return (Living) this.entityLiving;
     }
 
     @Override
