@@ -58,13 +58,9 @@ public abstract class MixinEventPlayerPlaceMultiBlock extends MixinEventPlayerPl
             CallbackInfo ci) {
         ImmutableList.Builder<BlockTransaction> builder = new ImmutableList.Builder<BlockTransaction>();
         for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : blockSnapshots) {
-            Location<World> location = new Location<World>((World) this.world, VecHelper.toVector(this.pos));
             BlockSnapshot spongeOriginalBlockSnapshot = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
-            final SpongeBlockSnapshotBuilder replacementBuilder = new SpongeBlockSnapshotBuilder()
-                .blockState(BlockTypes.AIR.getDefaultState())
-                .position(location.getBlockPosition())
-                .worldId(location.getExtent().getUniqueId());
-            BlockSnapshot replacementSnapshot = replacementBuilder.build();
+            BlockSnapshot replacementSnapshot = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(blockSnapshot.world, blockSnapshot.pos))
+                .createSpongeBlockSnapshot();
             builder.add(new BlockTransaction(spongeOriginalBlockSnapshot, replacementSnapshot));
         }
         this.blockTransactions = builder.build();
