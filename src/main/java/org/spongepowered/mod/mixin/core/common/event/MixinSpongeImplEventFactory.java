@@ -53,7 +53,7 @@ public abstract class MixinSpongeImplEventFactory {
     @Overwrite
     public static ClientConnectionEvent.Join createClientConnectionEventJoin(Game game, Cause cause, Text originalMessage, Text message, MessageSink originalSink, MessageSink sink, Transform<World> fromTransform, Transform<World> toTransform, Player targetEntity) {
         final ClientConnectionEvent.Join event = (ClientConnectionEvent.Join) new PlayerEvent.PlayerLoggedInEvent((EntityPlayer) targetEntity);
-        event.getTargetEntity().setLocation(toTransform.getLocation());
+        event.setToTransform(toTransform);
         event.setSink(sink);
         event.setMessage(message);
         return event;
@@ -63,7 +63,7 @@ public abstract class MixinSpongeImplEventFactory {
     public static RespawnPlayerEvent createRespawnPlayerEvent(Game game, Cause cause, Transform<World> fromTransform, Transform<World> toTransform, Player targetEntity, boolean bedSpawn) {
         final RespawnPlayerEvent event = (RespawnPlayerEvent) new PlayerEvent.PlayerRespawnEvent((EntityPlayer) targetEntity);
         ((IMixinPlayerRespawnEvent) event).setIsBedSpawn(bedSpawn);
-        ((IMixinPlayerRespawnEvent) event).setToTransform(toTransform);
+        event.setToTransform(toTransform);
         return event;
     }
 

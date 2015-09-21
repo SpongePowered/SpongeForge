@@ -64,7 +64,12 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
     @Override
     public Cause getCause() {
-        return Cause.of(this.world);
+        if (this.explosion.exploder != null) {
+            return Cause.of(this.explosion.exploder);
+        } else {
+            net.minecraft.block.state.IBlockState state = world.getBlockState(new BlockPos(this.explosion.getPosition()));
+            return Cause.of(state.getBlock());
+        }
     }
 
     @Mixin(value = net.minecraftforge.event.world.ExplosionEvent.Start.class, remap = false)

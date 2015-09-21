@@ -30,7 +30,6 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -40,7 +39,6 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
 
     private Text message;
     private Text originalMessage;
-    private Location<World> location;
     private MessageSink sink;
 
     @Override
@@ -70,6 +68,11 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
     @Override
     public void setSink(MessageSink sink) {
         this.sink = sink;
+    }
+
+    @Override
+    public void setToTransform(Transform<World> toTransform) {
+        this.toTransform = toTransform;
     }
 
     @Override
