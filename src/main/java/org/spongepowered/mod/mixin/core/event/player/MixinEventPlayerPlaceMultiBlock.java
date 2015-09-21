@@ -28,15 +28,21 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.world.BlockEvent;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTransaction;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.event.block.PlaceBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
+import org.spongepowered.common.block.SpongeBlockSnapshotBuilder;
+import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
 
 import java.util.List;
@@ -52,12 +58,14 @@ public abstract class MixinEventPlayerPlaceMultiBlock extends MixinEventPlayerPl
             CallbackInfo ci) {
         ImmutableList.Builder<BlockTransaction> builder = new ImmutableList.Builder<BlockTransaction>();
         for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : blockSnapshots) {
-            SpongeBlockSnapshot spongeOriginalBlockSnapshot = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
-            SpongeBlockSnapshot spongeReplacementBlockSnapshot =
-                    ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(blockSnapshot.world, blockSnapshot.pos))
-                            .createSpongeBlockSnapshot();
-
-            builder.add(new BlockTransaction(spongeOriginalBlockSnapshot, spongeReplacementBlockSnapshot));
+            Location<World> location = new Location<World>((World) this.world, VecHelper.toVector(this.pos));
+            BlockSnapshot spongeOriginalBlockSnapshot = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
+            final SpongeBlockSnapshotBuilder replacementBuilder = new SpongeBlockSnapshotBuilder()
+                .blockState(BlockTypes.AIR.getDefaultState())
+                .position(location.getBlockPosition())
+                .worldId(location.getExtent().getUniqueId());
+            BlockSnapshot replacementSnapshot = replacementBuilder.build();
+            builder.add(new BlockTransaction(spongeOriginalBlockSnapshot, replacementSnapshot));
         }
         this.blockTransactions = builder.build();
     }

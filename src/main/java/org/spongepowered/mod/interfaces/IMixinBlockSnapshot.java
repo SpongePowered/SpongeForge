@@ -24,9 +24,10 @@
  */
 package org.spongepowered.mod.interfaces;
 
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
 
 public interface IMixinBlockSnapshot {
 
-    SpongeBlockSnapshot createSpongeBlockSnapshot();
+    BlockSnapshot createSpongeBlockSnapshot();
 }

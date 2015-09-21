@@ -44,6 +44,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
+import org.spongepowered.common.block.SpongeBlockSnapshotBuilder;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
@@ -67,7 +68,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         if (this.explosion.exploder != null) {
             return Cause.of(this.explosion.exploder);
         } else {
-            net.minecraft.block.state.IBlockState state = world.getBlockState(new BlockPos(this.explosion.getPosition()));
+            net.minecraft.block.state.IBlockState state = this.world.getBlockState(new BlockPos(this.explosion.getPosition()));
             return Cause.of(state.getBlock());
         }
     }
@@ -95,10 +96,13 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
             List<BlockPos> affectedPositions = this.explosion.func_180343_e();
             ImmutableList.Builder<BlockTransaction> builder = new ImmutableList.Builder<BlockTransaction>();
             for (BlockPos pos : affectedPositions) {
-                Location<World> location = new Location<World>((World) world, VecHelper.toVector(pos));
-                BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(world, pos)).createSpongeBlockSnapshot();
-                BlockSnapshot replacementSnapshot =
-                        new SpongeBlockSnapshot(BlockTypes.AIR.getDefaultState(), location, ImmutableList.<ImmutableDataManipulator<?, ?>>of());
+                Location<World> location = new Location<World>((World) this.world, VecHelper.toVector(pos));
+                BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(this.world, pos)).createSpongeBlockSnapshot();
+                final SpongeBlockSnapshotBuilder replacementBuilder = new SpongeBlockSnapshotBuilder()
+                    .blockState(BlockTypes.AIR.getDefaultState())
+                    .position(location.getBlockPosition())
+                    .worldId(location.getExtent().getUniqueId());
+                BlockSnapshot replacementSnapshot = replacementBuilder.build();
                 builder.add(new BlockTransaction(originalSnapshot, replacementSnapshot)).build();
             }
             this.blockTransactions = builder.build();
