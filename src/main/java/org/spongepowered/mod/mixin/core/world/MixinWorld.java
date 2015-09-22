@@ -24,12 +24,22 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.common.util.BlockSnapshot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import java.util.ArrayList;
 
 @Mixin(value = net.minecraft.world.World.class, priority = 1001)
 public abstract class MixinWorld implements org.spongepowered.api.world.World {
@@ -37,12 +47,36 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World {
     @Shadow public WorldInfo worldInfo;
     private long weatherStartTime;
 
+    private Block tempBlock;
+    private BlockSnapshot tempSnapshot;
+
     @Inject(method = "updateWeatherBody()V", remap = false, at = {
             @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setThundering(Z)V"),
             @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setRaining(Z)V")
     })
     private void onUpdateWeatherBody(CallbackInfo ci) {
         this.weatherStartTime = this.worldInfo.getWorldTotalTime();
+    }
+
+    @Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Ljava/util/ArrayList;add(Ljava/lang/Object;)Z", remap = false, ordinal = 0),
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+    public void onSetBlockState(BlockPos pos, IBlockState newState, int flags, CallbackInfoReturnable<Boolean> cir, Chunk chunk, Block block, BlockSnapshot blockSnapshot) {
+        this.tempBlock = block;
+        this.tempSnapshot = blockSnapshot;
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Redirect(method = "setBlockState",
+            at = @At(value = "INVOKE", target = "Ljava/util/ArrayList;add(Ljava/lang/Object;)Z"))
+    public boolean onAddSnapshot(ArrayList list, Object snapshot) {
+        // Only capture if existing block was replaced by different block type
+        if (tempSnapshot.getReplacedBlock().getBlock() != tempBlock) {
+            return list.add(snapshot);
+        } else {
+            // ignore block state changes for replaced blocks
+            tempSnapshot = null;
+        }
+        return false;
     }
 
     @Override
