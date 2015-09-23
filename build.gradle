@@ -1,21 +1,14 @@
-import org.apache.tools.ant.filters.*
-
 buildscript {
     repositories {
-        mavenCentral()
         jcenter()
         maven {
             name = 'forge'
             url = 'http://files.minecraftforge.net/maven'
         }
-        maven {
-            name = 'sonatype-snapshots'
-            url = 'https://oss.sonatype.org/content/repositories/snapshots'
-        }
     }
 
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-SNAPSHOT'
         classpath('nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0') {
             exclude module: 'guava'
         }
@@ -23,13 +16,17 @@ buildscript {
     }
 }
 
-apply plugin: 'forge'
+apply plugin: 'net.minecraftforge.gradle.forge'
 
 ext {
-    minecraftPlugin = plugins.getPlugin('forge')
+    minecraftPlugin = plugins.getPlugin('net.minecraftforge.gradle.forge')
+    forgeBuild = '1515'
+    DIR_MCP_MAPPINGS = net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS
+}
 
-    forgeBuild = '1499'
-    forgeVersion = "11.14.3.$forgeBuild"
+minecraft {
+    forgeVersion = project.forgeBuild
+    coreMod = 'org.spongepowered.mod.SpongeCoremod'
 }
 
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
@@ -41,7 +38,7 @@ dependencies {
 
 compileJava {
     options.compilerArgs += [
-            "-Atokens=FORGE=${forgeBuild};FML=${forgeBuild}"
+            "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild"
     ]
 }
 
@@ -51,11 +48,11 @@ jar {
     manifest {
         attributes(
                 'Main-Class': 'org.spongepowered.launch.Main',
-                'TargetForgeBuild': "${forgeBuild}",
-                'TargetForgeVersion': "${forgeVersion}",
+                'TargetForgeBuild': forgeBuild,
+                'TargetForgeVersion': minecraft.forgeVersion,
                 'FMLCorePlugin': 'org.spongepowered.mod.SpongeCoremod',
                 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder': '0'
+                'TweakOrder': 0
         )
     }
 }
@@ -63,7 +60,7 @@ jar {
 processResources {
     from('src/main/resources') {
         include 'mcmod.info'
-        filter(ReplaceTokens, tokens: [
+        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
             'VERSION' : project.version.toString(),
             'URL': project.url.toString(),
             'MCVERSION': minecraft.version.toString()
@@ -79,7 +76,7 @@ shadowJar {
         include(dependency('org.apache.ivy:ivy'))
     }
     
-    // Exlcude a bunch of stuff we don't need from Ivy, so the end jar is smaller
+    // Exclude a bunch of stuff we don't need from Ivy, so the end jar is smaller
     exclude 'fr/**'
     exclude 'org/apache/ivy/ant/**'
     exclude 'org/apache/ivy/logo.png'
