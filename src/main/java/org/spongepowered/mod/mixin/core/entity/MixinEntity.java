@@ -38,25 +38,28 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
+import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.world.DimensionManager;
 
 
 @NonnullByDefault
 @Mixin(value = net.minecraft.entity.Entity.class, priority = 1001, remap = false)
-public abstract class MixinEntity {
+public abstract class MixinEntity implements IMixinEntity {
 
     // @formatter:off
     @Shadow(remap = false)
     public abstract NBTTagCompound getEntityData();
     // @formatter:on
 
+    @Override
     public final NBTTagCompound getSpongeData() {
         final NBTTagCompound data = this.getEntityData();
-        if (!data.hasKey("SpongeData", Constants.NBT.TAG_COMPOUND)) {
-            data.setTag("SpongeData", new NBTTagCompound());
+        if (!data.hasKey(NbtDataUtil.SPONGE_TAG, Constants.NBT.TAG_COMPOUND)) {
+            data.setTag(NbtDataUtil.SPONGE_TAG, new NBTTagCompound());
         }
-        return data.getCompoundTag("SpongeData");
+        return data.getCompoundTag(NbtDataUtil.SPONGE_TAG);
     }
 
     @SuppressWarnings("unchecked")

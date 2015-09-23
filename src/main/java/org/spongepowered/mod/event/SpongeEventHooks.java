@@ -34,7 +34,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.gen.Populator;
-import org.spongepowered.common.interfaces.IMixinEntity;
+import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.interfaces.IMixinWorld;
 import org.spongepowered.common.util.SpongeHooks;
 

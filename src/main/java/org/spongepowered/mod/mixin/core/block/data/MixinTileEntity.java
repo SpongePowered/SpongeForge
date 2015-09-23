@@ -30,6 +30,7 @@ import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.interfaces.block.tile.IMixinTileEntity;
 
 @NonnullByDefault
@@ -52,9 +53,9 @@ public abstract class MixinTileEntity implements TileEntity, IMixinTileEntity {
     @Override
     public final NBTTagCompound getSpongeData() {
         NBTTagCompound data = this.getTileData();
-        if (!data.hasKey("SpongeData", Constants.NBT.TAG_COMPOUND)) {
-            data.setTag("SpongeData", new NBTTagCompound());
+        if (!data.hasKey(NbtDataUtil.SPONGE_TAG, Constants.NBT.TAG_COMPOUND)) {
+            data.setTag(NbtDataUtil.SPONGE_TAG, new NBTTagCompound());
         }
-        return data.getCompoundTag("SpongeData");
+        return data.getCompoundTag(NbtDataUtil.SPONGE_TAG);
     }
 }
