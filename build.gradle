@@ -60,11 +60,14 @@ jar {
 processResources {
     from('src/main/resources') {
         include 'mcmod.info'
-        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
-            'VERSION' : project.version.toString(),
-            'URL': project.url.toString(),
-            'MCVERSION': minecraft.version.toString()
-        ])
+        include '**/ivy.xml'
+
+        expand(
+                version: project.version,
+                url: project.url,
+                minecraftVersion: minecraft.version,
+                forgeVersion: minecraft.forgeVersion
+        )
     }
 }
 
