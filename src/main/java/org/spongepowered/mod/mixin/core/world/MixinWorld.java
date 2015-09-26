@@ -67,7 +67,7 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Redirect(method = "setBlockState",
-            at = @At(value = "INVOKE", target = "Ljava/util/ArrayList;add(Ljava/lang/Object;)Z"))
+            at = @At(value = "INVOKE", target = "Ljava/util/ArrayList;add(Ljava/lang/Object;)Z", remap = false))
     public boolean onAddSnapshot(ArrayList list, Object snapshot) {
         // Only capture if existing block was replaced by different block type
         if (tempSnapshot.getReplacedBlock().getBlock() != tempBlock) {
