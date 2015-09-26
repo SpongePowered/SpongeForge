@@ -76,9 +76,6 @@ public abstract class MixinNetHandlerPlayServer {
             cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     public void injectChatEvent(C01PacketChatMessage packetIn, CallbackInfo ci, String s, ChatComponentTranslation component) {
         final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
-        // TODO
-        // final Text playerName = SpongeTexts.toText((IChatComponent) component.getFormatArgs()[0]);
-        //((MessageSinkEvent) event).setUnformattedMessage(SpongeTexts.toText((IChatComponent) component.getFormatArgs()[1]));
 
         if (!MinecraftForge.EVENT_BUS.post(event)) {
             MessageSinkEvent spongeEvent = (MessageSinkEvent) event;

@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
-public abstract class MixinEventPlayerChat extends MixinEvent implements MessageSinkEvent {
+public abstract class MixinEventPlayerChat extends MixinEvent implements MessageSinkEvent.Chat {
 
     private Text spongeText;
     private Text unformattedText;

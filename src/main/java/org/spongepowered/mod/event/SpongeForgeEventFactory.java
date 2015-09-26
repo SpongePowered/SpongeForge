@@ -655,11 +655,11 @@ public class SpongeForgeEventFactory {
 
     // Server events
     private static net.minecraftforge.event.ServerChatEvent createServerChatEvent(Event event) {
-        if (!(event instanceof MessageSinkEvent)) {
+        if (!(event instanceof MessageSinkEvent.Chat)) {
             throw new IllegalArgumentException("Event is not a valid MessageSinkEvent.");
         }
 
-        MessageSinkEvent spongeEvent = (MessageSinkEvent) event;
+        MessageSinkEvent.Chat spongeEvent = (MessageSinkEvent.Chat) event;
         Optional<Player> player = spongeEvent.getCause().first(Player.class);
         if (!player.isPresent()) {
             return null;
