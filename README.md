@@ -67,7 +67,7 @@ __Client__
 |:-----------------:|:------------------------------------------|
 |    Main class     | GradleStart                               |
 |    VM options     | -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
-| Working directory | ./run/client (Included in project)        |
+| Working directory | ./run (Included in project)               |
 | Module classpath  | Sponge (IntelliJ Only)                    |
 
 __Server__
@@ -76,7 +76,7 @@ __Server__
 |:-----------------:|:-----------------------------------|
 |    Main class     | GradleStartServer                  |
 |    VM Options     | -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
-| Working directory | ./run/server (Included in project) |
+| Working directory | ./run                              |
 | Module classpath  | Sponge (IntelliJ Only)             |
 
 
