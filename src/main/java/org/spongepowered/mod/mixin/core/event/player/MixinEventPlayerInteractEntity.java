@@ -26,20 +26,33 @@ package org.spongepowered.mod.mixin.core.event.player;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Optional;
+import net.minecraft.entity.Entity;
+import net.minecraftforge.event.entity.EntityEvent;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.player.EntityInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteractEntity extends MixinEventPlayer implements InteractEntityEvent {
+public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity implements InteractEntityEvent.Secondary {
 
-    @Shadow public net.minecraft.entity.Entity target;
+    @Shadow Entity target;
+
+    @Override
+    public Cause getCause() {
+        return Cause.of(((EntityEvent) (Object) this).entity);
+    }
+
+    @Override
+    public org.spongepowered.api.entity.Entity getTargetEntity() {
+        return (org.spongepowered.api.entity.Entity) this.target;
+    }
 
     @Override
     public Optional<Vector3d> getInteractionPoint() {
         return Optional.absent();
     }
-
 }

@@ -26,6 +26,7 @@ package org.spongepowered.mod.event;
 
 import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -50,6 +51,7 @@ import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
@@ -114,7 +116,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == net.minecraftforge.event.entity.player.BonemealEvent.class) {
 
             } else if (clazz == net.minecraftforge.event.entity.player.EntityInteractEvent.class) {
-
+                return createEntityInteractEvent(event);
             } else if (clazz == net.minecraftforge.event.entity.player.EntityItemPickupEvent.class) {
 
             } else if (clazz == net.minecraftforge.event.entity.player.FillBucketEvent.class) {
@@ -426,6 +428,25 @@ public class SpongeForgeEventFactory {
                 new net.minecraftforge.event.entity.player.PlayerEvent((EntityPlayer) spongeEvent.getTargetEntity());
         return forgeEvent;
     }*/
+
+    private static net.minecraftforge.event.entity.player.EntityInteractEvent createEntityInteractEvent(Event event) {
+        if (!(event instanceof InteractEntityEvent.Secondary)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid InteractEntityEvent.");
+        }
+
+        InteractEntityEvent.Secondary spongeEvent = (InteractEntityEvent.Secondary) event;
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
+
+        final EntityPlayer entityPlayer = (EntityPlayer) player.get();
+        final Entity entity = (Entity) spongeEvent.getTargetEntity();
+
+        net.minecraftforge.event.entity.player.EntityInteractEvent forgeEvent = new net.minecraftforge.event.entity.player.EntityInteractEvent
+                (entityPlayer, entity);
+        return forgeEvent;
+    }
 
     private static net.minecraftforge.event.entity.player.PlayerInteractEvent createPlayerInteractEvent(Event event) {
         if (!(event instanceof InteractBlockEvent)) {

@@ -53,6 +53,7 @@ import org.spongepowered.api.event.block.PlaceBlockEvent;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.inventory.UseItemStackEvent;
@@ -100,6 +101,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(MessageSinkEvent.class, net.minecraftforge.event.ServerChatEvent.class)
                     .put(HarvestBlockEvent.class, net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent.class)
                     .put(InteractBlockEvent.class, net.minecraftforge.event.entity.player.PlayerInteractEvent.class)
+                    .put(InteractEntityEvent.Secondary.class, net.minecraftforge.event.entity.player.EntityInteractEvent.class)
                     .put(PlaceBlockEvent.class, net.minecraftforge.event.world.BlockEvent.PlaceEvent.class)
                     .put(TargetWorldEvent.class, net.minecraftforge.event.world.WorldEvent.class)
                     .put(LoadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
