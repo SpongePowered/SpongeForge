@@ -40,10 +40,12 @@ import org.spongepowered.api.block.trait.EnumTrait;
 import org.spongepowered.api.block.trait.EnumTraits;
 import org.spongepowered.api.block.trait.IntegerTrait;
 import org.spongepowered.api.block.trait.IntegerTraits;
+import org.spongepowered.api.data.property.block.MatterProperty;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.common.data.property.SpongePropertyRegistry;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.SpongeGameRegistry;
@@ -62,6 +64,17 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
     @Override
     public GameDictionary getGameDictionary() {
         return SpongeGameDictionary.instance;
+    }
+
+    @Override
+    public void preInit() {
+        super.preInit();
+        setupForgeProperties();
+    }
+
+    private void setupForgeProperties() {
+        final SpongePropertyRegistry registry = SpongePropertyRegistry.getInstance();
+        // registry.register(MatterProperty.class, ForgeMatterProperty);
     }
 
     @Override
