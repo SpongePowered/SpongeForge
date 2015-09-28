@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
 import com.google.common.base.Throwables;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
@@ -51,7 +52,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
     public boolean post(Event event) {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
-        if (event instanceof org.spongepowered.api.event.Event && !SpongeMod.instance.isClientThread()) {
+        if (event instanceof org.spongepowered.api.event.Event && !FMLCommonHandler.instance().getEffectiveSide().isClient()) {
             boolean cancelled = ((SpongeModEventManager) SpongeMod.instance.getGame().getEventManager()).post(event, listeners);
             if (!cancelled) {
                 SpongeForgeEventFactory.onForgePost(event);

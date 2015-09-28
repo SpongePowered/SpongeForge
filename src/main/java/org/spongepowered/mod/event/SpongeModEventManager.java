@@ -206,7 +206,7 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @Override
     public boolean post(Event event) {
-        if (SpongeMod.instance.isClientThread()) {
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
             return false;
         }
 

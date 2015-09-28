@@ -282,10 +282,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         }
     }
 
-    public boolean isClientThread() {
-        return (Thread.currentThread().getName().equals("Client thread"));
-    }
-
     public String getModIdFromBlock(String name) {
         String prefix;
         ModContainer mc = Loader.instance().activeModContainer();

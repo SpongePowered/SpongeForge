@@ -102,7 +102,8 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
 
             @Override
             public ItemType apply(String fieldName) {
-                return getItem(fieldName.toLowerCase()).get();
+                ItemType item = getItem(fieldName.toLowerCase()).get();
+                return item;
             }
         });
     }
