@@ -59,7 +59,9 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EnumSet<EnumFacing> notifiedSides, CallbackInfo ci) {
-        createSpongeEventData();
+        if (!world.isRemote) {
+            createSpongeEventData();
+        }
     }
 
     @Override
