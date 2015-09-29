@@ -42,6 +42,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.text.Text;
@@ -56,6 +57,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.common.util.VecHelper;
 
 @Mixin(NetHandlerPlayServer.class)
 public abstract class MixinNetHandlerPlayServer {
@@ -99,10 +101,19 @@ public abstract class MixinNetHandlerPlayServer {
             + "Lnet/minecraft/util/EnumFacing;)"
             + "Lnet/minecraftforge/event/entity/player/PlayerInteractEvent;", remap = false))
     public PlayerInteractEvent onFirePlayerInteractEvent(EntityPlayer player, PlayerInteractEvent.Action action, net.minecraft.world.World world,
-        BlockPos pos,
-        EnumFacing face) {
+        BlockPos pos, EnumFacing face) {
 
-        PlayerInteractEvent event = new PlayerInteractEvent(player, action, pos, face, world);
+        BlockPos correctPos = pos;
+
+        // The following is to fix Vanilla silly-ness where right-clicking air has a position at 0, 0, 0 for the block
+        if (action == PlayerInteractEvent.Action.RIGHT_CLICK_AIR) {
+            // TODO Not the most efficient and someday I'll make it better but this works.
+            correctPos = VecHelper.toBlockPos(BlockRay.<World>from((Entity) playerEntity).filter(BlockRay.<World>maxDistanceFilter(((Entity) player)
+                    .getLocation()
+                    .getPosition(), 2))
+                    .iterator().next().getBlockPosition());
+        }
+        PlayerInteractEvent event = new PlayerInteractEvent(player, action, correctPos, face, world);
         double reach = this.playerEntity.theItemInWorldManager.getGameType() == WorldSettings.GameType.CREATIVE ? 5 : 4.5;
         Optional<BlockRayHit<World>> attempt =
             BlockRay.from((Player)this.playerEntity)
