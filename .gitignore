@@ -74,3 +74,4 @@ nb-configuration.xml
 *.ipr
 *.iws
 /.apt_generated/
+*.launch
