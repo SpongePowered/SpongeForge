@@ -27,6 +27,8 @@ package org.spongepowered.mod.mixin.core.event.player;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
+import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.command.MessageSinkEvent;
@@ -44,7 +46,7 @@ import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 import javax.annotation.Nullable;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.ServerChatEvent.class, remap = false)
+@Mixin(value = ServerChatEvent.class, remap = false)
 public abstract class MixinEventPlayerChat extends MixinEvent implements MessageSinkEvent.Chat {
 
     private Text spongeText;
@@ -106,10 +108,10 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     }
 
     @Override
-    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
+    public void syncDataToSponge(Event forgeEvent) {
         super.syncDataToSponge(forgeEvent);
 
-        net.minecraftforge.event.ServerChatEvent event = (net.minecraftforge.event.ServerChatEvent) forgeEvent;
+        ServerChatEvent event = (ServerChatEvent) forgeEvent;
         this.spongeNewText = SpongeTexts.toText(event.getComponent());
     }
 }

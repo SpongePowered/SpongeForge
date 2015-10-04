@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.plugin;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -55,7 +55,7 @@ public class SpongePluginManager implements PluginManager {
                     }
                 }
             }
-            return Optional.fromNullable((PluginContainer) container);
+            return Optional.ofNullable((PluginContainer) container);
         }
     }
 
@@ -78,7 +78,7 @@ public class SpongePluginManager implements PluginManager {
         } else if (instance instanceof ModContainer) { // For coremods that don't get to be mixed in
             return getPlugin(((ModContainer) instance).getModId());
         }
-        return Optional.fromNullable((PluginContainer) Loader.instance().getReversedModObjectList().get(instance));
+        return Optional.ofNullable((PluginContainer) Loader.instance().getReversedModObjectList().get(instance));
     }
 
     @Override

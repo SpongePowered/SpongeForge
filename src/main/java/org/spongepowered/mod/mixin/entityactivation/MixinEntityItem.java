@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.entityactivation;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -38,7 +39,7 @@ import org.spongepowered.common.interfaces.IMixinWorld;
 public abstract class MixinEntityItem extends Entity implements Item {
 
     @Shadow
-    public abstract net.minecraft.item.ItemStack getEntityItem();
+    public abstract ItemStack getEntityItem();
 
     @Shadow
     private int delayBeforeCanPickup;

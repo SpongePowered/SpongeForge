@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,7 +33,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.mixin.core.event.entity.living.MixinEventLiving;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.entity.player.PlayerEvent.class, remap = false)
+@Mixin(value = PlayerEvent.class, remap = false)
 public abstract class MixinEventPlayer extends MixinEventLiving {
 
     @Shadow public EntityPlayer entityPlayer;

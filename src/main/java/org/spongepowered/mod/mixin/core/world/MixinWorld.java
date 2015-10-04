@@ -30,6 +30,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.util.BlockSnapshot;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,7 +43,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.ArrayList;
 
 @Mixin(value = net.minecraft.world.World.class, priority = 1001)
-public abstract class MixinWorld implements org.spongepowered.api.world.World {
+public abstract class MixinWorld implements World {
 
     @Shadow public WorldInfo worldInfo;
     private long weatherStartTime;

@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.event;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -35,9 +35,54 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.world.Explosion;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityMountEvent;
+import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
+import net.minecraftforge.event.entity.item.ItemEvent;
+import net.minecraftforge.event.entity.item.ItemExpireEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.living.LivingHealEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingPackSizeEvent;
+import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.player.AchievementEvent;
+import net.minecraftforge.event.entity.player.AnvilRepairEvent;
+import net.minecraftforge.event.entity.player.ArrowLooseEvent;
+import net.minecraftforge.event.entity.player.ArrowNockEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.BonemealEvent;
+import net.minecraftforge.event.entity.player.EntityInteractEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.FillBucketEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+import net.minecraftforge.event.entity.player.PlayerDropsEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerFlyableFallEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
+import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
+import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
+import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
+import net.minecraftforge.event.world.ChunkDataEvent;
+import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.ChunkWatchEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
@@ -85,16 +130,16 @@ public class SpongeForgeEventFactory {
             Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
 
         // Block events
-        if (net.minecraftforge.event.world.BlockEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class) {
+        if (BlockEvent.class.isAssignableFrom(clazz)) {
+            if (clazz == BlockEvent.NeighborNotifyEvent.class) {
                 return createBlockNeighborNotifyEvent(event);
             }
-            else if (clazz == net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent.class) {
+            else if (clazz == BlockEvent.HarvestDropsEvent.class) {
                 return createBlockHarvestEvent(event);
-            } else if (clazz == net.minecraftforge.event.world.BlockEvent.BreakEvent.class) {
+            } else if (clazz == BlockEvent.BreakEvent.class) {
                 return createBlockBreakEvent(event);
-            } else if (clazz == net.minecraftforge.event.world.BlockEvent.MultiPlaceEvent.class ||
-                    clazz == net.minecraftforge.event.world.BlockEvent.PlaceEvent.class) {
+            } else if (clazz == BlockEvent.MultiPlaceEvent.class ||
+                    clazz == BlockEvent.PlaceEvent.class) {
                 return createBlockPlaceEvent(event);
             } else {
                 return createBlockEvent(event);
@@ -102,50 +147,50 @@ public class SpongeForgeEventFactory {
         }
 
         // Player events
-        else if (net.minecraftforge.event.entity.player.PlayerEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == net.minecraftforge.event.entity.player.AchievementEvent.class) {
+        else if (PlayerEvent.class.isAssignableFrom(clazz)) {
+            if (clazz == AchievementEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.AnvilRepairEvent.class) {
+            } else if (clazz == AnvilRepairEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.ArrowLooseEvent.class) {
+            } else if (clazz == ArrowLooseEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.ArrowNockEvent.class) {
+            } else if (clazz == ArrowNockEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.AttackEntityEvent.class) {
+            } else if (clazz == AttackEntityEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.BonemealEvent.class) {
+            } else if (clazz == BonemealEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.EntityInteractEvent.class) {
+            } else if (clazz == EntityInteractEvent.class) {
                 return createEntityInteractEvent(event);
-            } else if (clazz == net.minecraftforge.event.entity.player.EntityItemPickupEvent.class) {
+            } else if (clazz == EntityItemPickupEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.FillBucketEvent.class) {
+            } else if (clazz == FillBucketEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.ItemTooltipEvent.class) {
+            } else if (clazz == ItemTooltipEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerDropsEvent.class) {
+            } else if (clazz == PlayerDropsEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerDestroyItemEvent.class) {
+            } else if (clazz == PlayerDestroyItemEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerFlyableFallEvent.class) {
+            } else if (clazz == PlayerFlyableFallEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerInteractEvent.class) {
+            } else if (clazz == PlayerInteractEvent.class) {
                 return createPlayerInteractEvent(event);
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerOpenContainerEvent.class) {
+            } else if (clazz == PlayerOpenContainerEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerPickupXpEvent.class) {
+            } else if (clazz == PlayerPickupXpEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerSleepInBedEvent.class) {
+            } else if (clazz == PlayerSleepInBedEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start.class) {
+            } else if (clazz == PlayerUseItemEvent.Start.class) {
                 return createPlayerUseItemStartEvent(event);
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick.class) {
+            } else if (clazz == PlayerUseItemEvent.Tick.class) {
                 return createPlayerUseItemTickEvent(event);
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop.class) {
+            } else if (clazz == PlayerUseItemEvent.Stop.class) {
                 return createPlayerUseItemStopEvent(event);
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish.class) {
+            } else if (clazz == PlayerUseItemEvent.Finish.class) {
                 return createPlayerUseItemFinishEvent(event);
-            } else if (clazz == net.minecraftforge.event.entity.player.PlayerWakeUpEvent.class) {
+            } else if (clazz == PlayerWakeUpEvent.class) {
 
             } else {
                 return (net.minecraftforge.fml.common.eventhandler.Event) event;
@@ -153,26 +198,26 @@ public class SpongeForgeEventFactory {
         }
 
         // Living events
-        else if (net.minecraftforge.event.entity.living.LivingEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == net.minecraftforge.event.entity.living.LivingAttackEvent.class) {
+        else if (LivingEvent.class.isAssignableFrom(clazz)) {
+            if (clazz == LivingAttackEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.living.LivingDeathEvent.class) {
+            } else if (clazz == LivingDeathEvent.class) {
                 return createLivingDeathEvent(event);
-            } else if (clazz == net.minecraftforge.event.entity.living.LivingDropsEvent.class) {
+            } else if (clazz == LivingDropsEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.living.LivingExperienceDropEvent.class) {
+            } else if (clazz == LivingExperienceDropEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.living.LivingFallEvent.class) {
+            } else if (clazz == LivingFallEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.living.LivingHealEvent.class) {
+            } else if (clazz == LivingHealEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.living.LivingHurtEvent.class) {
+            } else if (clazz == LivingHurtEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.living.LivingPackSizeEvent.class) {
+            } else if (clazz == LivingPackSizeEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent.class) {
+            } else if (clazz == LivingSetAttackTargetEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.living.LivingSpawnEvent.class) {
+            } else if (clazz == LivingSpawnEvent.class) {
 
             } else {
                 return createLivingEvent(event);
@@ -180,15 +225,15 @@ public class SpongeForgeEventFactory {
         }
 
         // Entity events
-        else if (net.minecraftforge.event.entity.EntityEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class) {
+        else if (EntityEvent.class.isAssignableFrom(clazz)) {
+            if (clazz == EntityEvent.EntityConstructing.class) {
                 return createEntityConstructingEvent(event);
             }
-            else if (clazz == net.minecraftforge.event.entity.EntityMountEvent.class) {
+            else if (clazz == EntityMountEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.EntityStruckByLightningEvent.class) {
+            } else if (clazz == EntityStruckByLightningEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.EntityJoinWorldEvent.class) {
+            } else if (clazz == EntityJoinWorldEvent.class) {
                 return createEntityJoinWorldEvent(event);
             } else {
                 return createEntityEvent(event);
@@ -196,10 +241,10 @@ public class SpongeForgeEventFactory {
         }
 
         // Item events
-        else if (net.minecraftforge.event.entity.item.ItemEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == net.minecraftforge.event.entity.item.ItemExpireEvent.class) {
+        else if (ItemEvent.class.isAssignableFrom(clazz)) {
+            if (clazz == ItemExpireEvent.class) {
 
-            } else if (clazz == net.minecraftforge.event.entity.item.ItemTossEvent.class) {
+            } else if (clazz == ItemTossEvent.class) {
 
             } else {
                 return createItemEvent(event);
@@ -207,27 +252,27 @@ public class SpongeForgeEventFactory {
         }
 
         // World events
-        else if (net.minecraftforge.event.world.WorldEvent.class.isAssignableFrom(clazz)) {
-            if (net.minecraftforge.event.world.ChunkEvent.class.isAssignableFrom(clazz)) {
-                if (clazz == net.minecraftforge.event.world.ChunkEvent.Load.class) {
+        else if (WorldEvent.class.isAssignableFrom(clazz)) {
+            if (ChunkEvent.class.isAssignableFrom(clazz)) {
+                if (clazz == ChunkEvent.Load.class) {
                     return createChunkLoadEvent(event);
-                } else if (clazz == net.minecraftforge.event.world.ChunkEvent.Unload.class) {
+                } else if (clazz == ChunkEvent.Unload.class) {
                     return createChunkUnloadEvent(event);
-                } else if (clazz == net.minecraftforge.event.world.ChunkDataEvent.Load.class) {
+                } else if (clazz == ChunkDataEvent.Load.class) {
 
-                } else if (clazz == net.minecraftforge.event.world.ChunkDataEvent.Save.class) {
+                } else if (clazz == ChunkDataEvent.Save.class) {
 
-                } else if (clazz == net.minecraftforge.event.world.ChunkWatchEvent.UnWatch.class) {
+                } else if (clazz == ChunkWatchEvent.UnWatch.class) {
 
-                } else if (clazz == net.minecraftforge.event.world.ChunkWatchEvent.Watch.class) {
+                } else if (clazz == ChunkWatchEvent.Watch.class) {
 
                 }
                 return createChunkEvent(event);
-            } else if (clazz == net.minecraftforge.event.world.WorldEvent.Load.class) {
+            } else if (clazz == WorldEvent.Load.class) {
                 return createWorldLoadEvent(event);
-            } else if (clazz == net.minecraftforge.event.world.WorldEvent.Unload.class) {
+            } else if (clazz == WorldEvent.Unload.class) {
                 return createWorldUnloadEvent(event);
-            } else if (clazz == net.minecraftforge.event.world.WorldEvent.Save.class) {
+            } else if (clazz == WorldEvent.Save.class) {
 
             } else {
                 return createWorldEvent(event);
@@ -246,7 +291,7 @@ public class SpongeForgeEventFactory {
         }
 
         // Server events
-        else if (clazz == net.minecraftforge.event.ServerChatEvent.class) {
+        else if (clazz == ServerChatEvent.class) {
             return createServerChatEvent(event);
         }
 
@@ -255,7 +300,7 @@ public class SpongeForgeEventFactory {
     }
 
     // Block events
-    public static net.minecraftforge.event.world.BlockEvent createBlockEvent(Event event) {
+    public static BlockEvent createBlockEvent(Event event) {
         if (!(event instanceof ChangeBlockEvent)) {
             throw new IllegalArgumentException("Event is not a valid ChangeBlockEvent.");
         }
@@ -264,11 +309,11 @@ public class SpongeForgeEventFactory {
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        net.minecraftforge.event.world.BlockEvent forgeEvent = new net.minecraftforge.event.world.BlockEvent(world, pos, world.getBlockState(pos));
+        BlockEvent forgeEvent = new BlockEvent(world, pos, world.getBlockState(pos));
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.world.BlockEvent.PlaceEvent createBlockPlaceEvent(Event event) {
+    public static BlockEvent.PlaceEvent createBlockPlaceEvent(Event event) {
         if (!(event instanceof PlaceBlockEvent)) {
             throw new IllegalArgumentException("Event is not a valid PlaceBlockEvent.");
         }
@@ -285,13 +330,13 @@ public class SpongeForgeEventFactory {
         }
 
         net.minecraftforge.common.util.BlockSnapshot forgeSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
-        net.minecraftforge.event.world.BlockEvent.PlaceEvent forgeEvent =
-                new net.minecraftforge.event.world.BlockEvent.PlaceEvent(forgeSnapshot, world.getBlockState(pos),
+        BlockEvent.PlaceEvent forgeEvent =
+                new BlockEvent.PlaceEvent(forgeSnapshot, world.getBlockState(pos),
                         (EntityPlayer) player.get());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.world.BlockEvent.BreakEvent createBlockBreakEvent(Event event) {
+    public static BlockEvent.BreakEvent createBlockBreakEvent(Event event) {
         if (!(event instanceof BreakBlockEvent)) {
             throw new IllegalArgumentException("Event is not a valid BreakBlockEvent.");
         }
@@ -305,13 +350,13 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        net.minecraftforge.event.world.BlockEvent.BreakEvent forgeEvent =
-                new net.minecraftforge.event.world.BlockEvent.BreakEvent(world, pos, world.getBlockState(pos),
+        BlockEvent.BreakEvent forgeEvent =
+                new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos),
                         (EntityPlayer) player.get());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent createBlockHarvestEvent(Event event) {
+    public static BlockEvent.HarvestDropsEvent createBlockHarvestEvent(Event event) {
         if (!(event instanceof HarvestBlockEvent)) {
             throw new IllegalArgumentException("Event is not a valid HarvestBlockEvent.");
         }
@@ -325,13 +370,13 @@ public class SpongeForgeEventFactory {
         Optional<Player> player = spongeEvent.getCause().first(Player.class);
 
         Location<World> location = spongeEvent.getTargetBlock().getLocation().get();
-        net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent forgeEvent =
-                new net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent((net.minecraft.world.World) location.getExtent(), VecHelper.toBlockPos(location.getPosition()), (net.minecraft.block.state.IBlockState) location.getBlock(), 0,
+        BlockEvent.HarvestDropsEvent forgeEvent =
+                new BlockEvent.HarvestDropsEvent((net.minecraft.world.World) location.getExtent(), VecHelper.toBlockPos(location.getPosition()), (IBlockState) location.getBlock(), 0,
                         spongeEvent.getDropChance(), droppedItems, player.isPresent() ? (EntityPlayer) player.get() : null, false);// spongeEvent.isSilkTouchHarvest());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent createBlockNeighborNotifyEvent(Event event) {
+    public static BlockEvent.NeighborNotifyEvent createBlockNeighborNotifyEvent(Event event) {
         if (!(event instanceof NotifyNeighborBlockEvent)) {
             throw new IllegalArgumentException("Event " + event.getClass() + " is not a valid NotifyNeighborBlockEvent.");
         }
@@ -356,52 +401,52 @@ public class SpongeForgeEventFactory {
     }
 
     // Entity events
-    public static net.minecraftforge.event.entity.EntityEvent createEntityEvent(Event event) {
+    public static EntityEvent createEntityEvent(Event event) {
         if (!(event instanceof TargetEntityEvent)) {
             throw new IllegalArgumentException("Event is not a valid TargetEntityEvent.");
         }
 
         TargetEntityEvent spongeEvent = (TargetEntityEvent) event;
-        net.minecraftforge.event.entity.EntityEvent forgeEvent =
-                new net.minecraftforge.event.entity.EntityEvent((net.minecraft.entity.Entity) spongeEvent.getTargetEntity());
+        EntityEvent forgeEvent =
+                new EntityEvent((Entity) spongeEvent.getTargetEntity());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.entity.EntityEvent.EntityConstructing createEntityConstructingEvent(Event event) {
+    public static EntityEvent.EntityConstructing createEntityConstructingEvent(Event event) {
         if (!(event instanceof ConstructEntityEvent.Post)) {
             throw new IllegalArgumentException("Event is not a valid ConstructEntityEvent.");
         }
 
         ConstructEntityEvent.Post spongeEvent = (ConstructEntityEvent.Post) event;
-        net.minecraftforge.event.entity.EntityEvent.EntityConstructing forgeEvent =
-                new net.minecraftforge.event.entity.EntityEvent.EntityConstructing((net.minecraft.entity.Entity) spongeEvent.getTargetEntity());
+        EntityEvent.EntityConstructing forgeEvent =
+                new EntityEvent.EntityConstructing((Entity) spongeEvent.getTargetEntity());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.entity.EntityJoinWorldEvent createEntityJoinWorldEvent(Event event) {
+    public static EntityJoinWorldEvent createEntityJoinWorldEvent(Event event) {
         if (!(event instanceof SpawnEntityEvent)) {
             throw new IllegalArgumentException("Event is not a valid SpawnEntityEvent.");
         }
 
         SpawnEntityEvent spongeEvent = (SpawnEntityEvent) event;
-        EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((net.minecraft.entity.Entity) spongeEvent.getTargetEntity(),
+        EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((Entity) spongeEvent.getTargetEntity(),
                 (net.minecraft.world.World) spongeEvent.getTargetEntity().getLocation().getExtent());
         return forgeEvent;
     }
 
     // Living events
-    public static net.minecraftforge.event.entity.living.LivingEvent createLivingEvent(Event event) {
+    public static LivingEvent createLivingEvent(Event event) {
         if (!(event instanceof TargetLivingEvent)) {
             throw new IllegalArgumentException("Event is not a valid TargetLivingEvent.");
         }
 
         TargetLivingEvent spongeEvent = (TargetLivingEvent) event;
-        net.minecraftforge.event.entity.living.LivingEvent forgeEvent =
-                new net.minecraftforge.event.entity.living.LivingEvent((EntityLivingBase) spongeEvent.getTargetEntity());
+        LivingEvent forgeEvent =
+                new LivingEvent((EntityLivingBase) spongeEvent.getTargetEntity());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.entity.living.LivingDeathEvent createLivingDeathEvent(Event event) {
+    public static LivingDeathEvent createLivingDeathEvent(Event event) {
         if (!(event instanceof DestructEntityEvent.Death)) {
             throw new IllegalArgumentException("Event is not a valid DestructEntityEvent.Death event.");
         }
@@ -412,8 +457,8 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        net.minecraftforge.event.entity.living.LivingDeathEvent forgeEvent =
-                new net.minecraftforge.event.entity.living.LivingDeathEvent((EntityLivingBase) spongeEvent.getTargetEntity(), (net.minecraft.util.DamageSource) source.get());
+        LivingDeathEvent forgeEvent =
+                new LivingDeathEvent((EntityLivingBase) spongeEvent.getTargetEntity(), (net.minecraft.util.DamageSource) source.get());
         return forgeEvent;
     }
 
@@ -429,7 +474,7 @@ public class SpongeForgeEventFactory {
         return forgeEvent;
     }*/
 
-    private static net.minecraftforge.event.entity.player.EntityInteractEvent createEntityInteractEvent(Event event) {
+    private static EntityInteractEvent createEntityInteractEvent(Event event) {
         if (!(event instanceof InteractEntityEvent.Secondary)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid InteractEntityEvent.");
         }
@@ -443,12 +488,12 @@ public class SpongeForgeEventFactory {
         final EntityPlayer entityPlayer = (EntityPlayer) player.get();
         final Entity entity = (Entity) spongeEvent.getTargetEntity();
 
-        net.minecraftforge.event.entity.player.EntityInteractEvent forgeEvent = new net.minecraftforge.event.entity.player.EntityInteractEvent
+        EntityInteractEvent forgeEvent = new EntityInteractEvent
                 (entityPlayer, entity);
         return forgeEvent;
     }
 
-    private static net.minecraftforge.event.entity.player.PlayerInteractEvent createPlayerInteractEvent(Event event) {
+    private static PlayerInteractEvent createPlayerInteractEvent(Event event) {
         if (!(event instanceof InteractBlockEvent)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid InteractBlockEvent.");
         }
@@ -469,13 +514,13 @@ public class SpongeForgeEventFactory {
             action = Action.RIGHT_CLICK_AIR;
         }
 
-        net.minecraftforge.event.entity.player.PlayerInteractEvent forgeEvent =
-                new net.minecraftforge.event.entity.player.PlayerInteractEvent((EntityPlayer) player.get(), action, pos, face,
+        PlayerInteractEvent forgeEvent =
+                new PlayerInteractEvent((EntityPlayer) player.get(), action, pos, face,
                         (net.minecraft.world.World) player.get().getWorld());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start createPlayerUseItemStartEvent(Event event) {
+    public static PlayerUseItemEvent.Start createPlayerUseItemStartEvent(Event event) {
         if (!(event instanceof UseItemStackEvent.Start)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid UseItemStackEvent.Start event.");
         }
@@ -487,11 +532,11 @@ public class SpongeForgeEventFactory {
         }
 
         net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
-        net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start forgeEvent = new net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
+        PlayerUseItemEvent.Start forgeEvent = new PlayerUseItemEvent.Start((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick createPlayerUseItemTickEvent(Event event) {
+    public static PlayerUseItemEvent.Tick createPlayerUseItemTickEvent(Event event) {
         if (!(event instanceof UseItemStackEvent.Tick)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid UseItemStackEvent.Tick event.");
         }
@@ -503,11 +548,11 @@ public class SpongeForgeEventFactory {
         }
 
         net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
-        net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick forgeEvent = new net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
+        PlayerUseItemEvent.Tick forgeEvent = new PlayerUseItemEvent.Tick((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop createPlayerUseItemStopEvent(Event event) {
+    public static PlayerUseItemEvent.Stop createPlayerUseItemStopEvent(Event event) {
         if (!(event instanceof UseItemStackEvent.Stop)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid UseItemStackEvent.Stop event.");
         }
@@ -519,11 +564,11 @@ public class SpongeForgeEventFactory {
         }
 
         net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
-        net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop forgeEvent = new net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
+        PlayerUseItemEvent.Stop forgeEvent = new PlayerUseItemEvent.Stop((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish createPlayerUseItemFinishEvent(Event event) {
+    public static PlayerUseItemEvent.Finish createPlayerUseItemFinishEvent(Event event) {
         if (!(event instanceof UseItemStackEvent.Finish)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid UseItemStackEvent.Finish event.");
         }
@@ -536,86 +581,86 @@ public class SpongeForgeEventFactory {
 
         net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
         net.minecraft.item.ItemStack resultItemStack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackResult().getFinalSnapshot().createStack();
-        net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish forgeEvent = new net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration(), resultItemStack);
+        PlayerUseItemEvent.Finish forgeEvent = new PlayerUseItemEvent.Finish((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration(), resultItemStack);
         return forgeEvent;
     }
 
     // Item events
-    public static net.minecraftforge.event.entity.item.ItemEvent createItemEvent(Event event) {
+    public static ItemEvent createItemEvent(Event event) {
         if (!(event instanceof TargetItemEvent)) {
             throw new IllegalArgumentException("Event is not a valid TargetItemEvent.");
         }
 
         TargetItemEvent spongeEvent = (TargetItemEvent) event;
-        net.minecraftforge.event.entity.item.ItemEvent forgeEvent =
-                new net.minecraftforge.event.entity.item.ItemEvent((EntityItem) spongeEvent.getTargetEntity());
+        ItemEvent forgeEvent =
+                new ItemEvent((EntityItem) spongeEvent.getTargetEntity());
         return forgeEvent;
     }
 
     // World events
-    public static net.minecraftforge.event.world.WorldEvent createWorldEvent(Event event) {
+    public static WorldEvent createWorldEvent(Event event) {
         if (!(event instanceof TargetWorldEvent)) {
             throw new IllegalArgumentException("Event is not a valid TargetWorldEvent.");
         }
 
         TargetWorldEvent spongeEvent = (TargetWorldEvent) event;
-        net.minecraftforge.event.world.WorldEvent forgeEvent =
-                new net.minecraftforge.event.world.WorldEvent((net.minecraft.world.World) spongeEvent.getTargetWorld());
+        WorldEvent forgeEvent =
+                new WorldEvent((net.minecraft.world.World) spongeEvent.getTargetWorld());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.world.WorldEvent.Load createWorldLoadEvent(Event event) {
+    public static WorldEvent.Load createWorldLoadEvent(Event event) {
         if (!(event instanceof LoadWorldEvent)) {
             throw new IllegalArgumentException("Event is not a valid ServerLoadWorldEvent.");
         }
 
         LoadWorldEvent spongeEvent = (LoadWorldEvent) event;
-        net.minecraftforge.event.world.WorldEvent.Load forgeEvent =
-                new net.minecraftforge.event.world.WorldEvent.Load((net.minecraft.world.World) spongeEvent.getTargetWorld());
+        WorldEvent.Load forgeEvent =
+                new WorldEvent.Load((net.minecraft.world.World) spongeEvent.getTargetWorld());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.world.WorldEvent.Unload createWorldUnloadEvent(Event event) {
+    public static WorldEvent.Unload createWorldUnloadEvent(Event event) {
         if (!(event instanceof UnloadWorldEvent)) {
             throw new IllegalArgumentException("Event is not a valid ServerUnloadWorldEvent.");
         }
 
         UnloadWorldEvent spongeEvent = (UnloadWorldEvent) event;
-        net.minecraftforge.event.world.WorldEvent.Unload forgeEvent =
-                new net.minecraftforge.event.world.WorldEvent.Unload((net.minecraft.world.World) spongeEvent.getTargetWorld());
+        WorldEvent.Unload forgeEvent =
+                new WorldEvent.Unload((net.minecraft.world.World) spongeEvent.getTargetWorld());
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.world.ChunkEvent createChunkEvent(Event event) {
+    public static ChunkEvent createChunkEvent(Event event) {
         if (!(event instanceof TargetChunkEvent)) {
             throw new IllegalArgumentException("Event is not a valid TargetChunkEvent.");
         }
 
         TargetChunkEvent spongeEvent = (TargetChunkEvent) event;
-        net.minecraftforge.event.world.ChunkEvent forgeEvent =
-                new net.minecraftforge.event.world.ChunkEvent(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
+        ChunkEvent forgeEvent =
+                new ChunkEvent(((Chunk) spongeEvent.getTargetChunk()));
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.world.ChunkEvent.Load createChunkLoadEvent(Event event) {
+    public static ChunkEvent.Load createChunkLoadEvent(Event event) {
         if (!(event instanceof LoadChunkEvent)) {
             throw new IllegalArgumentException("Event is not a valid LoadChunkEvent.");
         }
 
         LoadChunkEvent spongeEvent = (LoadChunkEvent) event;
-        net.minecraftforge.event.world.ChunkEvent.Load forgeEvent =
-                new net.minecraftforge.event.world.ChunkEvent.Load(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
+        ChunkEvent.Load forgeEvent =
+                new ChunkEvent.Load(((Chunk) spongeEvent.getTargetChunk()));
         return forgeEvent;
     }
 
-    public static net.minecraftforge.event.world.ChunkEvent.Unload createChunkUnloadEvent(Event event) {
+    public static ChunkEvent.Unload createChunkUnloadEvent(Event event) {
         if (!(event instanceof UnloadChunkEvent)) {
             throw new IllegalArgumentException("Event is not a valid UnloadChunkEvent.");
         }
 
         UnloadChunkEvent spongeEvent = (UnloadChunkEvent) event;
-        net.minecraftforge.event.world.ChunkEvent.Unload forgeEvent =
-                new net.minecraftforge.event.world.ChunkEvent.Unload(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
+        ChunkEvent.Unload forgeEvent =
+                new ChunkEvent.Unload(((Chunk) spongeEvent.getTargetChunk()));
         return forgeEvent;
     }
 
@@ -632,7 +677,7 @@ public class SpongeForgeEventFactory {
         }
 
         net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
-        net.minecraft.world.Explosion explosion = (net.minecraft.world.Explosion) spongeEvent.getExplosion();
+        Explosion explosion = (Explosion) spongeEvent.getExplosion();
         net.minecraftforge.event.world.ExplosionEvent forgeEvent = new net.minecraftforge.event.world.ExplosionEvent(forgeWorld, explosion);
         return forgeEvent;
     }
@@ -649,7 +694,7 @@ public class SpongeForgeEventFactory {
         }
 
         net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
-        net.minecraft.world.Explosion explosion = (net.minecraft.world.Explosion) spongeEvent.getExplosion();
+        Explosion explosion = (Explosion) spongeEvent.getExplosion();
         net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent = new net.minecraftforge.event.world.ExplosionEvent.Start(forgeWorld, explosion);
         return forgeEvent;
     }
@@ -667,15 +712,15 @@ public class SpongeForgeEventFactory {
         }
 
         net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
-        net.minecraft.world.Explosion explosion = (net.minecraft.world.Explosion) spongeEvent.getExplosion();
+        Explosion explosion = (Explosion) spongeEvent.getExplosion();
         net.minecraftforge.event.world.ExplosionEvent.Detonate forgeEvent =
                 new net.minecraftforge.event.world.ExplosionEvent.Detonate(forgeWorld, explosion,
-                        (List<net.minecraft.entity.Entity>) (Object) spongeEvent.getEntities());
+                        (List<Entity>) (Object) spongeEvent.getEntities());
         return forgeEvent;
     }
 
     // Server events
-    private static net.minecraftforge.event.ServerChatEvent createServerChatEvent(Event event) {
+    private static ServerChatEvent createServerChatEvent(Event event) {
         if (!(event instanceof MessageSinkEvent.Chat)) {
             throw new IllegalArgumentException("Event is not a valid MessageSinkEvent.");
         }
@@ -692,8 +737,8 @@ public class SpongeForgeEventFactory {
         }
 
         // Using toPlain here is fine, since the raw message from the client can't have formatting.
-        net.minecraftforge.event.ServerChatEvent forgeEvent =
-                new net.minecraftforge.event.ServerChatEvent((EntityPlayerMP) player.get(), Texts.toPlain(spongeEvent.getOriginalMessage()),
+        ServerChatEvent forgeEvent =
+                new ServerChatEvent((EntityPlayerMP) player.get(), Texts.toPlain(spongeEvent.getOriginalMessage()),
                         (ChatComponentTranslation) component);
         return forgeEvent;
     }
@@ -708,7 +753,7 @@ public class SpongeForgeEventFactory {
                 List<BlockPos> affectedBlocks = explosionEvent.explosion.func_180343_e();
                 affectedBlocks.clear();
             }
-        } else if (forgeEvent instanceof net.minecraftforge.event.entity.living.LivingDeathEvent) {
+        } else if (forgeEvent instanceof LivingDeathEvent) {
             MessageSinkEvent spongeEvent = (MessageSinkEvent) forgeEvent;
             Text returned = Texts.format(spongeEvent.getMessage());
             spongeEvent.getSink().sendMessage(returned);

@@ -24,12 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
-import com.google.common.base.Optional;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
+import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldBuilder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -41,6 +41,7 @@ import org.spongepowered.common.world.SpongeWorldBuilder;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Optional;
 
 @NonnullByDefault
 @Mixin(value = DimensionManager.class, remap = false)
@@ -87,7 +88,7 @@ public abstract class MixinDimensionManager {
     @Overwrite
     public static void unloadWorld(int id) {
         WorldServer world = DimensionManager.getWorld(id);
-        if (world == null || (world.playerEntities.isEmpty() && !((org.spongepowered.api.world.World) world).doesKeepSpawnLoaded())) {
+        if (world == null || (world.playerEntities.isEmpty() && !((World) world).doesKeepSpawnLoaded())) {
             // Purposely let a null world through so Forge can issue a warning
             unloadQueue.add(id);
         }
@@ -115,7 +116,7 @@ public abstract class MixinDimensionManager {
         WorldBuilder builder = Sponge.getSpongeRegistry().createWorldBuilder();
         builder = builder.dimensionType(((Dimension) provider).getType()).name(provider.getDimensionName())
                 .keepsSpawnLoaded(spawnSettings.get(providerId));
-        Optional<org.spongepowered.api.world.World> world = ((SpongeWorldBuilder) builder).dimensionId(dim).isMod(true).build();
+        Optional<World> world = ((SpongeWorldBuilder) builder).dimensionId(dim).isMod(true).build();
         if (!world.isPresent()) {
             Sponge.getLogger().error("Error during initDimension. Cannot Hotload Dim: " + dim + " for provider " + provider.getClass().getName());
         }

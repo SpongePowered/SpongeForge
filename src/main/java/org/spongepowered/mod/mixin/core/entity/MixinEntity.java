@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -33,6 +34,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -45,7 +47,7 @@ import org.spongepowered.common.world.DimensionManager;
 
 
 @NonnullByDefault
-@Mixin(value = net.minecraft.entity.Entity.class, priority = 1001, remap = false)
+@Mixin(value = Entity.class, priority = 1001, remap = false)
 public abstract class MixinEntity implements IMixinEntity {
 
     // @formatter:off
@@ -63,7 +65,7 @@ public abstract class MixinEntity implements IMixinEntity {
     }
 
     @SuppressWarnings("unchecked")
-    public boolean teleportEntity(net.minecraft.entity.Entity entity, Location<World> location, int currentDim, int targetDim, boolean forced) {
+    public boolean teleportEntity(Entity entity, Location<World> location, int currentDim, int targetDim, boolean forced) {
         MinecraftServer mcServer = MinecraftServer.getServer();
         final WorldServer fromWorld = mcServer.worldServerForDimension(currentDim);
         final WorldServer toWorld = mcServer.worldServerForDimension(targetDim);
@@ -121,7 +123,7 @@ public abstract class MixinEntity implements IMixinEntity {
                 entityplayermp1.playerNetServerHandler.sendPacket(new S1DPacketEntityEffect(entityplayermp1.getEntityId(), (PotionEffect) effect));
             }
 
-            net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerChangedDimensionEvent(entityplayermp1, currentDim, targetDim);
+            FMLCommonHandler.instance().firePlayerChangedDimensionEvent(entityplayermp1, currentDim, targetDim);
         } else {
             toWorld.spawnEntityInWorld(entity);
         }

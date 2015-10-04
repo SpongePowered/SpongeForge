@@ -24,12 +24,13 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
+import net.minecraftforge.event.world.ChunkEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.world.ChunkEvent.Load.class, remap = false)
+@Mixin(value = ChunkEvent.Load.class, remap = false)
 public abstract class MixinEventChunkLoad extends MixinEventChunk implements LoadChunkEvent {
 
 }

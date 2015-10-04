@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
+import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -33,7 +34,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.world.WorldEvent.class, remap = false)
+@Mixin(value = WorldEvent.class, remap = false)
 public abstract class MixinEventWorld extends MixinEvent implements TargetWorldEvent {
 
     @Shadow public net.minecraft.world.World world;

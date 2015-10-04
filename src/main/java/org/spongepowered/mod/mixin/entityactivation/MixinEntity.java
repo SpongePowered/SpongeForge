@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.entityactivation;
 
+import net.minecraft.world.World;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -49,7 +50,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     public boolean onGround;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    public void onEntityConstruction(net.minecraft.world.World world, CallbackInfo ci) {
+    public void onEntityConstruction(World world, CallbackInfo ci) {
         if (world != null) {
             this.defaultActivationState = ActivationRange.initializeEntityActivationState((net.minecraft.entity.Entity) (Object) this);
             if (!this.defaultActivationState && this.entityType != null) { // if not excluded

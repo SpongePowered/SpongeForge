@@ -31,6 +31,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -92,7 +93,7 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
                 this.relatives.put(direction, location);
             }
         }
-        ImmutableMap.Builder<Direction, BlockSnapshot> builder = new ImmutableMap.Builder<Direction, BlockSnapshot>(); 
+        ImmutableMap.Builder<Direction, BlockSnapshot> builder = new ImmutableMap.Builder<Direction, BlockSnapshot>();
         for (Map.Entry<Direction, Location<World>> mapEntry : this.relatives.entrySet()) {
             BlockSnapshot blockSnapshot = mapEntry.getValue().createSnapshot();
             builder.put(mapEntry.getKey(), blockSnapshot);
@@ -101,7 +102,7 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
     }
 
     @Override
-    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
+    public void syncDataToForge(Event spongeEvent) {
         super.syncDataToForge(spongeEvent);
 
         NotifyNeighborBlockEvent event = (NotifyNeighborBlockEvent) spongeEvent;

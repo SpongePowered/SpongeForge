@@ -28,8 +28,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
+import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTransaction;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -44,7 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.world.BlockEvent.class, remap = false)
+@Mixin(value = BlockEvent.class, remap = false)
 public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockEvent {
 
     public BlockSnapshot blockOriginal;
@@ -85,7 +87,7 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
     }
 
     @Override
-    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
+    public void syncDataToForge(Event spongeEvent) {
         super.syncDataToForge(spongeEvent);
         ChangeBlockEvent event = (ChangeBlockEvent) spongeEvent;
         if (event.getTransactions() != null && event.getTransactions().size() > 0) {

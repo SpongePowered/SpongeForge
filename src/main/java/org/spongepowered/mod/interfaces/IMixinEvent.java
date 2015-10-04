@@ -24,12 +24,13 @@
  */
 package org.spongepowered.mod.interfaces;
 
+import org.spongepowered.api.event.Event;
 
 public interface IMixinEvent {
 
-    void syncDataToForge(org.spongepowered.api.event.Event spongeEvent);
+    void syncDataToForge(Event spongeEvent);
 
     void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent);
 
-    org.spongepowered.api.event.Event createSpongeEvent();
+    Event createSpongeEvent();
 }

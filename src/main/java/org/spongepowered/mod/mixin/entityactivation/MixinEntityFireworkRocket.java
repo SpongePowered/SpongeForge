@@ -24,13 +24,14 @@
  */
 package org.spongepowered.mod.mixin.entityactivation;
 
+import net.minecraft.entity.item.EntityFireworkRocket;
 import org.spongepowered.api.entity.projectile.Firework;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
-@Mixin(net.minecraft.entity.item.EntityFireworkRocket.class)
+@Mixin(EntityFireworkRocket.class)
 public abstract class MixinEntityFireworkRocket extends MixinEntity implements Firework {
 
     @Shadow

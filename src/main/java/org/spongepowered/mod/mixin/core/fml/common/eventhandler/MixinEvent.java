@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
 import org.spongepowered.api.Game;
 import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.CauseTracked;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -67,7 +68,7 @@ public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEve
     }
 
     @Override
-    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) { }
+    public void syncDataToForge(Event spongeEvent) { }
 
     @Override
     public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) { }

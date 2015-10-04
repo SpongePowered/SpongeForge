@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.network;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;

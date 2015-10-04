@@ -300,8 +300,8 @@ public class ActivationRange {
         }
 
         // Make sure not on edge of unloaded chunk
-        int x = net.minecraft.util.MathHelper.floor_double(entity.posX);
-        int z = net.minecraft.util.MathHelper.floor_double(entity.posZ);
+        int x = MathHelper.floor_double(entity.posX);
+        int z = MathHelper.floor_double(entity.posZ);
         if (isActive && !entity.worldObj.isAreaLoaded(new BlockPos(x, 0, z), 16)) {
             isActive = false;
         }

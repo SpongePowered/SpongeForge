@@ -50,6 +50,7 @@ import net.minecraftforge.fml.common.versioning.VersionRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStateEvent;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
@@ -135,7 +136,7 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
     protected void findStateEventHandlers(Class<?> clazz) throws Exception {
         for (Method m : clazz.getDeclaredMethods()) {
             for (Annotation a : m.getAnnotations()) {
-                if (a.annotationType().equals(org.spongepowered.api.event.Listener.class)) {
+                if (a.annotationType().equals(Listener.class)) {
                     Class<?>[] paramTypes = m.getParameterTypes();
                     if ((paramTypes.length == 1) && GameStateEvent.class.isAssignableFrom(paramTypes[0])) {
                         m.setAccessible(true);

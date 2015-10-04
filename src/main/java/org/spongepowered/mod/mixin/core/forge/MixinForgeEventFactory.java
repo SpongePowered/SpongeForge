@@ -28,6 +28,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.event.block.PlaceBlockEvent;
@@ -37,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-@Mixin(value = net.minecraftforge.event.ForgeEventFactory.class, remap = false)
+@Mixin(value = ForgeEventFactory.class, remap = false)
 public class MixinForgeEventFactory {
 
     @Inject(method = "onPlayerBlockPlace", at = @At(value = "RETURN"), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
@@ -47,7 +48,7 @@ public class MixinForgeEventFactory {
         if (!spongeEvent.isCancelled()) {
             for (BlockTransaction transaction : spongeEvent.getTransactions()) {
                 if (transaction.isValid() && transaction.getCustomReplacement().isPresent()) {
-                    ((net.minecraftforge.common.util.BlockSnapshot) transaction.getCustomReplacement().get()).restore(true, false);
+                    ((BlockSnapshot) transaction.getCustomReplacement().get()).restore(true, false);
                 }
             }
         }

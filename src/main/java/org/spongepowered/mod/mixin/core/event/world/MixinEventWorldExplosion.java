@@ -26,7 +26,9 @@ package org.spongepowered.mod.mixin.core.event.world;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.block.BlockTypes;
@@ -68,7 +70,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         if (this.explosion.exploder != null) {
             return Cause.of(this.explosion.exploder);
         } else {
-            net.minecraft.block.state.IBlockState state = this.world.getBlockState(new BlockPos(this.explosion.getPosition()));
+            IBlockState state = this.world.getBlockState(new BlockPos(this.explosion.getPosition()));
             return Cause.of(state.getBlock());
         }
     }
@@ -184,7 +186,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
         @SuppressWarnings("unchecked")
         @Override
-        public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
+        public void syncDataToSponge(Event forgeEvent) {
             super.syncDataToSponge(forgeEvent);
 
             net.minecraftforge.event.world.ExplosionEvent event = (net.minecraftforge.event.world.ExplosionEvent) forgeEvent;

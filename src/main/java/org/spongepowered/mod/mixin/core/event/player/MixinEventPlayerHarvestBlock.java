@@ -33,6 +33,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.HarvestBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -174,7 +175,7 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
     }
 
     @Override
-    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
+    public void syncDataToForge(Event spongeEvent) {
         super.syncDataToForge(spongeEvent);
 
         HarvestBlockEvent event = (HarvestBlockEvent) spongeEvent;

@@ -25,13 +25,14 @@
 package org.spongepowered.mod.mixin.core.event.inventory;
 
 import net.minecraft.entity.item.EntityItem;
+import net.minecraftforge.event.entity.item.ItemEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
 @NonnullByDefault
-@Mixin(net.minecraftforge.event.entity.item.ItemEvent.class)
+@Mixin(ItemEvent.class)
 public abstract class MixinEventItem extends MixinEventEntity {
 
     @Shadow(remap = false) public EntityItem entityItem;

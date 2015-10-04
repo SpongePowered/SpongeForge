@@ -40,7 +40,7 @@ import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.fml.common.eventhandler.EventBus.class, remap = false)
+@Mixin(value = EventBus.class, remap = false)
 public abstract class MixinEventBus implements IMixinEventBus {
 
     private EventBus eventBus = (EventBus) (Object) this;

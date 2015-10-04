@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.world;
 
 import net.minecraft.profiler.Profiler;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.ISaveHandler;
@@ -39,15 +40,15 @@ import org.spongepowered.common.interfaces.IMixinWorldInfo;
 
 @NonnullByDefault
 @Mixin(value = WorldServer.class, priority = 1001)
-public abstract class MixinWorldServer extends net.minecraft.world.World {
+public abstract class MixinWorldServer extends World {
 
     protected MixinWorldServer(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client) {
         super(saveHandlerIn, info, providerIn, profilerIn, client);
     }
 
     @Inject(method = "init", at = @At("RETURN"))
-    public void onPostInit(CallbackInfoReturnable<net.minecraft.world.World> ci) {
-        net.minecraft.world.World world = ci.getReturnValue();
+    public void onPostInit(CallbackInfoReturnable<World> ci) {
+        World world = ci.getReturnValue();
         if (!((IMixinWorldInfo) world.getWorldInfo()).getIsMod()) {
             // Run the world generator modifiers in the init method
             // (the "init" method, not the "<init>" constructor)

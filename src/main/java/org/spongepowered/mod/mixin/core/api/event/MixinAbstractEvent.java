@@ -25,10 +25,11 @@
 package org.spongepowered.mod.mixin.core.api.event;
 
 import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.impl.AbstractEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 
-@Mixin(org.spongepowered.api.event.impl.AbstractEvent.class)
+@Mixin(AbstractEvent.class)
 public class MixinAbstractEvent implements IMixinEvent {
 
     @Override

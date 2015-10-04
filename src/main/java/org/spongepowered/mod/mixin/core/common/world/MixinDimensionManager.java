@@ -35,6 +35,7 @@ import net.minecraftforge.fml.common.network.FMLOutboundHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.world.Dimension;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.world.SpongeDimensionType;
@@ -121,7 +122,7 @@ public abstract class MixinDimensionManager {
         if (!world.playerEntities.isEmpty()) {
             return false;
         }
-        if (((org.spongepowered.api.world.World) world).doesKeepSpawnLoaded()) {
+        if (((World) world).doesKeepSpawnLoaded()) {
             return false;
         }
         DimensionManager.unloadWorld(id);

@@ -26,14 +26,16 @@ package org.spongepowered.mod.mixin.core.event.player;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
@@ -50,7 +52,7 @@ import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.util.VecHelper;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.entity.player.PlayerInteractEvent.class, remap = false)
+@Mixin(value = PlayerInteractEvent.class, remap = false)
 public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer implements InteractBlockEvent {
 
     private BlockSnapshot blockSnapshot;
@@ -91,11 +93,11 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @Override
     public Optional<Vector3d> getInteractionPoint() {
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
-    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
+    public void syncDataToForge(Event spongeEvent) {
         super.syncDataToForge(spongeEvent);
 
         InteractBlockEvent event = (InteractBlockEvent) spongeEvent;
@@ -104,7 +106,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     }
 
     @Override
-    public org.spongepowered.api.event.Event createSpongeEvent() {
+    public Event createSpongeEvent() {
         if (this.action == Action.LEFT_CLICK_BLOCK) {
             return SpongeEventFactory.createInteractBlockEventPrimary(getGame(), getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
         } else {

@@ -42,9 +42,9 @@ public abstract class MixinGameData {
 
     @Inject(method = "register", at = @At("HEAD"))
     public void onRegister(Object material, String id, int idHint, CallbackInfoReturnable<Integer> cir) {
-        if (material instanceof net.minecraft.block.Block) {
+        if (material instanceof Block) {
             SpongeGameRegistry.blockTypeMappings.put(id, (BlockType) material);
-        } else if (material instanceof net.minecraft.item.Item) {
+        } else if (material instanceof Item) {
             SpongeGameRegistry.itemTypeMappings.put(id, (ItemType) material);
         }
     }

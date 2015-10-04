@@ -29,6 +29,7 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
@@ -45,7 +46,7 @@ public abstract class MixinChunk implements Chunk {
 
     private ChunkCoordIntPair chunkCoordIntPair;
 
-    @Shadow private net.minecraft.world.World worldObj;
+    @Shadow private World worldObj;
     @Shadow public int xPosition;
     @Shadow public int zPosition;
 
@@ -66,7 +67,7 @@ public abstract class MixinChunk implements Chunk {
 
     @Redirect(method = "setBlockState", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/Block;onBlockAdded(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;)V"))
-    public void onChunkBlockAddedCall(Block block, net.minecraft.world.World worldIn, BlockPos pos, IBlockState state) {
+    public void onChunkBlockAddedCall(Block block, World worldIn, BlockPos pos, IBlockState state) {
         // Ignore block activations during block placement captures unless it's
         // a BlockContainer. Prevents blocks such as TNT from activating when
         // cancelled.

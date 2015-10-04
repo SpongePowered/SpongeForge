@@ -25,7 +25,7 @@
 package org.spongepowered.mod.service.world;
 
 import com.flowpowered.math.vector.Vector3i;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -61,7 +61,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
     public Optional<LoadingTicket> createTicket(Object plugin, World world) {
         Ticket forgeTicket = ForgeChunkManager.requestTicket(plugin, (net.minecraft.world.World) world, ForgeChunkManager.Type.NORMAL);
         if (forgeTicket == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return Optional.of((LoadingTicket) new SpongeLoadingTicket(forgeTicket));
@@ -71,7 +71,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
     public Optional<EntityLoadingTicket> createEntityTicket(Object plugin, World world) {
         Ticket forgeTicket = ForgeChunkManager.requestTicket(plugin, (net.minecraft.world.World) world, ForgeChunkManager.Type.ENTITY);
         if (forgeTicket == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return Optional.of((EntityLoadingTicket) new SpongeEntityLoadingTicket(forgeTicket));
@@ -81,14 +81,14 @@ public class SpongeChunkLoadService implements ChunkLoadService {
     public Optional<PlayerLoadingTicket> createPlayerTicket(Object plugin, World world, UUID player) {
         Optional<Player> spongePlayer = Sponge.getGame().getServer().getPlayer(player);
         if (!spongePlayer.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         Ticket forgeTicket =
                 ForgeChunkManager.requestPlayerTicket(plugin, spongePlayer.get().getName(), (net.minecraft.world.World) world,
                         ForgeChunkManager.Type.NORMAL);
         if (forgeTicket == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return Optional.of((PlayerLoadingTicket) new SpongePlayerLoadingTicket(forgeTicket));
@@ -98,14 +98,14 @@ public class SpongeChunkLoadService implements ChunkLoadService {
     public Optional<PlayerEntityLoadingTicket> createPlayerEntityTicket(Object plugin, World world, UUID player) {
         Optional<Player> spongePlayer = Sponge.getGame().getServer().getPlayer(player);
         if (!spongePlayer.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         Ticket forgeTicket =
                 ForgeChunkManager.requestPlayerTicket(plugin, spongePlayer.get().getName(), (net.minecraft.world.World) world,
                         ForgeChunkManager.Type.ENTITY);
         if (forgeTicket == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         return Optional.of((PlayerEntityLoadingTicket) new SpongePlayerEntityLoadingTicket(forgeTicket));
@@ -285,7 +285,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
             }
 
             this.spongeLoadingCallback.onLoaded(new ImmutableList.Builder<LoadingTicket>().addAll(loadingTickets).build(),
-                    (org.spongepowered.api.world.World) world);
+                    (World) world);
         }
 
     }
@@ -306,7 +306,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
 
             OrderedCallback spongeOrderedCallback = (OrderedCallback) this.spongeLoadingCallback;
             List<LoadingTicket> spongeKeptTickets =
-                    spongeOrderedCallback.onLoaded(ImmutableList.copyOf(spongeLoadingTickets), (org.spongepowered.api.world.World) world, maxTicketCount);
+                    spongeOrderedCallback.onLoaded(ImmutableList.copyOf(spongeLoadingTickets), (World) world, maxTicketCount);
             List<Ticket> forgeTickets = new ArrayList<Ticket>();
 
             for (LoadingTicket ticket : spongeKeptTickets) {
@@ -336,7 +336,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
 
             ListMultimap<UUID, LoadingTicket> spongeKeptTickets =
                     ((PlayerOrderedCallback) this.spongeLoadingCallback).onPlayerLoaded(ImmutableListMultimap.copyOf(spongeLoadingTickets),
-                            (org.spongepowered.api.world.World) world);
+                            (World) world);
             ListMultimap<String, Ticket> forgeTickets = ArrayListMultimap.create();
 
             for (Map.Entry<UUID, LoadingTicket> mapEntry : spongeKeptTickets.entries()) {

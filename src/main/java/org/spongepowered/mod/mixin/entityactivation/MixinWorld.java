@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.entityactivation;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.ChunkCoordIntPair;
@@ -63,7 +64,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
     }
 
     @Overwrite
-    public void updateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate) {
+    public void updateEntityWithOptionalForce(Entity entity, boolean forceUpdate) {
         int i = MathHelper.floor_double(entity.posX);
         int j = MathHelper.floor_double(entity.posZ);
         boolean isForcedChunk = ((net.minecraft.world.World) (Object) this).getPersistentChunks().containsKey(new ChunkCoordIntPair(i >> 4, j >> 4));

@@ -29,6 +29,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.EntityInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
@@ -37,6 +44,9 @@ import net.minecraftforge.event.terraingen.OreGenEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.terraingen.SaplingGrowTreeEvent;
 import net.minecraftforge.event.terraingen.WorldTypeEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -89,27 +99,27 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     private final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventMappings =
             new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
-                    .put(NotifyNeighborBlockEvent.class, net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent.class)
-                    .put(TargetChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.class)
-                    .put(LoadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Load.class)
-                    .put(UnloadChunkEvent.class, net.minecraftforge.event.world.ChunkEvent.Unload.class)
-                    .put(ConstructEntityEvent.Post.class, net.minecraftforge.event.entity.EntityEvent.EntityConstructing.class)
-                    .put(TargetEntityEvent.class, net.minecraftforge.event.entity.EntityEvent.class)
-                    .put(SpawnEntityEvent.class, net.minecraftforge.event.entity.EntityJoinWorldEvent.class)
-                    .put(DestructEntityEvent.Death.class, net.minecraftforge.event.entity.living.LivingDeathEvent.class)
-                    .put(BreakBlockEvent.class, net.minecraftforge.event.world.BlockEvent.BreakEvent.class)
-                    .put(MessageSinkEvent.class, net.minecraftforge.event.ServerChatEvent.class)
-                    .put(HarvestBlockEvent.class, net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent.class)
-                    .put(InteractBlockEvent.class, net.minecraftforge.event.entity.player.PlayerInteractEvent.class)
-                    .put(InteractEntityEvent.Secondary.class, net.minecraftforge.event.entity.player.EntityInteractEvent.class)
-                    .put(PlaceBlockEvent.class, net.minecraftforge.event.world.BlockEvent.PlaceEvent.class)
-                    .put(TargetWorldEvent.class, net.minecraftforge.event.world.WorldEvent.class)
-                    .put(LoadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Load.class)
-                    .put(UnloadWorldEvent.class, net.minecraftforge.event.world.WorldEvent.Unload.class)
-                    .put(UseItemStackEvent.Start.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start.class)
-                    .put(UseItemStackEvent.Tick.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick.class)
-                    .put(UseItemStackEvent.Stop.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop.class)
-                    .put(UseItemStackEvent.Finish.class, net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish.class)
+                    .put(NotifyNeighborBlockEvent.class, BlockEvent.NeighborNotifyEvent.class)
+                    .put(TargetChunkEvent.class, ChunkEvent.class)
+                    .put(LoadChunkEvent.class, ChunkEvent.Load.class)
+                    .put(UnloadChunkEvent.class, ChunkEvent.Unload.class)
+                    .put(ConstructEntityEvent.Post.class, EntityEvent.EntityConstructing.class)
+                    .put(TargetEntityEvent.class, EntityEvent.class)
+                    .put(SpawnEntityEvent.class, EntityJoinWorldEvent.class)
+                    .put(DestructEntityEvent.Death.class, LivingDeathEvent.class)
+                    .put(BreakBlockEvent.class, BlockEvent.BreakEvent.class)
+                    .put(MessageSinkEvent.class, ServerChatEvent.class)
+                    .put(HarvestBlockEvent.class, BlockEvent.HarvestDropsEvent.class)
+                    .put(InteractBlockEvent.class, PlayerInteractEvent.class)
+                    .put(InteractEntityEvent.Secondary.class, EntityInteractEvent.class)
+                    .put(PlaceBlockEvent.class, BlockEvent.PlaceEvent.class)
+                    .put(TargetWorldEvent.class, WorldEvent.class)
+                    .put(LoadWorldEvent.class, WorldEvent.Load.class)
+                    .put(UnloadWorldEvent.class, WorldEvent.Unload.class)
+                    .put(UseItemStackEvent.Start.class, PlayerUseItemEvent.Start.class)
+                    .put(UseItemStackEvent.Tick.class, PlayerUseItemEvent.Tick.class)
+                    .put(UseItemStackEvent.Stop.class, PlayerUseItemEvent.Stop.class)
+                    .put(UseItemStackEvent.Finish.class, PlayerUseItemEvent.Finish.class)
                     .put(ClientConnectionEvent.Join.class, PlayerEvent.PlayerLoggedInEvent.class)
                     .put(ClientConnectionEvent.Disconnect.class, PlayerEvent.PlayerLoggedOutEvent.class)
                     .build();
@@ -124,7 +134,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(InitNoiseGensEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
                     .put(PopulateChunkEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
                     .put(SaplingGrowTreeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-                    .put(net.minecraftforge.fml.common.gameevent.PlayerEvent.class, FMLCommonHandler.instance().bus())
+                    .put(PlayerEvent.class, FMLCommonHandler.instance().bus())
                     .build();
 
     @Inject
