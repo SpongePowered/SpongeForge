@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.event.block;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
@@ -49,6 +48,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Predicate;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.NeighborNotifyEvent.class, remap = false)
@@ -78,7 +78,7 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
     @Override
     public void filterDirections(Predicate<Direction> predicate) {
         Iterator<Direction> iterator = this.relatives.keySet().iterator();
-        if (!predicate.apply(iterator.next())) {
+        if (!predicate.test(iterator.next())) {
             iterator.remove();
         }
     }

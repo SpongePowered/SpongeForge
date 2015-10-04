@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -164,13 +163,9 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
             MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 
-            this.game.getServiceManager().potentiallyProvide(PermissionService.class).executeWhenPresent(new Predicate<PermissionService>() {
-
-                @Override
-                public boolean apply(PermissionService input) {
-                    input.registerContextCalculator(new SpongeContextCalculator());
-                    return true;
-                }
+            this.game.getServiceManager().potentiallyProvide(PermissionService.class).executeWhenPresent(input -> {
+                input.registerContextCalculator(new SpongeContextCalculator());
+                return true;
             });
 
             // Add the SyncScheduler as a listener for ServerTickEvents

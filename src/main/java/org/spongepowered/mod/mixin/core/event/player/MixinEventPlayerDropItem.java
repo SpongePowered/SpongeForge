@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
@@ -41,6 +40,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.mixin.core.event.inventory.MixinEventItem;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 @NonnullByDefault
 @Mixin(value = ItemTossEvent.class, remap = false)

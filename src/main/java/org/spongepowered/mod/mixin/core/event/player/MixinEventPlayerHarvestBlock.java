@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.event.player;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -51,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
 @Mixin(value = HarvestDropsEvent.class, remap = false)
 public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock implements HarvestBlockEvent {
@@ -103,7 +103,7 @@ public abstract class MixinEventPlayerHarvestBlock extends MixinEventBlock imple
     public Collection<ItemStack> filterItemStacks(Predicate<ItemStack> predicate) {
         Iterator<net.minecraft.item.ItemStack> iterator = this.drops.iterator();
         while (iterator.hasNext()) {
-            if (!predicate.apply((ItemStack) iterator.next())) {
+            if (!predicate.test((ItemStack) iterator.next())) {
                 iterator.remove();
             }
         }

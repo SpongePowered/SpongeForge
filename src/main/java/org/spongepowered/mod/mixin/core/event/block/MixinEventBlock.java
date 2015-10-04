@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.event.block;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
@@ -44,6 +43,7 @@ import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.class, remap = false)
@@ -71,7 +71,7 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
         while (iterator.hasNext()) {
             BlockTransaction transaction = iterator.next();
             if (transaction.getFinalReplacement().getLocation().isPresent()
-                    && !predicate.apply(transaction.getFinalReplacement().getLocation().get())) {
+                    && !predicate.test(transaction.getFinalReplacement().getLocation().get())) {
                 transaction.setIsValid(false);
             }
         }
@@ -81,7 +81,7 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
     @Override
     public Cause getCause() {
         if (this.blockOriginal == null) {
-            this.blockOriginal = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
+            this.blockOriginal = ((World) this.world).createSnapshot(this.pos.getX(), this.pos.getY(), this.pos.getZ());
         }
         return Cause.of(this.blockOriginal);
     }

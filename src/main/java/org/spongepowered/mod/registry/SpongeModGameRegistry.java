@@ -99,31 +99,24 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
     }
 
     private void setBlockTypes() {
-        RegistryHelper.mapFields(BlockTypes.class, fieldName -> {
-            return getBlock(fieldName.toLowerCase()).get();
-        });
+        RegistryHelper.mapFields(BlockTypes.class, fieldName -> getBlock(fieldName.toLowerCase()).get());
     }
 
     private void setItemTypes() {
-        RegistryHelper.mapFields(ItemTypes.class, fieldName -> {
-            return getItem(fieldName.toLowerCase()).get();
-        });
+        RegistryHelper.mapFields(ItemTypes.class, fieldName -> getItem(fieldName.toLowerCase()).get());
     }
 
     private void setBlockTraits() {
         blockTypeMappings.values().forEach(this::registerBlockTrait);
 
-        RegistryHelper.mapFields(EnumTraits.class, fieldName -> {
-            return SpongeMod.instance.getSpongeRegistry().enumTraitMappings.get("minecraft:" + fieldName.toLowerCase());
-        });
+        RegistryHelper.mapFields(EnumTraits.class, fieldName ->
+            SpongeMod.instance.getSpongeRegistry().enumTraitMappings.get("minecraft:" + fieldName.toLowerCase()));
 
-        RegistryHelper.mapFields(IntegerTraits.class, fieldName -> {
-            return SpongeMod.instance.getSpongeRegistry().integerTraitMappings.get("minecraft:" + fieldName.toLowerCase());
-        });
+        RegistryHelper.mapFields(IntegerTraits.class, fieldName ->
+            SpongeMod.instance.getSpongeRegistry().integerTraitMappings.get("minecraft:" + fieldName.toLowerCase()));
 
-        RegistryHelper.mapFields(BooleanTraits.class, fieldName -> {
-            return SpongeMod.instance.getSpongeRegistry().booleanTraitMappings.get("minecraft:" + fieldName.toLowerCase());
-        });
+        RegistryHelper.mapFields(BooleanTraits.class, fieldName ->
+            SpongeMod.instance.getSpongeRegistry().booleanTraitMappings.get("minecraft:" + fieldName.toLowerCase()));
     }
 
     private void registerBlockTrait(BlockType block) {
