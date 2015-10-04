@@ -26,7 +26,6 @@ package org.spongepowered.mod.registry;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.CatalogType;
@@ -100,54 +99,30 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
     }
 
     private void setBlockTypes() {
-        RegistryHelper.mapFields(BlockTypes.class, new Function<String, BlockType>() {
-
-            @Override
-            public BlockType apply(String fieldName) {
-                BlockType block = getBlock(fieldName.toLowerCase()).get();
-                return block;
-            }
+        RegistryHelper.mapFields(BlockTypes.class, fieldName -> {
+            return getBlock(fieldName.toLowerCase()).get();
         });
     }
 
     private void setItemTypes() {
-        RegistryHelper.mapFields(ItemTypes.class, new Function<String, ItemType>() {
-
-            @Override
-            public ItemType apply(String fieldName) {
-                ItemType item = getItem(fieldName.toLowerCase()).get();
-                return item;
-            }
+        RegistryHelper.mapFields(ItemTypes.class, fieldName -> {
+            return getItem(fieldName.toLowerCase()).get();
         });
     }
 
     private void setBlockTraits() {
-        for (BlockType block : blockTypeMappings.values()) {
-            registerBlockTrait(block);
-        }
+        blockTypeMappings.values().forEach(this::registerBlockTrait);
 
-        RegistryHelper.mapFields(EnumTraits.class, new Function<String, EnumTrait<?>>() {
-
-            @Override
-            public EnumTrait<?> apply(String fieldName) {
-                return SpongeMod.instance.getSpongeRegistry().enumTraitMappings.get("minecraft:" + fieldName.toLowerCase());
-            }
+        RegistryHelper.mapFields(EnumTraits.class, fieldName -> {
+            return SpongeMod.instance.getSpongeRegistry().enumTraitMappings.get("minecraft:" + fieldName.toLowerCase());
         });
 
-        RegistryHelper.mapFields(IntegerTraits.class, new Function<String, IntegerTrait>() {
-
-            @Override
-            public IntegerTrait apply(String fieldName) {
-                return SpongeMod.instance.getSpongeRegistry().integerTraitMappings.get("minecraft:" + fieldName.toLowerCase());
-            }
+        RegistryHelper.mapFields(IntegerTraits.class, fieldName -> {
+            return SpongeMod.instance.getSpongeRegistry().integerTraitMappings.get("minecraft:" + fieldName.toLowerCase());
         });
 
-        RegistryHelper.mapFields(BooleanTraits.class, new Function<String, BooleanTrait>() {
-
-            @Override
-            public BooleanTrait apply(String fieldName) {
-                return SpongeMod.instance.getSpongeRegistry().booleanTraitMappings.get("minecraft:" + fieldName.toLowerCase());
-            }
+        RegistryHelper.mapFields(BooleanTraits.class, fieldName -> {
+            return SpongeMod.instance.getSpongeRegistry().booleanTraitMappings.get("minecraft:" + fieldName.toLowerCase());
         });
     }
 
