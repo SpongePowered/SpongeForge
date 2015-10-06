@@ -24,22 +24,17 @@
  */
 package org.spongepowered.mod.mixin.entityactivation;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.profiler.Profiler;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.ChunkCoordIntPair;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.interfaces.entity.IMixinEntity;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.interfaces.IMixinWorld;
+import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.mod.mixin.plugin.entityactivation.ActivationRange;
 
 @NonnullByDefault
@@ -63,93 +58,13 @@ public abstract class MixinWorld implements World, IMixinWorld {
         }
     }
 
-    @Overwrite
-    public void updateEntityWithOptionalForce(Entity entity, boolean forceUpdate) {
-        int i = MathHelper.floor_double(entity.posX);
-        int j = MathHelper.floor_double(entity.posZ);
-        boolean isForcedChunk = ((net.minecraft.world.World) (Object) this).getPersistentChunks().containsKey(new ChunkCoordIntPair(i >> 4, j >> 4));
-        byte b0 = isForcedChunk ? (byte) 0 : 32;
-        boolean canUpdate = !forceUpdate || isAreaLoaded(i - b0, 0, j - b0, i + b0, 0, j + b0, true);
-
-        if (!canUpdate) {
-            EntityEvent.CanUpdate event = new EntityEvent.CanUpdate(entity);
-            MinecraftForge.EVENT_BUS.post(event);
-            canUpdate = event.canUpdate;
-        }
-
-        if (!isForcedChunk && !canUpdate && !ActivationRange.checkIfActive(entity)) { // ignore if forced by forge event update or entity's chunk
+    @Inject(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;canEntityUpdate(Lnet/minecraft/entity/Entity;)Z", shift = At.Shift.BY, by = 3, ordinal = 0), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
+    public void onUpdateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate, CallbackInfo ci, int i, int j, boolean isForced, byte b0, boolean canUpdate) {
+        if (!isForced && !canUpdate && !ActivationRange.checkIfActive(entity)) { // ignore if forced by forge event update or entity's chunk
             entity.ticksExisted++;
             ((IMixinEntity) entity).inactiveTick();
-            return;
-        }
-
-        if (canUpdate) {
-            entity.lastTickPosX = entity.posX;
-            entity.lastTickPosY = entity.posY;
-            entity.lastTickPosZ = entity.posZ;
-            entity.prevRotationYaw = entity.rotationYaw;
-            entity.prevRotationPitch = entity.rotationPitch;
-
-            if (forceUpdate && entity.addedToChunk) {
-                ++entity.ticksExisted;
-
-                if (entity.ridingEntity != null) {
-                    entity.updateRidden();
-                } else {
-                    entity.onUpdate();
-                }
-            }
-
-            this.theProfiler.startSection("chunkCheck");
-
-            if (Double.isNaN(entity.posX) || Double.isInfinite(entity.posX)) {
-                entity.posX = entity.lastTickPosX;
-            }
-
-            if (Double.isNaN(entity.posY) || Double.isInfinite(entity.posY)) {
-                entity.posY = entity.lastTickPosY;
-            }
-
-            if (Double.isNaN(entity.posZ) || Double.isInfinite(entity.posZ)) {
-                entity.posZ = entity.lastTickPosZ;
-            }
-
-            if (Double.isNaN(entity.rotationPitch) || Double.isInfinite(entity.rotationPitch)) {
-                entity.rotationPitch = entity.prevRotationPitch;
-            }
-
-            if (Double.isNaN(entity.rotationYaw) || Double.isInfinite(entity.rotationYaw)) {
-                entity.rotationYaw = entity.prevRotationYaw;
-            }
-
-            int k = MathHelper.floor_double(entity.posX / 16.0D);
-            int l = MathHelper.floor_double(entity.posY / 16.0D);
-            int i1 = MathHelper.floor_double(entity.posZ / 16.0D);
-
-            if (!entity.addedToChunk || entity.chunkCoordX != k || entity.chunkCoordY != l || entity.chunkCoordZ != i1) {
-                if (entity.addedToChunk && isChunkLoaded(entity.chunkCoordX, entity.chunkCoordZ, true)) {
-                    ((net.minecraft.world.World) (Object) this).getChunkFromChunkCoords(entity.chunkCoordX, entity.chunkCoordZ).removeEntityAtIndex(
-                            entity, entity.chunkCoordY);
-                }
-
-                if (this.isChunkLoaded(k, i1, true)) {
-                    entity.addedToChunk = true;
-                    ((net.minecraft.world.World) (Object) this).getChunkFromChunkCoords(k, i1).addEntity(entity);
-                } else {
-                    entity.addedToChunk = false;
-                }
-            }
-
-            this.theProfiler.endSection();
-
-            if (forceUpdate && entity.addedToChunk && entity.riddenByEntity != null) {
-                if (!entity.riddenByEntity.isDead && entity.riddenByEntity.ridingEntity == entity) {
-                    ((net.minecraft.world.World) (Object) this).updateEntity(entity.riddenByEntity);
-                } else {
-                    entity.riddenByEntity.ridingEntity = null;
-                    entity.riddenByEntity = null;
-                }
-            }
+            ci.cancel();
         }
     }
+
 }

@@ -22,39 +22,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.mixin.core.block;
 
-import com.flowpowered.math.vector.Vector3d;
-import net.minecraft.entity.Entity;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import net.minecraft.block.BlockLeaves;
+import net.minecraft.block.BlockOldLeaf;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
+import org.spongepowered.asm.mixin.Overwrite;
 
-import java.util.Optional;
+@Mixin(BlockOldLeaf.class)
+public abstract class MixinBlockOldLeaf extends BlockLeaves {
 
-@NonnullByDefault
-@Mixin(value = EntityInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity implements InteractEntityEvent.Secondary {
-
-    @Shadow Entity target;
-
+    /**
+     * @author bloodmc
+     *
+     *  Purpose: Oak, Spruce, Birch, and Jungle blocks currently do not call 
+     *  Forge's super method in Block on server side. This causes our harvest
+     *  event not to be fired correctly.
+     */
     @Override
-    public Cause getCause() {
-        return Cause.of(((EntityEvent) (Object) this).entity);
-    }
-
-    @Override
-    public org.spongepowered.api.entity.Entity getTargetEntity() {
-        return (org.spongepowered.api.entity.Entity) this.target;
-    }
-
-    @Override
-    public Optional<Vector3d> getInteractionPoint() {
-        return Optional.empty();
+    @Overwrite
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
+        super.harvestBlock(worldIn, player, pos, state, te);
     }
 }

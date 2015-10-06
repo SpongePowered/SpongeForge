@@ -29,7 +29,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.world.BlockEvent;
-import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.util.Direction;
@@ -54,8 +54,8 @@ import java.util.function.Predicate;
 @Mixin(value = BlockEvent.NeighborNotifyEvent.class, remap = false)
 public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock implements NotifyNeighborBlockEvent {
 
-    private ImmutableMap<Direction, BlockSnapshot> originalRelatives;
-    private Map<Direction, Location<World>> relatives;
+    private ImmutableMap<Direction, BlockState> originalNeighbors;
+    private Map<Direction, BlockState> neighbors;
     @Shadow private EnumSet<EnumFacing> notifiedSides;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -66,39 +66,36 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
     }
 
     @Override
-    public ImmutableMap<Direction, BlockSnapshot> getOriginalRelatives() {
-        return this.originalRelatives;
+    public ImmutableMap<Direction, BlockState> getOriginalNeighbors() {
+        return this.originalNeighbors;
     }
 
     @Override
-    public Map<Direction, Location<World>> getRelatives() {
-        return this.relatives;
+    public Map<Direction, BlockState> getNeighbors() {
+        return this.neighbors;
     }
 
     @Override
     public void filterDirections(Predicate<Direction> predicate) {
-        Iterator<Direction> iterator = this.relatives.keySet().iterator();
+        Iterator<Direction> iterator = this.neighbors.keySet().iterator();
         if (!predicate.test(iterator.next())) {
             iterator.remove();
         }
     }
 
     public void createSpongeEventData() {
-        this.relatives = new HashMap<Direction, Location<World>>();
+        this.neighbors = new HashMap<Direction, BlockState>();
         if (this.notifiedSides != null) {
             for (EnumFacing notifiedSide : this.notifiedSides) {
                 BlockPos offset = this.pos.offset(notifiedSide);
                 Direction direction = SpongeGameRegistry.directionMap.inverse().get(notifiedSide);
                 Location<World> location = new Location<World>((World) this.world, VecHelper.toVector(offset));
-                this.relatives.put(direction, location);
+                if (location.getBlockY() >=0 && location.getBlockY() <= 255) {
+                    this.neighbors.put(direction, location.getBlock());
+                }
             }
         }
-        ImmutableMap.Builder<Direction, BlockSnapshot> builder = new ImmutableMap.Builder<Direction, BlockSnapshot>();
-        for (Map.Entry<Direction, Location<World>> mapEntry : this.relatives.entrySet()) {
-            BlockSnapshot blockSnapshot = mapEntry.getValue().createSnapshot();
-            builder.put(mapEntry.getKey(), blockSnapshot);
-        }
-        this.originalRelatives = builder.build();
+        this.originalNeighbors = ImmutableMap.copyOf(this.neighbors);
     }
 
     @Override
@@ -107,7 +104,7 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
 
         NotifyNeighborBlockEvent event = (NotifyNeighborBlockEvent) spongeEvent;
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
-        for (Map.Entry<Direction, Location<World>> mapEntry : event.getRelatives().entrySet()) {
+        for (Map.Entry<Direction, BlockState> mapEntry : event.getNeighbors().entrySet()) {
             facings.add(SpongeGameRegistry.directionMap.get(mapEntry.getKey()));
         }
 

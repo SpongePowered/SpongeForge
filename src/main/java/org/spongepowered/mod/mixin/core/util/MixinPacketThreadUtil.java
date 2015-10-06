@@ -22,39 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.mixin.core.util;
 
-import com.flowpowered.math.vector.Vector3d;
-import net.minecraft.entity.Entity;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
+import net.minecraft.network.INetHandler;
+import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.Packet;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.interfaces.IMixinWorld;
+import org.spongepowered.mod.util.StaticMixinHelper;
 
-import java.util.Optional;
+@Mixin(targets = "net/minecraft/network/PacketThreadUtil$1")
+public class MixinPacketThreadUtil {
 
-@NonnullByDefault
-@Mixin(value = EntityInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity implements InteractEntityEvent.Secondary {
-
-    @Shadow Entity target;
-
-    @Override
-    public Cause getCause() {
-        return Cause.of(((EntityEvent) (Object) this).entity);
+    @Redirect(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Packet;processPacket(Lnet/minecraft/network/INetHandler;)V"))
+    public void onProcessPacket(Packet packetIn, INetHandler netHandler) {
+        StaticMixinHelper.processingPacket = packetIn;
+        if (netHandler instanceof NetHandlerPlayServer) {
+            StaticMixinHelper.processingPlayer = ((NetHandlerPlayServer)netHandler).playerEntity;
+            packetIn.processPacket(netHandler);
+            ((IMixinWorld)StaticMixinHelper.processingPlayer.worldObj).handlePostTickCaptures(Cause.of(StaticMixinHelper.processingPlayer, "PacketThreadUtil"));
+            StaticMixinHelper.processingPlayer = null;
+        } else { // client
+            packetIn.processPacket(netHandler);
+        }
+        StaticMixinHelper.processingPacket = null;
     }
 
-    @Override
-    public org.spongepowered.api.entity.Entity getTargetEntity() {
-        return (org.spongepowered.api.entity.Entity) this.target;
-    }
-
-    @Override
-    public Optional<Vector3d> getInteractionPoint() {
-        return Optional.empty();
-    }
 }

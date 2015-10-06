@@ -25,12 +25,10 @@
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
@@ -70,18 +68,4 @@ public abstract class MixinPlayerLoggedInEvent extends MixinPlayerEvent implemen
         this.sink = sink;
     }
 
-    @Override
-    public void setToTransform(Transform<World> toTransform) {
-        this.toTransform = toTransform;
-    }
-
-    @Override
-    public Transform<World> getFromTransform() {
-        return this.fromTransform;
-    }
-
-    @Override
-    public Transform<World> getToTransform() {
-        return this.toTransform;
-    }
 }

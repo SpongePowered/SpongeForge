@@ -98,7 +98,7 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
 
     @Override
     public Cause getCause() {
-        return Cause.of(this.source);
+        return Cause.of(this.source, this.entityLiving);
     }
 
 }

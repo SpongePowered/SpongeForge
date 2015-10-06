@@ -22,11 +22,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.mixin.core.event.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
-import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
@@ -36,8 +34,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.mixin.core.event.player.MixinEventPlayer;
 
-@Mixin(value = PlayerUseItemEvent.class, remap = false)
+@Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.class, remap = false)
 public abstract class MixinEventUseItemStack extends MixinEventPlayer implements UseItemStackEvent {
 
     private int originalDuration;
@@ -68,22 +67,22 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
         this.duration = duration;
     }
 
-    @Mixin(value = PlayerUseItemEvent.Start.class, remap = false)
+    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start.class, remap = false)
     static abstract class Start extends MixinEventUseItemStack implements UseItemStackEvent.Start {
 
     }
 
-    @Mixin(value = PlayerUseItemEvent.Tick.class, remap = false)
+    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick.class, remap = false)
     static abstract class Tick extends MixinEventUseItemStack implements UseItemStackEvent.Tick {
 
     }
 
-    @Mixin(value = PlayerUseItemEvent.Stop.class, remap = false)
+    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop.class, remap = false)
     static abstract class Stop extends MixinEventUseItemStack implements UseItemStackEvent.Stop {
 
     }
 
-    @Mixin(value = PlayerUseItemEvent.Finish.class, remap = false)
+    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish.class, remap = false)
     static abstract class Finish extends MixinEventUseItemStack implements UseItemStackEvent.Finish {
 
         private ItemStackSnapshot itemResultSnapshot;
@@ -111,12 +110,12 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
     public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
         super.syncDataToSponge(forgeEvent);
 
-        PlayerUseItemEvent event = (PlayerUseItemEvent) forgeEvent;
+        net.minecraftforge.event.entity.player.PlayerUseItemEvent event = (net.minecraftforge.event.entity.player.PlayerUseItemEvent) forgeEvent;
         this.itemTransaction.setCustom(((ItemStack) event.item).createSnapshot());
     }
 
     @Override
-    public void syncDataToForge(Event spongeEvent) {
+    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
         super.syncDataToForge(spongeEvent);
 
        UseItemStackEvent event = (UseItemStackEvent) spongeEvent;

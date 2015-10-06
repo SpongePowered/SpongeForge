@@ -35,15 +35,21 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.user.UserStorage;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.Sponge;
 import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.world.DimensionManager;
+
+import java.util.Optional;
+import java.util.UUID;
 
 
 @NonnullByDefault
@@ -58,10 +64,10 @@ public abstract class MixinEntity implements IMixinEntity {
     @Override
     public final NBTTagCompound getSpongeData() {
         final NBTTagCompound data = this.getEntityData();
-        if (!data.hasKey(NbtDataUtil.SPONGE_TAG, Constants.NBT.TAG_COMPOUND)) {
-            data.setTag(NbtDataUtil.SPONGE_TAG, new NBTTagCompound());
+        if (!data.hasKey(NbtDataUtil.SPONGE_DATA, Constants.NBT.TAG_COMPOUND)) {
+            data.setTag(NbtDataUtil.SPONGE_DATA, new NBTTagCompound());
         }
-        return data.getCompoundTag(NbtDataUtil.SPONGE_TAG);
+        return data.getCompoundTag(NbtDataUtil.SPONGE_DATA);
     }
 
     @SuppressWarnings("unchecked")
@@ -131,5 +137,22 @@ public abstract class MixinEntity implements IMixinEntity {
         fromWorld.resetUpdateEntityTick();
         toWorld.resetUpdateEntityTick();
         return true;
+    }
+
+    @Override
+    public Optional<User> getSpongeCreator() {
+        NBTTagCompound nbt = getEntityData();
+        if (!nbt.hasKey(NbtDataUtil.SPONGE_DATA) || !nbt.getCompoundTag(NbtDataUtil.SPONGE_DATA).hasKey(NbtDataUtil.SPONGE_ENTITY_CREATOR)) {
+           return Optional.empty();
+        } else {
+            NBTTagCompound creatorNbt = nbt.getCompoundTag(NbtDataUtil.SPONGE_DATA).getCompoundTag(NbtDataUtil.SPONGE_ENTITY_CREATOR);
+            
+            if (!creatorNbt.hasKey("uuid_most") || !creatorNbt.hasKey("uuid_least")) {
+                return Optional.empty();
+            }
+
+            UUID uuid = new UUID(creatorNbt.getLong("uuid_most"), creatorNbt.getLong("uuid_least"));
+            return Sponge.getGame().getServiceManager().provide(UserStorage.class).get().get(uuid);
+        }
     }
 }

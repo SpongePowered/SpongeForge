@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.plugin;
 
-import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -36,6 +35,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @NonnullByDefault
 public class SpongePluginManager implements PluginManager {

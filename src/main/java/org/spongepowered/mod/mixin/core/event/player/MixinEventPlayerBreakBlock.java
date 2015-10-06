@@ -31,7 +31,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.event.block.BreakBlockEvent;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -46,7 +46,7 @@ import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.BreakEvent.class, remap = false)
-public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements BreakBlockEvent {
+public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements ChangeBlockEvent.Break {
 
     @Shadow private int exp;
     @Shadow private EntityPlayer player;

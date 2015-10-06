@@ -84,7 +84,7 @@ public abstract class MixinEntityRegistry {
         }
 
         SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass);
-        SpongeMod.instance.getSpongeRegistry().registerEntityType(entityType.getId(), entityType);
+        SpongeMod.instance.getSpongeRegistry().registerEntityType(entityType);
     }
 
 }

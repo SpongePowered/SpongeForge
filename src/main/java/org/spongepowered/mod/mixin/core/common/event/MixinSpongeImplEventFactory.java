@@ -51,9 +51,8 @@ public abstract class MixinSpongeImplEventFactory {
     }
 
     @Overwrite
-    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Game game, Cause cause, Text originalMessage, Text message, MessageSink originalSink, MessageSink sink, Transform<World> fromTransform, Transform<World> toTransform, Player targetEntity) {
+    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Game game, Cause cause, Text originalMessage, Text message, MessageSink originalSink, MessageSink sink, Player targetEntity) {
         final ClientConnectionEvent.Join event = (ClientConnectionEvent.Join) new PlayerEvent.PlayerLoggedInEvent((EntityPlayer) targetEntity);
-        event.setToTransform(toTransform);
         event.setSink(sink);
         event.setMessage(message);
         return event;

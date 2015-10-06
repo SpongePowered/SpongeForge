@@ -22,19 +22,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.inventory;
+package org.spongepowered.mod.util;
 
-import net.minecraft.entity.item.EntityItem;
-import net.minecraftforge.event.entity.item.ItemEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.Packet;
+import org.spongepowered.common.world.gen.SpongePopulatorType;
 
-@NonnullByDefault
-@Mixin(ItemEvent.class)
-public abstract class MixinEventItem extends MixinEventEntity {
+public class StaticMixinHelper {
 
-    @Shadow(remap = false) public EntityItem entityItem;
+    public static EntityPlayer processingPlayer = null;
+    public static Packet processingPacket = null;
+    public static SpongePopulatorType populator = null;
+    public static Class lastPopulatorClass = null;
+    public static boolean isFlowerGen = false;
 
+    @SuppressWarnings("deprecation")
+    public static Class getCallerClass(int level) {
+        return sun.reflect.Reflection.getCallerClass(level);
+    }
 }

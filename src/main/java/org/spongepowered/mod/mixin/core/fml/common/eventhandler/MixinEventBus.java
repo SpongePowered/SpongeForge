@@ -30,6 +30,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -53,7 +54,14 @@ public abstract class MixinEventBus implements IMixinEventBus {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
         if (event instanceof org.spongepowered.api.event.Event && !FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-            boolean cancelled = ((SpongeModEventManager) SpongeMod.instance.getGame().getEventManager()).post(event, listeners);
+            // TODO - handle player tracking better for breaks
+            if (event instanceof ChangeBlockEvent.Place || event instanceof ChangeBlockEvent.Break) {
+                ChangeBlockEvent blockEvent = (ChangeBlockEvent) event;
+                if (((net.minecraft.world.World)blockEvent.getTargetWorld()).captureBlockSnapshots) {
+                    return false; // let the event happen, we will just capture it
+                }
+            }
+            boolean cancelled = ((SpongeModEventManager) SpongeMod.instance.getGame().getEventManager()).post(null, event, listeners);
             if (!cancelled) {
                 SpongeForgeEventFactory.onForgePost(event);
             }

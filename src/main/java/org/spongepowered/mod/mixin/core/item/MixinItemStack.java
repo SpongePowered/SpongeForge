@@ -22,39 +22,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.mixin.core.item;
 
-import com.flowpowered.math.vector.Vector3d;
-import net.minecraft.entity.Entity;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.stats.StatList;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
-import java.util.Optional;
+@Mixin(net.minecraft.item.ItemStack.class)
+public abstract class MixinItemStack {
 
-@NonnullByDefault
-@Mixin(value = EntityInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity implements InteractEntityEvent.Secondary {
+    @Shadow private net.minecraft.item.Item item;
+    @Shadow public abstract net.minecraft.item.Item getItem();
 
-    @Shadow Entity target;
+    // Disable Forge PlaceEvent patch as we handle this in World setBlockState
+    @Overwrite
+    public boolean onItemUse(EntityPlayer playerIn, net.minecraft.world.World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
+        boolean flag = this.getItem().onItemUse((net.minecraft.item.ItemStack)(Object)this, playerIn, worldIn, pos, side, hitX, hitY, hitZ);
 
-    @Override
-    public Cause getCause() {
-        return Cause.of(((EntityEvent) (Object) this).entity);
-    }
+        if (flag) {
+            playerIn.triggerAchievement(StatList.objectUseStats[net.minecraft.item.Item.getIdFromItem(this.item)]);
+        }
 
-    @Override
-    public org.spongepowered.api.entity.Entity getTargetEntity() {
-        return (org.spongepowered.api.entity.Entity) this.target;
-    }
-
-    @Override
-    public Optional<Vector3d> getInteractionPoint() {
-        return Optional.empty();
+        return flag;
     }
 }

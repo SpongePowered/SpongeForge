@@ -289,4 +289,18 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
         return prefix;
     }
+
+    @SuppressWarnings("rawtypes")
+    public String getModIdFromClass(Class clazz) {
+        String modId = clazz.getName().contains("net.minecraft.") ? "minecraft" : "unknown";
+        String modPackage = clazz.getName().replace("." + clazz.getSimpleName(), "");
+        for (ModContainer mc : Loader.instance().getActiveModList()) {
+            if (mc.getOwnedPackages().contains(modPackage)) {
+                modId = mc.getModId();
+                break;
+            }
+        }
+
+        return modId;
+    }
 }

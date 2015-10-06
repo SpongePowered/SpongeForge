@@ -32,7 +32,7 @@ import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.event.Event;
-import org.spongepowered.api.event.block.PlaceBlockEvent;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -45,7 +45,7 @@ import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 
 @NonnullByDefault
 @Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
-public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock implements PlaceBlockEvent{
+public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock implements ChangeBlockEvent.Place {
 
     @Shadow public EntityPlayer player;
     @Shadow public ItemStack itemInHand;
@@ -69,7 +69,7 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
     public void syncDataToForge(Event spongeEvent) {
         super.syncDataToForge(spongeEvent);
 
-        PlaceBlockEvent event = (PlaceBlockEvent) spongeEvent;
+        ChangeBlockEvent.Place event = (ChangeBlockEvent.Place) spongeEvent;
         this.placedBlock = (IBlockState) event.getTransactions().get(0).getFinalReplacement().getState();
     }
 }

@@ -43,10 +43,12 @@ import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.gen.PopulatorType;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.world.gen.SpongePopulatorType;
 import org.spongepowered.mod.SpongeMod;
 
 import java.util.Map;
@@ -132,10 +134,14 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
         }
     }
 
-    // used by EntityRegistry
-    public void registerEntityType(String id, EntityType type) {
-        this.entityTypeMappings.put(id, type);
+    public void registerEntityType(EntityType type) {
+        this.entityTypeMappings.put(type.getId(), type);
         this.entityClassToTypeMappings.put(((SpongeEntityType) type).entityClass, type);
+    }
+
+    public void registerPopulatorType(PopulatorType type) {
+        this.populatorTypeMappings.put(type.getId(), type);
+        this.populatorClassToTypeMappings.put(((SpongePopulatorType) type).populatorClass, type);
     }
 
     @SuppressWarnings("unchecked")

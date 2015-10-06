@@ -53,7 +53,7 @@ public abstract class MixinGameData {
 
     @Inject(method = "registerBlock(Lnet/minecraft/block/Block;Ljava/lang/String;I)I", at = @At(value = "HEAD"))
     private void onRegisterBlock(Block block, String name, int idHint, CallbackInfoReturnable<Integer> cir) {
-        SpongeGameRegistry.blockTypeMappings.put(name, (BlockType) block);
+        SpongeGameRegistry.blockTypeMappings.put(name.toLowerCase(), (BlockType) block);
     }
 
     @Inject(method = "registerItem(Lnet/minecraft/item/Item;Ljava/lang/String;I)I", at = @At(value = "HEAD"))

@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.event;
 
-import java.util.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -84,14 +83,12 @@ import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
-import org.spongepowered.api.event.block.BreakBlockEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.block.HarvestBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
-import org.spongepowered.api.event.block.PlaceBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
@@ -101,6 +98,7 @@ import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
 import org.spongepowered.api.event.entity.living.TargetLivingEvent;
+import org.spongepowered.api.event.inventory.DropItemEvent;
 import org.spongepowered.api.event.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
@@ -109,7 +107,7 @@ import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
-import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.Direction;
@@ -123,6 +121,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class SpongeForgeEventFactory {
 
@@ -314,11 +313,11 @@ public class SpongeForgeEventFactory {
     }
 
     public static BlockEvent.PlaceEvent createBlockPlaceEvent(Event event) {
-        if (!(event instanceof PlaceBlockEvent)) {
-            throw new IllegalArgumentException("Event is not a valid PlaceBlockEvent.");
+        if (!(event instanceof ChangeBlockEvent.Place)) {
+            throw new IllegalArgumentException("Event is not a valid ChangeBlockEvent.Place event.");
         }
 
-        PlaceBlockEvent spongeEvent = (PlaceBlockEvent) event;
+        ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) event;
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
@@ -337,11 +336,11 @@ public class SpongeForgeEventFactory {
     }
 
     public static BlockEvent.BreakEvent createBlockBreakEvent(Event event) {
-        if (!(event instanceof BreakBlockEvent)) {
+        if (!(event instanceof ChangeBlockEvent.Break)) {
             throw new IllegalArgumentException("Event is not a valid BreakBlockEvent.");
         }
 
-        BreakBlockEvent spongeEvent = (BreakBlockEvent) event;
+        ChangeBlockEvent.Break spongeEvent = (ChangeBlockEvent.Break) event;
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
@@ -357,19 +356,19 @@ public class SpongeForgeEventFactory {
     }
 
     public static BlockEvent.HarvestDropsEvent createBlockHarvestEvent(Event event) {
-        if (!(event instanceof HarvestBlockEvent)) {
-            throw new IllegalArgumentException("Event is not a valid HarvestBlockEvent.");
+        if (!(event instanceof DropItemEvent.Harvest)) {
+            throw new IllegalArgumentException("Event is not a valid DropItemEvent.Harvest.");
         }
 
-        HarvestBlockEvent spongeEvent = (HarvestBlockEvent) event;
+        DropItemEvent.Harvest spongeEvent = (DropItemEvent.Harvest) event;
         List<net.minecraft.item.ItemStack> droppedItems = new ArrayList<net.minecraft.item.ItemStack>();
-        for (ItemStack itemstack : spongeEvent.getItemStacks()) {
-           // EntityItem entityItem = new EntityItem((net.minecraft.world.World) spongeEvent.getTargetLocation().getExtent(), spongeEvent.getTargetLocation().getBlockX(), spongeEvent.getTargetLocation().getBlockY(), spongeEvent.getTargetLocation().getBlockZ(), (net.minecraft.item.ItemStack) itemstack);
+        for (ItemStackSnapshot itemstack : spongeEvent.getDroppedItems()) {
             droppedItems.add((net.minecraft.item.ItemStack) itemstack);
         }
         Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        Optional<BlockSnapshot> blockSnapshot = spongeEvent.getCause().first(BlockSnapshot.class);
 
-        Location<World> location = spongeEvent.getTargetBlock().getLocation().get();
+        Location<World> location = blockSnapshot.get().getLocation().get();
         BlockEvent.HarvestDropsEvent forgeEvent =
                 new BlockEvent.HarvestDropsEvent((net.minecraft.world.World) location.getExtent(), VecHelper.toBlockPos(location.getPosition()), (IBlockState) location.getBlock(), 0,
                         spongeEvent.getDropChance(), droppedItems, player.isPresent() ? (EntityPlayer) player.get() : null, false);// spongeEvent.isSilkTouchHarvest());
@@ -388,7 +387,7 @@ public class SpongeForgeEventFactory {
         }
 
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
-        for (Map.Entry<Direction, Location<World>> mapEntry : spongeEvent.getRelatives().entrySet()) {
+        for (Map.Entry<Direction, BlockState> mapEntry : spongeEvent.getNeighbors().entrySet()) {
             facings.add(SpongeGameRegistry.directionMap.get(mapEntry.getKey()));
         }
 

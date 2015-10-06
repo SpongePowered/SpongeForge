@@ -73,6 +73,11 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         }
     }
 
+    @Override
+    public World getTargetWorld() {
+        return (World) this.world;
+    }
+
     @Mixin(value = net.minecraftforge.event.world.ExplosionEvent.Start.class, remap = false)
     static abstract class Pre extends MixinEventWorldExplosion implements ExplosionEvent.Pre {
 

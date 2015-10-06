@@ -22,39 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.interfaces;
 
-import com.flowpowered.math.vector.Vector3d;
-import net.minecraft.entity.Entity;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
+import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.BlockPos;
+import org.spongepowered.api.entity.living.player.User;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
-@NonnullByDefault
-@Mixin(value = EntityInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity implements InteractEntityEvent.Secondary {
+public interface IMixinChunk {
 
-    @Shadow Entity target;
+    Map<Short, Integer> getTrackedShortPlayerPositions();
 
-    @Override
-    public Cause getCause() {
-        return Cause.of(((EntityEvent) (Object) this).entity);
-    }
+    Map<Integer, Integer> getTrackedIntPlayerPositions();
 
-    @Override
-    public org.spongepowered.api.entity.Entity getTargetEntity() {
-        return (org.spongepowered.api.entity.Entity) this.target;
-    }
+    Optional<UUID> getTrackedPlayerUniqueId(BlockPos pos);
 
-    @Override
-    public Optional<Vector3d> getInteractionPoint() {
-        return Optional.empty();
-    }
+    Optional<User> getBlockPosOwner(BlockPos pos);
+
+    void addTrackedBlockPosition(Block block, BlockPos pos, EntityPlayer processingPlayer);
+
+    void setTrackedIntPlayerPositions(Map<Integer, Integer> trackedPlayerPositions);
+
+    void setTrackedShortPlayerPositions(Map<Short, Integer> trackedPlayerPositions);
+
+    void removeTrackedPlayerPosition(BlockPos pos);
 }

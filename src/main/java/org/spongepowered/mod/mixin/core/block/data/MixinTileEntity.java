@@ -53,9 +53,9 @@ public abstract class MixinTileEntity implements TileEntity, IMixinTileEntity {
     @Override
     public final NBTTagCompound getSpongeData() {
         NBTTagCompound data = this.getTileData();
-        if (!data.hasKey(NbtDataUtil.SPONGE_TAG, Constants.NBT.TAG_COMPOUND)) {
-            data.setTag(NbtDataUtil.SPONGE_TAG, new NBTTagCompound());
+        if (!data.hasKey(NbtDataUtil.SPONGE_DATA, Constants.NBT.TAG_COMPOUND)) {
+            data.setTag(NbtDataUtil.SPONGE_DATA, new NBTTagCompound());
         }
-        return data.getCompoundTag(NbtDataUtil.SPONGE_TAG);
+        return data.getCompoundTag(NbtDataUtil.SPONGE_DATA);
     }
 }
