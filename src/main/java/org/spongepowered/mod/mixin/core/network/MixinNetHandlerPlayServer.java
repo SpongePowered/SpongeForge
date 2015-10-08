@@ -58,6 +58,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.util.VecHelper;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 @Mixin(NetHandlerPlayServer.class)
@@ -109,10 +110,15 @@ public abstract class MixinNetHandlerPlayServer {
         // The following is to fix Vanilla silly-ness where right-clicking air has a position at 0, 0, 0 for the block
         if (action == PlayerInteractEvent.Action.RIGHT_CLICK_AIR) {
             // TODO Not the most efficient and someday I'll make it better but this works.
-            correctPos = VecHelper.toBlockPos(BlockRay.<World>from((Entity) playerEntity).filter(BlockRay.<World>maxDistanceFilter(((Entity) player)
+            final Iterator<BlockRayHit<World>> iter = BlockRay.<World>from((Entity) playerEntity).filter(BlockRay.<World>maxDistanceFilter(((Entity)
+                    player)
                     .getLocation()
                     .getPosition(), 2))
-                    .iterator().next().getBlockPosition());
+                    .iterator();
+            // TODO I had to make this check because looking straight up and right clicking with a sitck/etc would break BlockRay.
+            if (iter.hasNext()) {
+                correctPos = VecHelper.toBlockPos(iter.next().getBlockPosition());
+            }
         }
         PlayerInteractEvent event = new PlayerInteractEvent(player, action, correctPos, face, world);
         double reach = this.playerEntity.theItemInWorldManager.getGameType() == WorldSettings.GameType.CREATIVE ? 5 : 4.5;
