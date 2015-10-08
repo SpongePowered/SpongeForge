@@ -528,18 +528,21 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                     EntityPlayerMP player = null;
                     C08PacketPlayerBlockPlacement packet = null;
 
+                    if (StaticMixinHelper.processingPlayer != null) {
+                        player = (EntityPlayerMP) StaticMixinHelper.processingPlayer;
+                    }
+
                     if (StaticMixinHelper.processingPacket instanceof C08PacketPlayerBlockPlacement) { // player place
                         packet = (C08PacketPlayerBlockPlacement) StaticMixinHelper.processingPacket;
-                        player = (EntityPlayerMP) StaticMixinHelper.processingPlayer;
                     }
 
                     if (event.isCancelled()) {
 
                         // Restore original blocks
                         for (BlockTransaction transaction : event.getTransactions()) {
-                            world.restoringBlockSnapshots = true;
+                            this.restoringBlockSnapshots = true;
                             transaction.getOriginal().restore(true, false);
-                            world.restoringBlockSnapshots = false;
+                            this.restoringBlockSnapshots = false;
                         }
 
                         if (captureType == CaptureType.BREAK && player != null) {
@@ -569,10 +572,13 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                             player.playerNetServerHandler.sendPacket(new S2FPacketSetSlot(player.openContainer.windowId, slot.slotNumber, packet.getStack()));
                         }
 
+                        // clear entity list and return to avoid spawning items
+                        this.capturedEntities.clear();
+                        return;
                     } else {
                         markAndNotifyBlockPost(event.getTransactions(), captureType, cause);
 
-                        if (captureType == CaptureType.PLACE && player != null && packet.getStack() != null) {
+                        if (captureType == CaptureType.PLACE && player != null && packet != null && packet.getStack() != null) {
                             player.addStat(StatList.objectUseStats[net.minecraft.item.Item.getIdFromItem(packet.getStack().getItem())], 1);
                         }
                     }
