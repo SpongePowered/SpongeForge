@@ -64,14 +64,15 @@ public abstract class MixinEventDropItem extends MixinEventEntity implements Dro
 
     protected EntitySnapshot entitySnapshot;
     protected ImmutableList<EntitySnapshot> entitySnapshots;
-    protected List<Item> entities = new ArrayList<Item>();
+    protected List<Item> entities;
     @Shadow public EntityItem entityItem;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityItem itemEntity, CallbackInfo ci) {
         this.entitySnapshot = ((Entity) itemEntity).createSnapshot();
+        this.entities = new ArrayList<>();
         this.entities.add((Item) itemEntity);
-        ImmutableList.of(this.entitySnapshot);
+        this.entitySnapshots = ImmutableList.of(this.entitySnapshot);
     }
 
     @Mixin(value = ItemTossEvent.class, remap = false)
@@ -126,7 +127,7 @@ public abstract class MixinEventDropItem extends MixinEventEntity implements Dro
     static abstract class Harvest extends MixinEventBlock implements DropItemEvent.Pre, DropItemEvent.Harvest {
 
         private ImmutableList<ItemStackSnapshot> originalDrops;
-        private List<ItemStackSnapshot> itemDrops = new ArrayList<ItemStackSnapshot>();
+        private List<ItemStackSnapshot> itemDrops;
         private float originalDropChance;
         private BlockSnapshot blockSnapshot;
         private Entity entityCause;
@@ -144,6 +145,7 @@ public abstract class MixinEventDropItem extends MixinEventEntity implements Dro
                 List<net.minecraft.item.ItemStack> drops, EntityPlayer harvester, boolean isSilkTouching,
                 CallbackInfo ci) {
 
+            this.itemDrops = new ArrayList<>();
             ImmutableList.Builder<ItemStackSnapshot> builder = new ImmutableList.Builder<ItemStackSnapshot>();
             for (net.minecraft.item.ItemStack itemStack : drops) {
                 builder.add(((ItemStack)itemStack).createSnapshot());
