@@ -20,7 +20,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 ext {
     minecraftPlugin = plugins.getPlugin('net.minecraftforge.gradle.forge')
-    forgeBuild = '1515'
+    forgeBuild = '1519'
     DIR_MCP_MAPPINGS = net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS
 }
 
