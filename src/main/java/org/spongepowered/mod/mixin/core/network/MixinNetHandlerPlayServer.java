@@ -57,6 +57,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -80,6 +81,7 @@ public abstract class MixinNetHandlerPlayServer {
             cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     public void injectChatEvent(C01PacketChatMessage packetIn, CallbackInfo ci, String s, ChatComponentTranslation component) {
         final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
+        ((IMixinEventPlayerChat) event).setRawMessage(Texts.of(packetIn.getMessage()));
 
         if (!MinecraftForge.EVENT_BUS.post(event)) {
             MessageSinkEvent spongeEvent = (MessageSinkEvent) event;

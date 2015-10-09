@@ -116,6 +116,7 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -739,6 +740,8 @@ public class SpongeForgeEventFactory {
         ServerChatEvent forgeEvent =
                 new ServerChatEvent((EntityPlayerMP) player.get(), Texts.toPlain(spongeEvent.getOriginalMessage()),
                         (ChatComponentTranslation) component);
+        ((IMixinEventPlayerChat) forgeEvent).setRawMessage(spongeEvent.getRawMessage());
+
         return forgeEvent;
     }
 

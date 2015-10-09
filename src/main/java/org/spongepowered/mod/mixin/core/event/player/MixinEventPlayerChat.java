@@ -33,6 +33,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,16 +42,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.text.SpongeTexts;
+import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = ServerChatEvent.class, remap = false)
-public abstract class MixinEventPlayerChat extends MixinEvent implements MessageSinkEvent.Chat {
+public abstract class MixinEventPlayerChat extends MixinEvent implements MessageSinkEvent.Chat, IMixinEventPlayerChat {
 
     private Text spongeText;
-    private Text unformattedText;
+    private Text spongeRawText;
     @Nullable private Text spongeNewText;
     @Nullable private MessageSink sink;
 
@@ -75,11 +77,21 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     }
 
     @Override
+    public Text getRawMessage() {
+        return this.spongeRawText;
+    }
+
+    @Override
     public Text getMessage() {
         if (this.spongeNewText == null) {
             this.spongeNewText = SpongeTexts.toText(this.component);
         }
         return this.spongeNewText;
+    }
+
+    @Override
+    public void setRawMessage(Text rawMessage) {
+        this.spongeRawText = rawMessage;
     }
 
     // TODO: Better integration with forge mods?
