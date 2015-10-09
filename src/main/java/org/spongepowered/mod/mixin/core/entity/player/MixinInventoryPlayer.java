@@ -24,30 +24,36 @@
  */
 package org.spongepowered.mod.mixin.core.entity.player;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
 
-@Mixin(value = EntityPlayerMP.class, priority = 1001)
-public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
-    @Shadow private NetHandlerPlayServer playerNetServerHandler;
+@Mixin(InventoryPlayer.class)
+public class MixinInventoryPlayer {
 
-    @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/GameRules;getGameRuleBooleanValue(Ljava/lang/String;)"
-            + "Z", ordinal = 0))
-    public boolean onGetGameRules(GameRules gameRules, String gameRule) {
-        return false; // suppress death messages since this is handled in SpongeForgeEventFactory onForgePost
-    }
+    @Shadow public ItemStack[] mainInventory;
+    @Shadow public ItemStack[] armorInventory;
+    @Shadow public EntityPlayer player;
 
-    public boolean usesCustomClient() {
-        return this.playerNetServerHandler.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
+    @Overwrite
+    public void dropAllItems() {
+        int i;
+
+        for (i = 0; i < this.mainInventory.length; ++i) {
+            if (this.mainInventory[i] != null) {
+                this.player.dropItem(this.mainInventory[i], true, false);
+                // this.mainInventory[i] = null;  // Sponge - we handle this in World handlePostTick
+            }
+        }
+
+        for (i = 0; i < this.armorInventory.length; ++i) {
+            if (this.armorInventory[i] != null) {
+                this.player.dropItem(this.armorInventory[i], true, false);
+                //this.armorInventory[i] = null; // Sponge - we handle this in World handlePostTick
+            }
+        }
     }
 }

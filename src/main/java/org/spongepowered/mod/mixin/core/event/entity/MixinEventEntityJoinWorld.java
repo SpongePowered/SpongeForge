@@ -24,13 +24,86 @@
  */
 package org.spongepowered.mod.mixin.core.event.entity;
 
+import com.google.common.collect.ImmutableList;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.entity.Item;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Predicate;
 
 @NonnullByDefault
 @Mixin(value = EntityJoinWorldEvent.class, remap = false)
 public abstract class MixinEventEntityJoinWorld extends MixinEventEntity implements SpawnEntityEvent {
 
+    protected EntitySnapshot entitySnapshot;
+    protected ImmutableList<EntitySnapshot> entitySnapshots;
+    protected List<Entity> entities;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onConstructed(net.minecraft.entity.Entity entity, net.minecraft.world.World world, CallbackInfo ci) {
+        if (!world.isRemote) { // ignore client
+            this.entitySnapshot = ((Entity) this.entity).createSnapshot();
+            this.entities = new ArrayList<>();
+            this.entities.add((Entity) this.entity);
+            this.entitySnapshots = ImmutableList.of(this.entitySnapshot);
+        }
+    }
+
+    @Override
+    public List<Entity> getEntities() {
+        return this.entities;
+    }
+
+    @Override
+    public List<Entity> filterEntityLocations(Predicate<Location<World>> predicate) {
+        Iterator<Entity> iterator = this.entities.iterator();
+        while (iterator.hasNext()) {
+            if (!predicate.test(((Entity) iterator.next()).getLocation())) {
+                iterator.remove();
+            }
+        }
+        return this.entities;
+    }
+
+    @Override
+    public List<Entity> filterEntities(Predicate<Entity> predicate) {
+        Iterator<Entity> iterator = this.entities.iterator();
+        while (iterator.hasNext()) {
+            if (!predicate.test((Item) iterator.next())) {
+                iterator.remove();
+            }
+        }
+        return this.entities;
+    }
+
+    @Override
+    public List<EntitySnapshot> getEntitySnapshots() {
+        return this.entitySnapshots;
+    }
+
+    @Override
+    public World getTargetWorld() {
+        return (World) this.entity.worldObj;
+    }
+
+    @Override
+    public Cause getCause() {
+        return Cause.of(this.entity);
+    }
 }

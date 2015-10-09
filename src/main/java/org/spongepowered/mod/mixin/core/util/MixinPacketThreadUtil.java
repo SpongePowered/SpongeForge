@@ -24,9 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.util;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C07PacketPlayerDigging;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,9 +45,15 @@ public class MixinPacketThreadUtil {
         StaticMixinHelper.processingPacket = packetIn;
         if (netHandler instanceof NetHandlerPlayServer) {
             StaticMixinHelper.processingPlayer = ((NetHandlerPlayServer)netHandler).playerEntity;
+            IMixinWorld world = (IMixinWorld)StaticMixinHelper.processingPlayer.worldObj;
+            if (StaticMixinHelper.processingPlayer.getHeldItem() != null && (packetIn instanceof C07PacketPlayerDigging || packetIn instanceof C08PacketPlayerBlockPlacement)) {
+                StaticMixinHelper.lastPlayerItem = ItemStack.copyItemStack(StaticMixinHelper.processingPlayer.getHeldItem());
+            }
+            world.setProcessingCaptureCause(true);
             packetIn.processPacket(netHandler);
-            ((IMixinWorld)StaticMixinHelper.processingPlayer.worldObj).handlePostTickCaptures(Cause.of(StaticMixinHelper.processingPlayer, "PacketThreadUtil"));
+            ((IMixinWorld)StaticMixinHelper.processingPlayer.worldObj).handlePostTickCaptures(Cause.of(StaticMixinHelper.processingPlayer));
             StaticMixinHelper.processingPlayer = null;
+            world.setProcessingCaptureCause(false);
         } else { // client
             packetIn.processPacket(netHandler);
         }

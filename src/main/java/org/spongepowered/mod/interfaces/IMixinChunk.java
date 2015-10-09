@@ -25,15 +25,20 @@
 package org.spongepowered.mod.interfaces;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.cause.Cause;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface IMixinChunk {
+
+    Cause getCurrentPopulateCause();
 
     Map<Short, Integer> getTrackedShortPlayerPositions();
 
@@ -42,6 +47,8 @@ public interface IMixinChunk {
     Optional<UUID> getTrackedPlayerUniqueId(BlockPos pos);
 
     Optional<User> getBlockPosOwner(BlockPos pos);
+
+    IBlockState setBlockState(BlockPos pos, IBlockState newState, IBlockState currentState, BlockSnapshot newBlockSnapshot);
 
     void addTrackedBlockPosition(Block block, BlockPos pos, EntityPlayer processingPlayer);
 

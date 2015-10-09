@@ -24,16 +24,18 @@
  */
 package org.spongepowered.mod.util;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import org.spongepowered.common.world.gen.SpongePopulatorType;
 
 public class StaticMixinHelper {
 
-    public static EntityPlayer processingPlayer = null;
+    public static EntityPlayerMP processingPlayer = null;
     public static Packet processingPacket = null;
     public static SpongePopulatorType populator = null;
     @SuppressWarnings("rawtypes")
+    public static ItemStack lastPlayerItem = null;
     public static Class lastPopulatorClass = null;
     public static boolean isFlowerGen = false;
 

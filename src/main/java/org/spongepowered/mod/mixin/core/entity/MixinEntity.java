@@ -49,6 +49,7 @@ import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.world.DimensionManager;
 
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 
@@ -56,6 +57,8 @@ import java.util.UUID;
 @Mixin(value = Entity.class, priority = 1001, remap = false)
 public abstract class MixinEntity implements IMixinEntity {
 
+    @Shadow protected Random rand;
+    @Shadow public net.minecraft.world.World worldObj;
     // @formatter:off
     @Shadow(remap = false)
     public abstract NBTTagCompound getEntityData();
@@ -152,6 +155,12 @@ public abstract class MixinEntity implements IMixinEntity {
             }
 
             UUID uuid = new UUID(creatorNbt.getLong("uuid_most"), creatorNbt.getLong("uuid_least"));
+            // get player if online
+            EntityPlayer player = this.worldObj.getPlayerEntityByUUID(uuid);
+            if (player != null) {
+                return Optional.of((User)player);
+            }
+            // player is not online, get user from storage if one exists
             return Sponge.getGame().getServiceManager().provide(UserStorage.class).get().get(uuid);
         }
     }

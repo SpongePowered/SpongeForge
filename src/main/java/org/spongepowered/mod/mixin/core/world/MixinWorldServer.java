@@ -34,11 +34,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.common.interfaces.IMixinWorld;
-import org.spongepowered.common.interfaces.IMixinWorldInfo;
 
 import java.util.Random;
 
@@ -49,17 +45,6 @@ public abstract class MixinWorldServer extends MixinWorld {
     @Shadow public abstract void updateBlockTick(BlockPos p_175654_1_, Block p_175654_2_, int p_175654_3_, int p_175654_4_);
     @Shadow public abstract boolean fireBlockEvent(BlockEventData event);
 
-    @Inject(method = "init", at = @At("RETURN"))
-    public void onPostInit(CallbackInfoReturnable<net.minecraft.world.World> ci) {
-        net.minecraft.world.World world = ci.getReturnValue();
-        if (!((IMixinWorldInfo) world.getWorldInfo()).getIsMod()) {
-            // Run the world generator modifiers in the init method
-            // (the "init" method, not the "<init>" constructor)
-            IMixinWorld mixinWorld = (IMixinWorld) world;
-            mixinWorld.updateWorldGenerator();
-        }
-    }
-
     @Redirect(method = "updateBlocks", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;randomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V"))
     public void onUpdateBlocks(Block block, net.minecraft.world.World worldIn, BlockPos pos, IBlockState state, Random rand) {
         if (this.isRemote || this.currentTickBlock != null) {
@@ -67,10 +52,12 @@ public abstract class MixinWorldServer extends MixinWorld {
             return;
         }
 
+        this.processingCaptureCause = true;
         this.currentTickBlock = createSpongeBlockSnapshot(state, pos, 0);
         block.randomTick(worldIn, pos, state, rand);
         handlePostTickCaptures(Cause.of(this.currentTickBlock));
         this.currentTickBlock = null;
+        this.processingCaptureCause = false;
     }
 
     @Redirect(method = "updateBlockTick", at = @At(value = "INVOKE", target="Lnet/minecraft/block/Block;updateTick(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V"))
@@ -80,10 +67,12 @@ public abstract class MixinWorldServer extends MixinWorld {
             return;
         }
 
+        this.processingCaptureCause = true;
         this.currentTickBlock = createSpongeBlockSnapshot(state, pos, 0);
         block.updateTick(worldIn, pos, state, rand);
         handlePostTickCaptures(Cause.of(this.currentTickBlock));
         this.currentTickBlock = null;
+        this.processingCaptureCause = false;
     }
  
     @Redirect(method = "tickUpdates", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;updateTick(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;"
@@ -94,20 +83,24 @@ public abstract class MixinWorldServer extends MixinWorld {
             return;
         }
 
+        this.processingCaptureCause = true;
         this.currentTickBlock = createSpongeBlockSnapshot(state, pos, 0);
         block.updateTick(worldIn, pos, state, rand);
         handlePostTickCaptures(Cause.of(this.currentTickBlock));
         this.currentTickBlock = null;
+        this.processingCaptureCause = false;
     }
 
     // special handling for Pistons since they use their own event system
     @Redirect(method = "sendQueuedBlockEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldServer;fireBlockEvent(Lnet/minecraft/block/BlockEventData;)Z"))
     public boolean onFireBlockEvent(net.minecraft.world.WorldServer worldIn, BlockEventData event) {
         IBlockState currentState = worldIn.getBlockState(event.getPosition());
+        this.processingCaptureCause = true;
         this.currentTickBlock = createSpongeBlockSnapshot(currentState, event.getPosition(), 3);
         boolean result = fireBlockEvent(event);
         this.handlePostTickCaptures(Cause.of(this.currentTickBlock));
         this.currentTickBlock = null;
+        this.processingCaptureCause = false;
         return result;
     }
 }

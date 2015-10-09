@@ -143,7 +143,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         }
 
         @Override
-        public List<? extends Entity> filterEntityLocations(Predicate<Location<World>> predicate) {
+        public List<Entity> filterEntityLocations(Predicate<Location<World>> predicate) {
             if (((net.minecraftforge.event.world.ExplosionEvent.Detonate) (Object) this).isCancelable()) {
                 Iterator<? extends Entity> iterator = this.getEntities().iterator();
                 while (iterator.hasNext()) {

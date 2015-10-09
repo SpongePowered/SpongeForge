@@ -94,11 +94,9 @@ import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
 import org.spongepowered.api.event.entity.living.TargetLivingEvent;
-import org.spongepowered.api.event.inventory.DropItemEvent;
 import org.spongepowered.api.event.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
@@ -107,7 +105,6 @@ import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
-import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.Direction;
@@ -118,7 +115,6 @@ import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -135,7 +131,7 @@ public class SpongeForgeEventFactory {
                 return createBlockNeighborNotifyEvent(event);
             }
             else if (clazz == BlockEvent.HarvestDropsEvent.class) {
-                return createBlockHarvestEvent(event);
+                //return createBlockHarvestEvent(event);
             } else if (clazz == BlockEvent.BreakEvent.class) {
                 return createBlockBreakEvent(event);
             } else if (clazz == BlockEvent.MultiPlaceEvent.class ||
@@ -234,7 +230,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == EntityStruckByLightningEvent.class) {
 
             } else if (clazz == EntityJoinWorldEvent.class) {
-                return createEntityJoinWorldEvent(event);
+               // return createEntityJoinWorldEvent(event);
             } else {
                 return createEntityEvent(event);
             }
@@ -356,26 +352,6 @@ public class SpongeForgeEventFactory {
         return forgeEvent;
     }
 
-    public static BlockEvent.HarvestDropsEvent createBlockHarvestEvent(Event event) {
-        if (!(event instanceof DropItemEvent.Harvest)) {
-            throw new IllegalArgumentException("Event is not a valid DropItemEvent.Harvest.");
-        }
-
-        DropItemEvent.Harvest spongeEvent = (DropItemEvent.Harvest) event;
-        List<net.minecraft.item.ItemStack> droppedItems = new ArrayList<net.minecraft.item.ItemStack>();
-        for (ItemStackSnapshot itemstack : spongeEvent.getDroppedItems()) {
-            droppedItems.add((net.minecraft.item.ItemStack) itemstack);
-        }
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
-        Optional<BlockSnapshot> blockSnapshot = spongeEvent.getCause().first(BlockSnapshot.class);
-
-        Location<World> location = blockSnapshot.get().getLocation().get();
-        BlockEvent.HarvestDropsEvent forgeEvent =
-                new BlockEvent.HarvestDropsEvent((net.minecraft.world.World) location.getExtent(), VecHelper.toBlockPos(location.getPosition()), (IBlockState) location.getBlock(), 0,
-                        spongeEvent.getDropChance(), droppedItems, player.isPresent() ? (EntityPlayer) player.get() : null, false);// spongeEvent.isSilkTouchHarvest());
-        return forgeEvent;
-    }
-
     public static BlockEvent.NeighborNotifyEvent createBlockNeighborNotifyEvent(Event event) {
         if (!(event instanceof NotifyNeighborBlockEvent)) {
             throw new IllegalArgumentException("Event " + event.getClass() + " is not a valid NotifyNeighborBlockEvent.");
@@ -423,7 +399,7 @@ public class SpongeForgeEventFactory {
         return forgeEvent;
     }
 
-    public static EntityJoinWorldEvent createEntityJoinWorldEvent(Event event) {
+    /*public static EntityJoinWorldEvent createEntityJoinWorldEvent(Event event) {
         if (!(event instanceof SpawnEntityEvent)) {
             throw new IllegalArgumentException("Event is not a valid SpawnEntityEvent.");
         }
@@ -432,7 +408,7 @@ public class SpongeForgeEventFactory {
         EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((Entity) spongeEvent.getTargetEntity(),
                 (net.minecraft.world.World) spongeEvent.getTargetEntity().getLocation().getExtent());
         return forgeEvent;
-    }
+    }*/
 
     // Living events
     public static LivingEvent createLivingEvent(Event event) {

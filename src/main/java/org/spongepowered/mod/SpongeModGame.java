@@ -30,6 +30,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.GameState;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.event.EventManager;
@@ -72,5 +73,10 @@ public final class SpongeModGame extends SpongeGame {
     @Override
     public Platform getPlatform() {
         return this.platform;
+    }
+
+    @Override
+    public ChannelRegistrar getChannelRegistrar() {
+        throw new UnsupportedOperationException(); // TODO
     }
 }

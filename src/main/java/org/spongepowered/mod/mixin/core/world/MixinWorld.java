@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSetMultimap;
@@ -31,16 +33,19 @@ import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C01PacketChatMessage;
+import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.server.S23PacketBlockChange;
 import net.minecraft.network.play.server.S2FPacketSetSlot;
@@ -51,6 +56,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldSettings.GameType;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
@@ -61,12 +67,16 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.inventory.DropItemEvent;
 import org.spongepowered.api.event.world.chunk.PopulateChunkEvent;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Location;
@@ -87,6 +97,7 @@ import org.spongepowered.common.configuration.SpongeConfig;
 import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.interfaces.IMixinWorld;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
+import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.common.world.CaptureType;
@@ -106,13 +117,18 @@ import java.util.Random;
 import java.util.UUID;
 
 @Mixin(value = net.minecraft.world.World.class, priority = 1001)
-public abstract class MixinWorld implements org.spongepowered.api.world.World, IMixinWorld {
+public abstract class MixinWorld implements World, IMixinWorld {
 
     private long weatherStartTime;
+    public boolean processingCaptureCause = false;
     public boolean captureEntitySpawns = true;
     public boolean captureTerrainGen = false;
-    public List<net.minecraft.entity.Entity> capturedEntities = new ArrayList<net.minecraft.entity.Entity>();
+    public List<Entity> capturedEntities = new ArrayList<Entity>();
+    public List<Entity> capturedEntityItems = new ArrayList<Entity>();
+    public List<Entity> capturedOnBlockAddedEntities = new ArrayList<Entity>();
+    public List<Entity> capturedOnBlockAddedItems = new ArrayList<Entity>();
     public BlockSnapshot currentTickBlock = null;
+    public BlockSnapshot currentTickOnBlockAdded = null;
     public Entity currentTickEntity = null;
     public TileEntity currentTickTileEntity = null;
     public SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
@@ -124,6 +140,8 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
     public Map<CaptureType, List<BlockSnapshot>> captureBlockLists = Maps.newHashMap();
     @SuppressWarnings("unused")
     private boolean keepSpawnLoaded;
+    private boolean worldSpawnerRunning;
+    private boolean chunkSpawnerRunning;
     public SpongeConfig<SpongeConfig.WorldConfig> worldConfig;
 
     @SuppressWarnings("rawtypes")
@@ -147,6 +165,7 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract net.minecraft.tileentity.TileEntity getTileEntity(BlockPos pos);
     @Shadow public abstract boolean checkLight(BlockPos pos);
+    @Shadow public abstract boolean addWeatherEffect(net.minecraft.entity.Entity entityIn);
     @Shadow(remap = false) public abstract void markAndNotifyBlock(BlockPos pos, net.minecraft.world.chunk.Chunk chunk, IBlockState old, IBlockState new_, int flags);
 
     @Inject(method = "updateWeatherBody()V", remap = false, at = {
@@ -191,14 +210,17 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
             return false;
         } else if (!this.isRemote && this.worldInfo.getTerrainType() == WorldType.DEBUG_WORLD) {
             return false;
-        } else if (getBlockState(pos) == newState) { // nothing to change
-            return false;
         } else {
             net.minecraft.world.chunk.Chunk chunk = this.getChunkFromBlockCoords(pos);
+            IBlockState currentState = chunk.getBlockState(pos);
+            if (currentState == newState) {
+                return false;
+            }
+
             Block block = newState.getBlock();
-            BlockSnapshot blockSnapshot = null;
+            BlockSnapshot originalBlockSnapshot = null;
+            BlockSnapshot newBlockSnapshot = null;
             BlockTransaction transaction = null;
-            IBlockState currentState = getBlockState(pos);
 
             if (!this.isRemote && !this.restoringBlockSnapshots) { // don't capture if we are restoring blocks
                 if (StaticMixinHelper.processingPacket instanceof C08PacketPlayerBlockPlacement) {
@@ -211,7 +233,7 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                 if (block == Blocks.air) {
                     ((IMixinChunk) chunk).removeTrackedPlayerPosition(pos);
                 }
-                blockSnapshot = createSpongeBlockSnapshot(currentState, pos, flags);
+                originalBlockSnapshot = createSpongeBlockSnapshot(currentState, pos, flags);
 
                 // black magic to track populators
                 Class clazz = StaticMixinHelper.getCallerClass(3);
@@ -242,30 +264,30 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                             this.capturedSpongePopulators.put(populatorType, new ArrayList<BlockTransaction>());
                         }
 
-                        transaction = new BlockTransaction(blockSnapshot, blockSnapshot.withState((BlockState)newState));
+                        transaction = new BlockTransaction(originalBlockSnapshot, originalBlockSnapshot.withState((BlockState)newState));
                         this.capturedSpongePopulators.get(populatorType).add(transaction);
                     }
                 } else if (block.getMaterial().isLiquid() || currentState.getBlock().getMaterial().isLiquid()) {
-                    this.capturedSpongeBlockFluids.add(blockSnapshot);
+                    this.capturedSpongeBlockFluids.add(originalBlockSnapshot);
                 } else if (block == Blocks.air) {
-                    this.capturedSpongeBlockBreaks.add(blockSnapshot);
+                    this.capturedSpongeBlockBreaks.add(originalBlockSnapshot);
                 } else if (block != currentState.getBlock()) {
-                    this.capturedSpongeBlockPlaces.add(blockSnapshot);
+                    this.capturedSpongeBlockPlaces.add(originalBlockSnapshot);
                 } else {
-                    this.capturedSpongeBlockModifications.add(blockSnapshot);
+                    this.capturedSpongeBlockModifications.add(originalBlockSnapshot);
                 }
             }
 
-            int oldLight = getBlockState(pos).getBlock().getLightValue((net.minecraft.world.World)(Object) this, pos);
+            int oldLight = currentState.getBlock().getLightValue((net.minecraft.world.World)(Object) this, pos);
 
-            IBlockState iblockstate1 = chunk.setBlockState(pos, newState);
+            IBlockState iblockstate1 = ((IMixinChunk)chunk).setBlockState(pos, newState, currentState, newBlockSnapshot);
 
             if (iblockstate1 == null) {
-                if (blockSnapshot != null) {
-                    this.capturedSpongeBlockBreaks.remove(blockSnapshot);
-                    this.capturedSpongeBlockFluids.remove(blockSnapshot);
-                    this.capturedSpongeBlockPlaces.remove(blockSnapshot);
-                    this.capturedSpongeBlockModifications.remove(blockSnapshot);
+                if (originalBlockSnapshot != null) {
+                    this.capturedSpongeBlockBreaks.remove(originalBlockSnapshot);
+                    this.capturedSpongeBlockFluids.remove(originalBlockSnapshot);
+                    this.capturedSpongeBlockPlaces.remove(originalBlockSnapshot);
+                    this.capturedSpongeBlockModifications.remove(originalBlockSnapshot);
                 }
                 return false;
             } else {
@@ -277,7 +299,7 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                     this.theProfiler.endSection();
                 }
 
-                if (blockSnapshot == null) { // Don't notify clients or update physics while capturing blockstates
+                if (originalBlockSnapshot == null) { // Don't notify clients or update physics while capturing blockstates
                     this.markAndNotifyBlock(pos, chunk, iblockstate1, newState, flags); // Modularize client and physic updates
                 }
 
@@ -298,10 +320,12 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
             return;
         }
 
+        this.processingCaptureCause = true;
         this.currentTickBlock = createSpongeBlockSnapshot(state, pos, 0); // flag doesn't matter here
         block.updateTick(worldIn, pos, state, rand);
         handlePostTickCaptures(Cause.of(this.currentTickBlock));
         this.currentTickBlock = null;
+        this.processingCaptureCause = false;
     }
 
     @Redirect(method = "updateEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;onUpdate()V"))
@@ -311,10 +335,12 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
             return;
         }
 
+        this.processingCaptureCause = true;
         this.currentTickEntity = (Entity) entityIn;
         entityIn.onUpdate();
         handlePostTickCaptures(Cause.of(entityIn));
         this.currentTickEntity = null;
+        this.processingCaptureCause = false;
     }
 
     @Redirect(method = "updateEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/gui/IUpdatePlayerListBox;update()V"))
@@ -324,10 +350,12 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
             return;
         }
 
+        this.processingCaptureCause = true;
         this.currentTickTileEntity = (TileEntity) tile;
         tile.update();
         handlePostTickCaptures(Cause.of(tile));
         this.currentTickTileEntity = null;
+        this.processingCaptureCause = false;
     }
 
     @Redirect(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;onUpdate()V"))
@@ -337,15 +365,26 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
             return;
         }
 
+        this.processingCaptureCause = true;
         this.currentTickEntity = (Entity) entity;
         entity.onUpdate();
         handlePostTickCaptures(Cause.of(entity));
         this.currentTickEntity = null;
+        this.processingCaptureCause = false;
     }
 
-    @SuppressWarnings("unchecked")
     @Overwrite
-    public boolean spawnEntityInWorld(net.minecraft.entity.Entity entityIn) {
+    public boolean spawnEntityInWorld(net.minecraft.entity.Entity entity) {
+        return spawnEntity((Entity) entity, Cause.of(this));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean spawnEntity(Entity entity, Cause cause) {
+        checkNotNull(entity, "Entity cannot be null!");
+        checkNotNull(cause, "Cause cannot be null!");
+
+        net.minecraft.entity.Entity entityIn = (net.minecraft.entity.Entity) entity;
         // do not drop any items while restoring blocksnapshots. Prevents dupes
         if (!this.isRemote && (entityIn == null || (entityIn instanceof net.minecraft.entity.item.EntityItem && this.restoringBlockSnapshots))) return false;
 
@@ -367,7 +406,7 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                 world.updateAllPlayersSleepingFlag();
             }
 
-            if (this.isRemote) {
+            if (this.isRemote || flag) {
                 if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityJoinWorldEvent(entityIn, (net.minecraft.world.World)(Object)this)) && !flag) return false;
 
                 this.getChunkFromChunkCoords(i, j).addEntity(entityIn);
@@ -376,66 +415,95 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                 return true;
             }
 
-            SpawnEntityEvent specialEvent = null;
-            EntityLivingBase specialCause = null;
+            if (!flag && this.processingCaptureCause) {
+                if (entityIn instanceof EntityItem) {
+                    if (this.currentTickOnBlockAdded != null) {
+                        this.capturedOnBlockAddedItems.add((Item) entityIn);
+                    } else {
+                        this.capturedEntityItems.add((Item) entityIn);
+                    }
+                } else {
+                    if (this.currentTickOnBlockAdded != null) {
+                        this.capturedOnBlockAddedEntities.add((Entity) entityIn);
+                    } else {
+                        this.capturedEntities.add((Entity) entityIn);
+                    }
+                }
+                return true;
+            } else { // Custom
 
-            // Special case for throwables
-            if (!(entityIn instanceof EntityPlayer) && entityIn instanceof EntityThrowable) {
-                EntityThrowable throwable = (EntityThrowable) entityIn;
-                specialCause = throwable.getThrower();
+                if (entityIn instanceof EntityFishHook && ((EntityFishHook) entityIn).angler == null) {
+                    // TODO MixinEntityFishHook.setShooter makes angler null sometimes,
+                    // but that will cause NPE when ticking
+                    return false;
+                }
 
-                if (specialCause != null) {
+                EntityLivingBase specialCause = null;
+                // Special case for throwables
+                if (!(entityIn instanceof EntityPlayer) && entityIn instanceof EntityThrowable) {
+                    EntityThrowable throwable = (EntityThrowable) entityIn;
+                    specialCause = throwable.getThrower();
+
+                    if (specialCause != null) {
+                        if (specialCause instanceof Player) {
+                            Player player = (Player) specialCause;
+                            setCreatorEntityNbt(entityIn.getEntityData(), player.getUniqueId());
+                        }
+                    }
+                }
+                // Special case for TNT
+                else if (!(entityIn instanceof EntityPlayer) && entityIn instanceof EntityTNTPrimed) {
+                    EntityTNTPrimed tntEntity = (EntityTNTPrimed) entityIn;
+                    specialCause = tntEntity.getTntPlacedBy();
+
                     if (specialCause instanceof Player) {
                         Player player = (Player) specialCause;
                         setCreatorEntityNbt(entityIn.getEntityData(), player.getUniqueId());
                     }
-                    specialEvent = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), Cause.of(specialCause), (Entity) entityIn);
-                    Sponge.getGame().getEventManager().post(specialEvent);
                 }
-            }
-            // Special case for TNT
-            else if (!(entityIn instanceof EntityPlayer) && entityIn instanceof EntityTNTPrimed) {
-                EntityTNTPrimed entity = (EntityTNTPrimed) entityIn;
-                specialCause = entity.getTntPlacedBy();
+                // Special case for Tameables
+                else if (!(entityIn instanceof EntityPlayer) && entityIn instanceof EntityTameable) {
+                    EntityTameable tameable = (EntityTameable) entityIn;
+                    if (tameable.getOwnerEntity() != null) {
+                        specialCause = tameable.getOwnerEntity();
+                    }
+                }
 
-                if (specialCause instanceof Player) {
-                    Player player = (Player) specialCause;
-                    setCreatorEntityNbt(entityIn.getEntityData(), player.getUniqueId());
-                }
                 if (specialCause != null) {
-                    specialEvent = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), Cause.of(specialCause), (Entity) entityIn);
-                    Sponge.getGame().getEventManager().post(specialEvent);
+                    if (!cause.all().contains(specialCause)) {
+                        cause = cause.with(specialCause);
+                    }
                 }
-            }
-            // Special case for Tameables
-            else if (!(entityIn instanceof EntityPlayer) && entityIn instanceof EntityTameable) {
-                EntityTameable tameable = (EntityTameable) entityIn;
-                if (tameable.getOwnerEntity() != null) {
-                    specialCause = tameable.getOwnerEntity();
-                    specialEvent = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), Cause.of(specialCause), (Entity) entityIn);
-                    Sponge.getGame().getEventManager().post(specialEvent);
-                }
-            }
 
-            if (specialEvent != null) {
-                if (!specialEvent.isCancelled()) {
+                org.spongepowered.api.event.Event event = null;
+                ImmutableList.Builder<EntitySnapshot> entitySnapshotBuilder = new ImmutableList.Builder<EntitySnapshot>();
+                entitySnapshotBuilder.add(((Entity) entityIn).createSnapshot());
+
+                if (entityIn instanceof EntityItem) {
+                    this.capturedEntityItems.add((Item) entityIn);
+                    event = SpongeEventFactory.createDropItemEventCustom(Sponge.getGame(), cause, (List<Entity>)(List<?>)this.capturedEntityItems, entitySnapshotBuilder.build(), (World)(Object) this);
+                } else {
+                    event = SpongeEventFactory.createSpawnEntityEventCustom(Sponge.getGame(), cause, this.capturedEntities, entitySnapshotBuilder.build(), (World)(Object) this);
+                }
+                Sponge.getGame().getEventManager().post(event);
+
+                if (!((Cancellable)event).isCancelled()) {
+                    if(entityIn instanceof net.minecraft.entity.effect.EntityWeatherEffect) {
+                        return addWeatherEffect(entityIn);
+                    }
+
                     this.getChunkFromChunkCoords(i, j).addEntity(entityIn);
                     this.loadedEntityList.add(entityIn);
                     this.onEntityAdded(entityIn);
+                    if (entityIn instanceof EntityItem) {
+                        this.capturedEntityItems.remove(entityIn);
+                    } else {
+                        this.capturedEntities.remove(entityIn);
+                    }
                     return true;
-                } else {
-                    return false;
                 }
-            } else if (!flag) {
-                this.capturedEntities.add(entityIn);
-                return true;
-            } else {
-                if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityJoinWorldEvent(entityIn, (net.minecraft.world.World)(Object)this)) && !flag) return false;
 
-                this.getChunkFromChunkCoords(i, j).addEntity(entityIn);
-                this.loadedEntityList.add(entityIn);
-                this.onEntityAdded(entityIn);
-                return true;
+                return false;
             }
         }
     }
@@ -443,11 +511,17 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
     @Override
     @SuppressWarnings("unchecked")
     public void handlePostTickCaptures(Cause cause) {
-        if (this.isRemote || this.restoringBlockSnapshots) {
+        if (this.isRemote || this.restoringBlockSnapshots || cause == null || cause.isEmpty()) {
             return;
+        } else if (this.capturedEntities.size() == 0 && this.capturedEntityItems.size() == 0 && this.capturedSpongeBlockBreaks.size() == 0
+                && this.capturedSpongeBlockModifications.size() == 0 && this.capturedSpongeBlockPlaces.size() == 0
+                && this.capturedSpongeBlockFluids.size() == 0 && this.capturedSpongePopulators.size() == 0) {
+            return; // nothing was captured, return
         }
 
         net.minecraft.world.World world = (net.minecraft.world.World)(Object) this;
+        List<BlockTransaction> invalidTransactions = new ArrayList<BlockTransaction>();
+        boolean destructDrop = false;
 
         // Attempt to find a Player cause if we do not have one
         if (!cause.first(User.class).isPresent()) {
@@ -465,11 +539,9 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                 if (chunk != null) {
                     IMixinChunk spongeChunk = (IMixinChunk) chunk;
     
-                    if (spongeChunk.getBlockPosOwner(pos).isPresent()) {
-                        List<Object> causes = new ArrayList<Object>();
-                        causes.addAll(cause.all());
-                        causes.add(spongeChunk.getBlockPosOwner(pos).get());
-                        cause = Cause.of(causes.toArray());
+                    Optional<User> user = spongeChunk.getBlockPosOwner(pos);
+                    if (user.isPresent()) {
+                        cause = cause.with(user.get());
                     }
                 }
             } else if (cause.first(Entity.class).isPresent()) {
@@ -477,18 +549,50 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                 if (entity instanceof EntityTameable) {
                     EntityTameable tameable = (EntityTameable) entity;
                     if (tameable.getOwnerEntity() != null) {
-                        List<Object> causes = new ArrayList<Object>();
-                        causes.addAll(cause.all());
-                        causes.add(tameable.getOwnerEntity());
-                        cause = Cause.of(causes.toArray());
+                        cause = cause.with(tameable.getOwnerEntity());
                     }
                 } else {
                     if (((IMixinEntity) entity).getSpongeCreator().isPresent()) {
-                        List<Object> causes = new ArrayList<Object>();
-                        causes.addAll(cause.all());
-                        causes.add(((IMixinEntity) entity).getSpongeCreator().get());
-                        cause = Cause.of(causes.toArray());
+                       cause = cause.with(((IMixinEntity) entity).getSpongeCreator().get());
                     }
+                }
+            }
+        }
+
+        // Check root cause for additional information
+        if (cause.root().get() instanceof EntityLivingBase) {
+            EntityLivingBase rootEntity = (EntityLivingBase)cause.root().get();
+            EntitySnapshot lastKilledEntity = ((IMixinEntityLivingBase)rootEntity).getLastKilledTarget();
+            EntityLivingBase lastActiveTarget = ((IMixinEntityLivingBase)rootEntity).getLastActiveTarget();
+            // Check for targeted entity
+            if (lastKilledEntity != null) {
+                // add the last targeted entity
+                if (!cause.all().contains(lastKilledEntity)) {
+                    Cause newCause = Cause.of(lastKilledEntity);
+                    newCause = newCause.with(cause.all());
+                    cause = newCause;
+                    destructDrop = true;
+                }
+            }  else if (lastActiveTarget != null) {
+                if (!cause.all().contains(lastActiveTarget)) {
+                    if (lastActiveTarget.getHealth() <= 0) {
+                        Cause newCause = Cause.of(((Entity)lastActiveTarget).createSnapshot());
+                        newCause = newCause.with(cause.all());
+                        cause = newCause;
+                        destructDrop = true;
+                    } else {
+                        cause = cause.with(lastActiveTarget);
+                    }
+                }
+            }
+            if (rootEntity.getHealth() <= 0) {
+                destructDrop = true;
+            }
+        } else {
+            if (cause.root().get() instanceof net.minecraft.entity.Entity) {
+                net.minecraft.entity.Entity entity = (net.minecraft.entity.Entity) cause.root().get();
+                if (entity.isDead) {
+                    destructDrop = true;
                 }
             }
         }
@@ -521,16 +625,24 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                         if (chunk.isPresent()) {
                             IMixinChunk spongeChunk = (IMixinChunk) chunk.get();
                             BlockPos pos = VecHelper.toBlockPos(blockTransaction.getOriginal().getPosition());
-                            if (spongeChunk.getBlockPosOwner(pos).isPresent()) {
-                                List<Object> causes = new ArrayList<Object>();
-                                causes.addAll(cause.all());
-                                causes.add(spongeChunk.getBlockPosOwner(pos).get());
-                                cause = Cause.of(causes);
+                            Optional<User> user = spongeChunk.getBlockPosOwner(pos);
+                            if (user.isPresent()) {
+                                cause = cause.with(user);
                             }
                         }
                     }
 
                     if (captureType == CaptureType.BREAK) {
+                        if (StaticMixinHelper.processingPlayer != null && StaticMixinHelper.processingPacket instanceof C07PacketPlayerDigging) {
+                            C07PacketPlayerDigging digPacket = (C07PacketPlayerDigging) StaticMixinHelper.processingPacket;
+                            if (digPacket.getStatus() == C07PacketPlayerDigging.Action.START_DESTROY_BLOCK) {
+                                destructDrop = true;
+                                Cause newCause = Cause.of(blockTransactions.get(0).getOriginal()); // make the first destroyed block root
+                                newCause = newCause.with(cause.all());
+                                cause = newCause;
+                            }
+                        }
+
                         event = SpongeEventFactory.createChangeBlockEventBreak(Sponge.getGame(), cause, (World) world, blockTransactions);
                     } else if (captureType == CaptureType.FLUID) {
                         event = SpongeEventFactory.createChangeBlockEventFluid(Sponge.getGame(), cause, (World) world, blockTransactions);
@@ -542,19 +654,22 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
 
                     Sponge.getGame().getEventManager().post(event);
 
-                    EntityPlayerMP player = null;
                     C08PacketPlayerBlockPlacement packet = null;
-
-                    if (StaticMixinHelper.processingPlayer != null) {
-                        player = (EntityPlayerMP) StaticMixinHelper.processingPlayer;
-                    }
 
                     if (StaticMixinHelper.processingPacket instanceof C08PacketPlayerBlockPlacement) { // player place
                         packet = (C08PacketPlayerBlockPlacement) StaticMixinHelper.processingPacket;
                     }
 
-                    if (event.isCancelled()) {
+                    for (BlockTransaction transaction : event.getTransactions()) {
+                        if (!transaction.isValid()) {
+                            this.restoringBlockSnapshots = true;
+                            transaction.getOriginal().restore(true, false);
+                            this.restoringBlockSnapshots = false;
+                            invalidTransactions.add(transaction);
+                        }
+                    }
 
+                    if (event.isCancelled()) {
                         // Restore original blocks
                         for (BlockTransaction transaction : event.getTransactions()) {
                             this.restoringBlockSnapshots = true;
@@ -562,41 +677,25 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                             this.restoringBlockSnapshots = false;
                         }
 
-                        if (captureType == CaptureType.BREAK && player != null) {
-                            // Let the client know the blocks still exist
-                            for (BlockTransaction transaction : event.getTransactions()) {
-                                BlockSnapshot snapshot = transaction.getOriginal();
-                                BlockPos pos = VecHelper.toBlockPos(snapshot.getPosition());
-                                player.playerNetServerHandler.sendPacket(new S23PacketBlockChange(world, pos));
-
-                                // Update any tile entity data for this block
-                                net.minecraft.tileentity.TileEntity tileentity = world.getTileEntity(pos);
-                                if (tileentity != null)  {
-                                    Packet pkt = tileentity.getDescriptionPacket();
-                                    if (pkt != null) {
-                                        player.playerNetServerHandler.sendPacket(pkt);
-                                    }
-                                }
-                            }
-                        } else if (captureType == CaptureType.PLACE && player != null && packet != null) {
-                            // handle revert
-                            player.isChangingQuantityOnly = true;
-                            player.inventory.mainInventory[player.inventory.currentItem] = ItemStack.copyItemStack(packet.getStack());
-                            Slot slot = player.openContainer.getSlotFromInventory(player.inventory, player.inventory.currentItem);
-                            player.openContainer.detectAndSendChanges();
-                            player.isChangingQuantityOnly = false;
-                            // force client itemstack update if place event was cancelled
-                            player.playerNetServerHandler.sendPacket(new S2FPacketSetSlot(player.openContainer.windowId, slot.slotNumber, packet.getStack()));
-                        }
+                        handlePostPlayerBlockEvent(captureType, StaticMixinHelper.processingPlayer, world, event.getTransactions());
 
                         // clear entity list and return to avoid spawning items
                         this.capturedEntities.clear();
+                        this.capturedEntityItems.clear();
                         return;
                     } else {
+                        if (invalidTransactions.size() > 0) {
+                            handlePostPlayerBlockEvent(captureType, StaticMixinHelper.processingPlayer, world, invalidTransactions);
+                        }
+
+                        if (this.capturedEntityItems.size() > 0) {
+                            handleDroppedItems(cause, (List<Entity>)(List<?>)this.capturedEntityItems, invalidTransactions, captureType == CaptureType.BREAK ? true : destructDrop);
+                        }
+
                         markAndNotifyBlockPost(event.getTransactions(), captureType, cause);
 
-                        if (captureType == CaptureType.PLACE && player != null && packet != null && packet.getStack() != null) {
-                            player.addStat(StatList.objectUseStats[net.minecraft.item.Item.getIdFromItem(packet.getStack().getItem())], 1);
+                        if (captureType == CaptureType.PLACE && StaticMixinHelper.processingPlayer != null && packet != null && packet.getStack() != null) {
+                            StaticMixinHelper.processingPlayer.addStat(StatList.objectUseStats[net.minecraft.item.Item.getIdFromItem(packet.getStack().getItem())], 1);
                         }
                     }
                 }
@@ -627,36 +726,210 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
             }
         }
 
-        // Handle Entity captures
-        Iterator<net.minecraft.entity.Entity> iterator = this.capturedEntities.iterator();
-        while(iterator.hasNext()) {
-            net.minecraft.entity.Entity capturedEntity = iterator.next();
+        // Handle Player Toss
+        if (StaticMixinHelper.processingPlayer != null && StaticMixinHelper.processingPacket instanceof C07PacketPlayerDigging) {
+            C07PacketPlayerDigging digPacket = (C07PacketPlayerDigging) StaticMixinHelper.processingPacket;
+            if (digPacket.getStatus() == C07PacketPlayerDigging.Action.DROP_ITEM) {
+                destructDrop = false;
+            }
+        }
 
+        // Handle Player kill commands
+        if (StaticMixinHelper.processingPlayer != null && StaticMixinHelper.processingPacket instanceof C01PacketChatMessage) {
+            C01PacketChatMessage chatPacket = (C01PacketChatMessage) StaticMixinHelper.processingPacket;
+            if (chatPacket.getMessage().contains("kill")) {
+                if (!cause.all().contains(StaticMixinHelper.processingPlayer)) {
+                    cause = cause.with(StaticMixinHelper.processingPlayer);
+                }
+                destructDrop = true;
+            }
+        }
+
+        // Handle Entity captures
+        if (this.capturedEntityItems.size() > 0) {
+            handleDroppedItems(cause, (List<Entity>)(List<?>)this.capturedEntityItems, invalidTransactions, destructDrop);
+        }
+        if (this.capturedEntities.size() > 0) {
+            handleEntitySpawns(cause, this.capturedEntities, invalidTransactions);
+        }
+    }
+
+    private void handlePostPlayerBlockEvent(CaptureType captureType, EntityPlayerMP player, net.minecraft.world.World world, List<BlockTransaction> transactions) {
+        if (captureType == CaptureType.BREAK && player != null) {
+            // Let the client know the blocks still exist
+            for (BlockTransaction transaction : transactions) {
+                BlockSnapshot snapshot = transaction.getOriginal();
+                BlockPos pos = VecHelper.toBlockPos(snapshot.getPosition());
+                player.playerNetServerHandler.sendPacket(new S23PacketBlockChange(world, pos));
+
+                // Update any tile entity data for this block
+                net.minecraft.tileentity.TileEntity tileentity = world.getTileEntity(pos);
+                if (tileentity != null)  {
+                    Packet pkt = tileentity.getDescriptionPacket();
+                    if (pkt != null) {
+                        player.playerNetServerHandler.sendPacket(pkt);
+                    }
+                }
+            }
+        } else if (captureType == CaptureType.PLACE && player != null) {
+            sendItemChangeToPlayer(player);
+        }
+    }
+
+    private void sendItemChangeToPlayer(EntityPlayerMP player) {
+        if (StaticMixinHelper.lastPlayerItem == null) {
+            return;
+        }
+
+        // handle revert
+        player.isChangingQuantityOnly = true;
+        player.inventory.mainInventory[player.inventory.currentItem] = StaticMixinHelper.lastPlayerItem;
+        Slot slot = player.openContainer.getSlotFromInventory(player.inventory, player.inventory.currentItem);
+        player.openContainer.detectAndSendChanges();
+        player.isChangingQuantityOnly = false;
+        // force client itemstack update if place event was cancelled
+        player.playerNetServerHandler.sendPacket(new S2FPacketSetSlot(player.openContainer.windowId, slot.slotNumber, StaticMixinHelper.lastPlayerItem));
+    }
+
+    private void handleDroppedItems(Cause cause, List<Entity> entities, List<BlockTransaction> invalidTransactions, boolean destructItems) {
+        Iterator<Entity> iter = entities.iterator();
+        ImmutableList.Builder<EntitySnapshot> entitySnapshotBuilder = new ImmutableList.Builder<EntitySnapshot>();
+        while (iter.hasNext()) {
+            Entity currentEntity = iter.next();
             if (cause.first(User.class).isPresent()) {
                 // store user UUID with entity to track later
                 User user = cause.first(User.class).get();
-                setCreatorEntityNbt(capturedEntity.getEntityData(), user.getUniqueId());
+                setCreatorEntityNbt(((net.minecraft.entity.Entity)currentEntity).getEntityData(), user.getUniqueId());
             } else if (cause.first(Entity.class).isPresent()) {
                 IMixinEntity spongeEntity = (IMixinEntity) cause.first(Entity.class).get();
                 Optional<User> owner = spongeEntity.getSpongeCreator();
                 if (owner.isPresent()) {
-                    List<Object> causes = new ArrayList<Object>();
-                    causes.addAll(cause.all());
-                    causes.add(owner.get());
-                    cause = Cause.of(causes.toArray());
-                    setCreatorEntityNbt(capturedEntity.getEntityData(), owner.get().getUniqueId());
+                    if (!cause.all().contains(owner.get())) {
+                        cause = cause.with(owner.get());
+                    }
+                    setCreatorEntityNbt(((net.minecraft.entity.Entity)currentEntity).getEntityData(), owner.get().getUniqueId());
                 }
             }
-            SpawnEntityEvent event = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), cause, (Entity) capturedEntity);
-            if (!(Sponge.getGame().getEventManager().post(event))) {
-                int x = MathHelper.floor_double(capturedEntity.posX / 16.0D);
-                int z = MathHelper.floor_double(capturedEntity.posZ / 16.0D);
-                this.getChunkFromChunkCoords(x, z).addEntity(capturedEntity);
-                this.loadedEntityList.add(capturedEntity);
-                this.onEntityAdded(capturedEntity);
-                SpongeHooks.logEntitySpawn(cause, capturedEntity);
+            entitySnapshotBuilder.add(currentEntity.createSnapshot());
+        }
+
+        DropItemEvent event = null;
+
+        if (destructItems) {
+            event = SpongeEventFactory.createDropItemEventDestruct(Sponge.getGame(), cause, entities, entitySnapshotBuilder.build() , (World) this);
+        } else {
+            event = SpongeEventFactory.createDropItemEventDispense(Sponge.getGame(), cause, entities, entitySnapshotBuilder.build() , (World) this);
+        }
+
+        if (!(Sponge.getGame().getEventManager().post(event))) {
+            // Handle player deaths
+            if (cause.first(Player.class).isPresent()) {
+                EntityPlayerMP player = (EntityPlayerMP) cause.first(Player.class).get();
+                if (player.getHealth() <= 0 && (player.theItemInWorldManager.getGameType() != GameType.CREATIVE) && !player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory")) {
+                    player.inventory.clear();
+                } else if (player.getHealth() <= 0) { // don't drop anything if creative or keepInventory
+                    this.capturedEntityItems.clear();
+                }
             }
-            iterator.remove();
+
+            Iterator<Entity> iterator = event.getEntities().iterator();
+            while (iterator.hasNext()) {
+                Entity entity = iterator.next();
+                boolean invalidSpawn = false;
+                if (invalidTransactions != null) {
+                    for (BlockTransaction transaction : invalidTransactions) {
+                        if (transaction.getOriginal().getLocation().get().getBlockPosition().equals(entity.getLocation().getBlockPosition())) {
+                            invalidSpawn = true;
+                            break;
+                        }
+                    }
+    
+                    if (invalidSpawn) {
+                        iterator.remove();
+                        continue;
+                    }
+                }
+
+                net.minecraft.entity.Entity nmsEntity = (net.minecraft.entity.Entity) entity;
+                int x = MathHelper.floor_double(nmsEntity.posX / 16.0D);
+                int z = MathHelper.floor_double(nmsEntity.posZ / 16.0D);
+                this.getChunkFromChunkCoords(x, z).addEntity(nmsEntity);
+                this.loadedEntityList.add(nmsEntity);
+                this.onEntityAdded(nmsEntity);
+                SpongeHooks.logEntitySpawn(cause, nmsEntity);
+                iterator.remove();
+            }
+        } else {
+            if (StaticMixinHelper.processingPlayer != null) {
+                sendItemChangeToPlayer(StaticMixinHelper.processingPlayer);
+            }
+            this.capturedEntityItems.clear();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleEntitySpawns(Cause cause, List<Entity> entities, List<BlockTransaction> invalidTransactions) {
+        Iterator<Entity> iter = entities.iterator();
+        ImmutableList.Builder<EntitySnapshot> entitySnapshotBuilder = new ImmutableList.Builder<EntitySnapshot>();
+        while (iter.hasNext()) {
+            Entity currentEntity = iter.next();
+            if (cause.first(User.class).isPresent()) {
+                // store user UUID with entity to track later
+                User user = cause.first(User.class).get();
+                setCreatorEntityNbt(((net.minecraft.entity.Entity)currentEntity).getEntityData(), user.getUniqueId());
+            } else if (cause.first(Entity.class).isPresent()) {
+                IMixinEntity spongeEntity = (IMixinEntity) cause.first(Entity.class).get();
+                Optional<User> owner = spongeEntity.getSpongeCreator();
+                if (owner.isPresent()) {
+                    if (!cause.all().contains(owner.get())) {
+                        cause = cause.with(owner.get());
+                    }
+                    setCreatorEntityNbt(((net.minecraft.entity.Entity)currentEntity).getEntityData(), owner.get().getUniqueId());
+                }
+            }
+            entitySnapshotBuilder.add(currentEntity.createSnapshot());
+        }
+
+        SpawnEntityEvent event = null;
+
+        if (this.worldSpawnerRunning) {
+            event = SpongeEventFactory.createSpawnEntityEventSpawner(Sponge.getGame(), cause, entities, entitySnapshotBuilder.build(), (World)(Object)this);
+        } else if (this.chunkSpawnerRunning){
+            event = SpongeEventFactory.createSpawnEntityEventChunkLoad(Sponge.getGame(), cause, entities, entitySnapshotBuilder.build(), (World)(Object)this);
+        } else {
+            event = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), cause, entities, entitySnapshotBuilder.build(), (World)(Object)this);
+        }
+
+        if (!(Sponge.getGame().getEventManager().post(event))) {
+            Iterator<Entity> iterator = event.getEntities().iterator();
+            while (iterator.hasNext()) {
+                Entity entity = iterator.next();
+                boolean invalidSpawn = false;
+                if (invalidTransactions != null) {
+                    for (BlockTransaction transaction : invalidTransactions) {
+                        if (transaction.getOriginal().getLocation().get().getBlockPosition().equals(entity.getLocation().getBlockPosition())) {
+                            invalidSpawn = true;
+                            break;
+                        }
+                    }
+    
+                    if (invalidSpawn) {
+                        iterator.remove();
+                        continue;
+                    }
+                }
+
+                net.minecraft.entity.Entity nmsEntity = (net.minecraft.entity.Entity) entity;
+                int x = MathHelper.floor_double(nmsEntity.posX / 16.0D);
+                int z = MathHelper.floor_double(nmsEntity.posZ / 16.0D);
+                this.getChunkFromChunkCoords(x, z).addEntity(nmsEntity);
+                this.loadedEntityList.add(nmsEntity);
+                this.onEntityAdded(nmsEntity);
+                SpongeHooks.logEntitySpawn(cause, nmsEntity);
+                iterator.remove();
+            }
+        } else {
+            this.capturedEntities.clear();
         }
     }
 
@@ -715,6 +988,41 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
         return this.capturedSpongeBlockBreaks;
     }
 
+    @Override
+    public boolean isWorldSpawnerRunning() {
+        return this.worldSpawnerRunning;
+    }
+
+    @Override
+    public void setWorldSpawnerRunning(boolean flag) {
+        this.worldSpawnerRunning = flag;
+    }
+
+    @Override
+    public boolean isChunkSpawnerRunning() {
+        return this.chunkSpawnerRunning;
+    }
+
+    @Override
+    public void setChunkSpawnerRunning(boolean flag) {
+        this.chunkSpawnerRunning = flag;
+    }
+
+    @Override
+    public boolean processingCaptureCause() {
+        return this.processingCaptureCause;
+    }
+
+    @Override
+    public void setProcessingCaptureCause(boolean flag) {
+        this.processingCaptureCause = flag;
+    }
+
+    @Override
+    public void setCurrentTickBlock(BlockSnapshot snapshot) {
+        this.currentTickBlock = snapshot;
+    }
+
     private void markAndNotifyBlockPost(List<BlockTransaction> transactions, CaptureType type, Cause cause) {
         for (BlockTransaction transaction : transactions) {
             // Handle custom replacements
@@ -729,16 +1037,40 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
             SpongeHooks.logBlockAction(cause, (net.minecraft.world.World)(Object) this, type, transaction);
             int updateFlag = oldBlockSnapshot.getUpdateFlag();
             BlockPos pos = VecHelper.toBlockPos(oldBlockSnapshot.getPosition());
-            IBlockState oldBlock = (IBlockState)oldBlockSnapshot.getState();
-            IBlockState newBlock = (IBlockState)newBlockSnapshot.getState();
-            if (newBlock != null && !(newBlock.getBlock().hasTileEntity(newBlock))) { // Containers get placed automatically
-                newBlock.getBlock().onBlockAdded((net.minecraft.world.World)(Object)this, pos, newBlock);
+            IBlockState originalState = (IBlockState)oldBlockSnapshot.getState();
+            IBlockState newState = (IBlockState)newBlockSnapshot.getState();
+            if (newState != null && !(newState.getBlock().hasTileEntity(newState))) { // Containers get placed automatically
+                this.currentTickOnBlockAdded = this.createSpongeBlockSnapshot(newState, pos, updateFlag);
+                newState.getBlock().onBlockAdded((net.minecraft.world.World)(Object)this, pos, newState);
+                if (this.capturedOnBlockAddedItems.size() > 0) {
+                    Cause blockCause = Cause.of(this.currentTickOnBlockAdded);
+                    if (this.captureTerrainGen) {
+                        net.minecraft.world.chunk.Chunk chunk = getChunkFromBlockCoords(pos);
+                        if (chunk != null && ((IMixinChunk) chunk).getCurrentPopulateCause() != null) {
+                            blockCause = blockCause.with(((IMixinChunk) chunk).getCurrentPopulateCause().all());
+                        }
+                    }
+                    handleDroppedItems(blockCause, this.capturedOnBlockAddedItems, null, getBlockState(pos) != newState);
+                }
+                if (this.capturedOnBlockAddedEntities.size() > 0) {
+                    Cause blockCause = Cause.of(this.currentTickOnBlockAdded);
+                    if (this.captureTerrainGen) {
+                        net.minecraft.world.chunk.Chunk chunk = getChunkFromBlockCoords(pos);
+                        if (chunk != null && ((IMixinChunk) chunk).getCurrentPopulateCause() != null) {
+                            blockCause = blockCause.with(((IMixinChunk) chunk).getCurrentPopulateCause().all());
+                        }
+                    }
+                    handleEntitySpawns(blockCause, this.capturedOnBlockAddedEntities, null);
+                }
+
+                this.currentTickOnBlockAdded = null;
             }
 
-            markAndNotifyBlock(pos, null, oldBlock, newBlock, updateFlag);
+            markAndNotifyBlock(pos, null, originalState, newState, updateFlag);
         }
     }
 
+    @Override
     public SpongeBlockSnapshot createSpongeBlockSnapshot(IBlockState state, BlockPos pos, int updateFlag) {
         builder.reset();
         Location<World> location = new Location<World>((World) this, VecHelper.toVector(pos));
