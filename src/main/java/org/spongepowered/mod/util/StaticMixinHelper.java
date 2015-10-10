@@ -33,10 +33,11 @@ public class StaticMixinHelper {
     public static EntityPlayer processingPlayer = null;
     public static Packet processingPacket = null;
     public static SpongePopulatorType populator = null;
+    @SuppressWarnings("rawtypes")
     public static Class lastPopulatorClass = null;
     public static boolean isFlowerGen = false;
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "rawtypes"})
     public static Class getCallerClass(int level) {
         return sun.reflect.Reflection.getCallerClass(level);
     }

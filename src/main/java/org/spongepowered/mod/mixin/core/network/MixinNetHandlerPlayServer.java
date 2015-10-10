@@ -24,43 +24,26 @@
  */
 package org.spongepowered.mod.mixin.core.network;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C01PacketChatMessage;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.WorldSettings;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.util.blockray.BlockRay;
-import org.spongepowered.api.util.blockray.BlockRayHit;
-import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
-
-import java.util.Iterator;
-import java.util.Optional;
 
 @Mixin(NetHandlerPlayServer.class)
 public abstract class MixinNetHandlerPlayServer {
@@ -99,52 +82,4 @@ public abstract class MixinNetHandlerPlayServer {
         ci.cancel();
     }
 
-    @Redirect(method = "processPlayerBlockPlacement", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;onPlayerInteract("
-            + "Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraftforge/event/entity/player/PlayerInteractEvent$Action;"
-            + "Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;"
-            + "Lnet/minecraft/util/EnumFacing;)"
-            + "Lnet/minecraftforge/event/entity/player/PlayerInteractEvent;", remap = false))
-    public PlayerInteractEvent onFirePlayerInteractEvent(EntityPlayer player, PlayerInteractEvent.Action action, net.minecraft.world.World world,
-        BlockPos pos, EnumFacing face) {
-
-        BlockPos correctPos = pos;
-
-        // The following is to fix Vanilla silly-ness where right-clicking air has a position at 0, 0, 0 for the block
-        if (action == PlayerInteractEvent.Action.RIGHT_CLICK_AIR) {
-            // TODO Not the most efficient and someday I'll make it better but this works.
-            final Iterator<BlockRayHit<World>> iter = BlockRay.<World>from((Entity) playerEntity).filter(BlockRay.<World>maxDistanceFilter(((Entity)
-                    player)
-                    .getLocation()
-                    .getPosition(), 2))
-                    .iterator();
-            // TODO I had to make this check because looking straight up and right clicking with a sitck/etc would break BlockRay.
-            if (iter.hasNext()) {
-                correctPos = VecHelper.toBlockPos(iter.next().getBlockPosition());
-            }
-        }
-        PlayerInteractEvent event = new PlayerInteractEvent(player, action, correctPos, face, world);
-        double reach = this.playerEntity.theItemInWorldManager.getGameType() == WorldSettings.GameType.CREATIVE ? 5 : 4.5;
-        Optional<BlockRayHit<World>> attempt =
-            BlockRay.from((Player)this.playerEntity)
-            .filter(BlockRay.<World>maxDistanceFilter(((Player) this.playerEntity).getLocation().getPosition(), reach))
-            .end();
-        boolean missed;
-
-        if (attempt.isPresent()) {
-            BlockRayHit<World> hit = attempt.get();
-            missed = hit.getExtent().getBlockType(hit.getBlockPosition()).equals(BlockTypes.AIR);
-        } else {
-            missed = true;
-        }
-
-        // If missed is false, then then the event will never actually be fired. However, it still needs to be returned
-        // from the redirect. event.useItem is set to DEFAULT, to trigger the call to ItemInWorldManager#tryUseItem
-        if (missed) {
-            MinecraftForge.EVENT_BUS.post(event);
-        } else {
-            event.useItem = Event.Result.DEFAULT;
-        }
-
-        return event;
-    }
 }

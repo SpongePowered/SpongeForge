@@ -47,13 +47,12 @@ public abstract class MixinEntityRegistry {
         registerCustomEntity(entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
     }
 
-    @Inject(method = "registerGlobalEntityID(Ljava/lang/Class;Ljava/lang/String;I)V", at = @At(value = "RETURN",
-            ordinal = 1))
+    @Inject(method = "registerGlobalEntityID", at = @At(value = "RETURN"))
     private static void onRegisterGlobal(Class<? extends Entity> entityClass, String entityName, int id, CallbackInfo ci) {
         registerCustomEntity(entityClass, entityName, id, Loader.instance().activeModContainer());
     }
 
-    @Inject(method = "registerGlobalEntityID(Ljava/lang/Class;Ljava/lang/String;III)V", at = @At(value = "RETURN", ordinal = 1))
+    @Inject(method = "registerGlobalEntityID(Ljava/lang/Class;Ljava/lang/String;III)V", at = @At(value = "RETURN"))
     private static void onRegisterGlobal(Class<? extends Entity> entityClass, String entityName, int id, int backgroundEggColour,
             int foregroundEggColour, CallbackInfo ci) {
         registerCustomEntity(entityClass, entityName, id, Loader.instance().activeModContainer());

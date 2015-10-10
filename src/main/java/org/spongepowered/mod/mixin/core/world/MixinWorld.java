@@ -147,7 +147,7 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract net.minecraft.tileentity.TileEntity getTileEntity(BlockPos pos);
     @Shadow public abstract boolean checkLight(BlockPos pos);
-    @Shadow public abstract void markAndNotifyBlock(BlockPos pos, net.minecraft.world.chunk.Chunk chunk, IBlockState old, IBlockState new_, int flags);
+    @Shadow(remap = false) public abstract void markAndNotifyBlock(BlockPos pos, net.minecraft.world.chunk.Chunk chunk, IBlockState old, IBlockState new_, int flags);
 
     @Inject(method = "updateWeatherBody()V", remap = false, at = {
             @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setThundering(Z)V"),
@@ -216,7 +216,6 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                 // black magic to track populators
                 Class clazz = StaticMixinHelper.getCallerClass(3);
 
-
                 if (net.minecraft.world.gen.feature.WorldGenerator.class.isAssignableFrom(clazz)) {
                     SpongePopulatorType populatorType = null;
                     populatorType = StaticMixinHelper.populator;
@@ -227,13 +226,12 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                         } else {
                             int level = 3;
                             // locate correct generator class
-                            while (clazz == net.minecraft.world.gen.feature.WorldGenerator.class) {
+                            while (clazz == net.minecraft.world.gen.feature.WorldGenerator.class || clazz == net.minecraft.world.gen.feature.WorldGenHugeTrees.class) {
                                 clazz = StaticMixinHelper.getCallerClass(level);
                                 level++;
                             }
                         }
                     }
- 
 
                     if (populatorType == null) {
                         populatorType = (SpongePopulatorType) SpongeMod.instance.getSpongeRegistry().populatorClassToTypeMappings.get(clazz);
@@ -364,15 +362,25 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
         } else {
             if (entityIn instanceof EntityPlayer) {
                 EntityPlayer entityplayer = (EntityPlayer)entityIn;
-                entityIn.worldObj.playerEntities.add(entityplayer);
-                entityIn.worldObj.updateAllPlayersSleepingFlag();
+                net.minecraft.world.World world = (net.minecraft.world.World)(Object) this;
+                world.playerEntities.add(entityplayer);
+                world.updateAllPlayersSleepingFlag();
             }
 
-            boolean specialCancelledCause = false;
+            if (this.isRemote) {
+                if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityJoinWorldEvent(entityIn, (net.minecraft.world.World)(Object)this)) && !flag) return false;
+
+                this.getChunkFromChunkCoords(i, j).addEntity(entityIn);
+                this.loadedEntityList.add(entityIn);
+                this.onEntityAdded(entityIn);
+                return true;
+            }
+
+            SpawnEntityEvent specialEvent = null;
             EntityLivingBase specialCause = null;
 
             // Special case for throwables
-            if (!this.isRemote && !(entityIn instanceof EntityPlayer) && entityIn instanceof EntityThrowable) {
+            if (!(entityIn instanceof EntityPlayer) && entityIn instanceof EntityThrowable) {
                 EntityThrowable throwable = (EntityThrowable) entityIn;
                 specialCause = throwable.getThrower();
 
@@ -381,12 +389,12 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                         Player player = (Player) specialCause;
                         setCreatorEntityNbt(entityIn.getEntityData(), player.getUniqueId());
                     }
-                    SpawnEntityEvent event = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), Cause.of(specialCause), (Entity) entityIn);
-                    specialCancelledCause = Sponge.getGame().getEventManager().post(event);
+                    specialEvent = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), Cause.of(specialCause), (Entity) entityIn);
+                    Sponge.getGame().getEventManager().post(specialEvent);
                 }
             }
             // Special case for TNT
-            else if (!this.isRemote && !(entityIn instanceof EntityPlayer) && entityIn instanceof EntityTNTPrimed) {
+            else if (!(entityIn instanceof EntityPlayer) && entityIn instanceof EntityTNTPrimed) {
                 EntityTNTPrimed entity = (EntityTNTPrimed) entityIn;
                 specialCause = entity.getTntPlacedBy();
 
@@ -395,23 +403,33 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                     setCreatorEntityNbt(entityIn.getEntityData(), player.getUniqueId());
                 }
                 if (specialCause != null) {
-                    SpawnEntityEvent event = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), Cause.of(specialCause), (Entity) entityIn);
-                    specialCancelledCause = Sponge.getGame().getEventManager().post(event);
+                    specialEvent = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), Cause.of(specialCause), (Entity) entityIn);
+                    Sponge.getGame().getEventManager().post(specialEvent);
                 }
             }
             // Special case for Tameables
-            else if (!this.isRemote && !(entityIn instanceof EntityPlayer) && entityIn instanceof EntityTameable) {
+            else if (!(entityIn instanceof EntityPlayer) && entityIn instanceof EntityTameable) {
                 EntityTameable tameable = (EntityTameable) entityIn;
                 if (tameable.getOwnerEntity() != null) {
                     specialCause = tameable.getOwnerEntity();
-                    SpawnEntityEvent event = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), Cause.of(specialCause), (Entity) entityIn);
-                    specialCancelledCause = Sponge.getGame().getEventManager().post(event);
+                    specialEvent = SpongeEventFactory.createSpawnEntityEvent(Sponge.getGame(), Cause.of(specialCause), (Entity) entityIn);
+                    Sponge.getGame().getEventManager().post(specialEvent);
                 }
             }
 
-            if (!this.isRemote && !(entityIn instanceof EntityPlayer) && (this.currentTickBlock != null || this.currentTickEntity != null || this.currentTickTileEntity != null || StaticMixinHelper.processingPlayer != null || flag)) {
+            if (specialEvent != null) {
+                if (!specialEvent.isCancelled()) {
+                    this.getChunkFromChunkCoords(i, j).addEntity(entityIn);
+                    this.loadedEntityList.add(entityIn);
+                    this.onEntityAdded(entityIn);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (!flag) {
                 this.capturedEntities.add(entityIn);
-            } else if (!specialCancelledCause){
+                return true;
+            } else {
                 if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityJoinWorldEvent(entityIn, (net.minecraft.world.World)(Object)this)) && !flag) return false;
 
                 this.getChunkFromChunkCoords(i, j).addEntity(entityIn);
@@ -420,12 +438,11 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                 return true;
             }
         }
-        return false;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public synchronized void handlePostTickCaptures(Cause cause) {
+    public void handlePostTickCaptures(Cause cause) {
         if (this.isRemote) {
             return;
         }
@@ -561,7 +578,7 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
                                     }
                                 }
                             }
-                        } else if (captureType == CaptureType.PLACE && player != null) {
+                        } else if (captureType == CaptureType.PLACE && player != null && packet != null) {
                             // handle revert
                             player.isChangingQuantityOnly = true;
                             player.inventory.mainInventory[player.inventory.currentItem] = ItemStack.copyItemStack(packet.getStack());
@@ -698,7 +715,7 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
         return this.capturedSpongeBlockBreaks;
     }
 
-    private synchronized void markAndNotifyBlockPost(List<BlockTransaction> transactions, CaptureType type, Cause cause) {
+    private void markAndNotifyBlockPost(List<BlockTransaction> transactions, CaptureType type, Cause cause) {
         for (BlockTransaction transaction : transactions) {
             // Handle custom replacements
             if (transaction.isValid() && transaction.getCustomReplacement().isPresent()) {
