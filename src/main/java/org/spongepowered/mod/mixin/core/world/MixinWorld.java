@@ -200,7 +200,7 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
             BlockTransaction transaction = null;
             IBlockState currentState = getBlockState(pos);
 
-            if (!this.isRemote) {
+            if (!this.isRemote && !this.restoringBlockSnapshots) { // don't capture if we are restoring blocks
                 if (StaticMixinHelper.processingPacket instanceof C08PacketPlayerBlockPlacement) {
                     IMixinChunk spongeChunk = (IMixinChunk) chunk;
                     if (block != currentState.getBlock()) { // Place
@@ -443,7 +443,7 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
     @Override
     @SuppressWarnings("unchecked")
     public void handlePostTickCaptures(Cause cause) {
-        if (this.isRemote) {
+        if (this.isRemote || this.restoringBlockSnapshots) {
             return;
         }
 
