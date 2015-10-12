@@ -24,8 +24,11 @@
  */
 package org.spongepowered.mod;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.GameState;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
@@ -44,6 +47,8 @@ public final class SpongeModGame extends SpongeGame {
     private final Platform platform = new SpongeModPlatform(SpongeGame.MINECRAFT_VERSION,
             SpongeGame.API_VERSION, SpongeGame.IMPLEMENTATION_VERSION);
 
+    private GameState state = GameState.CONSTRUCTION;
+
     @Inject
     public SpongeModGame(PluginManager pluginManager, EventManager eventManager, GameRegistry gameRegistry,
             ServiceManager serviceManager, TeleportHelper teleportHelper) {
@@ -53,6 +58,15 @@ public final class SpongeModGame extends SpongeGame {
     @Override
     public File getSavesDirectory() {
         return FMLCommonHandler.instance().getSavesDirectory();
+    }
+
+    @Override
+    public GameState getState() {
+        return this.state;
+    }
+
+    public void setState(GameState state) {
+        this.state = checkNotNull(state);
     }
 
     @Override

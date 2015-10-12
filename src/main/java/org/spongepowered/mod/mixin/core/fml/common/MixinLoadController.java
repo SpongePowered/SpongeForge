@@ -22,33 +22,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.state;
+package org.spongepowered.mod.mixin.core.fml.common;
 
-import net.minecraftforge.fml.common.event.FMLEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.GameState;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.util.event.callback.CallbackList;
+import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.LoaderState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.Sponge;
-import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.SpongeModGame;
+import org.spongepowered.mod.event.StateRegistry;
 
-@NonnullByDefault
-@Mixin(FMLStateEvent.class)
-public abstract class MixinEventState extends FMLEvent {
+@Mixin(value = LoadController.class, remap = false)
+public class MixinLoadController {
 
-    public Game getGame() {
-        return SpongeMod.instance.getGame();
-    }
-
-    public GameState getState() {
-        return Sponge.getGame().getState();
-    }
-
-    public CallbackList getCallbacks() {
-        // TODO
-        return null;
+    @Inject(method = "distributeStateMessage", at = @At(value = "INVOKE", target = "Lcom/google/common/eventbus/EventBus;post(Ljava/lang/Object;)V", ordinal = 0))
+    public void onPost(LoaderState state, Object[] eventData, CallbackInfo ci) {
+        // 'distbuteStateMessage' is *sometimes* called before 'transition'.
+        // To ensure that the state is properly set in SpongeGame, we need
+        // to mixin here, before any event handlers have received the event
+        ((SpongeModGame) Sponge.getGame()).setState(StateRegistry.getState(state));
     }
 
 }

@@ -4,6 +4,7 @@
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "mixins": [
-        "fml.common.registry.MixinGameData"
+        "fml.common.registry.MixinGameData",
+        "fml.common.MixinLoadController"
     ]
 }
