@@ -45,8 +45,8 @@ dependencies {
     //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
 
     // for more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    // https://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // https://www.gradle.org/docs/current/userguide/dependency_management.html
 
     // sponge dependency
     compile "org.spongepowered:sponge:${version}"
