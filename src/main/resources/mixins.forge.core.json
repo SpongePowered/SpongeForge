@@ -83,6 +83,7 @@
     ],
     "client": [
         "client.MixinMinecraft",
+        "client.network.MixinNetHandlerPlayClient",
         "client.server.MixinIntegratedServer",
         "server.MixinIntegratedServerAnonInner3"
     ],

@@ -171,6 +171,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             // Add the SyncScheduler as a listener for ServerTickEvents
             FMLCommonHandler.instance().bus().register(this);
 
+            FMLCommonHandler.instance().bus().register(this.game.getChannelRegistrar());
+
             if (event.getSide().isServer()) {
                 SpongeHooks.enableThreadContentionMonitoring();
             }

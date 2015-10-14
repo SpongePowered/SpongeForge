@@ -30,13 +30,14 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.GameState;
 import org.spongepowered.api.Platform;
-import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeGame;
+import org.spongepowered.common.network.SpongeNetworkManager;
+import org.spongepowered.mod.network.SpongeModNetworkManager;
 
 import java.io.File;
 
@@ -49,6 +50,8 @@ public final class SpongeModGame extends SpongeGame {
             SpongeGame.API_VERSION, SpongeGame.IMPLEMENTATION_VERSION);
 
     private GameState state = GameState.CONSTRUCTION;
+
+    private final SpongeModNetworkManager networkManager = new SpongeModNetworkManager();
 
     @Inject
     public SpongeModGame(PluginManager pluginManager, EventManager eventManager, GameRegistry gameRegistry,
@@ -76,7 +79,7 @@ public final class SpongeModGame extends SpongeGame {
     }
 
     @Override
-    public ChannelRegistrar getChannelRegistrar() {
-        throw new UnsupportedOperationException(); // TODO
+    public SpongeNetworkManager getChannelRegistrar() {
+        return this.networkManager;
     }
 }

@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.network;
 
+import com.google.common.collect.Sets;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.NetworkManager;
@@ -44,9 +45,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
+import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
+
+import java.util.Set;
 
 @Mixin(NetHandlerPlayServer.class)
-public abstract class MixinNetHandlerPlayServer {
+public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler {
 
     @Shadow public EntityPlayerMP playerEntity;
     @Shadow private int chatSpamThresholdCount;
@@ -54,6 +58,8 @@ public abstract class MixinNetHandlerPlayServer {
     @Shadow public NetworkManager netManager;
     @Shadow private MinecraftServer serverController;
     @Shadow private boolean hasMoved;
+
+    private final Set<String> registeredChannels = Sets.newHashSet();
 
     @Shadow public abstract void sendPacket(final Packet packetIn);
     @Shadow public abstract void kickPlayerFromServer(String message);
@@ -80,6 +86,11 @@ public abstract class MixinNetHandlerPlayServer {
         }
 
         ci.cancel();
+    }
+
+    @Override
+    public Set<String> getRegisteredChannels() {
+        return this.registeredChannels;
     }
 
 }
