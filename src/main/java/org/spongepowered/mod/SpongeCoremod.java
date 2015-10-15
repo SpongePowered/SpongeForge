@@ -62,13 +62,6 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     }
 
     public SpongeCoremod() {
-
-        // These exclusions aren't added by FML on the server side.
-        // Adding them prevents Optional from being loaded by the LaunchClassLoader,
-        // which results in an issue with events that extend CauseTracked.
-        Launch.classLoader.addClassLoaderExclusion("com.google.common.");
-        Launch.classLoader.addClassLoaderExclusion("org.apache.");
-
         // Let's get this party started
         MixinBootstrap.init();
 

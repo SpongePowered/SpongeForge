@@ -49,16 +49,16 @@ public class Flardians {
 
     @Inject private Game game;
 
-
     @Listener
     public void onSpawn(SpawnEntityEvent event) {
-        if (event.getTargetEntity().getType() == EntityTypes.VILLAGER && Math.random() > 0.7) {
-            final Entity entity = event.getTargetEntity();
-            entity.offer(Keys.CAREER, Careers.CLERIC);
-            entity.offer(Keys.DISPLAY_NAME, FLARDARIAN);
-            entity.offer(Keys.SHOWS_DISPLAY_NAME, true);
-            entity.offer(Keys.INVULNERABILITY, 10000);
-            entity.offer(generateTradeOffer());
+        for (final Entity entity : event.getEntities()) {
+            if (entity.getType() == EntityTypes.VILLAGER && Math.random() > 0.7) {
+                entity.offer(Keys.CAREER, Careers.CLERIC);
+                entity.offer(Keys.DISPLAY_NAME, FLARDARIAN);
+                entity.offer(Keys.SHOWS_DISPLAY_NAME, true);
+                entity.offer(Keys.INVULNERABILITY, 10000);
+                entity.offer(generateTradeOffer());
+            }
         }
     }
 
