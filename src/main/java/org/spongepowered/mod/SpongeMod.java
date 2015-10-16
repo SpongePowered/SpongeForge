@@ -305,4 +305,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
         return modId;
     }
+
+    public boolean isClientThread() {      
+       return (Thread.currentThread().getName().equals("Client thread"));     
+    }
 }
