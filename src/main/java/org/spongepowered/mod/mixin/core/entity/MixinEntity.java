@@ -49,7 +49,6 @@ import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.world.DimensionManager;
 
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 
@@ -57,7 +56,6 @@ import java.util.UUID;
 @Mixin(value = Entity.class, priority = 1001, remap = false)
 public abstract class MixinEntity implements IMixinEntity {
 
-    @Shadow protected Random rand;
     @Shadow public net.minecraft.world.World worldObj;
     // @formatter:off
     @Shadow(remap = false)
