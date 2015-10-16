@@ -53,7 +53,7 @@ import java.util.UUID;
 
 
 @NonnullByDefault
-@Mixin(value = Entity.class, priority = 1001, remap = false)
+@Mixin(value = Entity.class, priority = 1001)
 public abstract class MixinEntity implements IMixinEntity {
 
     @Shadow public net.minecraft.world.World worldObj;
