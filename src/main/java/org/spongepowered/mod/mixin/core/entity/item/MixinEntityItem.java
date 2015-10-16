@@ -37,6 +37,6 @@ public class MixinEntityItem {
 
     @Redirect(method = "onCollideWithPlayer", at = @At(value = "INVOKE", target="Lnet/minecraftforge/event/ForgeEventFactory;onItemPickup(Lnet/minecraft/entity/item/EntityItem;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/item/ItemStack;)I"))
     public int onEntityCollideWithPlayer(EntityItem entityItem, EntityPlayer entityIn, ItemStack itemstack) {
-        return 1; // always allow as we fire our own event
+        return 0; // always allow as we fire our own event
     }
 }

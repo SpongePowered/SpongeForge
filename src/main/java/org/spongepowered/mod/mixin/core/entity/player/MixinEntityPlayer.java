@@ -22,13 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.mixin.core.entity.player;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
+import org.spongepowered.common.mixin.core.entity.living.MixinEntityLivingBase;
 
-public interface IMixinEventBus {
+import org.spongepowered.asm.mixin.Shadow;
+import net.minecraft.entity.player.InventoryPlayer;
+import org.spongepowered.asm.mixin.Overwrite;
+import net.minecraft.entity.player.EntityPlayer;
+import org.spongepowered.asm.mixin.Mixin;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.item.ItemStack;
 
-    int getBusID();
+@Mixin(EntityPlayer.class)
+public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
 
-    boolean post(Event event, boolean forgeOnly);
+    @Shadow public InventoryPlayer inventory;
+    @Shadow public abstract EntityItem dropItem(ItemStack droppedItem, boolean dropAround, boolean traceItem);
+
+    // Restore methods to original as we handle PlayerTossEvent in DropItemEvent
+    @Overwrite
+    public EntityItem dropOneItem(boolean dropAll) {
+        return this.dropItem(this.inventory.decrStackSize(this.inventory.currentItem, dropAll && this.inventory.getCurrentItem() != null ? this.inventory.getCurrentItem().stackSize : 1), false, true);
+    }
+
+    @Overwrite
+    public EntityItem dropPlayerItemWithRandomChoice(ItemStack itemStackIn, boolean unused) {
+        return this.dropItem(itemStackIn, false, false);
+    }
 }

@@ -12,6 +12,7 @@
         "common.world.MixinDimensionManager",
         "entity.MixinEntity",
         "entity.item.MixinEntityItem",
+        "entity.player.MixinEntityPlayer",
         "entity.player.MixinEntityPlayerMP",
         "entity.player.MixinInventoryPlayer",
         "entity.vehicle.MixinEntityMinecart",

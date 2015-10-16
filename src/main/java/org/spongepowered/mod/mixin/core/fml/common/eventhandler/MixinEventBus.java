@@ -53,9 +53,14 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     @Overwrite
     public boolean post(Event event) {
+        return post(event, false);
+    }
+
+    @Override
+    public boolean post(Event event, boolean forgeOnly) {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
-        if (event instanceof org.spongepowered.api.event.Event && !FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+        if (!SpongeModEventManager.eventBulkMappings.inverse().containsKey(event) && event instanceof org.spongepowered.api.event.Event && !FMLCommonHandler.instance().getEffectiveSide().isClient()) {
             if (event instanceof BlockEvent.PlaceEvent || event instanceof BlockEvent.BreakEvent || event instanceof LivingDropsEvent
                     || event instanceof ItemTossEvent) {
                 return false; // let the event happen, we will just capture it

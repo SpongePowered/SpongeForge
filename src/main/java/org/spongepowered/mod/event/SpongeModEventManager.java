@@ -66,6 +66,7 @@ import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
+import org.spongepowered.api.event.inventory.DropItemEvent;
 import org.spongepowered.api.event.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
@@ -123,8 +124,8 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(ClientConnectionEvent.Disconnect.class, PlayerEvent.PlayerLoggedOutEvent.class)
                     .build();
 
-    private final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventBulkMappings =
-            new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
+    public static final ImmutableBiMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventBulkMappings =
+            new ImmutableBiMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
                 .put(CollideEntityEvent.class, EntityItemPickupEvent.class)
                 .put(SpawnEntityEvent.class, EntityJoinWorldEvent.class)
                 .build();
@@ -230,7 +231,7 @@ public class SpongeModEventManager extends SpongeEventManager {
 
         Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = this.eventMappings.get(spongeEvent.getClass().getInterfaces()[0]);
         if (clazz == null) {
-            clazz = this.eventBulkMappings.get(spongeEvent.getClass().getInterfaces()[0]);
+            clazz = eventBulkMappings.get(spongeEvent.getClass().getInterfaces()[0]);
             if (clazz != null) {
                 return postBulk(spongeEvent, clazz);
             }
