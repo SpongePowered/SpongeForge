@@ -36,6 +36,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -91,9 +92,11 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.command.MessageSinkEvent;
+import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
 import org.spongepowered.api.event.entity.living.TargetLivingEvent;
@@ -116,6 +119,7 @@ import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -229,8 +233,6 @@ public class SpongeForgeEventFactory {
 
             } else if (clazz == EntityStruckByLightningEvent.class) {
 
-            } else if (clazz == EntityJoinWorldEvent.class) {
-               // return createEntityJoinWorldEvent(event);
             } else {
                 return createEntityEvent(event);
             }
@@ -293,6 +295,16 @@ public class SpongeForgeEventFactory {
 
         // return same event if not currently supported
         return (net.minecraftforge.fml.common.eventhandler.Event) event;
+    }
+
+    // Used for firing single events to Forge from sponge bulk events
+    public static Event callForgeEvent(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
+        if (EntityItemPickupEvent.class.isAssignableFrom(clazz)) {
+            return callEntityItemPickupEvent(spongeEvent);
+        } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
+            return callEntityJoinWorldEvent(spongeEvent);
+        }
+        return spongeEvent;
     }
 
     // Block events
@@ -399,16 +411,49 @@ public class SpongeForgeEventFactory {
         return forgeEvent;
     }
 
-    /*public static EntityJoinWorldEvent createEntityJoinWorldEvent(Event event) {
+    // Special case for bulk
+    public static CollideEntityEvent callEntityItemPickupEvent(Event event) {
+        if (!(event instanceof CollideEntityEvent)) {
+            throw new IllegalArgumentException("Event is not a valid CollideEntityEvent.");
+        }
+
+        CollideEntityEvent spongeEvent = (CollideEntityEvent) event;
+        if (spongeEvent.getCause().first(Player.class).isPresent()) {
+            Iterator<org.spongepowered.api.entity.Entity> iterator = spongeEvent.getEntities().iterator();
+            while (iterator.hasNext()) {
+                org.spongepowered.api.entity.Entity entity = iterator.next();
+                if (entity instanceof org.spongepowered.api.entity.Item) {
+                    EntityItem entityItem = (EntityItem) entity;
+                    EntityItemPickupEvent forgeEvent = new EntityItemPickupEvent((EntityPlayer) spongeEvent.getCause().first(Player.class).get(), entityItem);
+                    MinecraftForge.EVENT_BUS.post(forgeEvent);
+                    if (forgeEvent.isCanceled()) {
+                        iterator.remove();
+                    }
+                }
+            }
+        }
+        return spongeEvent;
+    }
+
+    public static SpawnEntityEvent callEntityJoinWorldEvent(Event event) {
         if (!(event instanceof SpawnEntityEvent)) {
-            throw new IllegalArgumentException("Event is not a valid SpawnEntityEvent.");
+            throw new IllegalArgumentException("Event is not a valiud SpawnEntityEvent.");
         }
 
         SpawnEntityEvent spongeEvent = (SpawnEntityEvent) event;
-        EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((Entity) spongeEvent.getTargetEntity(),
-                (net.minecraft.world.World) spongeEvent.getTargetEntity().getLocation().getExtent());
-        return forgeEvent;
-    }*/
+        Iterator<org.spongepowered.api.entity.Entity> iterator = spongeEvent.getEntities().iterator();
+        while (iterator.hasNext()) {
+            org.spongepowered.api.entity.Entity entity = iterator.next();
+            EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((net.minecraft.entity.Entity) entity,
+                    (net.minecraft.world.World) entity.getLocation().getExtent());
+
+            MinecraftForge.EVENT_BUS.post(forgeEvent);
+            if (forgeEvent.isCanceled()) {
+                iterator.remove();
+            }
+        }
+        return spongeEvent;
+    }
 
     // Living events
     public static LivingEvent createLivingEvent(Event event) {
