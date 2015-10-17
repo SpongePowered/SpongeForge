@@ -30,7 +30,6 @@ import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.CauseTracked;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.util.event.callback.CallbackList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.SpongeMod;
@@ -60,11 +59,6 @@ public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEve
     @Override
     public void setCancelled(boolean cancel) {
         setCanceled(cancel);
-    }
-
-    public CallbackList getCallbacks() {
-        // TODO Implement callbacks
-        return new CallbackList();
     }
 
     @Override
