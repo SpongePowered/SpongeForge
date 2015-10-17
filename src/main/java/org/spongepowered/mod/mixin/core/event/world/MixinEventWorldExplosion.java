@@ -29,8 +29,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.event.cause.Cause;
@@ -87,7 +87,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
     static abstract class Detonate extends MixinEventWorldExplosion implements ExplosionEvent.Detonate {
 
         private ImmutableList<EntitySnapshot> entitySnapshots;
-        private ImmutableList<BlockTransaction> blockTransactions;
+        private ImmutableList<Transaction<BlockSnapshot>> blockTransactions;
 
         @Shadow private List<net.minecraft.entity.Entity> entityList;
 
@@ -99,7 +99,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         @SuppressWarnings("unchecked")
         public void createSpongeData() {
             List<BlockPos> affectedPositions = this.explosion.func_180343_e();
-            ImmutableList.Builder<BlockTransaction> builder = new ImmutableList.Builder<BlockTransaction>();
+            ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<Transaction<BlockSnapshot>>();
             for (BlockPos pos : affectedPositions) {
                 Location<World> location = new Location<World>((World) this.world, VecHelper.toVector(pos));
                 BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(this.world, pos)).createSpongeBlockSnapshot();
@@ -108,24 +108,24 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
                     .position(location.getBlockPosition())
                     .worldId(location.getExtent().getUniqueId());
                 BlockSnapshot replacementSnapshot = replacementBuilder.build();
-                builder.add(new BlockTransaction(originalSnapshot, replacementSnapshot)).build();
+                builder.add(new Transaction<BlockSnapshot>(originalSnapshot, replacementSnapshot)).build();
             }
             this.blockTransactions = builder.build();
         }
 
         @Override
-        public ImmutableList<BlockTransaction> getTransactions() {
+        public ImmutableList<Transaction<BlockSnapshot>> getTransactions() {
             return this.blockTransactions;
         }
 
         @Override
-        public List<BlockTransaction> filter(Predicate<Location<World>> predicate) {
-            Iterator<BlockTransaction> iterator = getTransactions().iterator();
+        public List<Transaction<BlockSnapshot>> filter(Predicate<Location<World>> predicate) {
+            Iterator<Transaction<BlockSnapshot>> iterator = getTransactions().iterator();
             while (iterator.hasNext()) {
-                BlockTransaction transaction = iterator.next();
+                Transaction<BlockSnapshot> transaction = iterator.next();
                 Location<World> location = transaction.getOriginal().getLocation().get();
                 if (!predicate.test(location)) {
-                    transaction.setIsValid(false);
+                    transaction.setValid(false);
                 }
             }
             return this.blockTransactions;
@@ -180,9 +180,9 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
             List<BlockPos> affectedBlocks = this.explosion.func_180343_e();
             affectedBlocks.clear();
 
-            for (BlockTransaction blockTransaction : event.getTransactions()) {
+            for (Transaction<BlockSnapshot> blockTransaction : event.getTransactions()) {
                 if (blockTransaction.isValid()) {
-                    affectedBlocks.add(VecHelper.toBlockPos(blockTransaction.getFinalReplacement().getPosition()));
+                    affectedBlocks.add(VecHelper.toBlockPos(blockTransaction.getFinal().getPosition()));
                 }
             }
         }
@@ -195,8 +195,8 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
             net.minecraftforge.event.world.ExplosionEvent event = (net.minecraftforge.event.world.ExplosionEvent) forgeEvent;
             // TODO - handle this better
             List<BlockPos> affectedBlocks = event.explosion.func_180343_e();
-            for (BlockTransaction transaction : this.blockTransactions) {
-                BlockPos pos = VecHelper.toBlockPos(transaction.getFinalReplacement().getPosition());
+            for (Transaction<BlockSnapshot> transaction : this.blockTransactions) {
+                BlockPos pos = VecHelper.toBlockPos(transaction.getFinal().getPosition());
                 boolean match = false;
                 for (BlockPos forgePos : affectedBlocks) {
                     if (forgePos.getX() == pos.getX() && forgePos.getY() == pos.getY() && forgePos.getZ() == pos.getZ()) {
@@ -204,7 +204,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
                     }
                 }
                 if (!match) {
-                    transaction.setIsValid(false);
+                    transaction.setValid(false);
                 }
             }
         }

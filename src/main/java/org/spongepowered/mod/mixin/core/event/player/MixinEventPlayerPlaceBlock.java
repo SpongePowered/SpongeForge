@@ -28,9 +28,9 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent;
-import org.spongepowered.api.block.BlockTransaction;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
@@ -49,15 +49,15 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
 
     @Shadow public EntityPlayer player;
     @Shadow public ItemStack itemInHand;
-    @Shadow public BlockSnapshot blockSnapshot;
+    @Shadow public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
     @Shadow public IBlockState placedBlock;
     @Shadow public IBlockState placedAgainst;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(BlockSnapshot blockSnapshot, IBlockState placedAgainst, EntityPlayer player, CallbackInfo ci) {
+    public void onConstructed(net.minecraftforge.common.util.BlockSnapshot blockSnapshot, IBlockState placedAgainst, EntityPlayer player, CallbackInfo ci) {
         this.blockOriginal = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
-        this.blockReplacement = ((IMixinBlockSnapshot) BlockSnapshot.getBlockSnapshot(blockSnapshot.world, blockSnapshot.pos)).createSpongeBlockSnapshot();
-        this.blockTransactions = new ImmutableList.Builder<BlockTransaction>().add(new BlockTransaction(this.blockOriginal, this.blockReplacement)).build();
+        this.blockReplacement = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(blockSnapshot.world, blockSnapshot.pos)).createSpongeBlockSnapshot();
+        this.blockTransactions = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(new Transaction<BlockSnapshot>(this.blockOriginal, this.blockReplacement)).build();
     }
 
     @Override
@@ -70,6 +70,6 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
         super.syncDataToForge(spongeEvent);
 
         ChangeBlockEvent.Place event = (ChangeBlockEvent.Place) spongeEvent;
-        this.placedBlock = (IBlockState) event.getTransactions().get(0).getFinalReplacement().getState();
+        this.placedBlock = (IBlockState) event.getTransactions().get(0).getFinal().getState();
     }
 }

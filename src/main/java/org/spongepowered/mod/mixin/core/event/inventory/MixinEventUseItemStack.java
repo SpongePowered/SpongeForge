@@ -25,10 +25,11 @@
 package org.spongepowered.mod.mixin.core.event.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.item.inventory.ItemStackTransaction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,14 +42,14 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
 
     private int originalDuration;
     private ItemStackSnapshot itemSnapshot;
-    private ItemStackTransaction itemTransaction;
+    private Transaction<ItemStackSnapshot> itemTransaction;
     @Shadow public net.minecraft.item.ItemStack item;
     @Shadow public int duration;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, CallbackInfo ci) {
         itemSnapshot = ((ItemStack) item).createSnapshot();
-        this.itemTransaction = new ItemStackTransaction(itemSnapshot);
+        this.itemTransaction = new Transaction<ItemStackSnapshot>(itemSnapshot, itemSnapshot.copy());
         this.originalDuration = duration;
     }
 
@@ -86,23 +87,23 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
     static abstract class Finish extends MixinEventUseItemStack implements UseItemStackEvent.Finish {
 
         private ItemStackSnapshot itemResultSnapshot;
-        private ItemStackTransaction itemResultTransaction;
+        private Transaction<ItemStackSnapshot> itemResultTransaction;
 
         @Inject(method = "<init>", at = @At("RETURN"))
         public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, net.minecraft.item.ItemStack result, CallbackInfo ci) {
             itemResultSnapshot = ((ItemStack) result).createSnapshot();
-            this.itemResultTransaction = new ItemStackTransaction(itemResultSnapshot);
+            this.itemResultTransaction = new Transaction<ItemStackSnapshot>(itemResultSnapshot, itemResultSnapshot.copy());
         }
 
         @Override
-        public ItemStackTransaction getItemStackResult() {
+        public Transaction<ItemStackSnapshot> getItemStackResult() {
             return this.itemResultTransaction;
         }
 
     }
 
     @Override
-    public ItemStackTransaction getItemStackInUse() {
+    public Transaction<ItemStackSnapshot> getItemStackInUse() {
         return this.itemTransaction;
     }
 
@@ -119,7 +120,7 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
         super.syncDataToForge(spongeEvent);
 
        UseItemStackEvent event = (UseItemStackEvent) spongeEvent;
-       this.item = (net.minecraft.item.ItemStack) event.getItemStackInUse().getFinalSnapshot().createStack();
+       this.item = (net.minecraft.item.ItemStack) event.getItemStackInUse().getFinal().createStack();
        this.duration = event.getRemainingDuration();
     }
 }

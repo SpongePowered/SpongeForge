@@ -29,7 +29,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockTransaction;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -50,12 +50,12 @@ public abstract class MixinEventPlayerPlaceMultiBlock extends MixinEventPlayerPl
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots, IBlockState placedAgainst, EntityPlayer player,
             CallbackInfo ci) {
-        ImmutableList.Builder<BlockTransaction> builder = new ImmutableList.Builder<BlockTransaction>();
+        ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<Transaction<BlockSnapshot>>();
         for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : blockSnapshots) {
             BlockSnapshot spongeOriginalBlockSnapshot = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
             BlockSnapshot replacementSnapshot = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(blockSnapshot.world, blockSnapshot.pos))
                 .createSpongeBlockSnapshot();
-            builder.add(new BlockTransaction(spongeOriginalBlockSnapshot, replacementSnapshot));
+            builder.add(new Transaction<BlockSnapshot>(spongeOriginalBlockSnapshot, replacementSnapshot));
         }
         this.blockTransactions = builder.build();
     }

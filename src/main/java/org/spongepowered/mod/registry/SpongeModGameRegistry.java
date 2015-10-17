@@ -27,6 +27,7 @@ package org.spongepowered.mod.registry;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Maps;
+import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.GameDictionary;
@@ -42,6 +43,8 @@ import org.spongepowered.api.block.trait.IntegerTraits;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.gen.PopulatorType;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
@@ -58,6 +61,7 @@ import java.util.Optional;
 @NonnullByDefault
 public class SpongeModGameRegistry extends SpongeGameRegistry {
 
+    public static final ItemStack NONE = (ItemStack)new net.minecraft.item.ItemStack(new Item().setUnlocalizedName("none").setMaxDamage(0).setMaxStackSize(0));
     private Map<String, EnumTrait<?>> enumTraitMappings = Maps.newHashMap();
     private Map<String, IntegerTrait> integerTraitMappings = Maps.newHashMap();
     private Map<String, BooleanTrait> booleanTraitMappings = Maps.newHashMap();
@@ -105,6 +109,11 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
     }
 
     private void setItemTypes() {
+        try {
+            RegistryHelper.setFinalStatic(ItemStackSnapshot.class, "NONE", NONE.createSnapshot());
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
         RegistryHelper.mapFields(ItemTypes.class, fieldName -> getItem(fieldName.toLowerCase()).get());
     }
 

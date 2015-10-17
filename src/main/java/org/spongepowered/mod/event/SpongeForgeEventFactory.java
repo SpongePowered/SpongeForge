@@ -331,7 +331,7 @@ public class SpongeForgeEventFactory {
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        BlockSnapshot replacementBlock = spongeEvent.getTransactions().get(0).getFinalReplacement();
+        BlockSnapshot replacementBlock = spongeEvent.getTransactions().get(0).getFinal();
         IBlockState state = (IBlockState) replacementBlock.getState();
         Optional<Player> player = spongeEvent.getCause().first(Player.class);
         if (!player.isPresent()) {
@@ -509,7 +509,7 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
+        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinal().createStack();
         PlayerUseItemEvent.Start forgeEvent = new PlayerUseItemEvent.Start((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
         return forgeEvent;
     }
@@ -525,7 +525,7 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
+        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinal().createStack();
         PlayerUseItemEvent.Tick forgeEvent = new PlayerUseItemEvent.Tick((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
         return forgeEvent;
     }
@@ -541,7 +541,7 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
+        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinal().createStack();
         PlayerUseItemEvent.Stop forgeEvent = new PlayerUseItemEvent.Stop((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
         return forgeEvent;
     }
@@ -557,8 +557,8 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinalSnapshot().createStack();
-        net.minecraft.item.ItemStack resultItemStack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackResult().getFinalSnapshot().createStack();
+        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinal().createStack();
+        net.minecraft.item.ItemStack resultItemStack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackResult().getFinal().createStack();
         PlayerUseItemEvent.Finish forgeEvent = new PlayerUseItemEvent.Finish((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration(), resultItemStack);
         return forgeEvent;
     }

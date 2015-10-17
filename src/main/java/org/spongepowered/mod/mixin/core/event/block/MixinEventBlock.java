@@ -29,7 +29,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockTransaction;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
@@ -51,28 +51,28 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
 
     public BlockSnapshot blockOriginal;
     protected BlockSnapshot blockReplacement;
-    protected ImmutableList<BlockTransaction> blockTransactions;
+    protected ImmutableList<Transaction<BlockSnapshot>> blockTransactions;
 
     @Shadow public BlockPos pos;
     @Shadow public net.minecraft.world.World world;
     @Shadow public IBlockState state;
 
     @Override
-    public ImmutableList<BlockTransaction> getTransactions() {
+    public ImmutableList<Transaction<BlockSnapshot>> getTransactions() {
         if (this.blockTransactions == null) {
-            this.blockTransactions = new ImmutableList.Builder<BlockTransaction>().build();
+            this.blockTransactions = new ImmutableList.Builder<Transaction<BlockSnapshot>>().build();
         }
         return this.blockTransactions;
     }
 
     @Override
-    public List<BlockTransaction> filter(Predicate<Location<World>> predicate) {
-        Iterator<BlockTransaction> iterator = getTransactions().iterator();
+    public List<Transaction<BlockSnapshot>> filter(Predicate<Location<World>> predicate) {
+        Iterator<Transaction<BlockSnapshot>> iterator = getTransactions().iterator();
         while (iterator.hasNext()) {
-            BlockTransaction transaction = iterator.next();
-            if (transaction.getFinalReplacement().getLocation().isPresent()
-                    && !predicate.test(transaction.getFinalReplacement().getLocation().get())) {
-                transaction.setIsValid(false);
+            Transaction<BlockSnapshot> transaction = iterator.next();
+            if (transaction.getFinal().getLocation().isPresent()
+                    && !predicate.test(transaction.getFinal().getLocation().get())) {
+                transaction.setValid(false);
             }
         }
         return this.blockTransactions;
@@ -96,8 +96,8 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
         super.syncDataToForge(spongeEvent);
         ChangeBlockEvent event = (ChangeBlockEvent) spongeEvent;
         if (event.getTransactions() != null && event.getTransactions().size() > 0) {
-            this.pos = VecHelper.toBlockPos(event.getTransactions().get(0).getFinalReplacement().getPosition());
-            this.state = ((IBlockState) event.getTransactions().get(0).getFinalReplacement().getState());
+            this.pos = VecHelper.toBlockPos(event.getTransactions().get(0).getFinal().getPosition());
+            this.state = ((IBlockState) event.getTransactions().get(0).getFinal().getState());
         }
     }
 }
