@@ -12,22 +12,6 @@
   Once you have downloaded and installed Forge, you can load Sponge as a mod.
 
 
-  Alternatively, for headless server installations, you can use this Sponge jar
-  as a launcher for Minecraft Forge. To use the jar as a launcher, you can:
-
-    1) Install Minecraft Forge and the dependencies by running:
-
-        java -jar ${jarfile} install
-
-    2) Run Minecraft Forge with Sponge by running
-
-        java -jar ${jarfile} run {args}
-
-    3) Install and run Minecraft Forge with Sponge by running
-
-        java -jar ${jarfile} go {args}
-
-
   If you need more help, you should check out our forums:
 
     http://forums.spongepowered.org/
