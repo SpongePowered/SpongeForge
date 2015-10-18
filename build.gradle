@@ -1,3 +1,4 @@
+// Gradle plugins
 buildscript {
     repositories {
         jcenter()
@@ -17,33 +18,28 @@ buildscript {
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
+ext.minecraftPlugin = plugins.getPlugin('net.minecraftforge.gradle.forge')
+ext.DIR_MCP_MAPPINGS = net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS
 
-ext {
-    minecraftPlugin = plugins.getPlugin('net.minecraftforge.gradle.forge')
-    forgeBuild = '1521'
-    DIR_MCP_MAPPINGS = net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS
-}
+// Apply shared implementation Gradle config
+apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
+
+// Forge Version
+ext.forgeBuild = '1521'
 
 minecraft {
-    forgeVersion = project.forgeBuild
+    forgeVersion = forgeBuild
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
 }
 
-apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
-
-// Project dependencies
-dependencies {
-    compile 'org.apache.ivy:ivy:2.4.0'
-}
+version = "$minecraft.version-$forgeBuild-$apiVersion-$buildNumber"
 
 compileJava {
-    options.compilerArgs += [
-            "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild"
-    ]
+    options.compilerArgs += [ "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild" ]
 }
 
 jar {
-    exclude 'log4j2.xml'
+    exclude 'log4j2.xml' // log4j2 configuration is for the development workspace only
 
     manifest {
         attributes(
@@ -60,7 +56,6 @@ jar {
 processResources {
     from('src/main/resources') {
         include 'mcmod.info'
-        include '**/ivy.xml'
 
         expand(
                 version: project.version,
@@ -72,23 +67,12 @@ processResources {
 }
 
 shadowJar {
-    exclude 'log4j2.xml'
+    exclude 'log4j2.xml' // log4j2 configuration is for the development workspace only
 
+    // This is not available on the client so we need to shade it
     dependencies {
         include dependency('com.google.code.findbugs:jsr305')
-        include(dependency('org.apache.ivy:ivy'))
     }
-    
-    // Exclude a bunch of stuff we don't need from Ivy, so the end jar is smaller
-    exclude 'fr/**'
-    exclude 'org/apache/ivy/ant/**'
-    exclude 'org/apache/ivy/logo.png'
-    exclude 'org/apache/ivy/osgi/filter/**'
-    exclude 'org/apache/ivy/osgi/obr/**'
-    exclude 'org/apache/ivy/osgi/p2/**'
-    exclude 'org/apache/ivy/osgi/repo/**'
-    exclude 'org/apache/ivy/osgi/updatesite/**'
-    exclude 'org/apache/ivy/osgi/util/**'
 }
 
 copySrgs << {

@@ -1,4 +1,4 @@
-Sponge [![Build Status](https://travis-ci.org/SpongePowered/Sponge.svg?branch=master)](https://travis-ci.org/SpongePowered/Sponge)
+SpongeForge [![Build Status](https://travis-ci.org/SpongePowered/SpongeForge.svg?branch=master)](https://travis-ci.org/SpongePowered/SpongeForge)
 =============
 
 **Currently not stable and under heavy development!**
@@ -13,19 +13,19 @@ A Forge implementation of the Sponge API.
 * [Development Chat]: #spongedev on irc.esper.net
 
 ## Prerequisites
-* [Java] 6+
+* [Java] 8
 
 ## Cloning
 The following steps will ensure your project is cloned properly.
 
-1. `git clone --recursive https://github.com/SpongePowered/Sponge.git`
-2. `cd Sponge`
+1. `git clone --recursive https://github.com/SpongePowered/SpongeForge.git`
+2. `cd SpongeForge`
 3. `cp scripts/pre-commit .git/hooks`
 
 ## Setup
 __Note:__ If you do not have [Gradle] installed then use `./gradlew` for Unix systems or Git Bash and `gradlew.bat` for Windows systems in place of any `gradle` command.
 
-Before you are able to build Sponge, you must first prepare the environment:
+Before you are able to build SpongeForge, you must first prepare the environment:
 
   - Run `gradle setupDecompWorkspace --refresh-dependencies`
 
@@ -35,65 +35,40 @@ Before you are able to build Sponge, you must first prepare the environment:
 __For [Eclipse]__
   1. Run `gradle eclipse`
   2. Import Sponge as an existing project (File > Import > General)
-  3. Select the root folder for Sponge and make sure `Search for nested projects` is enabled
+  3. Select the root folder for SpongeForge and make sure `Search for nested projects` is enabled
   4. Check Sponge when it finishes building and click **Finish**
 
 __For [IntelliJ]__
   1. Make sure you have the Gradle plugin enabled (File > Settings > Plugins).  
-  2. Click File > New > Project from Existing Sources > Gradle and select the root folder for Sponge.
+  2. Click File > New > Project from Existing Sources > Gradle and select the root folder for SpongeForge.
+  3. Select _Use customizable gradle wrapper_ if you do not have Gradle installed.
 
 ## Running
-__Note:__ The following is aimed to help you setup run configurations for Eclipse and IntelliJ, if you do not want to be able to run Sponge directly from your IDE then you can skip this.
+__Note:__ The following is aimed to help you setup run configurations for Eclipse and IntelliJ, if you do not want to be able to run SpongeForge directly from your IDE then you can skip this.
 
 __For [Eclipse]__ 
-  1. Go to **Run > Run Configurations**.
-  2. Right-click **Java Application** and select **New**.
-  3. Set the current project.
-  4. Set the name as `Sponge (forge/client)` and apply the information for Client below.
-  5. Repeat step 1 through 4, then set the name as `Sponge (forge/server)` and apply the information for Server below.
-  6. When launching the server for the first time, it will shutdown by itself. You will need to modify eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
-
+  1. Running `gradle eclipse` should have generated the run configurations automatically.
+  2. When launching the server for the first time, it will shutdown by itself. You will need to modify eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
 
 __For [IntelliJ]__
-  1. Go to **Run > Edit Configurations**.
-  2. Click the green + button and select **Application**.
-  3. Set the name as `Sponge (forge/client)` and apply the information for Client below.
-  4. Repeat step 2 and set the name as `Sponge (forge/server)` and apply the information for Server below.
-  5. When launching the server for the first time, it will shutdown by itself. You will need to modify eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
-
-__Client__
-
-|     Property      | Value                                     |
-|:-----------------:|:------------------------------------------|
-|    Main class     | GradleStart                               |
-|    VM options     | -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
-| Working directory | ./run (Included in project)               |
-| Module classpath  | Sponge (IntelliJ Only)                    |
-
-__Server__
-
-|     Property      | Value                              |
-|:-----------------:|:-----------------------------------|
-|    Main class     | GradleStartServer                  |
-|    VM Options     | -Dfml.coreMods.load=org.spongepowered.mod.SpongeCoremod |
-| Working directory | ./run                              |
-| Module classpath  | Sponge (IntelliJ Only)             |
-
+  1. Run `gradle genIntelliJRuns`
+  2. Restart IntelliJ IDEA or reload the project, the run configuration should now be generated.
+  3. When launching the server for the first time, it will shutdown by itself. You will need to modify eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
 
 ## Building
 __Note:__ If you do not have [Gradle] installed then use ./gradlew for Unix systems or Git Bash and gradlew.bat for Windows systems in place of any 'gradle' command.
 
-__Note:__ You must [Setup the environment](#setup) before you can build Sponge.
+__Note:__ You must [Setup the environment](#setup) before you can build SpongeForge.
 
-In order to build Sponge you simply need to run the `gradle` command. You can find the compiled JAR files in `./build/libs` but in most cases
-you'll only need 'sponge-x.x.x-x-x.x-x.jar'.
+In order to build SpongeForge you simply need to run the `gradle` command. You can find the compiled JAR files in `./build/libs` but in most cases
+you'll only need 'spongeforge-x.x.x-x-x.x-x.jar'.
 
 ## Updating your Clone
 The following steps will update your clone with the official repo.
 
-1. `git remote add upstream git@github.com:SpongePowered/Sponge.git`
-2. `git pull --rebase upstream master`
-3. `git submodule update --recursive`
+1. `git pull`
+2. `git submodule update --recursive`
+3. `gradle setupDecompWorkspace --refresh-dependencies`
 
 ## FAQ
 __A dependency was added, but my IDE is missing it! How do I add it?__
