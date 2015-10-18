@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.common.Sponge;
-import org.spongepowered.common.event.SpongeImplEventFactory;
+import org.spongepowered.common.SpongeImplFactory;
 
 @SideOnly(Side.CLIENT)
 @Mixin(targets = "net/minecraft/server/integrated/IntegratedServer$3")
@@ -57,7 +57,7 @@ public class MixinIntegratedServerAnonInner3 {
         Player player = (Player) playerIn;
         MessageSink originalSink = MessageSinks.toAll();
         ClientConnectionEvent.Disconnect event =
-                SpongeImplEventFactory.createClientConnectionEventDisconnect(Sponge.getGame(), Cause.of(player), Texts.of(), Texts.of(), originalSink, player.getMessageSink(), player);
+                SpongeImplFactory.createClientConnectionEventDisconnect(Sponge.getGame(), Cause.of(player), Texts.of(), Texts.of(), originalSink, player.getMessageSink(), player);
         Sponge.getGame().getEventManager().post(event);
         // Doesn't make sense to send the event's message because all players
         // are quitting anyway

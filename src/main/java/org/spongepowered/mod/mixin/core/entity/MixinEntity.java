@@ -140,26 +140,4 @@ public abstract class MixinEntity implements IMixinEntity {
         return true;
     }
 
-    @Override
-    public Optional<User> getSpongeCreator() {
-        NBTTagCompound nbt = getEntityData();
-        if (!nbt.hasKey(NbtDataUtil.SPONGE_DATA) || !nbt.getCompoundTag(NbtDataUtil.SPONGE_DATA).hasKey(NbtDataUtil.SPONGE_ENTITY_CREATOR)) {
-           return Optional.empty();
-        } else {
-            NBTTagCompound creatorNbt = nbt.getCompoundTag(NbtDataUtil.SPONGE_DATA).getCompoundTag(NbtDataUtil.SPONGE_ENTITY_CREATOR);
-            
-            if (!creatorNbt.hasKey("uuid_most") || !creatorNbt.hasKey("uuid_least")) {
-                return Optional.empty();
-            }
-
-            UUID uuid = new UUID(creatorNbt.getLong("uuid_most"), creatorNbt.getLong("uuid_least"));
-            // get player if online
-            EntityPlayer player = this.worldObj.getPlayerEntityByUUID(uuid);
-            if (player != null) {
-                return Optional.of((User)player);
-            }
-            // player is not online, get user from storage if one exists
-            return Sponge.getGame().getServiceManager().provide(UserStorage.class).get().get(uuid);
-        }
-    }
 }
