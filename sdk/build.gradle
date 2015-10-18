@@ -18,7 +18,7 @@ buildscript {
 apply plugin: 'forge'
 
 version = "1.0"
-group= "com.yourname.pluginid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group= "com.yourname.pluginid" // https://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "pluginid" // flardians
 
 minecraft {
@@ -30,7 +30,7 @@ minecraft {
 repositories {
     maven {
         name "sponge"
-        url "http://repo.spongepowered.org/maven/"
+        url "https://repo.spongepowered.org/maven/"
     }
 }
 
@@ -45,8 +45,8 @@ dependencies {
     //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
 
     // for more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    // https://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // https://www.gradle.org/docs/current/userguide/dependency_management.html
 
     // sponge dependency
     compile "org.spongepowered:sponge:${version}"

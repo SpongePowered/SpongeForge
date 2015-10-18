@@ -14,6 +14,6 @@
 
   If you need more help, you should check out our forums:
 
-    http://forums.spongepowered.org/
+    https://forums.spongepowered.org/
 
 --------------------------------------------------------------------------------
