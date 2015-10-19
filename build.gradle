@@ -59,18 +59,6 @@ artifacts {
     archives changelog.output
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            if (project.hasProperty('spongeUsername_1258423148')) {
-                repository(url: "http://files.minecraftforge.net/maven/manage/upload") {
-                    authentication(userName: spongeUsername_1258423148, password: spongeMavenPassword_1258423148)
-                }
-            }
-       }
-   }
-}
-
 uploadArchives.dependsOn "changelog"
 
 jar {
