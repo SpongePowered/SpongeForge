@@ -36,6 +36,18 @@ version = "$minecraft.version-$forgeBuild-$apiVersion-$buildNumber"
 
 compileJava {
     options.compilerArgs += [ "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild" ]
+    sourceCompatibility = '1.8'
+}
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "http://files.minecraftforge.net/maven/manage/upload") {
+                authentication(userName: spongeUsername_1258423148, password: spongeMavenPassword_1258423148 )
+            }
+       }
+   }
 }
 
 jar {
