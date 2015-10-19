@@ -39,28 +39,6 @@ compileJava {
     sourceCompatibility = '1.8'
 }
 
-task changelog(type: JenkinsChangelog) {
-
-    // skip if there is no forge jenkins pass
-    onlyIf {
-        project.hasProperty('forgeJenkinsPass')
-    }
-
-    outputs.upToDateWhen { false } // never up to date
-    serverRoot = "http://ci.jenkins.minecraftforge.net/"
-    jobName = "spongeforge"
-    targetBuild = System.env['BUILD_NUMBER'] ?: 0;
-    authName = "console_script"
-    authPassword = project.hasProperty('forgeJenkinsPass') ? project.getProperty('forgeJenkinsPass') : "";
-    output = "build/distributions/${project.name}-${project.version}-changelog.txt"
-}
-
-artifacts {
-    archives changelog.output
-}
-
-uploadArchives.dependsOn "changelog"
-
 jar {
     exclude 'log4j2.xml' // log4j2 configuration is for the development workspace only
 
@@ -102,3 +80,5 @@ copySrgs << {
     def file = project.file('build/srgs/mcp-srg.srg')
     file.append project.file('extraSrg.srg').text
 }
+
+apply from: 'changelog.gradle'
