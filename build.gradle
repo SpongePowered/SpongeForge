@@ -41,18 +41,22 @@ compileJava {
 
 task changelog(type: JenkinsChangelog) {
 
-    // skip if there is no sponge jenkins pass
+    // skip if there is no forge jenkins pass
     onlyIf {
-        project.hasProperty('spongeMavenPassword_1258423148')
+        project.hasProperty('forgeJenkinsPass')
     }
 
     outputs.upToDateWhen { false } // never up to date
     serverRoot = "http://ci.jenkins.minecraftforge.net/"
     jobName = "spongeforge"
     targetBuild = System.env['BUILD_NUMBER'] ?: 0;
-    authName = project.hasProperty('spongeUsername_1258423148') ? project.getProperty('spongeUsername_1258423148') : "";
-    authPassword = project.hasProperty('spongeMavenPassword_1258423148') ? project.getProperty('spongeMavenPassword_1258423148') : "";
+    authName = "console_script"
+    authPassword = project.hasProperty('forgeJenkinsPass') ? project.getProperty('forgeJenkinsPass') : "";
     output = "build/distributions/${project.name}-${project.version}-changelog.txt"
+}
+
+artifacts {
+    archives changelog.output
 }
 
 uploadArchives {
