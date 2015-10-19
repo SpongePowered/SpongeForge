@@ -36,7 +36,6 @@ version = "$minecraft.version-$forgeBuild-$apiVersion-$buildNumber"
 
 compileJava {
     options.compilerArgs += [ "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild" ]
-    sourceCompatibility = '1.8'
 }
 
 jar {
