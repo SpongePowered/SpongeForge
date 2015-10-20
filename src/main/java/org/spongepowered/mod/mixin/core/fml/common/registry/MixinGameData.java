@@ -43,9 +43,9 @@ public abstract class MixinGameData {
     @Inject(method = "register", at = @At("HEAD"))
     public void onRegister(Object material, String id, int idHint, CallbackInfoReturnable<Integer> cir) {
         if (material instanceof Block) {
-            SpongeGameRegistry.blockTypeMappings.put(id, (BlockType) material);
+            SpongeGameRegistry.blockTypeMappings.put(id.toLowerCase(), (BlockType) material);
         } else if (material instanceof Item) {
-            SpongeGameRegistry.itemTypeMappings.put(id, (ItemType) material);
+            SpongeGameRegistry.itemTypeMappings.put(id.toLowerCase(), (ItemType) material);
         }
     }
 
@@ -58,7 +58,7 @@ public abstract class MixinGameData {
 
     @Inject(method = "registerItem(Lnet/minecraft/item/Item;Ljava/lang/String;I)I", at = @At(value = "HEAD"))
     private void onRegisterItem(Item item, String name, int idHint, CallbackInfoReturnable<Integer> cir) {
-        SpongeGameRegistry.itemTypeMappings.put(name, (ItemType) item);
+        SpongeGameRegistry.itemTypeMappings.put(name.toLowerCase(), (ItemType) item);
     }
 
 }
