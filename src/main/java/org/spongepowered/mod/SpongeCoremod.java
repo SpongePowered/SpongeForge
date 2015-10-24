@@ -82,6 +82,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
                 .addConfiguration("mixins.common.api.json")
                 .addConfiguration("mixins.common.core.json")
                 .addConfiguration("mixins.common.bungeecord.json")
+                .addConfiguration("mixins.common.timings.json")
                 .addConfiguration("mixins.forge.core.json")
                 .addConfiguration("mixins.forge.entityactivation.json")
                 .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
