@@ -112,6 +112,9 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
 
     private void setItemTypes() {
         RegistryHelper.mapFields(ItemTypes.class, fieldName -> {
+            if (fieldName.equalsIgnoreCase("none")) {
+                return NONE_ITEM;
+            }
             return getItem(fieldName.toLowerCase()).get();
         });
     }
