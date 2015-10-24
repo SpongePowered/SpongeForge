@@ -37,6 +37,7 @@ import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
@@ -57,6 +58,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
@@ -124,6 +126,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(UseItemStackEvent.Finish.class, PlayerUseItemEvent.Finish.class)
                     .put(ClientConnectionEvent.Join.class, PlayerEvent.PlayerLoggedInEvent.class)
                     .put(ClientConnectionEvent.Disconnect.class, PlayerEvent.PlayerLoggedOutEvent.class)
+                    .put(SleepingEvent.Pre.class, PlayerSleepInBedEvent.class)
                     .build();
 
     public static final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventBulkMappings =
