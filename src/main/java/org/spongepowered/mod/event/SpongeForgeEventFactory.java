@@ -78,7 +78,6 @@ import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
-import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
@@ -91,6 +90,7 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
@@ -187,7 +187,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == PlayerPickupXpEvent.class) {
 
             } else if (clazz == PlayerSleepInBedEvent.class) {
-
+                return createPlayerSleepInBedEvent(event);
             } else if (clazz == PlayerUseItemEvent.Start.class) {
                 return createPlayerUseItemStartEvent(event);
             } else if (clazz == PlayerUseItemEvent.Tick.class) {
@@ -196,8 +196,6 @@ public class SpongeForgeEventFactory {
                 return createPlayerUseItemStopEvent(event);
             } else if (clazz == PlayerUseItemEvent.Finish.class) {
                 return createPlayerUseItemFinishEvent(event);
-            } else if (clazz == PlayerWakeUpEvent.class) {
-
             } else {
                 return (net.minecraftforge.fml.common.eventhandler.Event) event;
             }
@@ -499,6 +497,21 @@ public class SpongeForgeEventFactory {
                 new PlayerInteractEvent((EntityPlayer) player.get(), action, pos, face.isPresent() ? face.get() : null,
                         (net.minecraft.world.World) player.get().getWorld());
         return forgeEvent;
+    }
+
+    public static PlayerSleepInBedEvent createPlayerSleepInBedEvent(Event event) {
+        if (!(event instanceof SleepingEvent.Pre)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid SleepingEvent.Pre event.");
+        }
+
+        SleepingEvent.Pre spongeEvent = (SleepingEvent.Pre) event;
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
+        Location<World> location = spongeEvent.getBed().getLocation().get();
+        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        return new PlayerSleepInBedEvent((EntityPlayer) player.get(), pos);
     }
 
     public static PlayerUseItemEvent.Start createPlayerUseItemStartEvent(Event event) {
