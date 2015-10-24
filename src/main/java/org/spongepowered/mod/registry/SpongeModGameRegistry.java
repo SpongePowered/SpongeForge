@@ -64,8 +64,6 @@ import java.util.Optional;
 @NonnullByDefault
 public class SpongeModGameRegistry extends SpongeGameRegistry {
 
-    public static final Item NONE_ITEM = new Item().setUnlocalizedName("none").setMaxDamage(0).setMaxStackSize(0);
-    public static final ItemStack NONE = (ItemStack)new net.minecraft.item.ItemStack(NONE_ITEM);
     private Map<String, EnumTrait<?>> enumTraitMappings = Maps.newHashMap();
     private Map<String, IntegerTrait> integerTraitMappings = Maps.newHashMap();
     private Map<String, BooleanTrait> booleanTraitMappings = Maps.newHashMap();
@@ -113,15 +111,7 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
     }
 
     private void setItemTypes() {
-        try {
-            RegistryHelper.setFinalStatic(ItemStackSnapshot.class, "NONE", NONE.createSnapshot());
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
         RegistryHelper.mapFields(ItemTypes.class, fieldName -> {
-            if (fieldName.equalsIgnoreCase("none")) {
-                return NONE_ITEM;
-            }
             return getItem(fieldName.toLowerCase()).get();
         });
     }
