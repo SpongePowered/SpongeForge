@@ -25,9 +25,8 @@
 package org.spongepowered.mod.mixin.core.event.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
-import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.Transaction;
-import org.spongepowered.api.event.inventory.UseItemStackEvent;
+import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.asm.mixin.Mixin;
