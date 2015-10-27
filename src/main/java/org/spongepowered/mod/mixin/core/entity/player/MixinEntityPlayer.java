@@ -24,21 +24,38 @@
  */
 package org.spongepowered.mod.mixin.core.entity.player;
 
+import org.spongepowered.common.Sponge;
 import org.spongepowered.common.mixin.core.entity.living.MixinEntityLivingBase;
+import org.spongepowered.common.util.VecHelper;
+
+import java.util.Optional;
 
 import org.spongepowered.asm.mixin.Shadow;
 import net.minecraft.entity.player.InventoryPlayer;
 import org.spongepowered.asm.mixin.Overwrite;
 import net.minecraft.entity.player.EntityPlayer;
+import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.event.SpongeEventFactory;
+import org.spongepowered.api.event.action.SleepingEvent;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import com.flowpowered.math.vector.Vector3d;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 
 @Mixin(EntityPlayer.class)
 public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
 
     @Shadow public InventoryPlayer inventory;
+    @Shadow public BlockPos playerLocation;
+    @Shadow protected boolean sleeping;
+    @Shadow private int sleepTimer;
     @Shadow public abstract EntityItem dropItem(ItemStack droppedItem, boolean dropAround, boolean traceItem);
+    @Shadow public abstract void setSize(float width, float height);
+    @Shadow public abstract void setSpawnPoint(BlockPos pos, boolean force);
 
     // Restore methods to original as we handle PlayerTossEvent in DropItemEvent
     @Overwrite
@@ -49,5 +66,49 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
     @Overwrite
     public EntityItem dropPlayerItemWithRandomChoice(ItemStack itemStackIn, boolean unused) {
         return this.dropItem(itemStackIn, false, false);
+    }
+
+    @Overwrite
+    public void wakeUpPlayer(boolean immediately, boolean updateWorldFlag, boolean setSpawn) {
+        IBlockState iblockstate = this.worldObj.getBlockState(this.playerLocation);
+
+        Transform<World> newLocation = null;
+        if (this.playerLocation != null && iblockstate.getBlock().isBed(worldObj, playerLocation, (EntityPlayer) (Object) this)) {
+            iblockstate.getBlock().setBedOccupied(worldObj, playerLocation, (EntityPlayer) (Object) this, false);
+            BlockPos blockpos = iblockstate.getBlock().getBedSpawnPosition(worldObj, playerLocation, (EntityPlayer) (Object) this);
+
+            if (blockpos == null) {
+                blockpos = this.playerLocation.up();
+            }
+
+            newLocation = this.getTransform().setPosition(new Vector3d(blockpos.getX() + 0.5F, blockpos.getY() + 0.1F, blockpos.getZ() + 0.5F));
+        }
+        
+        SleepingEvent.Post post = SpongeEventFactory.createSleepingEventPost(Sponge.getGame(), Cause.of(this), this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), Optional.ofNullable(newLocation), this, setSpawn);
+        Sponge.getGame().getEventManager().post(post);
+        if (post.isCancelled()) {
+            return;
+        }
+        
+        net.minecraftforge.event.ForgeEventFactory.onPlayerWakeup((EntityPlayer) (Object) this, immediately, updateWorldFlag, setSpawn);
+        this.setSize(0.6F, 1.8F);
+        if (post.getSpawnTransform().isPresent()) {
+            this.setTransform(post.getSpawnTransform().get());
+        }
+
+        this.sleeping = false;
+
+        if (!this.worldObj.isRemote && updateWorldFlag)
+        {
+            this.worldObj.updateAllPlayersSleepingFlag();
+        }
+
+        this.sleepTimer = immediately ? 0 : 100;
+
+        if (setSpawn) {
+            this.setSpawnPoint(post.getSpawnTransform().isPresent() ? VecHelper.toBlockPos(post.getSpawnTransform().get().getPosition()) : this.playerLocation, false);
+        }
+        
+        Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(Sponge.getGame(), post.getCause(), this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), this));
     }
 }
