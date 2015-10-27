@@ -78,7 +78,6 @@ import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
-import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
@@ -197,8 +196,6 @@ public class SpongeForgeEventFactory {
                 return createPlayerUseItemStopEvent(event);
             } else if (clazz == PlayerUseItemEvent.Finish.class) {
                 return createPlayerUseItemFinishEvent(event);
-            } else if (clazz == PlayerWakeUpEvent.class) {
-
             } else {
                 return (net.minecraftforge.fml.common.eventhandler.Event) event;
             }
