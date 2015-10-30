@@ -228,23 +228,25 @@ public class SpongeModEventManager extends SpongeEventManager {
             return false;
         }
 
-        Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = this.eventMappings.get(spongeEvent.getClass().getInterfaces()[0]);
-        if (clazz == null) {
-            clazz = eventBulkMappings.get(spongeEvent.getClass().getInterfaces()[0]);
-            if (clazz != null) {
-                return postBulk(spongeEvent, clazz);
-            }
-        } else {
-            net.minecraftforge.fml.common.eventhandler.Event forgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent(spongeEvent, clazz);
-            if (forgeEvent != null) {
-                // Avoid separate mappings for events defined as inner classes
-                Class<?> enclosingClass = forgeEvent.getClass().getEnclosingClass();
-                EventBus bus = this.busMappings.get(enclosingClass == null ? forgeEvent.getClass() : enclosingClass);
-                if (bus == null) {
-                    bus = MinecraftForge.EVENT_BUS;
+        if(spongeEvent.getClass().getInterfaces().length > 0) {
+            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = this.eventMappings.get(spongeEvent.getClass().getInterfaces()[0]);
+            if (clazz == null) {
+                clazz = eventBulkMappings.get(spongeEvent.getClass().getInterfaces()[0]);
+                if (clazz != null) {
+                    return postBulk(spongeEvent, clazz);
                 }
-    
-                return post(spongeEvent, forgeEvent, forgeEvent.getListenerList().getListeners(((IMixinEventBus) bus).getBusID()));
+            } else {
+                net.minecraftforge.fml.common.eventhandler.Event forgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent(spongeEvent, clazz);
+                if (forgeEvent != null) {
+                    // Avoid separate mappings for events defined as inner classes
+                    Class<?> enclosingClass = forgeEvent.getClass().getEnclosingClass();
+                    EventBus bus = this.busMappings.get(enclosingClass == null ? forgeEvent.getClass() : enclosingClass);
+                    if (bus == null) {
+                        bus = MinecraftForge.EVENT_BUS;
+                    }
+
+                    return post(spongeEvent, forgeEvent, forgeEvent.getListenerList().getListeners(((IMixinEventBus) bus).getBusID()));
+                }
             }
         }
         return super.post(spongeEvent, getHandlerCache(spongeEvent).getListeners()); // no checking for modifications required
