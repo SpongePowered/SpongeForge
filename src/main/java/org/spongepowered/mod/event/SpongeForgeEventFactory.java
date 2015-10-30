@@ -785,7 +785,7 @@ public class SpongeForgeEventFactory {
 
                 ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
-                    iterator.remove();
+                    transaction.setValid(false);
                 }
             }
         }
