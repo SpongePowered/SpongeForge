@@ -40,6 +40,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
 import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 
@@ -55,6 +56,10 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraftforge.common.util.BlockSnapshot blockSnapshot, IBlockState placedAgainst, EntityPlayer player, CallbackInfo ci) {
+        if (StaticMixinHelper.processingInternalForgeEvent) {
+            return;
+        }
+
         this.blockOriginal = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
         this.blockReplacement = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(blockSnapshot.world, blockSnapshot.pos)).createSpongeBlockSnapshot();
         this.blockTransactions = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(new Transaction<BlockSnapshot>(this.blockOriginal, this.blockReplacement)).build();

@@ -25,8 +25,6 @@
 package org.spongepowered.mod.mixin.core.event.entity;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
@@ -37,10 +35,10 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.util.StaticMixinHelper;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -57,6 +55,10 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.entity.Entity entity, net.minecraft.world.World world, CallbackInfo ci) {
+        if (StaticMixinHelper.processingInternalForgeEvent) {
+            return;
+        }
+
         if (!world.isRemote) { // ignore client
             this.entitySnapshot = ((Entity) this.entity).createSnapshot();
             this.entities = new ArrayList<>();

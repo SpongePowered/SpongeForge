@@ -78,6 +78,7 @@ import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
@@ -106,12 +107,10 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(ConstructEntityEvent.Post.class, EntityEvent.EntityConstructing.class)
                     .put(TargetEntityEvent.class, EntityEvent.class)
                     .put(DestructEntityEvent.Death.class, LivingDeathEvent.class)
-                    .put(ChangeBlockEvent.Break.class, BlockEvent.BreakEvent.class)
                     .put(MessageSinkEvent.class, ServerChatEvent.class)
                     //.put(DropItemEvent.Harvest.class, BlockEvent.HarvestDropsEvent.class)
                     .put(InteractBlockEvent.class, PlayerInteractEvent.class)
                     .put(InteractEntityEvent.Secondary.class, EntityInteractEvent.class)
-                    .put(ChangeBlockEvent.Place.class, BlockEvent.PlaceEvent.class)
                     .put(TargetWorldEvent.class, WorldEvent.class)
                     .put(LoadWorldEvent.class, WorldEvent.Load.class)
                     .put(UnloadWorldEvent.class, WorldEvent.Unload.class)
@@ -123,10 +122,12 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(ClientConnectionEvent.Disconnect.class, PlayerEvent.PlayerLoggedOutEvent.class)
                     .build();
 
-    public static final ImmutableBiMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventBulkMappings =
-            new ImmutableBiMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
+    public static final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventBulkMappings =
+            new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
                 .put(CollideEntityEvent.class, EntityItemPickupEvent.class)
                 .put(SpawnEntityEvent.class, EntityJoinWorldEvent.class)
+                .put(ChangeBlockEvent.Break.class, BlockEvent.BreakEvent.class)
+                .put(ChangeBlockEvent.Place.class, BlockEvent.PlaceEvent.class)
                 .build();
 
     private final ImmutableMap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus> busMappings =
@@ -196,7 +197,9 @@ public class SpongeModEventManager extends SpongeEventManager {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
 
+        StaticMixinHelper.processingInternalForgeEvent = true;
         spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
+        StaticMixinHelper.processingInternalForgeEvent = false;
 
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {

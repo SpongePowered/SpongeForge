@@ -28,7 +28,6 @@ import com.google.common.base.Throwables;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
@@ -60,7 +59,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
     public boolean post(Event event, boolean forgeOnly) {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
-        if (!SpongeModEventManager.eventBulkMappings.inverse().containsKey(event) && event instanceof org.spongepowered.api.event.Event && !SpongeMod.instance.isClientThread()) {
+        if (!forgeOnly && event instanceof org.spongepowered.api.event.Event && !SpongeMod.instance.isClientThread()) {
             if (event instanceof BlockEvent.PlaceEvent || event instanceof BlockEvent.BreakEvent || event instanceof LivingDropsEvent
                     || event instanceof ItemTossEvent) {
                 return false; // let the event happen, we will just capture it

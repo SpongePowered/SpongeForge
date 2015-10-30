@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @Mixin(AbstractEvent.class)
-public class MixinAbstractEvent implements IMixinEvent {
+public abstract class MixinAbstractEvent implements IMixinEvent {
 
     @Override
     public void syncDataToForge(Event spongeEvent) { }

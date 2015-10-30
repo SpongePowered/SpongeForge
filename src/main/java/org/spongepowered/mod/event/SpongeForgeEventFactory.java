@@ -30,6 +30,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
@@ -85,6 +87,7 @@ import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
@@ -115,10 +118,12 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.text.SpongeTexts;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -134,11 +139,8 @@ public class SpongeForgeEventFactory {
         if (BlockEvent.class.isAssignableFrom(clazz)) {
             if (clazz == BlockEvent.NeighborNotifyEvent.class) {
                 return createBlockNeighborNotifyEvent(event);
-            }
-            else if (clazz == BlockEvent.HarvestDropsEvent.class) {
-                //return createBlockHarvestEvent(event);
-            } else if (clazz == BlockEvent.BreakEvent.class) {
-                return createBlockBreakEvent(event);
+            } else if (clazz == BlockEvent.HarvestDropsEvent.class) {
+                // return createBlockHarvestEvent(event);
             } else if (clazz == BlockEvent.MultiPlaceEvent.class ||
                     clazz == BlockEvent.PlaceEvent.class) {
                 return createBlockPlaceEvent(event);
@@ -229,8 +231,7 @@ public class SpongeForgeEventFactory {
         else if (EntityEvent.class.isAssignableFrom(clazz)) {
             if (clazz == EntityEvent.EntityConstructing.class) {
                 return createEntityConstructingEvent(event);
-            }
-            else if (clazz == EntityMountEvent.class) {
+            } else if (clazz == EntityMountEvent.class) {
 
             } else if (clazz == EntityStruckByLightningEvent.class) {
 
@@ -304,6 +305,10 @@ public class SpongeForgeEventFactory {
             return callEntityItemPickupEvent(spongeEvent);
         } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
             return callEntityJoinWorldEvent(spongeEvent);
+        } else if (BlockEvent.BreakEvent.class.isAssignableFrom(clazz)) {
+            return callBlockBreakEvent(spongeEvent);
+        } else if (BlockEvent.PlaceEvent.class.isAssignableFrom(clazz)) {
+            return callBlockPlaceEvent(spongeEvent);
         }
         return spongeEvent;
     }
@@ -341,26 +346,6 @@ public class SpongeForgeEventFactory {
         net.minecraftforge.common.util.BlockSnapshot forgeSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
         BlockEvent.PlaceEvent forgeEvent =
                 new BlockEvent.PlaceEvent(forgeSnapshot, world.getBlockState(pos),
-                        (EntityPlayer) player.get());
-        return forgeEvent;
-    }
-
-    public static BlockEvent.BreakEvent createBlockBreakEvent(Event event) {
-        if (!(event instanceof ChangeBlockEvent.Break)) {
-            throw new IllegalArgumentException("Event is not a valid BreakBlockEvent.");
-        }
-
-        ChangeBlockEvent.Break spongeEvent = (ChangeBlockEvent.Break) event;
-        Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
-        net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
-        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
-        if (!player.isPresent()) {
-            return null;
-        }
-
-        BlockEvent.BreakEvent forgeEvent =
-                new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos),
                         (EntityPlayer) player.get());
         return forgeEvent;
     }
@@ -441,16 +426,6 @@ public class SpongeForgeEventFactory {
     }
 
     // Player events
-    /*public static net.minecraftforge.event.entity.player.PlayerEvent createPlayerEvent(Event event) {
-        if (!(event instanceof TargetPlayerEvent)) {
-            throw new IllegalArgumentException("Event is not a valid TargetPlayerEvent.");
-        }
-
-        TargetPlayerEvent spongeEvent = (TargetPlayerEvent) event;
-        net.minecraftforge.event.entity.player.PlayerEvent forgeEvent =
-                new net.minecraftforge.event.entity.player.PlayerEvent((EntityPlayer) spongeEvent.getTargetEntity());
-        return forgeEvent;
-    }*/
 
     private static EntityInteractEvent createEntityInteractEvent(Event event) {
         if (!(event instanceof InteractEntityEvent.Secondary)) {
@@ -466,8 +441,7 @@ public class SpongeForgeEventFactory {
         final EntityPlayer entityPlayer = (EntityPlayer) player.get();
         final Entity entity = (Entity) spongeEvent.getTargetEntity();
 
-        EntityInteractEvent forgeEvent = new EntityInteractEvent
-                (entityPlayer, entity);
+        EntityInteractEvent forgeEvent = new EntityInteractEvent(entityPlayer, entity);
         return forgeEvent;
     }
 
@@ -510,7 +484,8 @@ public class SpongeForgeEventFactory {
         }
 
         net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinal().createStack();
-        PlayerUseItemEvent.Start forgeEvent = new PlayerUseItemEvent.Start((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
+        PlayerUseItemEvent.Start forgeEvent =
+                new PlayerUseItemEvent.Start((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration());
         return forgeEvent;
     }
 
@@ -559,7 +534,8 @@ public class SpongeForgeEventFactory {
 
         net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackInUse().getFinal().createStack();
         net.minecraft.item.ItemStack resultItemStack = (net.minecraft.item.ItemStack) spongeEvent.getItemStackResult().getFinal().createStack();
-        PlayerUseItemEvent.Finish forgeEvent = new PlayerUseItemEvent.Finish((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration(), resultItemStack);
+        PlayerUseItemEvent.Finish forgeEvent =
+                new PlayerUseItemEvent.Finish((EntityPlayer) player.get(), itemstack, spongeEvent.getRemainingDuration(), resultItemStack);
         return forgeEvent;
     }
 
@@ -673,7 +649,8 @@ public class SpongeForgeEventFactory {
 
         net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
         Explosion explosion = (Explosion) spongeEvent.getExplosion();
-        net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent = new net.minecraftforge.event.world.ExplosionEvent.Start(forgeWorld, explosion);
+        net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent =
+                new net.minecraftforge.event.world.ExplosionEvent.Start(forgeWorld, explosion);
         return forgeEvent;
     }
 
@@ -714,7 +691,8 @@ public class SpongeForgeEventFactory {
             component = new ChatComponentTranslation("%s", component);
         }
 
-        // Using toPlain here is fine, since the raw message from the client can't have formatting.
+        // Using toPlain here is fine, since the raw message from the client
+        // can't have formatting.
         ServerChatEvent forgeEvent =
                 new ServerChatEvent((EntityPlayerMP) player.get(), Texts.toPlain(spongeEvent.getOriginalMessage()),
                         (ChatComponentTranslation) component);
@@ -727,7 +705,8 @@ public class SpongeForgeEventFactory {
     @SuppressWarnings("unchecked")
     public static void onForgePost(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
         if (forgeEvent instanceof net.minecraftforge.event.world.ExplosionEvent.Detonate) {
-            net.minecraftforge.event.world.ExplosionEvent.Detonate explosionEvent = (net.minecraftforge.event.world.ExplosionEvent.Detonate) forgeEvent;
+            net.minecraftforge.event.world.ExplosionEvent.Detonate explosionEvent =
+                    (net.minecraftforge.event.world.ExplosionEvent.Detonate) forgeEvent;
             if (!explosionEvent.explosion.isSmoking) { // shouldBreakBlocks
                 List<BlockPos> affectedBlocks = explosionEvent.explosion.func_180343_e();
                 affectedBlocks.clear();
@@ -752,8 +731,9 @@ public class SpongeForgeEventFactory {
                 org.spongepowered.api.entity.Entity entity = iterator.next();
                 if (entity instanceof org.spongepowered.api.entity.Item) {
                     EntityItem entityItem = (EntityItem) entity;
-                    EntityItemPickupEvent forgeEvent = new EntityItemPickupEvent((EntityPlayer) spongeEvent.getCause().first(Player.class).get(), entityItem);
-                    ((IMixinEventBus)MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                    EntityItemPickupEvent forgeEvent =
+                            new EntityItemPickupEvent((EntityPlayer) spongeEvent.getCause().first(Player.class).get(), entityItem);
+                    ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                     if (forgeEvent.isCanceled()) {
                         iterator.remove();
                     }
@@ -775,9 +755,97 @@ public class SpongeForgeEventFactory {
             EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((net.minecraft.entity.Entity) entity,
                     (net.minecraft.world.World) entity.getLocation().getExtent());
 
-            ((IMixinEventBus)MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+            ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
             if (forgeEvent.isCanceled()) {
                 iterator.remove();
+            }
+        }
+        return spongeEvent;
+    }
+
+    public static ChangeBlockEvent.Break callBlockBreakEvent(Event event) {
+        if (!(event instanceof ChangeBlockEvent.Break)) {
+            throw new IllegalArgumentException("Event is not a valid ChangeBlockEventBreak");
+        }
+
+        ChangeBlockEvent.Break spongeEvent = (ChangeBlockEvent.Break) event;
+
+        if (spongeEvent.getCause().first(Player.class).isPresent()) {
+            Player player = spongeEvent.getCause().first(Player.class).get();
+            Iterator<Transaction<BlockSnapshot>> iterator = spongeEvent.getTransactions().iterator();
+            while (iterator.hasNext()) {
+                Transaction<BlockSnapshot> transaction = iterator.next();
+                Location<World> location = transaction.getOriginal().getLocation().get();
+                net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
+                BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+
+                BlockEvent.BreakEvent forgeEvent =
+                        new BlockEvent.BreakEvent(world, pos, (IBlockState) transaction.getOriginal().getState(),
+                                (EntityPlayer) player);
+
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                if (forgeEvent.isCanceled()) {
+                    iterator.remove();
+                }
+            }
+        }
+        return spongeEvent;
+    }
+
+    public static ChangeBlockEvent.Place callBlockPlaceEvent(Event event) {
+        if (!(event instanceof ChangeBlockEvent.Place)) {
+            throw new IllegalArgumentException("Event is not a valid ChangeBlockEventPlace");
+        }
+
+        ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) event;
+
+        if (spongeEvent.getCause().first(Player.class).isPresent()) {
+            EntityPlayer player = (EntityPlayer) spongeEvent.getCause().first(Player.class).get();
+            net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getTargetWorld();
+
+            if (spongeEvent.getTransactions().size() == 1) {
+                BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTransactions().get(0).getOriginal().getPosition());
+                IBlockState state = (IBlockState) spongeEvent.getTransactions().get(0).getOriginal().getState();
+                net.minecraftforge.common.util.BlockSnapshot blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
+                IBlockState placedAgainst = Blocks.air.getDefaultState();
+                if (StaticMixinHelper.processingPlayer != null && StaticMixinHelper.processingPacket instanceof C08PacketPlayerBlockPlacement) {
+                    C08PacketPlayerBlockPlacement packet = (C08PacketPlayerBlockPlacement) StaticMixinHelper.processingPacket;
+                    EnumFacing facing = EnumFacing.getFront(packet.getPlacedBlockDirection());
+                    placedAgainst = blockSnapshot.world.getBlockState(blockSnapshot.pos.offset(facing.getOpposite()));
+                }
+
+                BlockEvent.PlaceEvent forgeEvent = new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player);
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                if (forgeEvent.isCanceled()) {
+                    spongeEvent.getTransactions().get(0).setValid(false);
+                }
+            } else { // multi
+                Iterator<Transaction<BlockSnapshot>> iterator = spongeEvent.getTransactions().iterator();
+                List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots = new ArrayList<net.minecraftforge.common.util.BlockSnapshot>();
+
+                while (iterator.hasNext()) {
+                    Transaction<BlockSnapshot> transaction = iterator.next();
+                    Location<World> location = transaction.getOriginal().getLocation().get();
+                    IBlockState state = (IBlockState) transaction.getOriginal().getState();
+                    BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+                    net.minecraftforge.common.util.BlockSnapshot blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
+                    blockSnapshots.add(blockSnapshot);
+                }
+
+                IBlockState placedAgainst = Blocks.air.getDefaultState();
+                if (StaticMixinHelper.processingPlayer != null && StaticMixinHelper.processingPacket instanceof C08PacketPlayerBlockPlacement) {
+                    C08PacketPlayerBlockPlacement packet = (C08PacketPlayerBlockPlacement) StaticMixinHelper.processingPacket;
+                    EnumFacing facing = EnumFacing.getFront(packet.getPlacedBlockDirection());
+                    placedAgainst = blockSnapshots.get(0).world.getBlockState(blockSnapshots.get(0).pos.offset(facing.getOpposite()));
+                }
+
+                BlockEvent.MultiPlaceEvent forgeEvent = new BlockEvent.MultiPlaceEvent(blockSnapshots, placedAgainst, player);
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                if (forgeEvent.isCanceled()) {
+                    while (iterator.hasNext()) {
+                        iterator.next().setValid(false);
+                    }
+                }
             }
         }
         return spongeEvent;
