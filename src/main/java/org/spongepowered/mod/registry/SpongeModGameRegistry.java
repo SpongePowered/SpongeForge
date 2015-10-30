@@ -41,6 +41,9 @@ import org.spongepowered.api.block.trait.EnumTraits;
 import org.spongepowered.api.block.trait.IntegerTrait;
 import org.spongepowered.api.block.trait.IntegerTraits;
 import org.spongepowered.api.data.Property;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.immutable.item.ImmutableSpawnableData;
+import org.spongepowered.api.data.manipulator.mutable.item.SpawnableData;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
@@ -49,6 +52,9 @@ import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.gen.PopulatorType;
+import org.spongepowered.common.data.SpongeDataRegistry;
+import org.spongepowered.common.data.manipulator.immutable.item.ImmutableSpongeSpawnableData;
+import org.spongepowered.common.data.manipulator.mutable.item.SpongeSpawnableData;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.registry.RegistryHelper;
@@ -56,6 +62,8 @@ import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.text.translation.SpongeTranslation;
 import org.spongepowered.common.world.gen.SpongePopulatorType;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.data.SpawnableDataProcessor;
+import org.spongepowered.mod.data.SpawnableEntityTypeValueProcessor;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -77,6 +85,11 @@ public class SpongeModGameRegistry extends SpongeGameRegistry {
     public void preInit() {
         super.preInit();
         setupForgeProperties();
+        SpongeDataRegistry dataRegistry = SpongeDataRegistry.getInstance();
+        final SpawnableDataProcessor spawnableDataProcessor = new SpawnableDataProcessor();
+        dataRegistry.registerDataProcessorAndImpl(SpawnableData.class, SpongeSpawnableData.class, ImmutableSpawnableData.class,
+                ImmutableSpongeSpawnableData.class, spawnableDataProcessor);
+        dataRegistry.registerValueProcessor(Keys.SPAWNABLE_ENTITY_TYPE, new SpawnableEntityTypeValueProcessor());
     }
 
     private void setupForgeProperties() {
