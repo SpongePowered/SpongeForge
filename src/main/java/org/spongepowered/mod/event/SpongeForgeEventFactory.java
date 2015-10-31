@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.event;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -779,9 +780,11 @@ public class SpongeForgeEventFactory {
                 net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
                 BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
+                StaticMixinHelper.breakEventExtendedState = (IBlockState) transaction.getOriginal().getExtendedState();
                 BlockEvent.BreakEvent forgeEvent =
                         new BlockEvent.BreakEvent(world, pos, (IBlockState) transaction.getOriginal().getState(),
                                 (EntityPlayer) player);
+                StaticMixinHelper.breakEventExtendedState = null;
 
                 ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
