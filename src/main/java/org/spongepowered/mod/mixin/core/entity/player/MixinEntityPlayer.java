@@ -81,7 +81,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
                 blockpos = this.playerLocation.up();
             }
 
-            newLocation = new Transform<World>(this.getWorld(), new Vector3d(blockpos.getX() + 0.5F, blockpos.getY() + 0.1F, blockpos.getZ() + 0.5F));
+            newLocation = this.getTransform().setPosition(new Vector3d(blockpos.getX() + 0.5F, blockpos.getY() + 0.1F, blockpos.getZ() + 0.5F));
         }
         
         SleepingEvent.Post post = SpongeEventFactory.createSleepingEventPost(Sponge.getGame(), Cause.of(this), this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), Optional.ofNullable(newLocation), this, setSpawn);
