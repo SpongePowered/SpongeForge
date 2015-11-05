@@ -28,7 +28,6 @@ import com.google.common.collect.ImmutableList;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
-import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -87,7 +86,7 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
     public List<Entity> filterEntities(Predicate<Entity> predicate) {
         Iterator<Entity> iterator = this.entities.iterator();
         while (iterator.hasNext()) {
-            if (!predicate.test((Item) iterator.next())) {
+            if (!predicate.test((Entity) iterator.next())) {
                 iterator.remove();
             }
         }
