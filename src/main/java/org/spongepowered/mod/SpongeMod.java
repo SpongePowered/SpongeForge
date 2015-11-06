@@ -40,13 +40,16 @@ import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
@@ -66,7 +69,9 @@ import org.spongepowered.api.util.command.CommandMapping;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
+import org.spongepowered.common.data.SpongeSerializationRegistry;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
+import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
 import org.spongepowered.common.service.persistence.SpongeSerializationService;
@@ -76,7 +81,7 @@ import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
-import org.spongepowered.mod.registry.SpongeModGameRegistry;
+import org.spongepowered.mod.registry.SpongeForgeModuleRegistry;
 import org.spongepowered.mod.service.world.SpongeChunkLoadService;
 
 import java.io.File;
@@ -88,7 +93,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     public static SpongeMod instance;
     private final Game game;
     private LoadController controller;
-    private final SpongeModGameRegistry registry;
+    private final SpongeGameRegistry registry;
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
@@ -103,7 +108,9 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         Guice.createInjector(new SpongeGuiceModule()).getInstance(Sponge.class);
 
         this.game = Sponge.getGame();
-        this.registry = (SpongeModGameRegistry) this.game.getRegistry();
+        this.registry = (SpongeGameRegistry) this.game.getRegistry();
+        VillagerRegistry.instance();
+        this.registry.preRegistryInit();
 
         this.game.getEventManager().registerListeners(this, this);
     }
@@ -160,6 +167,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             registerService(ChunkLoadService.class, new SpongeChunkLoadService());
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.preInitializeRegistry();
+            SpongeSerializationRegistry.setupSerialization(Sponge.getGame());
+            SpongeForgeModuleRegistry.registerForgeData();
 
             MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 
@@ -220,10 +229,14 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     }
 
     @Subscribe
+    public void onLoadComplete(FMLLoadCompleteEvent event) {
+        SpongeBootstrap.preGameRegisterAdditionals();
+    }
+
+    @Subscribe
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         try {
             SpongeBootstrap.registerWorlds();
-
             // Register vanilla-style commands (if necessary -- not necessary on client)
             ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerEarlyCommands(this.game);
         } catch (Throwable t) {
@@ -266,7 +279,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         return getMod();
     }
 
-    public SpongeModGameRegistry getSpongeRegistry() {
+    public SpongeGameRegistry getSpongeRegistry() {
         return this.registry;
     }
 

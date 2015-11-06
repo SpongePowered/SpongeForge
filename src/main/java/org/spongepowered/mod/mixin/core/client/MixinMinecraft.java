@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.interfaces.IMixinWorldInfo;
+import org.spongepowered.common.registry.type.world.WorldPropertyRegistryModule;
 
 import java.util.UUID;
 
@@ -47,7 +48,7 @@ public abstract class MixinMinecraft {
             shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     public void onlaunchIntegratedServerBeforeStart(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
             ISaveHandler isavehandler, WorldInfo worldInfo) {
-        Sponge.getSpongeRegistry().registerWorldProperties((WorldProperties) worldInfo);
+        WorldPropertyRegistryModule.getInstance().registerWorldProperties((WorldProperties) worldInfo);
     }
 
     @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE",

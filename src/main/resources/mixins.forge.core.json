@@ -80,6 +80,9 @@
         "world.MixinWorldProvider",
         "world.gen.feature.MixinWorldGenerator",
         "world.storage.MixinSaveHandler"
+//        "fml.common.registry.MixinVillagerCareer", // todo can't get this to work.
+//        "fml.common.registry.MixinVillagerProfession",
+//        "fml.common.registry.MixinVillagerRegistry"
     ],
     "client": [
         "client.MixinMinecraft",

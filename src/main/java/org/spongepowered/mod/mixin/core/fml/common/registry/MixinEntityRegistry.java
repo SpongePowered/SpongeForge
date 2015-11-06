@@ -29,11 +29,13 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
+import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.Sponge;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.mod.SpongeMod;
 
@@ -78,7 +80,7 @@ public abstract class MixinEntityRegistry {
         }
 
         SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass);
-        SpongeMod.instance.getSpongeRegistry().registerEntityType(entityType);
+        Sponge.getSpongeRegistry().registerAdditionalType(EntityType.class, entityType);
     }
 
 }

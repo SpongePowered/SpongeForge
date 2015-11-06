@@ -118,6 +118,7 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
@@ -364,7 +365,7 @@ public class SpongeForgeEventFactory {
 
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
         for (Map.Entry<Direction, BlockState> mapEntry : spongeEvent.getNeighbors().entrySet()) {
-            facings.add(SpongeGameRegistry.directionMap.get(mapEntry.getKey()));
+            facings.add(DirectionFacingProvider.getInstance().get(mapEntry.getKey()).get());
         }
 
         IBlockState state = (IBlockState) blockSnapshot.get().getState();
@@ -458,7 +459,7 @@ public class SpongeForgeEventFactory {
         }
 
         BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetBlock().getLocation().get().getPosition());
-        EnumFacing face = SpongeGameRegistry.directionMap.get(spongeEvent.getTargetSide());
+        EnumFacing face = DirectionFacingProvider.getInstance().get(spongeEvent.getTargetSide()).get();
         EntityPlayer entityplayer = (EntityPlayer) player.get();
         Action action = Action.RIGHT_CLICK_BLOCK;
         if (entityplayer.isUsingItem()) {

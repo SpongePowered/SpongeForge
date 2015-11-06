@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.registry.type.world.DimensionRegistryModule;
 import org.spongepowered.common.world.SpongeDimensionType;
 import org.spongepowered.common.world.SpongeWorldBuilder;
 
@@ -74,8 +75,7 @@ public abstract class MixinDimensionManager {
                 worldType = worldType.replace("provider", "");
         }
         // register dimension type
-        ((SpongeGameRegistry) Sponge.getGame().getRegistry())
-                .registerDimensionType(new SpongeDimensionType(worldType, keepLoaded, provider, id));
+        DimensionRegistryModule.getInstance().registerAdditionalCatalog(new SpongeDimensionType(worldType, keepLoaded, provider, id));
         providers.put(id, provider);
         if (id == 1) {
             // TODO - make this configurable
@@ -113,7 +113,7 @@ public abstract class MixinDimensionManager {
         }
 
         WorldProvider provider = WorldProvider.getProviderForDimension(dim);
-        WorldBuilder builder = Sponge.getSpongeRegistry().createWorldBuilder();
+        WorldBuilder builder = Sponge.getSpongeRegistry().createBuilder(WorldBuilder.class);
         builder = builder.dimensionType(((Dimension) provider).getType()).name(provider.getDimensionName())
                 .keepsSpawnLoaded(spawnSettings.get(providerId));
         Optional<World> world = ((SpongeWorldBuilder) builder).dimensionId(dim).isMod(true).build();

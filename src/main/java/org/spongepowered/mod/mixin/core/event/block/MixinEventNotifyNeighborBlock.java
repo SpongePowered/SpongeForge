@@ -42,6 +42,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.VecHelper;
 
 import java.util.EnumSet;
@@ -88,7 +89,7 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
         if (this.notifiedSides != null) {
             for (EnumFacing notifiedSide : this.notifiedSides) {
                 BlockPos offset = this.pos.offset(notifiedSide);
-                Direction direction = SpongeGameRegistry.directionMap.inverse().get(notifiedSide);
+                Direction direction = DirectionFacingProvider.getInstance().getKey(notifiedSide).get();
                 Location<World> location = new Location<World>((World) this.world, VecHelper.toVector(offset));
                 if (location.getBlockY() >=0 && location.getBlockY() <= 255) {
                     this.neighbors.put(direction, location.getBlock());
@@ -105,7 +106,7 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
         NotifyNeighborBlockEvent event = (NotifyNeighborBlockEvent) spongeEvent;
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
         for (Map.Entry<Direction, BlockState> mapEntry : event.getNeighbors().entrySet()) {
-            facings.add(SpongeGameRegistry.directionMap.get(mapEntry.getKey()));
+            facings.add(DirectionFacingProvider.getInstance().get(mapEntry.getKey()).get());
         }
 
         this.notifiedSides = facings;

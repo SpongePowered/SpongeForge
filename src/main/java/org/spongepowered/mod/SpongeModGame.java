@@ -27,6 +27,7 @@ package org.spongepowered.mod;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.GameState;
 import org.spongepowered.api.Platform;
@@ -38,6 +39,7 @@ import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.network.SpongeNetworkManager;
 import org.spongepowered.mod.network.SpongeModNetworkManager;
+import org.spongepowered.mod.registry.SpongeGameDictionary;
 
 import java.io.File;
 
@@ -76,6 +78,11 @@ public final class SpongeModGame extends SpongeGame {
     @Override
     public Platform getPlatform() {
         return this.platform;
+    }
+
+    @Override
+    public GameDictionary getGameDictionary() {
+        return SpongeGameDictionary.instance;
     }
 
     @Override

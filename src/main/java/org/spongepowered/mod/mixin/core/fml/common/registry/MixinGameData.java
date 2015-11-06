@@ -33,7 +33,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.Sponge;
 import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
+import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
 
 @Mixin(value = GameData.class, remap = false)
 public abstract class MixinGameData {
@@ -43,9 +46,9 @@ public abstract class MixinGameData {
     @Inject(method = "register", at = @At("HEAD"))
     public void onRegister(Object material, String id, int idHint, CallbackInfoReturnable<Integer> cir) {
         if (material instanceof Block) {
-            SpongeGameRegistry.blockTypeMappings.put(id.toLowerCase(), (BlockType) material);
+            BlockTypeRegistryModule.getInstance().registerFromGameData(id, (BlockType) material);
         } else if (material instanceof Item) {
-            SpongeGameRegistry.itemTypeMappings.put(id.toLowerCase(), (ItemType) material);
+            ItemTypeRegistryModule.getInstance().registerFromGameData(id, (ItemType) material);
         }
     }
 
@@ -53,12 +56,12 @@ public abstract class MixinGameData {
 
     @Inject(method = "registerBlock(Lnet/minecraft/block/Block;Ljava/lang/String;I)I", at = @At(value = "HEAD"))
     private void onRegisterBlock(Block block, String name, int idHint, CallbackInfoReturnable<Integer> cir) {
-        SpongeGameRegistry.blockTypeMappings.put(name.toLowerCase(), (BlockType) block);
+        BlockTypeRegistryModule.getInstance().registerFromGameData(name, (BlockType) block);
     }
 
     @Inject(method = "registerItem(Lnet/minecraft/item/Item;Ljava/lang/String;I)I", at = @At(value = "HEAD"))
     private void onRegisterItem(Item item, String name, int idHint, CallbackInfoReturnable<Integer> cir) {
-        SpongeGameRegistry.itemTypeMappings.put(name.toLowerCase(), (ItemType) item);
+        ItemTypeRegistryModule.getInstance().registerFromGameData(name, (ItemType) item);
     }
 
 }

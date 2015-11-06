@@ -48,6 +48,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.VecHelper;
 
 import java.util.Optional;
@@ -82,7 +83,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     @Override
     public Direction getTargetSide() {
         if (this.face != null) {
-            return SpongeGameRegistry.directionMap.inverse().get(this.face);
+            return DirectionFacingProvider.getInstance().getKey(this.face).get();
         }
         return Direction.NONE;
     }
@@ -103,7 +104,12 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
         InteractBlockEvent event = (InteractBlockEvent) spongeEvent;
         this.pos = VecHelper.toBlockPos(event.getTargetBlock().getLocation().get().getPosition());
-        this.face = SpongeGameRegistry.directionMap.get(event.getTargetSide());
+        final Optional<EnumFacing> facing = DirectionFacingProvider.getInstance().get(event.getTargetSide());
+        if (!facing.isPresent()) {
+            this.face = EnumFacing.DOWN;
+        } else {
+            this.face = facing.get();
+        }
     }
 
     @Override
