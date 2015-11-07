@@ -55,6 +55,6 @@ public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity im
 
     @Override
     public Optional<Vector3d> getInteractionPoint() {
-        return Optional.empty();
+        return Optional.empty(); // TODO
     }
 }

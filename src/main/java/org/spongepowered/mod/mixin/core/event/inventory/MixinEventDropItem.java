@@ -32,6 +32,7 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.entity.AffectEntityEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -50,7 +51,7 @@ import java.util.function.Predicate;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.event.entity.item.ItemEvent.class, remap = false)
-public abstract class MixinEventDropItem extends MixinEventEntity implements DropItemEvent.Custom {
+public abstract class MixinEventDropItem extends MixinEventEntity implements AffectEntityEvent {
 
     protected EntitySnapshot entitySnapshot;
     protected ImmutableList<EntitySnapshot> entitySnapshots;

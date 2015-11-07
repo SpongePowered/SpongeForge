@@ -38,6 +38,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.mixin.core.event.player.MixinEventPlayer;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -45,7 +46,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Mixin(EntityItemPickupEvent.class)
-public abstract class MixinEventEntityItemPickup extends MixinEventEntity implements CollideEntityEvent {
+public abstract class MixinEventEntityItemPickup extends MixinEventPlayer implements CollideEntityEvent {
 
     protected ImmutableList<Entity> originalEntities;
     protected List<Entity> entities;
@@ -91,6 +92,12 @@ public abstract class MixinEventEntityItemPickup extends MixinEventEntity implem
 
     @Override
     public Cause getCause() {
-        return Cause.of(this.entity);
+        return Cause.of(this.entityPlayer);
     }
+
+    @Override
+    public World getTargetWorld() {
+        return (World) this.entityPlayer.worldObj;
+    }
+
 }

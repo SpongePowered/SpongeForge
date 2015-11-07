@@ -26,6 +26,7 @@ package org.spongepowered.mod.network;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 
 import com.google.common.base.Charsets;
@@ -72,6 +73,10 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         return new C17PacketCustomPayload("REGISTER", new PacketBuffer(wrappedBuffer(channelName.getBytes(Charsets.UTF_8))));
     }
 
+    protected static C17PacketCustomPayload getUnregPacketClient(String channelName) {
+        return new C17PacketCustomPayload("UNREGISTER", new PacketBuffer(wrappedBuffer(channelName.getBytes(Charsets.UTF_8))));
+    }
+
     private <T extends SpongeModChannelBinding> T registerChannel(T channel) {
         this.channelMap.put(channel.getName(), channel);
         ServerConfigurationManager confMgr = MinecraftServer.getServer().getConfigurationManager();
@@ -96,7 +101,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         try {
             channel = new SpongeIndexedMessageChannel(this, channelName, pluginContainer);
         } catch (Exception e) {
-            throw new ChannelRegistrationException("Error registering channel \"" + channelName + "\" to " + plugin, e);
+            throw new ChannelRegistrationException("Error registering channel \"" + channelName + "\" to " + pluginContainer, e);
         }
         return this.registerChannel(channel);
     }
@@ -108,21 +113,28 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         try {
             channel = new SpongeRawChannel(this, channelName, pluginContainer);
         } catch (Exception e) {
-            throw new ChannelRegistrationException("Error registering channel \"" + channelName + "\" to " + plugin, e);
+            throw new ChannelRegistrationException("Error registering channel \"" + channelName + "\" to " + pluginContainer, e);
         }
         return this.registerChannel(channel);
     }
 
     @Override
     public void unbindChannel(ChannelBinding channel) {
-        if (!(checkNotNull(channel, "channel") instanceof SpongeModChannelBinding)) {
-            return;
-        }
+        checkArgument(checkNotNull(channel, "channel") instanceof SpongeModChannelBinding, "Custom channel implementation not supported");
         SpongeModChannelBinding boundChannel = this.channelMap.remove(channel.getName());
-        if (boundChannel == null) {
-            return;
-        }
+        checkState(boundChannel != null, "Channel is already unbound");
         boundChannel.invalidate();
+
+        ServerConfigurationManager confMgr = MinecraftServer.getServer().getConfigurationManager();
+        if (confMgr != null) { // Server side
+            confMgr.sendPacketToAllPlayers(getUnregPacket(channel.getName()));
+        }
+        if (Sponge.getGame().getPlatform().getExecutionType().isClient()) {
+            EntityPlayerSP clientPlayer = Minecraft.getMinecraft().thePlayer;
+            if (clientPlayer != null) { // Client side
+                clientPlayer.sendQueue.addToSendQueue(getUnregPacketClient(channel.getName()));
+            }
+        }
     }
 
     @Override
@@ -142,7 +154,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
             return false;
         }
         return !NetworkRegistry.INSTANCE.channelNamesFor(Side.SERVER).contains(channelName)
-                || !NetworkRegistry.INSTANCE.channelNamesFor(Side.CLIENT).contains(channelName);
+                && !NetworkRegistry.INSTANCE.channelNamesFor(Side.CLIENT).contains(channelName);
     }
 
 }

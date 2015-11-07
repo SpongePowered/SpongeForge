@@ -38,6 +38,7 @@ public abstract class MixinPlayerLoggedOutEvent extends MixinPlayerEvent impleme
     private Text message;
     private Text originalMessage;
     private MessageSink messageSink;
+    private MessageSink originalSink;
 
     @Override
     public Text getOriginalMessage() {
@@ -59,7 +60,16 @@ public abstract class MixinPlayerLoggedOutEvent extends MixinPlayerEvent impleme
     }
 
     @Override
+    public MessageSink getOriginalSink() {
+        return this.originalSink;
+    }
+
+    @Override
     public void setSink(MessageSink sink) {
+        if (this.originalSink == null) {
+            // setSink is always called before event fired
+            this.originalSink = sink;
+        }
         this.messageSink = sink;
     }
 

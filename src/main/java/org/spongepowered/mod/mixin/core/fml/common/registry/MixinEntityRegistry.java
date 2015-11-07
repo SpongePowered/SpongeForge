@@ -44,7 +44,7 @@ public abstract class MixinEntityRegistry {
     @Inject(method = "doModEntityRegistration", at = @At(value = "RETURN", ordinal = 1))
     private void onModEntityRegistration(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
             int updateFrequency, boolean sendsVelocityUpdates, CallbackInfo ci) {
-        registerCustomEntity(entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
+        registerCustomEntity(entityClass, entityName, id, FMLCommonHandler.instance().findContainerFor(mod));
     }
 
     @Inject(method = "registerGlobalEntityID", at = @At(value = "RETURN"))
@@ -56,11 +56,6 @@ public abstract class MixinEntityRegistry {
     private static void onRegisterGlobal(Class<? extends Entity> entityClass, String entityName, int id, int backgroundEggColour,
             int foregroundEggColour, CallbackInfo ci) {
         registerCustomEntity(entityClass, entityName, id, Loader.instance().activeModContainer());
-    }
-
-    public void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
-            int updateFrequency, boolean sendsVelocityUpdates) {
-        registerCustomEntity(entityClass, entityName, id, FMLCommonHandler.instance().findContainerFor(mod));
     }
 
     private static void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, ModContainer modContainer) {

@@ -54,6 +54,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     private Text spongeRawText;
     @Nullable private Text spongeNewText;
     @Nullable private MessageSink sink;
+    private MessageSink originalSink;
 
     @Shadow public String message;
     @Shadow public String username;
@@ -63,6 +64,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayerMP player, String message, ChatComponentTranslation component, CallbackInfo ci) {
         this.spongeText = SpongeTexts.toText(component);
+        this.sink = this.originalSink = ((Player) player).getMessageSink();
     }
 
     @Override
@@ -106,10 +108,12 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     }
 
     @Override
+    public MessageSink getOriginalSink() {
+        return this.originalSink;
+    }
+
+    @Override
     public MessageSink getSink() {
-        if (this.sink == null) {
-            this.sink = ((Player)this.player).getMessageSink();
-        }
         return this.sink;
     }
 
