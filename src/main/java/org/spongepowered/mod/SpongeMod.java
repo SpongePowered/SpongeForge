@@ -75,6 +75,7 @@ import org.spongepowered.common.service.sql.SqlServiceImpl;
 import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
+import org.spongepowered.mod.network.SpongeModMessageHandler;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.registry.SpongeForgeModuleRegistry;
 import org.spongepowered.mod.service.world.SpongeChunkLoadService;
@@ -140,6 +141,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             SpongeBootstrap.preInitializeRegistry();
             SpongeSerializationRegistry.setupSerialization(Sponge.getGame());
             SpongeForgeModuleRegistry.registerForgeData();
+            SpongeModMessageHandler.init();
 
             MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 

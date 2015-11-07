@@ -8,6 +8,7 @@
         "api.event.MixinAbstractEvent",
         "block.data.MixinTileEntity",
         "block.MixinBlockOldLeaf",
+        "block.MixinBlockRailBase",
         "common.MixinSpongeImplFactory",
         "common.world.MixinDimensionManager",
         "entity.MixinEntity",
@@ -86,6 +87,7 @@
     ],
     "client": [
         "client.MixinMinecraft",
+        "client.gui.MixinGuiOverlayDebug",
         "client.network.MixinNetHandlerPlayClient",
         "client.server.MixinIntegratedServer",
         "server.MixinIntegratedServerAnonInner3"

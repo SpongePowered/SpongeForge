@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.client;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiOverlayDebug;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
@@ -34,26 +35,24 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.spongepowered.common.Sponge;
 import org.spongepowered.common.interfaces.IMixinWorldInfo;
 import org.spongepowered.common.registry.type.world.WorldPropertyRegistryModule;
+import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 
 import java.util.UUID;
 
 @Mixin(Minecraft.class)
-public abstract class MixinMinecraft {
+public abstract class MixinMinecraft implements IMixinMinecraft {
 
-    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/server/integrated/IntegratedServer;startServerThread()V",
-            shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
+    private GuiOverlayDebug debugGui;
+
+    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;startServerThread()V", shift = At.Shift.BEFORE) , locals = LocalCapture.CAPTURE_FAILHARD)
     public void onlaunchIntegratedServerBeforeStart(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
             ISaveHandler isavehandler, WorldInfo worldInfo) {
         WorldPropertyRegistryModule.getInstance().registerWorldProperties((WorldProperties) worldInfo);
     }
 
-    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/storage/ISaveHandler;saveWorldInfo(Lnet/minecraft/world/storage/WorldInfo;)V",
-            shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/ISaveHandler;saveWorldInfo(Lnet/minecraft/world/storage/WorldInfo;)V", shift = At.Shift.AFTER) , locals = LocalCapture.CAPTURE_FAILHARD)
     public void onlaunchIntegratedServerAfterSaveWorldInfo(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
             ISaveHandler isavehandler, WorldInfo worldInfo) {
         // initialize overworld properties
@@ -62,5 +61,15 @@ public abstract class MixinMinecraft {
         ((WorldProperties) worldInfo).setKeepSpawnLoaded(true);
         ((WorldProperties) worldInfo).setLoadOnStartup(true);
         ((WorldProperties) worldInfo).setEnabled(true);
+    }
+
+    @Override
+    public void setDebugGui(GuiOverlayDebug debugGui) {
+        this.debugGui = debugGui;
+    }
+
+    @Override
+    public GuiOverlayDebug getDebugGui() {
+        return this.debugGui;
     }
 }

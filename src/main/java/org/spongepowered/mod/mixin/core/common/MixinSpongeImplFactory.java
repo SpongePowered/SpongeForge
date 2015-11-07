@@ -29,12 +29,14 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -45,7 +47,12 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplFactory;
+import org.spongepowered.common.entity.PlayerTracker;
+import org.spongepowered.common.interfaces.IMixinChunk;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
+
+import java.util.Optional;
 
 @Mixin(value = SpongeImplFactory.class, remap = false)
 public abstract class MixinSpongeImplFactory {
@@ -101,5 +108,49 @@ public abstract class MixinSpongeImplFactory {
     @Overwrite
     public static boolean shouldRefresh(TileEntity tile, net.minecraft.world.World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
         return tile.shouldRefresh(world, pos, oldState, newState);
+    }
+
+    // Required for torches and comparators
+    @Overwrite
+    public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
+        Optional<User> user = Optional.empty();
+        IMixinChunk spongeChunk = null;
+        if (StaticMixinHelper.packetPlayer != null || StaticMixinHelper.blockEventUser != null) {
+            user = Optional
+                    .of(StaticMixinHelper.packetPlayer != null ? (User) StaticMixinHelper.packetPlayer : (User) StaticMixinHelper.blockEventUser);
+        } else {
+            spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(pos);
+            user = Optional.empty();
+            if (spongeChunk != null) {
+                user = spongeChunk.getBlockNotifier(pos);
+            }
+        }
+        for (EnumFacing enumfacing : EnumFacing.values()) {
+            BlockPos blockpos1 = pos.offset(enumfacing);
+
+            if (world.isBlockLoaded(blockpos1)) {
+                IBlockState iblockstate = world.getBlockState(blockpos1);
+                iblockstate.getBlock().onNeighborChange(world, blockpos1, pos);
+                if (user.isPresent()) {
+                    spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(blockpos1);
+                    if (spongeChunk != null) {
+                        spongeChunk.addTrackedBlockPosition(iblockstate.getBlock(), blockpos1, user.get(), PlayerTracker.Type.NOTIFIER);
+                    }
+                }
+                if (iblockstate.getBlock().isNormalCube(world, blockpos1)) {
+                    BlockPos posOther = blockpos1.offset(enumfacing);
+                    Block other = world.getBlockState(posOther).getBlock();
+                    if (other.getWeakChanges(world, posOther)) {
+                        other.onNeighborChange(world, posOther, pos);
+                        if (user.isPresent()) {
+                            spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(posOther);
+                            if (spongeChunk != null) {
+                                spongeChunk.addTrackedBlockPosition(other, posOther, user.get(), PlayerTracker.Type.NOTIFIER);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

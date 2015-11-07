@@ -22,20 +22,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.entity.item;
+package org.spongepowered.mod.network;
 
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
+import org.spongepowered.mod.network.message.MessageTrackerDataRequest;
+import org.spongepowered.mod.network.message.MessageTrackerDataResponse;
 
-@Mixin(value = EntityItem.class, priority = 1001)
-public class MixinEntityItem {
+public class SpongeModMessageHandler {
 
-    @Redirect(method = "onCollideWithPlayer", at = @At(value = "INVOKE", target="Lnet/minecraftforge/event/ForgeEventFactory;onItemPickup(Lnet/minecraft/entity/item/EntityItem;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/item/ItemStack;)I"))
-    public int onEntityCollideWithPlayer(EntityItem entityItem, EntityPlayer entityIn, ItemStack itemstack) {
-        return 0; // ignore Forge event as we fire it for them
+    public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel("SpongeForge");
+
+    public static void init() {
+        INSTANCE.registerMessage(MessageTrackerDataRequest.class, MessageTrackerDataRequest.class, 0, Side.SERVER);
+        INSTANCE.registerMessage(MessageTrackerDataResponse.class, MessageTrackerDataResponse.class, 1, Side.CLIENT);
     }
 }
