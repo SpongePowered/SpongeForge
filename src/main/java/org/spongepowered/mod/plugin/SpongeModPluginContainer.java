@@ -61,6 +61,7 @@ import org.spongepowered.mod.event.EventRegistry;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.List;
 import java.util.Map;
@@ -335,6 +336,11 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
     @Override
     public Logger getLogger() {
         return LoggerFactory.getLogger(getId());
+    }
+
+    @Override
+    public URL getUpdateUrl() {
+        return null;
     }
 
 }
