@@ -35,10 +35,12 @@ import org.spongepowered.common.registry.type.ProfessionRegistryModule;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.registry.SpongeVillagerRegistry;
 
+import java.util.ArrayList;
+
 @Mixin(value = VillagerRegistry.class, remap = false)
 public class MixinVillagerRegistry {
 
-    @Inject(method = "register(Lnet/minecraftforge/fml/common/registry/VillagerProfession;I)V", at = @At("RETURN"))
+    @Inject(method = "register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerProfession;I)V", at = @At(value = "HEAD", args = "log=true"))
     private void registerForgeVillager(VillagerRegistry.VillagerProfession profession, int id, CallbackInfo ci) {
         if (id != -1) {
             Profession spongeProfession = new SpongeProfession(id, ((IMixinVillagerProfession) profession).getId());

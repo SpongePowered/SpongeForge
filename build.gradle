@@ -24,7 +24,7 @@ ext.DIR_MCP_MAPPINGS = net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPIN
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
 
 // Forge Version
-ext.forgeBuild = '1552'
+ext.forgeBuild = '1561'
 
 minecraft {
     forgeVersion = forgeBuild

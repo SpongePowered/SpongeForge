@@ -33,6 +33,7 @@ import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
 public class MixinVillagerCareer implements IMixinVillagerCareer {
 
     @Shadow private int id;
+    @Shadow private String name;
     @Shadow private VillagerRegistry.VillagerProfession profession;
 
     @Override
@@ -47,6 +48,6 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
 
     @Override
     public String getName() {
-        return null;
+        return this.name;
     }
 }
