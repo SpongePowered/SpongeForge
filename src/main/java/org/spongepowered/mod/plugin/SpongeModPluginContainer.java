@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStateEvent;
+import org.spongepowered.common.Sponge;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
 import org.spongepowered.common.plugin.SpongePluginContainer;
@@ -101,7 +102,7 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
 
             findStateEventHandlers(pluginClazz);
 
-            Injector injector = SpongeMod.instance.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
+            Injector injector = Sponge.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
             this.pluginInstance = injector.getInstance(pluginClazz);
         } catch (Throwable t) {
             this.fmlController.errorOccurred(this, t);
@@ -111,7 +112,7 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
 
     @Subscribe
     public void registerMod(FMLPreInitializationEvent event) {
-        SpongeEventManager spongeBus = (SpongeEventManager) SpongeMod.instance.getGame().getEventManager();
+        SpongeEventManager spongeBus = (SpongeEventManager) Sponge.getGame().getEventManager();
         spongeBus.registerListener(this, this.pluginInstance);
     }
 
@@ -128,7 +129,7 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
                     m.invoke(getMod(), event);
                 }
             } catch (Throwable t) {
-                SpongeMod.instance.getLogger().error("[Plugin Class: " + this.pluginClassName + "][Handler: " + method.getName() + "]", t);
+                Sponge.getLogger().error("[Plugin Class: " + this.pluginClassName + "][Handler: " + method.getName() + "]", t);
             }
         }
     }

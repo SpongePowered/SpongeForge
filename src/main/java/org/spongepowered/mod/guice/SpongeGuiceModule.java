@@ -29,6 +29,7 @@ import static com.google.inject.name.Names.named;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import net.minecraftforge.fml.common.Loader;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
@@ -38,6 +39,7 @@ import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.SimpleServiceManager;
 import org.spongepowered.api.service.event.EventManager;
 import org.spongepowered.api.world.TeleportHelper;
+import org.spongepowered.common.Sponge;
 import org.spongepowered.common.guice.ConfigDirAnnotation;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.world.SpongeTeleportHelper;
@@ -47,13 +49,14 @@ import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
 import java.io.File;
+import java.nio.file.Path;
 
 public class SpongeGuiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
         bind(SpongeMod.class).toInstance(SpongeMod.instance);
-        bind(Logger.class).toInstance(SpongeMod.instance.getLogger());
+        bind(Logger.class).toInstance(LogManager.getLogger(Sponge.ECOSYSTEM_NAME));
 
         bind(PluginContainer.class).annotatedWith(named("Sponge")).toInstance(SpongeMod.instance);
         bind(PluginContainer.class).annotatedWith(named("Minecraft")).toInstance((PluginContainer) Loader.instance().getMinecraftModContainer());
@@ -64,6 +67,9 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(EventManager.class).to(SpongeModEventManager.class).in(Scopes.SINGLETON);
         bind(GameRegistry.class).to(SpongeGameRegistry.class).in(Scopes.SINGLETON);
         bind(TeleportHelper.class).to(SpongeTeleportHelper.class).in(Scopes.SINGLETON);
-        bind(File.class).annotatedWith(new ConfigDirAnnotation(true)).toInstance(Loader.instance().getConfigDir());
+
+        ConfigDirAnnotation sharedRoot = new ConfigDirAnnotation(true);
+        bind(Path.class).annotatedWith(sharedRoot).toInstance(Sponge.getConfigDir());
+        bind(File.class).annotatedWith(sharedRoot).toInstance(Sponge.getConfigDir().toFile());
     }
 }

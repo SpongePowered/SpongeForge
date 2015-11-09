@@ -167,7 +167,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             try {
                 listener.invoke(forgeEvent);
             } catch (Throwable throwable) {
-                SpongeMod.instance.getLogger().catching(throwable);
+                Sponge.getLogger().catching(throwable);
             }
         }
 

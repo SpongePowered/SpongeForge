@@ -38,7 +38,7 @@ import org.spongepowered.mod.SpongeMod;
 public abstract class MixinEventState extends FMLEvent {
 
     public Game getGame() {
-        return SpongeMod.instance.getGame();
+        return Sponge.getGame();
     }
 
     public GameState getState() {

@@ -36,6 +36,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.Sponge;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.event.SpongeModEventManager;
@@ -64,7 +65,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
                     || event instanceof ItemTossEvent) {
                 return false; // let the event happen, we will just capture it
             }
-            boolean cancelled = ((SpongeModEventManager) SpongeMod.instance.getGame().getEventManager()).post(null, event, listeners);
+            boolean cancelled = ((SpongeModEventManager) Sponge.getGame().getEventManager()).post(null, event, listeners);
             if (!cancelled) {
                 SpongeForgeEventFactory.onForgePost(event);
             }

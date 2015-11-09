@@ -43,6 +43,7 @@ import org.spongepowered.mod.network.SpongeModNetworkManager;
 import org.spongepowered.mod.registry.SpongeGameDictionary;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import javax.inject.Inject;
 
@@ -63,8 +64,8 @@ public final class SpongeModGame extends SpongeGame {
     }
 
     @Override
-    public File getSavesDirectory() {
-        return FMLCommonHandler.instance().getSavesDirectory();
+    public Path getSavesDirectory() {
+        return FMLCommonHandler.instance().getSavesDirectory().toPath();
     }
 
     @Override
