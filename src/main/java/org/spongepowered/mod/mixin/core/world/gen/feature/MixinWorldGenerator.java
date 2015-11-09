@@ -53,9 +53,9 @@ public abstract class MixinWorldGenerator implements Populator {
     @Inject(method = "<init>*", at = @At("RETURN"))
     public void onConstructed(boolean notifyBlock, CallbackInfo ci) {
         net.minecraft.world.gen.feature.WorldGenerator gen = ((net.minecraft.world.gen.feature.WorldGenerator)(Object) this);
-        if (!gen.getClass().getName().contains("net.minecraft.") && !Sponge.getSpongeRegistry().isAdditionalRegistered(gen.getClass(), PopulatorType.class)) {
+        if (!gen.getClass().getName().contains("net.minecraft.") && !Sponge.getRegistry().isAdditionalRegistered(gen.getClass(), PopulatorType.class)) {
             this.populatorType = new SpongePopulatorType(this.getClass().getSimpleName(),SpongeMod.instance.getModIdFromClass(gen.getClass()), gen.getClass());
-            Sponge.getSpongeRegistry().registerAdditionalType(PopulatorType.class, this.populatorType);
+            Sponge.getRegistry().registerAdditionalType(PopulatorType.class, this.populatorType);
         }
     }
 

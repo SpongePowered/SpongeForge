@@ -113,7 +113,7 @@ public abstract class MixinDimensionManager {
         }
 
         WorldProvider provider = WorldProvider.getProviderForDimension(dim);
-        WorldBuilder builder = Sponge.getSpongeRegistry().createBuilder(WorldBuilder.class);
+        WorldBuilder builder = Sponge.getRegistry().createBuilder(WorldBuilder.class);
         builder = builder.dimensionType(((Dimension) provider).getType()).name(provider.getDimensionName())
                 .keepsSpawnLoaded(spawnSettings.get(providerId));
         Optional<World> world = ((SpongeWorldBuilder) builder).dimensionId(dim).isMod(true).build();

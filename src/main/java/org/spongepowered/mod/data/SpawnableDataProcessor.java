@@ -85,7 +85,7 @@ public class SpawnableDataProcessor extends AbstractItemSingleDataProcessor<Enti
     @Override
     public Optional<EntityType> getVal(ItemStack itemStack) {
         final Class entity = (Class) EntityList.stringToClassMapping.get(ItemMonsterPlacer.getEntityName(itemStack));
-        for (EntityType type : Sponge.getSpongeRegistry().getAllOf(EntityType.class)) {
+        for (EntityType type : Sponge.getRegistry().getAllOf(EntityType.class)) {
             if (type.getEntityClass().equals(entity)) {
                 return Optional.of(type);
             }

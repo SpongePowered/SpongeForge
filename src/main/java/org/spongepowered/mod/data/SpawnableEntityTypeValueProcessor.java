@@ -90,7 +90,7 @@ public class SpawnableEntityTypeValueProcessor extends AbstractSpongeValueProces
     public Optional<EntityType> getVal(ItemStack container) {
         System.out.print("SpongeForge");
         final Class entity = (Class) EntityList.stringToClassMapping.get(ItemMonsterPlacer.getEntityName(container));
-        for (EntityType type : Sponge.getSpongeRegistry().getAllOf(EntityType.class)) {
+        for (EntityType type : Sponge.getRegistry().getAllOf(EntityType.class)) {
             if (type.getEntityClass().equals(entity)) {
                 return Optional.of(type);
             }
