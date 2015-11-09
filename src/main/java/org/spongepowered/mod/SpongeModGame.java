@@ -38,6 +38,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.network.SpongeNetworkManager;
+import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.mod.network.SpongeModNetworkManager;
 import org.spongepowered.mod.registry.SpongeGameDictionary;
 
@@ -56,7 +57,7 @@ public final class SpongeModGame extends SpongeGame {
     private final SpongeModNetworkManager networkManager = new SpongeModNetworkManager();
 
     @Inject
-    public SpongeModGame(PluginManager pluginManager, EventManager eventManager, GameRegistry gameRegistry,
+    public SpongeModGame(PluginManager pluginManager, EventManager eventManager, SpongeGameRegistry gameRegistry,
             ServiceManager serviceManager, TeleportHelper teleportHelper) {
         super(pluginManager, eventManager, gameRegistry, serviceManager, teleportHelper);
     }

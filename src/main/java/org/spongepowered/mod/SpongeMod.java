@@ -68,6 +68,7 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.command.CommandMapping;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.SpongeBootstrap;
+import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.data.SpongeSerializationRegistry;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
@@ -91,9 +92,8 @@ import java.util.Map;
 public class SpongeMod extends DummyModContainer implements PluginContainer {
     private static final Logger logger = LogManager.getLogger(Sponge.ECOSYSTEM_NAME);
     public static SpongeMod instance;
-    private final Game game;
+    private final SpongeGame game;
     private LoadController controller;
-    private final SpongeGameRegistry registry;
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
@@ -108,9 +108,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         Guice.createInjector(new SpongeGuiceModule()).getInstance(Sponge.class);
 
         this.game = Sponge.getGame();
-        this.registry = (SpongeGameRegistry) this.game.getRegistry();
         VillagerRegistry.instance();
-        this.registry.preRegistryInit();
+        this.game.getRegistry().preRegistryInit();
 
         this.game.getEventManager().registerListeners(this, this);
     }
@@ -277,10 +276,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Override
     public Object getInstance() {
         return getMod();
-    }
-
-    public SpongeGameRegistry getSpongeRegistry() {
-        return this.registry;
     }
 
     private static ModMetadata createMetadata(Map<String, Object> defaults) {
