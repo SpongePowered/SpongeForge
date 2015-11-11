@@ -51,7 +51,7 @@ public abstract class MixinVillagerProfession implements IMixinVillagerProfessio
         return this.name.getResourcePath();
     }
 
-    @Inject(method = REGISTER, at = @At(value = "RETURN", args = "log=true"), remap = false)
+    @Inject(method = REGISTER, at = @At("RETURN"), remap = false)
     private void registerForgeCareer(VillagerRegistry.VillagerCareer career, CallbackInfo callbackInfo) {
         Profession profession = SpongeVillagerRegistry.getProfession(((IMixinVillagerCareer) career).getProfession()).get();
         Career career1 = new SpongeCareer(((IMixinVillagerCareer) career).getId(), ((IMixinVillagerCareer) career).getName(), profession);
