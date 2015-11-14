@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.handler;
 
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.LogManager;
@@ -48,8 +49,13 @@ public class MixinErrorHandler implements IMixinErrorHandler {
     @Override
     public ErrorAction onError(String targetClassName, Throwable th, IMixinInfo mixin, ErrorAction action) {
         if (action == ErrorAction.ERROR && mixin.getConfig().getMixinPackage().startsWith("org.spongepowered.")) {
+            if ((boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
+                FMLCommonHandler.instance().exitJava(1, true);
+                return null;
+            }
+
             PrettyPrinter errorPrinter = new PrettyPrinter();
-            
+
             if (th.getCause() instanceof ConstraintViolationException) {
                 ConstraintViolationException ex = (ConstraintViolationException) th.getCause();
                 Constraint constraint = ex.getConstraint();
@@ -61,19 +67,19 @@ public class MixinErrorHandler implements IMixinErrorHandler {
             } else {
                 errorPrinter = this.itsAllGoneHorriblyWrong(errorPrinter);
             }
-            
+
             this.appendTechnicalInfo(errorPrinter, targetClassName, th, mixin).log(this.log);
-            
+
             FMLCommonHandler.instance().exitJava(1, true);
         }
-        
+
         return null;
     }
 
     private PrettyPrinter forgeVersionNotValid(PrettyPrinter errorPrinter, Constraint constraint) {
         String forgeVer = Main.getManifestAttribute("TargetForgeVersion", null);
         String forgeMessage = forgeVer == null ? String.valueOf(constraint.getMin()) : forgeVer;
-        
+
         return errorPrinter
             .add()
             .add("Oh dear. It seems like this version of Sponge is not compatible with the version")
