@@ -100,12 +100,14 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.apache.commons.lang3.");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.asm.transformer.WorldGeneratorTransformer");
+        Launch.classLoader.addTransformerExclusion("org.spongepowered.common.transformer.");
     }
 
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
-            "org.spongepowered.mod.asm.transformer.WorldGeneratorTransformer"
+                "org.spongepowered.mod.asm.transformer.WorldGeneratorTransformer",
+                "org.spongepowered.common.transformer.SpongeAISuperclassTransformer"
         };
     }
 

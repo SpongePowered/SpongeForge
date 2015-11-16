@@ -162,6 +162,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             SpongeForgeModuleRegistry.registerForgeData();
             SpongeModMessageHandler.init();
 
+            Class<?> clazz = Class.forName("org.spongepowered.api.entity.ai.task.AbstractAITask");
+
             MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 
             this.game.getServiceManager().potentiallyProvide(PermissionService.class)
