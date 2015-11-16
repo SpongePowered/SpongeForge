@@ -98,17 +98,17 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
         @SuppressWarnings("unchecked")
         public void createSpongeData() {
-            List<BlockPos> affectedPositions = this.explosion.func_180343_e();
-            ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<Transaction<BlockSnapshot>>();
+            List<BlockPos> affectedPositions = this.explosion.getAffectedBlockPositions();
+            ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<>();
             for (BlockPos pos : affectedPositions) {
-                Location<World> location = new Location<World>((World) this.world, VecHelper.toVector(pos));
+                Location<World> location = new Location<>((World) this.world, VecHelper.toVector(pos));
                 BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(this.world, pos)).createSpongeBlockSnapshot();
                 final SpongeBlockSnapshotBuilder replacementBuilder = new SpongeBlockSnapshotBuilder()
                     .blockState(BlockTypes.AIR.getDefaultState())
                     .position(location.getBlockPosition())
                     .worldId(location.getExtent().getUniqueId());
                 BlockSnapshot replacementSnapshot = replacementBuilder.build();
-                builder.add(new Transaction<BlockSnapshot>(originalSnapshot, replacementSnapshot)).build();
+                builder.add(new Transaction<>(originalSnapshot, replacementSnapshot)).build();
             }
             this.blockTransactions = builder.build();
         }
@@ -177,7 +177,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
             super.syncDataToForge(spongeEvent);
 
             ExplosionEvent.Detonate event = (ExplosionEvent.Detonate) spongeEvent;
-            List<BlockPos> affectedBlocks = this.explosion.func_180343_e();
+            List<BlockPos> affectedBlocks = this.explosion.getAffectedBlockPositions();
             affectedBlocks.clear();
 
             for (Transaction<BlockSnapshot> blockTransaction : event.getTransactions()) {
@@ -194,7 +194,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
             net.minecraftforge.event.world.ExplosionEvent event = (net.minecraftforge.event.world.ExplosionEvent) forgeEvent;
             // TODO - handle this better
-            List<BlockPos> affectedBlocks = event.explosion.func_180343_e();
+            List<BlockPos> affectedBlocks = event.explosion.getAffectedBlockPositions();
             for (Transaction<BlockSnapshot> transaction : this.blockTransactions) {
                 BlockPos pos = VecHelper.toBlockPos(transaction.getFinal().getPosition());
                 boolean match = false;

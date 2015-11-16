@@ -710,7 +710,7 @@ public class SpongeForgeEventFactory {
             net.minecraftforge.event.world.ExplosionEvent.Detonate explosionEvent =
                     (net.minecraftforge.event.world.ExplosionEvent.Detonate) forgeEvent;
             if (!explosionEvent.explosion.isSmoking) { // shouldBreakBlocks
-                List<BlockPos> affectedBlocks = explosionEvent.explosion.func_180343_e();
+                List<BlockPos> affectedBlocks = explosionEvent.explosion.getAffectedBlockPositions();
                 affectedBlocks.clear();
             }
         } else if (forgeEvent instanceof LivingDeathEvent) {
@@ -825,7 +825,7 @@ public class SpongeForgeEventFactory {
                 }
             } else { // multi
                 Iterator<Transaction<BlockSnapshot>> iterator = spongeEvent.getTransactions().iterator();
-                List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots = new ArrayList<net.minecraftforge.common.util.BlockSnapshot>();
+                List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots = new ArrayList<>();
 
                 while (iterator.hasNext()) {
                     Transaction<BlockSnapshot> transaction = iterator.next();

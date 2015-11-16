@@ -35,7 +35,7 @@ import java.util.Set;
 
 public class EntityActivationRangePlugin implements IMixinConfigPlugin {
 
-    private List<String> mixins = new ArrayList<String>();
+    private List<String> mixins = new ArrayList<>();
 
     @Override
     public void onLoad(String mixinPackage) {

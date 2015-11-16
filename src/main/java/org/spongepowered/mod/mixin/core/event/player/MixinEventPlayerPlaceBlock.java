@@ -62,7 +62,8 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
 
         this.blockOriginal = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
         this.blockReplacement = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(blockSnapshot.world, blockSnapshot.pos)).createSpongeBlockSnapshot();
-        this.blockTransactions = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(new Transaction<BlockSnapshot>(this.blockOriginal, this.blockReplacement)).build();
+        this.blockTransactions = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
+            new Transaction<>(this.blockOriginal, this.blockReplacement)).build();
     }
 
     @Override

@@ -313,7 +313,7 @@ public class ActivationRange {
         checkNotNull(world, "world");
         checkNotNull(type, "type");
 
-        List<SpongeConfig<?>> configs = new ArrayList<SpongeConfig<?>>();
+        List<SpongeConfig<?>> configs = new ArrayList<>();
         configs.add(Sponge.getGlobalConfig());
         configs.add(((IMixinWorldProvider) world.provider).getDimensionConfig());
         configs.add(((IMixinWorld) world).getWorldConfig());

@@ -38,7 +38,7 @@ public abstract class MixinMinecraftServer implements Server {
 
     public ChunkLoadService chunkLoadService = new SpongeChunkLoadService();
 
-    @Shadow public Hashtable<Integer, long[]> worldTickTimes = new Hashtable<Integer, long[]>();
+    @Shadow public Hashtable<Integer, long[]> worldTickTimes = new Hashtable<>();
 
     public Hashtable<Integer, long[]> getWorldTickTimes() {
         return this.worldTickTimes;

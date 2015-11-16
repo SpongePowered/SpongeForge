@@ -188,7 +188,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
                 return this.chunkList;
             }
 
-            Set<Vector3i> forgeChunkList = new HashSet<Vector3i>();
+            Set<Vector3i> forgeChunkList = new HashSet<>();
             for (ChunkCoordIntPair chunkCoord : this.forgeTicket.getChunkList()) {
                 forgeChunkList.add(new Vector3i(chunkCoord.chunkXPos, 0, chunkCoord.chunkZPos));
             }
@@ -278,7 +278,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
 
         @Override
         public void ticketsLoaded(List<Ticket> tickets, net.minecraft.world.World world) {
-            List<LoadingTicket> loadingTickets = new ArrayList<LoadingTicket>();
+            List<LoadingTicket> loadingTickets = new ArrayList<>();
 
             for (Ticket ticket : tickets) {
                 loadingTickets.add(new SpongeLoadingTicket(ticket));
@@ -299,7 +299,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
 
         @Override
         public List<Ticket> ticketsLoaded(List<Ticket> tickets, net.minecraft.world.World world, int maxTicketCount) {
-            List<LoadingTicket> spongeLoadingTickets = new ArrayList<LoadingTicket>();
+            List<LoadingTicket> spongeLoadingTickets = new ArrayList<>();
             for (Ticket ticket : tickets) {
                 spongeLoadingTickets.add(new SpongeLoadingTicket(ticket));
             }
@@ -307,7 +307,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
             OrderedCallback spongeOrderedCallback = (OrderedCallback) this.spongeLoadingCallback;
             List<LoadingTicket> spongeKeptTickets =
                     spongeOrderedCallback.onLoaded(ImmutableList.copyOf(spongeLoadingTickets), (World) world, maxTicketCount);
-            List<Ticket> forgeTickets = new ArrayList<Ticket>();
+            List<Ticket> forgeTickets = new ArrayList<>();
 
             for (LoadingTicket ticket : spongeKeptTickets) {
                 forgeTickets.add(((SpongeLoadingTicket) ticket).forgeTicket);

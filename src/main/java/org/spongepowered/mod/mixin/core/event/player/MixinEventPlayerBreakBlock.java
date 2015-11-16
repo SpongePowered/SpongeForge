@@ -55,8 +55,9 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EntityPlayer player, CallbackInfo ci) {
         this.blockOriginal = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-        this.blockReplacement = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<World>((World) world, VecHelper.toVector(pos)));
-        this.blockTransactions = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(new Transaction<BlockSnapshot>(this.blockOriginal, this.blockReplacement)).build();
+        this.blockReplacement = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector(pos)));
+        this.blockTransactions = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
+            new Transaction<>(this.blockOriginal, this.blockReplacement)).build();
     }
 
     @Override

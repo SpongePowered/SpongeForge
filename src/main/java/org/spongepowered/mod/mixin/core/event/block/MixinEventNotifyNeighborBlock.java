@@ -85,12 +85,12 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
     }
 
     public void createSpongeEventData() {
-        this.neighbors = new HashMap<Direction, BlockState>();
+        this.neighbors = new HashMap<>();
         if (this.notifiedSides != null) {
             for (EnumFacing notifiedSide : this.notifiedSides) {
                 BlockPos offset = this.pos.offset(notifiedSide);
                 Direction direction = DirectionFacingProvider.getInstance().getKey(notifiedSide).get();
-                Location<World> location = new Location<World>((World) this.world, VecHelper.toVector(offset));
+                Location<World> location = new Location<>((World) this.world, VecHelper.toVector(offset));
                 if (location.getBlockY() >=0 && location.getBlockY() <= 255) {
                     this.neighbors.put(direction, location.getBlock());
                 }

@@ -70,7 +70,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
             if (pos != null) { // Forge fires this event on client side and passes a null pos and face
                 this.blockSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
             } else {
-                this.blockSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<World>((World) world, Vector3i.ZERO));
+                this.blockSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, Vector3i.ZERO));
             }
         }
     }

@@ -16,6 +16,7 @@ import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
@@ -75,7 +76,7 @@ public class Flardians {
         loreData.set(lore);
 
         // Create the selling item
-        final ItemStack selling = this.game.getRegistry().createItemBuilder()
+        final ItemStack selling = this.game.getRegistry().createBuilder(ItemStack.Builder.class)
             .itemType(BUYING_TYPES.get(itemRand))
             .itemData(itemName)
             .itemData(loreData)
@@ -83,12 +84,12 @@ public class Flardians {
             .build();
 
         // Create the buying item
-        final ItemStack buying = this.game.getRegistry().createItemBuilder()
+        final ItemStack buying = this.game.getRegistry().createBuilder(ItemStack.Builder.class)
             .itemType(SELL_TYPES[rand])
             .quantity(1)
             .build();
 
-        final TradeOfferBuilder builder = this.game.getRegistry().createTradeOfferBuilder();
+        final TradeOffer.Builder builder = this.game.getRegistry().createBuilder(TradeOffer.Builder.class);
 
         final TradeOfferData tradeOfferData = this.game.getRegistry().getManipulatorRegistry().getBuilder(TradeOfferData.class).get().create();
         tradeOfferData.set(tradeOfferData.tradeOffers().add(builder.firstBuyingItem(buying).maxUses(10000).sellingItem(selling).build()));

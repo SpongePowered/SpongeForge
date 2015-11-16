@@ -47,8 +47,8 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, CallbackInfo ci) {
-        itemSnapshot = ((ItemStack) item).createSnapshot();
-        this.itemTransaction = new Transaction<ItemStackSnapshot>(itemSnapshot, itemSnapshot.copy());
+        this.itemSnapshot = ((ItemStack) item).createSnapshot();
+        this.itemTransaction = new Transaction<>(this.itemSnapshot, this.itemSnapshot.copy());
         this.originalDuration = duration;
     }
 
@@ -90,8 +90,8 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
 
         @Inject(method = "<init>", at = @At("RETURN"))
         public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, net.minecraft.item.ItemStack result, CallbackInfo ci) {
-            itemResultSnapshot = ((ItemStack) result).createSnapshot();
-            this.itemResultTransaction = new Transaction<ItemStackSnapshot>(itemResultSnapshot, itemResultSnapshot.copy());
+            this.itemResultSnapshot = ((ItemStack) result).createSnapshot();
+            this.itemResultTransaction = new Transaction<>(this.itemResultSnapshot, this.itemResultSnapshot.copy());
         }
 
         @Override

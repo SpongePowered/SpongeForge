@@ -55,12 +55,12 @@ public abstract class MixinEventPlayerPlaceMultiBlock extends MixinEventPlayerPl
             return;
         }
 
-        ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<Transaction<BlockSnapshot>>();
+        ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<>();
         for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : blockSnapshots) {
             BlockSnapshot spongeOriginalBlockSnapshot = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
             BlockSnapshot replacementSnapshot = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(blockSnapshot.world, blockSnapshot.pos))
                 .createSpongeBlockSnapshot();
-            builder.add(new Transaction<BlockSnapshot>(spongeOriginalBlockSnapshot, replacementSnapshot));
+            builder.add(new Transaction<>(spongeOriginalBlockSnapshot, replacementSnapshot));
         }
         this.blockTransactions = builder.build();
     }
