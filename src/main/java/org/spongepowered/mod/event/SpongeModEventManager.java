@@ -160,19 +160,22 @@ public class SpongeModEventManager extends SpongeEventManager {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
 
-        // sync plugin data for Mods
-        ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
-
-        for (IEventListener listener : listeners) {
-            try {
-                listener.invoke(forgeEvent);
-            } catch (Throwable throwable) {
-                Sponge.getLogger().catching(throwable);
+        // If there are no forge listeners for event, skip sync
+        if (listeners.length > 0) {
+            // sync plugin data for Mods
+            ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
+    
+            for (IEventListener listener : listeners) {
+                try {
+                    listener.invoke(forgeEvent);
+                } catch (Throwable throwable) {
+                    Sponge.getLogger().catching(throwable);
+                }
             }
-        }
 
-        // sync Forge data for Plugins
-        ((IMixinEvent)spongeEvent).syncDataToSponge(forgeEvent);
+            // sync Forge data for Plugins
+            ((IMixinEvent)spongeEvent).syncDataToSponge(forgeEvent);
+        }
 
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
