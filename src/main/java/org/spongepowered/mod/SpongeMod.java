@@ -48,8 +48,6 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -84,6 +82,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class SpongeMod extends DummyModContainer implements PluginContainer {
+
     public static SpongeMod instance;
     private final SpongeGame game;
     private LoadController controller;
@@ -145,10 +144,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
             MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 
-            this.game.getServiceManager().potentiallyProvide(PermissionService.class).executeWhenPresent(input -> {
-                input.registerContextCalculator(new SpongeContextCalculator());
-                return true;
-            });
+            this.game.getServiceManager().potentiallyProvide(PermissionService.class)
+                    .executeWhenPresent(input -> input.registerContextCalculator(new SpongeContextCalculator()));
 
             // Add the SyncScheduler as a listener for ServerTickEvents
             FMLCommonHandler.instance().bus().register(this);
@@ -254,7 +251,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     private static ModMetadata createMetadata(Map<String, Object> defaults) {
         try {
-            return MetadataCollection.from(SpongeMod.class.getResourceAsStream("/mcmod.info"), Sponge.ECOSYSTEM_NAME).getMetadataForId(Sponge.ECOSYSTEM_NAME,
+            return MetadataCollection.from(SpongeMod.class.getResourceAsStream("/mcmod.info"), Sponge.ECOSYSTEM_NAME).getMetadataForId(
+                    Sponge.ECOSYSTEM_NAME,
                     defaults);
         } catch (Exception ex) {
             return new ModMetadata();
@@ -288,7 +286,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         return modId;
     }
 
-    public boolean isClientThread() {      
-       return (Thread.currentThread().getName().equals("Client thread"));     
+    public boolean isClientThread() {
+        return (Thread.currentThread().getName().equals("Client thread"));
     }
 }
