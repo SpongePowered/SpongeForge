@@ -33,6 +33,7 @@ import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -110,6 +111,9 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(MessageSinkEvent.class, ServerChatEvent.class)
                     //.put(DropItemEvent.Harvest.class, BlockEvent.HarvestDropsEvent.class)
                     .put(InteractBlockEvent.class, PlayerInteractEvent.class)
+                    .put(InteractBlockEvent.Primary.class, PlayerInteractEvent.class)
+                    .put(InteractBlockEvent.Secondary.class, PlayerInteractEvent.class)
+                    .put(InteractEntityEvent.Primary.class, AttackEntityEvent.class)
                     .put(InteractEntityEvent.Secondary.class, EntityInteractEvent.class)
                     .put(TargetWorldEvent.class, WorldEvent.class)
                     .put(LoadWorldEvent.class, WorldEvent.Load.class)
@@ -246,7 +250,9 @@ public class SpongeModEventManager extends SpongeEventManager {
                     return postBulk(spongeEvent, clazz);
                 }
             } else {
+                StaticMixinHelper.processingInternalForgeEvent = true;
                 net.minecraftforge.fml.common.eventhandler.Event forgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent(spongeEvent, clazz);
+                StaticMixinHelper.processingInternalForgeEvent = false;
                 if (forgeEvent != null) {
                     // Avoid separate mappings for events defined as inner classes
                     Class<?> enclosingClass = forgeEvent.getClass().getEnclosingClass();
@@ -255,6 +261,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                         bus = MinecraftForge.EVENT_BUS;
                     }
 
+                    SpongeForgeEventFactory.lastForgeEvent = forgeEvent;
                     return post(spongeEvent, forgeEvent, forgeEvent.getListenerList().getListeners(((IMixinEventBus) bus).getBusID()));
                 }
             }

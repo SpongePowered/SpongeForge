@@ -68,6 +68,7 @@
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",
         "forge.MixinForgeHooks",
+        "forge.event.MixinForgeEventFactory",
         "item.MixinEnchantment",
         "item.MixinItemStack",
         "network.MixinNetHandlerPlayServer",

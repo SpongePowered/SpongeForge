@@ -47,8 +47,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
 
 import java.util.Optional;
@@ -66,7 +66,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, net.minecraft.world.World world, CallbackInfo ci) {
-        if (player instanceof EntityPlayerMP) {
+        if (player instanceof EntityPlayerMP && !StaticMixinHelper.processingInternalForgeEvent) {
             if (pos != null) { // Forge fires this event on client side and passes a null pos and face
                 this.blockSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
             } else {

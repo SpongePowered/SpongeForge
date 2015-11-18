@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.event;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -88,6 +87,7 @@ import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
@@ -117,7 +117,6 @@ import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
@@ -133,6 +132,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class SpongeForgeEventFactory {
+
+    public static net.minecraftforge.fml.common.eventhandler.Event lastForgeEvent = null;
 
     public static net.minecraftforge.fml.common.eventhandler.Event findAndCreateForgeEvent(Event event,
             Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
@@ -162,7 +163,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == ArrowNockEvent.class) {
 
             } else if (clazz == AttackEntityEvent.class) {
-
+                return createAttackEntityEvent(event);
             } else if (clazz == BonemealEvent.class) {
 
             } else if (clazz == EntityInteractEvent.class) {
@@ -399,6 +400,21 @@ public class SpongeForgeEventFactory {
         return forgeEvent;
     }
 
+    public static AttackEntityEvent createAttackEntityEvent(Event event) {
+        if (!(event instanceof InteractEntityEvent.Primary)) {
+            throw new IllegalArgumentException("Event is not a valid InteractEntityEvent.Primary event.");
+        }
+
+        InteractEntityEvent.Primary spongeEvent = (InteractEntityEvent.Primary) event;
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
+
+        AttackEntityEvent forgeEvent = new AttackEntityEvent((EntityPlayer) player.get(), (net.minecraft.entity.Entity) spongeEvent.getTargetEntity());
+        return forgeEvent;
+    }
+
     // Living events
     public static LivingEvent createLivingEvent(Event event) {
         if (!(event instanceof TargetLivingEvent)) {
@@ -459,17 +475,28 @@ public class SpongeForgeEventFactory {
         }
 
         BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetBlock().getLocation().get().getPosition());
-        EnumFacing face = DirectionFacingProvider.getInstance().get(spongeEvent.getTargetSide()).get();
-        EntityPlayer entityplayer = (EntityPlayer) player.get();
-        Action action = Action.RIGHT_CLICK_BLOCK;
-        if (entityplayer.isUsingItem()) {
+        Optional<EnumFacing> face = DirectionFacingProvider.getInstance().get(spongeEvent.getTargetSide());
+        Action action = null;
+        if (spongeEvent instanceof InteractBlockEvent.Primary) {
             action = Action.LEFT_CLICK_BLOCK;
-        } else if (entityplayer.worldObj.isAirBlock(pos)) {
-            action = Action.RIGHT_CLICK_AIR;
+        } else if (spongeEvent instanceof InteractBlockEvent.Secondary) {
+            if (spongeEvent.getTargetBlock().getState().getType() == BlockTypes.AIR) {
+                action = Action.RIGHT_CLICK_AIR;
+            } else {
+                action = Action.RIGHT_CLICK_BLOCK;
+            }
+        } else { // attempt to determine action
+            EntityPlayer entityplayer = (EntityPlayer) player.get();
+            action = Action.RIGHT_CLICK_BLOCK;
+            if (entityplayer.isUsingItem()) {
+                action = Action.LEFT_CLICK_BLOCK;
+            } else if (entityplayer.worldObj.isAirBlock(pos)) {
+                action = Action.RIGHT_CLICK_AIR;
+            }
         }
 
         PlayerInteractEvent forgeEvent =
-                new PlayerInteractEvent((EntityPlayer) player.get(), action, pos, face,
+                new PlayerInteractEvent((EntityPlayer) player.get(), action, pos, face.isPresent() ? face.get() : null,
                         (net.minecraft.world.World) player.get().getWorld());
         return forgeEvent;
     }

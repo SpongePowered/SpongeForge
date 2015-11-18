@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 import com.google.common.base.Throwables;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
@@ -37,6 +38,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.Sponge;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.event.SpongeModEventManager;
@@ -62,7 +64,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
         if (!forgeOnly && event instanceof org.spongepowered.api.event.Event && !SpongeMod.instance.isClientThread()) {
             if (event instanceof BlockEvent.PlaceEvent || event instanceof BlockEvent.BreakEvent || event instanceof LivingDropsEvent
-                    || event instanceof ItemTossEvent) {
+                    || event instanceof ItemTossEvent || (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent)) {
                 return false; // let the event happen, we will just capture it
             }
             boolean cancelled = ((SpongeModEventManager) Sponge.getGame().getEventManager()).post(null, event, listeners);
