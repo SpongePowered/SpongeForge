@@ -164,7 +164,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         if (listeners.length > 0) {
             // sync plugin data for Mods
             ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
-    
+
             for (IEventListener listener : listeners) {
                 try {
                     listener.invoke(forgeEvent);
@@ -229,8 +229,12 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     @Override
-    public boolean post(Event spongeEvent) {
-        if (SpongeMod.instance.isClientThread()) {
+    public boolean post(Event event) {
+        return this.post(event, false);
+    }
+
+    public boolean post(Event spongeEvent, boolean allowClientThread) {
+        if (!allowClientThread & SpongeMod.instance.isClientThread()) {
             return false;
         }
 

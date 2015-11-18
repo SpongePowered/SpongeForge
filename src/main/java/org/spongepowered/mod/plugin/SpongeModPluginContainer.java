@@ -41,9 +41,6 @@ import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
-import net.minecraftforge.fml.common.event.FMLEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionRange;
@@ -56,8 +53,6 @@ import org.spongepowered.common.Sponge;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
 import org.spongepowered.common.plugin.SpongePluginContainer;
-import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.event.EventRegistry;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -104,33 +99,12 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
 
             Injector injector = Sponge.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
             this.pluginInstance = injector.getInstance(pluginClazz);
+
+            SpongeEventManager spongeBus = (SpongeEventManager) Sponge.getGame().getEventManager();
+            spongeBus.registerListener(this, this.pluginInstance);
         } catch (Throwable t) {
             this.fmlController.errorOccurred(this, t);
             Throwables.propagateIfPossible(t);
-        }
-    }
-
-    @Subscribe
-    public void registerMod(FMLPreInitializationEvent event) {
-        SpongeEventManager spongeBus = (SpongeEventManager) Sponge.getGame().getEventManager();
-        spongeBus.registerListener(this, this.pluginInstance);
-    }
-
-    @Subscribe
-    @SuppressWarnings("unchecked")
-    public void handleModStateEvent(FMLStateEvent event) {
-        Class<? extends FMLEvent> eventClass = event.getClass();
-        Class<? extends Event> spongeEvent = (Class<? extends Event>) EventRegistry.getApiClass(eventClass);
-        if (this.stateEventHandlers.containsKey(spongeEvent)) {
-            Method method = null;
-            try {
-                for (Method m : this.stateEventHandlers.get(spongeEvent)) {
-                    method = m;
-                    m.invoke(getMod(), event);
-                }
-            } catch (Throwable t) {
-                Sponge.getLogger().error("[Plugin Class: " + this.pluginClassName + "][Handler: " + method.getName() + "]", t);
-            }
         }
     }
 

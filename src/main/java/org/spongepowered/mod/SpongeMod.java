@@ -38,6 +38,7 @@ import net.minecraftforge.fml.common.MetadataCollection;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -45,10 +46,12 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
+import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.ProviderExistsException;
@@ -72,6 +75,7 @@ import org.spongepowered.common.service.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.sql.SqlServiceImpl;
 import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.mod.event.SpongeEventHooks;
+import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
@@ -130,6 +134,15 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         bus.register(this);
         this.controller = controller;
         return true;
+    }
+
+    @Subscribe
+    public void onStateEvent(FMLStateEvent event) {
+        // We can't control Guava's event bus priority, so
+        // we make sure to avoid double-firing here.
+        if (!event.getClass().equals(FMLConstructionEvent.class)) {
+            ((SpongeModEventManager) Sponge.getGame().getEventManager()).post((Event) event, true);;
+        }
     }
 
     @Subscribe
