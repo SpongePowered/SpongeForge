@@ -64,6 +64,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     public SpongeCoremod() {
         // Let's get this party started
         MixinBootstrap.init();
+        MixinEnvironment.setCompatibilityLevel(MixinEnvironment.CompatibilityLevel.JAVA_8);
 
         // Add pre-init mixins
         MixinEnvironment.getEnvironment(Phase.PREINIT)
