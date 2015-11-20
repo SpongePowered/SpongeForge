@@ -14,6 +14,7 @@
         "common.MixinSpongeImplFactory",
         "common.world.MixinDimensionManager",
         "entity.MixinEntity",
+        "entity.ai.MixinEntityAIBase",
         "entity.item.MixinEntityItem",
         "entity.living.MixinEntityLivingBase",
         "entity.player.MixinEntityPlayer",
