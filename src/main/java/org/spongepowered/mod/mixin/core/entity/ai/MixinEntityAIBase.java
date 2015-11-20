@@ -47,7 +47,7 @@ public abstract class MixinEntityAIBase {
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     public void addModAIType(CallbackInfo ci) {
         // Only set a type if we have none
-        if (((IMixinEntityAIBase) this).getType() != null) {
+        if (((AITask<Agent>) this).getType() != null) {
             return;
         }
         // API custom tasks handle types differently, ignore
