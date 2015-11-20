@@ -85,6 +85,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
                 .addConfiguration("mixins.common.timings.json")
                 .addConfiguration("mixins.forge.core.json")
                 .addConfiguration("mixins.forge.entityactivation.json")
+                .addConfiguration("mixins.forge.bungeecord.json")
                 .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
         // Classloader exclusions - TODO: revise when event pkg refactor reaches impl
