@@ -4,7 +4,13 @@
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "mixins": [
-        "fml.common.eventhandler.MixinEvent",
-        "fml.MixinModContainer"
+        "fml.common.MixinModContainer",
+        "fml.common.eventhandler.MixinEvent"
+    ],
+    "client": [
+        "fml.common.MixinMinecraftDummyContainerClient"
+    ],
+    "server": [
+        "fml.common.MixinMinecraftDummyContainerServer"
     ]
 }

@@ -33,6 +33,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.MinecraftVersion;
+import org.spongepowered.api.Platform;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
@@ -40,11 +42,14 @@ import org.spongepowered.api.service.SimpleServiceManager;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.SpongeVersion;
 import org.spongepowered.common.guice.ConfigDirAnnotation;
+import org.spongepowered.common.plugin.SpongeApiContainer;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.world.SpongeTeleportHelper;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.SpongeModGame;
+import org.spongepowered.mod.SpongeModPlatform;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
@@ -58,10 +63,13 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(SpongeMod.class).toInstance(SpongeMod.instance);
         bind(Logger.class).toInstance(LogManager.getLogger(SpongeImpl.ECOSYSTEM_NAME));
 
-        bind(PluginContainer.class).annotatedWith(named("Sponge")).toInstance(SpongeMod.instance);
+        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.ECOSYSTEM_NAME)).toInstance(SpongeMod.instance);
+        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.API_NAME)).to(SpongeApiContainer.class).in(Scopes.SINGLETON);
         bind(PluginContainer.class).annotatedWith(named("Minecraft")).toInstance((PluginContainer) Loader.instance().getMinecraftModContainer());
 
         bind(Game.class).to(SpongeModGame.class).in(Scopes.SINGLETON);
+        bind(MinecraftVersion.class).toInstance(SpongeVersion.MINECRAFT_VERSION);
+        bind(Platform.class).to(SpongeModPlatform.class).in(Scopes.SINGLETON);
         bind(PluginManager.class).to(SpongePluginManager.class).in(Scopes.SINGLETON);
         bind(ServiceManager.class).to(SimpleServiceManager.class).in(Scopes.SINGLETON);
         bind(EventManager.class).to(SpongeModEventManager.class).in(Scopes.SINGLETON);

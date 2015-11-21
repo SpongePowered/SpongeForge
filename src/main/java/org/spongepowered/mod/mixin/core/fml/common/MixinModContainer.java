@@ -22,38 +22,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.plugin;
+package org.spongepowered.mod.mixin.core.fml.common;
 
+import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.FMLModContainer;
+import net.minecraftforge.fml.common.InjectedModContainer;
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.Optional;
 
-public class WrappedModContainer implements PluginContainer {
-    private final ModContainer container;
-
-    public WrappedModContainer(ModContainer container) {
-        this.container = container;
-    }
+/**
+ * Make FML mod containers our mod containers.
+ *
+ * <p>This might need to be occasionally updated to mixin to other implementaions
+ * of ModContainer
+ */
+@Mixin({FMLModContainer.class, DummyModContainer.class, InjectedModContainer.class})
+public abstract class MixinModContainer implements ModContainer, PluginContainer {
 
     @Override
     public String getId() {
-        return this.container.getModId();
-    }
-
-    @Override
-    public String getName() {
-        return this.container.getName();
-    }
-
-    @Override
-    public String getVersion() {
-        return this.container.getVersion();
+        return getModId();
     }
 
     @Override
     public Optional<Object> getInstance() {
-        return Optional.ofNullable(this.container.getMod());
+        return Optional.ofNullable(getMod());
     }
 
 }

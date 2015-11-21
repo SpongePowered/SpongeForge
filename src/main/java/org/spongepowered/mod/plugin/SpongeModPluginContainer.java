@@ -44,8 +44,6 @@ import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionRange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStateEvent;
@@ -61,11 +59,12 @@ import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-public class SpongeModPluginContainer implements ModContainer, SpongePluginContainer {
+public class SpongeModPluginContainer extends SpongePluginContainer implements ModContainer {
 
     private String pluginClassName;
     private ModCandidate modCandidate;
@@ -77,7 +76,7 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
 
     private Multimap<Class<? extends Event>, Method> stateEventHandlers = ArrayListMultimap.create();
 
-    private Object pluginInstance;
+    private Optional<Object> pluginInstance = Optional.empty();
 
     public SpongeModPluginContainer(String className, ModCandidate candidate, Map<String, Object> descriptor) {
         this.pluginClassName = className;
@@ -98,7 +97,7 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
             findStateEventHandlers(pluginClazz);
 
             Injector injector = SpongeImpl.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
-            this.pluginInstance = injector.getInstance(pluginClazz);
+            this.pluginInstance = Optional.of(injector.getInstance(pluginClazz));
 
             SpongeEventManager spongeBus = (SpongeEventManager) SpongeImpl.getGame().getEventManager();
             spongeBus.registerListener(this, this.pluginInstance);
@@ -294,23 +293,13 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
 
     @Override
     @Nonnull
-    public Object getInstance() {
+    public Optional<Object> getInstance() {
         return this.pluginInstance;
-    }
-
-    @Override
-    public String toString() {
-        return "SpongePlugin:" + getName() + "{" + getVersion() + "}";
     }
 
     @Override
     public boolean shouldLoadInEnvironment() {
         return true;
-    }
-
-    @Override
-    public Logger getLogger() {
-        return LoggerFactory.getLogger(getId());
     }
 
     @Override

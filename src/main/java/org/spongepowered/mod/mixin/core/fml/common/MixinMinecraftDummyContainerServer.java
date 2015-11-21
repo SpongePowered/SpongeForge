@@ -22,31 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.fml;
+package org.spongepowered.mod.mixin.core.fml.common;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.FMLModContainer;
-import net.minecraftforge.fml.common.InjectedModContainer;
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.MinecraftDummyContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Mixin;
 
-/**
- * Make FML mod containers our mod containers.
- *
- * <p>This might need to be occasionally updated to mixin to other implementaions
- * of ModContainer
- */
-@Mixin({FMLModContainer.class, DummyModContainer.class, InjectedModContainer.class})
-public abstract class MixinModContainer implements ModContainer, PluginContainer {
+import java.util.Optional;
+
+@Mixin(MinecraftDummyContainer.class)
+public abstract class MixinMinecraftDummyContainerServer extends DummyModContainer implements PluginContainer {
 
     @Override
-    public String getId() {
-        return getModId();
+    public Logger getLogger() {
+        return LoggerFactory.getLogger(MinecraftServer.class);
     }
 
     @Override
-    public Object getInstance() {
-        return getMod();
+    public Optional<Object> getInstance() {
+        return Optional.ofNullable(MinecraftServer.getServer());
     }
+
 }

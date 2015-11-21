@@ -26,6 +26,7 @@ package org.spongepowered.mod;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.inject.Singleton;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.GameState;
@@ -46,19 +47,17 @@ import java.nio.file.Path;
 import javax.inject.Inject;
 
 @NonnullByDefault
+@Singleton
 public final class SpongeModGame extends SpongeGame {
-
-    private final Platform platform = new SpongeModPlatform(SpongeGame.MINECRAFT_VERSION,
-            SpongeGame.API_VERSION, SpongeGame.IMPLEMENTATION_VERSION);
 
     private GameState state = GameState.CONSTRUCTION;
 
     private final SpongeModNetworkManager networkManager = new SpongeModNetworkManager();
 
     @Inject
-    public SpongeModGame(PluginManager pluginManager, EventManager eventManager, SpongeGameRegistry gameRegistry,
+    public SpongeModGame(Platform platform, PluginManager pluginManager, EventManager eventManager, SpongeGameRegistry gameRegistry,
             ServiceManager serviceManager, TeleportHelper teleportHelper) {
-        super(pluginManager, eventManager, gameRegistry, serviceManager, teleportHelper);
+        super(platform, pluginManager, eventManager, gameRegistry, serviceManager, teleportHelper);
     }
 
     @Override
@@ -76,11 +75,6 @@ public final class SpongeModGame extends SpongeGame {
     }
 
     @Override
-    public Platform getPlatform() {
-        return this.platform;
-    }
-
-    @Override
     public GameDictionary getGameDictionary() {
         return SpongeGameDictionary.instance;
     }
@@ -89,4 +83,5 @@ public final class SpongeModGame extends SpongeGame {
     public SpongeNetworkManager getChannelRegistrar() {
         return this.networkManager;
     }
+
 }

@@ -25,15 +25,24 @@
 
 package org.spongepowered.mod;
 
+import static org.spongepowered.common.SpongeImpl.API_NAME;
+import static org.spongepowered.common.SpongeImpl.ECOSYSTEM_NAME;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.MinecraftVersion;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.AbstractPlatform;
 
-public class SpongeModPlatform extends AbstractPlatform {
+@Singleton
+public final class SpongeModPlatform extends AbstractPlatform {
 
-    public SpongeModPlatform(MinecraftVersion minecraftVersion, String apiVersion, String version) {
-        super(minecraftVersion, apiVersion, version);
+    @Inject
+    public SpongeModPlatform(@Named(API_NAME) PluginContainer api, @Named(ECOSYSTEM_NAME) PluginContainer impl, MinecraftVersion minecraftVersion) {
+        super(api, impl, minecraftVersion);
         this.platformMap.put("ForgeVersion", ForgeVersion.getVersion());
     }
 

@@ -22,38 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.plugin;
+package org.spongepowered.mod.mixin.core.fml.common;
 
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraft.client.Minecraft;
+import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.MinecraftDummyContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.Optional;
 
-public class WrappedModContainer implements PluginContainer {
-    private final ModContainer container;
-
-    public WrappedModContainer(ModContainer container) {
-        this.container = container;
-    }
+@Mixin(MinecraftDummyContainer.class)
+public abstract class MixinMinecraftDummyContainerClient extends DummyModContainer implements PluginContainer {
 
     @Override
-    public String getId() {
-        return this.container.getModId();
-    }
-
-    @Override
-    public String getName() {
-        return this.container.getName();
-    }
-
-    @Override
-    public String getVersion() {
-        return this.container.getVersion();
+    public Logger getLogger() {
+        return LoggerFactory.getLogger(Minecraft.class);
     }
 
     @Override
     public Optional<Object> getInstance() {
-        return Optional.ofNullable(this.container.getMod());
+        return Optional.ofNullable(Minecraft.getMinecraft());
     }
 
 }
