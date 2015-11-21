@@ -315,8 +315,4 @@ public class SpongeMod extends DummyModContainer {
 
         return modId;
     }
-
-    public boolean isClientThread() {
-        return (Thread.currentThread().getName().equals("Client thread"));
-    }
 }
