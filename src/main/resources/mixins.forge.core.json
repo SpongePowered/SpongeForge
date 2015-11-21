@@ -15,6 +15,7 @@
         "common.world.MixinDimensionManager",
         "entity.MixinEntity",
         "entity.item.MixinEntityItem",
+        "entity.living.MixinEntityLivingBase",
         "entity.player.MixinEntityPlayer",
         "entity.player.MixinEntityPlayerMP",
         "entity.player.MixinInventoryPlayer",

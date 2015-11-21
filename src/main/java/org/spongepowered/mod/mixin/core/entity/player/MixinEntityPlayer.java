@@ -24,22 +24,25 @@
  */
 package org.spongepowered.mod.mixin.core.entity.player;
 
+
 import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.DamageSource;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.world.World;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.mixin.core.entity.living.MixinEntityLivingBase;
 import org.spongepowered.common.util.VecHelper;
 
@@ -54,6 +57,12 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
     @Shadow private int sleepTimer;
     @Shadow public abstract EntityItem dropItem(ItemStack droppedItem, boolean dropAround, boolean traceItem);
     @Shadow public abstract void setSpawnPoint(BlockPos pos, boolean force);
+
+    @Overwrite
+    @Override
+    protected void damageEntity(DamageSource damageSource, float damage) {
+        ((IMixinEntityLivingBase) this).damageEntityHook(damageSource, damage);
+    }
 
     // Restore methods to original as we handle PlayerTossEvent in DropItemEvent
     @Overwrite
