@@ -33,7 +33,6 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.AbstractPlatform;
@@ -49,16 +48,7 @@ public final class SpongeModPlatform extends AbstractPlatform {
 
     @Override
     public Type getType() {
-        return switchOn(FMLCommonHandler.instance().getSide());
-    }
-
-    @Override
-    public Type getExecutionType() {
-        return switchOn(FMLCommonHandler.instance().getEffectiveSide());
-    }
-
-    private Type switchOn(Side side) {
-        switch (side) {
+        switch (FMLCommonHandler.instance().getSide()) {
             case CLIENT:
                 return Type.CLIENT;
             case SERVER:
@@ -67,4 +57,41 @@ public final class SpongeModPlatform extends AbstractPlatform {
                 return Type.UNKNOWN;
         }
     }
+
+    @Override
+    public Type getExecutionType() {
+        String threadName = Thread.currentThread().getName();
+
+        // Most common
+        if (threadName.equals("Server thread")
+                || threadName.startsWith("Netty Server IO #")
+                || threadName.startsWith("User Authenticator #")) {
+            return Type.SERVER;
+        } else if (threadName.equals("Client thread")
+                || threadName.startsWith("Netty Client IO #")
+                || threadName.startsWith("Netty Local Client IO ")
+                || threadName.startsWith("Netty Local Server IO #")) {
+            return Type.CLIENT;
+        }
+
+        if (threadName.equals("Server Infinisleeper")
+                || threadName.equals("Server console handler")
+                || threadName.equals("Server Shutdown Thread")) {
+            return Type.SERVER;
+        } else if (threadName.startsWith("Server Pinger #")
+                || threadName.startsWith("Chunk Batcher ")
+                || threadName.equals("Client Shutdown Thread")
+                || threadName.equals("Realms-connect-task")
+                || threadName.startsWith("Texture Downloader #")
+                || threadName.startsWith("Server Connector #")
+                || threadName.equals("Timer hack thread")
+                || threadName.equals("Twitch authenticator")
+                || threadName.equals("Twitch shutdown hook")
+                || threadName.equals("Sound Library Loader")) {
+            return Type.CLIENT;
+        } else {
+            return Type.UNKNOWN;
+        }
+    }
+
 }

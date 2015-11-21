@@ -56,6 +56,7 @@ import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
@@ -247,7 +248,7 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @Override
     public boolean post(Event spongeEvent, boolean allowClientThread) {
-        if (!allowClientThread & SpongeMod.instance.isClientThread()) {
+        if (!allowClientThread & Sponge.getGame().getPlatform().getExecutionType().isClient()) {
             return false;
         }
 
