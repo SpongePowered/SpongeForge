@@ -41,7 +41,7 @@ import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.manipulator.mutable.item.SpongeSpawnableData;
 import org.spongepowered.common.data.processor.common.AbstractItemSingleDataProcessor;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeValue;
@@ -85,7 +85,7 @@ public class SpawnableDataProcessor extends AbstractItemSingleDataProcessor<Enti
     @Override
     public Optional<EntityType> getVal(ItemStack itemStack) {
         final Class entity = (Class) EntityList.stringToClassMapping.get(ItemMonsterPlacer.getEntityName(itemStack));
-        for (EntityType type : Sponge.getRegistry().getAllOf(EntityType.class)) {
+        for (EntityType type : SpongeImpl.getRegistry().getAllOf(EntityType.class)) {
             if (type.getEntityClass().equals(entity)) {
                 return Optional.of(type);
             }

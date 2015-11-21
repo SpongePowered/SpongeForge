@@ -37,7 +37,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.network.SpongeNetworkManager.AbstractChannelBinding;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
@@ -63,7 +63,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
     protected void sendTo(Player player, Object data) {
         checkValidState();
         if (!((IMixinNetPlayHandler) ((EntityPlayerMP) player).playerNetServerHandler).getRegisteredChannels().contains(getName())) {
-            Sponge.getLogger().debug("Dropping data sent to " + player + " on channel \"" + getName() + "\"");
+            SpongeImpl.getLogger().debug("Dropping data sent to " + player + " on channel \"" + getName() + "\"");
             return; // Player doesn't accept this channel
         }
         this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
@@ -74,7 +74,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
     protected void sendToServer(Object data) {
         checkValidState();
         if (!((IMixinNetPlayHandler) Minecraft.getMinecraft().thePlayer.sendQueue).getRegisteredChannels().contains(getName())) {
-            Sponge.getLogger().debug("Dropping data sent to server on channel \"" + getName() + "\"");
+            SpongeImpl.getLogger().debug("Dropping data sent to server on channel \"" + getName() + "\"");
             return; // Server doesn't accept this channel
         }
         this.channels.get(Side.CLIENT).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.TOSERVER);

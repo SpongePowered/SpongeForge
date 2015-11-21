@@ -34,8 +34,7 @@ import org.spongepowered.api.world.WorldBuilder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.Sponge;
-import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.registry.type.world.DimensionRegistryModule;
 import org.spongepowered.common.world.SpongeDimensionType;
 import org.spongepowered.common.world.SpongeWorldBuilder;
@@ -108,17 +107,17 @@ public abstract class MixinDimensionManager {
         try {
             providerId = DimensionManager.getProviderType(dim);
         } catch (Exception e) {
-            Sponge.getLogger().error("Error during initDimension. Cannot Hotload Dim: " + e.getMessage());
+            SpongeImpl.getLogger().error("Error during initDimension. Cannot Hotload Dim: " + e.getMessage());
             return; // If a provider hasn't been registered then we can't hotload the dim
         }
 
         WorldProvider provider = WorldProvider.getProviderForDimension(dim);
-        WorldBuilder builder = Sponge.getRegistry().createBuilder(WorldBuilder.class);
+        WorldBuilder builder = SpongeImpl.getRegistry().createBuilder(WorldBuilder.class);
         builder = builder.dimensionType(((Dimension) provider).getType()).name(provider.getDimensionName())
                 .keepsSpawnLoaded(spawnSettings.get(providerId));
         Optional<World> world = ((SpongeWorldBuilder) builder).dimensionId(dim).isMod(true).build();
         if (!world.isPresent()) {
-            Sponge.getLogger().error("Error during initDimension. Cannot Hotload Dim: " + dim + " for provider " + provider.getClass().getName());
+            SpongeImpl.getLogger().error("Error during initDimension. Cannot Hotload Dim: " + dim + " for provider " + provider.getClass().getName());
         }
     }
 

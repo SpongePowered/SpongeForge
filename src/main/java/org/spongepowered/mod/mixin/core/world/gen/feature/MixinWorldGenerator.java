@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.world.gen.SpongePopulatorType;
 import org.spongepowered.mod.SpongeMod;
@@ -53,9 +53,9 @@ public abstract class MixinWorldGenerator implements Populator {
     @Inject(method = "<init>*", at = @At("RETURN"))
     public void onConstructed(boolean notifyBlock, CallbackInfo ci) {
         net.minecraft.world.gen.feature.WorldGenerator gen = ((net.minecraft.world.gen.feature.WorldGenerator)(Object) this);
-        if (!gen.getClass().getName().contains("net.minecraft.") && !Sponge.getRegistry().isAdditionalRegistered(gen.getClass(), PopulatorType.class)) {
+        if (!gen.getClass().getName().contains("net.minecraft.") && !SpongeImpl.getRegistry().isAdditionalRegistered(gen.getClass(), PopulatorType.class)) {
             this.populatorType = new SpongePopulatorType(this.getClass().getSimpleName(),SpongeMod.instance.getModIdFromClass(gen.getClass()), gen.getClass());
-            Sponge.getRegistry().registerAdditionalType(PopulatorType.class, this.populatorType);
+            SpongeImpl.getRegistry().registerAdditionalType(PopulatorType.class, this.populatorType);
         }
     }
 

@@ -30,16 +30,11 @@ import net.minecraftforge.fml.common.registry.GameData;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.common.Sponge;
-import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
-
-import java.util.Set;
 
 @Mixin(value = GameData.class, remap = false)
 public abstract class MixinGameData {

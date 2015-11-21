@@ -38,7 +38,7 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
@@ -58,12 +58,12 @@ public abstract class MixinForgeEventFactory {
 
         InteractBlockEvent event = null;
         if (action == Action.LEFT_CLICK_BLOCK) {
-            event = SpongeEventFactory.createInteractBlockEventPrimary(Sponge.getGame(), Cause.of(player), Optional.empty(), ((World) world).createSnapshot(VecHelper.toVector(pos)), face == null ? Direction.NONE : DirectionFacingProvider.getInstance().getKey(face).get());
+            event = SpongeEventFactory.createInteractBlockEventPrimary(SpongeImpl.getGame(), Cause.of(player), Optional.empty(), ((World) world).createSnapshot(VecHelper.toVector(pos)), face == null ? Direction.NONE : DirectionFacingProvider.getInstance().getKey(face).get());
         } else {
-            event = SpongeEventFactory.createInteractBlockEventSecondary(Sponge.getGame(), Cause.of(player), Optional.empty(), ((World) world).createSnapshot(VecHelper.toVector(pos)), face == null ? Direction.NONE : DirectionFacingProvider.getInstance().getKey(face).get());
+            event = SpongeEventFactory.createInteractBlockEventSecondary(SpongeImpl.getGame(), Cause.of(player), Optional.empty(), ((World) world).createSnapshot(VecHelper.toVector(pos)), face == null ? Direction.NONE : DirectionFacingProvider.getInstance().getKey(face).get());
         }
 
-        Sponge.postEvent(event);
+        SpongeImpl.postEvent(event);
 
         return (PlayerInteractEvent) SpongeForgeEventFactory.lastForgeEvent;
     }

@@ -51,6 +51,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -62,15 +63,16 @@ import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.api.service.world.ChunkLoadService;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.command.CommandMapping;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.data.SpongeSerializationRegistry;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
+import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
-import org.spongepowered.common.service.persistence.SpongeSerializationService;
+import org.spongepowered.common.service.persistence.SpongeSerializationManager;
 import org.spongepowered.common.service.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.sql.SqlServiceImpl;
 import org.spongepowered.common.util.SpongeHooks;
@@ -94,20 +96,25 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
     public SpongeMod() {
-        super(SpongeMod.createMetadata(ImmutableMap.<String, Object>of("name", Sponge.ECOSYSTEM_NAME, "version", "DEV")));
+        super(SpongeMod.createMetadata(ImmutableMap.<String, Object>of("name", SpongeImpl.ECOSYSTEM_NAME, "version", "DEV")));
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
 
         SpongeMod.instance = this;
 
         // Initialize Sponge
-        Guice.createInjector(new SpongeGuiceModule()).getInstance(Sponge.class);
+        Guice.createInjector(new SpongeGuiceModule()).getInstance(SpongeImpl.class);
 
-        this.game = Sponge.getGame();
+        this.game = SpongeImpl.getGame();
         VillagerRegistry.instance();
         this.game.getRegistry().preRegistryInit();
 
         this.game.getEventManager().registerListeners(this, this);
+        try {
+            RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -121,10 +128,10 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     private <T> boolean registerService(Class<T> serviceClass, T serviceImpl) {
         try {
-            Sponge.getGame().getServiceManager().setProvider(Sponge.getPlugin(), serviceClass, serviceImpl);
+            SpongeImpl.getGame().getServiceManager().setProvider(SpongeImpl.getPlugin(), serviceClass, serviceImpl);
             return true;
         } catch (ProviderExistsException e) {
-            Sponge.getLogger().warn("Non-Sponge {} already registered: {}", serviceClass.getSimpleName(), e.getLocalizedMessage());
+            SpongeImpl.getLogger().warn("Non-Sponge {} already registered: {}", serviceClass.getSimpleName(), e.getLocalizedMessage());
             return false;
         }
     }
@@ -141,7 +148,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         // We can't control Guava's event bus priority, so
         // we make sure to avoid double-firing here.
         if (!event.getClass().equals(FMLConstructionEvent.class)) {
-            ((SpongeModEventManager) Sponge.getGame().getEventManager()).post((Event) event, true);;
+            ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post((Event) event, true);;
         }
     }
 
@@ -151,7 +158,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             registerService(ChunkLoadService.class, new SpongeChunkLoadService());
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.preInitializeRegistry();
-            SpongeSerializationRegistry.setupSerialization(Sponge.getGame());
+            SpongeSerializationRegistry.setupSerialization(SpongeImpl.getGame());
             SpongeForgeModuleRegistry.registerForgeData();
             SpongeModMessageHandler.init();
 
@@ -204,7 +211,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     public void onPostInitialization(FMLPostInitializationEvent event) {
         try {
             SpongeBootstrap.postInitializeRegistry();
-            SpongeSerializationService service = SpongeSerializationService.getInstance();
+            SpongeSerializationManager service = SpongeSerializationManager.getInstance();
             service.completeRegistration();
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
@@ -264,9 +271,9 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     private static ModMetadata createMetadata(Map<String, Object> defaults) {
         try {
-            return MetadataCollection.from(SpongeMod.class.getResourceAsStream("/mcmod.info"), Sponge.ECOSYSTEM_NAME).getMetadataForId(
-                    Sponge.ECOSYSTEM_NAME,
-                    defaults);
+            return MetadataCollection.from(SpongeMod.class.getResourceAsStream("/mcmod.info"), SpongeImpl.ECOSYSTEM_NAME).getMetadataForId(
+                SpongeImpl.ECOSYSTEM_NAME,
+                defaults);
         } catch (Exception ex) {
             return new ModMetadata();
         }

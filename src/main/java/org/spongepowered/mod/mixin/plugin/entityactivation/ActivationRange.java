@@ -51,7 +51,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.FakePlayer;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.configuration.SpongeConfig;
 import org.spongepowered.common.configuration.SpongeConfig.WorldConfig;
 import org.spongepowered.common.entity.SpongeEntityType;
@@ -314,7 +314,7 @@ public class ActivationRange {
         checkNotNull(type, "type");
 
         List<SpongeConfig<?>> configs = new ArrayList<>();
-        configs.add(Sponge.getGlobalConfig());
+        configs.add(SpongeImpl.getGlobalConfig());
         configs.add(((IMixinWorldProvider) world.provider).getDimensionConfig());
         configs.add(((IMixinWorld) world).getWorldConfig());
         checkNotNull(configs.get(0), "global");
@@ -355,7 +355,7 @@ public class ActivationRange {
                 .getDimensionConfig().getConfig().isConfigEnabled()) {
             return ((IMixinWorldProvider) world.provider).getDimensionConfig();
         } else {
-            return Sponge.getGlobalConfig();
+            return SpongeImpl.getGlobalConfig();
         }
     }
 }

@@ -37,7 +37,7 @@ import org.spongepowered.api.text.sink.MessageSinks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplFactory;
 
 @SideOnly(Side.CLIENT)
@@ -57,8 +57,8 @@ public class MixinIntegratedServerAnonInner3 {
         Player player = (Player) playerIn;
         MessageSink originalSink = MessageSinks.toAll();
         ClientConnectionEvent.Disconnect event =
-                SpongeImplFactory.createClientConnectionEventDisconnect(Sponge.getGame(), Cause.of(player), Texts.of(), Texts.of(), originalSink, player.getMessageSink(), player);
-        Sponge.postEvent(event);
+                SpongeImplFactory.createClientConnectionEventDisconnect(SpongeImpl.getGame(), Cause.of(player), Texts.of(), Texts.of(), originalSink, player.getMessageSink(), player);
+        SpongeImpl.postEvent(event);
         // Doesn't make sense to send the event's message because all players
         // are quitting anyway
         return playerIn;

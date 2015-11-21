@@ -32,7 +32,7 @@ import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
 import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.launch.SpongeLaunch;
 
 import java.util.Map;
@@ -71,7 +71,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
                 .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
         SpongeLaunch.initialize();
-        Sponge.getGlobalConfig(); // Load config
+        SpongeImpl.getGlobalConfig(); // Load config
 
         MixinEnvironment.getEnvironment(Phase.INIT)
                 .addConfiguration("mixins.forge.init.json")

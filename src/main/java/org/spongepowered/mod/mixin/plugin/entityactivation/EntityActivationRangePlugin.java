@@ -27,7 +27,7 @@ package org.spongepowered.mod.mixin.plugin.entityactivation;
 import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class EntityActivationRangePlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!Sponge.getGlobalConfig().getConfig().getModules().usePluginEntityActivation()
+        if (!SpongeImpl.getGlobalConfig().getConfig().getModules().usePluginEntityActivation()
                 && mixinClassName.contains("mixin.entityactivation")) {
             return false;
         }

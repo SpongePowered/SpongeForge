@@ -76,7 +76,7 @@ import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.util.StaticMixinHelper;
@@ -173,7 +173,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                 try {
                     listener.invoke(forgeEvent);
                 } catch (Throwable throwable) {
-                    Sponge.getLogger().catching(throwable);
+                    SpongeImpl.getLogger().catching(throwable);
                 }
             }
 
@@ -225,7 +225,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     listener.handle(event);
                 }
             } catch (Throwable e) {
-                Sponge.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
+                SpongeImpl.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
             }
         }
 

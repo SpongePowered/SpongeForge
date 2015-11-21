@@ -30,19 +30,18 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.GameState;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.Sponge;
-import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.common.SpongeImpl;
 
 @NonnullByDefault
 @Mixin(FMLStateEvent.class)
 public abstract class MixinEventState extends FMLEvent {
 
     public Game getGame() {
-        return Sponge.getGame();
+        return SpongeImpl.getGame();
     }
 
     public GameState getState() {
-        return Sponge.getGame().getState();
+        return SpongeImpl.getGame().getState();
     }
 
 }

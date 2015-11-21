@@ -35,21 +35,15 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.service.user.UserStorage;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.Sponge;
 import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.world.DimensionManager;
-
-import java.util.Optional;
-import java.util.UUID;
 
 
 @NonnullByDefault

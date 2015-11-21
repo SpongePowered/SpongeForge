@@ -30,7 +30,7 @@ import net.minecraft.network.handshake.client.C00Handshake;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 
 import java.io.IOException;
 
@@ -57,8 +57,8 @@ public abstract class MixinC00Handshake {
         // Sponge start
         this.protocolVersion = buf.readVarIntFromBuffer();
 
-        if (!Sponge.getGlobalConfig().getConfig().getModules().usePluginBungeeCord()
-                || !Sponge.getGlobalConfig().getConfig().getBungeeCord().getIpForwarding()) {
+        if (!SpongeImpl.getGlobalConfig().getConfig().getModules().usePluginBungeeCord()
+                || !SpongeImpl.getGlobalConfig().getConfig().getBungeeCord().getIpForwarding()) {
             this.ip = buf.readStringFromBuffer(255);
         } else {
             this.ip = buf.readStringFromBuffer(Short.MAX_VALUE);

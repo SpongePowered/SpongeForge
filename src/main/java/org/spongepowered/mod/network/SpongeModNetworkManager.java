@@ -48,7 +48,7 @@ import org.spongepowered.api.network.ChannelBinding.IndexedMessageChannel;
 import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 import org.spongepowered.api.network.ChannelRegistrationException;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.network.SpongeNetworkManager;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
@@ -84,7 +84,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
             // Register channel to all players (when registering server side)
             confMgr.sendPacketToAllPlayers(getRegPacket(channel.getName()));
         }
-        if (Sponge.getGame().getPlatform().getExecutionType().isClient()) {
+        if (SpongeImpl.getGame().getPlatform().getExecutionType().isClient()) {
             EntityPlayerSP clientPlayer = Minecraft.getMinecraft().thePlayer;
             if (clientPlayer != null) {
                 // Register channel on server (when on client side)
@@ -129,7 +129,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         if (confMgr != null) { // Server side
             confMgr.sendPacketToAllPlayers(getUnregPacket(channel.getName()));
         }
-        if (Sponge.getGame().getPlatform().getExecutionType().isClient()) {
+        if (SpongeImpl.getGame().getPlatform().getExecutionType().isClient()) {
             EntityPlayerSP clientPlayer = Minecraft.getMinecraft().thePlayer;
             if (clientPlayer != null) { // Client side
                 clientPlayer.sendQueue.addToSendQueue(getUnregPacketClient(channel.getName()));

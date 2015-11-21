@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStateEvent;
-import org.spongepowered.common.Sponge;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
 import org.spongepowered.common.plugin.SpongePluginContainer;
@@ -97,10 +97,10 @@ public class SpongeModPluginContainer implements ModContainer, SpongePluginConta
 
             findStateEventHandlers(pluginClazz);
 
-            Injector injector = Sponge.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
+            Injector injector = SpongeImpl.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
             this.pluginInstance = injector.getInstance(pluginClazz);
 
-            SpongeEventManager spongeBus = (SpongeEventManager) Sponge.getGame().getEventManager();
+            SpongeEventManager spongeBus = (SpongeEventManager) SpongeImpl.getGame().getEventManager();
             spongeBus.registerListener(this, this.pluginInstance);
         } catch (Throwable t) {
             this.fmlController.errorOccurred(this, t);
