@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.entity.player;
 
-import org.spongepowered.common.Sponge;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.common.mixin.core.entity.living.MixinEntityLivingBase;
 import org.spongepowered.common.util.VecHelper;
 
@@ -85,7 +85,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
         }
         
         SleepingEvent.Post post = SpongeEventFactory.createSleepingEventPost(Sponge.getGame(), Cause.of(this), this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), Optional.ofNullable(newLocation), this, setSpawn);
-        Sponge.getGame().getEventManager().post(post);
+        Sponge.getEventManager().post(post);
         if (post.isCancelled()) {
             return;
         }
