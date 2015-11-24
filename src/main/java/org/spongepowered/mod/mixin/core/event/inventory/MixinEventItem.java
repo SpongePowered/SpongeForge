@@ -27,11 +27,15 @@ package org.spongepowered.mod.mixin.core.event.inventory;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.event.entity.item.ItemEvent;
+import net.minecraftforge.event.entity.item.ItemExpireEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.entity.AffectEntityEvent;
+import org.spongepowered.api.event.entity.ExpireEntityEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -49,8 +53,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @NonnullByDefault
-@Mixin(value = net.minecraftforge.event.entity.item.ItemEvent.class, remap = false)
-public abstract class MixinEventDropItem extends MixinEventEntity implements DropItemEvent.Custom {
+@Mixin(value = ItemEvent.class, remap = false)
+public abstract class MixinEventItem extends MixinEventEntity implements AffectEntityEvent {
 
     protected EntitySnapshot entitySnapshot;
     protected ImmutableList<EntitySnapshot> entitySnapshots;
@@ -98,7 +102,7 @@ public abstract class MixinEventDropItem extends MixinEventEntity implements Dro
     }
 
     @Mixin(value = ItemTossEvent.class, remap = false)
-    static abstract class Toss extends MixinEventDropItem implements DropItemEvent.Dispense {
+    static abstract class Toss extends MixinEventItem implements DropItemEvent.Dispense {
 
         @Shadow public EntityPlayer player;
 
@@ -111,6 +115,21 @@ public abstract class MixinEventDropItem extends MixinEventEntity implements Dro
         public Cause getCause() {
             return Cause.of(this.player);
         }
+    }
+
+    @Mixin(value = ItemExpireEvent.class, remap = false)
+    static abstract class Expire extends MixinEventItem implements ExpireEntityEvent.TargetItem {
+
+        @Override
+        public Item getTargetEntity() {
+            return (Item) this.entityItem;
+        }
+
+        @Override
+        public World getTargetWorld() {
+            return (World) this.entityItem.worldObj;
+        }
+
     }
 
 }
