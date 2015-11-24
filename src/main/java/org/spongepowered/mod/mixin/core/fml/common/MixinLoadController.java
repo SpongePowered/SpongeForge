@@ -35,7 +35,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.mod.SpongeModGame;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.StateRegistry;
 import org.spongepowered.mod.interfaces.IMixinLoadController;
@@ -50,7 +49,7 @@ public abstract class MixinLoadController implements IMixinLoadController {
         // To ensure that the state is properly set in SpongeGame, we need
         // to mixin here, before any event handlers have received the event
 
-        ((SpongeModGame) SpongeImpl.getGame()).setState(StateRegistry.getState(state));
+        SpongeImpl.getGame().setState(StateRegistry.getState(state));
         eventBus.post(event);
         if (state == LoaderState.CONSTRUCTING) {
             ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post((Event) event, true);

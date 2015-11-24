@@ -243,6 +243,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         return this.post(event, false);
     }
 
+    @Override
     public boolean post(Event spongeEvent, boolean allowClientThread) {
         if (!allowClientThread & SpongeMod.instance.isClientThread()) {
             return false;
