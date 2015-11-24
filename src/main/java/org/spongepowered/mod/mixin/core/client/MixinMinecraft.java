@@ -35,6 +35,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.common.registry.type.world.WorldPropertyRegistryModule;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
@@ -68,5 +69,15 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     @Override
     public GuiOverlayDebug getDebugGui() {
         return this.debugGui;
+    }
+    
+    @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V", remap = false))
+    public void onShutdown(int exitCode, CallbackInfo ci) {
+        SpongeImpl.postShutdownEvents();
+    }
+    
+    @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V", remap = false))
+    public void onShutdownDelegate(CallbackInfo ci) {
+        SpongeImpl.postShutdownEvents();
     }
 }

@@ -24,13 +24,10 @@
  */
 package org.spongepowered.mod;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.inject.Singleton;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.GameDictionary;
-import org.spongepowered.api.GameState;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
@@ -51,8 +48,6 @@ import javax.inject.Inject;
 @Singleton
 public final class SpongeModGame extends SpongeGame {
 
-    private GameState state = GameState.CONSTRUCTION;
-
     private final SpongeModNetworkManager networkManager = new SpongeModNetworkManager();
 
     @Inject
@@ -64,15 +59,6 @@ public final class SpongeModGame extends SpongeGame {
     @Override
     public Path getSavesDirectory() {
         return FMLCommonHandler.instance().getSavesDirectory().toPath();
-    }
-
-    @Override
-    public GameState getState() {
-        return this.state;
-    }
-
-    public void setState(GameState state) {
-        this.state = checkNotNull(state);
     }
 
     @Override
