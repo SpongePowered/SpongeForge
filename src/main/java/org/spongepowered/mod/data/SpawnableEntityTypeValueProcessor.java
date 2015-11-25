@@ -40,7 +40,7 @@ import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.processor.common.AbstractSpongeValueProcessor;
-import org.spongepowered.common.data.value.SpongeValueBuilder;
+import org.spongepowered.common.data.value.SpongeValueFactory;
 
 import java.util.Optional;
 
@@ -57,7 +57,7 @@ public class SpawnableEntityTypeValueProcessor extends AbstractSpongeValueProces
 
     @Override
     public Value<EntityType> constructValue(EntityType defaultValue) {
-        return new SpongeValueBuilder().createValue(Keys.SPAWNABLE_ENTITY_TYPE, defaultValue, EntityTypes.CREEPER);
+        return SpongeValueFactory.getInstance().createValue(Keys.SPAWNABLE_ENTITY_TYPE, defaultValue, EntityTypes.CREEPER);
     }
 
     @Override
