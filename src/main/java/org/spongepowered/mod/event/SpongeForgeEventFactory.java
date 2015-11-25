@@ -368,7 +368,7 @@ public class SpongeForgeEventFactory {
         }
 
         IBlockState state = (IBlockState) blockSnapshot.get().getState();
-        BlockPos pos = VecHelper.toBlockPos(blockSnapshot.get().getLocation().get().getBlockPosition());
+        BlockPos pos = VecHelper.toBlockPos(blockSnapshot.get().getLocation().get());
         net.minecraft.world.World world = (net.minecraft.world.World) blockSnapshot.get().getLocation().get().getExtent();
 
         final NeighborNotifyEvent forgeEvent = new NeighborNotifyEvent(world, pos, state, facings);

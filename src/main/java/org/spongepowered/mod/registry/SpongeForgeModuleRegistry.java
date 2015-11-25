@@ -27,10 +27,14 @@ package org.spongepowered.mod.registry;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableSpawnableData;
 import org.spongepowered.api.data.manipulator.mutable.item.SpawnableData;
+import org.spongepowered.api.data.property.block.LightEmissionProperty;
+import org.spongepowered.api.data.property.block.SolidCubeProperty;
 import org.spongepowered.common.data.SpongeDataRegistry;
 import org.spongepowered.common.data.manipulator.immutable.item.ImmutableSpongeSpawnableData;
 import org.spongepowered.common.data.manipulator.mutable.item.SpongeSpawnableData;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
+import org.spongepowered.mod.data.ForgeLightEmissionPropertyStore;
+import org.spongepowered.mod.data.ForgeSolidCubePropertyStore;
 import org.spongepowered.mod.data.SpawnableDataProcessor;
 import org.spongepowered.mod.data.SpawnableEntityTypeValueProcessor;
 
@@ -40,14 +44,15 @@ public class SpongeForgeModuleRegistry {
 
         // Property registration
         final SpongePropertyRegistry registry = SpongePropertyRegistry.getInstance();
+        registry.register(LightEmissionProperty.class, new ForgeLightEmissionPropertyStore());
         // registry.register(MatterProperty.class, ForgeMatterProperty);
-
+        registry.register(SolidCubeProperty.class, new ForgeSolidCubePropertyStore());
 
         // Data registration
         SpongeDataRegistry dataRegistry = SpongeDataRegistry.getInstance();
         final SpawnableDataProcessor spawnableDataProcessor = new SpawnableDataProcessor();
         dataRegistry.registerDataProcessorAndImpl(SpawnableData.class, SpongeSpawnableData.class, ImmutableSpawnableData.class,
-                                                  ImmutableSpongeSpawnableData.class, spawnableDataProcessor);
+                ImmutableSpongeSpawnableData.class, spawnableDataProcessor);
 
         // Value registration
         dataRegistry.registerValueProcessor(Keys.SPAWNABLE_ENTITY_TYPE, new SpawnableEntityTypeValueProcessor());
