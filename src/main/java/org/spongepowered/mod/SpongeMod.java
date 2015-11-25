@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -68,6 +69,7 @@ import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.data.SpongeSerializationRegistry;
+import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
@@ -162,7 +164,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             SpongeForgeModuleRegistry.registerForgeData();
             SpongeModMessageHandler.init();
 
-            Class<?> clazz = Class.forName("org.spongepowered.api.entity.ai.task.AbstractAITask");
+            Preconditions.checkArgument(Class.forName("org.spongepowered.api.entity.ai.task.AbstractAITask").getSuperclass().equals(SpongeEntityAICommonSuperclass.class));
 
             MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 

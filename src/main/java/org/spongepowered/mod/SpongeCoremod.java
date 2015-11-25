@@ -34,6 +34,7 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
 import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.launch.SpongeLaunch;
+import org.spongepowered.common.transformer.SpongeSuperclassRegistry;
 
 import java.util.Map;
 
@@ -101,13 +102,15 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.asm.transformer.WorldGeneratorTransformer");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.common.transformer.");
+
+        SpongeSuperclassRegistry.registerSuperclassModification("org.spongepowered.api.entity.ai.task.AbstractAITask", "org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass");
     }
 
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
                 "org.spongepowered.mod.asm.transformer.WorldGeneratorTransformer",
-                "org.spongepowered.common.transformer.SpongeAISuperclassTransformer"
+                "org.spongepowered.common.transformer.SpongeSuperclassTransformer"
         };
     }
 
