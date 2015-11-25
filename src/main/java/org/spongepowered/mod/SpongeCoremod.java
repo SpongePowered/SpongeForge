@@ -94,16 +94,19 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.NamedCause");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Cancellable");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.eventgencore.annotation.PropertySettings");
-        Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
 
         // Transformer exclusions
         Launch.classLoader.addTransformerExclusion("ninja.leaping.configurate.");
         Launch.classLoader.addTransformerExclusion("org.apache.commons.lang3.");
+        Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
+        Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.asm.transformer.WorldGeneratorTransformer");
     }
 
     @Override
     public String[] getASMTransformerClass() {
-        return null;
+        return new String[] {
+            "org.spongepowered.mod.asm.transformer.WorldGeneratorTransformer"
+        };
     }
 
     @Override
@@ -126,7 +129,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
     @Override
     public String getAccessTransformerClass() {
-        return "org.spongepowered.mod.asm.transformers.SpongeAccessTransformer";
+        return "org.spongepowered.mod.asm.transformer.SpongeAccessTransformer";
     }
 
 }

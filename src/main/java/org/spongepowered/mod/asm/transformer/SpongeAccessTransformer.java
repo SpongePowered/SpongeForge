@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.asm.transformers;
+package org.spongepowered.mod.asm.transformer;
 
 import net.minecraftforge.fml.common.asm.transformers.AccessTransformer;
 
