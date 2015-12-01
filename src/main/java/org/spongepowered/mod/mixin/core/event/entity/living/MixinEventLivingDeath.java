@@ -27,8 +27,10 @@ package org.spongepowered.mod.mixin.core.event.entity.living;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSource;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.text.Text;
@@ -39,7 +41,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.data.util.NbtDataUtil;
+import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.text.SpongeTexts;
+import org.spongepowered.common.util.StaticMixinHelper;
+
+import java.util.Optional;
 
 @Mixin(value = LivingDeathEvent.class, remap = false)
 public abstract class MixinEventLivingDeath extends MixinEventLiving implements DestructEntityEvent.Death {
@@ -48,6 +55,7 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
     private MessageSink originalSink;
     private Text originalMessage;
     private Text message;
+    private Optional<User> sourceCreator;
 
     @Shadow public DamageSource source;
 
@@ -64,6 +72,20 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
 
         this.originalMessage = SpongeTexts.toText(entity.getCombatTracker().getDeathMessage());
         this.message = SpongeTexts.toText(entity.getCombatTracker().getDeathMessage());
+        this.sourceCreator = Optional.empty();
+
+        if (this.source instanceof EntityDamageSource) {
+            EntityDamageSource damageSource = (EntityDamageSource) this.source;
+            IMixinEntity spongeEntity = (IMixinEntity) damageSource.getSourceOfDamage();
+            this.sourceCreator = spongeEntity.getTrackedPlayer(NbtDataUtil.SPONGE_ENTITY_CREATOR);
+        }
+
+        // Store cause for drop event which is called after this event
+        if (this.sourceCreator.isPresent()) {
+            StaticMixinHelper.dropCause = Cause.of(this.entityLiving, this.source, this.sourceCreator.get());
+        } else {
+            StaticMixinHelper.dropCause = Cause.of(this.entityLiving, this.source);
+        }
     }
 
     @Override
@@ -98,7 +120,11 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
 
     @Override
     public Cause getCause() {
-        return Cause.of(this.source, this.entityLiving);
+        if (this.sourceCreator.isPresent()) {
+            return Cause.of(this.source, this.entityLiving, this.sourceCreator.get());
+        } else {
+            return Cause.of(this.source, this.entityLiving);
+        }
     }
 
 }
