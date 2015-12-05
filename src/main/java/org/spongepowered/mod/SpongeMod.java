@@ -57,13 +57,13 @@ import org.spongepowered.api.event.Event;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.ProviderExistsException;
-import org.spongepowered.api.service.command.CommandService;
+import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.sql.SqlService;
-import org.spongepowered.api.service.world.ChunkLoadService;
+import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.api.util.Tristate;
-import org.spongepowered.api.util.command.CommandMapping;
+import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
@@ -84,7 +84,7 @@ import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.registry.SpongeForgeModuleRegistry;
-import org.spongepowered.mod.service.world.SpongeChunkLoadService;
+import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
 import java.io.IOException;
 import java.util.Map;
@@ -157,8 +157,9 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onPreInit(FMLPreInitializationEvent event) {
         try {
-            registerService(ChunkLoadService.class, new SpongeChunkLoadService());
+            registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
             SpongeBootstrap.initializeServices();
+            SpongeBootstrap.initializeCommands();
             SpongeBootstrap.preInitializeRegistry();
             SpongeSerializationRegistry.setupSerialization(SpongeImpl.getGame());
             SpongeForgeModuleRegistry.registerForgeData();
@@ -251,7 +252,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onServerStopped(FMLServerStoppedEvent event) throws IOException {
         try {
-            CommandService service = this.game.getCommandDispatcher();
+            CommandManager service = this.game.getCommandManager();
             for (CommandMapping mapping : service.getCommands()) {
                 if (mapping.getCallable() instanceof MinecraftCommandWrapper) {
                     service.removeMapping(mapping);

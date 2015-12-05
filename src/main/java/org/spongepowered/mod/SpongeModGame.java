@@ -28,12 +28,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.GameDictionary;
-import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.GameState;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
-import org.spongepowered.api.service.event.EventManager;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeGame;
@@ -42,7 +41,6 @@ import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.mod.network.SpongeModNetworkManager;
 import org.spongepowered.mod.registry.SpongeGameDictionary;
 
-import java.io.File;
 import java.nio.file.Path;
 
 import javax.inject.Inject;

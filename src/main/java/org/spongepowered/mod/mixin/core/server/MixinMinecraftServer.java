@@ -26,17 +26,17 @@ package org.spongepowered.mod.mixin.core.server;
 
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.service.world.ChunkLoadService;
+import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.service.world.SpongeChunkLoadService;
+import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
 import java.util.Hashtable;
 
 @Mixin(value = MinecraftServer.class, priority = 1001, remap = false)
 public abstract class MixinMinecraftServer implements Server {
 
-    public ChunkLoadService chunkLoadService = new SpongeChunkLoadService();
+    public ChunkTicketManager chunkTicketManager = new SpongeChunkTicketManager();
 
     @Shadow public Hashtable<Integer, long[]> worldTickTimes = new Hashtable<>();
 
@@ -44,8 +44,7 @@ public abstract class MixinMinecraftServer implements Server {
         return this.worldTickTimes;
     }
 
-    @Override
-    public ChunkLoadService getChunkLoadService() {
-        return this.chunkLoadService;
+    public ChunkTicketManager getChunkTicketManager() {
+        return this.chunkTicketManager;
     }
 }

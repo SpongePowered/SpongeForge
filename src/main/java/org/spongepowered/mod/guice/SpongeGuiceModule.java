@@ -37,7 +37,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.SimpleServiceManager;
-import org.spongepowered.api.service.event.EventManager;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.guice.ConfigDirAnnotation;

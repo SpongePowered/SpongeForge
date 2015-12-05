@@ -48,7 +48,7 @@ public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEve
 
     @Override
     public Cause getCause() {
-        return Cause.empty();
+        return Cause.of();
     }
 
     @Override

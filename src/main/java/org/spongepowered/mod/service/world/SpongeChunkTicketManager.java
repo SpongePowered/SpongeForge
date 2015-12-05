@@ -37,7 +37,7 @@ import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.service.world.ChunkLoadService;
+import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.util.VecHelper;
@@ -50,7 +50,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public class SpongeChunkLoadService implements ChunkLoadService {
+public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     @Override
     public void registerCallback(Object plugin, Callback callback) {
@@ -144,7 +144,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
         return spongeForcedChunks.build();
     }
 
-    private class SpongeLoadingTicket implements ChunkLoadService.LoadingTicket {
+    private class SpongeLoadingTicket implements ChunkTicketManager.LoadingTicket {
 
         protected ForgeChunkManager.Ticket forgeTicket;
         private PluginContainer plugin;
@@ -272,7 +272,7 @@ public class SpongeChunkLoadService implements ChunkLoadService {
 
         protected Callback spongeLoadingCallback;
 
-        public SpongeLoadingCallback(Object plugin, ChunkLoadService.Callback callback) {
+        public SpongeLoadingCallback(Object plugin, ChunkTicketManager.Callback callback) {
             this.spongeLoadingCallback = callback;
         }
 
