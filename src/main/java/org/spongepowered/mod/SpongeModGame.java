@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Singleton;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.GameState;
 import org.spongepowered.api.Platform;
@@ -56,8 +57,8 @@ public final class SpongeModGame extends SpongeGame {
 
     @Inject
     public SpongeModGame(Platform platform, PluginManager pluginManager, EventManager eventManager, SpongeGameRegistry gameRegistry,
-            ServiceManager serviceManager, TeleportHelper teleportHelper) {
-        super(platform, pluginManager, eventManager, gameRegistry, serviceManager, teleportHelper);
+            ServiceManager serviceManager, TeleportHelper teleportHelper, Logger logger) {
+        super(platform, pluginManager, eventManager, gameRegistry, serviceManager, teleportHelper, logger);
     }
 
     @Override
