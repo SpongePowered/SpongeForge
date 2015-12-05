@@ -162,7 +162,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.initializeCommands();
-            SpongeBootstrap.preInitializeRegistry();
+            SpongeImpl.getRegistry().preInit();
             SpongeSerializationRegistry.setupSerialization(SpongeImpl.getGame());
             SpongeForgeModuleRegistry.registerForgeData();
             SpongeModMessageHandler.init();
@@ -197,7 +197,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onInitialization(FMLInitializationEvent event) {
         try {
-            SpongeBootstrap.initializeRegistry();
+            SpongeImpl.getRegistry().init();
             if (!this.game.getServiceManager().provide(PermissionService.class).isPresent()) {
                 try {
                     final SpongePermissionService service = new SpongePermissionService(this.game);
@@ -217,7 +217,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onPostInitialization(FMLPostInitializationEvent event) {
         try {
-            SpongeBootstrap.postInitializeRegistry();
+            SpongeImpl.getRegistry().postInit();
             SpongeSerializationManager service = SpongeSerializationManager.getInstance();
             service.completeRegistration();
         } catch (Throwable t) {
@@ -227,7 +227,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     @Subscribe
     public void onLoadComplete(FMLLoadCompleteEvent event) {
-        SpongeBootstrap.preGameRegisterAdditionals();
+        SpongeImpl.getRegistry().registerAdditionals();
     }
 
     @Subscribe
