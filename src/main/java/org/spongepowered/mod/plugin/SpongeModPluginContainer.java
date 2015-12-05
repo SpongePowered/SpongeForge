@@ -74,8 +74,6 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
     private EventBus fmlEventBus;
     private LoadController fmlController;
 
-    private Multimap<Class<? extends Event>, Method> stateEventHandlers = ArrayListMultimap.create();
-
     private Optional<Object> pluginInstance = Optional.empty();
 
     public SpongeModPluginContainer(String className, ModCandidate candidate, Map<String, Object> descriptor) {
@@ -94,31 +92,14 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
 
             Class<?> pluginClazz = Class.forName(this.pluginClassName, true, modClassLoader);
 
-            findStateEventHandlers(pluginClazz);
-
             Injector injector = SpongeImpl.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
             this.pluginInstance = Optional.of(injector.getInstance(pluginClazz));
 
             SpongeEventManager spongeBus = (SpongeEventManager) SpongeImpl.getGame().getEventManager();
-            spongeBus.registerListener(this, this.pluginInstance);
+            spongeBus.registerListener(this, this.pluginInstance.get());
         } catch (Throwable t) {
             this.fmlController.errorOccurred(this, t);
             Throwables.propagateIfPossible(t);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    protected void findStateEventHandlers(Class<?> clazz) throws Exception {
-        for (Method m : clazz.getDeclaredMethods()) {
-            for (Annotation a : m.getAnnotations()) {
-                if (a.annotationType().equals(Listener.class)) {
-                    Class<?>[] paramTypes = m.getParameterTypes();
-                    if ((paramTypes.length == 1) && GameStateEvent.class.isAssignableFrom(paramTypes[0])) {
-                        m.setAccessible(true);
-                        this.stateEventHandlers.put((Class<? extends GameStateEvent>) paramTypes[0], m);
-                    }
-                }
-            }
         }
     }
 
@@ -207,12 +188,12 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
 
     @Override
     public boolean matches(Object mod) {
-        return mod == this.pluginInstance;
+        return this.pluginInstance.isPresent() && this.pluginInstance.get() == mod;
     }
 
     @Override
     public Object getMod() {
-        return this.pluginInstance;
+        return this.pluginInstance.orElse(null);
     }
 
     @Override
