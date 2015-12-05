@@ -128,10 +128,8 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
     @Override
     public void injectData(Map<String, Object> data) {
-        if ((Boolean)data.get("runtimeDeobfuscationEnabled")) {
-            MixinEnvironment.getDefaultEnvironment()
-                    .registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
-        }
+        MixinEnvironment.getDefaultEnvironment()
+                .registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
     }
 
     @Override
