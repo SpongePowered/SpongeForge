@@ -75,7 +75,7 @@ import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
-import org.spongepowered.common.util.persistence.SpongeSerializationManager;
+import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.sql.SqlServiceImpl;
 import org.spongepowered.common.util.SpongeHooks;
@@ -218,7 +218,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     public void onPostInitialization(FMLPostInitializationEvent event) {
         try {
             SpongeImpl.getRegistry().postInit();
-            SpongeSerializationManager service = SpongeSerializationManager.getInstance();
+            SpongeDataManager service = SpongeDataManager.getInstance();
             service.completeRegistration();
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);

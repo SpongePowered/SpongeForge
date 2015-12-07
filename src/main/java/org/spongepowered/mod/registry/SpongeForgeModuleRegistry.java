@@ -29,10 +29,10 @@ import org.spongepowered.api.data.manipulator.immutable.item.ImmutableSpawnableD
 import org.spongepowered.api.data.manipulator.mutable.item.SpawnableData;
 import org.spongepowered.api.data.property.block.LightEmissionProperty;
 import org.spongepowered.api.data.property.block.SolidCubeProperty;
-import org.spongepowered.common.data.SpongeDataRegistry;
 import org.spongepowered.common.data.manipulator.immutable.item.ImmutableSpongeSpawnableData;
 import org.spongepowered.common.data.manipulator.mutable.item.SpongeSpawnableData;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
+import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.mod.data.ForgeLightEmissionPropertyStore;
 import org.spongepowered.mod.data.ForgeSolidCubePropertyStore;
 import org.spongepowered.mod.data.SpawnableDataProcessor;
@@ -49,7 +49,7 @@ public class SpongeForgeModuleRegistry {
         registry.register(SolidCubeProperty.class, new ForgeSolidCubePropertyStore());
 
         // Data registration
-        SpongeDataRegistry dataRegistry = SpongeDataRegistry.getInstance();
+        SpongeDataManager dataRegistry = SpongeDataManager.getInstance();
         final SpawnableDataProcessor spawnableDataProcessor = new SpawnableDataProcessor();
         dataRegistry.registerDataProcessorAndImpl(SpawnableData.class, SpongeSpawnableData.class, ImmutableSpawnableData.class,
                 ImmutableSpongeSpawnableData.class, spawnableDataProcessor);
