@@ -24,39 +24,52 @@
  */
 package org.spongepowered.mod.mixin.core.entity.player;
 
-
 import com.flowpowered.math.vector.Vector3d;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.entity.player.ISpongeUser;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.mixin.core.entity.living.MixinEntityLivingBase;
+import org.spongepowered.common.registry.type.world.WorldPropertyRegistryModule;
 import org.spongepowered.common.util.VecHelper;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.UUID;
 
 @Mixin(EntityPlayer.class)
-public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
+public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements ISpongeUser {
 
     @Shadow public InventoryPlayer inventory;
     @Shadow public BlockPos playerLocation;
     @Shadow protected boolean sleeping;
     @Shadow private int sleepTimer;
+    @Shadow private BlockPos spawnChunk;
+    @Shadow(remap = false) private HashMap<Integer, BlockPos> spawnChunkMap;
+    @Shadow(remap = false) private HashMap<Integer, Boolean> spawnForcedMap;
+
     @Shadow public abstract EntityItem dropItem(ItemStack droppedItem, boolean dropAround, boolean traceItem);
     @Shadow public abstract void setSpawnPoint(BlockPos pos, boolean force);
+    @Shadow(remap = false)
+    public abstract void setSpawnChunk(BlockPos pos, boolean forced, int dimension);
 
     @Overwrite
     @Override
@@ -117,5 +130,46 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
         }
 
         Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(Sponge.getGame(), post.getCause(), this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), this));
+    }
+
+    @Override
+    public Map<UUID, Vector3d> getBedlocations() {
+        Map<UUID, Vector3d> locations = Maps.newHashMap();
+        if (this.spawnChunk != null) {
+            locations.put(WorldPropertyRegistryModule.dimIdToUuid(0), VecHelper.toVector3d(this.spawnChunk));
+        }
+        for (Entry<Integer, BlockPos> entry : this.spawnChunkMap.entrySet()) {
+            UUID uuid = WorldPropertyRegistryModule.dimIdToUuid(entry.getKey());
+            if (uuid != null) {
+                locations.put(uuid, VecHelper.toVector3d(entry.getValue()));
+            }
+        }
+        return locations;
+    }
+
+    @Override
+    public boolean setBedLocations(Map<UUID, Vector3d> locations) {
+        // Clear all existing values
+        this.spawnChunkMap.clear();
+        this.spawnForcedMap.clear();
+        setSpawnChunk(null, false, 0);
+        // Add replacement values
+        for (Entry<UUID, Vector3d> entry : locations.entrySet()) {
+            int dim = WorldPropertyRegistryModule.uuidToDimId(entry.getKey());
+            if (dim != Integer.MIN_VALUE) {
+                // Note: No way to set 'force' parameter
+                setSpawnChunk(VecHelper.toBlockPos(entry.getValue()), false, dim);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public ImmutableMap<UUID, Vector3d> removeAllBeds() {
+        ImmutableMap<UUID, Vector3d> locations = ImmutableMap.copyOf(getBedlocations());
+        this.spawnChunkMap.clear();
+        this.spawnForcedMap.clear();
+        setSpawnChunk(null, false, 0);
+        return locations;
     }
 }
