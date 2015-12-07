@@ -30,7 +30,6 @@ import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
-import org.spongepowered.api.data.DataTransactionBuilder;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.value.ValueContainer;
@@ -111,8 +110,8 @@ public class SpawnableEntityTypeValueProcessor extends AbstractSpongeValueProces
             if (item.hasTagCompound() && item.getTagCompound().hasKey("entity_name", 8)) {
                 item.getTagCompound().removeTag("entity_name");
             }
-            return DataTransactionBuilder.successNoData();
+            return DataTransactionResult.successNoData();
         }
-        return DataTransactionBuilder.failNoData();
+        return DataTransactionResult.failNoData();
     }
 }

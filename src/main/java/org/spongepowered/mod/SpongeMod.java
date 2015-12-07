@@ -69,7 +69,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
-import org.spongepowered.common.data.SpongeSerializationRegistry;
+import org.spongepowered.common.data.DataRegistrar;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.registry.RegistryHelper;
@@ -163,7 +163,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.initializeCommands();
             SpongeImpl.getRegistry().preInit();
-            SpongeSerializationRegistry.setupSerialization(SpongeImpl.getGame());
+            DataRegistrar.setupSerialization(SpongeImpl.getGame());
             SpongeForgeModuleRegistry.registerForgeData();
             SpongeModMessageHandler.init();
 
