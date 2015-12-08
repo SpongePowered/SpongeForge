@@ -41,7 +41,7 @@ import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.network.SpongeNetworkManager;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.mod.network.SpongeModNetworkManager;
-import org.spongepowered.mod.registry.SpongeGameDictionary;
+import org.spongepowered.mod.registry.SpongeForgeGameDictionary;
 
 import java.nio.file.Path;
 
@@ -77,7 +77,7 @@ public final class SpongeModGame extends SpongeGame {
 
     @Override
     public GameDictionary getGameDictionary() {
-        return SpongeGameDictionary.instance;
+        return SpongeForgeGameDictionary.instance;
     }
 
     @Override
