@@ -34,6 +34,7 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -51,6 +52,7 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
 
     @Shadow private int exp;
     @Shadow private EntityPlayer player;
+    private Cause cause;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EntityPlayer player, CallbackInfo ci) {
@@ -58,11 +60,12 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
         this.blockReplacement = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector(pos)));
         this.blockTransactions = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
             new Transaction<>(this.blockOriginal, this.blockReplacement)).build();
+        this.cause = Cause.of(NamedCause.source(this.player));
     }
 
     @Override
     public Cause getCause() {
-        return Cause.of(this.player);
+        return this.cause;
     }
 
 }

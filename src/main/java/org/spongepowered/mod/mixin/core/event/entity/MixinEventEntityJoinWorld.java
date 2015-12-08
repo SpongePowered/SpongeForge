@@ -29,6 +29,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -51,6 +52,7 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
     protected EntitySnapshot entitySnapshot;
     protected ImmutableList<EntitySnapshot> entitySnapshots;
     protected List<Entity> entities;
+    protected Cause cause;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.entity.Entity entity, net.minecraft.world.World world, CallbackInfo ci) {
@@ -63,6 +65,7 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
             this.entities = new ArrayList<>();
             this.entities.add((Entity) this.entity);
             this.entitySnapshots = ImmutableList.of(this.entitySnapshot);
+            this.cause = Cause.of(NamedCause.source(this.entity));
         }
     }
 
@@ -105,6 +108,6 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
 
     @Override
     public Cause getCause() {
-        return Cause.of(this.entity);
+        return this.cause;
     }
 }

@@ -34,6 +34,7 @@ import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -57,6 +58,15 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
     @Shadow public net.minecraft.world.World world;
     @Shadow public net.minecraft.world.Explosion explosion;
+    private Cause cause;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onConstruct(CallbackInfo callbackInfo) {
+        this.cause = this.explosion.exploder == null
+                     ? Cause.of(NamedCause.source(this.world.getBlockState(new BlockPos(this.explosion.getPosition()))))
+                     : Cause.of(NamedCause.source(this.explosion.exploder));
+
+    }
 
     @Override
     public Explosion getExplosion() {
@@ -65,12 +75,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
     @Override
     public Cause getCause() {
-        if (this.explosion.exploder != null) {
-            return Cause.of(this.explosion.exploder);
-        } else {
-            IBlockState state = this.world.getBlockState(new BlockPos(this.explosion.getPosition()));
-            return Cause.of(state.getBlock());
-        }
+        return this.cause;
     }
 
     @Override

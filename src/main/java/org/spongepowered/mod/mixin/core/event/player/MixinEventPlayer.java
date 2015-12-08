@@ -27,9 +27,13 @@ package org.spongepowered.mod.mixin.core.event.player;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.mixin.core.event.entity.living.MixinEventLiving;
 
 @NonnullByDefault
@@ -37,9 +41,15 @@ import org.spongepowered.mod.mixin.core.event.entity.living.MixinEventLiving;
 public abstract class MixinEventPlayer extends MixinEventLiving {
 
     @Shadow public EntityPlayer entityPlayer;
+    private Cause cause;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onConstruct(CallbackInfo callbackInfo) {
+        this.cause = Cause.of(NamedCause.source(this.entityPlayer));
+    }
 
     @Override
     public Cause getCause() {
-        return Cause.of(this.entityPlayer);
+        return this.cause;
     }
 }

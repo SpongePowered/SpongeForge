@@ -33,6 +33,7 @@ import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -88,7 +89,7 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
         if (this.blockOriginal == null) {
             this.blockOriginal = ((World) this.world).createSnapshot(this.pos.getX(), this.pos.getY(), this.pos.getZ());
         }
-        return Cause.of(this.blockOriginal);
+        return Cause.of(NamedCause.source(this.blockOriginal));
     }
 
     @Override

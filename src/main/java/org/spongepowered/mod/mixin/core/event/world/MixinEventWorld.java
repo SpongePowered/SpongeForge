@@ -26,11 +26,15 @@ package org.spongepowered.mod.mixin.core.event.world;
 
 import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 @NonnullByDefault
@@ -38,6 +42,12 @@ import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 public abstract class MixinEventWorld extends MixinEvent implements TargetWorldEvent {
 
     @Shadow public net.minecraft.world.World world;
+    private Cause cause;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onConstruct(CallbackInfo callbackInfo) {
+        this.cause = Cause.of(NamedCause.source(this.world));
+    }
 
     @Override
     public World getTargetWorld() {
@@ -46,7 +56,7 @@ public abstract class MixinEventWorld extends MixinEvent implements TargetWorldE
 
     @Override
     public Cause getCause() {
-        return Cause.of(this.world);
+        return this.cause;
     }
 
 }

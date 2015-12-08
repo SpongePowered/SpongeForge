@@ -31,6 +31,7 @@ import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
@@ -55,6 +56,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     @Nullable private Text spongeNewText;
     @Nullable private MessageSink sink;
     private MessageSink originalSink;
+    private Cause cause;
 
     @Shadow public String message;
     @Shadow public String username;
@@ -65,11 +67,12 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     public void onConstructed(EntityPlayerMP player, String message, ChatComponentTranslation component, CallbackInfo ci) {
         this.spongeText = SpongeTexts.toText(component);
         this.sink = this.originalSink = ((Player) player).getMessageSink();
+        this.cause = Cause.of(NamedCause.source(this.player));
     }
 
     @Override
     public Cause getCause() {
-        return Cause.of(this.player);
+        return this.cause;
     }
 
     @Override

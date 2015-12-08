@@ -32,6 +32,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.sink.MessageSink;
@@ -56,6 +57,7 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
     private Text originalMessage;
     private Text message;
     private Optional<User> sourceCreator;
+    private Cause cause;
 
     @Shadow public DamageSource source;
 
@@ -79,12 +81,18 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
             IMixinEntity spongeEntity = (IMixinEntity) damageSource.getSourceOfDamage();
             this.sourceCreator = spongeEntity.getTrackedPlayer(NbtDataUtil.SPONGE_ENTITY_CREATOR);
         }
-
+        if (this.sourceCreator.isPresent()) {
+            this.cause = Cause.of(NamedCause.source(this.source), NamedCause.of("Victim", this.entityLiving),
+                NamedCause.owner(this.sourceCreator.get()));
+        } else {
+            this.cause = Cause.of(NamedCause.source(this.source), NamedCause.of("Victim", this.entityLiving));
+        }
         // Store cause for drop event which is called after this event
         if (this.sourceCreator.isPresent()) {
-            StaticMixinHelper.dropCause = Cause.of(this.entityLiving, this.source, this.sourceCreator.get());
+            StaticMixinHelper.dropCause = Cause.of(NamedCause.source(this.entityLiving), NamedCause.of("Attacker", this.source),
+                NamedCause.owner(this.sourceCreator.get()));
         } else {
-            StaticMixinHelper.dropCause = Cause.of(this.entityLiving, this.source);
+            StaticMixinHelper.dropCause = Cause.of(NamedCause.source(this.entityLiving), NamedCause.of("Attacker", this.source));
         }
     }
 
@@ -120,11 +128,7 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
 
     @Override
     public Cause getCause() {
-        if (this.sourceCreator.isPresent()) {
-            return Cause.of(this.source, this.entityLiving, this.sourceCreator.get());
-        } else {
-            return Cause.of(this.source, this.entityLiving);
-        }
+        return this.cause;
     }
 
 }

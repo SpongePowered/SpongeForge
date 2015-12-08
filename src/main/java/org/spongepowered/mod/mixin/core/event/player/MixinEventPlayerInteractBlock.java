@@ -89,11 +89,6 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     }
 
     @Override
-    public Cause getCause() {
-        return Cause.of(this.entityPlayer);
-    }
-
-    @Override
     public Optional<Vector3d> getInteractionPoint() {
         return Optional.empty();
     }

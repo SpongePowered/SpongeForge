@@ -31,6 +31,7 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -88,11 +89,6 @@ public abstract class MixinEventEntityItemPickup extends MixinEventPlayer implem
     @Override
     public List<Entity> getOriginalEntities() {
         return this.originalEntities;
-    }
-
-    @Override
-    public Cause getCause() {
-        return Cause.of(this.entityPlayer);
     }
 
     @Override

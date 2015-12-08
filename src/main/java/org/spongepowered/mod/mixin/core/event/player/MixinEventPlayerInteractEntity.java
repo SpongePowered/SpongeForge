@@ -29,10 +29,14 @@ import net.minecraft.entity.Entity;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
 import java.util.Optional;
@@ -43,9 +47,16 @@ public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity im
 
     @Shadow Entity target;
 
+    private Cause cause;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onConstruct(CallbackInfo callbackInfo) {
+        this.cause = Cause.of(NamedCause.source(((EntityEvent) (Object) this).entity));
+    }
+
     @Override
     public Cause getCause() {
-        return Cause.of(((EntityEvent) (Object) this).entity);
+        return this.cause;
     }
 
     @Override
