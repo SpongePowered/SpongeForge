@@ -91,7 +91,7 @@ public abstract class MixinGuiOverlayDebug implements IMixinGuiOverlayDebug {
             EnumFacing enumfacing = entity.getHorizontalFacing();
             String s = "Invalid";
 
-            switch (enumfacing.ordinal() + 1) {
+            switch (enumfacing.ordinal() - 1) {
                 case 1:
                     s = "Towards negative Z";
                     break;
