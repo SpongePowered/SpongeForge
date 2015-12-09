@@ -80,8 +80,6 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
                 this.cause = Cause.of(NamedCause.source(entity));
             }
         }
-        System.out.println(this.cause);
-
     }
 
     @Override
