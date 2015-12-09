@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.event.world;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -33,6 +34,8 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.entity.projectile.Projectile;
+import org.spongepowered.api.entity.projectile.source.ProjectileSource;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.world.ExplosionEvent;
@@ -62,9 +65,22 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstruct(CallbackInfo callbackInfo) {
-        this.cause = this.explosion.exploder == null
-                     ? Cause.of(NamedCause.source(this.world.getBlockState(new BlockPos(this.explosion.getPosition()))))
-                     : Cause.of(NamedCause.source(this.explosion.exploder));
+        if (this.explosion.exploder == null) {
+            this.cause = Cause.of(NamedCause.source(this.world.getBlockState(new BlockPos(this.explosion.getPosition()))));
+        } else {
+            final net.minecraft.entity.Entity entity = this.explosion.exploder;
+            if (entity instanceof Projectile) {
+                try {
+                    final ProjectileSource source = ((Projectile) entity).getShooter();
+                    this.cause = Cause.of(NamedCause.source(entity), NamedCause.of("ProjectileSource", source));
+                } catch (Exception e) {
+                    this.cause = Cause.of(NamedCause.source(entity));
+                }
+            } else {
+                this.cause = Cause.of(NamedCause.source(entity));
+            }
+        }
+        System.out.println(this.cause);
 
     }
 
