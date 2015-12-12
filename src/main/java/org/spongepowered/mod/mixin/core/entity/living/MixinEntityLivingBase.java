@@ -35,7 +35,7 @@ import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
-import org.spongepowered.common.mixin.core.entity.MixinEntity;
+import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.List;
@@ -43,7 +43,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @NonnullByDefault
-@Mixin(EntityLivingBase.class)
+@Mixin(value = EntityLivingBase.class, priority = 1001)
 public abstract class MixinEntityLivingBase extends MixinEntity implements Living, IMixinEntityLivingBase {
 
     private EntityLivingBase nmsEntityLiving = (EntityLivingBase) (Object) this;

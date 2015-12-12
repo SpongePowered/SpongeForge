@@ -756,7 +756,9 @@ public class SpongeForgeEventFactory {
         } else if (forgeEvent instanceof LivingDeathEvent) {
             MessageSinkEvent spongeEvent = (MessageSinkEvent) forgeEvent;
             Text returned = Texts.format(spongeEvent.getMessage());
-            spongeEvent.getSink().sendMessage(returned);
+            if (returned != Texts.of()) {
+                spongeEvent.getSink().sendMessage(returned);
+            }
         }
     }
 

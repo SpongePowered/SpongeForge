@@ -50,8 +50,10 @@ import org.spongepowered.common.world.DimensionManager;
 @Mixin(value = Entity.class, priority = 1001)
 public abstract class MixinEntity implements IMixinEntity {
 
-    @Shadow public net.minecraft.world.World worldObj;
     // @formatter:off
+    @Shadow public net.minecraft.world.World worldObj;
+
+    @Shadow public abstract void setSize(float width, float height);
     @Shadow(remap = false)
     public abstract NBTTagCompound getEntityData();
     // @formatter:on
