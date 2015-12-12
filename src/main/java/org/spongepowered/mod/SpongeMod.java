@@ -31,6 +31,8 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.FMLFileResourcePack;
+import net.minecraftforge.fml.client.FMLFolderResourcePack;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
@@ -50,36 +52,33 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.registry.LanguageRegistry;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
-import net.minecraftforge.fml.relauncher.IFMLCallHook;
-import net.minecraftforge.fml.relauncher.Side;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandManager;
+import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.ProviderExistsException;
-import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.sql.SqlService;
-import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.api.util.Tristate;
-import org.spongepowered.api.command.CommandMapping;
-import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.data.DataRegistrar;
+import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.registry.RegistryHelper;
+import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
-import org.spongepowered.common.data.SpongeDataManager;
-import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.sql.SqlServiceImpl;
 import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.mod.event.SpongeEventHooks;
@@ -159,6 +158,15 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         return true;
     }
 
+    @Override
+    public Class<?> getCustomResourcePackClass() {
+        if (getSource().isDirectory()) {
+            return FMLFolderResourcePack.class;
+        } else {
+            return FMLFileResourcePack.class;
+        }
+    }
+
     @Subscribe
     public void onStateEvent(FMLStateEvent event) {
         // We can't control Guava's event bus priority, so
@@ -179,7 +187,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             SpongeForgeModuleRegistry.registerForgeData();
             SpongeModMessageHandler.init();
 
-            LanguageRegistry.instance().loadLanguagesFor(this, Side.CLIENT);
             Preconditions.checkArgument(Class.forName("org.spongepowered.api.entity.ai.task.AbstractAITask").getSuperclass().equals(SpongeEntityAICommonSuperclass.class));
 
             MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
@@ -301,19 +308,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         } catch (Exception ex) {
             return new ModMetadata();
         }
-    }
-
-    public String getModIdFromBlock(String name) {
-        String prefix;
-        ModContainer mc = Loader.instance().activeModContainer();
-
-        if (mc != null) {
-            prefix = mc.getModId();
-        } else {
-            prefix = "minecraft";
-        }
-
-        return prefix;
     }
 
     @SuppressWarnings("rawtypes")
