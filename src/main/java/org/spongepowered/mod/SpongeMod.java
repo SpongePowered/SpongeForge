@@ -50,7 +50,10 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.registry.LanguageRegistry;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import net.minecraftforge.fml.relauncher.IFMLCallHook;
+import net.minecraftforge.fml.relauncher.Side;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -87,6 +90,7 @@ import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.registry.SpongeForgeModuleRegistry;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -96,6 +100,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     public static SpongeMod instance;
     private final SpongeGame game;
     private LoadController controller;
+    private File modFile;
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
@@ -106,6 +111,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
 
         SpongeMod.instance = this;
+        this.modFile = SpongeCoremod.modFile;
 
         // Initialize Sponge
         Guice.createInjector(new SpongeGuiceModule()).getInstance(SpongeImpl.class);
@@ -125,6 +131,11 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Override
     public Object getMod() {
         return this;
+    }
+
+    @Override
+    public File getSource() {
+        return this.modFile;
     }
 
     public LoadController getController() {
@@ -168,6 +179,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             SpongeForgeModuleRegistry.registerForgeData();
             SpongeModMessageHandler.init();
 
+            LanguageRegistry.instance().loadLanguagesFor(this, Side.CLIENT);
             Preconditions.checkArgument(Class.forName("org.spongepowered.api.entity.ai.task.AbstractAITask").getSuperclass().equals(SpongeEntityAICommonSuperclass.class));
 
             MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());

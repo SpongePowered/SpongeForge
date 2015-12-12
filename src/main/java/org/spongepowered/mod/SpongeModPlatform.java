@@ -33,6 +33,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.AbstractPlatform;
@@ -48,19 +49,16 @@ public final class SpongeModPlatform extends AbstractPlatform {
 
     @Override
     public Type getType() {
-        switch (FMLCommonHandler.instance().getSide()) {
-            case CLIENT:
-                return Type.CLIENT;
-            case SERVER:
-                return Type.SERVER;
-            default:
-                return Type.UNKNOWN;
-        }
+        return switchOn(FMLCommonHandler.instance().getSide());
     }
 
     @Override
     public Type getExecutionType() {
-        switch (FMLCommonHandler.instance().getEffectiveSide()) {
+        return switchOn(FMLCommonHandler.instance().getEffectiveSide());
+    }
+
+    private Type switchOn(Side side) {
+        switch (side) {
             case CLIENT:
                 return Type.CLIENT;
             case SERVER:
@@ -69,5 +67,4 @@ public final class SpongeModPlatform extends AbstractPlatform {
                 return Type.UNKNOWN;
         }
     }
-
 }

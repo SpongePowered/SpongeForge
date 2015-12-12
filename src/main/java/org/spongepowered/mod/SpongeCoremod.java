@@ -27,6 +27,7 @@ package org.spongepowered.mod;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.relauncher.IFMLCallHook;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
@@ -36,10 +37,13 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.launch.SpongeLaunch;
 import org.spongepowered.common.launch.transformer.SpongeSuperclassRegistry;
 
+import java.io.File;
 import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion("1.8")
 public class SpongeCoremod implements IFMLLoadingPlugin {
+
+    public static File modFile;
 
     public static final class TokenProvider implements IEnvironmentTokenProvider {
 
@@ -132,6 +136,11 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
             MixinEnvironment.getDefaultEnvironment()
                     .registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
         }
+        System.out.println("HEY! LOADING COREMOD LOCATION!");
+        modFile = (File) data.get("coremodLocation");
+        System.out.println("THE MOD FILE IS: " + this.modFile);
+        if (modFile == null)
+            modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
     }
 
     @Override
