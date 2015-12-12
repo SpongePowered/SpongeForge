@@ -136,9 +136,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
             MixinEnvironment.getDefaultEnvironment()
                     .registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
         }
-        System.out.println("HEY! LOADING COREMOD LOCATION!");
         modFile = (File) data.get("coremodLocation");
-        System.out.println("THE MOD FILE IS: " + this.modFile);
         if (modFile == null)
             modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
     }
