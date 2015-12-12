@@ -100,7 +100,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
     public SpongeMod() {
-        super(SpongeMod.createMetadata(ImmutableMap.<String, Object>of("name", SpongeImpl.ECOSYSTEM_NAME, "version", "DEV")));
+        super(SpongeMod.createMetadata(ImmutableMap.<String, Object>of("modid", SpongeImpl.ECOSYSTEM_ID, "name", SpongeImpl.ECOSYSTEM_NAME,
+                "version", "DEV")));
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
 
@@ -283,9 +284,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     private static ModMetadata createMetadata(Map<String, Object> defaults) {
         try {
-            return MetadataCollection.from(SpongeMod.class.getResourceAsStream("/mcmod.info"), SpongeImpl.ECOSYSTEM_NAME).getMetadataForId(
-                SpongeImpl.ECOSYSTEM_NAME,
-                defaults);
+            return MetadataCollection.from(SpongeMod.class.getResourceAsStream("/mcmod.info"), SpongeImpl.ECOSYSTEM_ID).getMetadataForId(
+                SpongeImpl.ECOSYSTEM_ID, defaults);
         } catch (Exception ex) {
             return new ModMetadata();
         }
