@@ -58,9 +58,6 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         // initialize overworld properties
         UUID uuid = UUID.randomUUID();
         ((IMixinWorldInfo) worldInfo).setUUID(uuid);
-        ((WorldProperties) worldInfo).setKeepSpawnLoaded(true);
-        ((WorldProperties) worldInfo).setLoadOnStartup(true);
-        ((WorldProperties) worldInfo).setEnabled(true);
     }
 
     @Override

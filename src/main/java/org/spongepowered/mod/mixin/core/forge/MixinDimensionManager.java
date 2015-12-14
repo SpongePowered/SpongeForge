@@ -60,13 +60,13 @@ public abstract class MixinDimensionManager {
         String worldType;
         switch (id) {
             case -1:
-                worldType = "NETHER";
+                worldType = "nether";
                 break;
             case 0:
-                worldType = "OVERWORLD";
+                worldType = "overworld";
                 break;
             case 1:
-                worldType = "END";
+                worldType = "the_end";
                 break;
             default: // modded
                 worldType = provider.getSimpleName().toLowerCase();

@@ -1,7 +1,7 @@
 [
     {
         "modid": "sponge",
-        "name": "Sponge",
+        "name": "SpongeForge",
         "description": "The Sponge API Implementation",
         "version": "$version",
         "credits": "Copyright (C) SpongePowered and contributors",
