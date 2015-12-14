@@ -79,6 +79,12 @@ shadowJar {
     }
 }
 
+eclipse.classpath.file.whenMerged {classpath ->
+    classpath.entries.removeAll(classpath.entries.findAll {
+        entry -> entry.kind == 'lib' && entry.path.contains('com.typesafe/config/1.2.1/') && entry.path.endsWith('config-1.2.1.jar')
+    })
+}
+
 copySrgs << {
     def file = project.file('build/srgs/mcp-srg.srg')
     file.append project.file('extraSrg.srg').text
