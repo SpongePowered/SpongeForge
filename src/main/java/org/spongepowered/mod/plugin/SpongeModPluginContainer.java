@@ -73,6 +73,7 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
     private boolean enabled = true;
     private EventBus fmlEventBus;
     private LoadController fmlController;
+    private Injector injector;
 
     private Optional<Object> pluginInstance = Optional.empty();
 
@@ -93,6 +94,7 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
             Class<?> pluginClazz = Class.forName(this.pluginClassName, true, modClassLoader);
 
             Injector injector = SpongeImpl.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
+            this.injector = injector;
             this.pluginInstance = Optional.of(injector.getInstance(pluginClazz));
 
             SpongeEventManager spongeBus = (SpongeEventManager) SpongeImpl.getGame().getEventManager();
@@ -288,4 +290,8 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
         return null;
     }
 
+    @Override
+    public Injector getInjector() {
+        return injector;
+    }
 }
