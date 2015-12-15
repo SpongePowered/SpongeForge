@@ -38,7 +38,7 @@ import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
+import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.text.Text;
@@ -58,12 +58,12 @@ import java.util.Optional;
 public abstract class MixinSpongeImplFactory {
 
     @Overwrite
-    public static LoadWorldEvent createLoadWorldEvent(Game game, World world) {
+    public static LoadWorldEvent createLoadWorldEvent(World world) {
         return (LoadWorldEvent) new WorldEvent.Load((net.minecraft.world.World) world);
     }
 
     @Overwrite
-    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Game game, Cause cause, Text originalMessage, Text message,
+    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Cause cause, Text originalMessage, Text message,
             MessageSink originalSink, MessageSink sink, Player targetEntity) {
         final ClientConnectionEvent.Join event = (ClientConnectionEvent.Join) new PlayerEvent.PlayerLoggedInEvent((EntityPlayer) targetEntity);
         event.setSink(sink);
@@ -72,7 +72,7 @@ public abstract class MixinSpongeImplFactory {
     }
 
     @Overwrite
-    public static RespawnPlayerEvent createRespawnPlayerEvent(Game game, Cause cause, Transform<World> fromTransform, Transform<World> toTransform,
+    public static RespawnPlayerEvent createRespawnPlayerEvent(Cause cause, Transform<World> fromTransform, Transform<World> toTransform,
             Player targetEntity, boolean bedSpawn) {
         final RespawnPlayerEvent event = (RespawnPlayerEvent) new PlayerEvent.PlayerRespawnEvent((EntityPlayer) targetEntity);
         ((IMixinPlayerRespawnEvent) event).setIsBedSpawn(bedSpawn);
@@ -81,7 +81,7 @@ public abstract class MixinSpongeImplFactory {
     }
 
     @Overwrite
-    public static ClientConnectionEvent.Disconnect createClientConnectionEventDisconnect(Game game, Cause cause, Text originalMessage, Text message,
+    public static ClientConnectionEvent.Disconnect createClientConnectionEventDisconnect(Cause cause, Text originalMessage, Text message,
             MessageSink originalSink, MessageSink sink, Player targetEntity) {
         final ClientConnectionEvent.Disconnect event =
                 (ClientConnectionEvent.Disconnect) new PlayerEvent.PlayerLoggedOutEvent((EntityPlayer) targetEntity);

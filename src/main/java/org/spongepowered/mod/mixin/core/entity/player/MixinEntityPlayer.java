@@ -108,7 +108,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
 
         SleepingEvent.Post post = null;
         if (!this.nmsPlayer.worldObj.isRemote) {
-            post = SpongeEventFactory.createSleepingEventPost(Sponge.getGame(), Cause.of(NamedCause.source(this)),
+            post = SpongeEventFactory.createSleepingEventPost(Cause.of(NamedCause.source(this)),
                 this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), Optional.ofNullable(newLocation), this, setSpawn);
             Sponge.getEventManager().post(post);
             if (post.isCancelled()) {
@@ -138,7 +138,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
                 this.setSpawnPoint(post.getSpawnTransform().isPresent() ? VecHelper.toBlockPos(post.getSpawnTransform().get().getPosition()) : this.playerLocation, false);
             }
     
-            Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(Sponge.getGame(), post.getCause(), this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), this));
+            Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(post.getCause(), this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), this));
         } else {
             if (setSpawn) {
                 this.setSpawnPoint(this.playerLocation, false);

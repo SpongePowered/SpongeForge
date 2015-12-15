@@ -110,9 +110,9 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     @Override
     public Event createSpongeEvent() {
         if (this.action == Action.LEFT_CLICK_BLOCK) {
-            return SpongeEventFactory.createInteractBlockEventPrimary(getGame(), getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
+            return SpongeEventFactory.createInteractBlockEventPrimary(getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
         } else {
-            return SpongeEventFactory.createInteractBlockEventSecondary(getGame(), getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
+            return SpongeEventFactory.createInteractBlockEventSecondary(getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
         }
     }
 }

@@ -59,11 +59,11 @@ public abstract class MixinForgeEventFactory {
 
         InteractBlockEvent event = null;
         if (action == Action.LEFT_CLICK_BLOCK) {
-            event = SpongeEventFactory.createInteractBlockEventPrimary(SpongeImpl.getGame(), Cause.of(NamedCause.source(player)), Optional.empty(),
+            event = SpongeEventFactory.createInteractBlockEventPrimary(Cause.of(NamedCause.source(player)), Optional.empty(),
                 ((World) world).createSnapshot(VecHelper.toVector(pos)), face == null ? Direction.NONE
                 : DirectionFacingProvider.getInstance().getKey(face).get());
         } else {
-            event = SpongeEventFactory.createInteractBlockEventSecondary(SpongeImpl.getGame(), Cause.of(NamedCause.source(player)), Optional.empty(),
+            event = SpongeEventFactory.createInteractBlockEventSecondary(Cause.of(NamedCause.source(player)), Optional.empty(),
                 ((World) world).createSnapshot(VecHelper.toVector(pos)), face == null ? Direction.NONE
                 : DirectionFacingProvider.getInstance().getKey(face).get());
         }

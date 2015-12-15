@@ -28,7 +28,7 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.CauseTracked;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,7 +37,7 @@ import org.spongepowered.mod.interfaces.IMixinEvent;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.fml.common.eventhandler.Event.class, remap = false)
-public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEvent {
+public abstract class MixinEvent implements Cancellable, IMixinEvent {
 
     @Shadow public abstract void setCanceled(boolean cancel);
     @Shadow public abstract boolean isCanceled();
@@ -48,7 +48,7 @@ public abstract class MixinEvent implements CauseTracked, Cancellable, IMixinEve
 
     @Override
     public Cause getCause() {
-        return Cause.of();
+        return Cause.of(NamedCause.source(getGame()));
     }
 
     @Override

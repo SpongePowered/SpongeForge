@@ -25,6 +25,7 @@
 package org.spongepowered.mod.interfaces;
 
 import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.cause.Cause;
 
 public interface IMixinEvent {
 
@@ -33,4 +34,6 @@ public interface IMixinEvent {
     void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent);
 
     Event createSpongeEvent();
+
+    Cause getCause();
 }

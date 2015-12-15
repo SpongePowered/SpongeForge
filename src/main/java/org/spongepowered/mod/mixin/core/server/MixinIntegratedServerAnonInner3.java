@@ -58,7 +58,7 @@ public class MixinIntegratedServerAnonInner3 {
         Player player = (Player) playerIn;
         MessageSink originalSink = MessageSinks.toAll();
         ClientConnectionEvent.Disconnect event =
-                SpongeImplFactory.createClientConnectionEventDisconnect(SpongeImpl.getGame(), Cause.of(NamedCause.source(player)), Texts.of(),
+                SpongeImplFactory.createClientConnectionEventDisconnect(Cause.of(NamedCause.source(player)), Texts.of(),
                     Texts.of(), originalSink, player.getMessageSink(), player);
         SpongeImpl.postEvent(event);
         // Doesn't make sense to send the event's message because all players

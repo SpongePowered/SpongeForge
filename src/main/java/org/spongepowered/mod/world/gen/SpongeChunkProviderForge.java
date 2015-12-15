@@ -53,6 +53,7 @@ import org.spongepowered.api.data.type.StoneType;
 import org.spongepowered.api.data.type.StoneTypes;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.api.world.biome.BiomeType;
@@ -98,6 +99,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         super(world, generationPopulator, biomeGenerator);
     }
 
+    @Override
     public void replaceBiomeBlocks(World world, Random rand, int x, int z, ChunkPrimer chunk, ImmutableBiomeArea biomes) {
         ChunkProviderEvent.ReplaceBiomeBlocks event = new ChunkProviderEvent.ReplaceBiomeBlocks(this, x, z, chunk, world);
         MinecraftForge.EVENT_BUS.post(event);
@@ -126,12 +128,13 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         }
         populators.addAll(this.biomeSettings.get(biome).getPopulators());
 
-        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(Sponge.getGame(), Cause.of(), populators, chunk));
+        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(Cause.of(NamedCause.source(this.world)), populators,
+            chunk));
 
         MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Pre(chunkProvider, this.world, this.rand, chunkX, chunkZ, false));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(this.world, this.rand, blockpos));
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Pre(this.world, this.rand, blockpos));
-        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(Sponge.getGame(), Cause.of(), chunk));
+        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(Cause.of(NamedCause.source(this.world)), chunk));
         List<String> flags = Lists.newArrayList();
         for (Populator populator : populators) {
             if (!checkForgeEvent(populator, chunkProvider, chunkX, chunkZ, flags, chunk)) {
@@ -149,7 +152,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Post(chunkProvider, this.world, this.rand, chunkX, chunkZ, false));
 
         Sponge.getGame().getEventManager()
-                .post(SpongeEventFactory.createPopulateChunkEventPost(Sponge.getGame(), Cause.of(), ImmutableMap.of(), chunk));
+                .post(SpongeEventFactory.createPopulateChunkEventPost(Cause.of(NamedCause.source(this.world)), ImmutableMap.of(), chunk));
 
         BlockFalling.fallInstantly = false;
     }
