@@ -28,7 +28,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiOverlayDebug;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -36,13 +35,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.mod.client.interfaces.IMixinGuiOverlayDebug;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
 import org.spongepowered.mod.network.message.MessageTrackerDataRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(GuiOverlayDebug.class)
@@ -63,9 +60,9 @@ public abstract class MixinGuiOverlayDebug implements IMixinGuiOverlayDebug {
         spongeMc.setDebugGui((GuiOverlayDebug) (Object) this);
     }
 
-    @Inject(method = "call()Ljava/util/List;", at = @At(value = "RETURN", ordinal = 1, shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void addOwnerInfo(CallbackInfoReturnable<List<String>> cir, BlockPos blockpos, Entity entity, EnumFacing enumfacing, String s,
-            ArrayList<String> arraylist) {
+    @Inject(method = "call()Ljava/util/List;", at = @At(value = "RETURN", ordinal = 1))
+    private void addOwnerInfo(CallbackInfoReturnable<List<String>> cir) {
+        List<String> arraylist = cir.getReturnValue();
         if (this.mc.objectMouseOver != null
                 && this.mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK
                 && this.mc.objectMouseOver.getBlockPos() != null) {
