@@ -222,7 +222,7 @@ public class ActivationRange {
                     }
                     if (!config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), "enabled").getBoolean()
                             || !config.getRootNode()
-                            .getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), "entities", type.getEntityName())
+                            .getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), "entities", type.getName())
                             .getBoolean()) {
                         continue;
                     }
@@ -338,9 +338,9 @@ public class ActivationRange {
                 config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), "enabled").setValue(true);
             }
 
-            if (config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), entityType, type.getEntityName())
+            if (config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), entityType, type.getName())
                     .isVirtual()) {
-                config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), entityType, type.getEntityName())
+                config.getRootNode().getNode(SpongeConfig.MODULE_ENTITY_ACTIVATION_RANGE, type.getModId(), entityType, type.getName())
                         .setValue(true);
                 config.save();
             }
