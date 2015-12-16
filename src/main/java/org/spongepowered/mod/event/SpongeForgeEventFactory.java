@@ -107,6 +107,7 @@ import org.spongepowered.api.event.entity.living.TargetLivingEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
+import org.spongepowered.api.event.world.SaveWorldEvent;
 import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
@@ -274,7 +275,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == WorldEvent.Unload.class) {
                 return createWorldUnloadEvent(event);
             } else if (clazz == WorldEvent.Save.class) {
-
+                return createWorldSaveEvent(event);
             } else {
                 return createWorldEvent(event);
             }
@@ -607,7 +608,7 @@ public class SpongeForgeEventFactory {
 
     public static WorldEvent.Load createWorldLoadEvent(Event event) {
         if (!(event instanceof LoadWorldEvent)) {
-            throw new IllegalArgumentException("Event is not a valid ServerLoadWorldEvent.");
+            throw new IllegalArgumentException("Event is not a valid LoadWorldEvent.");
         }
 
         LoadWorldEvent spongeEvent = (LoadWorldEvent) event;
@@ -616,9 +617,20 @@ public class SpongeForgeEventFactory {
         return forgeEvent;
     }
 
+    public static WorldEvent.Save createWorldSaveEvent(Event event) {
+        if (!(event instanceof SaveWorldEvent)) {
+            throw new IllegalArgumentException("Event is not a valid SaveWorldEvent.");
+        }
+
+        SaveWorldEvent spongeEvent = (SaveWorldEvent) event;
+        WorldEvent.Save forgeEvent =
+                new WorldEvent.Save((net.minecraft.world.World) spongeEvent.getTargetWorld());
+        return forgeEvent;
+    }
+
     public static WorldEvent.Unload createWorldUnloadEvent(Event event) {
         if (!(event instanceof UnloadWorldEvent)) {
-            throw new IllegalArgumentException("Event is not a valid ServerUnloadWorldEvent.");
+            throw new IllegalArgumentException("Event is not a valid UnloadWorldEvent.");
         }
 
         UnloadWorldEvent spongeEvent = (UnloadWorldEvent) event;

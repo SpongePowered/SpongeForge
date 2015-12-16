@@ -63,6 +63,7 @@
         "event.world.MixinEventWorldExplosion$Pre",
         "event.world.MixinEventWorldExplosion$Detonate",
         "event.world.MixinEventWorldLoad",
+        "event.world.MixinEventWorldSave",
         "event.world.MixinEventWorldUnload",
         "fml.common.eventhandler.MixinEventBus",
         "fml.common.gameevent.MixinPlayerEvent",

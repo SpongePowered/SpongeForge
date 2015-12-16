@@ -72,6 +72,7 @@ import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
+import org.spongepowered.api.event.world.SaveWorldEvent;
 import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
@@ -119,6 +120,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(InteractEntityEvent.Secondary.class, EntityInteractEvent.class)
                     .put(TargetWorldEvent.class, WorldEvent.class)
                     .put(LoadWorldEvent.class, WorldEvent.Load.class)
+                    .put(SaveWorldEvent.class, WorldEvent.Save.class)
                     .put(UnloadWorldEvent.class, WorldEvent.Unload.class)
                     .put(UseItemStackEvent.Start.class, PlayerUseItemEvent.Start.class)
                     .put(UseItemStackEvent.Tick.class, PlayerUseItemEvent.Tick.class)
