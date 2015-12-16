@@ -120,11 +120,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         this.game.getRegistry().preRegistryInit();
 
         this.game.getEventManager().registerListeners(this, this);
-        try {
-            RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
     }
 
     @Override
