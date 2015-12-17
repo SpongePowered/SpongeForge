@@ -24,31 +24,18 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common;
 
-import com.google.common.eventbus.EventBus;
-import net.minecraftforge.fml.common.LoadController;
-import net.minecraftforge.fml.common.LoaderState;
-import org.spongepowered.api.event.Event;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.mod.event.SpongeModEventManager;
-import org.spongepowered.mod.event.StateRegistry;
 
-@Mixin(value = LoadController.class, remap = false)
-public class MixinLoadController {
+@Mixin(value = FMLCommonHandler.class, remap = false)
+public class MixinFMLCommonHandler {
 
-    @Redirect(method = "distributeStateMessage", at = @At(value = "INVOKE", target = "Lcom/google/common/eventbus/EventBus;post(Ljava/lang/Object;)V", ordinal = 0))
-    public void onPost(EventBus eventBus, Object event, LoaderState state, Object[] eventData) {
-        // 'distbuteStateMessage' is *sometimes* called before 'transition'.
-        // To ensure that the state is properly set in SpongeGame, we need
-        // to mixin here, before any event handlers have received the event
-
-        SpongeImpl.getGame().setState(StateRegistry.getState(state));
-        eventBus.post(event);
-        if (state == LoaderState.CONSTRUCTING) {
-            ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post((Event) event, true);
-        }
+    @Inject(method = "handleExit", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V", remap = false))
+    public void onPost(int exitCode) {
+        SpongeImpl.postShutdownEvents();
     }
 
 }
