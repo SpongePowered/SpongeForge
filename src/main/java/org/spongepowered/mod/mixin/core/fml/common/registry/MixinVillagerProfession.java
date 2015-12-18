@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.entity.SpongeCareer;
-import org.spongepowered.common.registry.type.CareerRegistryModule;
+import org.spongepowered.common.registry.type.entity.CareerRegistryModule;
 import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.registry.SpongeVillagerRegistry;

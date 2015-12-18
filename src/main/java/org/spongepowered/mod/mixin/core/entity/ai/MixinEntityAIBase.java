@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.ai.IMixinEntityAIBase;
-import org.spongepowered.common.registry.type.AITaskTypeModule;
+import org.spongepowered.common.registry.type.entity.AITaskTypeModule;
 
 import java.util.Optional;
 
