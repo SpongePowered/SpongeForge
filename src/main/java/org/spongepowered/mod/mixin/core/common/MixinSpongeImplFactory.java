@@ -110,6 +110,11 @@ public abstract class MixinSpongeImplFactory {
         return tile.shouldRefresh(world, pos, oldState, newState);
     }
 
+    @Overwrite
+    public static TileEntity createTileEntity(Block block, net.minecraft.world.World world, IBlockState state) {
+        return block.createTileEntity(world, state);
+    }
+
     // Required for torches and comparators
     @Overwrite
     public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
