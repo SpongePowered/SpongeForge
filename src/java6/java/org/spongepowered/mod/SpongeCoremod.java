@@ -118,6 +118,12 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
         SpongeSuperclassRegistry.registerSuperclassModification("org.spongepowered.api.entity.ai.task.AbstractAITask",
                 "org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass");
+        SpongeSuperclassRegistry.registerSuperclassModification("org.spongepowered.api.event.cause.entity.damage.source.common.AbstractDamageSource",
+            "org.spongepowered.common.event.damage.SpongeCommonDamageSource");
+        SpongeSuperclassRegistry.registerSuperclassModification("org.spongepowered.api.event.cause.entity.damage.source.common.AbstractEntityDamageSource",
+            "org.spongepowered.common.event.damage.SpongeCommonEntityDamageSource");
+        SpongeSuperclassRegistry.registerSuperclassModification("org.spongepowered.api.event.cause.entity.damage.source.common.AbstractIndirectEntityDamageSource",
+            "org.spongepowered.common.event.damage.SpongeCommonIndirectEntityDamageSource");
     }
 
     private void clearSecurityManager() {
