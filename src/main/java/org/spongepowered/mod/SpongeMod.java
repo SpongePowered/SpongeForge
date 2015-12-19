@@ -110,7 +110,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
 
         SpongeMod.instance = this;
-        this.modFile = SpongeCoremod.modFile;
+        this.modFile = SpongeJava6Bridge.modFile;
 
         // Initialize Sponge
         Guice.createInjector(new SpongeGuiceModule()).getInstance(SpongeImpl.class);

@@ -27,7 +27,6 @@ package org.spongepowered.mod;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.relauncher.IFMLCallHook;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
@@ -36,14 +35,14 @@ import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.launch.SpongeLaunch;
 import org.spongepowered.common.launch.transformer.SpongeSuperclassRegistry;
+import org.spongepowered.launch.JavaVersionCheckUtils;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion("1.8")
 public class SpongeCoremod implements IFMLLoadingPlugin {
-
-    public static File modFile;
 
     public static final class TokenProvider implements IEnvironmentTokenProvider {
 
@@ -67,6 +66,14 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     }
 
     public SpongeCoremod() {
+        try {
+            JavaVersionCheckUtils.ensureJava8();
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.clearSecurityManager();
+            Runtime.getRuntime().exit(1);
+        }
+
         // Let's get this party started
         MixinBootstrap.init();
         MixinEnvironment.setCompatibilityLevel(MixinEnvironment.CompatibilityLevel.JAVA_8);
@@ -113,6 +120,19 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
                 "org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass");
     }
 
+    private void clearSecurityManager() {
+        // Nice try, FML
+        try {
+            Field field = System.class.getDeclaredField("security");
+            field.setAccessible(true);
+            field.set(null, null);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
@@ -137,9 +157,9 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
             MixinEnvironment.getDefaultEnvironment()
                     .registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
         }
-        modFile = (File) data.get("coremodLocation");
-        if (modFile == null)
-            modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        SpongeJava6Bridge.modFile = (File) data.get("coremodLocation");
+        if (SpongeJava6Bridge.modFile == null)
+            SpongeJava6Bridge.modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
     }
 
     @Override
