@@ -66,6 +66,11 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     }
 
     public SpongeCoremod() {
+        // This MUST be the first line in the constructor, to prevent
+        // JavaVersionCheckUtils from being passed through the transformer
+        // chain, and thereby triggering Mixin to switch to PREINIT.
+        Launch.classLoader.addTransformerExclusion("org.spongepowered.launch.JavaVersionCheckUtils");
+
         try {
             JavaVersionCheckUtils.ensureJava8();
         } catch (Exception e) {
