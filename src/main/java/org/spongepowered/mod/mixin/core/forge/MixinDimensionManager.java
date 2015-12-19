@@ -27,17 +27,19 @@ package org.spongepowered.mod.mixin.core.forge;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.World;
-import org.spongepowered.api.world.WorldBuilder;
+import org.spongepowered.api.world.WorldCreationSettings;
+import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.registry.type.world.DimensionRegistryModule;
 import org.spongepowered.common.world.SpongeDimensionType;
-import org.spongepowered.common.world.SpongeWorldBuilder;
+import org.spongepowered.common.world.SpongeWorldCreationSettingsBuilder;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -111,14 +113,21 @@ public abstract class MixinDimensionManager {
             return; // If a provider hasn't been registered then we can't hotload the dim
         }
 
-        WorldProvider provider = WorldProvider.getProviderForDimension(dim);
-        WorldBuilder builder = SpongeImpl.getRegistry().createBuilder(WorldBuilder.class);
-        builder = builder.dimensionType(((Dimension) provider).getType()).name(provider.getDimensionName())
+        final WorldProvider provider = WorldProvider.getProviderForDimension(dim);
+        final WorldCreationSettings.Builder builder = SpongeImpl.getRegistry().createBuilder(WorldCreationSettings.Builder.class)
+                .dimension(((Dimension) provider).getType())
+                .name(provider.getDimensionName())
                 .keepsSpawnLoaded(spawnSettings.get(providerId));
-        Optional<World> world = ((SpongeWorldBuilder) builder).dimensionId(dim).isMod(true).build();
-        if (!world.isPresent()) {
+        ((SpongeWorldCreationSettingsBuilder) builder).dimensionId(dim).isMod(true);
+        final WorldCreationSettings settings = builder.build();
+        final Optional<WorldProperties> optWorldProperties = Sponge.getGame().getServer().createWorldProperties(settings);
+        if (!optWorldProperties.isPresent()) {
+            SpongeImpl.getLogger().error("Could not initialize world [" + settings.getWorldName() + "]. Failed to create properties.");
+            return;
+        }
+        final Optional<World> optWorld = Sponge.getGame().getServer().loadWorld(optWorldProperties.get());
+        if (!optWorld.isPresent()) {
             SpongeImpl.getLogger().error("Error during initDimension. Cannot Hotload Dim: " + dim + " for provider " + provider.getClass().getName());
         }
     }
-
 }
