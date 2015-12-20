@@ -86,6 +86,7 @@ import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
+import org.spongepowered.mod.interfaces.IMixinLoadController;
 
 import java.util.List;
 
@@ -223,8 +224,8 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @SuppressWarnings("unchecked")
     protected static boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced) {
-        for (@SuppressWarnings("rawtypes")
-        RegisteredListener listener : listeners) {
+        for (@SuppressWarnings("rawtypes") RegisteredListener listener : listeners) {
+            ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(listener.getPlugin());
             try {
                 if (forced || (!listener.isBeforeModifications() && !beforeModifications) || (listener.isBeforeModifications() && beforeModifications)) {
                     listener.handle(event);
@@ -232,8 +233,8 @@ public class SpongeModEventManager extends SpongeEventManager {
             } catch (Throwable e) {
                 SpongeImpl.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
             }
+            ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(null);
         }
-
         return event instanceof Cancellable && ((Cancellable) event).isCancelled();
     }
 
@@ -271,7 +272,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                 }
             }
         }
-        return super.post(spongeEvent, getHandlerCache(spongeEvent).getListeners()); // no checking for modifications required
+        return post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true); // no checking for modifications required
     }
 
 }

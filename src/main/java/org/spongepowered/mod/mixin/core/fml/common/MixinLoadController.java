@@ -27,17 +27,22 @@ package org.spongepowered.mod.mixin.core.fml.common;
 import com.google.common.eventbus.EventBus;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.LoaderState;
+import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.event.Event;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.mod.SpongeModGame;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.StateRegistry;
+import org.spongepowered.mod.interfaces.IMixinLoadController;
 
 @Mixin(value = LoadController.class, remap = false)
-public class MixinLoadController {
+public abstract class MixinLoadController implements IMixinLoadController {
+    @Shadow private ModContainer activeContainer;
 
     @Redirect(method = "distributeStateMessage", at = @At(value = "INVOKE", target = "Lcom/google/common/eventbus/EventBus;post(Ljava/lang/Object;)V", ordinal = 0))
     public void onPost(EventBus eventBus, Object event, LoaderState state, Object[] eventData) {
@@ -52,4 +57,8 @@ public class MixinLoadController {
         }
     }
 
+    @Override
+    public void setActiveModContainer(PluginContainer container) {
+        this.activeContainer = (ModContainer) container;
+    }
 }
