@@ -98,6 +98,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         // Add default mixins
         MixinEnvironment.getDefaultEnvironment()
                 .addConfiguration("mixins.common.api.json")
+                .addConfiguration("mixins.common.authlib.json")
                 .addConfiguration("mixins.common.core.json")
                 .addConfiguration("mixins.common.bungeecord.json")
                 .addConfiguration("mixins.common.eulashutdown.json")
