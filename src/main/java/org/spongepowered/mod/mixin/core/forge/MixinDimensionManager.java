@@ -36,6 +36,9 @@ import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.registry.type.world.DimensionRegistryModule;
 import org.spongepowered.common.world.SpongeDimensionType;
@@ -84,6 +87,11 @@ public abstract class MixinDimensionManager {
         }
         spawnSettings.put(id, keepLoaded);
         return true;
+    }
+
+    @Inject(method = "unregisterProviderType(I)[I", at = @At(value = "RETURN", ordinal = 1))
+    private static void onUnregisterProvider(int id, CallbackInfoReturnable<int[]> cir) {
+        DimensionRegistryModule.getInstance().unregisterProvider(id);
     }
 
     @Overwrite
