@@ -32,14 +32,14 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.sink.MessageSink;
-import org.spongepowered.api.text.sink.MessageSinks;
+import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplFactory;
+
+import java.util.Optional;
 
 @SideOnly(Side.CLIENT)
 @Mixin(targets = "net/minecraft/server/integrated/IntegratedServer$3")
@@ -56,10 +56,9 @@ public class MixinIntegratedServerAnonInner3 {
             target = "Lnet/minecraft/server/management/ServerConfigurationManager;playerLoggedOut(Lnet/minecraft/entity/player/EntityPlayerMP;)V"))
     public EntityPlayerMP beforeFirePlayerLoggedOut(EntityPlayerMP playerIn) {
         Player player = (Player) playerIn;
-        MessageSink originalSink = MessageSinks.toAll();
-        ClientConnectionEvent.Disconnect event =
-                SpongeImplFactory.createClientConnectionEventDisconnect(Cause.of(NamedCause.source(player)), Text.of(), Text.of(),
-                        originalSink, player.getMessageSink(), player);
+        MessageChannel originalChannel = player.getMessageChannel();
+        ClientConnectionEvent.Disconnect event = SpongeImplFactory.createClientConnectionEventDisconnect(Cause.of(NamedCause.source(player)),
+                originalChannel, Optional.of(originalChannel), Optional.empty(), Optional.empty(), player);
         SpongeImpl.postEvent(event);
         // Doesn't make sense to send the event's message because all players
         // are quitting anyway
