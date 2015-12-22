@@ -1,14 +1,15 @@
 // Gradle plugins
 buildscript {
     repositories {
+        jcenter()
         maven {
-            name = 'plugins'
-            url = 'https://plugins.gradle.org/m2'
+            name = 'forge'
+            url = 'http://files.minecraftforge.net/maven'
         }
     }
 
     dependencies {
-        classpath 'gradle.plugin.net.minecraftforge.gradle:ForgeGradle:2.0.2'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-20151205.212842-160'
         classpath('nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0') {
             exclude module: 'guava'
         }
