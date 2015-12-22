@@ -40,6 +40,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.config.SpongeConfig;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.registry.type.world.DimensionRegistryModule;
 import org.spongepowered.common.world.SpongeDimensionType;
 import org.spongepowered.common.world.SpongeWorldCreationSettingsBuilder;
@@ -92,6 +94,18 @@ public abstract class MixinDimensionManager {
     @Inject(method = "unregisterProviderType(I)[I", at = @At(value = "RETURN", ordinal = 1))
     private static void onUnregisterProvider(int id, CallbackInfoReturnable<int[]> cir) {
         DimensionRegistryModule.getInstance().unregisterProvider(id);
+    }
+
+    @Overwrite
+    public static boolean shouldLoadSpawn(int dim) {
+        final WorldServer worldServer = DimensionManager.getWorld(dim);
+        final SpongeConfig<SpongeConfig.WorldConfig> worldConfig = ((IMixinWorld) worldServer).getWorldConfig();
+        if (worldConfig.getConfig().isConfigEnabled()) {
+            return worldConfig.getConfig().getWorld().getKeepSpawnLoaded();
+        }
+        // Don't use configs at this point, use spawn settings in the provider type
+        int id = DimensionManager.getProviderType(dim);
+        return spawnSettings.containsKey(id) && spawnSettings.get(id);
     }
 
     @Overwrite
