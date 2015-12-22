@@ -40,7 +40,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.event.command.MessageSinkEvent;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -49,6 +51,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.common.interfaces.IMixinInitCause;
+import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
@@ -76,12 +80,12 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
             cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     public void injectChatEvent(C01PacketChatMessage packetIn, CallbackInfo ci, String s, ChatComponentTranslation component) {
         final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
+        ((IMixinInitCause) event).initCause(Cause.of(NamedCause.source(this.playerEntity)));
         ((IMixinEventPlayerChat) event).setRawMessage(Text.of(packetIn.getMessage()));
 
         if (!MinecraftForge.EVENT_BUS.post(event)) {
-            MessageSinkEvent spongeEvent = (MessageSinkEvent) event;
-            Text returned = spongeEvent.getMessage();
-            spongeEvent.getSink().sendMessage(returned);
+            MessageChannelEvent spongeEvent = (MessageChannelEvent) event;
+            spongeEvent.getMessage().ifPresent(text -> spongeEvent.getChannel().ifPresent(channel -> channel.send(text)));
 
             // Chat spam suppression from MC
             this.chatSpamThresholdCount += 20;

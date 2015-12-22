@@ -24,58 +24,82 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.gameevent;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.sink.MessageSink;
+import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.common.interfaces.IMixinInitCause;
+import org.spongepowered.mod.interfaces.IMixinInitMessageChannelEvent;
+
+import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = PlayerEvent.PlayerLoggedOutEvent.class, remap = false)
-public abstract class MixinPlayerLoggedOutEvent extends MixinPlayerEvent implements ClientConnectionEvent.Disconnect {
+public abstract class MixinPlayerLoggedOutEvent extends MixinPlayerEvent implements ClientConnectionEvent.Disconnect, IMixinInitMessageChannelEvent, IMixinInitCause {
 
-    private Text message;
-    private Text originalMessage;
-    private MessageSink messageSink;
-    private MessageSink originalSink;
+    @Nullable private Text originalMessage;
+    @Nullable private Text message;
+    private MessageChannel originalChannel;
+    @Nullable private MessageChannel channel;
+    private Cause cause;
 
     @Override
-    public Text getOriginalMessage() {
-        return this.originalMessage;
+    public Cause getCause() {
+        return this.cause;
     }
 
     @Override
-    public Text getMessage() {
-        return this.message;
+    public void initCause(Cause cause) {
+        this.cause = cause;
     }
 
     @Override
-    public void setMessage(Text quitMessage) {
-        if (this.originalMessage == null) {
-            // setNewMessage is always called before event fired
-            this.originalMessage = quitMessage;
-        }
-        this.message = quitMessage;
+    public Optional<Text> getOriginalMessage() {
+        return Optional.ofNullable(this.originalMessage);
     }
 
     @Override
-    public MessageSink getOriginalSink() {
-        return this.originalSink;
+    public Optional<Text> getMessage() {
+        return Optional.ofNullable(this.message);
     }
 
     @Override
-    public void setSink(MessageSink sink) {
-        if (this.originalSink == null) {
-            // setSink is always called before event fired
-            this.originalSink = sink;
-        }
-        this.messageSink = sink;
+    public void setMessage(@Nullable Text message) {
+        this.message = message;
     }
 
     @Override
-    public MessageSink getSink() {
-        return this.messageSink;
+    public void initMessage(@Nullable Text original, @Nullable Text message) {
+        this.originalMessage = original;
+        this.message = message;
+    }
+
+    @Override
+    public MessageChannel getOriginalChannel() {
+        return this.originalChannel;
+    }
+
+    @Override
+    public Optional<MessageChannel> getChannel() {
+        return Optional.ofNullable(this.channel);
+    }
+
+    @Override
+    public void setChannel(@Nullable MessageChannel channel) {
+        this.channel = channel;
+    }
+
+    @Override
+    public void initChannel(MessageChannel original, @Nullable MessageChannel channel) {
+        this.originalChannel = checkNotNull(original, "original channel");
+        this.channel = channel;
     }
 
 }

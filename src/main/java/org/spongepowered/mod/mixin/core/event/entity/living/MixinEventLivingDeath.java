@@ -35,28 +35,28 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.sink.MessageSink;
-import org.spongepowered.api.text.sink.MessageSinks;
+import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.data.util.NbtDataUtil;
-import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 @Mixin(value = LivingDeathEvent.class, remap = false)
 public abstract class MixinEventLivingDeath extends MixinEventLiving implements DestructEntityEvent.Death {
 
-    private MessageSink sink;
-    private MessageSink originalSink;
-    private Text originalMessage;
-    private Text message;
+    @Nullable private MessageChannel channel;
+    private MessageChannel originalChannel;
+    @Nullable private Text originalMessage;
+    @Nullable private Text message;
     private Optional<User> sourceCreator;
     private Cause cause;
 
@@ -66,11 +66,11 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
     public void onConstructed(EntityLivingBase entity, DamageSource source, CallbackInfo ci) {
         if (entity instanceof EntityPlayerMP) {
             Player player = (Player) entity;
-            this.originalSink = ((IMixinEntityPlayerMP) player).getDeathMessageSink();
-            this.sink = ((IMixinEntityPlayerMP) player).getDeathMessageSink();
+            this.originalChannel = player.getMessageChannel();
+            this.channel = player.getMessageChannel();
         } else {
-            this.originalSink = MessageSinks.toNone();
-            this.sink = MessageSinks.toNone();
+            this.originalChannel = MessageChannel.TO_NONE;
+            this.channel = MessageChannel.TO_NONE;
         }
 
         this.originalMessage = SpongeTexts.toText(entity.getCombatTracker().getDeathMessage());
@@ -98,32 +98,32 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
     }
 
     @Override
-    public MessageSink getOriginalSink() {
-        return this.originalSink;
+    public MessageChannel getOriginalChannel() {
+        return this.originalChannel;
     }
 
     @Override
-    public MessageSink getSink() {
-        return this.sink;
+    public Optional<MessageChannel> getChannel() {
+        return Optional.ofNullable(this.channel);
     }
 
     @Override
-    public void setSink(MessageSink sink) {
-        this.sink = sink;
+    public void setChannel(@Nullable MessageChannel channel) {
+        this.channel = channel;
     }
 
     @Override
-    public Text getOriginalMessage() {
-        return this.originalMessage;
+    public Optional<Text> getOriginalMessage() {
+        return Optional.ofNullable(this.originalMessage);
     }
 
     @Override
-    public Text getMessage() {
-        return this.message;
+    public Optional<Text> getMessage() {
+        return Optional.ofNullable(this.message);
     }
 
     @Override
-    public void setMessage(Text message) {
+    public void setMessage(@Nullable Text message) {
         this.message = message;
     }
 
