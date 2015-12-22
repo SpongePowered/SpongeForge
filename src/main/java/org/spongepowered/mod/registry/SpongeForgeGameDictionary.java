@@ -24,46 +24,47 @@
  */
 package org.spongepowered.mod.registry;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import net.minecraft.item.Item;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.SetMultimap;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 import org.spongepowered.api.GameDictionary;
-import org.spongepowered.api.item.ItemType;
+import org.spongepowered.common.registry.SpongeGameDictionaryEntry;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-public class SpongeGameDictionary implements GameDictionary {
+public class SpongeForgeGameDictionary implements GameDictionary {
 
-    public static final GameDictionary instance = new SpongeGameDictionary();
+    public static final GameDictionary instance = new SpongeForgeGameDictionary();
 
-    private SpongeGameDictionary() {
+    private SpongeForgeGameDictionary() {
     }
 
     @Override
-    public void register(String key, ItemType type) {
-        OreDictionary.registerOre(key, (Item) type);
+    public void register(String key, Entry entry) {
+        ItemStack stack = ((SpongeGameDictionaryEntry) entry).createDictionaryStack(OreDictionary.WILDCARD_VALUE);
+        stack.stackSize = 1;
+        OreDictionary.registerOre(key, stack);
     }
 
     @Override
-    public Set<ItemType> get(String key) {
-        HashSet<ItemType> items = Sets.newHashSet();
+    public Set<Entry> get(String key) {
+        ImmutableSet.Builder<Entry> items = ImmutableSet.builder();
         for (ItemStack itemStack : OreDictionary.getOres(key)) {
-            items.add((ItemType) itemStack.getItem());
+        	itemStack = itemStack.copy();
+        	itemStack.stackSize = 1;
+            items.add(SpongeGameDictionaryEntry.of(itemStack, OreDictionary.WILDCARD_VALUE));
         }
-        return items;
+        return items.build();
     }
 
     @Override
-    public Map<String, Set<ItemType>> getAllItems() {
-        HashMap<String, Set<ItemType>> allItems = Maps.newHashMap();
+    public SetMultimap<String, Entry> getAll() {
+        ImmutableSetMultimap.Builder<String, Entry> allItems = ImmutableSetMultimap.builder();
         for (String key : OreDictionary.getOreNames()) {
-            allItems.put(key, this.get(key));
+            allItems.putAll(key, this.get(key));
         }
-        return allItems;
+        return allItems.build();
     }
 }
