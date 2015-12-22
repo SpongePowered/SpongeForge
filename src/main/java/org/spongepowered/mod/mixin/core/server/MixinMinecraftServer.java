@@ -44,6 +44,7 @@ public abstract class MixinMinecraftServer implements Server {
         return this.worldTickTimes;
     }
 
+    @Override
     public ChunkTicketManager getChunkTicketManager() {
         return this.chunkTicketManager;
     }

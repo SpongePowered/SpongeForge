@@ -54,6 +54,7 @@ public abstract class MixinItemLilyPad extends ItemColored {
      *         Purpose: Restored to vanilla method as we do not need Forge's
      *         block snapshot calls nor event call due to our tracking system.
      */
+    @Override
     @Overwrite
     public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn) {
         MovingObjectPosition movingobjectposition = this.getMovingObjectPositionFromPlayer(worldIn, playerIn, true);
