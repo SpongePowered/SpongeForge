@@ -39,7 +39,7 @@ import org.spongepowered.common.mixin.core.world.biome.MixinBiomeGenBase;
 
 @Mixin(value = BiomeGenBase.class, priority = 1001)
 @Implements(value = @Interface(iface = IBiomeGenBase.class, prefix = "super$") )
-public class MixinBiomeGenBaseForge extends MixinBiomeGenBase {
+public abstract class MixinBiomeGenBaseForge implements IBiomeGenBase {
 
     @Shadow public BiomeDecorator theBiomeDecorator;
 

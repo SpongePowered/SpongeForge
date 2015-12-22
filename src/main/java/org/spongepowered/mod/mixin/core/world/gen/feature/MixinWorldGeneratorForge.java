@@ -48,7 +48,7 @@ import org.spongepowered.mod.SpongeMod;
 import java.util.Random;
 
 @Mixin(value = net.minecraft.world.gen.feature.WorldGenerator.class, priority = 1001)
-public abstract class MixinWorldGeneratorForge extends MixinWorldGenerator implements Populator {
+public abstract class MixinWorldGeneratorForge implements Populator {
 
     private SpongePopulatorType populatorType;
 
