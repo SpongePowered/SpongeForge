@@ -64,7 +64,6 @@ public class SpongeClassVisitorAdapter extends ClassVisitor {
         try {
             cr = new ClassReader(className);
         } catch (IOException e) {
-            e.printStackTrace();
             return false;
         }
 

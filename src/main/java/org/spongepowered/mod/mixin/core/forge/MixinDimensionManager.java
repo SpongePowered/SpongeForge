@@ -24,9 +24,13 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
+import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.FMLLog;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
@@ -57,6 +61,7 @@ public abstract class MixinDimensionManager {
     @Shadow private static Hashtable<Integer, Class<? extends WorldProvider>> providers;
     @Shadow private static Hashtable<Integer, Boolean> spawnSettings;
     @Shadow private static ArrayList<Integer> unloadQueue;
+    @Shadow private static Hashtable<Integer, WorldServer> worlds;
 
     @Overwrite
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded) {
@@ -80,6 +85,16 @@ public abstract class MixinDimensionManager {
                 worldType = worldType.replace("worldprovider", "");
                 worldType = worldType.replace("provider", "");
         }
+
+        // Grab provider name if available
+        try {
+            WorldProvider worldProvider = provider.newInstance();
+            worldType = worldProvider.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "");
+        } catch (Exception e) {
+            // ignore
+        }
+
+        System.out.println("REGISTERING PROVIDER TYPE " + provider + " with name " + worldType);
         // register dimension type
         DimensionRegistryModule.getInstance().registerAdditionalCatalog(new SpongeDimensionType(worldType, keepLoaded, provider, id));
         providers.put(id, provider);
@@ -115,6 +130,19 @@ public abstract class MixinDimensionManager {
             // Purposely let a null world through so Forge can issue a warning
             unloadQueue.add(id);
         }
+    }
+
+    @Overwrite
+    public static void unloadWorlds(Hashtable<Integer, long[]> worldTickTimes) {
+        for (int id : unloadQueue) {
+            WorldServer w = worlds.get(id);
+            if (w != null) {
+                Sponge.getGame().getServer().unloadWorld((World) w);
+            } else {
+                FMLLog.warning("Unexpected world unload - world %d is already unloaded", id);
+            }
+        }
+        unloadQueue.clear();
     }
 
     @Overwrite
