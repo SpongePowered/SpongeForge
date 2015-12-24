@@ -94,7 +94,6 @@ public abstract class MixinDimensionManager {
             // ignore
         }
 
-        System.out.println("REGISTERING PROVIDER TYPE " + provider + " with name " + worldType);
         // register dimension type
         DimensionRegistryModule.getInstance().registerAdditionalCatalog(new SpongeDimensionType(worldType, keepLoaded, provider, id));
         providers.put(id, provider);
