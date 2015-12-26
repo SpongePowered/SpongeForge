@@ -31,6 +31,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
@@ -62,6 +63,10 @@ public abstract class MixinForgeEventFactory {
             event = SpongeEventFactory.createInteractBlockEventPrimary(Cause.of(NamedCause.source(player)), Optional.empty(),
                 ((World) world).createSnapshot(VecHelper.toVector(pos)), face == null ? Direction.NONE
                 : DirectionFacingProvider.getInstance().getKey(face).get());
+        } else if (action == Action.RIGHT_CLICK_AIR) {
+            event = SpongeEventFactory.createInteractBlockEventSecondary(Cause.of(NamedCause.source(player)), Optional.empty(),
+                    ((World) world).createSnapshot(VecHelper.toVector(pos)).withState(BlockTypes.AIR.getDefaultState()), face == null ? Direction.NONE
+                    : DirectionFacingProvider.getInstance().getKey(face).get());
         } else {
             event = SpongeEventFactory.createInteractBlockEventSecondary(Cause.of(NamedCause.source(player)), Optional.empty(),
                 ((World) world).createSnapshot(VecHelper.toVector(pos)), face == null ? Direction.NONE
