@@ -26,9 +26,11 @@ package org.spongepowered.mod.mixin.core.forge;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -51,15 +53,24 @@ public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
     @Shadow
     public abstract void writeToNBT(NBTTagCompound compound);
 
+    @Shadow
+    public abstract TileEntity getTileEntity();
+
     @Override
     public BlockSnapshot createSpongeBlockSnapshot() {
         Location<World> location = new Location<>((World) this.world, VecHelper.toVector(this.pos));
         SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
         builder.blockState((BlockState) this.replacedBlock)
-            .worldId(location.getExtent().getUniqueId())
-            .position(location.getBlockPosition());
+                .worldId(location.getExtent().getUniqueId())
+                .position(location.getBlockPosition());
         if (this.nbt != null) {
             builder.unsafeNbt(this.nbt);
+        }
+        TileEntity te = getTileEntity();
+        if (te != null) {
+            for (DataManipulator<?, ?> manipulator : ((org.spongepowered.api.block.tileentity.TileEntity) te).getContainers()) {
+                builder.add(manipulator);
+            }
         }
         return builder.build();
     }
