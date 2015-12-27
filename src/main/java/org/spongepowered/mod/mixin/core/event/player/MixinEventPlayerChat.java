@@ -102,7 +102,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     @Override
     public void setMessage(Text text) {
         this.spongeNewText = text;
-        final IChatComponent component = SpongeTexts.toComponent(text, ((Player) this.player).getLocale());
+        final IChatComponent component = SpongeTexts.toComponent(text);
         if (component instanceof ChatComponentTranslation) {
             this.component = ((ChatComponentTranslation) component);
         } else {

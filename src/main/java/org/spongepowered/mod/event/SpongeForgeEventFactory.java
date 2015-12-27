@@ -114,7 +114,6 @@ import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -738,7 +737,7 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        IChatComponent component = SpongeTexts.toComponent(spongeEvent.getOriginalMessage(), player.get().getLocale());
+        IChatComponent component = SpongeTexts.toComponent(spongeEvent.getOriginalMessage());
         if (!(component instanceof ChatComponentTranslation)) {
             component = new ChatComponentTranslation("%s", component);
         }
@@ -746,7 +745,7 @@ public class SpongeForgeEventFactory {
         // Using toPlain here is fine, since the raw message from the client
         // can't have formatting.
         ServerChatEvent forgeEvent =
-                new ServerChatEvent((EntityPlayerMP) player.get(), Texts.toPlain(spongeEvent.getOriginalMessage()),
+                new ServerChatEvent((EntityPlayerMP) player.get(), spongeEvent.getOriginalMessage().toPlain(),
                         (ChatComponentTranslation) component);
         ((IMixinEventPlayerChat) forgeEvent).setRawMessage(spongeEvent.getRawMessage());
 
@@ -765,8 +764,8 @@ public class SpongeForgeEventFactory {
             }
         } else if (forgeEvent instanceof LivingDeathEvent) {
             MessageSinkEvent spongeEvent = (MessageSinkEvent) forgeEvent;
-            Text returned = Texts.format(spongeEvent.getMessage());
-            if (returned != Texts.of()) {
+            Text returned = spongeEvent.getMessage();
+            if (returned != Text.of()) {
                 spongeEvent.getSink().sendMessage(returned);
             }
         }

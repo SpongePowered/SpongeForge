@@ -29,8 +29,8 @@ import net.minecraft.command.ICommandSender;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.command.InvocationCommandException;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 
 /**
@@ -47,7 +47,7 @@ public class ForgeMinecraftCommandWrapper extends MinecraftCommandWrapper {
         CommandEvent event = new CommandEvent(this.command, sender, args);
         if (MinecraftForge.EVENT_BUS.post(event)) {
             if (event.exception != null) {
-                throw new InvocationCommandException(Texts.of("Error while firing Forge event"), event.exception);
+                throw new InvocationCommandException(Text.of("Error while firing Forge event"), event.exception);
             }
             return false;
         }

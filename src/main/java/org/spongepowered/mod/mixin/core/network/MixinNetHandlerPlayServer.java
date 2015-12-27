@@ -42,7 +42,6 @@ import net.minecraftforge.event.ServerChatEvent;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -77,11 +76,11 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
             cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     public void injectChatEvent(C01PacketChatMessage packetIn, CallbackInfo ci, String s, ChatComponentTranslation component) {
         final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
-        ((IMixinEventPlayerChat) event).setRawMessage(Texts.of(packetIn.getMessage()));
+        ((IMixinEventPlayerChat) event).setRawMessage(Text.of(packetIn.getMessage()));
 
         if (!MinecraftForge.EVENT_BUS.post(event)) {
             MessageSinkEvent spongeEvent = (MessageSinkEvent) event;
-            Text returned = Texts.format(spongeEvent.getMessage());
+            Text returned = spongeEvent.getMessage();
             spongeEvent.getSink().sendMessage(returned);
 
             // Chat spam suppression from MC

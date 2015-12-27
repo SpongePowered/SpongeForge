@@ -79,7 +79,7 @@ public abstract class MixinEntityRegistry {
             modId = modContainer.getModId();
         }
 
-        SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass);
+        SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass, null);
         EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
     }
 

@@ -35,6 +35,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.entity.SpongeCareer;
 import org.spongepowered.common.registry.type.entity.CareerRegistryModule;
+import org.spongepowered.common.text.translation.SpongeTranslation;
 import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.registry.SpongeVillagerRegistry;
@@ -54,7 +55,7 @@ public abstract class MixinVillagerProfession implements IMixinVillagerProfessio
     @Inject(method = REGISTER, at = @At("RETURN"), remap = false)
     private void registerForgeCareer(VillagerRegistry.VillagerCareer career, CallbackInfo callbackInfo) {
         Profession profession = SpongeVillagerRegistry.getProfession(((IMixinVillagerCareer) career).getProfession()).get();
-        Career career1 = new SpongeCareer(((IMixinVillagerCareer) career).getId(), ((IMixinVillagerCareer) career).getName(), profession);
+        Career career1 = new SpongeCareer(((IMixinVillagerCareer) career).getId(), ((IMixinVillagerCareer) career).getName(), profession, new SpongeTranslation("entity.Villager." + ((IMixinVillagerCareer) career).getName()));
         CareerRegistryModule.getInstance().registerCareer(career1);
     }
 
