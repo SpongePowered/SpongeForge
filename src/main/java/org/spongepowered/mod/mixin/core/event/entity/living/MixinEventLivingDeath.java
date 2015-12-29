@@ -43,6 +43,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.data.util.NbtDataUtil;
+import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
@@ -65,8 +66,8 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
     public void onConstructed(EntityLivingBase entity, DamageSource source, CallbackInfo ci) {
         if (entity instanceof EntityPlayerMP) {
             Player player = (Player) entity;
-            this.originalSink = player.getMessageSink();
-            this.sink = player.getMessageSink();
+            this.originalSink = ((IMixinEntityPlayerMP) player).getDeathMessageSink();
+            this.sink = ((IMixinEntityPlayerMP) player).getDeathMessageSink();
         } else {
             this.originalSink = MessageSinks.toNone();
             this.sink = MessageSinks.toNone();
