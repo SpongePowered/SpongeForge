@@ -64,8 +64,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
+import org.spongepowered.common.world.FakePlayer;
 
 import java.util.Optional;
 
@@ -118,9 +120,22 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             // Store reference of current player's itemstack in case it changes
             ItemStack oldStack = stack.copy();
 
+            Cause cause;
+            // Handle fake players
+            if (player instanceof FakePlayer) {
+                Optional<Object> simulated = ((IMixinWorldServer) player.world).getCauseTracker().getCurrentContext()
+                        .firstNamed(NamedCause.PLAYER_SIMULATED, Object.class);
+                if (simulated.isPresent()) {
+                    cause = Cause.of(NamedCause.of(NamedCause.PLAYER_SIMULATED, simulated.get()));
+                } else {
+                    cause = Cause.of(NamedCause.of(NamedCause.PLAYER_SIMULATED, ((EntityPlayer) player).getGameProfile()));
+                }
+            } else {
+                cause = Cause.of(NamedCause.source(player));
+            }
 
             BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-            InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(Cause.of(NamedCause.source(player)),
+            InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(cause,
                     Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
                     DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
             if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
@@ -241,4 +256,5 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         // Due to this, we will simply return a dummy event
         return new PlayerInteractEvent.LeftClickBlock(player, pos, side, hitVec);
     }
+
 }

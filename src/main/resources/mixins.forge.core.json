@@ -47,6 +47,7 @@
         "fml.common.registry.MixinVillagerRegistry",
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",
+        "forge.MixinFakePlayer",
         "forge.MixinForgeInternalHandler",
         "forge.event.MixinForgeEventFactory",
         "forge.fluids.MixinFluid",
