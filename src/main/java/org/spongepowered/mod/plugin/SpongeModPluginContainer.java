@@ -25,14 +25,16 @@
 package org.spongepowered.mod.plugin;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Injector;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.fml.common.CertificateHelper;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.MetadataCollection;
@@ -44,17 +46,15 @@ import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionRange;
-import org.spongepowered.api.event.Event;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameStateEvent;
+import org.slf4j.LoggerFactory;
+import org.spongepowered.api.event.SpongeEventFactory;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
 import org.spongepowered.common.plugin.SpongePluginContainer;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.List;
@@ -63,6 +63,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class SpongeModPluginContainer extends SpongePluginContainer implements ModContainer {
 
@@ -74,8 +75,8 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
     private EventBus fmlEventBus;
     private LoadController fmlController;
     private Injector injector;
-
     private Optional<Object> pluginInstance = Optional.empty();
+    @Nullable private Certificate certificate;
 
     public SpongeModPluginContainer(String className, ModCandidate candidate, Map<String, Object> descriptor) {
         this.pluginClassName = className;
@@ -93,12 +94,48 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
 
             Class<?> pluginClazz = Class.forName(this.pluginClassName, true, modClassLoader);
 
+            // Check fingerprint before doing anything else
+            Boolean deobfuscatedEnvironment = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+            @Nullable Certificate[] certificates = pluginClazz.getProtectionDomain().getCodeSource().getCertificates();
+            @Nullable String expectedFingerprint = (String) this.pluginDescriptor.get("certificateFingerprint");
+            // null - no state
+            // true - fingerprint is present and valid
+            // false - fingerprint is present and is in violation
+            boolean fingerprintPresent = deobfuscatedEnvironment || expectedFingerprint == null || expectedFingerprint.isEmpty();
+            List<String> sourceFingerprints = Lists.newArrayList();
+            if (expectedFingerprint != null && !expectedFingerprint.isEmpty() && certificates != null && !deobfuscatedEnvironment) {
+                ImmutableList.Builder<String> builder = ImmutableList.builder();
+                for (Certificate certificate : certificates) {
+                    builder.add(CertificateHelper.getFingerprint(certificate));
+                }
+
+                sourceFingerprints.addAll(builder.build());
+
+                if (!sourceFingerprints.contains(expectedFingerprint)) {
+                    LoggerFactory.getLogger(this.getModId())
+                            .error("The plugin '{}' is expecting signature '{}' for source '{}', however there is no signature "
+                                    + "matching that description", this.getModId(), expectedFingerprint, this.modCandidate.getModContainer().getName());
+                    fingerprintPresent = false;
+                } else {
+                    this.certificate = certificates[sourceFingerprints.indexOf(expectedFingerprint)];
+                    fingerprintPresent = true;
+                }
+            } else if (expectedFingerprint != null && !expectedFingerprint.isEmpty() && deobfuscatedEnvironment) {
+                LoggerFactory.getLogger(this.getModId()).info("The plugin '{}' is expecting signature '{}', however we are in a deobfuscated environment",
+                        this.getModId(), expectedFingerprint, this.modCandidate.getModContainer().getName());
+            }
+
             Injector injector = SpongeImpl.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
             this.injector = injector;
             this.pluginInstance = Optional.of(injector.getInstance(pluginClazz));
 
             SpongeEventManager spongeBus = (SpongeEventManager) SpongeImpl.getGame().getEventManager();
             spongeBus.registerListener(this, this.pluginInstance.get());
+
+            if (!fingerprintPresent) {
+                SpongeImpl.postEvent(SpongeEventFactory
+                        .createPluginFingerprintViolationEvent(Cause.of(SpongeImpl.getGame()), expectedFingerprint, ImmutableSet.copyOf(sourceFingerprints), this));
+            }
         } catch (Throwable t) {
             this.fmlController.errorOccurred(this, t);
             //Throwables.propagateIfPossible(t);
@@ -221,7 +258,7 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
 
     @Override
     public Certificate getSigningCertificate() {
-        return null;
+        return this.certificate;
     }
 
     @Override
