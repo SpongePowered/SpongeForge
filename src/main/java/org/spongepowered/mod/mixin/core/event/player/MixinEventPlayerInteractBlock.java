@@ -72,7 +72,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
             } else {
                 this.blockSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, Vector3i.ZERO));
             }
-            StaticMixinForgeHelper.lastPlayerInteractCancelled = false;
+            StaticMixinHelper.lastPlayerInteractCancelled = false;
         }
     }
 

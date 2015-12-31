@@ -35,10 +35,10 @@ import org.spongepowered.api.event.Event;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
-import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 @Mixin(value = ForgeEventFactory.class, remap = false)
 public abstract class MixinForgeEventFactory {
@@ -62,7 +62,7 @@ public abstract class MixinForgeEventFactory {
         }
 
         if (forgeEvent.isCanceled()) {
-            StaticMixinForgeHelper.lastPlayerInteractCancelled = true;
+            StaticMixinHelper.lastPlayerInteractCancelled = true;
         }
         return forgeEvent;
     }

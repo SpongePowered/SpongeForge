@@ -98,17 +98,4 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
     public Set<String> getRegisteredChannels() {
         return this.registeredChannels;
     }
-
-    @Redirect(method = "processPlayerBlockPlacement", at = @At(value = "INVOKE", target="Lnet/minecraft/server/management/ItemInWorldManager;activateBlockOrUseItem(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/BlockPos;Lnet/minecraft/util/EnumFacing;FFF)Z"))
-    public boolean onActivateBlockOrUseItem(ItemInWorldManager itemManager, EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
-        boolean result = itemManager.activateBlockOrUseItem(player, worldIn, stack, pos, side, hitX, hitY, hitZ);
-        if (stack != null && !result) {
-            // Don't run item use part of hook if PlayerInteractEvent was cancelled.
-            if (StaticMixinForgeHelper.lastPlayerInteractCancelled) {
-                return false;
-            }
-            itemManager.tryUseItem(player, worldIn, stack);
-        }
-        return result;
-    }
 }
