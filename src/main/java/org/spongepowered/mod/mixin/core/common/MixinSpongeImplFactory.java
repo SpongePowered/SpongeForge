@@ -33,7 +33,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -42,14 +41,16 @@ import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEv
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.sink.MessageSink;
+import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplFactory;
 import org.spongepowered.common.entity.PlayerTracker;
 import org.spongepowered.common.interfaces.IMixinChunk;
+import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.util.StaticMixinHelper;
+import org.spongepowered.mod.interfaces.IMixinInitMessageChannelEvent;
 import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
 
 import java.util.Optional;
@@ -63,11 +64,12 @@ public abstract class MixinSpongeImplFactory {
     }
 
     @Overwrite
-    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Cause cause, Text originalMessage, Text message,
-            MessageSink originalSink, MessageSink sink, Player targetEntity) {
+    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Cause cause, MessageChannel originalChannel, Optional<MessageChannel> channel,
+            Optional<Text> originalMessage, Optional<Text> message, Player targetEntity) {
         final ClientConnectionEvent.Join event = (ClientConnectionEvent.Join) new PlayerEvent.PlayerLoggedInEvent((EntityPlayer) targetEntity);
-        event.setSink(sink);
-        event.setMessage(message);
+        ((IMixinInitCause) event).initCause(cause);
+        ((IMixinInitMessageChannelEvent) event).initMessage(originalMessage.orElse(null), message.orElse(null));
+        ((IMixinInitMessageChannelEvent) event).initChannel(originalChannel, channel.orElse(null));
         return event;
     }
 
@@ -81,12 +83,13 @@ public abstract class MixinSpongeImplFactory {
     }
 
     @Overwrite
-    public static ClientConnectionEvent.Disconnect createClientConnectionEventDisconnect(Cause cause, Text originalMessage, Text message,
-            MessageSink originalSink, MessageSink sink, Player targetEntity) {
+    public static ClientConnectionEvent.Disconnect createClientConnectionEventDisconnect(Cause cause, MessageChannel originalChannel, Optional<MessageChannel> channel,
+            Optional<Text> originalMessage, Optional<Text> message, Player targetEntity) {
         final ClientConnectionEvent.Disconnect event =
                 (ClientConnectionEvent.Disconnect) new PlayerEvent.PlayerLoggedOutEvent((EntityPlayer) targetEntity);
-        event.setMessage(message);
-        event.setSink(sink);
+        ((IMixinInitCause) event).initCause(cause);
+        ((IMixinInitMessageChannelEvent) event).initMessage(originalMessage.orElse(null), message.orElse(null));
+        ((IMixinInitMessageChannelEvent) event).initChannel(originalChannel, channel.orElse(null));
         return event;
     }
 

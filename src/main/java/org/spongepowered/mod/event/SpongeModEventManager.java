@@ -62,7 +62,7 @@ import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
-import org.spongepowered.api.event.command.MessageSinkEvent;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
@@ -112,7 +112,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(ConstructEntityEvent.Post.class, EntityEvent.EntityConstructing.class)
                     .put(TargetEntityEvent.class, EntityEvent.class)
                     .put(DestructEntityEvent.Death.class, LivingDeathEvent.class)
-                    .put(MessageSinkEvent.Chat.class, ServerChatEvent.class)
+                    .put(MessageChannelEvent.Chat.class, ServerChatEvent.class)
                     //.put(DropItemEvent.Harvest.class, BlockEvent.HarvestDropsEvent.class)
                     .put(InteractBlockEvent.class, PlayerInteractEvent.class)
                     .put(InteractBlockEvent.Primary.class, PlayerInteractEvent.class)

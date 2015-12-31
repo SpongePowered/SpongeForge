@@ -95,7 +95,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
-import org.spongepowered.api.event.command.MessageSinkEvent;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
@@ -117,6 +117,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
@@ -727,17 +728,22 @@ public class SpongeForgeEventFactory {
 
     // Server events
     private static ServerChatEvent createServerChatEvent(Event event) {
-        if (!(event instanceof MessageSinkEvent.Chat)) {
-            throw new IllegalArgumentException("Event is not a valid MessageSinkEvent.");
+        if (!(event instanceof MessageChannelEvent.Chat)) {
+            throw new IllegalArgumentException("Event is not a valid MessageChannelEvent.Chat.");
         }
 
-        MessageSinkEvent.Chat spongeEvent = (MessageSinkEvent.Chat) event;
+        MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) event;
         Optional<Player> player = spongeEvent.getCause().first(Player.class);
         if (!player.isPresent()) {
             return null;
         }
 
-        IChatComponent component = SpongeTexts.toComponent(spongeEvent.getOriginalMessage());
+        Optional<Text> spongeText = spongeEvent.getOriginalMessage();
+        if (!spongeText.isPresent()) {
+            return null;
+        }
+
+        IChatComponent component = SpongeTexts.toComponent(spongeText.get());
         if (!(component instanceof ChatComponentTranslation)) {
             component = new ChatComponentTranslation("%s", component);
         }
@@ -745,8 +751,9 @@ public class SpongeForgeEventFactory {
         // Using toPlain here is fine, since the raw message from the client
         // can't have formatting.
         ServerChatEvent forgeEvent =
-                new ServerChatEvent((EntityPlayerMP) player.get(), spongeEvent.getOriginalMessage().toPlain(),
+                new ServerChatEvent((EntityPlayerMP) player.get(), spongeText.get().toPlain(),
                         (ChatComponentTranslation) component);
+        ((IMixinInitCause) forgeEvent).initCause(spongeEvent.getCause());
         ((IMixinEventPlayerChat) forgeEvent).setRawMessage(spongeEvent.getRawMessage());
 
         return forgeEvent;
@@ -763,11 +770,8 @@ public class SpongeForgeEventFactory {
                 affectedBlocks.clear();
             }
         } else if (forgeEvent instanceof LivingDeathEvent) {
-            MessageSinkEvent spongeEvent = (MessageSinkEvent) forgeEvent;
-            Text returned = spongeEvent.getMessage();
-            if (returned != Text.of()) {
-                spongeEvent.getSink().sendMessage(returned);
-            }
+            MessageChannelEvent spongeEvent = (MessageChannelEvent) forgeEvent;
+            spongeEvent.getMessage().ifPresent(message -> spongeEvent.getChannel().ifPresent(channel -> channel.send(message)));
         }
     }
 
