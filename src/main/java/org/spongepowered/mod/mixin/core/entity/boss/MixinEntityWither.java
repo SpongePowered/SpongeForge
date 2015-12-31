@@ -38,6 +38,9 @@ import org.spongepowered.common.mixin.core.entity.monster.MixinEntityMob;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * Disabled due to mixin bug: https://github.com/SpongePowered/Mixin/issues/87
+ */
 @Mixin(value = EntityWither.class, priority = 1001)
 public abstract class MixinEntityWither extends MixinEntityMob implements Wither {
 
