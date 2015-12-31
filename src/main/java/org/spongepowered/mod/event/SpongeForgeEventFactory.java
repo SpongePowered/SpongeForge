@@ -134,8 +134,6 @@ import java.util.Optional;
 
 public class SpongeForgeEventFactory {
 
-    public static net.minecraftforge.fml.common.eventhandler.Event lastForgeEvent = null;
-
     public static net.minecraftforge.fml.common.eventhandler.Event findAndCreateForgeEvent(Event event,
             Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
 

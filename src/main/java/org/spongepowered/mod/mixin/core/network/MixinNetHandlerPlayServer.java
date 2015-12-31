@@ -39,7 +39,6 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.text.Text;
@@ -51,9 +50,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Set;
 
@@ -106,7 +105,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
         boolean result = itemManager.activateBlockOrUseItem(player, worldIn, stack, pos, side, hitX, hitY, hitZ);
         if (stack != null && !result) {
             // Don't run item use part of hook if PlayerInteractEvent was cancelled.
-            if (SpongeForgeEventFactory.lastForgeEvent instanceof PlayerInteractEvent && SpongeForgeEventFactory.lastForgeEvent.isCanceled()) {
+            if (StaticMixinForgeHelper.lastPlayerInteractCancelled) {
                 return false;
             }
             itemManager.tryUseItem(player, worldIn, stack);

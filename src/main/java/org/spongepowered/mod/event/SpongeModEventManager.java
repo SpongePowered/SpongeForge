@@ -267,7 +267,6 @@ public class SpongeModEventManager extends SpongeEventManager {
                         bus = MinecraftForge.EVENT_BUS;
                     }
 
-                    SpongeForgeEventFactory.lastForgeEvent = forgeEvent;
                     return post(spongeEvent, forgeEvent, forgeEvent.getListenerList().getListeners(((IMixinEventBus) bus).getBusID()));
                 }
             }

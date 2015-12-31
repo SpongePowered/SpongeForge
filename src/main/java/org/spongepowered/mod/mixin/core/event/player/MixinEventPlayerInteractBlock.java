@@ -37,7 +37,6 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -50,6 +49,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Optional;
 
@@ -72,6 +72,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
             } else {
                 this.blockSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, Vector3i.ZERO));
             }
+            StaticMixinForgeHelper.lastPlayerInteractCancelled = false;
         }
     }
 
@@ -109,8 +110,10 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @Override
     public Event createSpongeEvent() {
-        if (this.action == Action.LEFT_CLICK_BLOCK) {
-            return SpongeEventFactory.createInteractBlockEventPrimary(getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
+        if (action == Action.LEFT_CLICK_BLOCK) {
+            return SpongeEventFactory.createInteractBlockEventSecondary(getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
+        } else if (action == Action.RIGHT_CLICK_AIR) {
+            return SpongeEventFactory.createInteractBlockEventPrimary(getCause(), getInteractionPoint(), getTargetBlock().withState(BlockTypes.AIR.getDefaultState()), getTargetSide());
         } else {
             return SpongeEventFactory.createInteractBlockEventSecondary(getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
         }

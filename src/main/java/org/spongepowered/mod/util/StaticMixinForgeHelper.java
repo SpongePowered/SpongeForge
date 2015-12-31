@@ -47,6 +47,8 @@ import java.util.function.Function;
 
 public final class StaticMixinForgeHelper {
 
+    public static boolean lastPlayerInteractCancelled = false;
+
     public static DamageSource exchangeDamageSource(DamageSource damageSource) {
 
         return damageSource;

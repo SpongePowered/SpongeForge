@@ -31,50 +31,39 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
-import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.util.Direction;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.registry.provider.DirectionFacingProvider;
-import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.event.SpongeForgeEventFactory;
-
-import java.util.Optional;
+import org.spongepowered.mod.event.SpongeModEventManager;
+import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.interfaces.IMixinEventBus;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 @Mixin(value = ForgeEventFactory.class, remap = false)
 public abstract class MixinForgeEventFactory {
 
     @Overwrite
-    public static PlayerInteractEvent onPlayerInteract(EntityPlayer player, Action action, net.minecraft.world.World world, BlockPos pos, EnumFacing face) {
+    public static PlayerInteractEvent onPlayerInteract(EntityPlayer player, Action action, net.minecraft.world.World world, BlockPos pos,
+            EnumFacing face) {
         if (world.isRemote) {
             PlayerInteractEvent event = new PlayerInteractEvent(player, action, pos, face, world);
             MinecraftForge.EVENT_BUS.post(event);
             return event;
         }
 
-        InteractBlockEvent event = null;
-        if (action == Action.LEFT_CLICK_BLOCK) {
-            event = SpongeEventFactory.createInteractBlockEventPrimary(Cause.of(NamedCause.source(player)), Optional.empty(),
-                ((World) world).createSnapshot(VecHelper.toVector(pos)), face == null ? Direction.NONE
-                : DirectionFacingProvider.getInstance().getKey(face).get());
-        } else if (action == Action.RIGHT_CLICK_AIR) {
-            event = SpongeEventFactory.createInteractBlockEventSecondary(Cause.of(NamedCause.source(player)), Optional.empty(),
-                    ((World) world).createSnapshot(VecHelper.toVector(pos)).withState(BlockTypes.AIR.getDefaultState()), face == null ? Direction.NONE
-                    : DirectionFacingProvider.getInstance().getKey(face).get());
-        } else {
-            event = SpongeEventFactory.createInteractBlockEventSecondary(Cause.of(NamedCause.source(player)), Optional.empty(),
-                ((World) world).createSnapshot(VecHelper.toVector(pos)), face == null ? Direction.NONE
-                : DirectionFacingProvider.getInstance().getKey(face).get());
+        PlayerInteractEvent forgeEvent = new PlayerInteractEvent(player, action, pos, face, world);
+        Event spongeEvent = ((IMixinEvent) forgeEvent).createSpongeEvent();
+
+        // Bypass ForgeEventFactory so we maintain the same event reference.
+        if (((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent,
+                forgeEvent.getListenerList().getListeners(((IMixinEventBus) MinecraftForge.EVENT_BUS).getBusID()))) {
+            forgeEvent.setCanceled(true);
         }
 
-        SpongeImpl.postEvent(event);
-
-        return (PlayerInteractEvent) SpongeForgeEventFactory.lastForgeEvent;
+        if (forgeEvent.isCanceled()) {
+            StaticMixinForgeHelper.lastPlayerInteractCancelled = true;
+        }
+        return forgeEvent;
     }
 }
