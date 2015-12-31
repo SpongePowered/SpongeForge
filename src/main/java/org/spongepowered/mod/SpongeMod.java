@@ -61,7 +61,6 @@ import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.service.ProviderExistsException;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.sql.SqlService;
@@ -70,6 +69,7 @@ import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
@@ -136,14 +136,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         return this.controller;
     }
 
-    private <T> boolean registerService(Class<T> serviceClass, T serviceImpl) {
-        try {
-            SpongeImpl.getGame().getServiceManager().setProvider(SpongeImpl.getPlugin(), serviceClass, serviceImpl);
-            return true;
-        } catch (ProviderExistsException e) {
-            SpongeImpl.getLogger().warn("Non-Sponge {} already registered: {}", serviceClass.getSimpleName(), e.getLocalizedMessage());
-            return false;
-        }
+    private <T> void registerService(Class<T> serviceClass, T serviceImpl) {
+        SpongeImpl.getGame().getServiceManager().setProvider(SpongeImpl.getPlugin(), serviceClass, serviceImpl);
     }
 
     @Override
@@ -174,6 +168,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onPreInit(FMLPreInitializationEvent event) {
         try {
+            SpongeImpl.getGame().getEventManager().registerListeners(SpongeImpl.getPlugin().getInstance().get(), SpongeInternalListeners.getInstance());
             registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.initializeCommands();
@@ -185,8 +180,8 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
             MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
 
-            this.game.getServiceManager().potentiallyProvide(PermissionService.class)
-                    .executeWhenPresent(input -> input.registerContextCalculator(new SpongeContextCalculator()));
+            SpongeInternalListeners.getInstance().registerServiceCallback(PermissionService.class,
+                    input -> input.registerContextCalculator(new SpongeContextCalculator()));
 
             // Add the SyncScheduler as a listener for ServerTickEvents
             FMLCommonHandler.instance().bus().register(this);
@@ -213,15 +208,11 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         try {
             SpongeImpl.getRegistry().init();
             if (!this.game.getServiceManager().provide(PermissionService.class).isPresent()) {
-                try {
-                    final SpongePermissionService service = new SpongePermissionService(this.game);
-                    // Setup default permissions
-                    service.getGroupForOpLevel(1).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.selector", Tristate.TRUE);
-                    service.getGroupForOpLevel(2).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.commandblock", Tristate.TRUE);
-                    this.game.getServiceManager().setProvider(this, PermissionService.class, service);
-                } catch (ProviderExistsException e1) {
-                    // It's a fallback, ignore
-                }
+                final SpongePermissionService service = new SpongePermissionService(this.game);
+                // Setup default permissions
+                service.getGroupForOpLevel(1).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.selector", Tristate.TRUE);
+                service.getGroupForOpLevel(2).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.commandblock", Tristate.TRUE);
+                this.game.getServiceManager().setProvider(this, PermissionService.class, service);
             }
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
