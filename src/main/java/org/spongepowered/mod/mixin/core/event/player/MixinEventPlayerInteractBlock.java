@@ -111,9 +111,9 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     @Override
     public Event createSpongeEvent() {
         if (action == Action.LEFT_CLICK_BLOCK) {
-            return SpongeEventFactory.createInteractBlockEventSecondary(getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
+            return SpongeEventFactory.createInteractBlockEventPrimary(getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
         } else if (action == Action.RIGHT_CLICK_AIR) {
-            return SpongeEventFactory.createInteractBlockEventPrimary(getCause(), getInteractionPoint(), getTargetBlock().withState(BlockTypes.AIR.getDefaultState()), getTargetSide());
+            return SpongeEventFactory.createInteractBlockEventSecondary(getCause(), getInteractionPoint(), getTargetBlock().withState(BlockTypes.AIR.getDefaultState()), getTargetSide());
         } else {
             return SpongeEventFactory.createInteractBlockEventSecondary(getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
         }
