@@ -30,57 +30,10 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
-import org.spongepowered.api.world.Chunk;
-import org.spongepowered.api.world.gen.Populator;
-import org.spongepowered.api.world.gen.PopulatorType;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.mixin.core.world.gen.populators.MixinWorldGenerator;
-import org.spongepowered.common.util.StaticMixinHelper;
-import org.spongepowered.common.world.gen.SpongePopulatorType;
-import org.spongepowered.mod.SpongeMod;
-
-import java.util.Random;
 
 @Mixin(value = net.minecraft.world.gen.feature.WorldGenerator.class, priority = 1001)
-public abstract class MixinWorldGeneratorForge implements Populator {
-
-    private SpongePopulatorType populatorType;
-
-    @Shadow private boolean doBlockNotify;
-    @Shadow public abstract boolean generate(net.minecraft.world.World worldIn, Random rand, BlockPos position);
-
-    @Inject(method = "<init>*", at = @At("RETURN"))
-    public void onConstructed(boolean notifyBlock, CallbackInfo ci) {
-        net.minecraft.world.gen.feature.WorldGenerator gen = ((net.minecraft.world.gen.feature.WorldGenerator)(Object) this);
-        if (!gen.getClass().getName().contains("net.minecraft.") && !SpongeImpl.getRegistry().isAdditionalRegistered(gen.getClass(), PopulatorType.class)) {
-            this.populatorType = new SpongePopulatorType(this.getClass().getSimpleName(),SpongeMod.instance.getModIdFromClass(gen.getClass()), gen.getClass());
-            SpongeImpl.getRegistry().registerAdditionalType(PopulatorType.class, this.populatorType);
-        }
-    }
-
-    @Overwrite
-    protected void setBlockAndNotifyAdequately(net.minecraft.world.World worldIn, BlockPos pos, IBlockState state) {
-        StaticMixinHelper.populator = this.populatorType;
-
-        if (this.doBlockNotify) {
-            worldIn.setBlockState(pos, state, 3);
-        } else {
-            worldIn.setBlockState(pos, state, 2);
-        }
-
-        StaticMixinHelper.populator = null;
-    }
-
-    @Override
-    public void populate(Chunk chunk, Random random) {
-        // DOES NOTHING
-    }
+public abstract class MixinWorldGeneratorForge {
 
     public boolean isAir(IBlockState state, World worldIn, BlockPos pos) {
         return state.getBlock().isAir(worldIn, pos);

@@ -24,7 +24,8 @@
  */
 package org.spongepowered.mod.world.gen;
 
-import com.flowpowered.math.vector.Vector2i;
+import com.flowpowered.math.vector.Vector3i;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.minecraft.block.BlockFalling;
@@ -45,9 +46,11 @@ import net.minecraftforge.event.terraingen.PopulateChunkEvent.Populate;
 import net.minecraftforge.event.terraingen.TerrainGen;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.StoneType;
 import org.spongepowered.api.data.type.StoneTypes;
@@ -61,6 +64,7 @@ import org.spongepowered.api.world.extent.ImmutableBiomeArea;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GenerationPopulator;
 import org.spongepowered.api.world.gen.Populator;
+import org.spongepowered.api.world.gen.PopulatorType;
 import org.spongepowered.api.world.gen.populator.BigMushroom;
 import org.spongepowered.api.world.gen.populator.Cactus;
 import org.spongepowered.api.world.gen.populator.DeadBush;
@@ -77,15 +81,22 @@ import org.spongepowered.api.world.gen.populator.Reed;
 import org.spongepowered.api.world.gen.populator.SeaFloor;
 import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
+import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.common.world.CaptureType;
 import org.spongepowered.common.world.gen.SpongeChunkProvider;
+import org.spongepowered.common.world.gen.SpongeGenerationPopulator;
 import org.spongepowered.common.world.gen.WorldGenConstants;
 import org.spongepowered.common.world.gen.populators.AnimalPopulator;
 import org.spongepowered.common.world.gen.populators.SnowPopulator;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -110,6 +121,10 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
 
     @Override
     public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ) {
+        IMixinWorld world = (IMixinWorld) this.world;
+        world.setProcessingCaptureCause(true);
+        world.setCapturingTerrainGen(true);
+        Cause populateCause = Cause.of(NamedCause.source(this), NamedCause.of("ChunkProvider", chunkProvider));
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -119,7 +134,6 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         BlockPos blockpos = new BlockPos(chunkX * 16, 0, chunkZ * 16);
         BiomeType biome = (BiomeType) this.world.getBiomeGenForCoords(blockpos.add(16, 0, 16));
 
-        // Calling the events makes the Sponge-added populators fire
         Chunk chunk = (Chunk) this.world.getChunkFromChunkCoords(chunkX, chunkZ);
 
         List<Populator> populators = Lists.newArrayList(this.pop);
@@ -128,31 +142,55 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         }
         populators.addAll(this.biomeSettings.get(biome).getPopulators());
 
-        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(Cause.of(NamedCause.source(this.world)), populators,
-            chunk));
+        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(populateCause, populators, chunk));
 
         MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Pre(chunkProvider, this.world, this.rand, chunkX, chunkZ, false));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(this.world, this.rand, blockpos));
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Pre(this.world, this.rand, blockpos));
-        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(Cause.of(NamedCause.source(this.world)), chunk));
         List<String> flags = Lists.newArrayList();
         for (Populator populator : populators) {
             if (!checkForgeEvent(populator, chunkProvider, chunkX, chunkZ, flags, chunk)) {
                 continue;
             }
+            if(Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(populateCause, populator, chunk))) {
+                continue;
+            }
+            StaticMixinHelper.runningGenerator = populator.getType();
             if (populator instanceof IFlaggedPopulator) {
                 ((IFlaggedPopulator) populator).populate(chunkProvider, chunk, this.rand, flags);
             } else {
                 populator.populate(chunk, this.rand);
             }
+            StaticMixinHelper.runningGenerator = null;
         }
 
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Post(this.world, this.rand, blockpos));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Post(this.world, this.rand, blockpos));
         MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Post(chunkProvider, this.world, this.rand, chunkX, chunkZ, false));
 
-        Sponge.getGame().getEventManager()
-                .post(SpongeEventFactory.createPopulateChunkEventPost(Cause.of(NamedCause.source(this.world)), ImmutableMap.of(), chunk));
+        // If we wrapped a custom chunk provider then we should call its
+        // populate method so that its particular changes are used.
+        if (this.baseGenerator instanceof SpongeGenerationPopulator) {
+            ((SpongeGenerationPopulator) this.baseGenerator).getHandle(this.world).populate(chunkProvider, chunkX, chunkZ);
+        }
+
+        world.setCapturingTerrainGen(false);
+        world.setProcessingCaptureCause(false);
+
+        ImmutableMap.Builder<PopulatorType, List<Transaction<BlockSnapshot>>> populatorChanges = ImmutableMap.builder();
+        for (Map.Entry<PopulatorType, LinkedHashMap<Vector3i, Transaction<BlockSnapshot>>> entry : world.getCapturedPopulatorChanges().entrySet()) {
+            populatorChanges.put(entry.getKey(), ImmutableList.copyOf(entry.getValue().values()));
+        }
+        org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
+                SpongeEventFactory.createPopulateChunkEventPost(populateCause,
+                        populatorChanges.build(),
+                        chunk);
+        SpongeImpl.postEvent(event);
+
+        for (List<Transaction<BlockSnapshot>> transactions : event.getPopulatedTransactions().values()) {
+            world.markAndNotifyBlockPost(transactions, CaptureType.POPULATE, populateCause);
+        }
+        world.getCapturedPopulatorChanges().clear();
 
         BlockFalling.fallInstantly = false;
     }

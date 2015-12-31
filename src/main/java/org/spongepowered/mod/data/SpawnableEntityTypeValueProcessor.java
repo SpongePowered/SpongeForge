@@ -59,6 +59,7 @@ public class SpawnableEntityTypeValueProcessor extends AbstractSpongeValueProces
         return SpongeValueFactory.getInstance().createValue(Keys.SPAWNABLE_ENTITY_TYPE, defaultValue, EntityTypes.CREEPER);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean set(ItemStack container, EntityType value) {
         final String name = (String) EntityList.classToStringMapping.get(value.getEntityClass());
@@ -87,8 +88,7 @@ public class SpawnableEntityTypeValueProcessor extends AbstractSpongeValueProces
 
     @Override
     public Optional<EntityType> getVal(ItemStack container) {
-        System.out.print("SpongeForge");
-        final Class entity = (Class) EntityList.stringToClassMapping.get(ItemMonsterPlacer.getEntityName(container));
+        final Class<?> entity = (Class<?>) EntityList.stringToClassMapping.get(ItemMonsterPlacer.getEntityName(container));
         for (EntityType type : SpongeImpl.getRegistry().getAllOf(EntityType.class)) {
             if (type.getEntityClass().equals(entity)) {
                 return Optional.of(type);

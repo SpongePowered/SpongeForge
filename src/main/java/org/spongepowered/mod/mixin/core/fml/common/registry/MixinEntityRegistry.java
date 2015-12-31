@@ -37,6 +37,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeEntityType;
+import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 
 @NonnullByDefault
 @Mixin(value = EntityRegistry.class, remap = false)
@@ -79,7 +80,7 @@ public abstract class MixinEntityRegistry {
         }
 
         SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass);
-        SpongeImpl.getRegistry().registerAdditionalType(EntityType.class, entityType);
+        EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
     }
 
 }

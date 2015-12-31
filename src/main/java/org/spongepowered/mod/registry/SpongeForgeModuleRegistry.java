@@ -32,7 +32,10 @@ import org.spongepowered.api.data.property.block.SolidCubeProperty;
 import org.spongepowered.common.data.manipulator.immutable.item.ImmutableSpongeSpawnableData;
 import org.spongepowered.common.data.manipulator.mutable.item.SpongeSpawnableData;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
+import org.spongepowered.common.registry.type.world.gen.PopulatorTypeRegistryModule;
+import org.spongepowered.common.world.gen.SpongePopulatorType;
 import org.spongepowered.common.data.SpongeDataManager;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.data.ForgeLightEmissionPropertyStore;
 import org.spongepowered.mod.data.ForgeSolidCubePropertyStore;
 import org.spongepowered.mod.data.SpawnableDataProcessor;
@@ -56,6 +59,12 @@ public class SpongeForgeModuleRegistry {
 
         // Value registration
         dataRegistry.registerValueProcessor(Keys.SPAWNABLE_ENTITY_TYPE, new SpawnableEntityTypeValueProcessor());
+        
+        //Populator types
+        PopulatorTypeRegistryModule populatorTypeModule = PopulatorTypeRegistryModule.getInstance();
+        populatorTypeModule.customTypeFunction = (type)->{
+            return new SpongePopulatorType(type.getSimpleName(),SpongeMod.instance.getModIdFromClass(type));
+        };
     }
 
 }
