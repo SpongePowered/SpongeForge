@@ -51,6 +51,7 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
@@ -224,8 +225,9 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @SuppressWarnings("unchecked")
     protected static boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced) {
+        ModContainer oldContainer = ((IMixinLoadController) SpongeMod.instance.getController()).getActiveModContainer();
         for (@SuppressWarnings("rawtypes") RegisteredListener listener : listeners) {
-            ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(listener.getPlugin());
+            ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer((ModContainer) listener.getPlugin());
             try {
                 if (forced || (!listener.isBeforeModifications() && !beforeModifications) || (listener.isBeforeModifications() && beforeModifications)) {
                     listener.handle(event);
@@ -233,8 +235,8 @@ public class SpongeModEventManager extends SpongeEventManager {
             } catch (Throwable e) {
                 SpongeImpl.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
             }
-            ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(null);
         }
+        ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(oldContainer);
         return event instanceof Cancellable && ((Cancellable) event).isCancelled();
     }
 

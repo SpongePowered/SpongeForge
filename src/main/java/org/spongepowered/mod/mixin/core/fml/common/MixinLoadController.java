@@ -57,7 +57,12 @@ public abstract class MixinLoadController implements IMixinLoadController {
     }
 
     @Override
-    public void setActiveModContainer(PluginContainer container) {
-        this.activeContainer = (ModContainer) container;
+    public ModContainer getActiveModContainer() {
+        return this.activeContainer;
+    }
+
+    @Override
+    public void setActiveModContainer(ModContainer container) {
+        this.activeContainer = container;
     }
 }

@@ -24,8 +24,11 @@
  */
 package org.spongepowered.mod.interfaces;
 
-import org.spongepowered.api.plugin.PluginContainer;
+import net.minecraftforge.fml.common.ModContainer;
 
 public interface IMixinLoadController {
-    void setActiveModContainer(PluginContainer container);
+
+    ModContainer getActiveModContainer();
+
+    void setActiveModContainer(ModContainer container);
 }
