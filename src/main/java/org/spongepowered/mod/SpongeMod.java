@@ -238,7 +238,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     @Subscribe
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         try {
-            SpongeBootstrap.registerWorlds();
             // Register vanilla-style commands (if necessary -- not necessary on client)
             ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerEarlyCommands(this.game);
         } catch (Throwable t) {

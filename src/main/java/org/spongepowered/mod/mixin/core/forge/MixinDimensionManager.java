@@ -24,12 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
-import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLLog;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -46,6 +43,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.config.SpongeConfig;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.interfaces.world.IMixinWorldProvider;
 import org.spongepowered.common.registry.type.world.DimensionRegistryModule;
 import org.spongepowered.common.world.SpongeDimensionType;
 import org.spongepowered.common.world.SpongeWorldCreationSettingsBuilder;
@@ -114,9 +112,17 @@ public abstract class MixinDimensionManager {
     public static boolean shouldLoadSpawn(int dim) {
         final WorldServer worldServer = DimensionManager.getWorld(dim);
         final SpongeConfig<SpongeConfig.WorldConfig> worldConfig = ((IMixinWorld) worldServer).getWorldConfig();
+
         if (worldConfig.getConfig().isConfigEnabled()) {
             return worldConfig.getConfig().getWorld().getKeepSpawnLoaded();
+        } else {
+            final SpongeConfig<SpongeConfig.DimensionConfig> dimensionConfig = ((IMixinWorldProvider) worldServer.provider)
+                    .getDimensionConfig();
+            if (dimensionConfig.getConfig().isConfigEnabled()) {
+                return dimensionConfig.getConfig().getWorld().getKeepSpawnLoaded();
+            }
         }
+
         // Don't use configs at this point, use spawn settings in the provider type
         int id = DimensionManager.getProviderType(dim);
         return spawnSettings.containsKey(id) && spawnSettings.get(id);
