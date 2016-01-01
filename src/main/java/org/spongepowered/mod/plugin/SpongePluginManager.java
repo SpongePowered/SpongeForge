@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.plugin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableSet;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -73,9 +75,8 @@ public class SpongePluginManager implements PluginManager {
 
     @Override
     public Optional<PluginContainer> fromInstance(Object instance) {
-        if (instance instanceof PluginContainer) {
-            return Optional.of((PluginContainer) instance);
-        } else if (instance instanceof ModContainer) { // For coremods that don't get to be mixed in
+        checkNotNull(instance, "instance");
+        if (instance instanceof ModContainer) { // For coremods that don't get to be mixed in
             return getPlugin(((ModContainer) instance).getModId());
         }
         return Optional.ofNullable((PluginContainer) Loader.instance().getReversedModObjectList().get(instance));
