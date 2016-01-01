@@ -683,17 +683,17 @@ public class SpongeForgeEventFactory {
         }
 
         net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
-        Explosion explosion = (Explosion) spongeEvent.getExplosion();
+        Explosion explosion = (Explosion) null;//spongeEvent.getExplosion();
         net.minecraftforge.event.world.ExplosionEvent forgeEvent = new net.minecraftforge.event.world.ExplosionEvent(forgeWorld, explosion);
         return forgeEvent;
     }
 
     public static net.minecraftforge.event.world.ExplosionEvent.Start createExplosionStartEvent(Event event) {
-        if (!(event instanceof ExplosionEvent.Pre)) {
-            throw new IllegalArgumentException("Event is not a valid ExplosionEvent.Pre.");
+        if (!(event instanceof ExplosionEvent.Start)) {
+            throw new IllegalArgumentException("Event is not a valid ExplosionEvent.Start.");
         }
 
-        ExplosionEvent.Pre spongeEvent = (ExplosionEvent.Pre) event;
+        ExplosionEvent.Start spongeEvent = (ExplosionEvent.Start) event;
         Optional<World> world = spongeEvent.getCause().first(World.class);
         if (!world.isPresent()) {
             return null;
