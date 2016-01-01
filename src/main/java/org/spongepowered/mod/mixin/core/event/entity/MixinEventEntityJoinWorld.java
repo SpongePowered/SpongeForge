@@ -75,28 +75,6 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
     }
 
     @Override
-    public List<Entity> filterEntityLocations(Predicate<Location<World>> predicate) {
-        Iterator<Entity> iterator = this.entities.iterator();
-        while (iterator.hasNext()) {
-            if (!predicate.test(((Entity) iterator.next()).getLocation())) {
-                iterator.remove();
-            }
-        }
-        return this.entities;
-    }
-
-    @Override
-    public List<Entity> filterEntities(Predicate<Entity> predicate) {
-        Iterator<Entity> iterator = this.entities.iterator();
-        while (iterator.hasNext()) {
-            if (!predicate.test((Entity) iterator.next())) {
-                iterator.remove();
-            }
-        }
-        return this.entities;
-    }
-
-    @Override
     public List<EntitySnapshot> getEntitySnapshots() {
         return this.entitySnapshots;
     }

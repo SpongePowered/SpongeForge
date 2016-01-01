@@ -161,35 +161,6 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
             return (List<Entity>) (List<?>) this.entityList;
         }
 
-        @Override
-        public List<Entity> filterEntityLocations(Predicate<Location<World>> predicate) {
-            if (((net.minecraftforge.event.world.ExplosionEvent.Detonate) (Object) this).isCancelable()) {
-                Iterator<? extends Entity> iterator = this.getEntities().iterator();
-                while (iterator.hasNext()) {
-                    Entity entity = iterator.next();
-                    Location<World> location = entity.getLocation();
-                    if (!predicate.test(location)) {
-                        iterator.remove();
-                    }
-                }
-            }
-            return this.getEntities();
-        }
-
-        @Override
-        public List<Entity> filterEntities(Predicate<Entity> predicate) {
-            if (((net.minecraftforge.event.world.ExplosionEvent.Detonate) (Object) this).isCancelable()) {
-                Iterator<? extends Entity> iterator = this.getEntities().iterator();
-                while (iterator.hasNext()) {
-                    Entity entity = (Entity) iterator.next();
-                    if (!predicate.test(entity)) {
-                        iterator.remove();
-                    }
-                }
-            }
-            return this.getEntities();
-        }
-
         @SuppressWarnings({"unchecked"})
         @Override
         public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
