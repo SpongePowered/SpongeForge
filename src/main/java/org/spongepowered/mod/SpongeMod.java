@@ -53,13 +53,16 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.event.Event;
+import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.permission.PermissionService;
@@ -75,6 +78,8 @@ import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.registry.RegistryHelper;
+import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
+import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
 import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
@@ -86,6 +91,7 @@ import org.spongepowered.mod.guice.SpongeGuiceModule;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.registry.SpongeForgeModuleRegistry;
+import org.spongepowered.mod.registry.SpongeGameData;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
 import java.io.File;
@@ -102,7 +108,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
-    public SpongeMod() {
+    public SpongeMod() throws Exception {
         super(SpongeMod.createMetadata(ImmutableMap.<String, Object>of("modid", SpongeImpl.ECOSYSTEM_ID, "name", SpongeImpl.ECOSYSTEM_NAME,
                 "version", "DEV")));
         // Register our special instance creator with FML
@@ -113,8 +119,15 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
         // Initialize Sponge
         Guice.createInjector(new SpongeGuiceModule()).getInstance(SpongeImpl.class);
-
         this.game = SpongeImpl.getGame();
+
+        SpongeGameData.addRegistryCallback(GameData.getBlockRegistry(), (obj, id) ->
+                BlockTypeRegistryModule.getInstance().registerFromGameData(GameData.getBlockRegistry().getNameForObject(obj).toString(),
+                        (BlockType) obj));
+        SpongeGameData.addRegistryCallback(GameData.getItemRegistry(), (obj, id) ->
+                ItemTypeRegistryModule.getInstance().registerFromGameData(GameData.getItemRegistry().getNameForObject(obj).toString(),
+                        (ItemType) obj));
+
         VillagerRegistry.instance();
         this.game.getRegistry().preRegistryInit();
         SpongeForgeModuleRegistry.registerForgeData();

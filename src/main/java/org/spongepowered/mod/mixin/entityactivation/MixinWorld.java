@@ -58,8 +58,11 @@ public abstract class MixinWorld implements World, IMixinWorld {
         }
     }
 
-    @Inject(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;canEntityUpdate(Lnet/minecraft/entity/Entity;)Z", shift = At.Shift.BY, by = 3, ordinal = 0), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void onUpdateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate, CallbackInfo ci, int i, int j, boolean isForced, byte b0, boolean canUpdate) {
+    @Inject(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;canEntityUpdate(Lnet/minecraft/entity/Entity;)Z",
+            shift = At.Shift.BY, by = 3, ordinal = 0), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
+    public void onUpdateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate, CallbackInfo ci, int i, int j,
+            boolean isForced, int k, boolean canUpdate) {
         if (!isForced && !canUpdate && !ActivationRange.checkIfActive(entity)) { // ignore if forced by forge event update or entity's chunk
             entity.ticksExisted++;
             ((IMixinEntity) entity).inactiveTick();
