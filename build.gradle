@@ -13,7 +13,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-20151205.212842-160'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
         classpath('nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0') {
             exclude module: 'guava'
         }
@@ -28,16 +28,16 @@ apply plugin: 'org.spongepowered.mixin'
 ext.minecraftPlugin = plugins.getPlugin('net.minecraftforge.gradle.forge')
 ext.DIR_MCP_MAPPINGS = net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS
 
-// Apply shared implementation Gradle config
-apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
-
 // Forge Version
-ext.forgeBuild = '1577'
+ext.forgeBuild = '1691'
 
 minecraft {
     forgeVersion = forgeBuild
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
 }
+
+// Apply shared implementation Gradle config
+apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
 
 version = "$minecraft.version-$forgeBuild-$apiVersion-$buildNumber"
 
