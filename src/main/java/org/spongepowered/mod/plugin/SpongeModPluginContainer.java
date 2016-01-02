@@ -101,7 +101,7 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
             spongeBus.registerListener(this, this.pluginInstance.get());
         } catch (Throwable t) {
             this.fmlController.errorOccurred(this, t);
-            Throwables.propagateIfPossible(t);
+            //Throwables.propagateIfPossible(t);
         }
     }
 
