@@ -29,13 +29,18 @@ import org.spongepowered.api.data.manipulator.mutable.item.SpawnableData;
 import org.spongepowered.api.data.property.block.LightEmissionProperty;
 import org.spongepowered.api.data.property.block.MatterProperty;
 import org.spongepowered.api.data.property.block.SolidCubeProperty;
+import org.spongepowered.api.extra.fluid.data.manipulator.immutable.ImmutableFluidTankData;
+import org.spongepowered.api.extra.fluid.data.manipulator.mutable.FluidTankData;
 import org.spongepowered.common.data.SpongeDataManager;
+import org.spongepowered.common.data.manipulator.immutable.extra.ImmutableSpongeFluidTankData;
 import org.spongepowered.common.data.manipulator.immutable.item.ImmutableSpongeSpawnableData;
+import org.spongepowered.common.data.manipulator.mutable.extra.SpongeFluidTankData;
 import org.spongepowered.common.data.manipulator.mutable.item.SpongeSpawnableData;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
 import org.spongepowered.common.registry.type.world.gen.PopulatorTypeRegistryModule;
 import org.spongepowered.common.world.gen.SpongePopulatorType;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.data.ForgeFluidTankDataProcessor;
 import org.spongepowered.mod.data.ForgeLightEmissionPropertyStore;
 import org.spongepowered.mod.data.ForgeMatterPropertyStore;
 import org.spongepowered.mod.data.ForgeSolidCubePropertyStore;
@@ -55,6 +60,9 @@ public class SpongeForgeModuleRegistry {
         SpongeDataManager dataRegistry = SpongeDataManager.getInstance();
         dataRegistry.registerDualProcessor(SpawnableData.class, SpongeSpawnableData.class, ImmutableSpawnableData.class,
                 ImmutableSpongeSpawnableData.class, new ForgeSpawnableDataProcessor());
+
+        dataRegistry.registerDualProcessor(FluidTankData.class, SpongeFluidTankData.class, ImmutableFluidTankData.class,
+                ImmutableSpongeFluidTankData.class, new ForgeFluidTankDataProcessor());
 
         //Populator types
         PopulatorTypeRegistryModule populatorTypeModule = PopulatorTypeRegistryModule.getInstance();
