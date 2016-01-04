@@ -30,6 +30,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
 import net.minecraftforge.fml.client.FMLFolderResourcePack;
@@ -70,6 +71,7 @@ import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeInternalListeners;
+import org.spongepowered.common.SpongeVersion;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
@@ -120,6 +122,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
         this.game.getEventManager().registerListeners(this, this);
         RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
+        SpongeVersion.getComponents().add((PluginContainer) ForgeModContainer.getInstance());
     }
 
     @Override
