@@ -14,6 +14,7 @@ buildscript {
             exclude module: 'guava'
         }
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
+        classpath 'org.spongepowered:spongegradle:0.2-SNAPSHOT'
     }
 }
 
