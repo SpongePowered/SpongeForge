@@ -4,6 +4,7 @@
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "mixins": [
+        "fml.common.MixinFMLModContainer",
         "fml.common.MixinModContainer",
         "fml.common.eventhandler.MixinEvent"
     ],

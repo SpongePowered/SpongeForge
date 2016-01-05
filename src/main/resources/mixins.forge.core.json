@@ -65,6 +65,7 @@
         "event.world.MixinEventWorldLoad",
         "event.world.MixinEventWorldSave",
         "event.world.MixinEventWorldUnload",
+        "fml.common.event.MixinFMLFingerprintViolationEvent",
         "fml.common.eventhandler.MixinEventBus",
         "fml.common.gameevent.MixinPlayerEvent",
         "fml.common.gameevent.MixinPlayerLoggedInEvent",
