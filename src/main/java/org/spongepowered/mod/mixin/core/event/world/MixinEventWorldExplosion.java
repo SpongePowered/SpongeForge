@@ -24,9 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.event.world;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableList;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -61,10 +61,12 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
     @Shadow public net.minecraft.world.World world;
     @Shadow public net.minecraft.world.Explosion explosion;
+    protected net.minecraft.world.Explosion originalExplosion;
     private Cause cause;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstruct(CallbackInfo callbackInfo) {
+        this.originalExplosion = this.explosion;
         if (this.explosion.exploder == null) {
             this.cause = Cause.of(NamedCause.source(this.world.getBlockState(new BlockPos(this.explosion.getPosition()))));
         } else {
@@ -83,11 +85,6 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
     }
 
     @Override
-    public Explosion getExplosion() {
-        return (Explosion) this.explosion;
-    }
-
-    @Override
     public Cause getCause() {
         return this.cause;
     }
@@ -98,8 +95,22 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
     }
 
     @Mixin(value = net.minecraftforge.event.world.ExplosionEvent.Start.class, remap = false)
-    static abstract class Pre extends MixinEventWorldExplosion implements ExplosionEvent.Pre {
+    static abstract class Start extends MixinEventWorldExplosion implements ExplosionEvent.Start {
 
+        @Override
+        public Explosion getOriginalExplosion() {
+            return (Explosion) this.originalExplosion;
+        }
+
+        @Override
+        public Explosion getExplosion() {
+            return (Explosion) this.explosion;
+        }
+
+        @Override
+        public void setExplosion(Explosion explosion) {
+            this.explosion = (net.minecraft.world.Explosion) checkNotNull(explosion, "explosion");
+        }
     }
 
     @Mixin(value = net.minecraftforge.event.world.ExplosionEvent.Detonate.class, remap = false)
@@ -109,6 +120,11 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         private ImmutableList<Transaction<BlockSnapshot>> blockTransactions;
 
         @Shadow private List<net.minecraft.entity.Entity> entityList;
+
+        @Override
+        public Explosion getExplosion() {
+            return (Explosion) this.explosion;
+        }
 
         @Inject(method = "<init>", at = @At("RETURN"))
         public void onConstructed(net.minecraft.world.World world, net.minecraft.world.Explosion explosion, List<Entity> entityList, CallbackInfo ci) {
