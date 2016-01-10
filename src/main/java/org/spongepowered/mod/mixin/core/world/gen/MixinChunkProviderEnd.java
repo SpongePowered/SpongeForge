@@ -44,7 +44,7 @@ public abstract class MixinChunkProviderEnd implements IChunkProvider {
     @Shadow private World endWorld;
 
 
-    @Inject(method = "func_180519_a(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
+    @Inject(method = "func_180519_a(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true, require = 1)
     public void cancelEndStone(ChunkPrimer chunk, CallbackInfo ci) {
         ReplaceBiomeBlocks event = new ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.endWorld);
         MinecraftForge.EVENT_BUS.post(event);

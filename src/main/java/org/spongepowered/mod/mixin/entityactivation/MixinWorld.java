@@ -51,14 +51,14 @@ public abstract class MixinWorld implements World, IMixinWorld {
     public abstract boolean isChunkLoaded(int x, int z, boolean allowEmpty);
 
     @Inject(method = "updateEntities()V", at = @At(value = "INVOKE_STRING",
-            target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V", args = {"ldc=regular"}))
+            target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V", args = {"ldc=regular"}), require = 1)
     private void onInvokeProfiler(CallbackInfo ci) {
         if (!((net.minecraft.world.World) (Object) this).isRemote) {
             ActivationRange.activateEntities(((net.minecraft.world.World) (Object) this));
         }
     }
 
-    @Inject(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;canEntityUpdate(Lnet/minecraft/entity/Entity;)Z", shift = At.Shift.BY, by = 3, ordinal = 0), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;canEntityUpdate(Lnet/minecraft/entity/Entity;)Z", shift = At.Shift.BY, by = 3, ordinal = 0), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, require = 1)
     public void onUpdateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate, CallbackInfo ci, int i, int j, boolean isForced, byte b0, boolean canUpdate) {
         if (!isForced && !canUpdate && !ActivationRange.checkIfActive(entity)) { // ignore if forced by forge event update or entity's chunk
             entity.ticksExisted++;

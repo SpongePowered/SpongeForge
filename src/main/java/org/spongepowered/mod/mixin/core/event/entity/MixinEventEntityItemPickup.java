@@ -52,7 +52,7 @@ public abstract class MixinEventEntityItemPickup extends MixinEventPlayer implem
     protected ImmutableList<Entity> originalEntities;
     protected List<Entity> entities;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(EntityPlayer player, EntityItem item, CallbackInfo ci) {
         this.entities = new ArrayList<>();
         this.entities.add((Entity) item);

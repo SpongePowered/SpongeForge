@@ -42,7 +42,7 @@ public abstract class MixinPlayerSleepInBedEvent extends MixinEventPlayer implem
     @Shadow public final BlockPos pos = null;
     private BlockSnapshot bed;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(EntityPlayer player, BlockPos pos, CallbackInfo ci) {
         this.bed = ((World) player.worldObj).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
     }

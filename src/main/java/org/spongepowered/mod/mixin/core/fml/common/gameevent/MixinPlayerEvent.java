@@ -45,7 +45,7 @@ public abstract class MixinPlayerEvent extends MixinEvent implements TargetPlaye
     protected Transform<World> fromTransform;
     protected Transform<World> toTransform;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(EntityPlayer player, CallbackInfo ci) {
         if (player instanceof EntityPlayerMP) {
             this.fromTransform = ((Player) player).getTransform();

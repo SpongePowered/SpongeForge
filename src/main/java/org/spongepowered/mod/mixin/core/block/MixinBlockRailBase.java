@@ -43,7 +43,7 @@ import java.util.Optional;
 public class MixinBlockRailBase {
 
     // Used to transfer tracking information from minecarts to block positions
-    @Inject(method = "onMinecartPass", at = @At(value = "HEAD"))
+    @Inject(method = "onMinecartPass", at = @At(value = "HEAD"), require = 1)
     public void onMinecartRailPass(World world, net.minecraft.entity.item.EntityMinecart cart, BlockPos pos, CallbackInfo ci) {
         IMixinEntity spongeEntity = (IMixinEntity) cart;
         Optional<User> notifier = spongeEntity.getTrackedPlayer(NbtDataUtil.SPONGE_ENTITY_NOTIFIER);

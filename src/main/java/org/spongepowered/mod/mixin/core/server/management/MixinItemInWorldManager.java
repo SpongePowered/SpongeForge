@@ -42,7 +42,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ItemInWorldManager.class)
 public abstract class MixinItemInWorldManager {
 
-    @Inject(method = "activateBlockOrUseItem", at = @At(value = "RETURN", ordinal = 3))
+    @Inject(method = "activateBlockOrUseItem", at = @At(value = "RETURN", ordinal = 3), require = 1)
     public void onActivateBlockOrUseItem(EntityPlayer player, World worldIn, ItemStack stack, BlockPos pos, EnumFacing side, float p_180236_6_,
             float p_180236_7_, float p_180236_8_, CallbackInfoReturnable<Boolean> cir) {
         IBlockState iblockstate = worldIn.getBlockState(pos);

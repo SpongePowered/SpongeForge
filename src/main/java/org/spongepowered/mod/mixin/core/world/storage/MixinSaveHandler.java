@@ -62,7 +62,7 @@ public abstract class MixinSaveHandler {
         }
     }
 
-    @Inject(method = "loadWorldInfo", at = @At(value = "RETURN", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "loadWorldInfo", at = @At(value = "RETURN", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, require = 1)
     public void onLoadWorldInfoBeforeReturn0(CallbackInfoReturnable<WorldInfo> cir, File file1, NBTTagCompound nbttagcompound,
             NBTTagCompound nbttagcompound1, WorldInfo worldInfo) throws IOException {
         loadDimensionAndOtherData((SaveHandler) (Object) this, worldInfo, nbttagcompound);
@@ -76,7 +76,7 @@ public abstract class MixinSaveHandler {
         ((IMixinSaveHandler) this).loadSpongeDatData(worldInfo);
     }
 
-    @Inject(method = "loadWorldInfo", at = @At(value = "RETURN", ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "loadWorldInfo", at = @At(value = "RETURN", ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD, require = 1)
     public void onLoadWorldInfoBeforeReturn1(CallbackInfoReturnable<WorldInfo> cir, File file1, NBTTagCompound nbttagcompound,
             NBTTagCompound nbttagcompound1, WorldInfo worldInfo) throws IOException {
         loadDimensionAndOtherData((SaveHandler) (Object) this, worldInfo, nbttagcompound);

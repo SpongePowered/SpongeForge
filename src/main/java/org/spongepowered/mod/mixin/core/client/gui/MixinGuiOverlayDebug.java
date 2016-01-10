@@ -54,13 +54,13 @@ public abstract class MixinGuiOverlayDebug implements IMixinGuiOverlayDebug {
     @Shadow
     public abstract boolean isReducedDebug();
 
-    @Inject(method = "<init>", at = @At(value = "RETURN") )
+    @Inject(method = "<init>", at = @At(value = "RETURN") , require = 1)
     public void onConstructDebugGui(Minecraft mc, CallbackInfo ci) {
         IMixinMinecraft spongeMc = (IMixinMinecraft) mc;
         spongeMc.setDebugGui((GuiOverlayDebug) (Object) this);
     }
 
-    @Inject(method = "call()Ljava/util/List;", at = @At(value = "RETURN", ordinal = 1))
+    @Inject(method = "call()Ljava/util/List;", at = @At(value = "RETURN", ordinal = 1), require = 1)
     private void addOwnerInfo(CallbackInfoReturnable<List<String>> cir) {
         List<String> arraylist = cir.getReturnValue();
         if (this.mc.objectMouseOver != null

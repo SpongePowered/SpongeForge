@@ -62,7 +62,7 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
 
     @Shadow public DamageSource source;
 
-    @Inject(method = "<init>", at = @At("RETURN") )
+    @Inject(method = "<init>", at = @At("RETURN") , require = 1)
     public void onConstructed(EntityLivingBase entity, DamageSource source, CallbackInfo ci) {
         if (entity instanceof EntityPlayerMP) {
             Player player = (Player) entity;

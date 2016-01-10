@@ -66,7 +66,7 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart, IM
     }
 
     // this method overwrites vanilla behavior to allow for a custom deceleration rate on all three axes when airborne
-    @Inject(method = "moveDerailedMinecart()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityMinecart;onGround:Z", ordinal = 2))
+    @Inject(method = "moveDerailedMinecart()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityMinecart;onGround:Z", ordinal = 2), require = 1)
     public void implementCustomAirborneDeceleration(CallbackInfo ci) {
         if (!this.isOnGround()) {
             this.motionX /= this.getDragAir();

@@ -62,7 +62,7 @@ public abstract class MixinEventItem extends MixinEventEntity implements AffectE
     protected List<Entity> entities;
     @Shadow public EntityItem entityItem;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(EntityItem itemEntity, CallbackInfo ci) {
         this.entitySnapshot = ((Entity) itemEntity).createSnapshot();
         this.entities = new ArrayList<>();
@@ -86,7 +86,7 @@ public abstract class MixinEventItem extends MixinEventEntity implements AffectE
         @Shadow public EntityPlayer player;
         private Cause cause;
 
-        @Inject(method = "<init>", at = @At("RETURN"))
+        @Inject(method = "<init>", at = @At("RETURN"), require = 1)
         private void onConstruct(CallbackInfo callbackInfo) {
             this.cause = Cause.of(NamedCause.source(this.player));
         }

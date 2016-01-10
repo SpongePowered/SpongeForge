@@ -63,7 +63,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     @Shadow public EntityPlayerMP player;
     @Shadow public abstract void setComponent(IChatComponent component);
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(EntityPlayerMP player, String message, ChatComponentTranslation component, CallbackInfo ci) {
         this.originalSpongeMessage = this.spongeMessage = SpongeTexts.toText(component);
         this.originalChannel = this.channel = ((Player) player).getMessageChannel();

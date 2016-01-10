@@ -47,13 +47,13 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
 
     private GuiOverlayDebug debugGui;
 
-    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;startServerThread()V", shift = At.Shift.BEFORE) , locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;startServerThread()V", shift = At.Shift.BEFORE) , locals = LocalCapture.CAPTURE_FAILHARD, require = 1)
     public void onlaunchIntegratedServerBeforeStart(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
             ISaveHandler isavehandler, WorldInfo worldInfo) {
         WorldPropertyRegistryModule.getInstance().registerWorldProperties((WorldProperties) worldInfo);
     }
 
-    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/ISaveHandler;saveWorldInfo(Lnet/minecraft/world/storage/WorldInfo;)V", shift = At.Shift.AFTER) , locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/ISaveHandler;saveWorldInfo(Lnet/minecraft/world/storage/WorldInfo;)V", shift = At.Shift.AFTER) , locals = LocalCapture.CAPTURE_FAILHARD, require = 1)
     public void onlaunchIntegratedServerAfterSaveWorldInfo(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
             ISaveHandler isavehandler, WorldInfo worldInfo) {
         // initialize overworld properties
@@ -70,13 +70,13 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     public GuiOverlayDebug getDebugGui() {
         return this.debugGui;
     }
-    
-    @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V", remap = false))
-    public void onShutdown(int exitCode, CallbackInfo ci) {
+
+    @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V", remap = false), require = 1)
+    public void onShutdown(CallbackInfo ci) {
         SpongeImpl.postShutdownEvents();
     }
-    
-    @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V", remap = false))
+
+    @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V", remap = false), require = 1)
     public void onShutdownDelegate(CallbackInfo ci) {
         SpongeImpl.postShutdownEvents();
     }

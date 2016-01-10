@@ -53,7 +53,7 @@ public class MixinIntegratedServerAnonInner3 {
      * @see MixinServerConfigurationManager#onFirePlayerLoggedOutCall
      */
     @ModifyArg(method = "run()V", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/server/management/ServerConfigurationManager;playerLoggedOut(Lnet/minecraft/entity/player/EntityPlayerMP;)V"))
+            target = "Lnet/minecraft/server/management/ServerConfigurationManager;playerLoggedOut(Lnet/minecraft/entity/player/EntityPlayerMP;)V"), require = 1)
     public EntityPlayerMP beforeFirePlayerLoggedOut(EntityPlayerMP playerIn) {
         Player player = (Player) playerIn;
         MessageChannel originalChannel = player.getMessageChannel();

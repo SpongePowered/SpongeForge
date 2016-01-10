@@ -49,7 +49,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     @Shadow
     public boolean onGround;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onEntityConstruction(World world, CallbackInfo ci) {
         if (world != null) {
             this.defaultActivationState = ActivationRange.initializeEntityActivationState((net.minecraft.entity.Entity) (Object) this);

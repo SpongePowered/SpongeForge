@@ -49,7 +49,7 @@ public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity im
 
     private Cause cause;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     private void onConstruct(CallbackInfo callbackInfo) {
         this.cause = Cause.of(NamedCause.source(((EntityEvent) (Object) this).entity));
     }
