@@ -44,7 +44,7 @@ public abstract class MixinEventWorld extends MixinEvent implements TargetWorldE
     @Shadow public net.minecraft.world.World world;
     private Cause cause;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     private void onConstruct(CallbackInfo callbackInfo) {
         this.cause = Cause.of(NamedCause.source(this.world));
     }

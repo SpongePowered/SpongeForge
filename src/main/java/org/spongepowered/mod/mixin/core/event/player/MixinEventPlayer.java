@@ -43,7 +43,7 @@ public abstract class MixinEventPlayer extends MixinEventLiving {
     @Shadow public EntityPlayer entityPlayer;
     private Cause cause;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     private void onConstruct(CallbackInfo callbackInfo) {
         this.cause = Cause.of(NamedCause.source(this.entityPlayer));
     }

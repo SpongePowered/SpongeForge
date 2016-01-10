@@ -42,7 +42,7 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
     @Shadow private NetHandlerPlayServer playerNetServerHandler;
 
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/GameRules;getGameRuleBooleanValue(Ljava/lang/String;)"
-            + "Z", ordinal = 0))
+            + "Z", ordinal = 0), require = 1)
     public boolean onGetGameRules(GameRules gameRules, String gameRule) {
         return false; // suppress death messages since this is handled in SpongeForgeEventFactory onForgePost
     }

@@ -54,7 +54,7 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
     protected List<Entity> entities;
     protected Cause cause;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(net.minecraft.entity.Entity entity, net.minecraft.world.World world, CallbackInfo ci) {
         if (StaticMixinHelper.processingInternalForgeEvent) {
             return;

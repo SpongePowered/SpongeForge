@@ -103,7 +103,7 @@ public abstract class MixinDimensionManager {
         return true;
     }
 
-    @Inject(method = "unregisterProviderType(I)[I", at = @At(value = "RETURN", ordinal = 1))
+    @Inject(method = "unregisterProviderType(I)[I", at = @At(value = "RETURN", ordinal = 1), require = 1)
     private static void onUnregisterProvider(int id, CallbackInfoReturnable<int[]> cir) {
         DimensionRegistryModule.getInstance().unregisterProvider(id);
     }

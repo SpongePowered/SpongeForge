@@ -43,7 +43,7 @@ import org.spongepowered.mod.interfaces.IMixinLoadController;
 public abstract class MixinLoadController implements IMixinLoadController {
     @Shadow private ModContainer activeContainer;
 
-    @Redirect(method = "distributeStateMessage", at = @At(value = "INVOKE", target = "Lcom/google/common/eventbus/EventBus;post(Ljava/lang/Object;)V", ordinal = 0))
+    @Redirect(method = "distributeStateMessage", at = @At(value = "INVOKE", target = "Lcom/google/common/eventbus/EventBus;post(Ljava/lang/Object;)V", ordinal = 0), require = 1)
     public void onPost(EventBus eventBus, Object event, LoaderState state, Object[] eventData) {
         // 'distbuteStateMessage' is *sometimes* called before 'transition'.
         // To ensure that the state is properly set in SpongeGame, we need

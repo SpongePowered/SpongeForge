@@ -43,18 +43,18 @@ import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 @Mixin(value = EntityRegistry.class, remap = false)
 public abstract class MixinEntityRegistry {
 
-    @Inject(method = "doModEntityRegistration", at = @At(value = "RETURN", ordinal = 1))
+    @Inject(method = "doModEntityRegistration", at = @At(value = "RETURN", ordinal = 1), require = 1)
     private void onModEntityRegistration(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
             int updateFrequency, boolean sendsVelocityUpdates, CallbackInfo ci) {
         registerCustomEntity(entityClass, entityName, id, FMLCommonHandler.instance().findContainerFor(mod));
     }
 
-    @Inject(method = "registerGlobalEntityID", at = @At(value = "RETURN"))
+    @Inject(method = "registerGlobalEntityID", at = @At(value = "RETURN"), require = 1)
     private static void onRegisterGlobal(Class<? extends Entity> entityClass, String entityName, int id, CallbackInfo ci) {
         registerCustomEntity(entityClass, entityName, id, Loader.instance().activeModContainer());
     }
 
-    @Inject(method = "registerGlobalEntityID(Ljava/lang/Class;Ljava/lang/String;III)V", at = @At(value = "RETURN"))
+    @Inject(method = "registerGlobalEntityID(Ljava/lang/Class;Ljava/lang/String;III)V", at = @At(value = "RETURN"), require = 1)
     private static void onRegisterGlobal(Class<? extends Entity> entityClass, String entityName, int id, int backgroundEggColour,
             int foregroundEggColour, CallbackInfo ci) {
         registerCustomEntity(entityClass, entityName, id, Loader.instance().activeModContainer());

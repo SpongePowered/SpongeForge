@@ -59,7 +59,7 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
     private Map<Direction, BlockState> neighbors;
     @Shadow private EnumSet<EnumFacing> notifiedSides;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EnumSet<EnumFacing> notifiedSides, CallbackInfo ci) {
         if (!world.isRemote && !StaticMixinHelper.processingInternalForgeEvent) {
             createSpongeEventData();

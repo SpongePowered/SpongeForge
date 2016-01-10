@@ -39,7 +39,7 @@ import org.spongepowered.common.mixin.core.block.MixinBlock;
 @Mixin(value = BlockLeaves.class, priority = 1001)
 public abstract class MixinBlockLeaves extends MixinBlock {
 
-    @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;)V") )
+    @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;)V"))
     public void onBreakBlock(Block block, World worldIn, BlockPos pos) {
         IMixinWorld spongeWorld = (IMixinWorld) worldIn;
         spongeWorld.setCapturingBlockDecay(true);

@@ -33,7 +33,7 @@ import org.spongepowered.common.SpongeImpl;
 @Mixin(value = FMLCommonHandler.class, remap = false)
 public class MixinFMLCommonHandler {
 
-    @Inject(method = "handleExit", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V", remap = false))
+    @Inject(method = "handleExit", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V", remap = false), require = 1)
     public void onPost(int exitCode) {
         SpongeImpl.postShutdownEvents();
     }

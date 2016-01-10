@@ -64,7 +64,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     @Shadow public BlockPos pos;
     @Shadow public EnumFacing face;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, net.minecraft.world.World world, CallbackInfo ci) {
         if (player instanceof EntityPlayerMP && !StaticMixinHelper.processingInternalForgeEvent) {
             if (pos != null) { // Forge fires this event on client side and passes a null pos and face

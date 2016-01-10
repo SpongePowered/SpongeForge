@@ -65,7 +65,7 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
      */
     @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;canSilkHarvest"
             + "(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;"
-            + "Lnet/minecraft/entity/player/EntityPlayer;)Z"))
+            + "Lnet/minecraft/entity/player/EntityPlayer;)Z"), require = 1)
     private IBlockState fixBlockStateOnConstruct(IBlockState state) {
         if (StaticMixinHelper.breakEventExtendedState != null) {
             return StaticMixinHelper.breakEventExtendedState;
@@ -73,7 +73,7 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
         return state;
     }
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EntityPlayer player, CallbackInfo ci) {
         this.blockOriginal = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         this.blockReplacement = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector(pos)));

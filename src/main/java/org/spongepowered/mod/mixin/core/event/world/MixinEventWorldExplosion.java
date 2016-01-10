@@ -63,7 +63,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
     @Shadow public net.minecraft.world.Explosion explosion;
     private Cause cause;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     private void onConstruct(CallbackInfo callbackInfo) {
         if (this.explosion.exploder == null) {
             this.cause = Cause.of(NamedCause.source(this.world.getBlockState(new BlockPos(this.explosion.getPosition()))));
@@ -110,7 +110,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
         @Shadow private List<net.minecraft.entity.Entity> entityList;
 
-        @Inject(method = "<init>", at = @At("RETURN"))
+        @Inject(method = "<init>", at = @At("RETURN"), require = 1)
         public void onConstructed(net.minecraft.world.World world, net.minecraft.world.Explosion explosion, List<Entity> entityList, CallbackInfo ci) {
             createSpongeData();
         }

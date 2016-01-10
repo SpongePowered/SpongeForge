@@ -57,7 +57,7 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
 
     private Cause cause;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(net.minecraftforge.common.util.BlockSnapshot blockSnapshot, IBlockState placedAgainst, EntityPlayer player, CallbackInfo ci) {
         if (StaticMixinHelper.processingInternalForgeEvent) {
             return;

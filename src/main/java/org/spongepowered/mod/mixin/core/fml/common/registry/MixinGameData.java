@@ -41,7 +41,7 @@ public abstract class MixinGameData {
 
     // Vanilla
 
-    @Inject(method = "register", at = @At("HEAD"))
+    @Inject(method = "register", at = @At("HEAD"), require = 1)
     public void onRegister(Object material, String id, int idHint, CallbackInfoReturnable<Integer> cir) {
         if (material instanceof Block) {
             BlockTypeRegistryModule.getInstance().registerFromGameData(id, (BlockType) material);
@@ -52,12 +52,12 @@ public abstract class MixinGameData {
 
     // Mods
 
-    @Inject(method = "registerBlock(Lnet/minecraft/block/Block;Ljava/lang/String;I)I", at = @At(value = "HEAD"))
+    @Inject(method = "registerBlock(Lnet/minecraft/block/Block;Ljava/lang/String;I)I", at = @At(value = "HEAD"), require = 1)
     private void onRegisterBlock(Block block, String name, int idHint, CallbackInfoReturnable<Integer> cir) {
         BlockTypeRegistryModule.getInstance().registerFromGameData(name, (BlockType) block);
     }
 
-    @Inject(method = "registerItem(Lnet/minecraft/item/Item;Ljava/lang/String;I)I", at = @At(value = "HEAD"))
+    @Inject(method = "registerItem(Lnet/minecraft/item/Item;Ljava/lang/String;I)I", at = @At(value = "HEAD"), require = 1)
     private void onRegisterItem(Item item, String name, int idHint, CallbackInfoReturnable<Integer> cir) {
         ItemTypeRegistryModule.getInstance().registerFromGameData(name, (ItemType) item);
     }

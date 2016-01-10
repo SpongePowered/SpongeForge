@@ -48,7 +48,7 @@ public abstract class MixinEventPlayerPlaceMultiBlock extends MixinEventPlayerPl
 
     @Shadow public List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), require = 1)
     public void onConstructed(List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots, IBlockState placedAgainst, EntityPlayer player,
             CallbackInfo ci) {
         if (StaticMixinHelper.processingInternalForgeEvent) {

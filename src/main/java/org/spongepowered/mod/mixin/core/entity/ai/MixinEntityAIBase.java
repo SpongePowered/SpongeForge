@@ -44,7 +44,7 @@ import java.util.Optional;
 @Mixin(value = EntityAIBase.class, priority = 1001)
 public abstract class MixinEntityAIBase {
 
-    @Inject(method = "<init>", at = @At(value = "RETURN"))
+    @Inject(method = "<init>", at = @At(value = "RETURN"), require = 1)
     public void addModAIType(CallbackInfo ci) {
         // Only set a type if we have none
         if (((AITask<Agent>) this).getType() != null) {
