@@ -2,5 +2,5 @@ generator.the_end=The End
 generator.nether=The Nether
 generator.overworld=Overworld
 
-generator.end.info=Notice: Just for The End generation. Not The End dimension.
+generator.the_end.info=Notice: Just for The End generation. Not The End dimension.
 generator.nether.info=Notice: Just for The Nether generation. Not The Nether dimension.

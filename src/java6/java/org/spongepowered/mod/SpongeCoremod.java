@@ -107,8 +107,6 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
                 .addConfiguration("mixins.forge.bungeecord.json")
                 .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
-        // Classloader exclusions - TODO: revise when event pkg refactor reaches impl
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.CauseTracked");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.Cause");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.NamedCause");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Cancellable");
@@ -167,8 +165,9 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
                     .registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
         }
         SpongeJava6Bridge.modFile = (File) data.get("coremodLocation");
-        if (SpongeJava6Bridge.modFile == null)
+        if (SpongeJava6Bridge.modFile == null) {
             SpongeJava6Bridge.modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        }
     }
 
     @Override
