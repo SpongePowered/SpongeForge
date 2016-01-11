@@ -28,15 +28,17 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableSpawnableData;
 import org.spongepowered.api.data.manipulator.mutable.item.SpawnableData;
 import org.spongepowered.api.data.property.block.LightEmissionProperty;
+import org.spongepowered.api.data.property.block.MatterProperty;
 import org.spongepowered.api.data.property.block.SolidCubeProperty;
+import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.data.manipulator.immutable.item.ImmutableSpongeSpawnableData;
 import org.spongepowered.common.data.manipulator.mutable.item.SpongeSpawnableData;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
 import org.spongepowered.common.registry.type.world.gen.PopulatorTypeRegistryModule;
 import org.spongepowered.common.world.gen.SpongePopulatorType;
-import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.data.ForgeLightEmissionPropertyStore;
+import org.spongepowered.mod.data.ForgeMatterPropertyStore;
 import org.spongepowered.mod.data.ForgeSolidCubePropertyStore;
 import org.spongepowered.mod.data.SpawnableDataProcessor;
 import org.spongepowered.mod.data.SpawnableEntityTypeValueProcessor;
@@ -48,7 +50,7 @@ public class SpongeForgeModuleRegistry {
         // Property registration
         final SpongePropertyRegistry registry = SpongePropertyRegistry.getInstance();
         registry.register(LightEmissionProperty.class, new ForgeLightEmissionPropertyStore());
-        // registry.register(MatterProperty.class, ForgeMatterProperty);
+        registry.register(MatterProperty.class, new ForgeMatterPropertyStore());
         registry.register(SolidCubeProperty.class, new ForgeSolidCubePropertyStore());
 
         // Data registration
@@ -59,12 +61,10 @@ public class SpongeForgeModuleRegistry {
 
         // Value registration
         dataRegistry.registerValueProcessor(Keys.SPAWNABLE_ENTITY_TYPE, new SpawnableEntityTypeValueProcessor());
-        
+
         //Populator types
         PopulatorTypeRegistryModule populatorTypeModule = PopulatorTypeRegistryModule.getInstance();
-        populatorTypeModule.customTypeFunction = (type)->{
-            return new SpongePopulatorType(type.getSimpleName(),SpongeMod.instance.getModIdFromClass(type));
-        };
+        populatorTypeModule.customTypeFunction = (type) -> new SpongePopulatorType(type.getSimpleName(), SpongeMod.instance.getModIdFromClass(type));
     }
 
 }

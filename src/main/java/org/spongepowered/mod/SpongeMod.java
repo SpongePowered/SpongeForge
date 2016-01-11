@@ -119,6 +119,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         this.game = SpongeImpl.getGame();
         VillagerRegistry.instance();
         this.game.getRegistry().preRegistryInit();
+        SpongeForgeModuleRegistry.registerForgeData();
 
         this.game.getEventManager().registerListeners(this, this);
         RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
@@ -176,7 +177,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.initializeCommands();
             SpongeImpl.getRegistry().preInit();
-            SpongeForgeModuleRegistry.registerForgeData();
             SpongeModMessageHandler.init();
 
             Preconditions.checkArgument(Class.forName("org.spongepowered.api.entity.ai.task.AbstractAITask").getSuperclass().equals(SpongeEntityAICommonSuperclass.class));
@@ -226,8 +226,6 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     public void onPostInitialization(FMLPostInitializationEvent event) {
         try {
             SpongeImpl.getRegistry().postInit();
-            SpongeDataManager service = SpongeDataManager.getInstance();
-            service.completeRegistration();
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
         }
