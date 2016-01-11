@@ -24,12 +24,13 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
+import com.google.common.collect.MapMaker;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLLog;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Dimension;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldCreationSettings;
@@ -50,9 +51,10 @@ import org.spongepowered.common.world.SpongeWorldCreationSettingsBuilder;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentMap;
 
-@NonnullByDefault
 @Mixin(value = DimensionManager.class, remap = false)
 public abstract class MixinDimensionManager {
 
@@ -60,6 +62,8 @@ public abstract class MixinDimensionManager {
     @Shadow private static Hashtable<Integer, Boolean> spawnSettings;
     @Shadow private static ArrayList<Integer> unloadQueue;
     @Shadow private static Hashtable<Integer, WorldServer> worlds;
+    @Shadow private static ConcurrentMap<net.minecraft.world.World, net.minecraft.world.World>
+            weakWorldMap = new MapMaker().weakKeys().weakValues().<net.minecraft.world.World, net.minecraft.world.World>makeMap();
 
     @Overwrite
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded) {
@@ -78,7 +82,7 @@ public abstract class MixinDimensionManager {
             case 1:
                 worldType = "the_end";
                 break;
-            default: // modded
+            default:
                 worldType = provider.getSimpleName().toLowerCase();
                 worldType = worldType.replace("worldprovider", "");
                 worldType = worldType.replace("provider", "");
@@ -86,18 +90,18 @@ public abstract class MixinDimensionManager {
 
         // Grab provider name if available
         try {
-            WorldProvider worldProvider = provider.newInstance();
+            final WorldProvider worldProvider = provider.newInstance();
             worldType = worldProvider.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "");
         } catch (Exception e) {
             // ignore
         }
 
-        // register dimension type
         DimensionRegistryModule.getInstance().registerAdditionalCatalog(new SpongeDimensionType(worldType, keepLoaded, provider, id));
         providers.put(id, provider);
+
+        // Keep The End dimensions loaded. Can be disabled in either DIM1's config or the_end's config
         if (id == 1) {
-            // TODO - make this configurable
-            keepLoaded = true; // keep end loaded for plugins
+            keepLoaded = true;
         }
         spawnSettings.put(id, keepLoaded);
         return true;
@@ -115,12 +119,8 @@ public abstract class MixinDimensionManager {
 
         if (worldConfig.getConfig().isConfigEnabled()) {
             return worldConfig.getConfig().getWorld().getKeepSpawnLoaded();
-        } else {
-            final SpongeConfig<SpongeConfig.DimensionConfig> dimensionConfig = ((IMixinWorldProvider) worldServer.provider)
-                    .getDimensionConfig();
-            if (dimensionConfig.getConfig().isConfigEnabled()) {
-                return dimensionConfig.getConfig().getWorld().getKeepSpawnLoaded();
-            }
+        } else if (((IMixinWorldProvider) worldServer.provider).getDimensionConfig().getConfig().isConfigEnabled()){
+            return ((IMixinWorldProvider) worldServer.provider).getDimensionConfig().getConfig().getWorld().getKeepSpawnLoaded();
         }
 
         // Don't use configs at this point, use spawn settings in the provider type
@@ -156,16 +156,16 @@ public abstract class MixinDimensionManager {
             return;
         }
 
-        int providerId = 0;
-        WorldServer overworld = DimensionManager.getWorld(0);
-        if (overworld == null) {
-            throw new RuntimeException("Error during initDimension. Cannot Hotload Dim: " + dim + ", Overworld is not Loaded!");
+        if (DimensionManager.getWorld(0) == null) {
+            throw new RuntimeException("Cannot initialize dimension [" + dim + "]. Overworld is not Loaded!");
         }
+
+        int providerId;
         try {
             providerId = DimensionManager.getProviderType(dim);
         } catch (Exception e) {
-            SpongeImpl.getLogger().error("Error during initDimension. Cannot Hotload Dim: " + e.getMessage());
-            return; // If a provider hasn't been registered then we can't hotload the dim
+            SpongeImpl.getLogger().error("Cannot determine provider for dimension [" + dim + "].", e);
+            return;
         }
 
         final WorldProvider provider = WorldProvider.getProviderForDimension(dim);
@@ -182,7 +182,45 @@ public abstract class MixinDimensionManager {
         }
         final Optional<World> optWorld = Sponge.getGame().getServer().loadWorld(optWorldProperties.get());
         if (!optWorld.isPresent()) {
-            SpongeImpl.getLogger().error("Error during initDimension. Cannot Hotload Dim: " + dim + " for provider " + provider.getClass().getName());
+            SpongeImpl.getLogger().error("Could not load world [" + optWorldProperties.get().getWorldName() + "]!");
         }
+    }
+
+    @Overwrite
+    public static void setWorld(int id, WorldServer world)
+    {
+        if (world != null)
+        {
+            worlds.put(id, world);
+            weakWorldMap.put(world, world);
+            MinecraftServer.getServer().worldTickTimes.put(id, new long[100]);
+            FMLLog.info("Loading dimension %d (%s) (%s)", id, world.getWorldInfo().getWorldName(), world.getMinecraftServer());
+        }
+        else
+        {
+            final WorldServer worldServer = worlds.remove(id);
+            MinecraftServer.getServer().worldTickTimes.remove(id);
+            FMLLog.info("Unloading dimension %d (%s)", id, worldServer.getWorldInfo().getWorldName());
+        }
+
+        ArrayList<WorldServer> tmp = new ArrayList<WorldServer>();
+        if (worlds.get( 0) != null)
+            tmp.add(worlds.get( 0));
+        if (worlds.get(-1) != null)
+            tmp.add(worlds.get(-1));
+        if (worlds.get( 1) != null)
+            tmp.add(worlds.get( 1));
+
+        for (Map.Entry<Integer, WorldServer> entry : worlds.entrySet())
+        {
+            int dim = entry.getKey();
+            if (dim >= -1 && dim <= 1)
+            {
+                continue;
+            }
+            tmp.add(entry.getValue());
+        }
+
+        MinecraftServer.getServer().worldServers = tmp.toArray(new WorldServer[tmp.size()]);
     }
 }

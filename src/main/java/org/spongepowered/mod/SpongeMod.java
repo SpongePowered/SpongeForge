@@ -71,9 +71,7 @@ import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeInternalListeners;
-import org.spongepowered.common.SpongeVersion;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
-import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.registry.RegistryHelper;
@@ -123,7 +121,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
         this.game.getEventManager().registerListeners(this, this);
         RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
-        SpongeVersion.getComponents().add((PluginContainer) ForgeModContainer.getInstance());
+        SpongeImpl.getInternalPlugins().add((PluginContainer) ForgeModContainer.getInstance());
     }
 
     @Override
