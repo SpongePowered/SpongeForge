@@ -56,7 +56,7 @@ import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
 import java.util.Optional;
 
 @Mixin(value = SpongeImplHooks.class, remap = false)
-public abstract class MixinSpongeImplFactory {
+public abstract class MixinSpongeImplHooks {
 
     @Overwrite
     public static LoadWorldEvent createLoadWorldEvent(World world) {
