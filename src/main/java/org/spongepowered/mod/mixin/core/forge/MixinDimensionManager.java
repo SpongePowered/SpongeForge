@@ -114,13 +114,15 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static boolean shouldLoadSpawn(int dim) {
-        final WorldServer worldServer = DimensionManager.getWorld(dim);
-        final SpongeConfig<SpongeConfig.WorldConfig> worldConfig = ((IMixinWorld) worldServer).getWorldConfig();
+        if (dim != 0) {
+            final WorldServer worldServer = DimensionManager.getWorld(dim);
+            final SpongeConfig<SpongeConfig.WorldConfig> worldConfig = ((IMixinWorld) worldServer).getWorldConfig();
 
-        if (worldConfig.getConfig().isConfigEnabled()) {
-            return worldConfig.getConfig().getWorld().getKeepSpawnLoaded();
-        } else if (((IMixinWorldProvider) worldServer.provider).getDimensionConfig().getConfig().isConfigEnabled()){
-            return ((IMixinWorldProvider) worldServer.provider).getDimensionConfig().getConfig().getWorld().getKeepSpawnLoaded();
+            if (worldConfig.getConfig().isConfigEnabled()) {
+                return worldConfig.getConfig().getWorld().getKeepSpawnLoaded();
+            } else if (((IMixinWorldProvider) worldServer.provider).getDimensionConfig().getConfig().isConfigEnabled()) {
+                return ((IMixinWorldProvider) worldServer.provider).getDimensionConfig().getConfig().getWorld().getKeepSpawnLoaded();
+            }
         }
 
         // Don't use configs at this point, use spawn settings in the provider type
@@ -164,7 +166,7 @@ public abstract class MixinDimensionManager {
         try {
             providerId = DimensionManager.getProviderType(dim);
         } catch (Exception e) {
-            SpongeImpl.getLogger().error("Cannot determine provider for dimension [" + dim + "].", e);
+            SpongeImpl.getLogger().error("Cannot determine provider for dimension [{}]", dim, e);
             return;
         }
 
@@ -177,12 +179,12 @@ public abstract class MixinDimensionManager {
         final WorldCreationSettings settings = builder.build();
         final Optional<WorldProperties> optWorldProperties = Sponge.getGame().getServer().createWorldProperties(settings);
         if (!optWorldProperties.isPresent()) {
-            SpongeImpl.getLogger().error("Could not initialize world [" + settings.getWorldName() + "]. Failed to create properties.");
+            SpongeImpl.getLogger().error("Could not initialize world [{}]. Failed to create properties.", settings.getWorldName());
             return;
         }
         final Optional<World> optWorld = Sponge.getGame().getServer().loadWorld(optWorldProperties.get());
         if (!optWorld.isPresent()) {
-            SpongeImpl.getLogger().error("Could not load world [" + optWorldProperties.get().getWorldName() + "]!");
+            SpongeImpl.getLogger().error("Could not load world [{}]!", optWorldProperties.get().getWorldName());
         }
     }
 
