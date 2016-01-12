@@ -45,7 +45,7 @@ import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.common.SpongeImplFactory;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.PlayerTracker;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.IMixinInitCause;
@@ -55,8 +55,8 @@ import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
 
 import java.util.Optional;
 
-@Mixin(value = SpongeImplFactory.class, remap = false)
-public abstract class MixinSpongeImplFactory {
+@Mixin(value = SpongeImplHooks.class, remap = false)
+public abstract class MixinSpongeImplHooks {
 
     @Overwrite
     public static LoadWorldEvent createLoadWorldEvent(World world) {

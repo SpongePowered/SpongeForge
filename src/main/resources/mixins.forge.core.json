@@ -11,7 +11,7 @@
         "block.MixinBlockLog",
         "block.MixinBlockOldLeaf",
         "block.MixinBlockRailBase",
-        "common.MixinSpongeImplFactory",
+        "common.MixinSpongeImplHooks",
         "common.world.MixinDimensionManager",
         "entity.MixinEntity",
         "entity.ai.MixinEntityAIBase",

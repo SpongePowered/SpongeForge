@@ -52,6 +52,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.interfaces.IMixinInitCause;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
@@ -61,6 +62,10 @@ import java.util.Set;
 
 @Mixin(value = NetHandlerPlayServer.class, priority = 1001)
 public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler {
+
+    private static final String ACTIVATE_BLOCK_OR_USE_ITEM =
+            "Lnet/minecraft/server/management/ItemInWorldManager;activateBlockOrUseItem(Lnet/minecraft/entity/player/EntityPlayer;"
+            + "Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/BlockPos;Lnet/minecraft/util/EnumFacing;FFF)Z";
 
     @Shadow public EntityPlayerMP playerEntity;
     @Shadow private int chatSpamThresholdCount;
@@ -96,6 +101,21 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
         }
 
         ci.cancel();
+    }
+
+    @Redirect(method = "processPlayerBlockPlacement", at = @At(value = "INVOKE", target = ACTIVATE_BLOCK_OR_USE_ITEM))
+    public boolean onActivateBlockOrUseItem(ItemInWorldManager itemManager, EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack,
+            BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
+        boolean result = itemManager.activateBlockOrUseItem(player, worldIn, stack, pos, side, hitX, hitY, hitZ);
+        if (stack != null && !result) {
+            // Don't run item use part of hook if PlayerInteractEvent was cancelled.
+            // This is only set in SpongeForge, so it's safe to put here
+            if (StaticMixinHelper.lastPlayerInteractCancelled) {
+                return false;
+            }
+            itemManager.tryUseItem(player, worldIn, stack);
+        }
+        return result;
     }
 
     @Override

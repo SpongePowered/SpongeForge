@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.SpongeImplFactory;
+import org.spongepowered.common.SpongeImplHooks;
 
 import java.util.Optional;
 
@@ -57,7 +57,7 @@ public class MixinIntegratedServerAnonInner3 {
     public EntityPlayerMP beforeFirePlayerLoggedOut(EntityPlayerMP playerIn) {
         Player player = (Player) playerIn;
         MessageChannel originalChannel = player.getMessageChannel();
-        ClientConnectionEvent.Disconnect event = SpongeImplFactory.createClientConnectionEventDisconnect(Cause.of(NamedCause.source(player)),
+        ClientConnectionEvent.Disconnect event = SpongeImplHooks.createClientConnectionEventDisconnect(Cause.of(NamedCause.source(player)),
                 originalChannel, Optional.of(originalChannel), Optional.empty(), Optional.empty(), player);
         SpongeImpl.postEvent(event);
         // Doesn't make sense to send the event's message because all players

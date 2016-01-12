@@ -22,29 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.entity.player;
+package org.spongepowered.mod.registry;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.world.GameRules;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
+import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
 
-@Mixin(value = EntityPlayerMP.class, priority = 1001)
-public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
-    @Shadow private NetHandlerPlayServer playerNetServerHandler;
+import java.lang.reflect.Field;
 
-    @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/GameRules;getBoolean(Ljava/lang/String;)"
-            + "Z", ordinal = 0))
-    public boolean onGetGameRules(GameRules gameRules, String gameRule) {
-        return false; // suppress death messages since this is handled in SpongeForgeEventFactory onForgePost
+public final class SpongeGameData {
+
+    private SpongeGameData() {
     }
 
-    public boolean usesCustomClient() {
-        return this.playerNetServerHandler.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
+    private static Field callbackField;
+
+    @SuppressWarnings("unchecked")
+    public static <I> void addRegistryCallback(FMLControlledNamespacedRegistry<I> registry,
+            final FMLControlledNamespacedRegistry.AddCallback<I> callback) throws ReflectiveOperationException {
+        if (callbackField == null) {
+            callbackField = FMLControlledNamespacedRegistry.class.getDeclaredField("addCallback");
+            callbackField.setAccessible(true);
+        }
+
+        FMLControlledNamespacedRegistry.AddCallback<I> newCallback = callback;
+
+        final FMLControlledNamespacedRegistry.AddCallback<I> currentCallback =
+                (FMLControlledNamespacedRegistry.AddCallback<I>) callbackField.get(registry);
+        if (currentCallback != null) {
+            newCallback = (obj, id) -> {
+                currentCallback.onAdd(obj, id);
+                callback.onAdd(obj, id);
+            };
+        }
+
+        callbackField.set(registry, newCallback);
     }
+
 }
