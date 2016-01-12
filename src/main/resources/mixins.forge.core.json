@@ -102,7 +102,6 @@
         "server.MixinIntegratedServerAnonInner3"
     ],
     "server": [
-        "network.packet.MixinC00Handshake",
-        "server.MixinDedicatedServer"
+        "network.packet.MixinC00Handshake"
     ]
 }
