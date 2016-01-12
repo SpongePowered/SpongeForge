@@ -61,6 +61,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.CommandMapping;
+import org.spongepowered.api.effect.potion.PotionEffectType;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.plugin.Plugin;
@@ -80,6 +81,7 @@ import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
+import org.spongepowered.common.registry.type.effect.PotionEffectTypeRegistryModule;
 import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
@@ -127,6 +129,9 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         SpongeGameData.addRegistryCallback(GameData.getItemRegistry(), (obj, id) ->
                 ItemTypeRegistryModule.getInstance().registerFromGameData(GameData.getItemRegistry().getNameForObject(obj).toString(),
                         (ItemType) obj));
+        SpongeGameData.addRegistryCallback(GameData.getPotionRegistry(), (obj, id) ->
+                PotionEffectTypeRegistryModule.getInstance().registerFromGameData(GameData.getPotionRegistry().getNameForObject(obj).toString(),
+                        (PotionEffectType) obj));
 
         VillagerRegistry.instance();
         this.game.getRegistry().preRegistryInit();
