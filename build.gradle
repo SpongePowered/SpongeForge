@@ -29,7 +29,7 @@ ext.minecraftPlugin = plugins.getPlugin('net.minecraftforge.gradle.forge')
 ext.DIR_MCP_MAPPINGS = net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS
 
 // Forge Version
-ext.forgeBuild = '1691'
+ext.forgeBuild = '1694'
 
 minecraft {
     forgeVersion = forgeBuild

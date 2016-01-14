@@ -31,23 +31,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import org.spongepowered.api.data.DataTransactionResult;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.value.ValueContainer;
-import org.spongepowered.api.data.value.immutable.ImmutableValue;
-import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.data.processor.common.AbstractSpongeValueProcessor;
-import org.spongepowered.common.data.value.SpongeValueFactory;
+import org.spongepowered.common.data.processor.data.item.SpawnableDataProcessor;
+import org.spongepowered.common.data.util.NbtDataUtil;
 
 import java.util.Optional;
 
-public class SpawnableEntityTypeValueProcessor extends AbstractSpongeValueProcessor<ItemStack, EntityType, Value<EntityType>> {
-
-    public SpawnableEntityTypeValueProcessor() {
-        super(ItemStack.class, Keys.SPAWNABLE_ENTITY_TYPE);
-    }
+public class ForgeSpawnableDataProcessor extends SpawnableDataProcessor {
 
     @Override
     public int getPriority() {
@@ -55,40 +47,45 @@ public class SpawnableEntityTypeValueProcessor extends AbstractSpongeValueProces
     }
 
     @Override
-    public Value<EntityType> constructValue(EntityType defaultValue) {
-        return SpongeValueFactory.getInstance().createValue(Keys.SPAWNABLE_ENTITY_TYPE, defaultValue, EntityTypes.CREEPER);
+    public DataTransactionResult removeFrom(ValueContainer<?> container) {
+        if (this.supports(container)) {
+            ItemStack item = (ItemStack) container;
+            item.setItemDamage(0);
+            if (item.hasTagCompound() && item.getTagCompound().hasKey(NbtDataUtil.FORGE_ENTITY_TYPE, NbtDataUtil.TAG_STRING)) {
+                item.getTagCompound().removeTag(NbtDataUtil.FORGE_ENTITY_TYPE);
+            }
+            return DataTransactionResult.successNoData();
+        }
+        return DataTransactionResult.failNoData();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "SuspiciousMethodCalls"})
     @Override
-    public boolean set(ItemStack container, EntityType value) {
-        final String name = (String) EntityList.classToStringMapping.get(value.getEntityClass());
+    public boolean set(ItemStack itemStack, EntityType value) {
+        final String name = EntityList.classToStringMapping.get(value.getEntityClass());
         if (EntityList.stringToIDMapping.containsKey(name)) {
-            final int id = (int) EntityList.stringToIDMapping.get(name);
+            final int id = EntityList.stringToIDMapping.get(name);
             if (EntityList.entityEggs.containsKey(id)) {
-                if (container.hasTagCompound() && container.getTagCompound().hasKey("entity_name")) {
-                    container.getTagCompound().removeTag("entity_name");
-                }
-                container.setItemDamage(id);
+                itemStack.setItemDamage(id);
                 return true;
             }
         } else {
-            if (!container.hasTagCompound()) {
-                container.setTagCompound(new NBTTagCompound());
+            if (!itemStack.hasTagCompound()) {
+                itemStack.setTagCompound(new NBTTagCompound());
             }
-            NBTTagCompound tag = container.getTagCompound();
-            tag.setString("entity_name", name);
+            NBTTagCompound tag = itemStack.getTagCompound();
+            tag.setString(NbtDataUtil.FORGE_ENTITY_TYPE, name);
             final EntityRegistry.EntityRegistration registration = EntityRegistry.instance()
                     .lookupModSpawn((Class<? extends Entity>) value.getEntityClass(), false);
-            container.setItemDamage(registration.getModEntityId());
+            itemStack.setItemDamage(registration.getModEntityId());
             return true;
         }
         return false;
     }
 
     @Override
-    public Optional<EntityType> getVal(ItemStack container) {
-        final Class<?> entity = (Class<?>) EntityList.stringToClassMapping.get(ItemMonsterPlacer.getEntityName(container));
+    public Optional<EntityType> getVal(ItemStack itemStack) {
+        final Class entity = (Class) EntityList.stringToClassMapping.get(ItemMonsterPlacer.getEntityName(itemStack));
         for (EntityType type : SpongeImpl.getRegistry().getAllOf(EntityType.class)) {
             if (type.getEntityClass().equals(entity)) {
                 return Optional.of(type);
@@ -97,21 +94,4 @@ public class SpawnableEntityTypeValueProcessor extends AbstractSpongeValueProces
         return Optional.empty();
     }
 
-    @Override
-    public ImmutableValue<EntityType> constructImmutableValue(EntityType value) {
-        return constructValue(value).asImmutable();
-    }
-
-    @Override
-    public DataTransactionResult removeFrom(ValueContainer<?> container) {
-        if (this.supports(container)) {
-            ItemStack item = (ItemStack) container;
-            item.setItemDamage(0);
-            if (item.hasTagCompound() && item.getTagCompound().hasKey("entity_name", 8)) {
-                item.getTagCompound().removeTag("entity_name");
-            }
-            return DataTransactionResult.successNoData();
-        }
-        return DataTransactionResult.failNoData();
-    }
 }

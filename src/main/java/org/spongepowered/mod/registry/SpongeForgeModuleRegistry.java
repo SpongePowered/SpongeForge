@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.registry;
 
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableSpawnableData;
 import org.spongepowered.api.data.manipulator.mutable.item.SpawnableData;
 import org.spongepowered.api.data.property.block.LightEmissionProperty;
@@ -40,8 +39,7 @@ import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.data.ForgeLightEmissionPropertyStore;
 import org.spongepowered.mod.data.ForgeMatterPropertyStore;
 import org.spongepowered.mod.data.ForgeSolidCubePropertyStore;
-import org.spongepowered.mod.data.SpawnableDataProcessor;
-import org.spongepowered.mod.data.SpawnableEntityTypeValueProcessor;
+import org.spongepowered.mod.data.ForgeSpawnableDataProcessor;
 
 public class SpongeForgeModuleRegistry {
 
@@ -55,12 +53,8 @@ public class SpongeForgeModuleRegistry {
 
         // Data registration
         SpongeDataManager dataRegistry = SpongeDataManager.getInstance();
-        final SpawnableDataProcessor spawnableDataProcessor = new SpawnableDataProcessor();
-        dataRegistry.registerDataProcessorAndImpl(SpawnableData.class, SpongeSpawnableData.class, ImmutableSpawnableData.class,
-                ImmutableSpongeSpawnableData.class, spawnableDataProcessor);
-
-        // Value registration
-        dataRegistry.registerValueProcessor(Keys.SPAWNABLE_ENTITY_TYPE, new SpawnableEntityTypeValueProcessor());
+        dataRegistry.registerDualProcessor(SpawnableData.class, SpongeSpawnableData.class, ImmutableSpawnableData.class,
+                ImmutableSpongeSpawnableData.class, new ForgeSpawnableDataProcessor());
 
         //Populator types
         PopulatorTypeRegistryModule populatorTypeModule = PopulatorTypeRegistryModule.getInstance();
