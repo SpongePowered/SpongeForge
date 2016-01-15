@@ -10,8 +10,5 @@
         "MixinEntityItem",
         "MixinEntityLivingBase",
         "MixinWorld"
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    }
+    ]
 }
