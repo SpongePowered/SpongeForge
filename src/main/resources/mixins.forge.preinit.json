@@ -12,5 +12,8 @@
     ],
     "server": [
         "fml.common.MixinMinecraftDummyContainerServer"
-    ]
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
 }

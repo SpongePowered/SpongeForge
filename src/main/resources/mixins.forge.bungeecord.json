@@ -4,5 +4,8 @@
   "refmap": "mixins.forge.refmap.json",
   "mixins": [
     "network.MixinNetHandlerHandshakeTCP"
-  ]
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
