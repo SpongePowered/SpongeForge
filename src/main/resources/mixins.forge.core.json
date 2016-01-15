@@ -1,6 +1,6 @@
 {
     "required": true,
-    "minVersion": "0.2",
+    "minVersion": "0.4",
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "priority": 1111,
@@ -103,5 +103,8 @@
     ],
     "server": [
         "network.packet.MixinC00Handshake"
-    ]
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
 }
