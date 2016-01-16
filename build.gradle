@@ -13,7 +13,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-20160116.192356-17'
         classpath('nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0') {
             exclude module: 'guava'
         }
@@ -24,9 +24,6 @@ buildscript {
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'org.spongepowered.mixin'
-ext.minecraftPlugin = plugins.getPlugin('net.minecraftforge.gradle.forge')
-ext.DIR_MCP_MAPPINGS = net.minecraftforge.gradle.common.Constants.DIR_MCP_MAPPINGS
 
 // Forge Version
 ext.forgeBuild = '1694'
@@ -39,7 +36,7 @@ minecraft {
 // Apply shared implementation Gradle config
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
 
-version = "$minecraft.version-$forgeBuild-$apiVersion-$buildNumber"
+version = "$minecraft.version-$forgeBuild-$apiSuffix-$buildNumber"
 
 compileJava {
     options.compilerArgs += [ "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild" ]
