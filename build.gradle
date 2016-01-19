@@ -71,7 +71,7 @@ processResources {
 }
 
 shadowJar {
-    exclude 'log4j2.xml' // log4j2 configuration is for the development workspace only
+    exclude 'log4j2*.xml' // log4j2 configuration is for the development workspace only
 
     // Temporarily relocate and shade to avoid confict with forge. TODO: Remove when Forge updates to 1.3.0
     relocate('com.typesafe.config', 'configurate.typesafe.config')
