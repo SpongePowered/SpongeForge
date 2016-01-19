@@ -37,6 +37,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
 import java.util.Optional;
@@ -52,6 +53,9 @@ public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity im
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstruct(CallbackInfo callbackInfo) {
         this.cause = Cause.of(NamedCause.source(((EntityEvent) (Object) this).entity));
+        if(StaticMixinHelper.prePacketProcessItem != null){
+            this.cause = this.cause.with(StaticMixinHelper.prePacketProcessItem);
+        }
     }
 
     @Override
