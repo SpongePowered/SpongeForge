@@ -6,7 +6,6 @@
     "priority": 1111,
     "mixins": [
         "api.event.MixinAbstractEvent",
-        "block.data.MixinTileEntity",
         "block.MixinBlockLeaves",
         "block.MixinBlockLog",
         "block.MixinBlockOldLeaf",
