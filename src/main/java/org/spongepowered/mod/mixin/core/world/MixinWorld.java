@@ -47,10 +47,10 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
     @Shadow public WorldInfo worldInfo;
     @Shadow public abstract IChunkProvider getChunkProvider();
 
-    @Inject(method = "updateWeatherBody()V", remap = false, at = {
+    @Inject(method = "updateWeatherBody()V", at = {
             @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setThundering(Z)V"),
             @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setRaining(Z)V")
-    })
+    },require = 2)
     private void onUpdateWeatherBody(CallbackInfo ci) {
         this.setWeatherStartTime(this.worldInfo.getWorldTotalTime());
     }
