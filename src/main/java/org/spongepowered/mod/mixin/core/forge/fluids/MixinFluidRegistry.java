@@ -22,15 +22,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.asm.transformer;
+package org.spongepowered.mod.mixin.core.forge.fluids;
 
-import net.minecraftforge.fml.common.asm.transformers.AccessTransformer;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import org.spongepowered.api.extra.fluid.FluidType;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.registry.type.extra.FluidTypeRegistryModule;
 
-import java.io.IOException;
+@Mixin(value = FluidRegistry.class, remap = false)
+public class MixinFluidRegistry {
 
-public class SpongeAccessTransformer extends AccessTransformer {
-
-    public SpongeAccessTransformer() throws IOException {
-        super("META-INF/common_at.cfg");
+    @Inject(method = "registerFluid(Lnet/minecraftforge/fluids/Fluid;)Z", at = @At("RETURN"))
+    private static void onRegister(Fluid fluid, CallbackInfoReturnable<Boolean> callbackInfo) {
+        if (callbackInfo.getReturnValue()) {
+            // We only want to allow registering fluids that don't have id conflicts.
+            FluidTypeRegistryModule.getInstance().registerForge((FluidType) fluid);
+        }
     }
+
 }

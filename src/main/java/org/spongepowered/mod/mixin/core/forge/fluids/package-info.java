@@ -22,15 +22,4 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.asm.transformer;
-
-import net.minecraftforge.fml.common.asm.transformers.AccessTransformer;
-
-import java.io.IOException;
-
-public class SpongeAccessTransformer extends AccessTransformer {
-
-    public SpongeAccessTransformer() throws IOException {
-        super("META-INF/common_at.cfg");
-    }
-}
+@org.spongepowered.api.util.annotation.NonnullByDefault package org.spongepowered.mod.mixin.core.forge.fluids;

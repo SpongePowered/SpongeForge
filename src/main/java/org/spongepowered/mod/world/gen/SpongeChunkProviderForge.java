@@ -174,9 +174,6 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
             ((SpongeGenerationPopulator) this.baseGenerator).getHandle(this.world).populate(chunkProvider, chunkX, chunkZ);
         }
 
-        world.setCapturingTerrainGen(false);
-        world.setProcessingCaptureCause(false);
-
         ImmutableMap.Builder<PopulatorType, List<Transaction<BlockSnapshot>>> populatorChanges = ImmutableMap.builder();
         for (Map.Entry<PopulatorType, LinkedHashMap<Vector3i, Transaction<BlockSnapshot>>> entry : world.getCapturedPopulatorChanges().entrySet()) {
             populatorChanges.put(entry.getKey(), ImmutableList.copyOf(entry.getValue().values()));
@@ -190,6 +187,9 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         for (List<Transaction<BlockSnapshot>> transactions : event.getPopulatedTransactions().values()) {
             world.markAndNotifyBlockPost(transactions, CaptureType.POPULATE, populateCause);
         }
+
+        world.setCapturingTerrainGen(false);
+        world.setProcessingCaptureCause(false);
         world.getCapturedPopulatorChanges().clear();
 
         BlockFalling.fallInstantly = false;

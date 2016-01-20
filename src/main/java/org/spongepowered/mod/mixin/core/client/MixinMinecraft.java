@@ -32,6 +32,7 @@ import net.minecraft.world.storage.WorldInfo;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -48,7 +49,11 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
 
     private GuiOverlayDebug debugGui;
 
-    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;startServerThread()V", shift = At.Shift.BEFORE) , locals = LocalCapture.CAPTURE_FAILHARD)
+    @Group(name = "launchIntegratedServer", min = 1, max = 1)
+    @Inject(method = "launchIntegratedServer", at = {
+            @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;startServerThread()V", remap = false, shift = At.Shift.BEFORE),
+            @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;func_71256_s()V", remap = false, shift = At.Shift.BEFORE),
+    }, locals = LocalCapture.CAPTURE_FAILHARD)
     public void onlaunchIntegratedServerBeforeStart(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
             ISaveHandler isavehandler, WorldInfo worldInfo) {
         WorldPropertyRegistryModule.getInstance().registerWorldProperties((WorldProperties) worldInfo);
@@ -71,7 +76,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     public GuiOverlayDebug getDebugGui() {
         return this.debugGui;
     }
-    
+
     @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V", remap = false))
     public void onShutdownDelegate(CallbackInfo ci) {
         SpongeImpl.postShutdownEvents();

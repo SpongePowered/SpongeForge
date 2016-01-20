@@ -28,13 +28,10 @@ import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
 import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.launch.SpongeLaunch;
-import org.spongepowered.common.launch.transformer.SpongeSuperclassRegistry;
 import org.spongepowered.launch.JavaVersionCheckUtils;
 
 import java.io.File;
@@ -79,31 +76,22 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
             Runtime.getRuntime().exit(1);
         }
 
+        Launch.classLoader.addTransformerExclusion("org.spongepowered.common.launch.");
+
         // Let's get this party started
-        MixinBootstrap.init();
-        MixinEnvironment.setCompatibilityLevel(MixinEnvironment.CompatibilityLevel.JAVA_8);
+        SpongeLaunch.setupMixinEnvironment()
+                .addConfiguration("mixins.forge.core.json")
+                .addConfiguration("mixins.forge.entityactivation.json")
+                .addConfiguration("mixins.forge.bungeecord.json")
+                .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
         // Add pre-init mixins
         MixinEnvironment.getEnvironment(Phase.PREINIT)
                 .addConfiguration("mixins.forge.preinit.json")
                 .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
-        SpongeLaunch.initialize();
-        SpongeImpl.getGlobalConfig(); // Load config
-
         MixinEnvironment.getEnvironment(Phase.INIT)
                 .addConfiguration("mixins.forge.init.json")
-                .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
-
-        // Add default mixins
-        MixinEnvironment.getDefaultEnvironment()
-                .addConfiguration("mixins.common.api.json")
-                .addConfiguration("mixins.common.core.json")
-                .addConfiguration("mixins.common.bungeecord.json")
-                .addConfiguration("mixins.common.timings.json")
-                .addConfiguration("mixins.forge.core.json")
-                .addConfiguration("mixins.forge.entityactivation.json")
-                .addConfiguration("mixins.forge.bungeecord.json")
                 .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.Cause");
@@ -115,16 +103,8 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("ninja.leaping.configurate.");
         Launch.classLoader.addTransformerExclusion("org.apache.commons.lang3.");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
-        Launch.classLoader.addTransformerExclusion("org.spongepowered.common.launch.");
 
-        SpongeSuperclassRegistry.registerSuperclassModification("org.spongepowered.api.entity.ai.task.AbstractAITask",
-                "org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass");
-        SpongeSuperclassRegistry.registerSuperclassModification("org.spongepowered.api.event.cause.entity.damage.source.common.AbstractDamageSource",
-            "org.spongepowered.common.event.damage.SpongeCommonDamageSource");
-        SpongeSuperclassRegistry.registerSuperclassModification("org.spongepowered.api.event.cause.entity.damage.source.common.AbstractEntityDamageSource",
-            "org.spongepowered.common.event.damage.SpongeCommonEntityDamageSource");
-        SpongeSuperclassRegistry.registerSuperclassModification("org.spongepowered.api.event.cause.entity.damage.source.common.AbstractIndirectEntityDamageSource",
-            "org.spongepowered.common.event.damage.SpongeCommonIndirectEntityDamageSource");
+        SpongeLaunch.setupSuperClassTransformer();
     }
 
     private void clearSecurityManager() {
@@ -143,7 +123,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
-                "org.spongepowered.common.launch.transformer.SpongeSuperclassTransformer"
+                SpongeLaunch.SUPERCLASS_TRANSFORMER
         };
     }
 
