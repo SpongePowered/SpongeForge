@@ -44,6 +44,7 @@
         "event.player.MixinEventPlayerInteractEntity",
         "event.player.MixinEventPlayerPlaceBlock",
         "event.player.MixinEventPlayerPlaceMultiBlock",
+        "event.player.MixinPlayerSleepInBedEvent",
         "event.state.MixinEventConstruction",
         "event.state.MixinEventInit",
         "event.state.MixinEventLoadComplete",

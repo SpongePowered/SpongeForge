@@ -63,7 +63,6 @@ import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
-import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
@@ -71,6 +70,7 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.SaveWorldEvent;
@@ -196,8 +196,8 @@ public class SpongeModEventManager extends SpongeEventManager {
         // sync plugin data for Forge
         ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
 
-        if (spongeEvent instanceof Cancellable) {
-            if (((Cancellable) spongeEvent).isCancelled()) {
+        if (spongeEvent instanceof Cancellable && spongeEvent != forgeEvent) {
+            if (forgeEvent.isCancelable() && ((Cancellable) spongeEvent).isCancelled()) {
                 forgeEvent.setCanceled(true);
             }
         }
