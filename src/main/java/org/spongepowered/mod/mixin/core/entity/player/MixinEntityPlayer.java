@@ -114,7 +114,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
             if (post.isCancelled()) {
                 return;
             }
-    
+
             net.minecraftforge.event.ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);
             this.setSize(0.6F, 1.8F);
             if (post.getSpawnTransform().isPresent()) {
@@ -133,16 +133,12 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
 
         this.sleepTimer = immediately ? 0 : 100;
 
+        if (setSpawn) {
+            this.setSpawnPoint(this.playerLocation, false);
+        }
         if (post != null) {
-            if (setSpawn) {
-                this.setSpawnPoint(post.getSpawnTransform().isPresent() ? VecHelper.toBlockPos(post.getSpawnTransform().get().getPosition()) : this.playerLocation, false);
-            }
-    
-            Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(post.getCause(), this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), this));
-        } else {
-            if (setSpawn) {
-                this.setSpawnPoint(this.playerLocation, false);
-            }
+            Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(post.getCause(),
+                    this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), this));
         }
     }
 
