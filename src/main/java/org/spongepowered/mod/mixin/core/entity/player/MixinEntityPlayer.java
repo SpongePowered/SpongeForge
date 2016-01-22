@@ -28,8 +28,10 @@ import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
@@ -44,6 +46,9 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.entity.player.ISpongeUser;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.registry.type.world.WorldPropertyRegistryModule;
@@ -90,6 +95,26 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         return this.dropItem(itemStackIn, false, false);
     }
 
+    @Inject(method = "trySleep", at = @At(value = "RETURN", ordinal = 0))
+    private void onSleepEvent(BlockPos bedLocation, CallbackInfoReturnable<EntityPlayer.EnumStatus> cir) {
+        if (cir.getReturnValue() == EnumStatus.OK) {
+            // A cut-down version of trySleep handling for OK status
+            if (this.nmsPlayer.isRiding()) {
+                this.nmsPlayer.mountEntity((Entity) null);
+            }
+            this.setSize(0.2F, 0.2F);
+            this.nmsPlayer.setPosition((double) ((float) bedLocation.getX() + 0.5F), (double) ((float) bedLocation.getY() + 0.6875F),
+                    (double) ((float) bedLocation.getZ() + 0.5F));
+            this.sleeping = true;
+            this.sleepTimer = 0;
+            this.playerLocation = bedLocation;
+            this.nmsPlayer.motionX = this.nmsPlayer.motionZ = this.nmsPlayer.motionY = 0.0D;
+            if (!this.worldObj.isRemote) {
+                this.worldObj.updateAllPlayersSleepingFlag();
+            }
+        }
+    }
+
     @Overwrite
     public void wakeUpPlayer(boolean immediately, boolean updateWorldFlag, boolean setSpawn) {
         IBlockState iblockstate = this.nmsPlayer.worldObj.getBlockState(this.playerLocation);
@@ -114,7 +139,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
             if (post.isCancelled()) {
                 return;
             }
-    
+
             net.minecraftforge.event.ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);
             this.setSize(0.6F, 1.8F);
             if (post.getSpawnTransform().isPresent()) {
@@ -133,16 +158,12 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
 
         this.sleepTimer = immediately ? 0 : 100;
 
+        if (setSpawn) {
+            this.setSpawnPoint(this.playerLocation, false);
+        }
         if (post != null) {
-            if (setSpawn) {
-                this.setSpawnPoint(post.getSpawnTransform().isPresent() ? VecHelper.toBlockPos(post.getSpawnTransform().get().getPosition()) : this.playerLocation, false);
-            }
-    
-            Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(post.getCause(), this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), this));
-        } else {
-            if (setSpawn) {
-                this.setSpawnPoint(this.playerLocation, false);
-            }
+            Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(post.getCause(),
+                    this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), this));
         }
     }
 

@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -39,7 +40,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = PlayerSleepInBedEvent.class, remap = false)
 public abstract class MixinPlayerSleepInBedEvent extends MixinEventPlayer implements SleepingEvent.Pre {
 
-    @Shadow public final BlockPos pos = null;
+    @Shadow public BlockPos pos;
+    @Shadow public EnumStatus result;
     private BlockSnapshot bed;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -50,6 +52,16 @@ public abstract class MixinPlayerSleepInBedEvent extends MixinEventPlayer implem
     @Override
     public BlockSnapshot getBed() {
         return this.bed;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return this.result != EnumStatus.OK;
+    }
+
+    @Override
+    public void setCancelled(boolean cancel) {
+        this.result = cancel ? EnumStatus.OTHER_PROBLEM : EnumStatus.OK;
     }
 
 }

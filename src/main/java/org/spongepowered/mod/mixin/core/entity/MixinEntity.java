@@ -27,20 +27,17 @@ package org.spongepowered.mod.mixin.core.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.S07PacketRespawn;
 import net.minecraft.network.play.server.S1DPacketEntityEffect;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.world.DimensionManager;
@@ -54,18 +51,7 @@ public abstract class MixinEntity implements IMixinEntity {
     @Shadow public net.minecraft.world.World worldObj;
 
     @Shadow public abstract void setSize(float width, float height);
-    @Shadow(remap = false)
-    public abstract NBTTagCompound getEntityData();
     // @formatter:on
-
-    @Override
-    public final NBTTagCompound getSpongeData() {
-        final NBTTagCompound data = this.getEntityData();
-        if (!data.hasKey(NbtDataUtil.SPONGE_DATA, Constants.NBT.TAG_COMPOUND)) {
-            data.setTag(NbtDataUtil.SPONGE_DATA, new NBTTagCompound());
-        }
-        return data.getCompoundTag(NbtDataUtil.SPONGE_DATA);
-    }
 
     @SuppressWarnings("unchecked")
     public boolean teleportEntity(Entity entity, Location<World> location, int currentDim, int targetDim, boolean forced) {

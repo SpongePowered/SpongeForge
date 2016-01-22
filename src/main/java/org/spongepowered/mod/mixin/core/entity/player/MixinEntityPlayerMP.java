@@ -26,23 +26,14 @@ package org.spongepowered.mod.mixin.core.entity.player;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.world.GameRules;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
 
 @Mixin(value = EntityPlayerMP.class, priority = 1001)
 public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
     @Shadow private NetHandlerPlayServer playerNetServerHandler;
-
-    @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/GameRules;getBoolean(Ljava/lang/String;)"
-            + "Z", ordinal = 0))
-    public boolean onGetGameRules(GameRules gameRules, String gameRule) {
-        return false; // suppress death messages since this is handled in SpongeForgeEventFactory onForgePost
-    }
 
     public boolean usesCustomClient() {
         return this.playerNetServerHandler.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();

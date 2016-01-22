@@ -1,12 +1,11 @@
 {
     "required": true,
-    "minVersion": "0.2",
+    "minVersion": "0.4.12",
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "priority": 1111,
     "mixins": [
         "api.event.MixinAbstractEvent",
-        "block.data.MixinTileEntity",
         "block.MixinBlockLeaves",
         "block.MixinBlockLog",
         "block.MixinBlockOldLeaf",
@@ -45,6 +44,7 @@
         "event.player.MixinEventPlayerInteractEntity",
         "event.player.MixinEventPlayerPlaceBlock",
         "event.player.MixinEventPlayerPlaceMultiBlock",
+        "event.player.MixinPlayerSleepInBedEvent",
         "event.state.MixinEventConstruction",
         "event.state.MixinEventInit",
         "event.state.MixinEventLoadComplete",
@@ -107,5 +107,8 @@
     ],
     "server": [
         "network.packet.MixinC00Handshake"
-    ]
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
 }
