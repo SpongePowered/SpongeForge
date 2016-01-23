@@ -24,37 +24,32 @@
  */
 package org.spongepowered.mod.plugin;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Injector;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.ILanguageAdapter;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.MetadataCollection;
 import net.minecraftforge.fml.common.ModClassLoader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.ProxyInjector;
 import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionRange;
-import org.spongepowered.api.event.Event;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameStateEvent;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
 import org.spongepowered.common.plugin.SpongePluginContainer;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.List;
@@ -98,6 +93,8 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
             this.pluginInstance = Optional.of(injector.getInstance(pluginClazz));
 
             SpongeEventManager spongeBus = (SpongeEventManager) SpongeImpl.getGame().getEventManager();
+            // TODO Detect Scala or use meta to know if we're scala and use proper adapter here...
+            ProxyInjector.inject(this, event.getASMHarvestedData(), FMLCommonHandler.instance().getSide(), new ILanguageAdapter.JavaAdapter());
             spongeBus.registerListener(this, this.pluginInstance.get());
         } catch (Throwable t) {
             this.fmlController.errorOccurred(this, t);
