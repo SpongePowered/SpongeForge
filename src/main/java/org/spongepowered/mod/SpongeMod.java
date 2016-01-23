@@ -87,6 +87,7 @@ import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
 import org.spongepowered.common.service.sql.SqlServiceImpl;
 import org.spongepowered.common.util.SpongeHooks;
+import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
@@ -264,6 +265,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
 
     @Subscribe
     public void onServerStarted(FMLServerStartedEvent event) {
+        SpongePlayerDataHandler.init();
         try {
             ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
         } catch (Throwable t) {
