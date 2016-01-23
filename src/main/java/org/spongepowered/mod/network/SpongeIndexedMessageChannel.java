@@ -79,6 +79,22 @@ class SpongeIndexedMessageChannel extends SpongeModChannelBinding implements Cha
         addHandlerForSide(side, messageClass, handler);
     }
 
+    @Override
+    public <M extends Message> void addHandler(Class<M> messageClass, Platform.Type side, MessageHandler<M> handler) {
+        checkArgument(knownClasses.contains(messageClass));
+        checkNotNull(handler, "handler");
+        checkArgument(checkNotNull(side, "side").isKnown(), "Invalid side");
+        addHandlerForSide(side, messageClass, handler);
+    }
+
+    @Override
+    public <M extends Message> void addHandler(Class<M> messageClass, MessageHandler<M> handler) {
+        checkArgument(knownClasses.contains(messageClass));
+        checkNotNull(handler, "handler");
+        addHandlerForSide(Platform.Type.CLIENT, messageClass, handler);
+        addHandlerForSide(Platform.Type.SERVER, messageClass, handler);
+    }
+
     private <M extends Message> void addHandlerForSide(Platform.Type side, Class<M> messageClass, MessageHandler<M> handler) {
         FMLEmbeddedChannel channel = this.channels.get(side.isClient() ? Side.CLIENT : Side.SERVER);
         String type = channel.findChannelHandlerNameForType(SpongeMessageCodec.class);
