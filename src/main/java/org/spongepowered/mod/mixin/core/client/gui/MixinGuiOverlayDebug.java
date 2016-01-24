@@ -35,10 +35,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.network.message.MessageTrackerDataRequest;
+import org.spongepowered.common.network.message.SpongeMessageHandler;
 import org.spongepowered.mod.client.interfaces.IMixinGuiOverlayDebug;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
-import org.spongepowered.mod.network.SpongeModMessageHandler;
-import org.spongepowered.mod.network.message.MessageTrackerDataRequest;
 
 import java.util.List;
 
@@ -67,7 +67,7 @@ public abstract class MixinGuiOverlayDebug implements IMixinGuiOverlayDebug {
                 && this.mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK
                 && this.mc.objectMouseOver.getBlockPos() != null) {
             BlockPos blockpos1 = this.mc.objectMouseOver.getBlockPos();
-            SpongeModMessageHandler.INSTANCE.sendToServer(
+            SpongeMessageHandler.getChannel().sendToServer(
                     new MessageTrackerDataRequest(0, -1, blockpos1.getX(), blockpos1.getY(), blockpos1.getZ()));
             arraylist.add("Block Owner: " + this.blockOwner);
             arraylist.add("Block Notifier: " + this.blockNotifier);
@@ -76,7 +76,7 @@ public abstract class MixinGuiOverlayDebug implements IMixinGuiOverlayDebug {
             Entity target = this.mc.objectMouseOver.entityHit;
             BlockPos blockPos = target.getPosition();
             if (!blockPos.equals(this.cursorPos)) {
-                SpongeModMessageHandler.INSTANCE.sendToServer(
+                SpongeMessageHandler.getChannel().sendToServer(
                         new MessageTrackerDataRequest(1, target.getEntityId(), blockPos.getX(), blockPos.getY(), blockPos.getZ()));
             }
             arraylist.add("Entity Owner: " + this.blockOwner);
