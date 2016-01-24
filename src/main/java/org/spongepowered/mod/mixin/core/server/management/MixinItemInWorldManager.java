@@ -35,12 +35,16 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.util.StaticMixinHelper;
 
 @Mixin(ItemInWorldManager.class)
 public abstract class MixinItemInWorldManager {
+
+    @Shadow public EntityPlayerMP thisPlayerMP;
 
     @Inject(method = "activateBlockOrUseItem", at = @At(value = "RETURN", ordinal = 3))
     public void onActivateBlockOrUseItem(EntityPlayer player, World worldIn, ItemStack stack, BlockPos pos, EnumFacing side, float p_180236_6_,
@@ -54,4 +58,19 @@ public abstract class MixinItemInWorldManager {
             }
         }
     }
+
+    @Inject(method = "removeBlock(Lnet/minecraft/util/BlockPos;Z)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;"
+            + "onBlockDestroyedByPlayer(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;)V",
+            shift = At.Shift.BEFORE))
+    private void gottaCatchThemAll(BlockPos pos, boolean canHarvest, CallbackInfoReturnable<Boolean> cir) {
+        StaticMixinHelper.blockDestroyPlayer = this.thisPlayerMP;
+    }
+
+    @Inject(method = "removeBlock(Lnet/minecraft/util/BlockPos;Z)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;"
+            + "onBlockDestroyedByPlayer(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;)V",
+            shift = At.Shift.AFTER))
+    private void releaseCapture(BlockPos pos, boolean canHarvest, CallbackInfoReturnable<Boolean> cir) {
+        StaticMixinHelper.blockDestroyPlayer = null;
+    }
+
 }
