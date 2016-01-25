@@ -133,7 +133,7 @@ public final class StaticMixinForgeHelper {
 
                 DamageModifier modifier = DamageModifier.builder()
                     .cause(Cause.of(NamedCause.of(DamageEntityEvent.GENERAL_ARMOR + ":" + type.getId(),
-                                                  ((org.spongepowered.api.item.inventory.ItemStack) inventory[prop.Slot]).createSnapshot()),
+                                                  ((org.spongepowered.api.item.inventory.ItemStack) (Object) inventory[prop.Slot]).createSnapshot()),
                                     NamedCause.of("ArmorProperty", prop),
                                     NamedCause.of("0xDEADBEEF", object)))
                     .type(DamageModifierTypes.ARMOR)

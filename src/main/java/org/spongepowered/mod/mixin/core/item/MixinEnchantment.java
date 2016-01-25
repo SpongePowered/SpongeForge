@@ -39,7 +39,7 @@ public abstract class MixinEnchantment implements Enchantment {
 
     @Override
     public boolean canBeAppliedToStack(ItemStack stack) {
-        return (stack.getItem() == ItemTypes.BOOK) ? isAllowedOnBooks() : canApply((net.minecraft.item.ItemStack) stack);
+        return (stack.getItem() == ItemTypes.BOOK) ? isAllowedOnBooks() : canApply((net.minecraft.item.ItemStack) (Object) stack);
     }
 
 }
