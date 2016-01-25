@@ -95,6 +95,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
@@ -227,6 +228,18 @@ public class SpongeForgeEventFactory {
             }
         }
 
+        // Item events - need to come before EntityEvent filtering because of
+        // class hierarchies.
+        else if (ItemEvent.class.isAssignableFrom(clazz)) {
+            if (clazz == ItemExpireEvent.class) {
+
+            } else if (clazz == ItemTossEvent.class) {
+                return createItemTossEvent(event);
+            } else {
+                return createItemEvent(event);
+            }
+        }
+
         // Entity events
         else if (EntityEvent.class.isAssignableFrom(clazz)) {
             if (clazz == EntityEvent.EntityConstructing.class) {
@@ -237,17 +250,6 @@ public class SpongeForgeEventFactory {
 
             } else {
                 return createEntityEvent(event);
-            }
-        }
-
-        // Item events
-        else if (ItemEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == ItemExpireEvent.class) {
-
-            } else if (clazz == ItemTossEvent.class) {
-
-            } else {
-                return createItemEvent(event);
             }
         }
 
@@ -589,6 +591,20 @@ public class SpongeForgeEventFactory {
         TargetItemEvent spongeEvent = (TargetItemEvent) event;
         ItemEvent forgeEvent =
                 new ItemEvent((EntityItem) spongeEvent.getTargetEntity());
+        return forgeEvent;
+    }
+
+    public static ItemTossEvent createItemTossEvent(Event event) {
+        if (!(event instanceof DropItemEvent.Dispense)) {
+            throw new IllegalArgumentException("Event is not a valid DropItemEvent.Dispense event.");
+        }
+
+        if (!(event.getCause().root() instanceof Player)) {
+            return null;
+        }
+
+        DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
+        ItemTossEvent forgeEvent = new ItemTossEvent((EntityItem) spongeEvent.getEntities().get(0), (EntityPlayerMP) event.getCause().root());
         return forgeEvent;
     }
 

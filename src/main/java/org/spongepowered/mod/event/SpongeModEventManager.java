@@ -32,6 +32,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
@@ -69,6 +70,7 @@ import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
+import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -114,6 +116,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(TargetEntityEvent.class, EntityEvent.class)
                     .put(DestructEntityEvent.Death.class, LivingDeathEvent.class)
                     .put(MessageChannelEvent.Chat.class, ServerChatEvent.class)
+                    .put(DropItemEvent.Dispense.class, ItemTossEvent.class)
                     //.put(DropItemEvent.Harvest.class, BlockEvent.HarvestDropsEvent.class)
                     .put(InteractBlockEvent.class, PlayerInteractEvent.class)
                     .put(InteractBlockEvent.Primary.class, PlayerInteractEvent.class)
