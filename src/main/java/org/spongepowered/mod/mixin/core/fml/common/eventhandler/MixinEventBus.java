@@ -34,6 +34,7 @@ import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -50,7 +51,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     private EventBus eventBus = (EventBus) (Object) this;
 
-    @Shadow private int busID;
+    @Shadow @Final private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;
 
     @Overwrite

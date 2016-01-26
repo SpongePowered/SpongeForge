@@ -28,6 +28,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.event.entity.living.TargetLivingEvent;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
@@ -35,7 +36,7 @@ import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 @Mixin(value = LivingEvent.class, remap = false)
 public abstract class MixinEventLiving extends MixinEventEntity implements TargetLivingEvent {
 
-    @Shadow public EntityLivingBase entityLiving;
+    @Shadow @Final public EntityLivingBase entityLiving;
 
     @Override
     public Living getTargetEntity() {

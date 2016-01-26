@@ -37,6 +37,7 @@ import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.util.VecHelper;
@@ -54,9 +55,9 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
     protected BlockSnapshot blockReplacement;
     protected ImmutableList<Transaction<BlockSnapshot>> blockTransactions;
 
-    @Shadow public BlockPos pos;
-    @Shadow public net.minecraft.world.World world;
-    @Shadow public IBlockState state;
+    @Shadow public BlockPos pos; // Cannot be marked as @Final because we overwrite it later.
+    @Shadow @Final public net.minecraft.world.World world;
+    @Shadow public IBlockState state; // Likewise cannot be marked as @Final because we overwrite it
 
     @Override
     public ImmutableList<Transaction<BlockSnapshot>> getTransactions() {

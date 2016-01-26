@@ -31,6 +31,7 @@ import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,7 +41,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = PlayerSleepInBedEvent.class, remap = false)
 public abstract class MixinPlayerSleepInBedEvent extends MixinEventPlayer implements SleepingEvent.Pre {
 
-    @Shadow public BlockPos pos;
+    @Shadow @Final public BlockPos pos;
     @Shadow public EnumStatus result;
     private BlockSnapshot bed;
 

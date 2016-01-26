@@ -29,6 +29,7 @@ import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,7 +43,8 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
     private int originalDuration;
     private ItemStackSnapshot itemSnapshot;
     private Transaction<ItemStackSnapshot> itemTransaction;
-    @Shadow public net.minecraft.item.ItemStack item;
+
+    @Shadow public net.minecraft.item.ItemStack item; // Cannot be marked as @Final
     @Shadow public int duration;
 
     @Inject(method = "<init>", at = @At("RETURN"))

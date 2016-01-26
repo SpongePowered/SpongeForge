@@ -42,6 +42,7 @@ import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -59,8 +60,8 @@ import java.util.function.Predicate;
 @Mixin(value = net.minecraftforge.event.world.ExplosionEvent.class, remap = false)
 public abstract class MixinEventWorldExplosion extends MixinEvent implements ExplosionEvent {
 
-    @Shadow public net.minecraft.world.World world;
-    @Shadow public net.minecraft.world.Explosion explosion;
+    @Shadow @Final public net.minecraft.world.World world;
+    @Shadow @Final public net.minecraft.world.Explosion explosion;
     private Cause cause;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -108,7 +109,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         private ImmutableList<EntitySnapshot> entitySnapshots;
         private ImmutableList<Transaction<BlockSnapshot>> blockTransactions;
 
-        @Shadow private List<net.minecraft.entity.Entity> entityList;
+        @Shadow @Final private List<net.minecraft.entity.Entity> entityList;
 
         @Inject(method = "<init>", at = @At("RETURN"))
         public void onConstructed(net.minecraft.world.World world, net.minecraft.world.Explosion explosion, List<Entity> entityList, CallbackInfo ci) {

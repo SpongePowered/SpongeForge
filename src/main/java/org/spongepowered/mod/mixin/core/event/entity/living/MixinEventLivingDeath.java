@@ -36,6 +36,7 @@ import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -60,7 +61,7 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
     private Optional<User> sourceCreator;
     private Cause cause;
 
-    @Shadow public DamageSource source;
+    @Shadow @Final public DamageSource source;
 
     @Inject(method = "<init>", at = @At("RETURN") )
     public void onConstructed(EntityLivingBase entity, DamageSource source, CallbackInfo ci) {

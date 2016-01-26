@@ -29,6 +29,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,7 +41,8 @@ import org.spongepowered.mod.mixin.core.event.entity.living.MixinEventLiving;
 @Mixin(value = PlayerEvent.class, remap = false)
 public abstract class MixinEventPlayer extends MixinEventLiving {
 
-    @Shadow public EntityPlayer entityPlayer;
+    @Shadow @Final public EntityPlayer entityPlayer;
+
     private Cause cause;
 
     @Inject(method = "<init>", at = @At("RETURN"))

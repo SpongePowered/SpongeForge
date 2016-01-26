@@ -41,6 +41,7 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -59,8 +60,8 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     private BlockSnapshot blockSnapshot;
 
-    @Shadow public Action action;
-    @Shadow public net.minecraft.world.World world;
+    @Shadow @Final public Action action;
+    @Shadow @Final public net.minecraft.world.World world;
     @Shadow public BlockPos pos;
     @Shadow public EnumFacing face;
 
@@ -110,9 +111,9 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @Override
     public Event createSpongeEvent() {
-        if (action == Action.LEFT_CLICK_BLOCK) {
+        if (this.action == Action.LEFT_CLICK_BLOCK) {
             return SpongeEventFactory.createInteractBlockEventPrimary(getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());
-        } else if (action == Action.RIGHT_CLICK_AIR) {
+        } else if (this.action == Action.RIGHT_CLICK_AIR) {
             return SpongeEventFactory.createInteractBlockEventSecondary(getCause(), getInteractionPoint(), getTargetBlock().withState(BlockTypes.AIR.getDefaultState()), getTargetSide());
         } else {
             return SpongeEventFactory.createInteractBlockEventSecondary(getCause(), getInteractionPoint(), getTargetBlock(), getTargetSide());

@@ -38,6 +38,7 @@ import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -52,8 +53,8 @@ import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 @Mixin(value = BlockEvent.BreakEvent.class, remap = false)
 public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock implements ChangeBlockEvent.Break {
 
+    @Shadow @Final private EntityPlayer player;
     @Shadow private int exp;
-    @Shadow private EntityPlayer player;
     private Cause cause;
 
     /**

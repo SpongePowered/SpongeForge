@@ -41,6 +41,7 @@ import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -60,7 +61,8 @@ public abstract class MixinEventItem extends MixinEventEntity implements AffectE
     protected EntitySnapshot entitySnapshot;
     protected ImmutableList<EntitySnapshot> entitySnapshots;
     protected List<Entity> entities;
-    @Shadow public EntityItem entityItem;
+
+    @Shadow @Final public EntityItem entityItem;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityItem itemEntity, CallbackInfo ci) {
@@ -83,7 +85,8 @@ public abstract class MixinEventItem extends MixinEventEntity implements AffectE
     @Mixin(value = ItemTossEvent.class, remap = false)
     static abstract class Toss extends MixinEventItem implements DropItemEvent.Dispense {
 
-        @Shadow public EntityPlayer player;
+        @Shadow @Final public EntityPlayer player;
+
         private Cause cause;
 
         @Inject(method = "<init>", at = @At("RETURN"))

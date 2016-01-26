@@ -36,6 +36,7 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -57,7 +58,8 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
 
     private ImmutableMap<Direction, BlockState> originalNeighbors;
     private Map<Direction, BlockState> neighbors;
-    @Shadow private EnumSet<EnumFacing> notifiedSides;
+
+    @Shadow private EnumSet<EnumFacing> notifiedSides; // Cannot be marked as @Final due to re-sync
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EnumSet<EnumFacing> notifiedSides, CallbackInfo ci) {
