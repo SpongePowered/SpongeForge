@@ -24,36 +24,33 @@
  */
 package org.spongepowered.mod;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
-import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeGame;
-import org.spongepowered.common.network.SpongeNetworkManager;
 import org.spongepowered.common.registry.SpongeGameRegistry;
-import org.spongepowered.mod.network.SpongeModNetworkManager;
 import org.spongepowered.mod.registry.SpongeForgeGameDictionary;
 
 import java.nio.file.Path;
-
-import javax.inject.Inject;
 
 @NonnullByDefault
 @Singleton
 public final class SpongeModGame extends SpongeGame {
 
-    private final SpongeModNetworkManager networkManager = new SpongeModNetworkManager();
-
     @Inject
-    public SpongeModGame(Platform platform, PluginManager pluginManager, EventManager eventManager, SpongeGameRegistry gameRegistry,
-            ServiceManager serviceManager, TeleportHelper teleportHelper, Logger logger) {
-        super(platform, pluginManager, eventManager, gameRegistry, serviceManager, teleportHelper, logger);
+    public SpongeModGame(Platform platform, PluginManager pluginManager, EventManager eventManager,
+            SpongeGameRegistry gameRegistry, ServiceManager serviceManager, TeleportHelper teleportHelper,
+            ChannelRegistrar channelRegistrar, Logger logger) {
+        super(platform, pluginManager, eventManager, gameRegistry, serviceManager, teleportHelper, channelRegistrar, logger);
     }
 
     @Override
@@ -64,11 +61,6 @@ public final class SpongeModGame extends SpongeGame {
     @Override
     public GameDictionary getGameDictionary() {
         return SpongeForgeGameDictionary.instance;
-    }
-
-    @Override
-    public SpongeNetworkManager getChannelRegistrar() {
-        return this.networkManager;
     }
 
 }
