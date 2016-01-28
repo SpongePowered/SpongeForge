@@ -35,6 +35,7 @@ import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -60,7 +61,8 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     @Nullable private MessageChannel channel;
     private Cause cause;
 
-    @Shadow public EntityPlayerMP player;
+    @Shadow @Final public EntityPlayerMP player;
+
     @Shadow public abstract void setComponent(IChatComponent component);
 
     @Inject(method = "<init>", at = @At("RETURN"))

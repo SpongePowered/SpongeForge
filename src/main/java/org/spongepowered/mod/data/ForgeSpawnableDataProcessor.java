@@ -49,7 +49,7 @@ public class ForgeSpawnableDataProcessor extends SpawnableDataProcessor {
     @Override
     public DataTransactionResult removeFrom(ValueContainer<?> container) {
         if (this.supports(container)) {
-            ItemStack item = (ItemStack) container;
+            ItemStack item = (ItemStack) (Object) container;
             item.setItemDamage(0);
             if (item.hasTagCompound() && item.getTagCompound().hasKey(NbtDataUtil.FORGE_ENTITY_TYPE, NbtDataUtil.TAG_STRING)) {
                 item.getTagCompound().removeTag(NbtDataUtil.FORGE_ENTITY_TYPE);

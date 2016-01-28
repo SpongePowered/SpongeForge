@@ -38,11 +38,14 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketRegistrationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.event.SpongeEventFactory;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.network.ChannelBinding;
 import org.spongepowered.api.network.ChannelBinding.IndexedMessageChannel;
 import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
@@ -59,13 +62,19 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
 
     private final Map<String, SpongeModChannelBinding> channelMap = Maps.newHashMap();
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onCustomPacketRegistration(CustomPacketRegistrationEvent<?> event) {
         Set<String> channels = ((IMixinNetPlayHandler) event.handler).getRegisteredChannels();
         if (event.operation.equals("REGISTER")) {
             channels.addAll(event.registrations);
+            for (String channel : event.registrations) {
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Cause.of(event.handler), channel));
+            }
         } else if (event.operation.equals("UNREGISTER")) {
             channels.removeAll(event.registrations);
+            for (String channel : event.registrations) {
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(Cause.of(event.handler), channel));
+            }
         }
     }
 

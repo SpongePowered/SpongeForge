@@ -44,6 +44,7 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -67,11 +68,11 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
             "Lnet/minecraft/server/management/ItemInWorldManager;activateBlockOrUseItem(Lnet/minecraft/entity/player/EntityPlayer;"
             + "Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/BlockPos;Lnet/minecraft/util/EnumFacing;FFF)Z";
 
+    @Shadow @Final private static Logger logger;
+    @Shadow @Final public NetworkManager netManager;
+    @Shadow @Final private MinecraftServer serverController;
     @Shadow public EntityPlayerMP playerEntity;
     @Shadow private int chatSpamThresholdCount;
-    @Shadow private static Logger logger;
-    @Shadow public NetworkManager netManager;
-    @Shadow private MinecraftServer serverController;
     @Shadow private boolean hasMoved;
 
     private final Set<String> registeredChannels = Sets.newHashSet();

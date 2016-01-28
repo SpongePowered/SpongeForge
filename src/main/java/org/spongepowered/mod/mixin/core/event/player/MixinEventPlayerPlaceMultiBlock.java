@@ -32,6 +32,7 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -46,7 +47,7 @@ import java.util.List;
 @Mixin(value = BlockEvent.MultiPlaceEvent.class, remap = false)
 public abstract class MixinEventPlayerPlaceMultiBlock extends MixinEventPlayerPlaceBlock implements ChangeBlockEvent.Place {
 
-    @Shadow public List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots;
+    @Shadow @Final public List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots, IBlockState placedAgainst, EntityPlayer player,

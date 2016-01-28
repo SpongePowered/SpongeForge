@@ -31,6 +31,7 @@ import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.entity.living.humanoid.player.TargetPlayerEvent;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,7 +41,8 @@ import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 @Mixin(value = PlayerEvent.class, remap = false)
 public abstract class MixinPlayerEvent extends MixinEvent implements TargetPlayerEvent {
-    @Shadow public EntityPlayer player;
+
+    @Shadow @Final public EntityPlayer player;
 
     protected Transform<World> fromTransform;
     protected Transform<World> toTransform;

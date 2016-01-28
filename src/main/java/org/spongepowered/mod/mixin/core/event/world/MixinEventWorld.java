@@ -30,6 +30,7 @@ import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,7 +42,8 @@ import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 @Mixin(value = WorldEvent.class, remap = false)
 public abstract class MixinEventWorld extends MixinEvent implements TargetWorldEvent {
 
-    @Shadow public net.minecraft.world.World world;
+    @Shadow @Final public net.minecraft.world.World world;
+
     private Cause cause;
 
     @Inject(method = "<init>", at = @At("RETURN"))

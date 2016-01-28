@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.entityactivation;
 import net.minecraft.profiler.Profiler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,14 +42,10 @@ import org.spongepowered.mod.mixin.plugin.entityactivation.ActivationRange;
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinWorld implements World, IMixinWorld {
 
-    @Shadow
-    public Profiler theProfiler;
+    @Shadow @Final public Profiler theProfiler;
 
-    @Shadow
-    public abstract boolean isAreaLoaded(int xStart, int yStart, int zStart, int xEnd, int yEnd, int zEnd, boolean allowEmpty);
-
-    @Shadow
-    public abstract boolean isChunkLoaded(int x, int z, boolean allowEmpty);
+    @Shadow public abstract boolean isAreaLoaded(int xStart, int yStart, int zStart, int xEnd, int yEnd, int zEnd, boolean allowEmpty);
+    @Shadow public abstract boolean isChunkLoaded(int x, int z, boolean allowEmpty);
 
     @Inject(method = "updateEntities()V", at = @At(value = "INVOKE_STRING",
             target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V", args = {"ldc=regular"}))

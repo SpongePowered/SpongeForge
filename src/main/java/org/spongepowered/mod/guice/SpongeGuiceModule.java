@@ -35,6 +35,7 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
@@ -50,6 +51,7 @@ import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.SpongeModGame;
 import org.spongepowered.mod.SpongeModPlatform;
 import org.spongepowered.mod.event.SpongeModEventManager;
+import org.spongepowered.mod.network.SpongeModNetworkManager;
 import org.spongepowered.mod.plugin.SpongePluginManager;
 
 import java.io.File;
@@ -74,6 +76,7 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(EventManager.class).to(SpongeModEventManager.class).in(Scopes.SINGLETON);
         bind(GameRegistry.class).to(SpongeGameRegistry.class).in(Scopes.SINGLETON);
         bind(TeleportHelper.class).to(SpongeTeleportHelper.class).in(Scopes.SINGLETON);
+        bind(ChannelRegistrar.class).to(SpongeModNetworkManager.class).in(Scopes.SINGLETON);
 
         ConfigDirAnnotation sharedRoot = new ConfigDirAnnotation(true);
         bind(Path.class).annotatedWith(sharedRoot).toInstance(SpongeImpl.getConfigDir());

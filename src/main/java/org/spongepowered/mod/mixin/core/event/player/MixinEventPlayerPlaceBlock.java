@@ -36,7 +36,9 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -49,11 +51,11 @@ import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 @Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
 public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock implements ChangeBlockEvent.Place {
 
-    @Shadow public EntityPlayer player;
-    @Shadow public ItemStack itemInHand;
-    @Shadow public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
-    @Shadow public IBlockState placedBlock;
-    @Shadow public IBlockState placedAgainst;
+    @Shadow @Final public EntityPlayer player;
+    @Shadow @Final public ItemStack itemInHand;
+    @Shadow @Final public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
+    @Shadow @Final public IBlockState placedAgainst;
+    @Shadow @Final @Mutable public IBlockState placedBlock;
 
     private Cause cause;
 
