@@ -43,6 +43,7 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -62,8 +63,8 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @Shadow @Final public Action action;
     @Shadow @Final public net.minecraft.world.World world;
-    @Shadow public BlockPos pos;
-    @Shadow public EnumFacing face;
+    @Shadow @Final @Mutable public BlockPos pos;
+    @Shadow @Final @Mutable public EnumFacing face;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, net.minecraft.world.World world, CallbackInfo ci) {

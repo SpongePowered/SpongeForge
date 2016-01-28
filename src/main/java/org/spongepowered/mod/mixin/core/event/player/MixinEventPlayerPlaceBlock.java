@@ -38,6 +38,7 @@ import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -54,7 +55,7 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
     @Shadow @Final public ItemStack itemInHand;
     @Shadow @Final public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
     @Shadow @Final public IBlockState placedAgainst;
-    @Shadow public IBlockState placedBlock; // Cannot mark as @Final due to re-assigning when re-syncing
+    @Shadow @Final @Mutable public IBlockState placedBlock;
 
     private Cause cause;
 

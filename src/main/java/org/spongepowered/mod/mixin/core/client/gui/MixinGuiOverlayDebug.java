@@ -29,6 +29,7 @@ import net.minecraft.client.gui.GuiOverlayDebug;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -49,10 +50,9 @@ public abstract class MixinGuiOverlayDebug implements IMixinGuiOverlayDebug {
     private String blockNotifier = "";
     private BlockPos cursorPos = new BlockPos(0, 0, 0);
 
-    @Shadow private Minecraft mc;
+    @Shadow @Final private Minecraft mc;
 
-    @Shadow
-    public abstract boolean isReducedDebug();
+    @Shadow public abstract boolean isReducedDebug();
 
     @Inject(method = "<init>", at = @At(value = "RETURN") )
     public void onConstructDebugGui(Minecraft mc, CallbackInfo ci) {

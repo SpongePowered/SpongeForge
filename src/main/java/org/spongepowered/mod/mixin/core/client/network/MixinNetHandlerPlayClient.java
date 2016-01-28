@@ -28,6 +28,7 @@ import com.google.common.collect.Sets;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.network.NetworkManager;
 import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.IMixinNetworkManager;
@@ -39,7 +40,7 @@ import java.util.Set;
 @Mixin(NetHandlerPlayClient.class)
 public class MixinNetHandlerPlayClient implements RemoteConnection, IMixinNetPlayHandler {
 
-    @Shadow private NetworkManager netManager;
+    @Shadow @Final private NetworkManager netManager;
 
     private final Set<String> registeredChannels = Sets.newHashSet();
 
