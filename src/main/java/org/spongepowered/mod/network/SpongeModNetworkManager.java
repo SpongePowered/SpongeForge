@@ -46,6 +46,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.network.ChannelBinding;
 import org.spongepowered.api.network.ChannelBinding.IndexedMessageChannel;
 import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
@@ -68,12 +69,12 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         if (event.operation.equals("REGISTER")) {
             channels.addAll(event.registrations);
             for (String channel : event.registrations) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Cause.of(event.handler), channel));
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Cause.of(NamedCause.source(event.handler)), channel));
             }
         } else if (event.operation.equals("UNREGISTER")) {
             channels.removeAll(event.registrations);
             for (String channel : event.registrations) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(Cause.of(event.handler), channel));
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(Cause.of(NamedCause.source(event.handler)), channel));
             }
         }
     }
