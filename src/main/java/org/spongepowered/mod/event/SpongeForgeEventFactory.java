@@ -97,6 +97,9 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
+import org.spongepowered.api.event.item.inventory.DropItemEvent;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
@@ -210,7 +213,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == LivingDeathEvent.class) {
                 return createLivingDeathEvent(event);
             } else if (clazz == LivingDropsEvent.class) {
-                return createLivingDropsEvent(event);
+                return createLivingDropItemEvent(event);
             } else if (clazz == LivingExperienceDropEvent.class) {
 
             } else if (clazz == LivingFallEvent.class) {
@@ -301,6 +304,31 @@ public class SpongeForgeEventFactory {
 
         // return same event if not currently supported
         return (net.minecraftforge.fml.common.eventhandler.Event) event;
+    }
+
+    private static LivingDropsEvent createLivingDropItemEvent(Event event) {
+        if (!(event instanceof DropItemEvent.Destruct)) {
+            throw new IllegalArgumentException("Event is not a valid DestructEntityEvent.Death event.");
+        }
+
+        DropItemEvent.Destruct spongeEvent = (DropItemEvent.Destruct) event;
+        Optional<EntityLivingBase> spawnCause = spongeEvent.getCause().first(EntityLivingBase.class);
+        if (!spawnCause.isPresent()) {
+            return null;
+        }
+        Optional<DamageSource> source = spongeEvent.getCause().first(DamageSource.class);
+        if (!source.isPresent()) {
+            return null;
+        }
+
+        List<EntityItem> items = new ArrayList<>();
+        for (org.spongepowered.api.entity.Entity entity : spongeEvent.getEntities()) {
+            if (entity instanceof EntityItem) {
+                items.add((EntityItem) entity);
+            }
+        }
+        LivingDropsEvent forgeEvent = new LivingDropsEvent(spawnCause.get(), (net.minecraft.util.DamageSource) source.get(), items, 0, false);
+        return forgeEvent;
     }
 
     // Used for firing single events to Forge from sponge bulk events
@@ -847,7 +875,7 @@ public class SpongeForgeEventFactory {
 
     public static SpawnEntityEvent callEntityJoinWorldEvent(Event event) {
         if (!(event instanceof SpawnEntityEvent)) {
-            throw new IllegalArgumentException("Event is not a valiud SpawnEntityEvent.");
+            throw new IllegalArgumentException("Event is not a valid SpawnEntityEvent.");
         }
 
         SpawnEntityEvent spongeEvent = (SpawnEntityEvent) event;
