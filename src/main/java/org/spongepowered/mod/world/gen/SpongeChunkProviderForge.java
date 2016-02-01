@@ -149,13 +149,13 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Pre(this.world, this.rand, blockpos));
         List<String> flags = Lists.newArrayList();
         for (Populator populator : populators) {
+            StaticMixinHelper.runningGenerator = populator.getType();
             if (!checkForgeEvent(populator, chunkProvider, chunkX, chunkZ, flags, chunk)) {
                 continue;
             }
             if(Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(populateCause, populator, chunk))) {
                 continue;
             }
-            StaticMixinHelper.runningGenerator = populator.getType();
             if (populator instanceof IFlaggedPopulator) {
                 ((IFlaggedPopulator) populator).populate(chunkProvider, chunk, this.rand, flags);
             } else {
