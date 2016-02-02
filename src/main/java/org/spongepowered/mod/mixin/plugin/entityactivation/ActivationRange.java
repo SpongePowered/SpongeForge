@@ -349,6 +349,10 @@ public class ActivationRange {
 
     public static SpongeConfig<?> getActiveConfig(World world) {
         SpongeConfig<WorldConfig> config = ((IMixinWorld) world).getWorldConfig();
+        if (config == null) {
+            return SpongeImpl.getGlobalConfig();
+        }
+        
         if (config.getConfig().isConfigEnabled()) {
             return config;
         } else if (((IMixinWorldProvider) world.provider).getDimensionConfig() != null && ((IMixinWorldProvider) world.provider)
