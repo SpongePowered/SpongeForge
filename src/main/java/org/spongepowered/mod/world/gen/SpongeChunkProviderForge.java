@@ -122,6 +122,8 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
     @Override
     public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ) {
         IMixinWorld world = (IMixinWorld) this.world;
+        this.prevCapturingTerrain = world.capturingTerrainGen();
+        this.prevProcessingCaptures = world.isProcessingCaptureCause();
         world.setProcessingCaptureCause(true);
         world.setCapturingTerrainGen(true);
         Cause populateCause = Cause.of(NamedCause.source(this), NamedCause.of("ChunkProvider", chunkProvider));
@@ -161,8 +163,8 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
             } else {
                 populator.populate(chunk, this.rand);
             }
-            StaticMixinHelper.runningGenerator = null;
         }
+        StaticMixinHelper.runningGenerator = null;
 
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Post(this.world, this.rand, blockpos));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Post(this.world, this.rand, blockpos));
@@ -184,12 +186,14 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
                         chunk);
         SpongeImpl.postEvent(event);
 
+        this.prevRestoringBlocks = world.restoringBlocks();
+        world.setRestoringBlocks(true);
         for (List<Transaction<BlockSnapshot>> transactions : event.getPopulatedTransactions().values()) {
             world.markAndNotifyBlockPost(transactions, CaptureType.POPULATE, populateCause);
         }
-
-        world.setCapturingTerrainGen(false);
-        world.setProcessingCaptureCause(false);
+        world.setRestoringBlocks(this.prevRestoringBlocks);
+        world.setCapturingTerrainGen(this.prevCapturingTerrain);
+        world.setProcessingCaptureCause(this.prevProcessingCaptures);
         world.getCapturedPopulatorChanges().clear();
 
         BlockFalling.fallInstantly = false;
