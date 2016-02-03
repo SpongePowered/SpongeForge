@@ -30,20 +30,28 @@ import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.Minecart;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.IMixinMinecart;
 
 @NonnullByDefault
 @Mixin(EntityMinecart.class)
-public abstract class MixinEntityMinecart extends Entity implements Minecart, IMixinMinecart {
+public abstract class MixinEntityMinecart extends Entity implements IMixinMinecart {
 
-    private double maxSpeed;
-    private Vector3d airborneMod;
+    private static final String MINECART_MOTION_X_FIELD = "Lnet/minecraft/entity/item/EntityMinecart;motionX:D";
+    private static final String MINECART_MOTION_Y_FIELD = "Lnet/minecraft/entity/item/EntityMinecart;motionY:D";
+    private static final String MINECART_MOTION_Z_FIELD = "Lnet/minecraft/entity/item/EntityMinecart;motionZ:D";
+
+    // These are provided by Common
+    protected double maxSpeed;
+    protected Vector3d derailedMod;
+    protected Vector3d airborneMod;
 
     public MixinEntityMinecart(World worldIn) {
         super(worldIn);
@@ -65,17 +73,32 @@ public abstract class MixinEntityMinecart extends Entity implements Minecart, IM
         return getMaximumSpeed();
     }
 
-    // this method overwrites vanilla behavior to allow for a custom deceleration rate on all three axes when airborne
-    @Inject(method = "moveDerailedMinecart()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityMinecart;onGround:Z", ordinal = 2))
-    public void implementCustomAirborneDeceleration(CallbackInfo ci) {
-        if (!this.isOnGround()) {
-            this.motionX /= this.getDragAir();
-            this.motionY /= this.getDragAir();
-            this.motionZ /= this.getDragAir();
-            this.motionX *= this.airborneMod.getX();
-            this.motionY *= this.airborneMod.getY();
-            this.motionZ *= this.airborneMod.getZ();
-        }
+    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_Y_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 1))
+    private void onDecelerateY(EntityMinecart self, double modifier) {
+        self.motionY *= this.derailedMod.getY();
     }
+
+    /**
+     * @author gabizou - February 3rd, 2016
+     *
+     * These are still ordinal 1 since the previous redirects reduce the opcodes by 1.
+     * Logically, these should be assigning when the motions are being applied during
+     * air drag.
+     */
+    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_X_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 1))
+    private void onGetDragAirX(EntityMinecart self, double modifier) {
+        self.motionX *= this.airborneMod.getX();
+    }
+
+    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_Y_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 1))
+    private void onGetDragAirY(EntityMinecart self, double modifier) {
+        self.motionY *= this.airborneMod.getY();
+    }
+
+    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_Z_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 1))
+    private void onGetDragAirZ(EntityMinecart self, double modifier) {
+        self.motionZ *= this.airborneMod.getZ();
+    }
+
 
 }
