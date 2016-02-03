@@ -33,11 +33,16 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventBus;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.entity.EntityDummy;
 import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.world.DimensionManager;
@@ -52,6 +57,14 @@ public abstract class MixinEntity implements IMixinEntity {
 
     @Shadow public abstract void setSize(float width, float height);
     // @formatter:on
+
+    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z"))
+    private boolean onEntityConstruct(EventBus eventBus, Event event) {
+        if (!((Object) this instanceof EntityDummy)) {
+            return eventBus.post(event);
+        }
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
     public boolean teleportEntity(Entity entity, Location<World> location, int currentDim, int targetDim, boolean forced) {
