@@ -1,6 +1,6 @@
 {
     "required": true,
-    "minVersion": "0.4.12",
+    "minVersion": "0.5.1",
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "priority": 1111,
@@ -29,6 +29,7 @@
         "event.entity.MixinEventEntityItemPickup",
         "event.entity.living.MixinEventLiving",
         "event.entity.living.MixinEventLivingDeath",
+        "event.entity.living.MixinEventLivingDrops",
         "event.inventory.MixinEventItem",
         "event.inventory.MixinEventItem$Toss",
         "event.inventory.MixinEventItem$Expire",

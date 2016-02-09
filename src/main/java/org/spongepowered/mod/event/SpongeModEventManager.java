@@ -34,6 +34,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -116,6 +117,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(TargetEntityEvent.class, EntityEvent.class)
                     .put(DestructEntityEvent.Death.class, LivingDeathEvent.class)
                     .put(MessageChannelEvent.Chat.class, ServerChatEvent.class)
+                    .put(DropItemEvent.Destruct.class, LivingDropsEvent.class)
                     .put(DropItemEvent.Dispense.class, ItemTossEvent.class)
                     //.put(DropItemEvent.Harvest.class, BlockEvent.HarvestDropsEvent.class)
                     .put(InteractBlockEvent.class, PlayerInteractEvent.class)

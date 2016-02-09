@@ -78,24 +78,17 @@ public abstract class MixinEntityMinecart extends Entity implements IMixinMineca
         self.motionY *= this.derailedMod.getY();
     }
 
-    /**
-     * @author gabizou - February 3rd, 2016
-     *
-     * These are still ordinal 1 since the previous redirects reduce the opcodes by 1.
-     * Logically, these should be assigning when the motions are being applied during
-     * air drag.
-     */
-    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_X_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 1))
+    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_X_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 2))
     private void onGetDragAirX(EntityMinecart self, double modifier) {
         self.motionX *= this.airborneMod.getX();
     }
 
-    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_Y_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 1))
+    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_Y_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 2))
     private void onGetDragAirY(EntityMinecart self, double modifier) {
         self.motionY *= this.airborneMod.getY();
     }
 
-    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_Z_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 1))
+    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_Z_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 2))
     private void onGetDragAirZ(EntityMinecart self, double modifier) {
         self.motionZ *= this.airborneMod.getZ();
     }
