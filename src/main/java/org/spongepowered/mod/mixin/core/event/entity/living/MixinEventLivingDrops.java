@@ -81,7 +81,6 @@ public abstract class MixinEventLivingDrops extends MixinEventLiving implements 
             }
 
             this.entitySnapshots = builder.build();
-            System.out.println("Entity = " + entity + ", source = " + source);
             this.cause = Cause.of(NamedCause.source(entity), NamedCause.of("Attacker", this.source));
         }
     }
