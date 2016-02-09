@@ -29,6 +29,7 @@
         "event.entity.MixinEventEntityItemPickup",
         "event.entity.living.MixinEventLiving",
         "event.entity.living.MixinEventLivingDeath",
+        "event.entity.living.MixinEventLivingDrops",
         "event.inventory.MixinEventItem",
         "event.inventory.MixinEventItem$Toss",
         "event.inventory.MixinEventItem$Expire",

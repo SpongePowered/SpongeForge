@@ -24,8 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.entity.living;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ISpecialArmor.ArmorProperties;
 import org.spongepowered.api.entity.living.Living;
@@ -34,7 +36,10 @@ import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
@@ -47,6 +52,15 @@ import java.util.function.Function;
 public abstract class MixinEntityLivingBase extends MixinEntity implements Living, IMixinEntityLivingBase {
 
     private EntityLivingBase nmsEntityLiving = (EntityLivingBase) (Object) this;
+
+    @Redirect(method = "onDeath", at = @At(value = "INVOKE", args = "log=true", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
+    public boolean onLivingDropSpawn(World world, Entity entityIn) {
+        IMixinWorld spongeWorld = (IMixinWorld) world;
+        spongeWorld.setSpawningDeathDrops(true);
+        boolean result = world.spawnEntityInWorld(entityIn);
+        spongeWorld.setSpawningDeathDrops(false);
+        return result;
+    }
 
     @Override
     public Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> provideArmorModifiers(EntityLivingBase entityLivingBase,

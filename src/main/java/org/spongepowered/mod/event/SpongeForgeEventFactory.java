@@ -25,6 +25,7 @@
 package org.spongepowered.mod.event;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -88,6 +89,7 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.action.SleepingEvent;
@@ -119,6 +121,7 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.interfaces.IMixinInitCause;
+import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
@@ -208,7 +211,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == LivingDeathEvent.class) {
                 return createLivingDeathEvent(event);
             } else if (clazz == LivingDropsEvent.class) {
-
+                return createLivingDropsEvent(event);
             } else if (clazz == LivingExperienceDropEvent.class) {
 
             } else if (clazz == LivingFallEvent.class) {
@@ -439,6 +442,35 @@ public class SpongeForgeEventFactory {
 
         LivingDeathEvent forgeEvent =
                 new LivingDeathEvent((EntityLivingBase) spongeEvent.getTargetEntity(), (net.minecraft.util.DamageSource) source.get());
+        return forgeEvent;
+    }
+
+    public static LivingDropsEvent createLivingDropsEvent(Event event) {
+        if (!(event instanceof DropItemEvent.Destruct)) {
+            throw new IllegalArgumentException("Event is not a valid DropItemEvent.Destruct.");
+        }
+
+        DropItemEvent.Destruct spongeEvent = (DropItemEvent.Destruct) event;
+        Object source = spongeEvent.getCause().root();
+        Optional<DamageSource> damageSource = spongeEvent.getCause().first(DamageSource.class);
+        if (!(source instanceof Living) || !damageSource.isPresent() || spongeEvent.getEntities().size() <= 0) {
+            return null;
+        }
+
+        ArrayList<EntityItem> itemDrops = new ArrayList<>();
+        for (org.spongepowered.api.entity.Entity entity : spongeEvent.getEntities()) {
+            itemDrops.add((EntityItem) entity);
+        }
+
+        int lootingLevel = 0;
+
+        if (source instanceof EntityPlayer) {
+            lootingLevel = EnchantmentHelper.getLootingModifier((EntityLivingBase)source);
+        }
+
+        LivingDropsEvent forgeEvent =
+                new LivingDropsEvent((EntityLivingBase) source, (net.minecraft.util.DamageSource) damageSource.get(), itemDrops, lootingLevel,
+                        ((IMixinEntityLivingBase) source).getRecentlyHit() > 0);
         return forgeEvent;
     }
 
