@@ -19,7 +19,6 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
@@ -34,17 +33,17 @@ public class Flardians {
     public static final List<ItemType> BUYING_TYPES = ImmutableList.of(ItemTypes.ACACIA_DOOR, ItemTypes.LEAVES2, ItemTypes.BOOKSHELF, ItemTypes.COAL,
                                                                       ItemTypes.COBBLESTONE, ItemTypes.ANVIL, ItemTypes.IRON_ORE, ItemTypes.APPLE,
                                                                       ItemTypes.WHEAT_SEEDS, ItemTypes.DIRT);
-    public static final Text FLARDARIAN = Texts.of(TextColors.DARK_AQUA, TextStyles.BOLD, TextStyles.ITALIC, "Flardarian");
-    public static final Text ITEM_DISPLAY = Texts.of(TextColors.YELLOW, TextStyles.BOLD, "[", TextColors.GREEN, TextStyles.ITALIC, "FLARD",
+    public static final Text FLARDARIAN = Text.of(TextColors.DARK_AQUA, TextStyles.BOLD, TextStyles.ITALIC, "Flardarian");
+    public static final Text ITEM_DISPLAY = Text.of(TextColors.YELLOW, TextStyles.BOLD, "[", TextColors.GREEN, TextStyles.ITALIC, "FLARD",
                                                      TextStyles.RESET, TextColors.YELLOW, TextStyles.BOLD, "]");
-    public static final Text LORE_FIRST = Texts.of(TextColors.BLUE, TextStyles.ITALIC, "This is indeed a glorious day!");
-    public static final Text LORE_SECOND = Texts.of(TextColors.BLUE, TextStyles.ITALIC, "Shining sun makes the clouds flee");
-    public static final Text LORE_THIRD = Texts.of(TextColors.BLUE, TextStyles.ITALIC, "With State of ", TextColors.YELLOW, "Sponge",
+    public static final Text LORE_FIRST = Text.of(TextColors.BLUE, TextStyles.ITALIC, "This is indeed a glorious day!");
+    public static final Text LORE_SECOND = Text.of(TextColors.BLUE, TextStyles.ITALIC, "Shining sun makes the clouds flee");
+    public static final Text LORE_THIRD = Text.of(TextColors.BLUE, TextStyles.ITALIC, "With State of ", TextColors.YELLOW, "Sponge",
                                                    TextColors.BLUE, " again today");
-    public static final Text LORE_FOURTH = Texts.of(TextColors.BLUE, TextStyles.ITALIC, "Granting delights for you and me");
-    public static final Text LORE_FIFTH = Texts.of(TextColors.BLUE, TextStyles.ITALIC, "For ", TextColors.YELLOW, "Sponge", TextColors.BLUE,
+    public static final Text LORE_FOURTH = Text.of(TextColors.BLUE, TextStyles.ITALIC, "Granting delights for you and me");
+    public static final Text LORE_FIFTH = Text.of(TextColors.BLUE, TextStyles.ITALIC, "For ", TextColors.YELLOW, "Sponge", TextColors.BLUE,
                                                    " is in a State of play");
-    public static final Text LORE_SIXTH = Texts.of(TextColors.BLUE, TextStyles.ITALIC, "Today, be happy as can be!");
+    public static final Text LORE_SIXTH = Text.of(TextColors.BLUE, TextStyles.ITALIC, "Today, be happy as can be!");
     public static final Random RANDOM = new Random();
 
     @Inject private Game game;
@@ -66,11 +65,11 @@ public class Flardians {
         final int rand = RANDOM.nextInt(7);
         final int itemRand = RANDOM.nextInt(BUYING_TYPES.size());
 
-        final DisplayNameData itemName = this.game.getRegistry().getManipulatorRegistry().getBuilder(DisplayNameData.class).get().create();
+        final DisplayNameData itemName = this.game.getDataManager().getManipulatorBuilder(DisplayNameData.class).get().create();
         itemName.set(Keys.DISPLAY_NAME, ITEM_DISPLAY);
 
         // Set up the lore data.
-        final LoreData loreData = this.game.getRegistry().getManipulatorRegistry().getBuilder(LoreData.class).get().create();
+        final LoreData loreData = this.game.getDataManager().getManipulatorBuilder(LoreData.class).get().create();
         final ListValue<Text> lore = loreData.lore();
         lore.addAll(ImmutableList.of(LORE_FIRST, LORE_SECOND, LORE_THIRD, LORE_FOURTH, LORE_FIFTH, LORE_SIXTH));
         loreData.set(lore);
@@ -91,7 +90,7 @@ public class Flardians {
 
         final TradeOffer.Builder builder = this.game.getRegistry().createBuilder(TradeOffer.Builder.class);
 
-        final TradeOfferData tradeOfferData = this.game.getRegistry().getManipulatorRegistry().getBuilder(TradeOfferData.class).get().create();
+        final TradeOfferData tradeOfferData = this.game.getDataManager().getManipulatorBuilder(TradeOfferData.class).get().create();
         tradeOfferData.set(tradeOfferData.tradeOffers().add(builder.firstBuyingItem(buying).maxUses(10000).sellingItem(selling).build()));
         return tradeOfferData;
     }
