@@ -56,9 +56,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", args = "log=true", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
     public boolean onLivingDropSpawn(World world, Entity entityIn) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.setSpawningDeathDrops(true);
+        spongeWorld.getCauseTracker().setSpawningDeathDrops(true);
         boolean result = world.spawnEntityInWorld(entityIn);
-        spongeWorld.setSpawningDeathDrops(false);
+        spongeWorld.getCauseTracker().setSpawningDeathDrops(false);
         return result;
     }
 

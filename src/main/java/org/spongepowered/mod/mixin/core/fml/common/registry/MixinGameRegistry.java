@@ -44,14 +44,14 @@ public class MixinGameRegistry {
     private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
-        prevCapturingTerrain = spongeWorld.capturingTerrainGen();
-        spongeWorld.setCapturingTerrainGen(true);
+        prevCapturingTerrain = spongeWorld.getCauseTracker().isCapturingTerrainGen();
+        spongeWorld.getCauseTracker().setCapturingTerrainGen(true);
     }
 
     @Inject(method = "generateWorld", at = @At(value = "RETURN"))
     private static void onGenerateWorldReturn(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.setCapturingTerrainGen(prevCapturingTerrain);
+        spongeWorld.getCauseTracker().setCapturingTerrainGen(prevCapturingTerrain);
     }
 }
