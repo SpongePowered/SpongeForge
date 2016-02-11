@@ -124,7 +124,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
     public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ) {
         IMixinWorld world = (IMixinWorld) this.world;
         this.prevCapturingTerrain = world.getCauseTracker().isCapturingTerrainGen();
-        this.prevProcessingCaptures = world.getCauseTracker().isProcessingCaptureCause();
+        this.prevProcessingCaptures = world.getCauseTracker().isCapturing();
         world.getCauseTracker().setProcessingCaptureCause(true);
         world.getCauseTracker().setCapturingTerrainGen(true);
         Cause populateCause = Cause.of(NamedCause.source(this), NamedCause.of("ChunkProvider", chunkProvider));
