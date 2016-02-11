@@ -32,6 +32,8 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.event.tracking.BlockTrackingPhase;
+import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.mixin.core.block.MixinBlock;
 
@@ -42,8 +44,9 @@ public abstract class MixinBlockLog extends MixinBlock {
     @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;)V") )
     public void onBreakBlock(Block block, World worldIn, BlockPos pos) {
         IMixinWorld spongeWorld = (IMixinWorld) worldIn;
-        spongeWorld.getCauseTracker().setCapturingBlockDecay(true);
+        final CauseTracker causeTracker = spongeWorld.getCauseTracker();
+        causeTracker.setBlockPhase(BlockTrackingPhase.BLOCK_DECAY);
         block.beginLeavesDecay(worldIn, pos);
-        spongeWorld.getCauseTracker().setCapturingBlockDecay(false);
+        causeTracker.setBlockPhase(BlockTrackingPhase.COMPLETE);
     }
 }
