@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+@SuppressWarnings("unchecked")
 @Mixin(value = LivingDropsEvent.class, remap = false)
 public abstract class MixinEventLivingDrops extends MixinEventLiving implements DropItemEvent.Destruct {
 
@@ -85,6 +86,7 @@ public abstract class MixinEventLivingDrops extends MixinEventLiving implements 
         }
     }
 
+    @Override
     public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
         net.minecraftforge.event.entity.living.LivingDropsEvent event = (net.minecraftforge.event.entity.living.LivingDropsEvent) forgeEvent;
 

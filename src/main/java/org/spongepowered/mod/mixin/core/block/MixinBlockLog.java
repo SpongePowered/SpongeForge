@@ -42,8 +42,8 @@ public abstract class MixinBlockLog extends MixinBlock {
     @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;)V") )
     public void onBreakBlock(Block block, World worldIn, BlockPos pos) {
         IMixinWorld spongeWorld = (IMixinWorld) worldIn;
-        spongeWorld.setCapturingBlockDecay(true);
+        spongeWorld.getCauseTracker().setCapturingBlockDecay(true);
         block.beginLeavesDecay(worldIn, pos);
-        spongeWorld.setCapturingBlockDecay(false);
+        spongeWorld.getCauseTracker().setCapturingBlockDecay(false);
     }
 }
