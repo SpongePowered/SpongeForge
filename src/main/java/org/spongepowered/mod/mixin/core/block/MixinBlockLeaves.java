@@ -47,7 +47,7 @@ public abstract class MixinBlockLeaves extends MixinBlock {
         final CauseTracker causeTracker = spongeWorld.getCauseTracker();
         causeTracker.setBlockPhase(BlockTrackingPhase.BLOCK_DECAY);
         block.beginLeavesDecay(worldIn, pos);
-        causeTracker.setBlockPhase(BlockTrackingPhase.COMPLETE);
+        causeTracker.completeBlockPhase();
     }
 
 }

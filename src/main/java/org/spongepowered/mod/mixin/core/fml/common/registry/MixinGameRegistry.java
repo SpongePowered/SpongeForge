@@ -32,26 +32,24 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.event.tracking.BlockTrackingPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 
 @NonnullByDefault
 @Mixin(value = GameRegistry.class, remap = false)
 public class MixinGameRegistry {
 
-    private static boolean prevCapturingTerrain;
-
     @Inject(method = "generateWorld", at = @At(value = "HEAD"))
     private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
-        prevCapturingTerrain = spongeWorld.getCauseTracker().isCapturingTerrainGen();
-        spongeWorld.getCauseTracker().setCapturingTerrainGen(true);
+        spongeWorld.getCauseTracker().setBlockPhase(BlockTrackingPhase.TERRAIN_GENERATION);
     }
 
     @Inject(method = "generateWorld", at = @At(value = "RETURN"))
     private static void onGenerateWorldReturn(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.getCauseTracker().setCapturingTerrainGen(prevCapturingTerrain);
+        spongeWorld.getCauseTracker().completeBlockPhase();
     }
 }

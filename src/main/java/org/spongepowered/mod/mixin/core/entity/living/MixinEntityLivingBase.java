@@ -38,6 +38,8 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.SpawningTrackingPhase;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.mod.mixin.core.entity.MixinEntity;
@@ -56,9 +58,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
     @Redirect(method = "onDeath", at = @At(value = "INVOKE", args = "log=true", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
     public boolean onLivingDropSpawn(World world, Entity entityIn) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.getCauseTracker().setSpawningDeathDrops(true);
+        CauseTracker causeTracker = spongeWorld.getCauseTracker();
+        causeTracker.setEntityPhase(SpawningTrackingPhase.DEATH_DROPS_SPAWNING);
         boolean result = world.spawnEntityInWorld(entityIn);
-        spongeWorld.getCauseTracker().setSpawningDeathDrops(false);
+        causeTracker.completeEntitySpawnPhase();
         return result;
     }
 
