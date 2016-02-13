@@ -186,7 +186,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
                 SpongeEventFactory.createPopulateChunkEventPost(populateCause, populatorChanges.build(), chunk);
         SpongeImpl.postEvent(event);
 
-        causeTracker.push(BlockPhase.State.RESTORING_BLOCKS);
+        causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.RESTORING_BLOCKS);
         for (List<Transaction<BlockSnapshot>> transactions : event.getPopulatedTransactions().values()) {
             causeTracker.markAndNotifyBlockPost(transactions, CaptureType.POPULATE, populateCause);
         }

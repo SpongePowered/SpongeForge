@@ -40,6 +40,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.phase.SpawningPhase;
+import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.mod.mixin.core.entity.MixinEntity;
@@ -59,7 +60,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
     public boolean onLivingDropSpawn(World world, Entity entityIn) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
         CauseTracker causeTracker = spongeWorld.getCauseTracker();
-        causeTracker.push(SpawningPhase.State.DEATH_DROPS_SPAWNING);
+        causeTracker.switchToPhase(TrackingPhases.SPAWNING, SpawningPhase.State.DEATH_DROPS_SPAWNING);
         boolean result = world.spawnEntityInWorld(entityIn);
         // todo
 //        causeTracker.completeEntitySpawnPhase();
