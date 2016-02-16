@@ -28,8 +28,11 @@ import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.handshake.client.C00Handshake;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
 
 import java.io.IOException;
@@ -51,8 +54,8 @@ public abstract class MixinC00Handshake {
      * workaround the issue, we will only strip data if the FML marker
      * is found and wasn't already in the extra data.
      */
-    @Overwrite
-    public void readPacketData(PacketBuffer buf) throws IOException {
+    @Inject(method = "readPacketData(Lnet/minecraft/network/PacketBuffer;)V", at = @At("HEAD"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
+    public void readPacketData(PacketBuffer buf, CallbackInfo callbackInfo) throws IOException {
 
         // Sponge start
         this.protocolVersion = buf.readVarIntFromBuffer();
@@ -83,5 +86,7 @@ public abstract class MixinC00Handshake {
         this.port = buf.readUnsignedShort();
         this.requestedState = EnumConnectionState.getById(buf.readVarIntFromBuffer());
         // Sponge end
+
+        callbackInfo.cancel();
     }
 }
