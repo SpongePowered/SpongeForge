@@ -82,6 +82,8 @@ import org.spongepowered.api.world.gen.populator.SeaFloor;
 import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.TrackingHelper;
 import org.spongepowered.common.event.tracking.phase.BlockPhase;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
@@ -98,6 +100,7 @@ import org.spongepowered.common.world.gen.WorldGenConstants;
 import org.spongepowered.common.world.gen.populators.AnimalPopulator;
 import org.spongepowered.common.world.gen.populators.SnowPopulator;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -127,8 +130,16 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
     public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ) {
         IMixinWorld world = (IMixinWorld) this.world;
         final CauseTracker causeTracker = world.getCauseTracker();
-        causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION);
-        Cause populateCause = Cause.of(NamedCause.source(this), NamedCause.of("ChunkProvider", chunkProvider));
+        final NamedCause sourceCause = NamedCause.source(this);
+        final NamedCause chunkProviderCause = NamedCause.of("ChunkProvider", chunkProvider);
+        final Map<PopulatorType, LinkedHashMap<Vector3i, Transaction<BlockSnapshot>>> capturedPopulators = new HashMap<>();
+        final NamedCause populatorMap = NamedCause.of(TrackingHelper.POPULATOR_CAPTURE_MAP, capturedPopulators);
+        causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
+                .add(sourceCause)
+                .add(chunkProviderCause)
+                .add(populatorMap)
+                .complete());
+        Cause populateCause = Cause.of(sourceCause, chunkProviderCause);
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -153,7 +164,10 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Pre(this.world, this.rand, blockpos));
         List<String> flags = Lists.newArrayList();
         for (Populator populator : populators) {
-            StaticMixinHelper.runningGenerator = populator.getType();
+            causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
+                    .add(NamedCause.of(TrackingHelper.CAPTURED_POPULATOR, populator.getType()))
+                    .add(populatorMap)
+                .complete());
             if (!checkForgeEvent(populator, chunkProvider, chunkX, chunkZ, flags, chunk)) {
                 continue;
             }
@@ -165,8 +179,8 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
             } else {
                 populator.populate(chunk, this.rand);
             }
+            causeTracker.completePhase();
         }
-        StaticMixinHelper.runningGenerator = null;
 
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Post(this.world, this.rand, blockpos));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Post(this.world, this.rand, blockpos));
@@ -186,11 +200,18 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
                 SpongeEventFactory.createPopulateChunkEventPost(populateCause, populatorChanges.build(), chunk);
         SpongeImpl.postEvent(event);
 
-        causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.RESTORING_BLOCKS);
+        causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.RESTORING_BLOCKS, PhaseContext.start()
+                .add(sourceCause)
+                .add(chunkProviderCause)
+                .complete());
         for (List<Transaction<BlockSnapshot>> transactions : event.getPopulatedTransactions().values()) {
             causeTracker.markAndNotifyBlockPost(transactions, CaptureType.POPULATE, populateCause);
         }
-        causeTracker.completePopulate();
+        // unwind for block restoration
+        causeTracker.completePhase();
+
+        // unwind for terrain generation
+        causeTracker.completePhase();
 
 
         BlockFalling.fallInstantly = false;

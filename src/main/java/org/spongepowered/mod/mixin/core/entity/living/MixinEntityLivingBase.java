@@ -31,6 +31,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ISpecialArmor.ArmorProperties;
 import org.spongepowered.api.entity.living.Living;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.util.Tuple;
@@ -39,6 +40,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.SpawningPhase;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
@@ -60,7 +62,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
     public boolean onLivingDropSpawn(World world, Entity entityIn) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
         CauseTracker causeTracker = spongeWorld.getCauseTracker();
-        causeTracker.switchToPhase(TrackingPhases.SPAWNING, SpawningPhase.State.DEATH_DROPS_SPAWNING);
+        causeTracker.switchToPhase(TrackingPhases.SPAWNING, SpawningPhase.State.DEATH_DROPS_SPAWNING, PhaseContext.start()
+                .add(NamedCause.source(this))
+                .complete());
         boolean result = world.spawnEntityInWorld(entityIn);
         // todo
 //        causeTracker.completeEntitySpawnPhase();

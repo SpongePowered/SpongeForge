@@ -27,12 +27,13 @@ package org.spongepowered.mod.mixin.core.fml.common.registry;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.event.tracking.phase.SpawningPhase;
+import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.WorldPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
@@ -45,13 +46,17 @@ public class MixinGameRegistry {
     private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.getCauseTracker().switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION);
+        spongeWorld.getCauseTracker().switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
+            .add(NamedCause.source(world))
+            .add(NamedCause.of("ChunkGenerator", chunkGenerator))
+            .add(NamedCause.of("ChunkProvider", chunkProvider))
+            .complete());
     }
 
     @Inject(method = "generateWorld", at = @At(value = "RETURN"))
     private static void onGenerateWorldReturn(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.getCauseTracker().pop();
+        spongeWorld.getCauseTracker().completePhase();
     }
 }

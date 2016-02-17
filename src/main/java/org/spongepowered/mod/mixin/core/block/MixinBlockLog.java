@@ -28,10 +28,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.BlockPhase;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
@@ -48,11 +50,13 @@ public abstract class MixinBlockLog extends MixinBlock {
         final CauseTracker causeTracker = spongeWorld.getCauseTracker();
         final boolean isBlockAlready = causeTracker.getPhases().current() != TrackingPhases.BLOCK;
         if (isBlockAlready) {
-            causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.BLOCK_DECAY);
+            causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.BLOCK_DECAY, PhaseContext.start()
+                    .add(NamedCause.source(worldIn.getBlockState(pos)))
+                    .complete());
         }
         block.beginLeavesDecay(worldIn, pos);
         if (isBlockAlready) {
-            causeTracker.pop();
+            causeTracker.completePhase();
         }
     }
 }
