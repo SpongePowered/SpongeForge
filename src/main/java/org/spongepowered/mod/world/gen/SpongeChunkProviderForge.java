@@ -167,7 +167,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
             causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
                     .add(NamedCause.of(TrackingHelper.CAPTURED_POPULATOR, populator.getType()))
                     .add(populatorMap)
-                .complete());
+                    .complete());
             if (!checkForgeEvent(populator, chunkProvider, chunkX, chunkZ, flags, chunk)) {
                 continue;
             }
@@ -193,7 +193,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         }
 
         ImmutableMap.Builder<PopulatorType, List<Transaction<BlockSnapshot>>> populatorChanges = ImmutableMap.builder();
-        for (Map.Entry<PopulatorType, LinkedHashMap<Vector3i, Transaction<BlockSnapshot>>> entry : causeTracker.getCapturedPopulators().entrySet()) {
+        for (Map.Entry<PopulatorType, LinkedHashMap<Vector3i, Transaction<BlockSnapshot>>> entry : capturedPopulators.entrySet()) {
             populatorChanges.put(entry.getKey(), ImmutableList.copyOf(entry.getValue().values()));
         }
         org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =

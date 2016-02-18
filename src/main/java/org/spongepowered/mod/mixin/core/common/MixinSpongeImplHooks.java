@@ -26,7 +26,9 @@ package org.spongepowered.mod.mixin.core.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -37,18 +39,25 @@ import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.PlayerTracker;
+import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.IPhaseState;
+import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.TrackingHelper;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.IMixinInitCause;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.interfaces.IMixinInitMessageChannelEvent;
 import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
@@ -121,11 +130,17 @@ public abstract class MixinSpongeImplHooks {
     // Required for torches and comparators
     @Overwrite
     public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
-        Optional<User> user = Optional.empty();
-        IMixinChunk spongeChunk = null;
-        if (StaticMixinHelper.packetPlayer != null || StaticMixinHelper.blockEventUser != null) {
-            user = Optional
-                    .of(StaticMixinHelper.packetPlayer != null ? (User) StaticMixinHelper.packetPlayer : (User) StaticMixinHelper.blockEventUser);
+        final CauseTracker causeTracker = ((IMixinWorld) world).getCauseTracker();
+        final Tuple<IPhaseState, PhaseContext> currentPhase = causeTracker.getPhases().peek();
+        final PhaseContext phaseContext = currentPhase.getSecond();
+        final Optional<User> sourcePlayer = phaseContext.firstNamed(TrackingHelper.PACKET_PLAYER, User.class);
+        final Optional<User> notifier = phaseContext.firstNamed(NamedCause.NOTIFIER, User.class);
+        Optional<User> user;
+        IMixinChunk spongeChunk;
+        if (notifier.isPresent()) {
+            user = notifier;
+        } else if (sourcePlayer.isPresent()) {
+            user = sourcePlayer;
         } else {
             spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(pos);
             user = Optional.empty();

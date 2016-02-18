@@ -58,19 +58,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
 
     private EntityLivingBase nmsEntityLiving = (EntityLivingBase) (Object) this;
 
-    @Redirect(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntityInWorld(Lnet/minecraft/entity/Entity;)Z"))
-    public boolean onLivingDropSpawn(World world, Entity entityIn) {
-        IMixinWorld spongeWorld = (IMixinWorld) world;
-        CauseTracker causeTracker = spongeWorld.getCauseTracker();
-        causeTracker.switchToPhase(TrackingPhases.SPAWNING, SpawningPhase.State.DEATH_DROPS_SPAWNING, PhaseContext.start()
-                .add(NamedCause.source(this))
-                .complete());
-        boolean result = world.spawnEntityInWorld(entityIn);
-        // todo
-//        causeTracker.completeEntitySpawnPhase();
-        return result;
-    }
-
     @Override
     public Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> provideArmorModifiers(EntityLivingBase entityLivingBase,
          DamageSource source, double damage) {
