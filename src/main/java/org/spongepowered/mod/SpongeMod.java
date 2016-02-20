@@ -63,9 +63,11 @@ import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.effect.potion.PotionEffectType;
 import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.sql.SqlService;
@@ -157,7 +159,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     }
 
     private <T> void registerService(Class<T> serviceClass, T serviceImpl) {
-        SpongeImpl.getGame().getServiceManager().setProvider(SpongeImpl.getPlugin(), serviceClass, serviceImpl);
+        SpongeImpl.getGame().getServiceManager().setProvider(Cause.of(SpongeImpl.getPlugin()), serviceClass, serviceImpl);
     }
 
     @Override
@@ -231,7 +233,7 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
                 // Setup default permissions
                 service.getGroupForOpLevel(1).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.selector", Tristate.TRUE);
                 service.getGroupForOpLevel(2).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.commandblock", Tristate.TRUE);
-                this.game.getServiceManager().setProvider(this, PermissionService.class, service);
+                this.game.getServiceManager().setProvider(Cause.of(this), PermissionService.class, service);
             }
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
@@ -303,6 +305,11 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         return Optional.of(this);
     }
 
+    @Override
+    public ServiceManager getServiceManager() {
+        return Sponge.getServiceManager();
+    }
+
     private static ModMetadata createMetadata(Map<String, Object> defaults) {
         try {
             return MetadataCollection.from(SpongeMod.class.getResourceAsStream("/mcmod.info"), SpongeImpl.ECOSYSTEM_ID).getMetadataForId(
@@ -329,4 +336,5 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
     public boolean isClientThread() {
         return (Thread.currentThread().getName().equals("Client thread"));
     }
+
 }

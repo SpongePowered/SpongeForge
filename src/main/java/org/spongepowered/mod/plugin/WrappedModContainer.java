@@ -26,11 +26,14 @@ package org.spongepowered.mod.plugin;
 
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.ServiceManager;
+import org.spongepowered.api.service.SimpleServiceManager;
 
 import java.util.Optional;
 
 public class WrappedModContainer implements PluginContainer {
     private final ModContainer container;
+    private final ServiceManager serviceManager = new SimpleServiceManager();
 
     public WrappedModContainer(ModContainer container) {
         this.container = container;
@@ -56,4 +59,8 @@ public class WrappedModContainer implements PluginContainer {
         return Optional.ofNullable(this.container.getMod());
     }
 
+    @Override
+    public ServiceManager getServiceManager() {
+        return this.serviceManager;
+    }
 }

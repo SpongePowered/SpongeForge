@@ -291,4 +291,5 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
     public Injector getInjector() {
         return injector;
     }
+    
 }

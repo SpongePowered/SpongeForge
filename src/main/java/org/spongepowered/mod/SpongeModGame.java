@@ -28,7 +28,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.GameDictionary;
+import org.spongepowered.api.ItemDictionary;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.network.ChannelRegistrar;
@@ -38,7 +38,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.registry.SpongeGameRegistry;
-import org.spongepowered.mod.registry.SpongeForgeGameDictionary;
+import org.spongepowered.mod.registry.SpongeForgeItemDictionary;
 
 import java.nio.file.Path;
 
@@ -59,8 +59,8 @@ public final class SpongeModGame extends SpongeGame {
     }
 
     @Override
-    public GameDictionary getGameDictionary() {
-        return SpongeForgeGameDictionary.instance;
+    public ItemDictionary getItemDictionary() {
+        return SpongeForgeItemDictionary.instance;
     }
 
 }
