@@ -90,7 +90,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
 
         if (!MinecraftForge.EVENT_BUS.post(event)) {
             MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) event;
-            spongeEvent.getMessage().ifPresent(text -> spongeEvent.getChannel().ifPresent(channel -> channel.send(text, ChatTypes.CHAT)));
+            spongeEvent.getMessage().ifPresent(text -> spongeEvent.getChannel().ifPresent(channel -> channel.send(this.playerEntity, text, ChatTypes.CHAT)));
 
             // Chat spam suppression from MC
             this.chatSpamThresholdCount += 20;

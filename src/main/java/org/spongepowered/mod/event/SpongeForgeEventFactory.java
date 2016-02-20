@@ -822,7 +822,7 @@ public class SpongeForgeEventFactory {
             Optional<Text> message = spongeEvent.getMessage();
             if (message.isPresent()) {
                 if (message.get() != Text.of()) {
-                    spongeEvent.getChannel().ifPresent(channel -> channel.send(message.get()));
+                    spongeEvent.getChannel().ifPresent(channel -> channel.send(((LivingDeathEvent) forgeEvent).entityLiving, message.get()));
                 }
             }
         }
