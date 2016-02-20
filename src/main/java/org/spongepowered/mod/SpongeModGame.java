@@ -39,7 +39,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.registry.SpongeGameRegistry;
-import org.spongepowered.mod.registry.SpongeForgeGameDictionary;
+import org.spongepowered.mod.registry.SpongeForgeItemDictionary;
 
 import java.nio.file.Path;
 
@@ -61,7 +61,7 @@ public final class SpongeModGame extends SpongeGame {
 
     @Override
     public GameDictionary getGameDictionary() {
-        return SpongeForgeGameDictionary.instance;
+        return SpongeForgeItemDictionary.instance;
     }
 
 }

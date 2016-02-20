@@ -29,16 +29,16 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
-import org.spongepowered.api.GameDictionary;
+import org.spongepowered.api.ItemDictionary;
 import org.spongepowered.common.registry.SpongeGameDictionaryEntry;
 
 import java.util.Set;
 
-public class SpongeForgeGameDictionary implements GameDictionary {
+public class SpongeForgeItemDictionary implements ItemDictionary {
 
-    public static final GameDictionary instance = new SpongeForgeGameDictionary();
+    public static final ItemDictionary instance = new SpongeForgeItemDictionary();
 
-    private SpongeForgeGameDictionary() {
+    private SpongeForgeItemDictionary() {
     }
 
     @Override
@@ -52,8 +52,8 @@ public class SpongeForgeGameDictionary implements GameDictionary {
     public Set<Entry> get(String key) {
         ImmutableSet.Builder<Entry> items = ImmutableSet.builder();
         for (ItemStack itemStack : OreDictionary.getOres(key)) {
-        	itemStack = itemStack.copy();
-        	itemStack.stackSize = 1;
+            itemStack = itemStack.copy();
+            itemStack.stackSize = 1;
             items.add(SpongeGameDictionaryEntry.of(itemStack, OreDictionary.WILDCARD_VALUE));
         }
         return items.build();
