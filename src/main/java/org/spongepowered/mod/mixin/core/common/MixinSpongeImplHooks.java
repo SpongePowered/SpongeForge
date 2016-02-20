@@ -54,6 +54,7 @@ import org.spongepowered.common.entity.PlayerTracker;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.event.tracking.TrackingHelper;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.IMixinInitCause;
@@ -131,8 +132,8 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
         final CauseTracker causeTracker = ((IMixinWorld) world).getCauseTracker();
-        final Tuple<IPhaseState, PhaseContext> currentPhase = causeTracker.getPhases().peek();
-        final PhaseContext phaseContext = currentPhase.getSecond();
+        final PhaseData currentPhase = causeTracker.getPhases().peek();
+        final PhaseContext phaseContext = currentPhase.getContext();
         final Optional<User> sourcePlayer = phaseContext.firstNamed(TrackingHelper.PACKET_PLAYER, User.class);
         final Optional<User> notifier = phaseContext.firstNamed(NamedCause.NOTIFIER, User.class);
         Optional<User> user;
