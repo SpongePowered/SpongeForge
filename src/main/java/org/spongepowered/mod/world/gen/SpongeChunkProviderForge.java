@@ -123,10 +123,6 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
     @Override
     public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ) {
         IMixinWorld world = (IMixinWorld) this.world;
-        this.prevCapturingTerrain = world.getCauseTracker().isCapturingTerrainGen();
-        this.prevProcessingCaptures = world.getCauseTracker().isProcessingCaptureCause();
-        world.getCauseTracker().setProcessingCaptureCause(true);
-        world.getCauseTracker().setCapturingTerrainGen(true);
         Cause populateCause = Cause.of(NamedCause.source(this), NamedCause.of("ChunkProvider", chunkProvider));
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -194,8 +190,6 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
             causeTracker.markAndNotifyBlockPost(transactions, CaptureType.POPULATE, populateCause);
         }
         causeTracker.setRestoringBlocks(this.prevRestoringBlocks);
-        causeTracker.setCapturingTerrainGen(this.prevCapturingTerrain);
-        causeTracker.setProcessingCaptureCause(this.prevProcessingCaptures);
         causeTracker.getCapturedPopulators().clear();
 
         BlockFalling.fallInstantly = false;
