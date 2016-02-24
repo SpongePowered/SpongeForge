@@ -66,8 +66,9 @@
             <AppenderRef ref="FmlFile"/>
         </Logger>
         <Logger name="com.zaxxer.hikari" level="all" additivity="false">
-            <AppenderRef ref="Console" level="info"/>
-            <AppenderRef ref="File"/>
+            <AppenderRef ref="FmlConsole" level="INFO" />
+            <AppenderRef ref="ServerGuiConsole" level="INFO" />
+            <AppenderRef ref="FmlFile"/>
         </Logger>
         <!-- Anything else to debug -->
         <Root level="all">
