@@ -1,6 +1,7 @@
 <!-- Be as accurate as possible. Add/remove as needed to keep things informative but also relevant. -->
 **I am currently running...**
 * SpongeForge version: 
+* MinecraftForge version: 
 * Java version: 
 * Operating System(s)
  - [ ] Windows
