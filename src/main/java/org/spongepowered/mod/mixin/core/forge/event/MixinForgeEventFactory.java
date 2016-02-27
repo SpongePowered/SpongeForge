@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.core.forge.event;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -45,14 +46,14 @@ public abstract class MixinForgeEventFactory {
 
     @Overwrite
     public static PlayerInteractEvent onPlayerInteract(EntityPlayer player, Action action, net.minecraft.world.World world, BlockPos pos,
-            EnumFacing face) {
+            EnumFacing face, Vec3 localPos) {
         if (world.isRemote) {
-            PlayerInteractEvent event = new PlayerInteractEvent(player, action, pos, face, world);
+            PlayerInteractEvent event = new PlayerInteractEvent(player, action, pos, face, world, localPos);
             MinecraftForge.EVENT_BUS.post(event);
             return event;
         }
 
-        PlayerInteractEvent forgeEvent = new PlayerInteractEvent(player, action, pos, face, world);
+        PlayerInteractEvent forgeEvent = new PlayerInteractEvent(player, action, pos, face, world, localPos);
         Event spongeEvent = ((IMixinEvent) forgeEvent).createSpongeEvent();
 
         // Bypass ForgeEventFactory so we maintain the same event reference.

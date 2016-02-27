@@ -30,6 +30,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -51,7 +52,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Optional;
 
@@ -65,9 +65,11 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
     @Shadow @Final public net.minecraft.world.World world;
     @Shadow @Final @Mutable public BlockPos pos;
     @Shadow @Final @Mutable public EnumFacing face;
+    @Shadow @Final @Mutable public Vec3 localPos;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, net.minecraft.world.World world, CallbackInfo ci) {
+    @Inject(method = "<init>*", at = @At("RETURN"))
+    public void onConstructed(EntityPlayer player, Action action, BlockPos pos, EnumFacing face, net.minecraft.world.World world, Vec3 localPos,
+            CallbackInfo ci) {
         if (player instanceof EntityPlayerMP && !StaticMixinHelper.processingInternalForgeEvent) {
             if (pos != null) { // Forge fires this event on client side and passes a null pos and face
                 this.blockSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
@@ -93,7 +95,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @Override
     public Optional<Vector3d> getInteractionPoint() {
-        return Optional.empty();
+        return Optional.ofNullable(localPos == null ? null : new Vector3d(localPos.xCoord, localPos.yCoord, localPos.zCoord));
     }
 
     @Override

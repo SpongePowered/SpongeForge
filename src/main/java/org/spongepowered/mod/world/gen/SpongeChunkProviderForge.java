@@ -95,6 +95,8 @@ import org.spongepowered.common.world.gen.WorldGenConstants;
 import org.spongepowered.common.world.gen.populators.AnimalPopulator;
 import org.spongepowered.common.world.gen.populators.SnowPopulator;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,12 +125,8 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
     @Override
     public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ) {
         IMixinWorld world = (IMixinWorld) this.world;
-        this.prevCapturingTerrain = world.getCauseTracker().isCapturingTerrainGen();
-        this.prevProcessingCaptures = world.getCauseTracker().isProcessingCaptureCause();
-        CauseTracker causeTracker = world.getCauseTracker();
-        causeTracker.setProcessingCaptureCause(true);
-        causeTracker.setCapturingTerrainGen(true);
         Cause populateCause = Cause.of(NamedCause.source(this), NamedCause.of("ChunkProvider", chunkProvider));
+        CauseTracker causeTracker = world.getCauseTracker();
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -140,11 +138,27 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
 
         Chunk chunk = (Chunk) this.world.getChunkFromChunkCoords(chunkX, chunkZ);
 
-        List<Populator> populators = Lists.newArrayList(this.pop);
         if (!this.biomeSettings.containsKey(biome)) {
             this.biomeSettings.put(biome, ((IBiomeGenBase) biome).initPopulators(this.world));
         }
+
+        List<Populator> populators = new ArrayList<>(this.pop);
+
+        Populator snowPopulator = null;
+        Iterator<Populator> itr = populators.iterator();
+        while (itr.hasNext()) {
+            Populator populator = itr.next();
+            if (populator instanceof SnowPopulator) {
+                itr.remove();
+                snowPopulator = populator;
+                break;
+            }
+        }
+
         populators.addAll(this.biomeSettings.get(biome).getPopulators());
+        if (snowPopulator != null) {
+            populators.add(snowPopulator);
+        }
 
         Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(populateCause, populators, chunk));
 
@@ -182,8 +196,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
                 SpongeEventFactory.createPopulateChunkEventPost(populateCause, ImmutableList.copyOf(populators), chunk);
         SpongeImpl.postEvent(event);
 
-        causeTracker.setCapturingTerrainGen(this.prevCapturingTerrain);
-        causeTracker.setProcessingCaptureCause(this.prevProcessingCaptures);
+
         causeTracker.getCapturedPopulators().clear();
 
         BlockFalling.fallInstantly = false;
