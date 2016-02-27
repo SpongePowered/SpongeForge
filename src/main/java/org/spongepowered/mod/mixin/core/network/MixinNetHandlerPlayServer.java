@@ -55,7 +55,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.util.StaticMixinHelper;
-import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
 import java.util.Set;
@@ -86,11 +85,13 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
     public void injectChatEvent(C01PacketChatMessage packetIn, CallbackInfo ci, String s, ChatComponentTranslation component) {
         final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
         ((IMixinInitCause) event).initCause(Cause.of(NamedCause.source(this.playerEntity)));
-        ((IMixinEventPlayerChat) event).setRawMessage(Text.of(packetIn.getMessage()));
 
         if (!MinecraftForge.EVENT_BUS.post(event)) {
             MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) event;
-            spongeEvent.getMessage().ifPresent(text -> spongeEvent.getChannel().ifPresent(channel -> channel.send(this.playerEntity, text, ChatTypes.CHAT)));
+            Text message = spongeEvent.getMessage();
+            if (!spongeEvent.isMessageCancelled()) {
+                spongeEvent.getChannel().ifPresent(channel -> channel.send(this.playerEntity, message, ChatTypes.CHAT));
+            }
 
             // Chat spam suppression from MC
             this.chatSpamThresholdCount += 20;

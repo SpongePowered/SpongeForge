@@ -28,8 +28,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
@@ -43,7 +43,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.text.SpongeTexts;
-import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 
 import java.util.Optional;
@@ -52,10 +51,13 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = ServerChatEvent.class, remap = false)
-public abstract class MixinEventPlayerChat extends MixinEvent implements MessageChannelEvent.Chat, IMixinEventPlayerChat, IMixinInitCause {
+public abstract class MixinEventPlayerChat extends MixinEvent implements MessageChannelEvent.Chat, IMixinInitCause {
 
+    private IChatComponent forgeComponent;
+
+    private final MessageFormatter formatter = new MessageFormatter();
+    private boolean messageCancelled;
     private Text originalSpongeMessage;
-    @Nullable private Text spongeMessage;
     private Text rawSpongeMessage;
     private MessageChannel originalChannel;
     @Nullable private MessageChannel channel;
@@ -67,7 +69,17 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayerMP player, String message, ChatComponentTranslation component, CallbackInfo ci) {
-        this.originalSpongeMessage = this.spongeMessage = SpongeTexts.toText(component);
+        this.forgeComponent = component;
+        Text[] chat = SpongeTexts.splitChatMessage(component);
+        if (chat[0] == null || chat[1] == null) {
+            throw new IllegalStateException("Forge posted an invalid ServerChatEvent to the event bus.");
+        }
+
+        getFormatter().getHeader().add(new DefaultHeaderApplier(chat[0]));
+        getFormatter().getBody().add(new DefaultBodyApplier(chat[1]));
+
+        this.rawSpongeMessage = Text.of(message);
+        this.originalSpongeMessage = SpongeTexts.toText(component);
         this.originalChannel = this.channel = ((Player) player).getMessageChannel();
     }
 
@@ -82,32 +94,28 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     }
 
     @Override
-    public Optional<Text> getOriginalMessage() {
-        return Optional.of(this.originalSpongeMessage);
+    public boolean isMessageCancelled() {
+        return this.messageCancelled;
     }
 
     @Override
-    public Optional<Text> getMessage() {
-        return Optional.ofNullable(this.spongeMessage);
+    public void setMessageCancelled(boolean cancelled) {
+        this.messageCancelled = cancelled;
     }
 
-    // TODO: Better integration with forge mods?
     @Override
-    public void setMessage(@Nullable Text message) {
-        this.spongeMessage = message;
-        if (this.spongeMessage != null) {
-            this.setComponent(SpongeTexts.toComponent(this.spongeMessage));
-        }
+    public MessageFormatter getFormatter() {
+        return this.formatter;
+    }
+
+    @Override
+    public Text getOriginalMessage() {
+        return this.originalSpongeMessage;
     }
 
     @Override
     public Text getRawMessage() {
         return this.rawSpongeMessage;
-    }
-
-    @Override
-    public void setRawMessage(Text rawMessage) {
-        this.rawSpongeMessage = rawMessage;
     }
 
     @Override
@@ -126,10 +134,19 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     }
 
     @Override
-    public void syncDataToSponge(Event forgeEvent) {
-        super.syncDataToSponge(forgeEvent);
+    public void syncDataToForge(Event spongeEvent) {
+        super.syncDataToForge(spongeEvent);
+        this.forgeComponent = SpongeTexts.toComponent(getMessage());
+        setComponent(this.forgeComponent);
+    }
 
+    @Override
+    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
+        super.syncDataToSponge(forgeEvent);
         ServerChatEvent event = (ServerChatEvent) forgeEvent;
-        this.spongeMessage = SpongeTexts.toText(event.getComponent());
+        IChatComponent component = event.getComponent();
+        if (!component.equals(this.forgeComponent)) {
+            setMessage(SpongeTexts.toText(event.getComponent()));
+        }
     }
 }
