@@ -1,9 +1,6 @@
 <!-- Be as accurate as possible. Add/remove as needed to keep things informative but also relevant. -->
 **I am currently running...**
-* Implementation
- - [ ] SpongeForge
- - [ ] SpongeVanilla
-* Implementation version: 
+* SpongeForge version: 
 * Java version: 
 * Operating System(s)
  - [ ] Windows
