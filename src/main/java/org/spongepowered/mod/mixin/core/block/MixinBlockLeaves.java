@@ -34,11 +34,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.TrackingHelper;
 import org.spongepowered.common.event.tracking.phase.BlockPhase;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.mixin.core.block.MixinBlock;
+
+import java.util.ArrayList;
 
 @NonnullByDefault
 @Mixin(value = BlockLeaves.class, priority = 1001)
@@ -51,8 +54,9 @@ public abstract class MixinBlockLeaves extends MixinBlock {
         final boolean isBlockAlready = causeTracker.getPhases().current() != TrackingPhases.BLOCK;
         if (isBlockAlready) {
             causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.BLOCK_DECAY, PhaseContext.start()
-                .add(NamedCause.source(worldIn.getBlockState(pos)))
-                .complete());
+                    .add(NamedCause.of(TrackingHelper.CAPTURED_BLOCKS, new ArrayList<>()))
+                    .add(NamedCause.source(worldIn.getBlockState(pos)))
+                    .complete());
         }
         block.beginLeavesDecay(worldIn, pos);
         if (isBlockAlready) {
