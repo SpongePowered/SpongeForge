@@ -25,7 +25,9 @@
 
 package org.spongepowered.mod;
 
+import static org.spongepowered.common.SpongeImpl.API_ID;
 import static org.spongepowered.common.SpongeImpl.API_NAME;
+import static org.spongepowered.common.SpongeImpl.ECOSYSTEM_ID;
 import static org.spongepowered.common.SpongeImpl.ECOSYSTEM_NAME;
 
 import com.google.inject.Inject;
@@ -42,7 +44,7 @@ import org.spongepowered.common.AbstractPlatform;
 public final class SpongeModPlatform extends AbstractPlatform {
 
     @Inject
-    public SpongeModPlatform(@Named(API_NAME) PluginContainer api, @Named(ECOSYSTEM_NAME) PluginContainer impl, MinecraftVersion minecraftVersion) {
+    public SpongeModPlatform(@Named(API_ID) PluginContainer api, @Named(ECOSYSTEM_ID) PluginContainer impl, MinecraftVersion minecraftVersion) {
         super(api, impl, minecraftVersion);
         this.platformMap.put("ForgeVersion", ForgeVersion.getVersion());
     }
