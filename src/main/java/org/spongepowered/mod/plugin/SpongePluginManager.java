@@ -24,11 +24,11 @@
  */
 package org.spongepowered.mod.plugin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableSet;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -39,17 +39,19 @@ import java.util.Optional;
 
 @NonnullByDefault
 public class SpongePluginManager implements PluginManager {
-    private static final PluginContainer MINECRAFT_CONTAINER = new WrappedModContainer(Loader.instance().getMinecraftModContainer());
+
+    private static final PluginContainer MINECRAFT_CONTAINER = (PluginContainer) Loader.instance().getMinecraftModContainer();
 
     @Override
-    public Optional<PluginContainer> getPlugin(String s) {
-        if (s.equalsIgnoreCase(MINECRAFT_CONTAINER.getId())) {
+    public Optional<PluginContainer> getPlugin(String id) {
+        checkNotNull(id, "id");
+        if (id.equals(MINECRAFT_CONTAINER.getId())) {
             return Optional.of((PluginContainer) Loader.instance().getMinecraftModContainer());
         } else {
-            ModContainer container = Loader.instance().getIndexedModList().get(s);
+            ModContainer container = Loader.instance().getIndexedModList().get(id);
             if (container == null) {
                 for (ModContainer mod : Loader.instance().getModList()) {
-                    if (mod.getModId().equalsIgnoreCase(s)) {
+                    if (mod.getModId().equalsIgnoreCase(id)) {
                         container = mod;
                         break;
                     }
@@ -60,29 +62,27 @@ public class SpongePluginManager implements PluginManager {
     }
 
     @Override
-    public Logger getLogger(PluginContainer pluginContainer) {
-        return LoggerFactory.getLogger(pluginContainer.getId());
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public Collection<PluginContainer> getPlugins() {
-        return ImmutableSet.<PluginContainer>builder().add((PluginContainer) Loader.instance() // Because java 6
-            .getMinecraftModContainer()).addAll((List) Loader.instance().getActiveModList()).build();
+        return ImmutableSet.<PluginContainer>builder()
+                .add((PluginContainer) Loader.instance().getMinecraftModContainer())
+                .addAll((List) Loader.instance().getActiveModList())
+                .build();
     }
 
     @Override
     public Optional<PluginContainer> fromInstance(Object instance) {
+        checkNotNull(instance, "instance");
         if (instance instanceof PluginContainer) {
             return Optional.of((PluginContainer) instance);
-        } else if (instance instanceof ModContainer) { // For coremods that don't get to be mixed in
-            return getPlugin(((ModContainer) instance).getModId());
         }
         return Optional.ofNullable((PluginContainer) Loader.instance().getReversedModObjectList().get(instance));
     }
 
     @Override
-    public boolean isLoaded(String s) {
-        return s.equalsIgnoreCase(MINECRAFT_CONTAINER.getId()) || Loader.isModLoaded(s);
+    public boolean isLoaded(String id) {
+        checkNotNull(id, "id");
+        return id.equals(MINECRAFT_CONTAINER.getId()) || Loader.isModLoaded(id);
     }
+
 }
