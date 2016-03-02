@@ -35,9 +35,11 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.plugin.AbstractPluginContainer;
+import org.spongepowered.mod.interfaces.IMixinModMetadata;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,6 +70,15 @@ public interface MixinModContainer extends ModContainer {
     default Optional<String> getUrl() {
         ModMetadata meta = getMetadata();
         return meta != null ? Optional.ofNullable(emptyToNull(meta.url)) : Optional.empty();
+    }
+
+    default Optional<Path> getAssetDirectory() {
+        ModMetadata meta = getMetadata();
+        if (meta != null) {
+            String path = ((IMixinModMetadata) meta).getAssetDirectory();
+            return !path.isEmpty() ? Optional.of(Paths.get(path)) : Optional.empty();
+        }
+        return Optional.empty();
     }
 
     default List<String> getAuthors() {
