@@ -46,8 +46,10 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     public long activatedTick = Integer.MIN_VALUE;
     private EntityType entityType;
 
-    @Shadow
-    public boolean onGround;
+    @Shadow public World worldObj;
+    @Shadow public boolean onGround;
+
+    @Shadow public abstract void setDead();
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onEntityConstruction(World world, CallbackInfo ci) {

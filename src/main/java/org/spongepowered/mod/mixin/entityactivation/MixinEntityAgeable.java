@@ -37,7 +37,6 @@ import org.spongepowered.asm.mixin.SoftOverride;
 
 @NonnullByDefault
 @Mixin(EntityAgeable.class)
-@Implements(@Interface(iface = Ageable.class, prefix = "ageable$"))
 public abstract class MixinEntityAgeable extends EntityCreature {
 
     private MixinEntityAgeable super$;
@@ -46,14 +45,9 @@ public abstract class MixinEntityAgeable extends EntityCreature {
         super(worldIn);
     }
 
-    @Shadow
-    public abstract int getGrowingAge();
-
-    @Shadow
-    public abstract void setGrowingAge(int age);
-
-    @Shadow
-    public abstract void setScaleForAge(boolean baby);
+    @Shadow public abstract int getGrowingAge();
+    @Shadow public abstract void setGrowingAge(int age);
+    @Shadow public abstract void setScaleForAge(boolean baby);
 
     @SoftOverride
     public void inactiveTick() {

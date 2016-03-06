@@ -32,10 +32,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityFireworkRocket.class)
-public abstract class MixinEntityFireworkRocket extends MixinEntity implements Firework {
+public abstract class MixinEntityFireworkRocket extends MixinEntity {
 
-    @Shadow
-    private int fireworkAge;
+    @Shadow private int fireworkAge;
 
     @Override
     public void inactiveTick() {
