@@ -65,7 +65,7 @@ public abstract class MixinEvent implements Cancellable, IMixinEvent {
     public void syncDataToForge(Event spongeEvent) { }
 
     @Override
-    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) { }
+    public void syncDataToSponge(Event spongeEvent) { }
 
     @Override
     public org.spongepowered.api.event.Event createSpongeEvent() {

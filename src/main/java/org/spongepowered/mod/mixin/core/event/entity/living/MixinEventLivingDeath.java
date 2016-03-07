@@ -117,6 +117,7 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
         this.messageCancelled = cancelled;
     }
 
+    @Override
     public MessageFormatter getFormatter() {
         return this.formatter;
     }
