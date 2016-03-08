@@ -42,6 +42,7 @@ import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.util.RespawnLocation;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -81,7 +82,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
 
     @Overwrite
     protected void damageEntity(DamageSource damageSource, float damage) {
-        ((IMixinEntityLivingBase) this).damageEntityHook(damageSource, damage);
+        this.damageEntityHook(damageSource, damage);
     }
 
     // Restore methods to original as we handle PlayerTossEvent in DropItemEvent
@@ -168,40 +169,43 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     }
 
     @Override
-    public Map<UUID, Vector3d> getBedlocations() {
-        Map<UUID, Vector3d> locations = Maps.newHashMap();
+    public Map<UUID, RespawnLocation> getBedlocations() {
+        Map<UUID, RespawnLocation> locations = Maps.newHashMap();
         if (this.spawnChunk != null) {
-            locations.put(WorldPropertyRegistryModule.dimIdToUuid(0), VecHelper.toVector3d(this.spawnChunk));
+            locations.put(WorldPropertyRegistryModule.dimIdToUuid(0), RespawnLocation.builder()
+                    .world(WorldPropertyRegistryModule.dimIdToUuid(0))
+                    .position(VecHelper.toVector3d(this.spawnChunk))
+                    .build());
         }
         for (Entry<Integer, BlockPos> entry : this.spawnChunkMap.entrySet()) {
             UUID uuid = WorldPropertyRegistryModule.dimIdToUuid(entry.getKey());
             if (uuid != null) {
-                locations.put(uuid, VecHelper.toVector3d(entry.getValue()));
+                locations.put(uuid, RespawnLocation.builder().world(uuid).position(VecHelper.toVector3d(entry.getValue())).build());
             }
         }
         return locations;
     }
 
     @Override
-    public boolean setBedLocations(Map<UUID, Vector3d> locations) {
+    public boolean setBedLocations(Map<UUID, RespawnLocation> locations) {
         // Clear all existing values
         this.spawnChunkMap.clear();
         this.spawnForcedMap.clear();
         setSpawnChunk(null, false, 0);
         // Add replacement values
-        for (Entry<UUID, Vector3d> entry : locations.entrySet()) {
+        for (Entry<UUID, RespawnLocation> entry : locations.entrySet()) {
             int dim = WorldPropertyRegistryModule.uuidToDimId(entry.getKey());
             if (dim != Integer.MIN_VALUE) {
                 // Note: No way to set 'force' parameter
-                setSpawnChunk(VecHelper.toBlockPos(entry.getValue()), false, dim);
+                setSpawnChunk(VecHelper.toBlockPos(entry.getValue().getPosition()), false, dim);
             }
         }
         return true;
     }
 
     @Override
-    public ImmutableMap<UUID, Vector3d> removeAllBeds() {
-        ImmutableMap<UUID, Vector3d> locations = ImmutableMap.copyOf(getBedlocations());
+    public ImmutableMap<UUID, RespawnLocation> removeAllBeds() {
+        ImmutableMap<UUID, RespawnLocation> locations = ImmutableMap.copyOf(getBedlocations());
         this.spawnChunkMap.clear();
         this.spawnForcedMap.clear();
         setSpawnChunk(null, false, 0);

@@ -25,16 +25,12 @@
 package org.spongepowered.mod.mixin.core.event.entity.living;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
-import org.spongepowered.api.entity.Item;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
@@ -47,13 +43,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.util.StaticMixinHelper;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 @SuppressWarnings("unchecked")
@@ -87,14 +80,9 @@ public abstract class MixinEventLivingDrops extends MixinEventLiving implements 
     }
 
     @Override
-    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
-        net.minecraftforge.event.entity.living.LivingDropsEvent event = (net.minecraftforge.event.entity.living.LivingDropsEvent) forgeEvent;
-
-        ImmutableList.Builder<EntitySnapshot> builder = new ImmutableList.Builder<>();
-        for (EntityItem entityItem : drops) {
-            builder.add(((Entity) entityItem).createSnapshot());
-        }
-        this.entitySnapshots = builder.build();
+    public void syncDataToSponge(Event spongeEvent) {
+        final Destruct destruct = (Destruct) spongeEvent;
+        destruct.filterEntities(entity -> this.drops.contains(entity));
     }
 
     @Override

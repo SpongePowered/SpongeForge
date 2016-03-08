@@ -25,8 +25,6 @@
 package org.spongepowered.mod.mixin.core.event.world;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -180,16 +178,14 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
         @SuppressWarnings("unchecked")
         @Override
-        public void syncDataToSponge(Event forgeEvent) {
-            super.syncDataToSponge(forgeEvent);
+        public void syncDataToSponge(org.spongepowered.api.event.Event spongeEvent) {
+            super.syncDataToSponge(spongeEvent);
 
-            net.minecraftforge.event.world.ExplosionEvent event = (net.minecraftforge.event.world.ExplosionEvent) forgeEvent;
-            // TODO - handle this better
-            List<BlockPos> affectedBlocks = event.explosion.getAffectedBlockPositions();
-            for (Transaction<BlockSnapshot> transaction : this.blockTransactions) {
+            final ExplosionEvent.Detonate detonate = (ExplosionEvent.Detonate) spongeEvent;
+            detonate.getTransactions().forEach(transaction -> {
                 BlockPos pos = VecHelper.toBlockPos(transaction.getFinal().getPosition());
                 boolean match = false;
-                for (BlockPos forgePos : affectedBlocks) {
+                for (BlockPos forgePos : this.explosion.getAffectedBlockPositions()) {
                     if (forgePos.getX() == pos.getX() && forgePos.getY() == pos.getY() && forgePos.getZ() == pos.getZ()) {
                         match = true;
                     }
@@ -197,7 +193,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
                 if (!match) {
                     transaction.setValid(false);
                 }
-            }
+            });
         }
     }
 

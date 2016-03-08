@@ -44,6 +44,7 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -54,10 +55,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.util.StaticMixinHelper;
-import org.spongepowered.mod.event.SpongeForgeEventFactory;
-import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
-import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Set;
 
@@ -87,11 +85,13 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
     public void injectChatEvent(C01PacketChatMessage packetIn, CallbackInfo ci, String s, ChatComponentTranslation component) {
         final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
         ((IMixinInitCause) event).initCause(Cause.of(NamedCause.source(this.playerEntity)));
-        ((IMixinEventPlayerChat) event).setRawMessage(Text.of(packetIn.getMessage()));
 
         if (!MinecraftForge.EVENT_BUS.post(event)) {
-            MessageChannelEvent spongeEvent = (MessageChannelEvent) event;
-            spongeEvent.getMessage().ifPresent(text -> spongeEvent.getChannel().ifPresent(channel -> channel.send(text)));
+            MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) event;
+            Text message = spongeEvent.getMessage();
+            if (!spongeEvent.isMessageCancelled()) {
+                spongeEvent.getChannel().ifPresent(channel -> channel.send(this.playerEntity, message, ChatTypes.CHAT));
+            }
 
             // Chat spam suppression from MC
             this.chatSpamThresholdCount += 20;

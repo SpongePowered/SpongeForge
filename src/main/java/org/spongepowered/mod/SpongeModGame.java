@@ -30,6 +30,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.asset.AssetManager;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginManager;
@@ -48,9 +49,9 @@ public final class SpongeModGame extends SpongeGame {
 
     @Inject
     public SpongeModGame(Platform platform, PluginManager pluginManager, EventManager eventManager,
-            SpongeGameRegistry gameRegistry, ServiceManager serviceManager, TeleportHelper teleportHelper,
-            ChannelRegistrar channelRegistrar, Logger logger) {
-        super(platform, pluginManager, eventManager, gameRegistry, serviceManager, teleportHelper, channelRegistrar, logger);
+            AssetManager assetManager, ServiceManager serviceManager, TeleportHelper teleportHelper, ChannelRegistrar channelRegistrar,
+            Logger logger, SpongeGameRegistry gameRegistry) {
+        super(platform, pluginManager, eventManager, assetManager, serviceManager, teleportHelper, channelRegistrar, logger, gameRegistry);
     }
 
     @Override

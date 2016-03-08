@@ -126,6 +126,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
     public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ) {
         IMixinWorld world = (IMixinWorld) this.world;
         Cause populateCause = Cause.of(NamedCause.source(this), NamedCause.of("ChunkProvider", chunkProvider));
+        CauseTracker causeTracker = world.getCauseTracker();
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -191,23 +192,11 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
             ((SpongeGenerationPopulator) this.baseGenerator).getHandle(this.world).populate(chunkProvider, chunkX, chunkZ);
         }
 
-        ImmutableMap.Builder<PopulatorType, List<Transaction<BlockSnapshot>>> populatorChanges = ImmutableMap.builder();
-        for (Map.Entry<PopulatorType, LinkedHashMap<Vector3i, Transaction<BlockSnapshot>>> entry : world.getCauseTracker().getCapturedPopulators().entrySet()) {
-            populatorChanges.put(entry.getKey(), ImmutableList.copyOf(entry.getValue().values()));
-        }
         org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
-                SpongeEventFactory.createPopulateChunkEventPost(populateCause,
-                        populatorChanges.build(),
-                        chunk);
+                SpongeEventFactory.createPopulateChunkEventPost(populateCause, ImmutableList.copyOf(populators), chunk);
         SpongeImpl.postEvent(event);
 
-        CauseTracker causeTracker = world.getCauseTracker();
-        this.prevRestoringBlocks = causeTracker.isRestoringBlocks();
-        causeTracker.setRestoringBlocks(true);
-        for (List<Transaction<BlockSnapshot>> transactions : event.getPopulatedTransactions().values()) {
-            causeTracker.markAndNotifyBlockPost(transactions, CaptureType.POPULATE, populateCause);
-        }
-        causeTracker.setRestoringBlocks(this.prevRestoringBlocks);
+
         causeTracker.getCapturedPopulators().clear();
 
         BlockFalling.fallInstantly = false;

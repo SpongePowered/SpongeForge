@@ -36,7 +36,7 @@ public abstract class MixinAbstractEvent implements IMixinEvent {
     public void syncDataToForge(Event spongeEvent) { }
 
     @Override
-    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) { }
+    public void syncDataToSponge(Event spongeEvent) { }
 
     @Override
     public Event createSpongeEvent() {

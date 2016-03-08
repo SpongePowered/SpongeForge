@@ -38,9 +38,9 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
+import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -64,11 +64,11 @@ public abstract class MixinSpongeImplHooks {
     }
 
     @Overwrite
-    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Cause cause, MessageChannel originalChannel, Optional<MessageChannel> channel,
-            Optional<Text> originalMessage, Optional<Text> message, Player targetEntity) {
+    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Cause cause, MessageChannel originalChannel,
+            Optional<MessageChannel> channel, MessageEvent.MessageFormatter formatter, Player targetEntity, boolean messageCancelled) {
         final ClientConnectionEvent.Join event = (ClientConnectionEvent.Join) new PlayerEvent.PlayerLoggedInEvent((EntityPlayer) targetEntity);
         ((IMixinInitCause) event).initCause(cause);
-        ((IMixinInitMessageChannelEvent) event).initMessage(originalMessage.orElse(null), message.orElse(null));
+        ((IMixinInitMessageChannelEvent) event).initMessage(formatter, messageCancelled);
         ((IMixinInitMessageChannelEvent) event).initChannel(originalChannel, channel.orElse(null));
         return event;
     }
@@ -83,12 +83,12 @@ public abstract class MixinSpongeImplHooks {
     }
 
     @Overwrite
-    public static ClientConnectionEvent.Disconnect createClientConnectionEventDisconnect(Cause cause, MessageChannel originalChannel, Optional<MessageChannel> channel,
-            Optional<Text> originalMessage, Optional<Text> message, Player targetEntity) {
+    public static ClientConnectionEvent.Disconnect createClientConnectionEventDisconnect(Cause cause, MessageChannel originalChannel,
+            Optional<MessageChannel> channel, MessageEvent.MessageFormatter formatter, Player targetEntity, boolean messageCancelled) {
         final ClientConnectionEvent.Disconnect event =
                 (ClientConnectionEvent.Disconnect) new PlayerEvent.PlayerLoggedOutEvent((EntityPlayer) targetEntity);
         ((IMixinInitCause) event).initCause(cause);
-        ((IMixinInitMessageChannelEvent) event).initMessage(originalMessage.orElse(null), message.orElse(null));
+        ((IMixinInitMessageChannelEvent) event).initMessage(formatter, messageCancelled);
         ((IMixinInitMessageChannelEvent) event).initChannel(originalChannel, channel.orElse(null));
         return event;
     }

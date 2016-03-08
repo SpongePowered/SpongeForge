@@ -31,7 +31,7 @@ public interface IMixinEvent {
 
     void syncDataToForge(Event spongeEvent);
 
-    void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent);
+    void syncDataToSponge(Event forgeEvent);
 
     Event createSpongeEvent();
 

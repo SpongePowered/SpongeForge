@@ -24,9 +24,11 @@
  */
 package org.spongepowered.mod.plugin;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.spongepowered.api.plugin.Plugin.ID_PATTERN;
+
+import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Injector;
@@ -43,110 +45,188 @@ import net.minecraftforge.fml.common.discovery.ModCandidate;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
+import net.minecraftforge.fml.common.versioning.VersionParser;
 import net.minecraftforge.fml.common.versioning.VersionRange;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
-import org.spongepowered.common.plugin.SpongePluginContainer;
+import org.spongepowered.common.plugin.AbstractPluginContainer;
+import org.spongepowered.common.plugin.PluginContainerExtension;
 
 import java.io.File;
 import java.net.URL;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+// PluginContainer is implemented indirectly through the mixin to ModContainer
+public class SpongeModPluginContainer implements ModContainer, PluginContainerExtension {
 
-public class SpongeModPluginContainer extends SpongePluginContainer implements ModContainer {
+    private final String id;
 
-    private String pluginClassName;
-    private ModCandidate modCandidate;
-    private Map<String, Object> pluginDescriptor;
-    private ModMetadata modMetadata;
+    private final String className;
+    private final ModCandidate candidate;
+    private final Map<String, Object> descriptor;
+
+    private ModMetadata metadata;
+    private boolean invalid; // Cannot throw until plugin is getting constructed
     private boolean enabled = true;
-    private EventBus fmlEventBus;
-    private LoadController fmlController;
+
+    private Object instance;
+
+    private DefaultArtifactVersion processedVersion;
+    private LoadController controller;
+
     private Injector injector;
 
-    private Optional<Object> pluginInstance = Optional.empty();
-
     public SpongeModPluginContainer(String className, ModCandidate candidate, Map<String, Object> descriptor) {
-        this.pluginClassName = className;
-        this.modCandidate = candidate;
-        this.pluginDescriptor = descriptor;
-    }
+        this.id = checkNotNull((String) descriptor.get("id"), "id");
 
-    @Subscribe
-    public void constructMod(FMLConstructionEvent event) {
-        try {
-            // Add source file to classloader so we can load it.
-            ModClassLoader modClassLoader = event.getModClassLoader();
-            modClassLoader.addFile(this.modCandidate.getModContainer());
-            modClassLoader.clearNegativeCacheFor(this.modCandidate.getClassList());
+        this.className = className;
+        this.candidate = candidate;
+        this.descriptor = descriptor;
 
-            Class<?> pluginClazz = Class.forName(this.pluginClassName, true, modClassLoader);
-
-            Injector injector = SpongeImpl.getInjector().createChildInjector(new SpongePluginGuiceModule(this, pluginClazz));
-            this.injector = injector;
-            this.pluginInstance = Optional.of(injector.getInstance(pluginClazz));
-
-            SpongeEventManager spongeBus = (SpongeEventManager) SpongeImpl.getGame().getEventManager();
-            // TODO Detect Scala or use meta to know if we're scala and use proper adapter here...
-            ProxyInjector.inject(this, event.getASMHarvestedData(), FMLCommonHandler.instance().getSide(), new ILanguageAdapter.JavaAdapter());
-            spongeBus.registerListener(this, this.pluginInstance.get());
-        } catch (Throwable t) {
-            this.fmlController.errorOccurred(this, t);
-            //Throwables.propagateIfPossible(t);
+        if (!ID_PATTERN.matcher(this.id).matches()) {
+            SpongeImpl.getLogger()
+                    .error("Found plugin with invalid plugin ID '{}'. Plugin IDs should be lowercase, and only contain characters from "
+                            + "a-z, dashes, underscores or dots. Please see the in-existent SpongeDocs link for details. The plugin will be still"
+                            + " loaded currently, however this will be removed soon. Please notify the author to update the plugin as soon as "
+                            + "possible.", this.id);
         }
     }
 
     @Override
     public String getModId() {
-        return (String) this.pluginDescriptor.get("id");
+        return this.id;
     }
 
     @Override
-    @Nonnull
     public String getName() {
-        return (String) this.pluginDescriptor.get("name");
+        return this.metadata.name;
     }
 
     @Override
-    @Nonnull
     public String getVersion() {
-        String annotationVersion = (String) this.pluginDescriptor.get("version");
-        return (annotationVersion != null) ? annotationVersion : "unknown";
+        return this.metadata.version;
     }
 
     @Override
     public File getSource() {
-        return this.modCandidate.getModContainer();
+        return this.candidate.getModContainer();
     }
 
     @Override
     public ModMetadata getMetadata() {
-        return this.modMetadata;
+        return this.metadata;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void bindMetadata(MetadataCollection mc) {
-        // Note: Much simpler than FML's, since I'm assuming there's no useful information.
-        // All information given here is from mcmod.info which we haven't documented as part of plugin 'API'
-        this.modMetadata = mc.getMetadataForId(getModId(), this.pluginDescriptor);
+        this.metadata = mc.getMetadataForId(this.id, this.descriptor);
+        if (this.metadata.autogenerated) {
+            SpongeImpl.getLogger().warn("Plugin '{}' seems to be missing a valid mcmod.info metadata file. This is not a problem when testing "
+                    + "plugins, however it is recommended to include one in public plugins. Please see the in-existent SpongeDocs link for details.",
+                    this.id);
 
-        String annotationDependencies = (String) this.pluginDescriptor.get("dependencies");
+            if (isNullOrEmpty(this.metadata.name)) {
+                this.metadata.name = AbstractPluginContainer.getUnqualifiedId(this.id);
+            }
 
-        Set<ArtifactVersion> requirements = Sets.newHashSet();
-        List<ArtifactVersion> dependencies = Lists.newArrayList();
-        List<ArtifactVersion> dependants = Lists.newArrayList();
+            if (this.metadata.version == null) {
+                this.metadata.version = "";
+            }
 
-        Loader.instance().computeDependencies(annotationDependencies, requirements, dependencies, dependants);
+            // Version is set in the dummy automatically (see getMetadataForId)
+            this.metadata.description = getDescriptorValue("description");
+            this.metadata.url = getDescriptorValue("url");
 
-        this.modMetadata.requiredMods = requirements;
-        this.modMetadata.dependencies = dependencies;
-        this.modMetadata.dependants = dependants;
+            Collection<String> authors = (Collection<String>) this.descriptor.get("authors");
+            if (authors != null) {
+                this.metadata.authorList = new ArrayList<>(authors);
+            }
+
+            Object deps = this.descriptor.get("dependencies");
+            if (deps instanceof Iterable) {
+                Iterable<Map<String, Object>> depDescriptors = (Iterable<Map<String, Object>>) this.descriptor.get("dependencies");
+                if (depDescriptors != null) {
+                    Set<ArtifactVersion> requirements = this.metadata.requiredMods;
+                    List<ArtifactVersion> dependencies = this.metadata.dependencies;
+                    //List<ArtifactVersion> dependants = this.metadata.dependants; // TODO
+
+                    for (Map<String, Object> depDescriptor : depDescriptors) {
+                        String dep = checkNotNull((String) depDescriptor.get("id"), "dependency id");
+
+                        if (this.id.equals(dep)) {
+                            this.invalid = true;
+                            SpongeImpl.getLogger().error("Plugin '{}' cannot have a dependency on itself. This is redundant and should be removed.",
+                                    this.id);
+                            continue;
+                        }
+
+                        String depVersion = (String) depDescriptor.get("version");
+
+                        ArtifactVersion dependency;
+                        if (isNullOrEmpty(depVersion)) {
+                            dependency = new DefaultArtifactVersion(dep, true);
+                        } else {
+                            dependency = new DefaultArtifactVersion(dep, VersionParser.parseRange(depVersion));
+                        }
+
+                        Boolean optional = (Boolean) depDescriptor.get("optional");
+                        if (optional == null || !optional) {
+                            requirements.add(dependency);
+                        }
+
+                        // TODO: Load order
+                        dependencies.add(dependency);
+                    }
+                }
+            } else {
+                // Old dependency string
+                SpongeImpl.getLogger().error("Plugin '{}' is using the old dependencies format in the @Plugin annotation (before SpongeAPI 4.0.0). "
+                        + "This is only supported for compatibility reasons and will be removed soon. Please notify the author to update the plugin "
+                        + "as soon as possible.", this.id);
+
+                Set<ArtifactVersion> requirements = new HashSet<>();
+                List<ArtifactVersion> dependencies = new ArrayList<>();
+                List<ArtifactVersion> dependants = new ArrayList<>();
+
+                Loader.instance().computeDependencies((String) deps, requirements, dependencies, dependants);
+
+                this.metadata.requiredMods = requirements;
+                this.metadata.dependencies = dependencies;
+                this.metadata.dependants = dependants;
+            }
+        } else {
+            // Check dependencies
+            Iterator<ArtifactVersion> itr = this.metadata.requiredMods.iterator();
+            while (itr.hasNext()) {
+                if (this.id.equals(itr.next().getLabel())) {
+                    SpongeImpl.getLogger().warn("Plugin '{}' requires itself to be loaded. This is redundant and can be removed from the "
+                            + "dependencies.", this.id);
+                    itr.remove();
+                }
+            }
+
+            if (!this.metadata.dependants.isEmpty()) {
+                SpongeImpl.getLogger().error("Invalid dependency with load order BEFORE on plugin '{}'. This is currently not supported for Sponge "
+                        + "plugins. Requested dependencies: {}", this.id, this.metadata.dependants);
+            }
+
+            this.metadata.dependants = ImmutableList.of();
+        }
+    }
+
+    private String getDescriptorValue(String key) {
+        return (String) this.descriptor.getOrDefault(key, "");
     }
 
     @Override
@@ -156,49 +236,83 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
 
     @Override
     public Set<ArtifactVersion> getRequirements() {
-        return this.modMetadata.requiredMods;
+        return this.metadata.requiredMods;
     }
 
     @Override
     public List<ArtifactVersion> getDependencies() {
-        return this.modMetadata.dependencies;
+        return this.metadata.dependencies;
     }
 
     @Override
     public List<ArtifactVersion> getDependants() {
-        return this.modMetadata.dependants;
+        return this.metadata.dependants;
     }
 
     @Override
     public String getSortingRules() {
-        return (String) this.pluginDescriptor.get("dependencies");
+        return this.metadata.printableSortingRules();
+    }
+
+    @Override
+    public boolean matches(Object mod) {
+        return this.instance == mod;
+    }
+
+    @Override
+    public Object getMod() {
+        return this.instance;
     }
 
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         if (this.enabled) {
-            this.fmlEventBus = bus;
-            this.fmlController = controller;
-            this.fmlEventBus.register(this);
+            this.controller = controller;
+            bus.register(this);
             return true;
         }
         return false;
     }
 
-    @Override
-    public boolean matches(Object mod) {
-        return this.pluginInstance.isPresent() && this.pluginInstance.get() == mod;
-    }
+    @Subscribe
+    public void constructMod(FMLConstructionEvent event) {
+        try {
+            if (this.invalid) {
+                throw new InvalidPluginException();
+            }
 
-    @Override
-    public Object getMod() {
-        return this.pluginInstance.orElse(null);
+            // Add source file to classloader so we can load it.
+            ModClassLoader modClassLoader = event.getModClassLoader();
+            modClassLoader.addFile(getSource());
+            modClassLoader.clearNegativeCacheFor(this.candidate.getClassList());
+
+            Class<?> pluginClazz = Class.forName(this.className, true, modClassLoader);
+
+            Injector injector = SpongeImpl.getInjector().createChildInjector(new SpongePluginGuiceModule((PluginContainer) this, pluginClazz));
+            this.injector = injector;
+            this.instance = injector.getInstance(pluginClazz);
+
+            // TODO: Detect Scala or use meta to know if we're scala and use proper adapter here...
+            ProxyInjector.inject(this, event.getASMHarvestedData(), FMLCommonHandler.instance().getSide(), new ILanguageAdapter.JavaAdapter());
+
+            Sponge.getEventManager().registerListeners(this, this.instance);
+        } catch (Throwable t) {
+            this.controller.errorOccurred(this, t);
+        }
     }
 
     @Override
     public ArtifactVersion getProcessedVersion() {
-        // Note: FML caches this.
-        return new DefaultArtifactVersion(getModId(), getVersion());
+        if (this.processedVersion == null) {
+            String version = getVersion();
+            if (isNullOrEmpty(version)) {
+                this.processedVersion = new DefaultArtifactVersion(this.id, true);
+            } else {
+                this.processedVersion = new DefaultArtifactVersion(this.id, version);
+            }
+        }
+
+        return this.processedVersion;
     }
 
     @Override
@@ -234,15 +348,15 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
 
     @Override
     public Map<String, String> getSharedModDescriptor() {
-        Map<String, String> descriptor = Maps.newHashMap();
+        Map<String, String> descriptor = new HashMap<>();
 
         descriptor.put("modsystem", "Sponge");
-        descriptor.put("id", getModId());
+        descriptor.put("id", this.id);
         descriptor.put("version", getDisplayVersion());
         descriptor.put("name", getName());
-
-        // Note: FML puts url, authors, description here as well, but that comes from mcmod.info instead of annotations.
-        // So far we haven't really documented anything about mcmod.info for plugin use, so I've been assuming no info.
+        descriptor.put("url", this.metadata.url);
+        descriptor.put("authors", this.metadata.getAuthorList());
+        descriptor.put("description", this.metadata.description);
 
         return descriptor;
     }
@@ -257,24 +371,12 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
     @Override
     public String getGuiClassName() {
         // Note: Not needed, client-side only
-        return "";
+        return null;
     }
 
     @Override
     public List<String> getOwnedPackages() {
-        return this.modCandidate.getContainedPackages();
-    }
-
-    @Override
-    @Nonnull
-    public String getId() {
-        return getModId();
-    }
-
-    @Override
-    @Nonnull
-    public Optional<Object> getInstance() {
-        return this.pluginInstance;
+        return this.candidate.getContainedPackages();
     }
 
     @Override
@@ -289,6 +391,7 @@ public class SpongeModPluginContainer extends SpongePluginContainer implements M
 
     @Override
     public Injector getInjector() {
-        return injector;
+        return this.injector;
     }
+
 }

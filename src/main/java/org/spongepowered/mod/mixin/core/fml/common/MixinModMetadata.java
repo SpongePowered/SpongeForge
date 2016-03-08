@@ -22,16 +22,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.mixin.core.fml.common;
 
-import org.spongepowered.api.event.message.MessageEvent;
-import org.spongepowered.api.text.channel.MessageChannel;
+import net.minecraftforge.fml.common.ModMetadata;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.interfaces.IMixinModMetadata;
 
-import javax.annotation.Nullable;
+@Mixin(value = ModMetadata.class, remap = false)
+public abstract class MixinModMetadata implements IMixinModMetadata {
 
-public interface IMixinInitMessageChannelEvent {
+    public String assets = "";
 
-    void initMessage(MessageEvent.MessageFormatter formatter, boolean messageCancelled);
+    @Override
+    public String getAssetDirectory() {
+        return this.assets;
+    }
 
-    void initChannel(MessageChannel original, @Nullable MessageChannel channel);
 }

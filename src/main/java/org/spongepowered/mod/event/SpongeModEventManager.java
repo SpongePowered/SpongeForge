@@ -190,7 +190,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             }
 
             // sync Forge data for Plugins
-            ((IMixinEvent)spongeEvent).syncDataToSponge(forgeEvent);
+            ((IMixinEvent) forgeEvent).syncDataToSponge(spongeEvent);
         }
 
         // Fire events to plugins after modifications (default)

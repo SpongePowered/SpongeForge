@@ -24,31 +24,78 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common;
 
-import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.FMLModContainer;
-import net.minecraftforge.fml.common.InjectedModContainer;
-import net.minecraftforge.fml.common.ModContainer;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.asm.mixin.Mixin;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.emptyToNull;
 
+import com.google.common.collect.ImmutableList;
+import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.ModMetadata;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.common.plugin.AbstractPluginContainer;
+import org.spongepowered.mod.interfaces.IMixinModMetadata;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * Make FML mod containers our mod containers.
- *
- * <p>This might need to be occasionally updated to mixin to other implementaions
- * of ModContainer
  */
-@Mixin({FMLModContainer.class, DummyModContainer.class, InjectedModContainer.class})
-public abstract class MixinModContainer implements ModContainer, PluginContainer {
+@Mixin(ModContainer.class)
+@Implements(@Interface(iface = PluginContainer.class, prefix = "plugin$"))
+public interface MixinModContainer extends ModContainer {
 
-    @Override
-    public String getId() {
-        return getModId();
+    default String getId() {
+        return checkNotNull(emptyToNull(getModId()), "modid");
     }
 
-    @Override
-    public Optional<Object> getInstance() {
+    default String getUnqualifiedId() {
+        return AbstractPluginContainer.getUnqualifiedId(getId());
+    }
+
+    default Optional<String> plugin$getVersion() {
+        return Optional.ofNullable(emptyToNull(getVersion()));
+    }
+
+    default Optional<String> getDescription() {
+        ModMetadata meta = getMetadata();
+        return meta != null ? Optional.ofNullable(emptyToNull(meta.description)) : Optional.empty();
+    }
+
+    default Optional<String> getUrl() {
+        ModMetadata meta = getMetadata();
+        return meta != null ? Optional.ofNullable(emptyToNull(meta.url)) : Optional.empty();
+    }
+
+    default Optional<Path> getAssetDirectory() {
+        ModMetadata meta = getMetadata();
+        if (meta != null) {
+            String path = ((IMixinModMetadata) meta).getAssetDirectory();
+            return !path.isEmpty() ? Optional.of(Paths.get(path)) : Optional.empty();
+        }
+        return Optional.empty();
+    }
+
+    default List<String> getAuthors() {
+        ModMetadata meta = getMetadata();
+        return meta != null ? ImmutableList.copyOf(meta.authorList) : ImmutableList.of();
+    }
+
+    default Optional<Path> plugin$getSource() {
+        File source = getSource();
+        if (source != null) {
+            return Optional.of(source.toPath());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    default Optional<?> getInstance() {
         return Optional.ofNullable(getMod());
     }
 

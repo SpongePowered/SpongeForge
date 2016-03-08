@@ -97,6 +97,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
@@ -107,7 +108,9 @@ import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
 import org.spongepowered.api.event.entity.living.TargetLivingEvent;
+import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.SaveWorldEvent;
@@ -127,7 +130,6 @@ import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
-import org.spongepowered.mod.interfaces.IMixinEventPlayerChat;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -211,7 +213,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == LivingDeathEvent.class) {
                 return createLivingDeathEvent(event);
             } else if (clazz == LivingDropsEvent.class) {
-                return createLivingDropsEvent(event);
+                return createLivingDropItemEvent(event);
             } else if (clazz == LivingExperienceDropEvent.class) {
 
             } else if (clazz == LivingFallEvent.class) {
@@ -302,6 +304,31 @@ public class SpongeForgeEventFactory {
 
         // return same event if not currently supported
         return (net.minecraftforge.fml.common.eventhandler.Event) event;
+    }
+
+    private static LivingDropsEvent createLivingDropItemEvent(Event event) {
+        if (!(event instanceof DropItemEvent.Destruct)) {
+            throw new IllegalArgumentException("Event is not a valid DestructEntityEvent.Death event.");
+        }
+
+        DropItemEvent.Destruct spongeEvent = (DropItemEvent.Destruct) event;
+        Optional<EntityLivingBase> spawnCause = spongeEvent.getCause().first(EntityLivingBase.class);
+        if (!spawnCause.isPresent()) {
+            return null;
+        }
+        Optional<DamageSource> source = spongeEvent.getCause().first(DamageSource.class);
+        if (!source.isPresent()) {
+            return null;
+        }
+
+        List<EntityItem> items = new ArrayList<>();
+        for (org.spongepowered.api.entity.Entity entity : spongeEvent.getEntities()) {
+            if (entity instanceof EntityItem) {
+                items.add((EntityItem) entity);
+            }
+        }
+        LivingDropsEvent forgeEvent = new LivingDropsEvent(spawnCause.get(), (net.minecraft.util.DamageSource) source.get(), items, 0, false);
+        return forgeEvent;
     }
 
     // Used for firing single events to Forge from sponge bulk events
@@ -786,12 +813,8 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        Optional<Text> spongeText = spongeEvent.getOriginalMessage();
-        if (!spongeText.isPresent()) {
-            return null;
-        }
-
-        IChatComponent component = SpongeTexts.toComponent(spongeText.get());
+        Text spongeText = spongeEvent.getOriginalMessage();
+        IChatComponent component = SpongeTexts.toComponent(spongeText);
         if (!(component instanceof ChatComponentTranslation)) {
             component = new ChatComponentTranslation("%s", component);
         }
@@ -799,10 +822,9 @@ public class SpongeForgeEventFactory {
         // Using toPlain here is fine, since the raw message from the client
         // can't have formatting.
         ServerChatEvent forgeEvent =
-                new ServerChatEvent((EntityPlayerMP) player.get(), spongeEvent.getOriginalMessage().get().toPlain(),
+                new ServerChatEvent((EntityPlayerMP) player.get(), spongeEvent.getOriginalMessage().toPlain(),
                         (ChatComponentTranslation) component);
         ((IMixinInitCause) forgeEvent).initCause(spongeEvent.getCause());
-        ((IMixinEventPlayerChat) forgeEvent).setRawMessage(spongeEvent.getRawMessage());
 
         return forgeEvent;
     }
@@ -819,11 +841,9 @@ public class SpongeForgeEventFactory {
             }
         } else if (forgeEvent instanceof LivingDeathEvent) {
             MessageChannelEvent spongeEvent = (MessageChannelEvent) forgeEvent;
-            Optional<Text> message = spongeEvent.getMessage();
-            if (message.isPresent()) {
-                if (message.get() != Text.of()) {
-                    spongeEvent.getChannel().ifPresent(channel -> channel.send(message.get()));
-                }
+            Text message = spongeEvent.getMessage();
+            if (!spongeEvent.isMessageCancelled() && !message.isEmpty()) {
+                spongeEvent.getChannel().ifPresent(channel -> channel.send(((LivingDeathEvent) forgeEvent).entityLiving, spongeEvent.getMessage()));
             }
         }
     }
@@ -855,7 +875,7 @@ public class SpongeForgeEventFactory {
 
     public static SpawnEntityEvent callEntityJoinWorldEvent(Event event) {
         if (!(event instanceof SpawnEntityEvent)) {
-            throw new IllegalArgumentException("Event is not a valiud SpawnEntityEvent.");
+            throw new IllegalArgumentException("Event is not a valid SpawnEntityEvent.");
         }
 
         SpawnEntityEvent spongeEvent = (SpawnEntityEvent) event;

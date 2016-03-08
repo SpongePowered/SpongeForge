@@ -35,6 +35,7 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.asset.AssetManager;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
@@ -43,6 +44,7 @@ import org.spongepowered.api.service.SimpleServiceManager;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.asset.SpongeAssetManager;
 import org.spongepowered.common.guice.ConfigDirAnnotation;
 import org.spongepowered.common.plugin.SpongeApiContainer;
 import org.spongepowered.common.registry.SpongeGameRegistry;
@@ -64,9 +66,9 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(SpongeMod.class).toInstance(SpongeMod.instance);
         bind(Logger.class).toInstance(LogManager.getLogger(SpongeImpl.ECOSYSTEM_NAME));
 
-        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.ECOSYSTEM_NAME)).toInstance(SpongeMod.instance);
-        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.API_NAME)).to(SpongeApiContainer.class).in(Scopes.SINGLETON);
-        bind(PluginContainer.class).annotatedWith(named("Minecraft")).toInstance((PluginContainer) Loader.instance().getMinecraftModContainer());
+        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.ECOSYSTEM_ID)).toInstance((PluginContainer) SpongeMod.instance);
+        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.API_ID)).to(SpongeApiContainer.class).in(Scopes.SINGLETON);
+        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.GAME_ID)).toInstance((PluginContainer) Loader.instance().getMinecraftModContainer());
 
         bind(Game.class).to(SpongeModGame.class).in(Scopes.SINGLETON);
         bind(MinecraftVersion.class).toInstance(SpongeImpl.MINECRAFT_VERSION);
@@ -74,6 +76,7 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(PluginManager.class).to(SpongePluginManager.class).in(Scopes.SINGLETON);
         bind(ServiceManager.class).to(SimpleServiceManager.class).in(Scopes.SINGLETON);
         bind(EventManager.class).to(SpongeModEventManager.class).in(Scopes.SINGLETON);
+        bind(AssetManager.class).to(SpongeAssetManager.class).in(Scopes.SINGLETON);
         bind(GameRegistry.class).to(SpongeGameRegistry.class).in(Scopes.SINGLETON);
         bind(TeleportHelper.class).to(SpongeTeleportHelper.class).in(Scopes.SINGLETON);
         bind(ChannelRegistrar.class).to(SpongeModNetworkManager.class).in(Scopes.SINGLETON);
