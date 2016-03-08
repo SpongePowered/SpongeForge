@@ -27,15 +27,16 @@ package org.spongepowered.mod.mixin.core.fml.common;
 import net.minecraftforge.fml.common.ModMetadata;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.interfaces.IMixinModMetadata;
+import org.spongepowered.plugin.meta.SpongeExtension;
 
 @Mixin(value = ModMetadata.class, remap = false)
 public abstract class MixinModMetadata implements IMixinModMetadata {
 
-    public String assets = "";
+    public SpongeExtension sponge = new SpongeExtension();
 
     @Override
     public String getAssetDirectory() {
-        return this.assets;
+        return this.sponge.getAssetDirectory();
     }
 
 }
