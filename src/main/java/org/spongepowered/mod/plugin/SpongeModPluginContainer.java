@@ -154,56 +154,58 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
             }
 
             Object deps = this.descriptor.get("dependencies");
-            if (deps instanceof Iterable) {
-                Iterable<Map<String, Object>> depDescriptors = (Iterable<Map<String, Object>>) this.descriptor.get("dependencies");
-                if (depDescriptors != null) {
-                    Set<ArtifactVersion> requirements = this.metadata.requiredMods;
-                    List<ArtifactVersion> dependencies = this.metadata.dependencies;
-                    //List<ArtifactVersion> dependants = this.metadata.dependants; // TODO
+            if (deps != null) {
+                if (deps instanceof Iterable) {
+                    Iterable<Map<String, Object>> depDescriptors = (Iterable<Map<String, Object>>) this.descriptor.get("dependencies");
+                    if (depDescriptors != null) {
+                        Set<ArtifactVersion> requirements = this.metadata.requiredMods;
+                        List<ArtifactVersion> dependencies = this.metadata.dependencies;
+                        //List<ArtifactVersion> dependants = this.metadata.dependants; // TODO
 
-                    for (Map<String, Object> depDescriptor : depDescriptors) {
-                        String dep = checkNotNull((String) depDescriptor.get("id"), "dependency id");
+                        for (Map<String, Object> depDescriptor : depDescriptors) {
+                            String dep = checkNotNull((String) depDescriptor.get("id"), "dependency id");
 
-                        if (this.id.equals(dep)) {
-                            this.invalid = true;
-                            SpongeImpl.getLogger().error("Plugin '{}' cannot have a dependency on itself. This is redundant and should be removed.",
-                                    this.id);
-                            continue;
+                            if (this.id.equals(dep)) {
+                                this.invalid = true;
+                                SpongeImpl.getLogger().error("Plugin '{}' cannot have a dependency on itself. This is redundant and should be "
+                                        + "removed.", this.id);
+                                continue;
+                            }
+
+                            String depVersion = (String) depDescriptor.get("version");
+
+                            ArtifactVersion dependency;
+                            if (isNullOrEmpty(depVersion)) {
+                                dependency = new DefaultArtifactVersion(dep, true);
+                            } else {
+                                dependency = new DefaultArtifactVersion(dep, VersionParser.parseRange(depVersion));
+                            }
+
+                            Boolean optional = (Boolean) depDescriptor.get("optional");
+                            if (optional == null || !optional) {
+                                requirements.add(dependency);
+                            }
+
+                            // TODO: Load order
+                            dependencies.add(dependency);
                         }
-
-                        String depVersion = (String) depDescriptor.get("version");
-
-                        ArtifactVersion dependency;
-                        if (isNullOrEmpty(depVersion)) {
-                            dependency = new DefaultArtifactVersion(dep, true);
-                        } else {
-                            dependency = new DefaultArtifactVersion(dep, VersionParser.parseRange(depVersion));
-                        }
-
-                        Boolean optional = (Boolean) depDescriptor.get("optional");
-                        if (optional == null || !optional) {
-                            requirements.add(dependency);
-                        }
-
-                        // TODO: Load order
-                        dependencies.add(dependency);
                     }
+                } else {
+                    // Old dependency string
+                    SpongeImpl.getLogger().error("Plugin '{}' is using the old dependencies format in the @Plugin annotation (before SpongeAPI "
+                            + "4.0.0). This is only supported for compatibility reasons and will be removed soon. Please notify the author to update "
+                            + "the plugin as soon as possible.", this.id);
+
+                    Set<ArtifactVersion> requirements = new HashSet<>();
+                    List<ArtifactVersion> dependencies = new ArrayList<>();
+                    List<ArtifactVersion> dependants = new ArrayList<>();
+
+                    Loader.instance().computeDependencies((String) deps, requirements, dependencies, dependants);
+
+                    this.metadata.requiredMods = requirements;
+                    this.metadata.dependencies = dependencies;
+                    this.metadata.dependants = dependants;
                 }
-            } else {
-                // Old dependency string
-                SpongeImpl.getLogger().error("Plugin '{}' is using the old dependencies format in the @Plugin annotation (before SpongeAPI 4.0.0). "
-                        + "This is only supported for compatibility reasons and will be removed soon. Please notify the author to update the plugin "
-                        + "as soon as possible.", this.id);
-
-                Set<ArtifactVersion> requirements = new HashSet<>();
-                List<ArtifactVersion> dependencies = new ArrayList<>();
-                List<ArtifactVersion> dependants = new ArrayList<>();
-
-                Loader.instance().computeDependencies((String) deps, requirements, dependencies, dependants);
-
-                this.metadata.requiredMods = requirements;
-                this.metadata.dependencies = dependencies;
-                this.metadata.dependants = dependants;
             }
         } else {
             // Check dependencies
