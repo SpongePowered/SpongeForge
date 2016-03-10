@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.entityactivation;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.profiler.Profiler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
@@ -32,6 +33,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
@@ -40,7 +42,7 @@ import org.spongepowered.mod.mixin.plugin.entityactivation.ActivationRange;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.World.class)
-public abstract class MixinWorld implements World, IMixinWorld {
+public abstract class MixinWorld implements IMixinWorld {
 
     @Shadow @Final public Profiler theProfiler;
 

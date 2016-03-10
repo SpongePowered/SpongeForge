@@ -32,13 +32,10 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@NonnullByDefault
 @Mixin(EntityLivingBase.class)
-@Implements(@Interface(iface = Living.class, prefix = "living$"))
 public abstract class MixinEntityLivingBase extends MixinEntity {
 
-    @Shadow
-    protected int entityAge;
+    @Shadow protected int entityAge;
 
     @Override
     public void inactiveTick() {

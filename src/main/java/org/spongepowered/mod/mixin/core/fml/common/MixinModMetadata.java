@@ -22,24 +22,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.entityactivation;
+package org.spongepowered.mod.mixin.core.fml.common;
 
-import net.minecraft.entity.item.EntityFireworkRocket;
-import org.spongepowered.api.entity.projectile.Firework;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import net.minecraftforge.fml.common.ModMetadata;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.interfaces.IMixinModMetadata;
+import org.spongepowered.plugin.meta.SpongeExtension;
 
-@NonnullByDefault
-@Mixin(EntityFireworkRocket.class)
-public abstract class MixinEntityFireworkRocket extends MixinEntity {
+@Mixin(value = ModMetadata.class, remap = false)
+public abstract class MixinModMetadata implements IMixinModMetadata {
 
-    @Shadow private int fireworkAge;
+    public SpongeExtension sponge = new SpongeExtension();
 
     @Override
-    public void inactiveTick() {
-        this.fireworkAge += 1;
-        super.inactiveTick();
+    public String getAssetDirectory() {
+        return this.sponge.getAssetDirectory();
     }
 
 }

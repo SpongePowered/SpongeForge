@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.event.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -36,6 +37,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.mod.mixin.core.event.player.MixinEventPlayer;
 
 @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.class, remap = false)
@@ -110,19 +112,21 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
     }
 
     @Override
-    public void syncDataToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
-        super.syncDataToSponge(forgeEvent);
-
-        net.minecraftforge.event.entity.player.PlayerUseItemEvent event = (net.minecraftforge.event.entity.player.PlayerUseItemEvent) forgeEvent;
-        this.itemTransaction.setCustom(((ItemStack) (Object) event.item).createSnapshot());
+    public void syncDataToSponge(org.spongepowered.api.event.Event spongeEvent) {
+        super.syncDataToSponge(spongeEvent);
+        UseItemStackEvent event = (UseItemStackEvent) spongeEvent;
+        final ItemStack defaultStack = event.getItemStackInUse().getDefault().createStack();
+        if (!ItemStackUtil.compare(defaultStack, this.item)) {
+            event.getItemStackInUse().setCustom(ItemStackUtil.createSnapshot(this.item));
+        }
     }
 
     @Override
     public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
         super.syncDataToForge(spongeEvent);
 
-       UseItemStackEvent event = (UseItemStackEvent) spongeEvent;
-       this.item = (net.minecraft.item.ItemStack) (Object) event.getItemStackInUse().getFinal().createStack();
-       this.duration = event.getRemainingDuration();
+        UseItemStackEvent event = (UseItemStackEvent) spongeEvent;
+        this.item = (net.minecraft.item.ItemStack) (Object) event.getItemStackInUse().getFinal().createStack();
+        this.duration = event.getRemainingDuration();
     }
 }

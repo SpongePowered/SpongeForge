@@ -24,36 +24,22 @@
  */
 package org.spongepowered.mod.plugin;
 
-import net.minecraftforge.fml.common.ModContainer;
-import org.spongepowered.api.plugin.PluginContainer;
+public class InvalidPluginException extends RuntimeException {
 
-import java.util.Optional;
-
-public class WrappedModContainer implements PluginContainer {
-    private final ModContainer container;
-
-    public WrappedModContainer(ModContainer container) {
-        this.container = container;
+    public InvalidPluginException() {
+        super();
     }
 
-    @Override
-    public String getId() {
-        return this.container.getModId();
+    public InvalidPluginException(String message) {
+        super(message);
     }
 
-    @Override
-    public String getName() {
-        return this.container.getName();
+    public InvalidPluginException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    @Override
-    public String getVersion() {
-        return this.container.getVersion();
-    }
-
-    @Override
-    public Optional<Object> getInstance() {
-        return Optional.ofNullable(this.container.getMod());
+    public InvalidPluginException(Throwable cause) {
+        super(cause);
     }
 
 }

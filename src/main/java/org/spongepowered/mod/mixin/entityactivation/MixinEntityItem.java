@@ -36,24 +36,17 @@ import org.spongepowered.common.interfaces.world.IMixinWorld;
 
 @NonnullByDefault
 @Mixin(EntityItem.class)
-public abstract class MixinEntityItem extends Entity implements Item {
+public abstract class MixinEntityItem extends MixinEntity {
 
-    @Shadow
-    public abstract ItemStack getEntityItem();
+    @Shadow public abstract ItemStack getEntityItem();
 
-    @Shadow
-    private int delayBeforeCanPickup;
-
-    @Shadow
-    private int age;
+    @Shadow private int delayBeforeCanPickup;
+    @Shadow private int age;
 
     @Shadow(remap = false)
     public int lifespan;
 
-    public MixinEntityItem(World worldIn) {
-        super(worldIn);
-    }
-
+    @Override
     public void inactiveTick() {
         if (this.delayBeforeCanPickup > 0 && this.delayBeforeCanPickup != 32767) {
             --this.delayBeforeCanPickup;

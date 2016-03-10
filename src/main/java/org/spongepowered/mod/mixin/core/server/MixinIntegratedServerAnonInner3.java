@@ -31,6 +31,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.asm.mixin.Mixin;
@@ -57,8 +58,9 @@ public class MixinIntegratedServerAnonInner3 {
     public EntityPlayerMP beforeFirePlayerLoggedOut(EntityPlayerMP playerIn) {
         Player player = (Player) playerIn;
         MessageChannel originalChannel = player.getMessageChannel();
-        ClientConnectionEvent.Disconnect event = SpongeImplHooks.createClientConnectionEventDisconnect(Cause.of(NamedCause.source(player)),
-                originalChannel, Optional.of(originalChannel), Optional.empty(), Optional.empty(), player);
+        ClientConnectionEvent.Disconnect event = SpongeImplHooks.createClientConnectionEventDisconnect(
+                Cause.of(NamedCause.source(player)), originalChannel, Optional.of(originalChannel), new MessageEvent.MessageFormatter(), player, true
+        );
         SpongeImpl.postEvent(event);
         // Doesn't make sense to send the event's message because all players
         // are quitting anyway

@@ -100,9 +100,8 @@ import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 
-public class SpongeMod extends DummyModContainer implements PluginContainer {
+public class SpongeMod extends DummyModContainer {
 
     public static SpongeMod instance;
     private final SpongeGame game;
@@ -288,19 +287,10 @@ public class SpongeMod extends DummyModContainer implements PluginContainer {
         }
     }
 
-    @Override
-    public String getId() {
-        return getModId();
-    }
-
-    @Override
+    // This overrides the method in PluginContainer
+    // (PluginContainer is implemented indirectly through the ModContainer mixin)
     public Logger getLogger() {
         return SpongeImpl.getSlf4jLogger();
-    }
-
-    @Override
-    public Optional<Object> getInstance() {
-        return Optional.of(this);
     }
 
     private static ModMetadata createMetadata(Map<String, Object> defaults) {

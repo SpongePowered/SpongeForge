@@ -34,11 +34,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @NonnullByDefault
 @Mixin(EntityArrow.class)
-@Implements(@Interface(iface = Arrow.class, prefix = "arrow$"))
-public abstract class MixinEntityArrow extends MixinEntity implements Arrow {
+public abstract class MixinEntityArrow extends MixinEntity {
 
-    @Shadow
-    private int ticksInGround;
+    @Shadow private int ticksInGround;
 
     @Override
     public void inactiveTick() {

@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.fml.common;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.MinecraftDummyContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import java.util.Optional;
 
 @Mixin(MinecraftDummyContainer.class)
-public abstract class MixinMinecraftDummyContainerServer extends DummyModContainer implements PluginContainer {
+public abstract class MixinMinecraftDummyContainerServer implements PluginContainer {
 
     @Override
     public Logger getLogger() {
@@ -43,7 +42,7 @@ public abstract class MixinMinecraftDummyContainerServer extends DummyModContain
     }
 
     @Override
-    public Optional<Object> getInstance() {
+    public Optional<MinecraftServer> getInstance() {
         return Optional.ofNullable(MinecraftServer.getServer());
     }
 

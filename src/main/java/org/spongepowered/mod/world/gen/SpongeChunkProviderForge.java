@@ -210,22 +210,11 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         }
 
         org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
-                SpongeEventFactory.createPopulateChunkEventPost(populateCause, Collections.emptyMap(), chunk);
+                SpongeEventFactory.createPopulateChunkEventPost(populateCause, ImmutableList.copyOf(populators), chunk);
         SpongeImpl.postEvent(event);
-
-        causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.RESTORING_BLOCKS, PhaseContext.start()
-                .add(sourceCause)
-                .add(chunkProviderCause)
-                .complete());
-        for (List<Transaction<BlockSnapshot>> transactions : event.getPopulatedTransactions().values()) {
-            causeTracker.markAndNotifyBlockPost(transactions, CaptureType.POPULATE, populateCause);
-        }
-        // unwind for block restoration
-        causeTracker.completePhase();
 
         // unwind for terrain generation
         causeTracker.completePhase();
-
 
         BlockFalling.fallInstantly = false;
     }

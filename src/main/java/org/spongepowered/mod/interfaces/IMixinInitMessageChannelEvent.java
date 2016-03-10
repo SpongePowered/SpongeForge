@@ -24,14 +24,14 @@
  */
 package org.spongepowered.mod.interfaces;
 
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.text.channel.MessageChannel;
 
 import javax.annotation.Nullable;
 
 public interface IMixinInitMessageChannelEvent {
 
-    void initMessage(@Nullable Text original, @Nullable Text message);
+    void initMessage(MessageEvent.MessageFormatter formatter, boolean messageCancelled);
 
     void initChannel(MessageChannel original, @Nullable MessageChannel channel);
 }

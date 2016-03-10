@@ -24,10 +24,8 @@
  */
 package org.spongepowered.mod.interfaces;
 
-import org.spongepowered.api.text.Text;
+public interface IMixinModMetadata {
 
-public interface IMixinEventPlayerChat {
-
-    void setRawMessage(Text rawMessage);
+    String getAssetDirectory();
 
 }

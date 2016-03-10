@@ -95,7 +95,7 @@ public abstract class MixinEventPlayerInteractBlock extends MixinEventPlayer imp
 
     @Override
     public Optional<Vector3d> getInteractionPoint() {
-        return Optional.ofNullable(localPos == null ? null : new Vector3d(localPos.xCoord, localPos.yCoord, localPos.zCoord));
+        return Optional.ofNullable(this.localPos == null ? null : new Vector3d(this.localPos.xCoord, this.localPos.yCoord, this.localPos.zCoord));
     }
 
     @Override
