@@ -76,7 +76,7 @@ public interface MixinModContainer extends ModContainer {
         ModMetadata meta = getMetadata();
         if (meta != null) {
             String path = ((IMixinModMetadata) meta).getAssetDirectory();
-            return !path.isEmpty() ? Optional.of(Paths.get(path)) : Optional.empty();
+            return path != null && !path.isEmpty() ? Optional.of(Paths.get(path)) : Optional.empty();
         }
         return Optional.empty();
     }
