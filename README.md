@@ -1,7 +1,7 @@
 SpongeForge [![Build Status](https://travis-ci.org/SpongePowered/SpongeForge.svg?branch=master)](https://travis-ci.org/SpongePowered/SpongeForge)
 =============
 
-**Currently not stable and under heavy development!**
+**Currently in Beta stage!**
 
 A Forge implementation of the Sponge API.
 
