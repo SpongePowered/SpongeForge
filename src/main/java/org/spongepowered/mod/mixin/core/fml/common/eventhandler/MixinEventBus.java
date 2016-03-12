@@ -32,6 +32,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,7 +40,6 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.util.StaticMixinHelper;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
@@ -62,7 +62,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
     public boolean post(Event event, boolean forgeOnly) {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
-        if (!forgeOnly && event instanceof org.spongepowered.api.event.Event && !SpongeMod.instance.isClientThread()) {
+        if (!forgeOnly && event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
             if (event instanceof BlockEvent.PlaceEvent || event instanceof BlockEvent.BreakEvent || event instanceof ItemTossEvent ||
                     (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent)) {
                 return false; // let the event happen, we will just capture it

@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.world.gen;
 
-import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.util.BlockPos;
@@ -46,11 +44,9 @@ import net.minecraftforge.event.terraingen.PopulateChunkEvent.Populate;
 import net.minecraftforge.event.terraingen.TerrainGen;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.StoneType;
 import org.spongepowered.api.data.type.StoneTypes;
@@ -64,7 +60,6 @@ import org.spongepowered.api.world.extent.ImmutableBiomeArea;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GenerationPopulator;
 import org.spongepowered.api.world.gen.Populator;
-import org.spongepowered.api.world.gen.PopulatorType;
 import org.spongepowered.api.world.gen.populator.BigMushroom;
 import org.spongepowered.api.world.gen.populator.Cactus;
 import org.spongepowered.api.world.gen.populator.DeadBush;
@@ -93,7 +88,6 @@ import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.common.world.CaptureType;
 import org.spongepowered.common.world.gen.SpongeChunkProvider;
 import org.spongepowered.common.world.gen.SpongeGenerationPopulator;
 import org.spongepowered.common.world.gen.WorldGenConstants;
@@ -103,10 +97,7 @@ import org.spongepowered.common.world.gen.populators.SnowPopulator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -135,7 +126,6 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         final CauseTracker causeTracker = world.getCauseTracker();
         final NamedCause sourceCause = NamedCause.source(this);
         final NamedCause chunkProviderCause = NamedCause.of("ChunkProvider", chunkProvider);
-        final Map<PopulatorType, LinkedHashMap<Vector3i, Transaction<BlockSnapshot>>> capturedPopulators = new HashMap<>();
         causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
                 .add(sourceCause)
                 .add(chunkProviderCause)
