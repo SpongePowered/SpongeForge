@@ -59,6 +59,7 @@ import org.spongepowered.common.event.tracking.TrackingHelper;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.interfaces.IMixinInitMessageChannelEvent;
 import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
@@ -131,7 +132,7 @@ public abstract class MixinSpongeImplHooks {
     // Required for torches and comparators
     @Overwrite
     public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
-        final CauseTracker causeTracker = ((IMixinWorld) world).getCauseTracker();
+        final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
         final PhaseData currentPhase = causeTracker.getPhases().peek();
         final PhaseContext phaseContext = currentPhase.getContext();
         final Optional<User> sourcePlayer = phaseContext.firstNamed(TrackingHelper.PACKET_PLAYER, User.class);

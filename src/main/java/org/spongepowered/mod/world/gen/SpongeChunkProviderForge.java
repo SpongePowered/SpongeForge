@@ -84,6 +84,7 @@ import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.WorldPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.util.StaticMixinHelper;
@@ -122,15 +123,13 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
 
     @Override
     public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ) {
-        IMixinWorld world = (IMixinWorld) this.world;
+        IMixinWorldServer world = (IMixinWorldServer) this.world;
+        // We just get the cause tracker for population tracking at this point.
+        // Everything else is handled in MixinChunkProviderServer
         final CauseTracker causeTracker = world.getCauseTracker();
-        final NamedCause sourceCause = NamedCause.source(this);
-        final NamedCause chunkProviderCause = NamedCause.of("ChunkProvider", chunkProvider);
-        causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
-                .add(sourceCause)
-                .add(chunkProviderCause)
-                .complete());
-        Cause populateCause = Cause.of(sourceCause, chunkProviderCause);
+        final Object source = causeTracker.getPhases().peek().getContext().firstNamed(NamedCause.SOURCE, Object.class).get();
+
+        final Cause populateCause = Cause.of(NamedCause.source(source), NamedCause.of(TrackingHelper.CHUNK_PROVIDER, chunkProvider));
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -171,6 +170,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Pre(this.world, this.rand, blockpos));
         List<String> flags = Lists.newArrayList();
         for (Populator populator : populators) {
+            // Finer grained tracking phase
             causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
                     .add(NamedCause.of(TrackingHelper.CAPTURED_POPULATOR, populator.getType()))
                     .addCaptures()
@@ -202,9 +202,6 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
                 SpongeEventFactory.createPopulateChunkEventPost(populateCause, ImmutableList.copyOf(populators), chunk);
         SpongeImpl.postEvent(event);
-
-        // unwind for terrain generation
-        causeTracker.completePhase();
 
         BlockFalling.fallInstantly = false;
     }

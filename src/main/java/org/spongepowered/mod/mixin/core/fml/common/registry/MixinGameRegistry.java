@@ -37,6 +37,7 @@ import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.WorldPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 
 @NonnullByDefault
 @Mixin(value = GameRegistry.class, remap = false)
@@ -45,7 +46,7 @@ public class MixinGameRegistry {
     @Inject(method = "generateWorld", at = @At(value = "HEAD"))
     private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
-        IMixinWorld spongeWorld = (IMixinWorld) world;
+        IMixinWorldServer spongeWorld = (IMixinWorldServer) world;
         spongeWorld.getCauseTracker().switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
             .add(NamedCause.source(world))
             .add(NamedCause.of("ChunkGenerator", chunkGenerator))
@@ -56,7 +57,7 @@ public class MixinGameRegistry {
     @Inject(method = "generateWorld", at = @At(value = "RETURN"))
     private static void onGenerateWorldReturn(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
-        IMixinWorld spongeWorld = (IMixinWorld) world;
+        IMixinWorldServer spongeWorld = (IMixinWorldServer) world;
         spongeWorld.getCauseTracker().completePhase();
     }
 }
