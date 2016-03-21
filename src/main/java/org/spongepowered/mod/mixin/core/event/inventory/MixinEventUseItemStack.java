@@ -95,6 +95,12 @@ public abstract class MixinEventUseItemStack extends MixinEventPlayer implements
 
         @Inject(method = "<init>", at = @At("RETURN"))
         public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, net.minecraft.item.ItemStack result, CallbackInfo ci) {
+            // some mods use null to clear the stack, proper way is to set stackSize to 0, so to be valid in Sponge
+            // convert this method to a Sponge compatible 0 stack.
+            if (result == null) {
+                result = item.copy();
+                result.stackSize = 0;
+            }
             this.itemResultSnapshot = ((ItemStack) (Object) result).createSnapshot();
             this.itemResultTransaction = new Transaction<>(this.itemResultSnapshot, this.itemResultSnapshot.copy());
         }
