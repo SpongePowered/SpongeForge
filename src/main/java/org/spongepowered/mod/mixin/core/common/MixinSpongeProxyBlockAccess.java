@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.world.SpongeProxyBlockAccess;
 
 @Mixin(SpongeProxyBlockAccess.class)
-public class MixinSpongeProxyBlockAccess {
+public abstract class MixinSpongeProxyBlockAccess implements IBlockAccess {
 
     @Shadow @Final IBlockAccess original;
 
@@ -43,18 +43,22 @@ public class MixinSpongeProxyBlockAccess {
     // don't break when trying to call these methods on the SpongeProxyBlockAccess
     // we pass in
 
+    @Override
     public int getCombinedLight(BlockPos pos, int lightValue) {
         return this.original.getCombinedLight(pos, lightValue);
     }
 
+    @Override
     public BiomeGenBase getBiomeGenForCoords(BlockPos pos) {
         return this.original.getBiomeGenForCoords(pos);
     }
 
+    @Override
     public boolean extendedLevelsInChunkCache() {
         return this.original.extendedLevelsInChunkCache();
     }
 
+    @Override
     public WorldType getWorldType() {
         return this.original.getWorldType();
     }
