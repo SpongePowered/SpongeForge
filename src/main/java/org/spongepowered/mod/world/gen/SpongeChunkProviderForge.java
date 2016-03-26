@@ -78,16 +78,13 @@ import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.tracking.PhaseContext;
-import org.spongepowered.common.event.tracking.TrackingHelper;
-import org.spongepowered.common.event.tracking.phase.BlockPhase;
+import org.spongepowered.common.event.tracking.TrackingUtil;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.WorldPhase;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
-import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.common.world.gen.SpongeChunkProvider;
 import org.spongepowered.common.world.gen.SpongeGenerationPopulator;
@@ -96,7 +93,6 @@ import org.spongepowered.common.world.gen.populators.AnimalPopulator;
 import org.spongepowered.common.world.gen.populators.SnowPopulator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -129,7 +125,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         final CauseTracker causeTracker = world.getCauseTracker();
         final Object source = causeTracker.getPhases().peek().getContext().firstNamed(NamedCause.SOURCE, Object.class).get();
 
-        final Cause populateCause = Cause.of(NamedCause.source(source), NamedCause.of(TrackingHelper.CHUNK_PROVIDER, chunkProvider));
+        final Cause populateCause = Cause.of(NamedCause.source(source), NamedCause.of(TrackingUtil.CHUNK_PROVIDER, chunkProvider));
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -172,7 +168,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         for (Populator populator : populators) {
             // Finer grained tracking phase
             causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
-                    .add(NamedCause.of(TrackingHelper.CAPTURED_POPULATOR, populator.getType()))
+                    .add(NamedCause.of(TrackingUtil.CAPTURED_POPULATOR, populator.getType()))
                     .addCaptures()
                     .complete());
             if (!checkForgeEvent(populator, chunkProvider, chunkX, chunkZ, flags, chunk)) {
