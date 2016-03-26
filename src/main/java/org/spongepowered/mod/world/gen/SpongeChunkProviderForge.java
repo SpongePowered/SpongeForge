@@ -123,7 +123,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         // We just get the cause tracker for population tracking at this point.
         // Everything else is handled in MixinChunkProviderServer
         final CauseTracker causeTracker = world.getCauseTracker();
-        final Object source = causeTracker.getPhases().peek().getContext().firstNamed(NamedCause.SOURCE, Object.class).get();
+        final Object source = causeTracker.getStack().peek().getContext().firstNamed(NamedCause.SOURCE, Object.class).get();
 
         final Cause populateCause = Cause.of(NamedCause.source(source), NamedCause.of(TrackingUtil.CHUNK_PROVIDER, chunkProvider));
         this.rand.setSeed(this.world.getSeed());

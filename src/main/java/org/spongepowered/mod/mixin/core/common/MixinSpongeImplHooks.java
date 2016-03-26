@@ -127,7 +127,7 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
         final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
-        final PhaseData currentPhase = causeTracker.getPhases().peek();
+        final PhaseData currentPhase = causeTracker.getStack().peek();
         final PhaseContext phaseContext = currentPhase.getContext();
         final Optional<User> sourcePlayer = phaseContext.firstNamed(TrackingUtil.PACKET_PLAYER, User.class);
         final Optional<User> notifier = phaseContext.firstNamed(NamedCause.NOTIFIER, User.class);

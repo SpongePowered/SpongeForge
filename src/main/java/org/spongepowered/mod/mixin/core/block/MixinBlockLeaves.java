@@ -47,7 +47,7 @@ public abstract class MixinBlockLeaves extends MixinBlock {
     public void onBreakBlock(Block block, World worldIn, BlockPos pos) {
         IMixinWorldServer spongeWorld = (IMixinWorldServer) worldIn;
         final CauseTracker causeTracker = spongeWorld.getCauseTracker();
-        final boolean isBlockAlready = causeTracker.getPhases().current() != TrackingPhases.BLOCK;
+        final boolean isBlockAlready = causeTracker.getStack().current() != TrackingPhases.BLOCK;
         if (isBlockAlready) {
             causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.BLOCK_DECAY, PhaseContext.start()
                     .addCaptures()
