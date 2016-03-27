@@ -40,7 +40,7 @@ public class MixinGameRegistry {
 
     private static boolean prevCapturingTerrain;
 
-    @Inject(method = "generateWorld", at = @At(value = "HEAD"))
+    @Inject(method = "generateWorld", at = @At(value = "INVOKE", target = "Ljava/util/Random;setSeed(J)V"))
     private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
