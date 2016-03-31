@@ -205,16 +205,16 @@ public class ActivationRange {
      *
      * @param chunk Chunk to check for activation
      */
-    @SuppressWarnings("rawtypes")
     private static void activateChunkEntities(Chunk chunk) {
         for (int i = 0; i < chunk.getEntityLists().length; ++i) {
 
             for (Object o : chunk.getEntityLists()[i]) {
                 Entity entity = (Entity) o;
                 SpongeConfig<?> config = getActiveConfig(entity.worldObj);
-                // TODO
-                if (config == null) continue;
                 SpongeEntityType type = (SpongeEntityType) ((org.spongepowered.api.entity.Entity) entity).getType();
+                if (config == null || type == null) {
+                    continue;
+                }
                 if (entity.worldObj.getWorldInfo().getWorldTotalTime() > ((IMixinEntity) entity).getActivatedTick()) {
                     if (((IMixinEntity) entity).getDefaultActivationState()) {
                         ((IMixinEntity) entity).setActivatedTick(entity.worldObj.getWorldInfo().getWorldTotalTime());
