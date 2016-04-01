@@ -24,8 +24,15 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.util.AxisAlignedBB;
 import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import java.util.Collections;
+import java.util.List;
 
 @Mixin(net.minecraft.world.Explosion.class)
 public abstract class MixinExplosion implements Explosion {
@@ -48,5 +55,10 @@ public abstract class MixinExplosion implements Explosion {
             }
         }
     }*/
+
+    @Redirect(method = "doExplosionA", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntitiesWithinAABBExcludingEntity(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/AxisAlignedBB;)Ljava/util/List;"))
+    private List<Entity> getEntities(net.minecraft.world.World world, Entity ignored, AxisAlignedBB axisAlignedBB) {
+        return this.shouldDamageEntities() ? world.getEntitiesWithinAABBExcludingEntity(ignored, axisAlignedBB) : Collections.emptyList();
+    }
 
 }

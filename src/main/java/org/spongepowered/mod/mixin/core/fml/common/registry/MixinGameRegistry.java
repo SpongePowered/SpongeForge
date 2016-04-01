@@ -38,13 +38,10 @@ import org.spongepowered.common.interfaces.world.IMixinWorld;
 @Mixin(value = GameRegistry.class, remap = false)
 public class MixinGameRegistry {
 
-    private static boolean prevCapturingTerrain;
-
-    @Inject(method = "generateWorld", at = @At(value = "HEAD"))
+    @Inject(method = "generateWorld", at = @At(value = "INVOKE", target = "Ljava/util/Random;setSeed(J)V"))
     private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
-        prevCapturingTerrain = spongeWorld.getCauseTracker().isCapturingTerrainGen();
         spongeWorld.getCauseTracker().setCapturingTerrainGen(true);
     }
 
@@ -52,6 +49,6 @@ public class MixinGameRegistry {
     private static void onGenerateWorldReturn(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.getCauseTracker().setCapturingTerrainGen(prevCapturingTerrain);
+        spongeWorld.getCauseTracker().setCapturingTerrainGen(false);
     }
 }

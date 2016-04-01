@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.world.gen;
 
-import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.util.BlockPos;
@@ -46,11 +44,9 @@ import net.minecraftforge.event.terraingen.PopulateChunkEvent.Populate;
 import net.minecraftforge.event.terraingen.TerrainGen;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.StoneType;
 import org.spongepowered.api.data.type.StoneTypes;
@@ -64,7 +60,6 @@ import org.spongepowered.api.world.extent.ImmutableBiomeArea;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GenerationPopulator;
 import org.spongepowered.api.world.gen.Populator;
-import org.spongepowered.api.world.gen.PopulatorType;
 import org.spongepowered.api.world.gen.populator.BigMushroom;
 import org.spongepowered.api.world.gen.populator.Cactus;
 import org.spongepowered.api.world.gen.populator.DeadBush;
@@ -82,13 +77,10 @@ import org.spongepowered.api.world.gen.populator.SeaFloor;
 import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.event.CauseTracker;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.common.world.CaptureType;
 import org.spongepowered.common.world.gen.SpongeChunkProvider;
 import org.spongepowered.common.world.gen.SpongeGenerationPopulator;
 import org.spongepowered.common.world.gen.WorldGenConstants;
@@ -97,9 +89,7 @@ import org.spongepowered.common.world.gen.populators.SnowPopulator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -124,9 +114,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
 
     @Override
     public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ) {
-        IMixinWorld world = (IMixinWorld) this.world;
         Cause populateCause = Cause.of(NamedCause.source(this), NamedCause.of("ChunkProvider", chunkProvider));
-        CauseTracker causeTracker = world.getCauseTracker();
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -195,9 +183,6 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
                 SpongeEventFactory.createPopulateChunkEventPost(populateCause, ImmutableList.copyOf(populators), chunk);
         SpongeImpl.postEvent(event);
-
-
-        causeTracker.getCapturedPopulators().clear();
 
         BlockFalling.fallInstantly = false;
     }

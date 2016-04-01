@@ -11,6 +11,7 @@
         "block.MixinBlockOldLeaf",
         "block.MixinBlockRailBase",
         "common.MixinSpongeImplHooks",
+        "common.MixinSpongeProxyBlockAccess",
         "common.fluid.MixinSpongeFluidStackBuilder",
         "common.world.MixinDimensionManager",
         "entity.MixinEntity",

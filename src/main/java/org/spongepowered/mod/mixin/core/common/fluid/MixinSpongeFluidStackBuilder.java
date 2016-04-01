@@ -35,7 +35,7 @@ import org.spongepowered.api.extra.fluid.FluidType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.data.builder.AbstractDataBuilder;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.extra.fluid.SpongeFluidStackBuilder;
 

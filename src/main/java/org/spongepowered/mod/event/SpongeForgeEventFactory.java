@@ -658,13 +658,13 @@ public class SpongeForgeEventFactory {
             throw new IllegalArgumentException("Event is not a valid DropItemEvent.Dispense event.");
         }
 
-        if (!(event.getCause().root() instanceof Player)) {
-            return null;
+        Optional<Player> player = event.getCause().first(Player.class);
+        if (player.isPresent()) {
+            DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
+            ItemTossEvent forgeEvent = new ItemTossEvent((EntityItem) spongeEvent.getEntities().get(0), (EntityPlayer) player.get());
+            return forgeEvent;
         }
-
-        DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
-        ItemTossEvent forgeEvent = new ItemTossEvent((EntityItem) spongeEvent.getEntities().get(0), (EntityPlayerMP) event.getCause().root());
-        return forgeEvent;
+        return null;
     }
 
     // World events

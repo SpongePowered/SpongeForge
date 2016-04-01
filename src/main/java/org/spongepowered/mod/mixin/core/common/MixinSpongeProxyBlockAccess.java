@@ -22,21 +22,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.fml.common;
+package org.spongepowered.mod.mixin.core.common;
 
-import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.WorldType;
+import net.minecraft.world.biome.BiomeGenBase;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.mod.interfaces.IMixinModMetadata;
-import org.spongepowered.plugin.meta.SpongeExtension;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.world.SpongeProxyBlockAccess;
 
-@Mixin(value = ModMetadata.class, remap = false)
-public abstract class MixinModMetadata implements IMixinModMetadata {
+@Mixin(SpongeProxyBlockAccess.class)
+public abstract class MixinSpongeProxyBlockAccess implements IBlockAccess {
 
-    public SpongeExtension sponge = new SpongeExtension();
+    @Shadow @Final IBlockAccess original;
+
+    // These methods are @SideOnly(Side.CLIENT)
+    // We only mix them in in SpongeForge, so that mod blocks
+    // don't break when trying to call these methods on the SpongeProxyBlockAccess
+    // we pass in
 
     @Override
-    public String getAssetDirectory() {
-        return this.sponge.getAssetDirectory();
+    public int getCombinedLight(BlockPos pos, int lightValue) {
+        return this.original.getCombinedLight(pos, lightValue);
     }
 
+    @Override
+    public BiomeGenBase getBiomeGenForCoords(BlockPos pos) {
+        return this.original.getBiomeGenForCoords(pos);
+    }
+
+    @Override
+    public boolean extendedLevelsInChunkCache() {
+        return this.original.extendedLevelsInChunkCache();
+    }
+
+    @Override
+    public WorldType getWorldType() {
+        return this.original.getWorldType();
+    }
 }
