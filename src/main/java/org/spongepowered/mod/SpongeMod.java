@@ -263,6 +263,8 @@ public class SpongeMod extends DummyModContainer {
 
     @Subscribe
     public void onServerStarted(FMLServerStartedEvent event) {
+        // This is intentionally called multiple times on the client -
+        // once for each time a new server is started (when a world is selected from the gui)
         SpongePlayerDataHandler.init();
         try {
             ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
