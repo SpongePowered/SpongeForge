@@ -77,8 +77,8 @@ import org.spongepowered.api.world.gen.populator.SeaFloor;
 import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.event.InternalNamedCauses;
 import org.spongepowered.common.event.tracking.PhaseContext;
-import org.spongepowered.common.event.tracking.TrackingUtil;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.WorldPhase;
@@ -125,7 +125,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         final CauseTracker causeTracker = world.getCauseTracker();
         final Object source = causeTracker.getStack().peek().getContext().firstNamed(NamedCause.SOURCE, Object.class).get();
 
-        final Cause populateCause = Cause.of(NamedCause.source(source), NamedCause.of(TrackingUtil.CHUNK_PROVIDER, chunkProvider));
+        final Cause populateCause = Cause.of(NamedCause.source(source), NamedCause.of(InternalNamedCauses.WorldGeneration.CHUNK_PROVIDER, chunkProvider));
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -168,7 +168,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
         for (Populator populator : populators) {
             // Finer grained tracking phase
             causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
-                    .add(NamedCause.of(TrackingUtil.CAPTURED_POPULATOR, populator.getType()))
+                    .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, populator.getType()))
                     .addCaptures()
                     .complete());
             if (!checkForgeEvent(populator, chunkProvider, chunkX, chunkZ, flags, chunk)) {

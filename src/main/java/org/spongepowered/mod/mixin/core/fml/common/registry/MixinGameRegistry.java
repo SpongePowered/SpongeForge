@@ -33,11 +33,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.event.InternalNamedCauses;
 import org.spongepowered.common.event.tracking.PhaseContext;
-import org.spongepowered.common.event.tracking.TrackingUtil;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.WorldPhase;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 
 @NonnullByDefault
@@ -50,7 +49,7 @@ public class MixinGameRegistry {
         IMixinWorldServer spongeWorld = (IMixinWorldServer) world;
         spongeWorld.getCauseTracker().switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
                 .add(NamedCause.source(chunkGenerator))
-                .add(NamedCause.of(TrackingUtil.CHUNK_PROVIDER, chunkProvider))
+                .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CHUNK_PROVIDER, chunkProvider))
                 .addCaptures()
                 .complete());
     }
