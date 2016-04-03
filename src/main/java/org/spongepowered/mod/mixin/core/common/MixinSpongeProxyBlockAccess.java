@@ -22,29 +22,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.entity;
+package org.spongepowered.mod.mixin.core.common;
 
-import net.minecraftforge.event.entity.EntityEvent;
-import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.entity.Transform;
-import org.spongepowered.api.event.entity.ConstructEntityEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.World;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.WorldType;
+import net.minecraft.world.biome.BiomeGenBase;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.world.SpongeProxyBlockAccess;
 
-@NonnullByDefault
-@Mixin(value = EntityEvent.EntityConstructing.class, remap = false)
-public abstract class MixinEventEntityConstructing extends MixinEventEntity implements ConstructEntityEvent.Post {
+@Mixin(SpongeProxyBlockAccess.class)
+public abstract class MixinSpongeProxyBlockAccess implements IBlockAccess {
+
+    @Shadow @Final IBlockAccess original;
+
+    // These methods are @SideOnly(Side.CLIENT)
+    // We only mix them in in SpongeForge, so that mod blocks
+    // don't break when trying to call these methods on the SpongeProxyBlockAccess
+    // we pass in
 
     @Override
-    public Transform<World> getTransform() {
-        return EntityUtil.fromNative(this.entity).getTransform();
+    public int getCombinedLight(BlockPos pos, int lightValue) {
+        return this.original.getCombinedLight(pos, lightValue);
     }
 
     @Override
-    public EntityType getTargetType() {
-        return EntityUtil.fromNative(this.entity).getType();
+    public BiomeGenBase getBiomeGenForCoords(BlockPos pos) {
+        return this.original.getBiomeGenForCoords(pos);
     }
 
+    @Override
+    public boolean extendedLevelsInChunkCache() {
+        return this.original.extendedLevelsInChunkCache();
+    }
+
+    @Override
+    public WorldType getWorldType() {
+        return this.original.getWorldType();
+    }
 }
