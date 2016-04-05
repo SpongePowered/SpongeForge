@@ -29,9 +29,8 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.Item;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -49,14 +48,14 @@ import java.util.function.Predicate;
 @Mixin(EntityItemPickupEvent.class)
 public abstract class MixinEventEntityItemPickup extends MixinEventPlayer implements CollideEntityEvent {
 
-    protected ImmutableList<Entity> originalEntities;
+    protected ImmutableList<EntitySnapshot> originalEntities;
     protected List<Entity> entities;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, EntityItem item, CallbackInfo ci) {
         this.entities = new ArrayList<>();
         this.entities.add((Entity) item);
-        this.originalEntities = ImmutableList.of((Entity) item);
+        this.originalEntities = ImmutableList.of(((Entity) item).createSnapshot());
     }
 
     @Override
@@ -87,7 +86,7 @@ public abstract class MixinEventEntityItemPickup extends MixinEventPlayer implem
     }
 
     @Override
-    public List<Entity> getOriginalEntities() {
+    public List<EntitySnapshot> getEntitySnapshots() {
         return this.originalEntities;
     }
 
