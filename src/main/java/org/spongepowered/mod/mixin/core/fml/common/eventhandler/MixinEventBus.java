@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 import com.google.common.base.Throwables;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
@@ -63,7 +64,8 @@ public abstract class MixinEventBus implements IMixinEventBus {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
         if (!forgeOnly && event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
-            if (event instanceof BlockEvent.PlaceEvent || event instanceof BlockEvent.BreakEvent || event instanceof ItemTossEvent ||
+            if (event instanceof BlockEvent.PlaceEvent || event instanceof BlockEvent.BreakEvent || event instanceof ItemTossEvent
+                    || event instanceof EntityInteractEvent ||
                     (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent)) {
                 return false; // let the event happen, we will just capture it
             }

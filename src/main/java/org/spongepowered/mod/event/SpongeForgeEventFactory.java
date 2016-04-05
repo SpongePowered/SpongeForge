@@ -172,7 +172,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == BonemealEvent.class) {
 
             } else if (clazz == EntityInteractEvent.class) {
-                return createEntityInteractEvent(event);
+
             } else if (clazz == EntityItemPickupEvent.class) {
 
             } else if (clazz == FillBucketEvent.class) {
@@ -335,6 +335,8 @@ public class SpongeForgeEventFactory {
     public static Event callForgeEvent(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
         if (EntityItemPickupEvent.class.isAssignableFrom(clazz)) {
             return callEntityItemPickupEvent(spongeEvent);
+        } else if (EntityInteractEvent.class.isAssignableFrom(clazz)) {
+            return callEntityInteractEvent(spongeEvent);
         } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
             return callEntityJoinWorldEvent(spongeEvent);
         } else if (BlockEvent.BreakEvent.class.isAssignableFrom(clazz)) {
@@ -502,25 +504,6 @@ public class SpongeForgeEventFactory {
     }
 
     // Player events
-
-    private static EntityInteractEvent createEntityInteractEvent(Event event) {
-        if (!(event instanceof InteractEntityEvent.Secondary)) {
-            throw new IllegalArgumentException("Event " + event + " is not a valid InteractEntityEvent.");
-        }
-
-        InteractEntityEvent.Secondary spongeEvent = (InteractEntityEvent.Secondary) event;
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
-        if (!player.isPresent()) {
-            return null;
-        }
-
-        final EntityPlayer entityPlayer = (EntityPlayer) player.get();
-        final Entity entity = (Entity) spongeEvent.getTargetEntity();
-
-        EntityInteractEvent forgeEvent = new EntityInteractEvent(entityPlayer, entity);
-        return forgeEvent;
-    }
-
     private static PlayerInteractEvent createPlayerInteractEvent(Event event) {
         if (!(event instanceof InteractBlockEvent)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid InteractBlockEvent.");
@@ -980,6 +963,29 @@ public class SpongeForgeEventFactory {
                 }
             }
         }
+        return spongeEvent;
+    }
+
+    private static InteractEntityEvent.Secondary callEntityInteractEvent(Event event) {
+        if (!(event instanceof InteractEntityEvent.Secondary)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid InteractEntityEvent.");
+        }
+
+        InteractEntityEvent.Secondary spongeEvent = (InteractEntityEvent.Secondary) event;
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        if (!player.isPresent()) {
+            return null;
+        }
+
+        final EntityPlayer entityPlayer = (EntityPlayer) player.get();
+        final Entity entity = (Entity) spongeEvent.getTargetEntity();
+
+        EntityInteractEvent forgeEvent = new EntityInteractEvent(entityPlayer, entity);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+        if (forgeEvent.isCanceled()) {
+            spongeEvent.setCancelled(true);
+        }
+
         return spongeEvent;
     }
 }
