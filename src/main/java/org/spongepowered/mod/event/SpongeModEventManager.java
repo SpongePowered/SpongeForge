@@ -125,7 +125,6 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(InteractBlockEvent.Primary.class, PlayerInteractEvent.class)
                     .put(InteractBlockEvent.Secondary.class, PlayerInteractEvent.class)
                     .put(InteractEntityEvent.Primary.class, AttackEntityEvent.class)
-                    .put(InteractEntityEvent.Secondary.class, EntityInteractEvent.class)
                     .put(TargetWorldEvent.class, WorldEvent.class)
                     .put(LoadWorldEvent.class, WorldEvent.Load.class)
                     .put(SaveWorldEvent.class, WorldEvent.Save.class)
@@ -142,6 +141,7 @@ public class SpongeModEventManager extends SpongeEventManager {
     public static final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventBulkMappings =
             new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
                 .put(CollideEntityEvent.class, EntityItemPickupEvent.class)
+                .put(InteractEntityEvent.Secondary.class, EntityInteractEvent.class)
                 .put(SpawnEntityEvent.class, EntityJoinWorldEvent.class)
                 .put(ChangeBlockEvent.Break.class, BlockEvent.BreakEvent.class)
                 .put(ChangeBlockEvent.Place.class, BlockEvent.PlaceEvent.class)
