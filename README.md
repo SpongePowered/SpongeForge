@@ -37,6 +37,7 @@ __For [Eclipse]__
   2. Import Sponge as an existing project (File > Import > General)
   3. Select the root folder for SpongeForge and make sure `Search for nested projects` is enabled
   4. Check Sponge when it finishes building and click **Finish**
+  5. The generated project does not contain the java6 source folder by default, make sure to add that to your project sources
 
 __For [IntelliJ]__
   1. Make sure you have the Gradle plugin enabled (File > Settings > Plugins).  
