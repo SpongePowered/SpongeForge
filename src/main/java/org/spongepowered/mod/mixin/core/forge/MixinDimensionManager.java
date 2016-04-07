@@ -51,6 +51,7 @@ import org.spongepowered.common.world.SpongeWorldCreationSettingsBuilder;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
@@ -83,7 +84,7 @@ public abstract class MixinDimensionManager {
                 worldType = "the_end";
                 break;
             default:
-                worldType = provider.getSimpleName().toLowerCase();
+                worldType = provider.getSimpleName().toLowerCase(Locale.ENGLISH);
                 worldType = worldType.replace("worldprovider", "");
                 worldType = worldType.replace("provider", "");
         }
@@ -91,7 +92,7 @@ public abstract class MixinDimensionManager {
         // Grab provider name if available
         try {
             final WorldProvider worldProvider = provider.newInstance();
-            worldType = worldProvider.getDimensionName().toLowerCase().replace(" ", "_").replace("[^A-Za-z0-9_]", "");
+            worldType = worldProvider.getDimensionName().toLowerCase(Locale.ENGLISH).replace(" ", "_").replace("[^A-Za-z0-9_]", "");
         } catch (Exception e) {
             // ignore
         }
