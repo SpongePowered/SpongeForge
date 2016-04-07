@@ -103,7 +103,6 @@ public abstract class MixinItemInWorldManager {
                     Optional.of(new Vector3d(offsetX, offsetY, offsetZ)), currentSnapshot, DirectionFacingProvider.getInstance().getKey(side).get());
 
             if (event.isCancelled()) {
-                System.out.println("EVENT CANCELLED!");
                 if (SpongeImpl.postEvent(event)) {
                     final IBlockState state = worldIn.getBlockState(pos);
 
