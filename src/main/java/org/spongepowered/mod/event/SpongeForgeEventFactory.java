@@ -37,6 +37,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
@@ -87,7 +88,6 @@ import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
@@ -97,9 +97,6 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
-import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
-import org.spongepowered.api.event.item.inventory.DropItemEvent;
-import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
@@ -186,7 +183,7 @@ public class SpongeForgeEventFactory {
             } else if (clazz == PlayerFlyableFallEvent.class) {
 
             } else if (clazz == PlayerInteractEvent.class) {
-                return createPlayerInteractEvent(event);
+
             } else if (clazz == PlayerOpenContainerEvent.class) {
 
             } else if (clazz == PlayerPickupXpEvent.class) {
@@ -343,6 +340,8 @@ public class SpongeForgeEventFactory {
             return callBlockBreakEvent(spongeEvent);
         } else if (BlockEvent.PlaceEvent.class.isAssignableFrom(clazz)) {
             return callBlockPlaceEvent(spongeEvent);
+        } else if (PlayerInteractEvent.class.isAssignableFrom(clazz)) {
+            createPlayerInteractEvent(spongeEvent);
         }
         return spongeEvent;
     }
@@ -504,44 +503,6 @@ public class SpongeForgeEventFactory {
     }
 
     // Player events
-    private static PlayerInteractEvent createPlayerInteractEvent(Event event) {
-        if (!(event instanceof InteractBlockEvent)) {
-            throw new IllegalArgumentException("Event " + event + " is not a valid InteractBlockEvent.");
-        }
-
-        InteractBlockEvent spongeEvent = (InteractBlockEvent) event;
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
-        if (!player.isPresent()) {
-            return null;
-        }
-
-        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetBlock().getLocation().get().getPosition());
-        Optional<EnumFacing> face = DirectionFacingProvider.getInstance().get(spongeEvent.getTargetSide());
-        Action action = null;
-        if (spongeEvent instanceof InteractBlockEvent.Primary) {
-            action = Action.LEFT_CLICK_BLOCK;
-        } else if (spongeEvent instanceof InteractBlockEvent.Secondary) {
-            if (spongeEvent.getTargetBlock().getState().getType() == BlockTypes.AIR) {
-                action = Action.RIGHT_CLICK_AIR;
-            } else {
-                action = Action.RIGHT_CLICK_BLOCK;
-            }
-        } else { // attempt to determine action
-            EntityPlayer entityplayer = (EntityPlayer) player.get();
-            action = Action.RIGHT_CLICK_BLOCK;
-            if (entityplayer.isUsingItem()) {
-                action = Action.LEFT_CLICK_BLOCK;
-            } else if (entityplayer.worldObj.isAirBlock(pos)) {
-                action = Action.RIGHT_CLICK_AIR;
-            }
-        }
-
-        PlayerInteractEvent forgeEvent =
-                new PlayerInteractEvent((EntityPlayer) player.get(), action, pos, face.isPresent() ? face.get() : null,
-                        (net.minecraft.world.World) player.get().getWorld());
-        return forgeEvent;
-    }
-
     public static PlayerSleepInBedEvent createPlayerSleepInBedEvent(Event event) {
         if (!(event instanceof SleepingEvent.Pre)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid SleepingEvent.Pre event.");
@@ -813,7 +774,6 @@ public class SpongeForgeEventFactory {
     }
 
     // Special handling before Forge events post
-    @SuppressWarnings("unchecked")
     public static void onForgePost(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
         if (forgeEvent instanceof net.minecraftforge.event.world.ExplosionEvent.Detonate) {
             net.minecraftforge.event.world.ExplosionEvent.Detonate explosionEvent =
@@ -832,6 +792,55 @@ public class SpongeForgeEventFactory {
     }
 
     // Bulk Event Handling
+    @SuppressWarnings("deprecation")
+    private static InteractBlockEvent createPlayerInteractEvent(Event event) {
+        if (!(event instanceof InteractBlockEvent)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid InteractBlockEvent.");
+        }
+
+        InteractBlockEvent spongeEvent = (InteractBlockEvent) event;
+        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        // Forge doesn't support left-click AIR
+        // TODO: update for 1.9
+        if (!player.isPresent() || (spongeEvent instanceof InteractBlockEvent.Primary && spongeEvent.getTargetBlock() == BlockSnapshot.NONE)) {
+            return null;
+        }
+
+        BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetBlock().getPosition());
+        Optional<EnumFacing> face = DirectionFacingProvider.getInstance().get(spongeEvent.getTargetSide());
+        Action action = null;
+        if (spongeEvent.getTargetBlock() == BlockSnapshot.NONE) {
+            action = Action.RIGHT_CLICK_BLOCK;
+        } else {
+            if (spongeEvent instanceof InteractBlockEvent.Primary) {
+                action = Action.LEFT_CLICK_BLOCK;
+            } else if (spongeEvent instanceof InteractBlockEvent.Secondary) {
+                action = Action.RIGHT_CLICK_BLOCK;
+            } else { // attempt to determine action
+                EntityPlayer entityplayer = (EntityPlayer) player.get();
+                action = Action.RIGHT_CLICK_BLOCK;
+                if (entityplayer.isUsingItem()) {
+                    action = Action.LEFT_CLICK_BLOCK;
+                }
+            }
+        }
+
+        Vec3 hitVec = null;
+        if (spongeEvent.getInteractionPoint().isPresent()) {
+            hitVec = VecHelper.toVector(spongeEvent.getInteractionPoint().get());
+        }
+
+        PlayerInteractEvent forgeEvent =
+                new PlayerInteractEvent((EntityPlayer) player.get(), action, pos, face.isPresent() ? face.get() : null,
+                        (net.minecraft.world.World) player.get().getWorld(), hitVec);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+        if (forgeEvent.isCanceled()) {
+            spongeEvent.setCancelled(true);
+        }
+
+        return spongeEvent;
+    }
+
     public static CollideEntityEvent callEntityItemPickupEvent(Event event) {
         if (!(event instanceof CollideEntityEvent)) {
             throw new IllegalArgumentException("Event is not a valid CollideEntityEvent.");
