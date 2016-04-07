@@ -51,7 +51,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.entity.player.ISpongeUser;
-import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.registry.type.world.WorldPropertyRegistryModule;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLivingBase;
@@ -72,6 +71,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     @Shadow protected boolean sleeping;
     @Shadow private int sleepTimer;
     @Shadow private BlockPos spawnChunk;
+    @Shadow private boolean spawnForced;
     @Shadow(remap = false) private HashMap<Integer, BlockPos> spawnChunkMap;
     @Shadow(remap = false) private HashMap<Integer, Boolean> spawnForcedMap;
 
@@ -175,12 +175,18 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
             locations.put(WorldPropertyRegistryModule.dimIdToUuid(0), RespawnLocation.builder()
                     .world(WorldPropertyRegistryModule.dimIdToUuid(0))
                     .position(VecHelper.toVector3d(this.spawnChunk))
+                    .forceSpawn(this.spawnForced)
                     .build());
         }
         for (Entry<Integer, BlockPos> entry : this.spawnChunkMap.entrySet()) {
             UUID uuid = WorldPropertyRegistryModule.dimIdToUuid(entry.getKey());
             if (uuid != null) {
-                locations.put(uuid, RespawnLocation.builder().world(uuid).position(VecHelper.toVector3d(entry.getValue())).build());
+                Boolean forced = this.spawnForcedMap.get(entry.getKey());
+                locations.put(uuid, RespawnLocation.builder()
+                        .world(uuid)
+                        .position(VecHelper.toVector3d(entry.getValue()))
+                        .forceSpawn(forced == null ? false : forced)
+                        .build());
             }
         }
         return locations;
@@ -196,8 +202,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         for (Entry<UUID, RespawnLocation> entry : locations.entrySet()) {
             int dim = WorldPropertyRegistryModule.uuidToDimId(entry.getKey());
             if (dim != Integer.MIN_VALUE) {
-                // Note: No way to set 'force' parameter
-                setSpawnChunk(VecHelper.toBlockPos(entry.getValue().getPosition()), false, dim);
+                setSpawnChunk(VecHelper.toBlockPos(entry.getValue().getPosition()), entry.getValue().isForced(), dim);
             }
         }
         return true;

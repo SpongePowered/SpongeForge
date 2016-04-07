@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
-import com.google.common.collect.MapMaker;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
@@ -63,8 +62,7 @@ public abstract class MixinDimensionManager {
     @Shadow private static Hashtable<Integer, Boolean> spawnSettings;
     @Shadow private static ArrayList<Integer> unloadQueue;
     @Shadow private static Hashtable<Integer, WorldServer> worlds;
-    @Shadow private static ConcurrentMap<net.minecraft.world.World, net.minecraft.world.World>
-            weakWorldMap = new MapMaker().weakKeys().weakValues().<net.minecraft.world.World, net.minecraft.world.World>makeMap();
+    @Shadow private static ConcurrentMap<net.minecraft.world.World, net.minecraft.world.World> weakWorldMap;
 
     @Overwrite
     public static boolean registerProviderType(int id, Class<? extends WorldProvider> provider, boolean keepLoaded) {
@@ -100,7 +98,8 @@ public abstract class MixinDimensionManager {
         DimensionRegistryModule.getInstance().registerAdditionalCatalog(new SpongeDimensionType(worldType, keepLoaded, provider, id));
         providers.put(id, provider);
 
-        // Keep The End dimensions loaded. Can be disabled in either DIM1's config or the_end's config
+        // Keep The End dimensions loaded. Can be disabled in either DIM1's
+        // config or the_end's config
         if (id == 1) {
             keepLoaded = true;
         }
@@ -126,7 +125,8 @@ public abstract class MixinDimensionManager {
             }
         }
 
-        // Don't use configs at this point, use spawn settings in the provider type
+        // Don't use configs at this point, use spawn settings in the provider
+        // type
         int id = DimensionManager.getProviderType(dim);
         return spawnSettings.containsKey(id) && spawnSettings.get(id);
     }
@@ -190,35 +190,33 @@ public abstract class MixinDimensionManager {
     }
 
     @Overwrite
-    public static void setWorld(int id, WorldServer world)
-    {
-        if (world != null)
-        {
+    public static void setWorld(int id, WorldServer world) {
+        if (world != null) {
             worlds.put(id, world);
             weakWorldMap.put(world, world);
             MinecraftServer.getServer().worldTickTimes.put(id, new long[100]);
             FMLLog.info("Loading dimension %d (%s) (%s)", id, world.getWorldInfo().getWorldName(), world.getMinecraftServer());
-        }
-        else
-        {
+        } else {
             final WorldServer worldServer = worlds.remove(id);
             MinecraftServer.getServer().worldTickTimes.remove(id);
+            // Sponge - include world name in log output
             FMLLog.info("Unloading dimension %d (%s)", id, worldServer.getWorldInfo().getWorldName());
         }
 
         ArrayList<WorldServer> tmp = new ArrayList<WorldServer>();
-        if (worlds.get( 0) != null)
-            tmp.add(worlds.get( 0));
-        if (worlds.get(-1) != null)
+        if (worlds.get(0) != null) {
+            tmp.add(worlds.get(0));
+        }
+        if (worlds.get(-1) != null) {
             tmp.add(worlds.get(-1));
-        if (worlds.get( 1) != null)
-            tmp.add(worlds.get( 1));
+        }
+        if (worlds.get(1) != null) {
+            tmp.add(worlds.get(1));
+        }
 
-        for (Map.Entry<Integer, WorldServer> entry : worlds.entrySet())
-        {
+        for (Map.Entry<Integer, WorldServer> entry : worlds.entrySet()) {
             int dim = entry.getKey();
-            if (dim >= -1 && dim <= 1)
-            {
+            if (dim >= -1 && dim <= 1) {
                 continue;
             }
             tmp.add(entry.getValue());
