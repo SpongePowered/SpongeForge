@@ -169,7 +169,7 @@ public final class SpongeChunkProviderForge extends SpongeChunkProvider {
             // Finer grained tracking phase
             causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
                     .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, populator.getType()))
-                    .addCaptures()
+                    .addEntityCaptures()
                     .complete());
             if (!checkForgeEvent(populator, chunkProvider, chunkX, chunkZ, flags, chunk)) {
                 continue;

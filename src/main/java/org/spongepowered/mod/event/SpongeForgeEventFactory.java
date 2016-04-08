@@ -97,9 +97,6 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
-import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
-import org.spongepowered.api.event.item.inventory.DropItemEvent;
-import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
@@ -123,8 +120,15 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.common.block.BlockUtil;
+import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.event.InternalNamedCauses;
+import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
@@ -137,6 +141,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class SpongeForgeEventFactory {
 
@@ -914,55 +919,60 @@ public class SpongeForgeEventFactory {
 
         ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) event;
 
-        if (spongeEvent.getCause().first(Player.class).isPresent()) {
-            EntityPlayer player = (EntityPlayer) spongeEvent.getCause().first(Player.class).get();
-            net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getTargetWorld();
-
+        spongeEvent.getCause().first(Player.class).ifPresent(player -> {
+            final EntityPlayerMP playerMP = EntityUtil.toNative(player);
+            final net.minecraft.world.World minecraftWorld = playerMP.getEntityWorld();
+            final IMixinWorldServer mixinWorldServer = (IMixinWorldServer) minecraftWorld;
+            final CauseTracker causeTracker = mixinWorldServer.getCauseTracker();
+            final PhaseData currentProcessingPhase = causeTracker.getCurrentProcessingPhase();
+            final PhaseContext context = currentProcessingPhase.getContext();
+            final Optional<Player> packetPlayer = context.firstNamed(InternalNamedCauses.Packet.PACKET_PLAYER, Player.class)
+                    .filter(packet -> packet == player);
+            final Optional<C08PacketPlayerBlockPlacement> blockPlacementPacket =
+                    context.firstNamed(InternalNamedCauses.Packet.CAPTURED_PACKET, C08PacketPlayerBlockPlacement.class);
             if (spongeEvent.getTransactions().size() == 1) {
-                BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTransactions().get(0).getOriginal().getPosition());
-                IBlockState state = (IBlockState) spongeEvent.getTransactions().get(0).getOriginal().getState();
-                net.minecraftforge.common.util.BlockSnapshot blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
-                IBlockState placedAgainst = Blocks.air.getDefaultState();
-                if (StaticMixinHelper.packetPlayer != null && StaticMixinHelper.processingPacket instanceof C08PacketPlayerBlockPlacement) {
-                    C08PacketPlayerBlockPlacement packet = (C08PacketPlayerBlockPlacement) StaticMixinHelper.processingPacket;
-                    EnumFacing facing = EnumFacing.getFront(packet.getPlacedBlockDirection());
-                    placedAgainst = blockSnapshot.world.getBlockState(blockSnapshot.pos.offset(facing.getOpposite()));
+                final Transaction<BlockSnapshot> transaction = spongeEvent.getTransactions().get(0);
+                final BlockSnapshot original = transaction.getOriginal();
+                final BlockPos pos = VecHelper.toBlockPos(original.getPosition());
+                final IBlockState state = BlockUtil.toBlockState(original.getState());
+                final net.minecraftforge.common.util.BlockSnapshot forgeSnapshot = new net.minecraftforge.common.util.BlockSnapshot(minecraftWorld, pos, state);
+                final IBlockState placedAgainst;
+                if (packetPlayer.isPresent() && blockPlacementPacket.isPresent()) {
+                    final EnumFacing facing = EnumFacing.getFront(blockPlacementPacket.get().getPlacedBlockDirection());
+                    placedAgainst = minecraftWorld.getBlockState(pos.offset(facing.getOpposite()));
+                } else {
+                    placedAgainst = Blocks.air.getDefaultState();
                 }
-
-                BlockEvent.PlaceEvent forgeEvent = new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player);
+                final BlockEvent.PlaceEvent forgeEvent = new BlockEvent.PlaceEvent(forgeSnapshot, placedAgainst, playerMP);
                 ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
-                    spongeEvent.getTransactions().get(0).setValid(false);
+                    transaction.setValid(false);
                 }
+
             } else { // multi
-                Iterator<Transaction<BlockSnapshot>> iterator = spongeEvent.getTransactions().iterator();
-                List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots = new ArrayList<>();
-
-                while (iterator.hasNext()) {
-                    Transaction<BlockSnapshot> transaction = iterator.next();
-                    Location<World> location = transaction.getOriginal().getLocation().get();
-                    IBlockState state = (IBlockState) transaction.getOriginal().getState();
-                    BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-                    net.minecraftforge.common.util.BlockSnapshot blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
-                    blockSnapshots.add(blockSnapshot);
-                }
+                List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots = spongeEvent.getTransactions()
+                        .stream()
+                        .map(transaction -> {
+                            final Location<World> location = transaction.getOriginal().getLocation().get();
+                            final IBlockState state = BlockUtil.toBlockState(transaction.getOriginal().getState());
+                            final BlockPos pos = VecHelper.toBlockPos(location);
+                            return new net.minecraftforge.common.util.BlockSnapshot(minecraftWorld, pos, state);
+                        })
+                        .collect(Collectors.toList());
 
                 IBlockState placedAgainst = Blocks.air.getDefaultState();
-                if (StaticMixinHelper.packetPlayer != null && StaticMixinHelper.processingPacket instanceof C08PacketPlayerBlockPlacement) {
-                    C08PacketPlayerBlockPlacement packet = (C08PacketPlayerBlockPlacement) StaticMixinHelper.processingPacket;
-                    EnumFacing facing = EnumFacing.getFront(packet.getPlacedBlockDirection());
-                    placedAgainst = blockSnapshots.get(0).world.getBlockState(blockSnapshots.get(0).pos.offset(facing.getOpposite()));
+                if (packetPlayer.isPresent() && blockPlacementPacket.isPresent()) {
+                    EnumFacing facing = EnumFacing.getFront(blockPlacementPacket.get().getPlacedBlockDirection());
+                    placedAgainst = minecraftWorld.getBlockState(blockSnapshots.get(0).pos.offset(facing.getOpposite()));
                 }
 
-                BlockEvent.MultiPlaceEvent forgeEvent = new BlockEvent.MultiPlaceEvent(blockSnapshots, placedAgainst, player);
+                BlockEvent.MultiPlaceEvent forgeEvent = new BlockEvent.MultiPlaceEvent(blockSnapshots, placedAgainst, playerMP);
                 ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
-                    while (iterator.hasNext()) {
-                        iterator.next().setValid(false);
-                    }
+                    spongeEvent.getTransactions().forEach(transaction -> transaction.setValid(false));
                 }
             }
-        }
+        });
         return spongeEvent;
     }
 
