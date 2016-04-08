@@ -82,29 +82,18 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
         this.originalMessage = SpongeTexts.toText(entity.getCombatTracker().getDeathMessage());
         getFormatter().getBody().add(new DefaultBodyApplier(this.originalMessage));
         Optional<User> sourceCreator = Optional.empty();
+        Optional<User> sourceNotifier = Optional.empty();
 
         if (this.source instanceof EntityDamageSource) {
             EntityDamageSource damageSource = (EntityDamageSource) this.source;
             IMixinEntity spongeEntity = (IMixinEntity) damageSource.getSourceOfDamage();
             sourceCreator = spongeEntity.getTrackedPlayer(NbtDataUtil.SPONGE_ENTITY_CREATOR);
+            sourceNotifier = spongeEntity.getTrackedPlayer(NbtDataUtil.SPONGE_ENTITY_NOTIFIER);
         }
-        if (sourceCreator.isPresent()) {
-            this.cause = Cause.of(NamedCause.source(this.source), NamedCause.of("Victim", this.entityLiving),
-                NamedCause.owner(sourceCreator.get()));
-        } else {
-            this.cause = Cause.of(NamedCause.source(this.source), NamedCause.of("Victim", this.entityLiving));
-        }
-        // Store cause for drop event which is called after this event
-        List<NamedCause> causes = new ArrayList<>();
-        causes.add(NamedCause.source(EntitySpawnCause.builder()
-                .entity(((Entity) this.entityLiving))
-                .type(SpawnTypes.DROPPED_ITEM)
-                .build()));
-        causes.add(NamedCause.of("Attacker", this.source));
-        if (sourceCreator.isPresent()) {
-            causes.add(NamedCause.owner(sourceCreator.get()));
-        }
-        StaticMixinHelper.dropCause = Cause.of(causes);
+        final Cause.Builder builder = Cause.source(this.source).named("Victim", this.entityLiving);
+        sourceCreator.ifPresent(creator -> builder.named(NamedCause.OWNER, creator));
+        sourceNotifier.ifPresent(notifier -> builder.named(NamedCause.NOTIFIER, notifier));
+        this.cause = builder.build();
     }
 
     @Override
