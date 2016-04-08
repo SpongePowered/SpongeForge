@@ -52,7 +52,6 @@ import net.minecraftforge.event.terraingen.WorldTypeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -121,9 +120,6 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(DropItemEvent.Destruct.class, LivingDropsEvent.class)
                     .put(DropItemEvent.Dispense.class, ItemTossEvent.class)
                     //.put(DropItemEvent.Harvest.class, BlockEvent.HarvestDropsEvent.class)
-                    .put(InteractBlockEvent.class, PlayerInteractEvent.class)
-                    .put(InteractBlockEvent.Primary.class, PlayerInteractEvent.class)
-                    .put(InteractBlockEvent.Secondary.class, PlayerInteractEvent.class)
                     .put(InteractEntityEvent.Primary.class, AttackEntityEvent.class)
                     .put(TargetWorldEvent.class, WorldEvent.class)
                     .put(LoadWorldEvent.class, WorldEvent.Load.class)
@@ -141,6 +137,9 @@ public class SpongeModEventManager extends SpongeEventManager {
     public static final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventBulkMappings =
             new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
                 .put(CollideEntityEvent.class, EntityItemPickupEvent.class)
+                .put(InteractBlockEvent.class, PlayerInteractEvent.class)
+                .put(InteractBlockEvent.Primary.class, PlayerInteractEvent.class)
+                .put(InteractBlockEvent.Secondary.class, PlayerInteractEvent.class)
                 .put(InteractEntityEvent.Secondary.class, EntityInteractEvent.class)
                 .put(SpawnEntityEvent.class, EntityJoinWorldEvent.class)
                 .put(ChangeBlockEvent.Break.class, BlockEvent.BreakEvent.class)
@@ -157,7 +156,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(InitNoiseGensEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
                     .put(PopulateChunkEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
                     .put(SaplingGrowTreeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-                    .put(PlayerEvent.class, FMLCommonHandler.instance().bus())
+                    .put(PlayerEvent.class, MinecraftForge.EVENT_BUS)
                     .build();
 
     @Inject

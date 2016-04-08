@@ -42,7 +42,6 @@
         "event.player.MixinEventPlayer",
         "event.player.MixinEventPlayerBreakBlock",
         "event.player.MixinEventPlayerChat",
-        "event.player.MixinEventPlayerInteractBlock",
         "event.player.MixinEventPlayerPlaceBlock",
         "event.player.MixinEventPlayerPlaceMultiBlock",
         "event.player.MixinPlayerSleepInBedEvent",
