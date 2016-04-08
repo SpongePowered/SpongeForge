@@ -37,6 +37,7 @@ import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -47,9 +48,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.PlayerTracker;
+import org.spongepowered.common.event.InternalNamedCauses;
+import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.IMixinInitCause;
-import org.spongepowered.common.util.StaticMixinHelper;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.mod.interfaces.IMixinInitMessageChannelEvent;
 import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
 
@@ -121,11 +126,17 @@ public abstract class MixinSpongeImplHooks {
     // Required for torches and comparators
     @Overwrite
     public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
-        Optional<User> user = Optional.empty();
-        IMixinChunk spongeChunk = null;
-        if (StaticMixinHelper.packetPlayer != null || StaticMixinHelper.blockEventUser != null) {
-            user = Optional
-                    .of(StaticMixinHelper.packetPlayer != null ? (User) StaticMixinHelper.packetPlayer : (User) StaticMixinHelper.blockEventUser);
+        final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+        final PhaseData currentPhase = causeTracker.getStack().peek();
+        final PhaseContext phaseContext = currentPhase.getContext();
+        final Optional<User> sourcePlayer = phaseContext.firstNamed(NamedCause.SOURCE, User.class);
+        final Optional<User> notifier = phaseContext.firstNamed(NamedCause.NOTIFIER, User.class);
+        Optional<User> user;
+        IMixinChunk spongeChunk;
+        if (notifier.isPresent()) {
+            user = notifier;
+        } else if (sourcePlayer.isPresent()) {
+            user = sourcePlayer;
         } else {
             spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(pos);
             user = Optional.empty();

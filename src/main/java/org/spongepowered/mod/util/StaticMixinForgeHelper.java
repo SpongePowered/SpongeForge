@@ -37,7 +37,7 @@ import org.spongepowered.api.event.cause.entity.damage.DamageModifierTypes;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
 import org.spongepowered.api.util.Tuple;
-import org.spongepowered.common.event.DamageEventHandler;
+import org.spongepowered.common.event.damage.DamageEventHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;

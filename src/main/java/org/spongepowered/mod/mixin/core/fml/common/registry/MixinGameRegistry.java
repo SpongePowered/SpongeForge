@@ -27,28 +27,37 @@ package org.spongepowered.mod.mixin.core.fml.common.registry;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.event.InternalNamedCauses;
+import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.phase.TrackingPhases;
+import org.spongepowered.common.event.tracking.phase.WorldPhase;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 
 @NonnullByDefault
 @Mixin(value = GameRegistry.class, remap = false)
 public class MixinGameRegistry {
 
-    @Inject(method = "generateWorld", at = @At(value = "INVOKE", target = "Ljava/util/Random;setSeed(J)V"))
+    @Inject(method = "generateWorld", at = @At(value = "HEAD"))
     private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
-        IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.getCauseTracker().setCapturingTerrainGen(true);
+        IMixinWorldServer spongeWorld = (IMixinWorldServer) world;
+        spongeWorld.getCauseTracker().switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
+                .add(NamedCause.source(chunkGenerator))
+                .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CHUNK_PROVIDER, chunkProvider))
+                .addCaptures()
+                .complete());
     }
 
     @Inject(method = "generateWorld", at = @At(value = "RETURN"))
     private static void onGenerateWorldReturn(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
-        IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.getCauseTracker().setCapturingTerrainGen(false);
+        IMixinWorldServer spongeWorld = (IMixinWorldServer) world;
+        spongeWorld.getCauseTracker().completePhase();
     }
 }
