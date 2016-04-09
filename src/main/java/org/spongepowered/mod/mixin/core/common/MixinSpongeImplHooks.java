@@ -26,7 +26,9 @@ package org.spongepowered.mod.mixin.core.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -160,5 +162,10 @@ public abstract class MixinSpongeImplHooks {
                 }
             }
         }
+    }
+
+    @Overwrite
+    public static boolean checkAttackEntity(EntityPlayer entityPlayer, Entity targetEntity) {
+        return net.minecraftforge.common.ForgeHooks.onPlayerAttackTarget(entityPlayer, targetEntity);
     }
 }
