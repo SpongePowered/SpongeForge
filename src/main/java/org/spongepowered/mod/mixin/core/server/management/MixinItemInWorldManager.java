@@ -103,31 +103,29 @@ public abstract class MixinItemInWorldManager {
                     Optional.of(new Vector3d(offsetX, offsetY, offsetZ)), currentSnapshot, DirectionFacingProvider.getInstance().getKey(side).get());
 
             if (event.isCancelled()) {
-                if (SpongeImpl.postEvent(event)) {
-                    final IBlockState state = worldIn.getBlockState(pos);
+                final IBlockState state = worldIn.getBlockState(pos);
 
-                    if (state.getBlock() == Blocks.command_block) {
-                        // CommandBlock GUI opens solely on the client, we need to force it close on cancellation
-                        ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S2EPacketCloseWindow(0));
+                if (state.getBlock() == Blocks.command_block) {
+                    // CommandBlock GUI opens solely on the client, we need to force it close on cancellation
+                    ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S2EPacketCloseWindow(0));
 
-                    } else if (state.getProperties().containsKey(BlockDoor.HALF)) {
-                        // Stopping a door from opening while interacting the top part will allow the door to open, we need to update the
-                        // client to resolve this
-                        if (state.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) {
-                            ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.up()));
-                        } else {
-                            ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.down()));
-                        }
-
-                    } else if (stack != null) {
-                        // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-side of the block. We need to remove it
-                        if (stack.getItem() instanceof ItemDoor || stack.getItem() instanceof ItemDoublePlant) {
-                            ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.up(2)));
-                        }
+                } else if (state.getProperties().containsKey(BlockDoor.HALF)) {
+                    // Stopping a door from opening while interacting the top part will allow the door to open, we need to update the
+                    // client to resolve this
+                    if (state.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) {
+                        ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.up()));
+                    } else {
+                        ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.down()));
                     }
 
-                    return false;
+                } else if (stack != null) {
+                    // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-side of the block. We need to remove it
+                    if (stack.getItem() instanceof ItemDoor || stack.getItem() instanceof ItemDoublePlant) {
+                        ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.up(2)));
+                    }
                 }
+
+                return false;
             }
 
             if (stack != null && stack.getItem().onItemUseFirst(stack, player, worldIn, pos, side, offsetX, offsetY, offsetZ)) {
