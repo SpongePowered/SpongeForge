@@ -35,6 +35,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
+import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.mod.mixin.plugin.entityactivation.ActivationRange;
 
 @NonnullByDefault
@@ -53,7 +54,7 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onEntityConstruction(World world, CallbackInfo ci) {
-        if (world != null) {
+        if (world != null && ((IMixinWorldInfo) world.getWorldInfo()).isValid()) {
             this.defaultActivationState = ActivationRange.initializeEntityActivationState((net.minecraft.entity.Entity) (Object) this);
             if (!this.defaultActivationState && this.entityType != null) { // if not excluded
                 ActivationRange.addEntityToConfig(world, (SpongeEntityType) this.entityType, this.activationType);
