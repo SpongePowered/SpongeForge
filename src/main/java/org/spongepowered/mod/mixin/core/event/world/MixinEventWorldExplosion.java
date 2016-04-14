@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.core.event.world;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.util.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
@@ -110,25 +109,33 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         @Shadow @Final private List<net.minecraft.entity.Entity> entityList;
 
         @Inject(method = "<init>", at = @At("RETURN"))
-        public void onConstructed(net.minecraft.world.World world, net.minecraft.world.Explosion explosion, List<Entity> entityList, CallbackInfo ci) {
+        public void onConstructed(net.minecraft.world.World world, net.minecraft.world.Explosion explosion, List<Entity> entityList,
+                CallbackInfo ci) {
             createSpongeData();
         }
 
-        @SuppressWarnings("unchecked")
         public void createSpongeData() {
             List<BlockPos> affectedPositions = this.explosion.getAffectedBlockPositions();
             ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<>();
             for (BlockPos pos : affectedPositions) {
                 Location<World> location = new Location<>((World) this.world, VecHelper.toVector(pos));
-                BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(this.world, pos)).createSpongeBlockSnapshot();
+                BlockSnapshot originalSnapshot =
+                        ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(this.world, pos))
+                                .createSpongeBlockSnapshot();
                 final SpongeBlockSnapshotBuilder replacementBuilder = new SpongeBlockSnapshotBuilder()
-                    .blockState(BlockTypes.AIR.getDefaultState())
-                    .position(location.getBlockPosition())
+                        .blockState(BlockTypes.AIR.getDefaultState())
+                        .position(location.getBlockPosition())
                     .worldId(location.getExtent().getUniqueId());
                 BlockSnapshot replacementSnapshot = replacementBuilder.build();
                 builder.add(new Transaction<>(originalSnapshot, replacementSnapshot)).build();
             }
             this.blockTransactions = builder.build();
+
+            ImmutableList.Builder<EntitySnapshot> entityListBuilder = ImmutableList.builder();
+            for (net.minecraft.entity.Entity entity : this.entityList) {
+                entityListBuilder.add(((Entity) entity).createSnapshot());
+            }
+            this.entitySnapshots = entityListBuilder.build();
         }
 
         @Override
@@ -160,7 +167,6 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
             return (List<Entity>) (List<?>) this.entityList;
         }
 
-        @SuppressWarnings({"unchecked"})
         @Override
         public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
             super.syncDataToForge(spongeEvent);
@@ -176,7 +182,6 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
             }
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public void syncDataToSponge(org.spongepowered.api.event.Event spongeEvent) {
             super.syncDataToSponge(spongeEvent);
@@ -194,6 +199,26 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
                     transaction.setValid(false);
                 }
             });
+        }
+
+        private boolean cancelled = false;
+
+        @Override
+        public void setCancelled(boolean cancel) {
+            this.cancelled = cancel;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return this.cancelled;
+        }
+
+        @Override
+        public void postProcess() {
+            if (this.cancelled) {
+                this.entityList.clear();
+                this.explosion.clearAffectedBlockPositions();
+            }
         }
     }
 

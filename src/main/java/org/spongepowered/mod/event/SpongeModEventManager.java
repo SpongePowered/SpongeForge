@@ -201,6 +201,8 @@ public class SpongeModEventManager extends SpongeEventManager {
         // sync plugin data for Forge
         ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
 
+        ((IMixinEvent) forgeEvent).postProcess();
+
         if (spongeEvent instanceof Cancellable && spongeEvent != forgeEvent) {
             if (forgeEvent.isCancelable() && ((Cancellable) spongeEvent).isCancelled()) {
                 forgeEvent.setCanceled(true);
