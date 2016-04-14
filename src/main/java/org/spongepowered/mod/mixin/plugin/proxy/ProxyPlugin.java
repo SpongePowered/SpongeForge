@@ -22,20 +22,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.plugin.bungee;
+package org.spongepowered.mod.mixin.plugin.proxy;
 
 import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.common.SpongeImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class BungeePlugin implements IMixinConfigPlugin {
-
-    private List<String> mixins = new ArrayList<>();
+public class ProxyPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -48,12 +45,9 @@ public class BungeePlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!SpongeImpl.getGlobalConfig().getConfig().getModules().usePluginBungeeCord()
-                && mixinClassName.contains("mixin.bungee")) {
-            return false;
-        }
-
-        return true;
+        // Require that the "proxy" plugin be enabled
+        return mixinClassName.startsWith("org.spongepowered.mod.mixin.proxy")
+                && SpongeImpl.getGlobalConfig().getConfig().getModules().usePluginProxy();
     }
 
     @Override
@@ -62,7 +56,7 @@ public class BungeePlugin implements IMixinConfigPlugin {
 
     @Override
     public List<String> getMixins() {
-        return this.mixins;
+        return null;
     }
 
     @Override
