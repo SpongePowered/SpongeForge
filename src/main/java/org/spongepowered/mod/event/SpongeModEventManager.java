@@ -117,7 +117,6 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(TargetEntityEvent.class, EntityEvent.class)
                     .put(DestructEntityEvent.Death.class, LivingDeathEvent.class)
                     .put(MessageChannelEvent.Chat.class, ServerChatEvent.class)
-                    .put(DropItemEvent.Destruct.class, LivingDropsEvent.class)
                     .put(DropItemEvent.Dispense.class, ItemTossEvent.class)
                     //.put(DropItemEvent.Harvest.class, BlockEvent.HarvestDropsEvent.class)
                     .put(InteractEntityEvent.Primary.class, AttackEntityEvent.class)
@@ -137,6 +136,7 @@ public class SpongeModEventManager extends SpongeEventManager {
     public static final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventBulkMappings =
             new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
                 .put(CollideEntityEvent.class, EntityItemPickupEvent.class)
+                .put(DropItemEvent.Destruct.class, LivingDropsEvent.class)
                 .put(InteractBlockEvent.class, PlayerInteractEvent.class)
                 .put(InteractBlockEvent.Primary.class, PlayerInteractEvent.class)
                 .put(InteractBlockEvent.Secondary.class, PlayerInteractEvent.class)
