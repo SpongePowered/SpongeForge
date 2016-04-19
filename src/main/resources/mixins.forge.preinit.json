@@ -7,7 +7,8 @@
         "fml.common.MixinModMetadata",
         "fml.common.MixinModContainer",
         "fml.common.eventhandler.MixinEvent",
-        "fml.common.registry.MixinGameRegistry"
+        "fml.common.registry.MixinGameRegistry",
+        "fml.common.MixinFMLCommonHandler"
     ],
     "client": [
         "fml.common.MixinMinecraftDummyContainerClient"

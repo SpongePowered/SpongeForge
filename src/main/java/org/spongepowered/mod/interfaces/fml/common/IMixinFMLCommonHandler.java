@@ -22,25 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.fml.common;
+package org.spongepowered.mod.interfaces.fml.common;
 
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.mod.interfaces.fml.common.IMixinFMLCommonHandler;
+public interface IMixinFMLCommonHandler {
 
-@Mixin(value = FMLCommonHandler.class, remap = false)
-public class MixinFMLCommonHandler implements IMixinFMLCommonHandler{
+    void bruteShutdown();
 
-    @Override
-    public void bruteShutdown() {
-        delegate1();
-    }
-
-    private void delegate1() {
-        delegate2();
-    }
-
-    private void delegate2() {
-        Runtime.getRuntime().exit(1);
-    }
 }

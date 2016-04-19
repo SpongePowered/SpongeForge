@@ -81,6 +81,7 @@
         "item.MixinEnchantment",
         "item.MixinItemStack",
         "item.MixinItemLilyPad",
+        "nbt.MixinNBTTagCompound",
         "network.MixinNetHandlerPlayServer",
         "server.MixinMinecraftServer",
         "server.MixinServerCommandManager",
