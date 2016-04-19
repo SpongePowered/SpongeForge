@@ -853,7 +853,7 @@ public class SpongeForgeEventFactory {
         EntitySpawnCause spawnCause = (EntitySpawnCause) source;
         SpongeEntitySnapshot snapshot = (SpongeEntitySnapshot) spawnCause.getEntity();
         Entity entity = (Entity) snapshot.getEntityReference().get();
-        if (entity == null) {
+        if (entity == null || !(entity instanceof EntityLivingBase)) {
             return spongeEvent;
         }
 
