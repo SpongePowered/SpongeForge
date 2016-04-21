@@ -578,8 +578,11 @@ public class SpongeForgeEventFactory {
         Optional<Player> player = event.getCause().first(Player.class);
         if (player.isPresent()) {
             DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
-            ItemTossEvent forgeEvent = new ItemTossEvent((EntityItem) spongeEvent.getEntities().get(0), (EntityPlayer) player.get());
-            return forgeEvent;
+            final List<org.spongepowered.api.entity.Entity> entities = spongeEvent.getEntities();
+            if (!entities.isEmpty()) {
+                ItemTossEvent forgeEvent = new ItemTossEvent((EntityItem) entities.get(0), (EntityPlayer) player.get());
+                return forgeEvent;
+            }
         }
         return null;
     }
