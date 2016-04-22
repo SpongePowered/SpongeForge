@@ -50,7 +50,7 @@ public abstract class MixinWorld implements IMixinWorld {
     @Shadow public abstract boolean isChunkLoaded(int x, int z, boolean allowEmpty);
 
     @Inject(method = "updateEntities()V", at = @At(value = "INVOKE_STRING",
-            target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V", args = {"ldc=regular"}, remap = false))
+            target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V", args = {"ldc=regular"}))
     private void onInvokeProfiler(CallbackInfo ci) {
         if (!((net.minecraft.world.World) (Object) this).isRemote) {
             ActivationRange.activateEntities(((net.minecraft.world.World) (Object) this));
