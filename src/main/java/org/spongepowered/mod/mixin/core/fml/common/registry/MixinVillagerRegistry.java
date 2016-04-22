@@ -40,7 +40,7 @@ import java.util.ArrayList;
 @Mixin(value = VillagerRegistry.class, remap = false)
 public class MixinVillagerRegistry {
 
-    @Inject(method = "register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerProfession;I)V", at = @At(value = "HEAD", args = "log=true"))
+    @Inject(method = "register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerProfession;I)V", at = @At(value = "HEAD"), remap = false)
     private void registerForgeVillager(VillagerRegistry.VillagerProfession profession, int id, CallbackInfo ci) {
         if (id != -1) {
             Profession spongeProfession = new SpongeProfession(id, ((IMixinVillagerProfession) profession).getId());

@@ -58,7 +58,7 @@ public abstract class MixinEntity implements IMixinEntity {
     @Shadow public abstract void setSize(float width, float height);
     // @formatter:on
 
-    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z"))
+    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
     private boolean onEntityConstruct(EventBus eventBus, Event event) {
         if (!((Object) this instanceof EntityDummy)) {
             return eventBus.post(event);

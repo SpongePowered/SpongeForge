@@ -80,17 +80,37 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     @Shadow(remap = false)
     public abstract void setSpawnChunk(BlockPos pos, boolean forced, int dimension);
 
+    /**
+     * @author blood
+     * @reason Reroutes to our damage hook
+     *
+     * @param damageSource The damage source
+     * @param damage The damage
+     */
     @Overwrite
     protected void damageEntity(DamageSource damageSource, float damage) {
         this.damageEntityHook(damageSource, damage);
     }
 
     // Restore methods to original as we handle PlayerTossEvent in DropItemEvent
+    /**
+     * @author blood - October 16th, 2015
+     * @reason Redirects to our method for event handling
+     *
+     * @param dropAll The damage source
+     */
     @Overwrite
     public EntityItem dropOneItem(boolean dropAll) {
         return this.dropItem(this.inventory.decrStackSize(this.inventory.currentItem, dropAll && this.inventory.getCurrentItem() != null ? this.inventory.getCurrentItem().stackSize : 1), false, true);
     }
 
+    /**
+     * @author blood - October 16th, 2015
+     * @reason Redirects to our method for event handling
+     *
+     * @param itemStackIn The itemstack to drop
+     * @param unused Unused parameter
+     */
     @Overwrite
     public EntityItem dropPlayerItemWithRandomChoice(ItemStack itemStackIn, boolean unused) {
         return this.dropItem(itemStackIn, false, false);
@@ -116,6 +136,14 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         }
     }
 
+    /**
+     * @author JBYoshi - November 23rd, 2015
+     * @reason implement SpongeAPI events.
+     *
+     * @param immediately Whether to be woken up immediately
+     * @param updateWorldFlag Whether to update the world
+     * @param setSpawn Whether the player has successfully set up spawn
+     */
     @Overwrite
     public void wakeUpPlayer(boolean immediately, boolean updateWorldFlag, boolean setSpawn) {
         IBlockState iblockstate = this.nmsPlayer.worldObj.getBlockState(this.playerLocation);

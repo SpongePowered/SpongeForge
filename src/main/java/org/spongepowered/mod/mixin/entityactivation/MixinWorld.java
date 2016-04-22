@@ -50,7 +50,7 @@ public abstract class MixinWorld implements IMixinWorld {
     @Shadow public abstract boolean isChunkLoaded(int x, int z, boolean allowEmpty);
 
     @Inject(method = "updateEntities()V", at = @At(value = "INVOKE_STRING",
-            target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V", args = {"ldc=regular"}))
+            target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V", args = {"ldc=regular"}, remap = false))
     private void onInvokeProfiler(CallbackInfo ci) {
         if (!((net.minecraft.world.World) (Object) this).isRemote) {
             ActivationRange.activateEntities(((net.minecraft.world.World) (Object) this));
@@ -59,7 +59,7 @@ public abstract class MixinWorld implements IMixinWorld {
 
     @Inject(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE",
             target = "Lnet/minecraftforge/event/ForgeEventFactory;canEntityUpdate(Lnet/minecraft/entity/Entity;)Z",
-            shift = At.Shift.BY, by = 3, ordinal = 0), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
+            shift = At.Shift.BY, by = 3, ordinal = 0, remap = false), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     public void onUpdateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate, CallbackInfo ci, int i, int j,
             boolean isForced, int k, boolean canUpdate) {
         if (!isForced && !canUpdate && !ActivationRange.checkIfActive(entity)) { // ignore if forced by forge event update or entity's chunk

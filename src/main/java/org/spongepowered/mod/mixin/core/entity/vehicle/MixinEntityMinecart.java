@@ -57,12 +57,16 @@ public abstract class MixinEntityMinecart extends Entity implements IMixinMineca
         super(worldIn);
     }
 
-    @Shadow(remap = false)
-    public abstract double getDragAir();
-    @Shadow(remap = false)
-    public abstract double getMaxSpeed();
+    @Shadow(remap = false) public abstract double getDragAir();
+    @Shadow(remap = false) public abstract double getMaxSpeed();
 
     // this method overwrites the vanilla accessor for maximum speed
+
+    /**
+     * @author gabizou - April 22nd, 2015
+     * @reason Updates the forge added method to use our fieldvariable
+     * @return
+     */
     @Overwrite
     public double getMaximumSpeed() {
         return this.maxSpeed;

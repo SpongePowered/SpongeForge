@@ -39,8 +39,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChunkProviderEnd.class)
 public abstract class MixinChunkProviderEnd implements IChunkProvider {
 
-    @Shadow private int chunkX;
-    @Shadow private int chunkZ;
+    @Shadow(remap = false) private int chunkX; // Forge added
+    @Shadow(remap = false) private int chunkZ; // Forge added
     @Shadow private World endWorld;
 
 

@@ -71,7 +71,8 @@ public abstract class MixinItemInWorldManager {
     @Shadow public abstract boolean tryUseItem(EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack);
 
     /**
-     * Activate the clicked on block, otherwise use the held item.
+     * @author blood - April 6th, 2016
+     * @reason Activate the clicked on block, otherwise use the held item. Throw events.
      */
     @Overwrite
     public boolean activateBlockOrUseItem(EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack, BlockPos pos, EnumFacing side, float offsetX,

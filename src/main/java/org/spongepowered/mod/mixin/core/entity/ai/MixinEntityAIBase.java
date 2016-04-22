@@ -44,6 +44,7 @@ import java.util.Optional;
 @Mixin(value = EntityAIBase.class, priority = 1001)
 public abstract class MixinEntityAIBase {
 
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     public void addModAIType(CallbackInfo ci) {
         // Only set a type if we have none

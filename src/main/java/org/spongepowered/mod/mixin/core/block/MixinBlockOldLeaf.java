@@ -40,7 +40,7 @@ public abstract class MixinBlockOldLeaf extends BlockLeaves {
     /**
      * @author bloodmc
      *
-     *  Purpose: Oak, Spruce, Birch, and Jungle blocks currently do not call 
+     *  @reason Oak, Spruce, Birch, and Jungle blocks currently do not call
      *  Forge's super method in Block on server side. This causes our harvest
      *  event not to be fired correctly.
      */

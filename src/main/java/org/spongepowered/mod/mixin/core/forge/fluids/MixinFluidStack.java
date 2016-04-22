@@ -63,7 +63,7 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
-@Mixin(FluidStack.class)
+@Mixin(value = FluidStack.class, remap = false)
 public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidStack {
 
     @Shadow public int amount;

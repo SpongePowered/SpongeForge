@@ -121,13 +121,23 @@ public abstract class MixinSpongeImplHooks {
     }
 
     // Required for torches and comparators
+
+    /**
+     * @author blood - November 15th, 2015
+     * @reason Use forge added block methods for updating
+     * comparator output levels.
+     *
+     * @param world The world
+     * @param pos The position to update
+     * @param blockIn The block being updated
+     */
     @Overwrite
     public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
-        Optional<User> user = Optional.empty();
-        IMixinChunk spongeChunk = null;
+        Optional<User> user;
+        IMixinChunk spongeChunk;
         if (StaticMixinHelper.packetPlayer != null || StaticMixinHelper.blockEventUser != null) {
             user = Optional
-                    .of(StaticMixinHelper.packetPlayer != null ? (User) StaticMixinHelper.packetPlayer : (User) StaticMixinHelper.blockEventUser);
+                    .of(StaticMixinHelper.packetPlayer != null ? (User) StaticMixinHelper.packetPlayer : StaticMixinHelper.blockEventUser);
         } else {
             spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(pos);
             user = Optional.empty();

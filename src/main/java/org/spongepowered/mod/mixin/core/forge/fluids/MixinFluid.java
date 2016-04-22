@@ -42,7 +42,7 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-@Mixin(Fluid.class)
+@Mixin(value = Fluid.class, remap = false)
 @Implements(@Interface(iface = FluidType.class, prefix = "fluid$"))
 public abstract class MixinFluid implements FluidType {
 

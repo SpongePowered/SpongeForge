@@ -85,7 +85,7 @@ public class ForgeSpawnableDataProcessor extends SpawnableDataProcessor {
 
     @Override
     public Optional<EntityType> getVal(ItemStack itemStack) {
-        final Class entity = (Class) EntityList.stringToClassMapping.get(ItemMonsterPlacer.getEntityName(itemStack));
+        final Class<? extends Entity> entity = EntityList.stringToClassMapping.get(ItemMonsterPlacer.getEntityName(itemStack));
         for (EntityType type : SpongeImpl.getRegistry().getAllOf(EntityType.class)) {
             if (type.getEntityClass().equals(entity)) {
                 return Optional.of(type);

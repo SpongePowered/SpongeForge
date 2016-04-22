@@ -26,6 +26,8 @@ package org.spongepowered.mod.plugin;
 
 public class InvalidPluginException extends RuntimeException {
 
+    private static final long serialVersionUID = 1;
+
     public InvalidPluginException() {
         super();
     }

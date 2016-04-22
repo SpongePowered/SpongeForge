@@ -50,8 +50,7 @@ public abstract class MixinItemLilyPad extends ItemColored {
 
     /**
      * @author bloodmc - December 16th, 2015
-     *
-     *         Purpose: Restored to vanilla method as we do not need Forge's
+     * @reason Restored to vanilla method as we do not need Forge's
      *         block snapshot calls nor event call due to our tracking system.
      */
     @Override
@@ -76,8 +75,8 @@ public abstract class MixinItemLilyPad extends ItemColored {
                 BlockPos blockpos1 = blockpos.up();
                 IBlockState iblockstate = worldIn.getBlockState(blockpos);
 
-                if (iblockstate.getBlock().getMaterial() == Material.water && ((Integer) iblockstate.getValue(BlockLiquid.LEVEL)).intValue() == 0
-                        && worldIn.isAirBlock(blockpos1)) {
+                if (iblockstate.getBlock().getMaterial() == Material.water && iblockstate.getValue(BlockLiquid.LEVEL) == 0
+                    && worldIn.isAirBlock(blockpos1)) {
                     worldIn.setBlockState(blockpos1, Blocks.waterlily.getDefaultState());
 
                     if (!playerIn.capabilities.isCreativeMode) {

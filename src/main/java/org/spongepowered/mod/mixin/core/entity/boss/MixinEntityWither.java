@@ -59,6 +59,7 @@ public abstract class MixinEntityWither extends MixinEntityMob implements Wither
         return values;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setTargets(List<Living> targets) {
         checkNotNull(targets, "Targets is null!");

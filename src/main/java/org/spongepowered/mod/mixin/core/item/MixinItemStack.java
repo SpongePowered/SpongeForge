@@ -39,6 +39,21 @@ public abstract class MixinItemStack {
     @Shadow public abstract net.minecraft.item.Item getItem();
 
     // Disable Forge PlaceEvent patch as we handle this in World setBlockState
+
+    /**
+     * @author blood - October 7th, 2015
+     * @reason Rewrites the method to vanilla logic where we handle events.
+     * The forge event is thrown within our system.
+     *
+     * @param playerIn The player using the item
+     * @param worldIn The world the item is being used
+     * @param pos The position of the block being interacted with
+     * @param side The side of the block
+     * @param hitX The hit position from 0 to 1 of the face of the block
+     * @param hitY The hit position from 0 to 1 on the depth of the block
+     * @param hitZ The hit position from 0 to 1 on the height of the block
+     * @return True if the use was successful
+     */
     @Overwrite
     public boolean onItemUse(EntityPlayer playerIn, net.minecraft.world.World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
         boolean flag = this.getItem().onItemUse((net.minecraft.item.ItemStack)(Object)this, playerIn, worldIn, pos, side, hitX, hitY, hitZ);
