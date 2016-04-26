@@ -92,6 +92,8 @@
         "world.MixinWorld",
         "world.MixinWorldProvider",
         "world.biome.MixinBiomeGenBaseForge",
+        "world.gen.MixinChunkProviderEnd",
+        "world.gen.MixinChunkProviderServer",
         "world.gen.feature.MixinWorldGeneratorForge",
         "world.storage.MixinSaveHandler",
         "fml.common.registry.MixinVillagerCareer",
@@ -101,6 +103,7 @@
     "client": [
         "client.MixinMinecraft",
         "client.gui.MixinGuiOverlayDebug",
+        "client.multiplayer.MixinChunkProviderClient",
         "client.network.MixinNetHandlerPlayClient",
         "client.server.MixinIntegratedServer",
         "server.MixinIntegratedServerAnonInner3"
