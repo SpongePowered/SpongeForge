@@ -29,6 +29,8 @@ import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
@@ -66,6 +68,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         return true;
     }
 
+    @SideOnly(Side.CLIENT)
     @Inject(method = "setChunkLoaded", at = @At("RETURN"))
     public void onSetChunkLoaded(boolean loaded, CallbackInfo ci) {
         Direction[] directions = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
