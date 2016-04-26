@@ -270,9 +270,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                 net.minecraftforge.fml.common.eventhandler.Event forgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent(spongeEvent, clazz);
                 StaticMixinHelper.processingInternalForgeEvent = false;
                 if (forgeEvent != null) {
-                    // Avoid separate mappings for events defined as inner classes
-                    Class<?> enclosingClass = forgeEvent.getClass().getEnclosingClass();
-                    EventBus bus = this.busMappings.get(enclosingClass == null ? forgeEvent.getClass() : enclosingClass);
+                    EventBus bus = this.busMappings.get(forgeEvent.getClass());
                     if (bus == null) {
                         bus = MinecraftForge.EVENT_BUS;
                     }

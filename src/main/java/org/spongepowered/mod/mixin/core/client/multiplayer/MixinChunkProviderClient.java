@@ -22,33 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.fml.common.registry;
+package org.spongepowered.mod.mixin.core.client.multiplayer;
 
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import com.flowpowered.math.vector.Vector3i;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
+import net.minecraft.util.LongHashMap;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.chunk.Chunk;
+import org.spongepowered.api.util.Direction;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.interfaces.IMixinChunk;
+import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 
-@NonnullByDefault
-@Mixin(value = GameRegistry.class, remap = false)
-public class MixinGameRegistry {
+import javax.annotation.Nullable;
 
-    @Inject(method = "generateWorld", at = @At(value = "INVOKE", target = "Ljava/util/Random;setSeed(J)V"))
-    private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
-            CallbackInfo ci) {
-        IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.getCauseTracker().setCapturingTerrainGen(true);
-    }
+@Mixin(ChunkProviderClient.class)
+public abstract class MixinChunkProviderClient implements IMixinChunkProviderServer {
 
-    @Inject(method = "generateWorld", at = @At(value = "RETURN"))
-    private static void onGenerateWorldReturn(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
-            CallbackInfo ci) {
-        IMixinWorld spongeWorld = (IMixinWorld) world;
-        spongeWorld.getCauseTracker().setCapturingTerrainGen(false);
+    @Shadow private LongHashMap<Chunk> chunkMapping;
+
+    @Nullable
+    @Override
+    public Chunk getChunkIfLoaded(int x, int z) {
+        return this.chunkMapping.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(x, z));
     }
 }
