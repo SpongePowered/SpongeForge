@@ -43,8 +43,7 @@ public abstract class MixinWorld_Activation implements IMixinWorld {
             shift = At.Shift.BY, by = 3, ordinal = 0, remap = false), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     public void onUpdateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate, CallbackInfo ci, int i, int j,
             boolean isForced, int k, boolean canUpdate) {
-        // ignore if forced by forge event update or entity's chunk
-        if (!isForced && !ActivationRange.checkIfActive(entity)) {
+        if (forceUpdate && !ActivationRange.checkIfActive(entity)) {
             entity.ticksExisted++;
             ((IModData_Activation) entity).inactiveTick();
             ci.cancel();
