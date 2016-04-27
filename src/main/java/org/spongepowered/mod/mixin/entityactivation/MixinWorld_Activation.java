@@ -24,22 +24,31 @@
  */
 package org.spongepowered.mod.mixin.entityactivation;
 
-import net.minecraft.entity.item.EntityFireworkRocket;
-import org.spongepowered.api.entity.projectile.Firework;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.mixin.plugin.entityactivation.ActivationRange;
+import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.IModData_Activation;
 
 @NonnullByDefault
-@Mixin(EntityFireworkRocket.class)
-public abstract class MixinEntityFireworkRocket extends MixinEntity {
+@Mixin(net.minecraft.world.World.class)
+public abstract class MixinWorld_Activation implements IMixinWorld {
 
-    @Shadow private int fireworkAge;
-
-    @Override
-    public void inactiveTick() {
-        this.fireworkAge += 1;
-        super.inactiveTick();
+    @Inject(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;canEntityUpdate(Lnet/minecraft/entity/Entity;)Z",
+            shift = At.Shift.BY, by = 3, ordinal = 0, remap = false), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
+    public void onUpdateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate, CallbackInfo ci, int i, int j,
+            boolean isForced, int k, boolean canUpdate) {
+        // ignore if forced by forge event update or entity's chunk
+        if (!isForced && !ActivationRange.checkIfActive(entity)) {
+            entity.ticksExisted++;
+            ((IModData_Activation) entity).inactiveTick();
+            ci.cancel();
+        }
     }
 
 }

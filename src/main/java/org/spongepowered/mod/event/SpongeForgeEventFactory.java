@@ -909,6 +909,9 @@ public class SpongeForgeEventFactory {
             Iterator<Transaction<BlockSnapshot>> iterator = spongeEvent.getTransactions().iterator();
             while (iterator.hasNext()) {
                 Transaction<BlockSnapshot> transaction = iterator.next();
+                if (!transaction.getOriginal().getLocation().isPresent()) {
+                    continue;
+                }
                 Location<World> location = transaction.getOriginal().getLocation().get();
                 net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
                 BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());

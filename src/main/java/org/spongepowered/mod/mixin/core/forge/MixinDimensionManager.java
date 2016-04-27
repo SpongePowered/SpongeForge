@@ -198,6 +198,12 @@ public abstract class MixinDimensionManager {
             FMLLog.info("Loading dimension %d (%s) (%s)", id, world.getWorldInfo().getWorldName(), world.getMinecraftServer());
         } else {
             final WorldServer worldServer = worlds.remove(id);
+            IMixinWorld spongeWorld = (IMixinWorld) worldServer;
+            spongeWorld.getActiveConfig().save();
+            if (worldServer.isRemote) {
+                // clear config
+                spongeWorld.setActiveConfig(null);
+            }
             MinecraftServer.getServer().worldTickTimes.remove(id);
             // Sponge - include world name in log output
             FMLLog.info("Unloading dimension %d (%s)", id, worldServer.getWorldInfo().getWorldName());
