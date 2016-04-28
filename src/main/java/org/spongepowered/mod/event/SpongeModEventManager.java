@@ -133,18 +133,6 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(SleepingEvent.Pre.class, PlayerSleepInBedEvent.class)
                     .build();
 
-    public static final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventBulkMappings =
-            new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
-                    .put(CollideEntityEvent.class, EntityItemPickupEvent.class)
-                    .put(DropItemEvent.Destruct.class, LivingDropsEvent.class)
-                    .put(InteractBlockEvent.class, PlayerInteractEvent.class)
-                    .put(InteractBlockEvent.Primary.class, PlayerInteractEvent.class)
-                    .put(InteractBlockEvent.Secondary.class, PlayerInteractEvent.class)
-                    .put(InteractEntityEvent.Secondary.class, EntityInteractEvent.class)
-                    .put(SpawnEntityEvent.class, EntityJoinWorldEvent.class)
-                    .put(ChangeBlockEvent.Break.class, BlockEvent.BreakEvent.class)
-                    .put(ChangeBlockEvent.Place.class, BlockEvent.PlaceEvent.class)
-                    .build();
 
     @Inject
     public SpongeModEventManager(PluginManager pluginManager) {
@@ -251,10 +239,11 @@ public class SpongeModEventManager extends SpongeEventManager {
             Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz =
                     this.eventMappings.get(spongeEvent.getClass().getInterfaces()[0]);
             if (clazz == null) {
-                clazz = eventBulkMappings.get(spongeEvent.getClass().getInterfaces()[0]);
+                clazz = getBulkEventClass(spongeEvent.getClass());
                 if (clazz != null) {
                     return postBulk(spongeEvent, clazz);
                 }
+
             } else {
                 StaticMixinHelper.processingInternalForgeEvent = true;
                 net.minecraftforge.fml.common.eventhandler.Event forgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent(spongeEvent, clazz);
@@ -267,6 +256,37 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
         // no checking for modifications required
         return post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true);
+    }
+
+    private Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getBulkEventClass(Class<? extends Event> clazz) {
+        if (CollideEntityEvent.class.isAssignableFrom(clazz)) {
+            return EntityItemPickupEvent.class;
+        }
+        if (DropItemEvent.Destruct.class.isAssignableFrom(clazz)) {
+            return LivingDropsEvent.class;
+        }
+        if (InteractBlockEvent.class.isAssignableFrom(clazz)) {
+            return PlayerInteractEvent.class;
+        }
+        if (InteractBlockEvent.Primary.class.isAssignableFrom(clazz)) {
+            return PlayerInteractEvent.class;
+        }
+        if (InteractBlockEvent.Secondary.class.isAssignableFrom(clazz)) {
+            return PlayerInteractEvent.class;
+        }
+        if (InteractEntityEvent.Secondary.class.isAssignableFrom(clazz)) {
+            return EntityInteractEvent.class;
+        }
+        if (SpawnEntityEvent.class.isAssignableFrom(clazz)) {
+            return EntityJoinWorldEvent.class;
+        }
+        if (ChangeBlockEvent.Break.class.isAssignableFrom(clazz)) {
+            return BlockEvent.BreakEvent.class;
+        }
+        if (ChangeBlockEvent.Place.class.isAssignableFrom(clazz)) {
+            return BlockEvent.PlaceEvent.class;
+        }
+        return null;
     }
 
     private EventBus getForgeEventBus(Class<?> clazz) {
