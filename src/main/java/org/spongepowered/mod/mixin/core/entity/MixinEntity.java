@@ -66,7 +66,6 @@ public abstract class MixinEntity implements IMixinEntity {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     public boolean teleportEntity(Entity entity, Location<World> location, int currentDim, int targetDim, boolean forced) {
         MinecraftServer mcServer = MinecraftServer.getServer();
         final WorldServer fromWorld = mcServer.worldServerForDimension(currentDim);
@@ -74,12 +73,13 @@ public abstract class MixinEntity implements IMixinEntity {
         if (entity instanceof EntityPlayer) {
             fromWorld.getEntityTracker().removePlayerFromTrackers((EntityPlayerMP) entity);
             fromWorld.getPlayerManager().removePlayer((EntityPlayerMP) entity);
-            mcServer.getConfigurationManager().playerEntityList.remove(entity);
+            mcServer.getConfigurationManager().getPlayerList().remove(entity);
         } else {
             fromWorld.getEntityTracker().untrackEntity(entity);
         }
 
         entity.worldObj.removePlayerEntityDangerously(entity);
+        entity.isDead = false;
         entity.dimension = targetDim;
         entity.setPositionAndRotation(location.getX(), location.getY(), location.getZ(), 0, 0);
         if (forced) {
@@ -101,8 +101,8 @@ public abstract class MixinEntity implements IMixinEntity {
                 // Send bogus dimension change for same worlds on Vanilla client
                 if (currentDim != targetDim && (currentDim == clientDimension || targetDim == clientDimension)) {
                     entityplayermp1.playerNetServerHandler.sendPacket(
-                            new S07PacketRespawn((byte) (clientDimension >= 0 ? -1 : 0), toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
-                                    entityplayermp1.theItemInWorldManager.getGameType()));
+                            new S07PacketRespawn((byte) (clientDimension >= 0 ? -1 : 0), toWorld.getDifficulty(),
+                                toWorld.getWorldInfo().getTerrainType(), entityplayermp1.theItemInWorldManager.getGameType()));
                 }
             }
 
@@ -110,23 +110,23 @@ public abstract class MixinEntity implements IMixinEntity {
                     new S07PacketRespawn(clientDimension, toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
                             entityplayermp1.theItemInWorldManager.getGameType()));
             entity.setWorld(toWorld);
-            entity.isDead = false;
             entityplayermp1.playerNetServerHandler.setPlayerLocation(entityplayermp1.posX, entityplayermp1.posY, entityplayermp1.posZ,
                     entityplayermp1.rotationYaw, entityplayermp1.rotationPitch);
             entityplayermp1.setSneaking(false);
             mcServer.getConfigurationManager().updateTimeAndWeatherForPlayer(entityplayermp1, toWorld);
             toWorld.getPlayerManager().addPlayer(entityplayermp1);
             toWorld.spawnEntityInWorld(entityplayermp1);
-            mcServer.getConfigurationManager().playerEntityList.add(entityplayermp1);
+            mcServer.getConfigurationManager().getPlayerList().add(entityplayermp1);
             entityplayermp1.theItemInWorldManager.setWorld(toWorld);
             entityplayermp1.addSelfToInternalCraftingInventory();
             entityplayermp1.setHealth(entityplayermp1.getHealth());
-            for(Object effect : entityplayermp1.getActivePotionEffects()) {
+            for (Object effect : entityplayermp1.getActivePotionEffects()) {
                 entityplayermp1.playerNetServerHandler.sendPacket(new S1DPacketEntityEffect(entityplayermp1.getEntityId(), (PotionEffect) effect));
             }
 
             FMLCommonHandler.instance().firePlayerChangedDimensionEvent(entityplayermp1, currentDim, targetDim);
         } else {
+            entity.setWorld(toWorld);
             toWorld.spawnEntityInWorld(entity);
         }
 
