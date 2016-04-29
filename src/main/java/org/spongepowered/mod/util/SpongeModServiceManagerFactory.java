@@ -22,42 +22,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.fml.common;
+package org.spongepowered.mod.util;
 
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.MinecraftDummyContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.collect.Maps;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.ServiceManager;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.util.ServiceManagerFactory;
 
-import java.util.Optional;
+import java.util.Map;
 
-import javax.annotation.Nullable;
+public final class SpongeModServiceManagerFactory {
 
-@Mixin(MinecraftDummyContainer.class)
-public abstract class MixinMinecraftDummyContainerClient implements PluginContainer {
+    private static Map<String, ServiceManager> managers;
 
-    @Nullable private ServiceManager serviceManager;
-
-    @Override
-    public Logger getLogger() {
-        return LoggerFactory.getLogger(Minecraft.class);
+    private SpongeModServiceManagerFactory() {
     }
 
-    @Override
-    public Optional<Minecraft> getInstance() {
-        return Optional.ofNullable(Minecraft.getMinecraft());
-    }
-
-    @Override
-    public ServiceManager getServiceManager() {
-        if (this.serviceManager == null) {
-            this.serviceManager = ServiceManagerFactory.createServiceManager();
+    public static ServiceManager getServiceManager(PluginContainer container) {
+        if (managers == null) {
+            managers = Maps.newHashMap();
         }
-        return this.serviceManager;
+        return managers.computeIfAbsent(container.getId(), id -> ServiceManagerFactory.createServiceManager());
     }
-
 }
