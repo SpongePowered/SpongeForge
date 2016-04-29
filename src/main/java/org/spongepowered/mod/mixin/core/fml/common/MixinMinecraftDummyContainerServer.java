@@ -29,12 +29,18 @@ import net.minecraftforge.fml.common.MinecraftDummyContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.common.util.ServiceManagerFactory;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 @Mixin(MinecraftDummyContainer.class)
 public abstract class MixinMinecraftDummyContainerServer implements PluginContainer {
+
+    @Nullable private ServiceManager serviceManager;
 
     @Override
     public Logger getLogger() {
@@ -44,6 +50,14 @@ public abstract class MixinMinecraftDummyContainerServer implements PluginContai
     @Override
     public Optional<MinecraftServer> getInstance() {
         return Optional.ofNullable(MinecraftServer.getServer());
+    }
+
+    @Override
+    public ServiceManager getServiceManager() {
+        if (this.serviceManager == null) {
+            this.serviceManager = ServiceManagerFactory.createServiceManager();
+        }
+        return this.serviceManager;
     }
 
 }

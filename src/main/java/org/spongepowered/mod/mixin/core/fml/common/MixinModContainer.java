@@ -31,11 +31,13 @@ import com.google.common.collect.ImmutableList;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ModMetadata;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.plugin.AbstractPluginContainer;
 import org.spongepowered.mod.interfaces.IMixinModMetadata;
+import org.spongepowered.mod.util.SpongeModServiceManagerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -97,6 +99,10 @@ public interface MixinModContainer extends ModContainer {
 
     default Optional<?> getInstance() {
         return Optional.ofNullable(getMod());
+    }
+
+    default ServiceManager getServiceManager() {
+        return SpongeModServiceManagerFactory.getServiceManager((PluginContainer) this);
     }
 
 }
