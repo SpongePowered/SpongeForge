@@ -26,7 +26,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 // Forge Version
-ext.forgeBuild = '1808'
+ext.forgeBuild = '1855'
 
 minecraft {
     forgeVersion = forgeBuild
