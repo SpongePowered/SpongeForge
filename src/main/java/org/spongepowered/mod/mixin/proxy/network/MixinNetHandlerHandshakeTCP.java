@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.bungee.network;
+package org.spongepowered.mod.mixin.proxy.network;
 
 import com.mojang.authlib.properties.Property;
 import net.minecraft.network.EnumConnectionState;
@@ -35,6 +35,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.interfaces.IMixinNetworkManager;
+import org.spongepowered.common.proxy.Proxy;
 
 /**
  * @author dualspiral
@@ -50,14 +51,11 @@ public abstract class MixinNetHandlerHandshakeTCP {
     public boolean redirectFmlCheck(FMLCommonHandler handler, C00Handshake packetIn, NetworkManager networkManager) {
         // Don't bother if the player is not allowed to log in.
         if (handler.shouldAllowPlayerLogins() && packetIn.getRequestedState() == EnumConnectionState.LOGIN) {
-            Property[] pr = ((IMixinNetworkManager) networkManager).getSpoofedProfile();
-            if (pr != null) {
-                for (Property p : pr) {
-                    if (p.getName().equalsIgnoreCase("forgeClient") && p.getValue().equalsIgnoreCase("true")) {
-                        // Manually tell the system that we're a FML client.
-                        networkManager.channel().attr(NetworkRegistry.FML_MARKER).set(true);
-                        return true;
-                    }
+            for (Property property : ((IMixinNetworkManager) networkManager).getProxyProfile().getProperties().values()) {
+                if (property.getName().equalsIgnoreCase(Proxy.FML_PROPERTY_NAME) && property.getValue().equalsIgnoreCase(Proxy.FML_PROPERTY_VALUE)) {
+                    // Manually tell the system that we're a FML client.
+                    networkManager.channel().attr(NetworkRegistry.FML_MARKER).set(true);
+                    return true;
                 }
             }
         }

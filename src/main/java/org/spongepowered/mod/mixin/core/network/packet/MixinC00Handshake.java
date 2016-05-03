@@ -33,7 +33,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.interfaces.network.handshake.client.IMixinCHandshake;
+import org.spongepowered.common.proxy.HandshakeRequest;
+import org.spongepowered.common.proxy.Proxy;
+import org.spongepowered.common.proxy.ProxyManager;
 
 import java.io.IOException;
 
@@ -47,7 +50,7 @@ public abstract class MixinC00Handshake {
     @Shadow(remap = false) private boolean hasFMLMarker = false;
 
     /**
-     * @author bloodmc, dualspiral
+     * @author bloodmc, dualspiral, kashike
      *
      * Forge strips out its FML marker when clients connect. This causes
      * BungeeCord's IP forwarding data to be stripped. In order to 
@@ -56,28 +59,24 @@ public abstract class MixinC00Handshake {
      */
     @Inject(method = "readPacketData(Lnet/minecraft/network/PacketBuffer;)V", at = @At("HEAD"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
     public void readPacketData(PacketBuffer buf, CallbackInfo callbackInfo) throws IOException {
-
         // Sponge start
         this.protocolVersion = buf.readVarIntFromBuffer();
 
-        if (!SpongeImpl.getGlobalConfig().getConfig().getModules().usePluginBungeeCord()
-                || !SpongeImpl.getGlobalConfig().getConfig().getBungeeCord().getIpForwarding()) {
+        if (!ProxyManager.INSTANCE.forwardsClientDetails()) {
             this.ip = buf.readStringFromBuffer(255);
         } else {
             this.ip = buf.readStringFromBuffer(Short.MAX_VALUE);
-            String split[] = this.ip.split("\0\\|", 2);
-            this.ip = split[0];
-            // If we have extra data, check to see if it is telling us we have a
-            // FML marker
-            if (split.length == 2) {
-                this.hasFMLMarker = split[1].contains("\0FML\0");
-            }
         }
+
+        HandshakeRequest request = ((IMixinCHandshake) this).getHandshakeRequest();
+        ProxyManager.INSTANCE.earlyHandshake(request);
+        this.ip = request.getHandshake();
+        this.hasFMLMarker = request.hasFMLMarker();
 
         // Check for FML marker and strip if found, but only if it wasn't
         // already in the extra data.
         if (!this.hasFMLMarker) {
-            this.hasFMLMarker = this.ip.contains("\0FML\0");
+            this.hasFMLMarker = this.ip.contains(Proxy.FML_MARKER);
             if (this.hasFMLMarker) {
                 this.ip = this.ip.split("\0")[0];
             }
