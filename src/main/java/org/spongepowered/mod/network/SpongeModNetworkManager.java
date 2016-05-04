@@ -34,8 +34,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.C17PacketCustomPayload;
+import net.minecraft.network.play.server.S3FPacketCustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -89,10 +91,19 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
 
     private <T extends SpongeModChannelBinding> T registerChannel(T channel) {
         this.channelMap.put(channel.getName(), channel);
-        ServerConfigurationManager confMgr = MinecraftServer.getServer().getConfigurationManager();
-        if (confMgr != null) {
+        MinecraftServer server = MinecraftServer.getServer();
+        ServerConfigurationManager players = server.getConfigurationManager();
+        if (server.isDedicatedServer() && players != null) {
             // Register channel to all players (when registering server side)
-            confMgr.sendPacketToAllPlayers(getRegPacket(channel.getName()));
+            String channelName = channel.getName();
+            S3FPacketCustomPayload packet = getRegPacket(channelName);
+            for (EntityPlayerMP player : players.getPlayerList()) {
+                if (((IMixinNetPlayHandler) player.playerNetServerHandler).getRegisteredChannels().add(channelName)) {
+                    player.playerNetServerHandler.sendPacket(packet);
+                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Cause.of(NamedCause.owner(player)), channelName));
+                }
+
+            }
         }
         if (SpongeImpl.getGame().getPlatform().getExecutionType().isClient()) {
             EntityPlayerSP clientPlayer = Minecraft.getMinecraft().thePlayer;
