@@ -27,12 +27,14 @@ package org.spongepowered.mod.mixin.core.server.management;
 import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;
+import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemDoor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketBlockChange;
@@ -45,19 +47,22 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ILockableContainer;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.Tristate;
-import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
+import org.spongepowered.common.util.TristateUtil;
 
 import java.util.Optional;
 
@@ -65,19 +70,24 @@ import java.util.Optional;
 public abstract class MixinPlayerInteractionManager {
 
     @Shadow public EntityPlayerMP thisPlayerMP;
-    @Shadow public net.minecraft.world.World theWorld;
+    @Shadow public World theWorld;
     @Shadow private WorldSettings.GameType gameType;
 
     @Shadow public abstract boolean isCreative();
-    @Shadow public abstract boolean tryUseItem(EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack);
+    @Shadow public abstract EnumActionResult processRightClick(EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack, EnumHand hand);
+    @Shadow(remap = false) public abstract double getBlockReachDistance();
+    @Shadow(remap = false) public abstract void setBlockReachDistance(double distance);
 
-    // TODO - need to possibly rewrite this overwrite as forge's hooks are all over the place.
     /**
-     * @author blood - April 6th, 2016
-     * @reason Activate the clicked on block, otherwise use the held item. Throw events.
+     * @author gabizou - May 5th, 2016
+     * @reason Rewrite the firing of interact block events with forge hooks
+     * Note: This is a dirty merge of Aaron's SpongeCommon writeup of the interaction events and
+     * Forge's additions. There's some overlay between the two events, specifically that there
+     * is a SpongeEvent thrown before the ForgeEvent, and yet both are checked in various
+     * if statements.
      */
     @Overwrite
-    public EnumActionResult processRightClickBlock(EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack, EnumHand hand, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ) {
+    public EnumActionResult processRightClickBlock(EntityPlayer player, World worldIn, ItemStack stack, EnumHand hand, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (this.gameType == WorldSettings.GameType.SPECTATOR) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
 
@@ -100,9 +110,14 @@ public abstract class MixinPlayerInteractionManager {
 
             return EnumActionResult.PASS;
         } else {
-            BlockSnapshot currentSnapshot = ((World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
+            // Sponge Start - fire event, and revert the client if cancelled
+
+            ItemStack oldStack = ItemStack.copyItemStack(stack);
+
+            BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
             InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(Cause.of(NamedCause.source(player)),
-                    Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot, DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
+                    Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
+                    DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
 
             if (event.isCancelled()) {
                 final IBlockState state = worldIn.getBlockState(pos);
@@ -121,59 +136,104 @@ public abstract class MixinPlayerInteractionManager {
                     }
 
                 } else if (stack != null) {
-                    // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-facing of the block. We need to remove it
-                    // TODO - This is likely broken because of reasons. ItemDoublePlant no longer exists.
-                    if (stack.getItem() instanceof ItemDoor || stack.getItem() == ItemTypes.DOUBLE_PLANT) {
+                    // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-side of the block. We need to remove it
+                    if (stack.getItem() instanceof ItemDoor || (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock()
+                            .equals(Blocks.DOUBLE_PLANT))) {
                         ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new SPacketBlockChange(worldIn, pos.up(2)));
                     }
                 }
 
+                return EnumActionResult.FAIL;
+            }
+            // Forge Start
+            PlayerInteractEvent.RightClickBlock forgeEvent = ForgeHooks
+                    .onRightClickBlock(player, hand, stack, pos, facing,
+                            ForgeHooks.rayTraceEyeHitVec(thisPlayerMP, getBlockReachDistance() + 1));
+            if (forgeEvent.isCanceled()) {
                 return EnumActionResult.PASS;
             }
 
-            if (stack != null && stack.getItem().onItemUseFirst(stack, player, worldIn, pos, facing, hitX, hitY, hitZ, hand)) {
-                if (stack.stackSize <= 0) {
-                    net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(thisPlayerMP, stack, hand);
-                }
-                return EnumActionResult.SUCCESS;
+            net.minecraft.item.Item item = stack == null ? null : stack.getItem();
+            EnumActionResult ret = item == null
+                                   ? EnumActionResult.PASS
+                                   : item.onItemUseFirst(stack, player, worldIn, pos, facing, hitX, hitY, hitZ, hand);
+            if (ret != EnumActionResult.PASS) {
+                return ret;
             }
 
-            IBlockState iblockstate = worldIn.getBlockState(pos);
-            boolean useBlock = !player.isSneaking() || player.getHeldItem(hand) == null;
-            if (!useBlock) {
-                useBlock = player.getHeldItem(hand).getItem().doesSneakBypassUse(stack, worldIn, pos, player);
+            boolean bypass = true;
+            final ItemStack[] itemStacks = {player.getHeldItemMainhand(), player.getHeldItemOffhand()};
+            for (ItemStack s : itemStacks) {
+                bypass = bypass && (s == null || s.getItem().doesSneakBypassUse(s, worldIn, pos, player));
             }
-            EnumActionResult result = EnumActionResult.PASS;
 
-            if (useBlock) {
+            EnumActionResult result = EnumActionResult.PASS; // Sponge - Forge deems the default to be PASS, but Sponge is deeming it to be FAIL
+
+            // if (!player.isSneaking() || player.getHeldItemMainhand() == null && player.getHeldItemOffhand() == null) { // Forge - Adds bypass event checks
+            if (!player.isSneaking() || bypass || forgeEvent.getUseBlock() == Event.Result.ALLOW) {
+                // Sponge start - check event useBlockResult, and revert the client if it's FALSE.
+                // Also, store the result instead of returning immediately
                 if (event.getUseBlockResult() != Tristate.FALSE) {
-                    if (iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, stack, facing, hitX, hitY, hitZ)) {
-                        result = EnumActionResult.SUCCESS;
-                    }
+                    IBlockState iblockstate = worldIn.getBlockState(pos);
+                    result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, stack, facing, hitX, hitY, hitZ)
+                             ? EnumActionResult.SUCCESS
+                             : EnumActionResult.FAIL;
                 } else {
                     thisPlayerMP.playerNetServerHandler.sendPacket(new SPacketBlockChange(theWorld, pos));
-                    // TODO - This entire thing needs to be rewritten most likely
-                    result = event.getUseItemResult() != Tristate.TRUE ? EnumActionResult.FAIL : EnumActionResult.PASS;
+                    result = TristateUtil.toActionResult(event.getUseItemResult());
                 }
             }
-            if (stack != null && !result && event.getUseItemResult() != Tristate.FALSE) {
-                int meta = stack.getMetadata();
-                int size = stack.stackSize;
-                result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
-                if (isCreative()) {
-                    stack.setItemDamage(meta);
-                    stack.stackSize = size;
-                }
-                if (stack.stackSize <= 0) {
-                    net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(thisPlayerMP, stack, hand);
+            // Sponge end
+
+
+            // Sponge start - store result instead of returning
+            if (stack == null) {
+                // return EnumActionResult.PASS; // Sponge
+                result = EnumActionResult.PASS;
+            } else if (player.getCooldownTracker().hasCooldown(stack.getItem())) {
+                // return EnumActionResult.PASS; // Sponge
+                result = EnumActionResult.PASS;
+            } else if (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock() instanceof BlockCommandBlock && !player.canCommandSenderUseCommand(2, "")) {
+                // return EnumActionResult.FAIL; // Sponge
+                result = EnumActionResult.FAIL;
+                // Sponge start - nest isCreative check instead of calling the method twice.
+                // } else if (this.isCreative()) {
+            } else {
+                // Run if useItemResult is true, or if useItemResult is undefined and the block interaction failed
+                if (stack != null
+                    && (event.getUseItemResult() == Tristate.TRUE
+                        || (event.getUseItemResult() == Tristate.UNDEFINED && result == EnumActionResult.FAIL)
+                    )
+                    && (result != EnumActionResult.SUCCESS && forgeEvent.getUseItem() != Event.Result.DENY
+                        || result == EnumActionResult.SUCCESS && forgeEvent.getUseItem() == Event.Result.ALLOW
+                    )) {
+                    int meta = stack.getMetadata(); // meta == j
+                    int size = stack.stackSize; // size == i
+                    // EnumActionResult enumactionresult = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ); // Sponge
+                    result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+                    if (isCreative()) {
+                        stack.setItemDamage(meta);
+                        stack.stackSize = size;
+                        // return enumactionresult; // Sponge
+                    }
                 }
             }
 
             // Since we cancel the second packet received while looking at a block with
             // item in hand, we need to make sure to make an attempt to run the 'tryUseItem'
             // method during the first packet.
-            if (stack != null && !result && !event.isCancelled() && event.getUseItemResult() != Tristate.FALSE) {
-                tryUseItem(player, worldIn, stack);
+
+            // TODO - should this even be a thing? Do we really want to manually trigger right click air, when it didn't happen?
+            if (stack != null && result != EnumActionResult.FAIL && !event.isCancelled() && event.getUseItemResult() != Tristate.FALSE) {
+                this.processRightClick(player, worldIn, stack, hand);
+            }
+
+            // if cancelled, force client itemstack update
+            if (!ItemStack.areItemStacksEqual(player.getHeldItem(hand), oldStack) || result != EnumActionResult.SUCCESS) {
+                // TODO - maybe send just main/off hand?
+                player.openContainer.detectAndSendChanges();
+                /*((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new SPacketSetSlot(player.openContainer.windowId, player.openContainer.getSlotFromInventory(player.inventory, player.inventory.currentItem),
+                        player.inventory.getCurrentItem());*/
             }
 
             return result;
