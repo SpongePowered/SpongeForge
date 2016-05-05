@@ -30,11 +30,10 @@ import net.minecraft.block.BlockFalling;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.ChunkProviderGenerate;
+import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.terraingen.ChunkProviderEvent;
+import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate;
 import net.minecraftforge.event.terraingen.OreGenEvent;
@@ -60,6 +59,7 @@ import org.spongepowered.api.world.extent.ImmutableBiomeArea;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GenerationPopulator;
 import org.spongepowered.api.world.gen.Populator;
+import org.spongepowered.api.world.gen.PopulatorType;
 import org.spongepowered.api.world.gen.populator.BigMushroom;
 import org.spongepowered.api.world.gen.populator.Cactus;
 import org.spongepowered.api.world.gen.populator.DeadBush;
@@ -77,12 +77,16 @@ import org.spongepowered.api.world.gen.populator.SeaFloor;
 import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.event.InternalNamedCauses;
+import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.phase.TrackingPhases;
+import org.spongepowered.common.event.tracking.phase.WorldPhase;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
-import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.common.world.gen.SpongeChunkGenerator;
-import org.spongepowered.common.world.gen.SpongeChunkProvider;
 import org.spongepowered.common.world.gen.SpongeGenerationPopulator;
 import org.spongepowered.common.world.gen.WorldGenConstants;
 import org.spongepowered.common.world.gen.populators.AnimalPopulator;
@@ -106,7 +110,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
     @Override
     public void replaceBiomeBlocks(World world, Random rand, int x, int z, ChunkPrimer chunk, ImmutableBiomeArea biomes) {
-        ChunkProviderEvent.ReplaceBiomeBlocks event = new ChunkProviderEvent.ReplaceBiomeBlocks(this, x, z, chunk, world);
+        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, x, z, chunk, world);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.getResult() == Result.DENY)
             return;
@@ -114,8 +118,10 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
     }
 
     @Override
-    public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ) {
-        Cause populateCause = Cause.of(NamedCause.source(this), NamedCause.of("ChunkProvider", chunkProvider));
+    public void populate(int chunkX, int chunkZ) {
+        IMixinWorldServer worldServer = (IMixinWorldServer) this.world;
+        final CauseTracker causeTracker = worldServer.getCauseTracker();
+        Cause populateCause = Cause.of(NamedCause.source(this));
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -151,34 +157,41 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
         Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(populateCause, populators, chunk));
 
-        MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Pre(chunkProvider, this.world, this.rand, chunkX, chunkZ, false));
+        MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Pre(this, this.world, this.rand, chunkX, chunkZ, false));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(this.world, this.rand, blockpos));
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Pre(this.world, this.rand, blockpos));
         List<String> flags = Lists.newArrayList();
         for (Populator populator : populators) {
-            StaticMixinHelper.runningGenerator = populator.getType();
-            if (!checkForgeEvent(populator, chunkProvider, chunkX, chunkZ, flags, chunk)) {
+            if (!checkForgeEvent(populator, this, chunkX, chunkZ, flags, chunk)) {
                 continue;
             }
-            if(Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(populateCause, populator, chunk))) {
+            final PopulatorType type = populator.getType();
+            if (type == null) {
+                System.err.printf("Found a populator with a null type: %s populator%n", populator);
+            }
+            causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
+                    .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
+                    .addEntityCaptures()
+                    .complete());
+            if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(populateCause, populator, chunk))) {
                 continue;
             }
             if (populator instanceof IFlaggedPopulator) {
-                ((IFlaggedPopulator) populator).populate(chunkProvider, chunk, this.rand, flags);
+                ((IFlaggedPopulator) populator).populate(chunk, this.rand, flags);
             } else {
                 populator.populate(chunk, this.rand);
             }
+            causeTracker.completePhase();
         }
-        StaticMixinHelper.runningGenerator = null;
 
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Post(this.world, this.rand, blockpos));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Post(this.world, this.rand, blockpos));
-        MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Post(chunkProvider, this.world, this.rand, chunkX, chunkZ, false));
+        MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Post(this, this.world, this.rand, chunkX, chunkZ, false));
 
         // If we wrapped a custom chunk provider then we should call its
         // populate method so that its particular changes are used.
         if (this.baseGenerator instanceof SpongeGenerationPopulator) {
-            ((SpongeGenerationPopulator) this.baseGenerator).getHandle(this.world).populate(chunkProvider, chunkX, chunkZ);
+            ((SpongeGenerationPopulator) this.baseGenerator).getHandle(this.world).populate(chunkX, chunkZ);
         }
 
         org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
@@ -188,7 +201,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         BlockFalling.fallInstantly = false;
     }
 
-    private boolean checkForgeEvent(Populator populator, IChunkProvider chunkProvider, int chunkX, int chunkZ, List<String> flags, Chunk chunk) {
+    private boolean checkForgeEvent(Populator populator, IChunkGenerator chunkProvider, int chunkX, int chunkZ, List<String> flags, Chunk chunk) {
         boolean village_flag = flags.contains(WorldGenConstants.VILLAGE_FLAG);
         if (populator instanceof Ore && populator instanceof WorldGenerator) {
             BlockType type = ((Ore) populator).getOreBlock().getType();
