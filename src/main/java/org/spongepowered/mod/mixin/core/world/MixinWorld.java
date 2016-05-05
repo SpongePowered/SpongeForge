@@ -32,8 +32,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.world.gen.SpongeWorldGenerator;
-import org.spongepowered.mod.world.gen.SpongeChunkProviderForge;
 
 @Mixin(value = net.minecraft.world.World.class, priority = 1001)
 public abstract class MixinWorld implements org.spongepowered.api.world.World, IMixinWorld {
@@ -48,12 +46,6 @@ public abstract class MixinWorld implements org.spongepowered.api.world.World, I
     },require = 2)
     private void onUpdateWeatherBody(CallbackInfo ci) {
         this.setWeatherStartTime(this.worldInfo.getWorldTotalTime());
-    }
-
-    @Override
-    public SpongeChunkProvider createChunkProvider(SpongeWorldGenerator newGenerator) {
-        return new SpongeChunkProviderForge((net.minecraft.world.World) (Object) this, newGenerator.getBaseGenerationPopulator(),
-                newGenerator.getBiomeGenerator());
     }
 
 }

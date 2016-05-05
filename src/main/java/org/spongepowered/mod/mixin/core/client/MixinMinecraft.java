@@ -37,12 +37,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
-import org.spongepowered.common.registry.type.world.WorldPropertyRegistryModule;
 import org.spongepowered.common.world.DimensionManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
@@ -109,7 +107,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     @Inject(method = LOAD_WORLD, at = @At(value = "INVOKE", target = ENTITY_PLAYER_PREPARE_TO_SPAWN, shift = At.Shift.AFTER))
     private void onSpawn(WorldClient client, String name, CallbackInfo callbackInfo) {
         try {
-            if (MinecraftServer.getServer().isSinglePlayer()) {
+            if (SpongeImpl.getServer().isSinglePlayer()) {
                 EntityPlayer player = Minecraft.getMinecraft().thePlayer;
                 UUID uuid = player.getUniqueID();
                 Optional<Instant> joined = SpongePlayerDataHandler.getFirstJoined(uuid);

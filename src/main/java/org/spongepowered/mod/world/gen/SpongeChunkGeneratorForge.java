@@ -81,6 +81,7 @@ import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.common.world.gen.SpongeChunkGenerator;
 import org.spongepowered.common.world.gen.SpongeChunkProvider;
 import org.spongepowered.common.world.gen.SpongeGenerationPopulator;
 import org.spongepowered.common.world.gen.WorldGenConstants;
@@ -94,12 +95,12 @@ import java.util.Optional;
 import java.util.Random;
 
 /**
- * Similar class to {@link ChunkProviderGenerate}, but instead gets its blocks
+ * Similar class to {@link SpongeChunkGenerator}, but instead gets its blocks
  * from a custom chunk generator.
  */
-public final class SpongeChunkProviderForge extends SpongeChunkProvider {
+public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
-    public SpongeChunkProviderForge(World world, GenerationPopulator generationPopulator, BiomeGenerator biomeGenerator) {
+    public SpongeChunkGeneratorForge(World world, GenerationPopulator generationPopulator, BiomeGenerator biomeGenerator) {
         super(world, generationPopulator, biomeGenerator);
     }
 

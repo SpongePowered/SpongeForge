@@ -36,11 +36,11 @@ import org.spongepowered.asm.mixin.Mixin;
 public abstract class MixinWorldGeneratorForge {
 
     public boolean isAir(IBlockState state, World worldIn, BlockPos pos) {
-        return state.getBlock().isAir(worldIn, pos);
+        return state.getBlock().isAir(state, worldIn, pos);
     }
 
     public boolean isLeaves(IBlockState state, World worldIn, BlockPos pos) {
-        return state.getBlock().isLeaves(worldIn, pos);
+        return state.getBlock().isLeaves(state, worldIn, pos);
     }
 
     public boolean isWood(IBlockState state, World worldIn, BlockPos pos) {
@@ -48,7 +48,7 @@ public abstract class MixinWorldGeneratorForge {
     }
     
     public boolean canSustainPlant(Block block, World worldIn, BlockPos pos, EnumFacing direction, Block plant) {
-        return block.canSustainPlant(worldIn, pos, direction, (IPlantable) plant);
+        return block.canSustainPlant(worldIn.getBlockState(pos), worldIn, pos, direction, (IPlantable) plant);
     }
 
 }

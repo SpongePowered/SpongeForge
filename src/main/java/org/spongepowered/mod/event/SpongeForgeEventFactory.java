@@ -32,7 +32,8 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
+import net.minecraft.network.play.client.CPacketPlayerBlockPlacement;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.EnumFacing;
@@ -65,7 +66,6 @@ import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -193,14 +193,15 @@ public class SpongeForgeEventFactory {
 
             } else if (clazz == PlayerSleepInBedEvent.class) {
                 return createPlayerSleepInBedEvent(event);
-            } else if (clazz == PlayerUseItemEvent.Start.class) {
-                return createPlayerUseItemStartEvent(event);
-            } else if (clazz == PlayerUseItemEvent.Tick.class) {
-                return createPlayerUseItemTickEvent(event);
-            } else if (clazz == PlayerUseItemEvent.Stop.class) {
-                return createPlayerUseItemStopEvent(event);
-            } else if (clazz == PlayerUseItemEvent.Finish.class) {
-                return createPlayerUseItemFinishEvent(event);
+                // TODO - gabizou - rewrite the handlers for these events with the new event structure
+//            } else if (clazz == PlayerUseItemEvent.Start.class) {
+//                return createPlayerUseItemStartEvent(event);
+//            } else if (clazz == PlayerUseItemEvent.Tick.class) {
+//                return createPlayerUseItemTickEvent(event);
+//            } else if (clazz == PlayerUseItemEvent.Stop.class) {
+//                return createPlayerUseItemStopEvent(event);
+//            } else if (clazz == PlayerUseItemEvent.Finish.class) {
+//                return createPlayerUseItemFinishEvent(event);
             } else {
                 return (net.minecraftforge.fml.common.eventhandler.Event) event;
             }
@@ -503,12 +504,18 @@ public class SpongeForgeEventFactory {
 
     // Player events
 
-    private static EntityInteractEvent createEntityInteractEvent(Event event) {
+    private static PlayerInteractEvent.EntityInteract createEntityInteractEvent(Event event) {
         if (!(event instanceof InteractEntityEvent.Secondary)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid InteractEntityEvent.");
         }
 
         InteractEntityEvent.Secondary spongeEvent = (InteractEntityEvent.Secondary) event;
+        final EnumHand hand = spongeEvent instanceof InteractEntityEvent.Secondary.MainHand
+                              ? EnumHand.MAIN_HAND
+                              : spongeEvent instanceof InteractEntityEvent.Secondary.OffHand
+                                ? EnumHand.OFF_HAND
+                                : EnumHand.MAIN_HAND;
+
         Optional<Player> player = spongeEvent.getCause().first(Player.class);
         if (!player.isPresent()) {
             return null;
@@ -517,7 +524,8 @@ public class SpongeForgeEventFactory {
         final EntityPlayer entityPlayer = (EntityPlayer) player.get();
         final Entity entity = (Entity) spongeEvent.getTargetEntity();
 
-        EntityInteractEvent forgeEvent = new EntityInteractEvent(entityPlayer, entity);
+        // This needs to be handled
+        PlayerInteractEvent.EntityInteract forgeEvent = new PlayerInteractEvent.EntityInteract(entityPlayer, hand, entity);
         return forgeEvent;
     }
 

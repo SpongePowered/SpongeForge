@@ -29,6 +29,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
@@ -53,6 +55,7 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
@@ -82,6 +85,7 @@ import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
 import org.spongepowered.common.registry.type.effect.PotionEffectTypeRegistryModule;
+import org.spongepowered.common.registry.type.item.EnchantmentRegistryModule;
 import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
@@ -122,14 +126,16 @@ public class SpongeMod extends DummyModContainer {
         Guice.createInjector(new SpongeGuiceModule()).getInstance(SpongeImpl.class);
         this.game = SpongeImpl.getGame();
 
-        SpongeGameData.addRegistryCallback(GameData.getBlockRegistry(), (obj, id) ->
-                BlockTypeRegistryModule.getInstance().registerFromGameData(GameData.getBlockRegistry().getNameForObject(obj).toString(),
-                        (BlockType) obj));
-        SpongeGameData.addRegistryCallback(GameData.getItemRegistry(), (obj, id) ->
-                ItemTypeRegistryModule.getInstance().registerFromGameData(GameData.getItemRegistry().getNameForObject(obj).toString(),
+        SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (obj, id, location) ->
+                BlockTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.BLOCKS.getKey(obj).toString(), (BlockType) obj));
+        SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (obj, id, location) ->
+                ItemTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ITEMS.getKey(obj).toString(),
                         (ItemType) obj));
-        SpongeGameData.addRegistryCallback(GameData.getPotionRegistry(), (obj, id) ->
-                PotionEffectTypeRegistryModule.getInstance().registerFromGameData(GameData.getPotionRegistry().getNameForObject(obj).toString(),
+        SpongeGameData.addRegistryCallback(ForgeRegistries.ENCHANTMENTS, (obj, id, location) ->
+                EnchantmentRegistryModule
+        );
+        SpongeGameData.addRegistryCallback(ForgeRegistries.POTION_TYPES, (obj, id, location) ->
+                PotionEffectTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.POTION_TYPES.getKey(obj).toString(),
                         (PotionEffectType) obj));
 
         VillagerRegistry.instance();

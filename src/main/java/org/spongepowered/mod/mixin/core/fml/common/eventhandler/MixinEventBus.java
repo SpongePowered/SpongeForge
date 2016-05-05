@@ -63,8 +63,10 @@ public abstract class MixinEventBus implements IMixinEventBus {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
         if (!forgeOnly && event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
-            if (event instanceof BlockEvent.PlaceEvent || event instanceof BlockEvent.BreakEvent || event instanceof ItemTossEvent ||
-                    (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent)) {
+            if (event instanceof BlockEvent.PlaceEvent
+                || event instanceof BlockEvent.BreakEvent
+                || event instanceof ItemTossEvent
+                || (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent)) {
                 return false; // let the event happen, we will just capture it
             }
             boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(null, event, listeners);

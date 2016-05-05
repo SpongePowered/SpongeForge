@@ -27,7 +27,8 @@ package org.spongepowered.mod.mixin.core.event.player;
 import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
@@ -39,12 +40,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
+import org.spongepowered.mod.mixin.core.fml.common.gameevent.MixinPlayerEvent;
 
 import java.util.Optional;
 
 @NonnullByDefault
-@Mixin(value = EntityInteractEvent.class, remap = false)
-public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity implements InteractEntityEvent.Secondary {
+@Mixin(value = PlayerInteractEvent.EntityInteract.class, remap = false)
+public abstract class MixinEventPlayerInteractEntity extends MixinPlayerEvent implements InteractEntityEvent.Secondary {
 
     @Shadow @Final Entity target;
 
@@ -52,7 +54,8 @@ public abstract class MixinEventPlayerInteractEntity extends MixinEventEntity im
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstruct(CallbackInfo callbackInfo) {
-        this.cause = Cause.of(NamedCause.source(((EntityEvent) (Object) this).entity));
+        // TODO - gabizou rewrite event mixins for new event structure from Forge
+//        this.cause = Cause.of(NamedCause.source(((PlayerInteractEvent.EntityInteract) (Object) this).));
     }
 
     @Override

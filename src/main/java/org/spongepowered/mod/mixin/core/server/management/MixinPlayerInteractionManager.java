@@ -29,9 +29,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.server.management.PlayerInteractionManager;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,15 +44,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(PlayerInteractionManager.class)
 public abstract class MixinPlayerInteractionManager {
 
-    @Inject(method = "activateBlockOrUseItem", at = @At(value = "RETURN", ordinal = 3))
-    public void onActivateBlockOrUseItem(EntityPlayer player, World worldIn, ItemStack stack, BlockPos pos, EnumFacing side, float p_180236_6_,
-            float p_180236_7_, float p_180236_8_, CallbackInfoReturnable<Boolean> cir) {
+    // TODO - gabizou - This injection needs to be re-evaluated
+    @Inject(method = "processRightClickBlock", at = @At(value = "RETURN", ordinal = 3))
+    public void onActivateBlockOrUseItem(EntityPlayer player, World worldIn, ItemStack stack, EnumHand hand, BlockPos pos, EnumFacing facing,
+            float hitX, float hitY, float hitZ, CallbackInfoReturnable<EnumActionResult> cir) {
         IBlockState iblockstate = worldIn.getBlockState(pos);
         if (iblockstate.getProperties().containsKey(BlockDoor.HALF)) {
             if (iblockstate.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) {
-                ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.up()));
+                ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new SPacketBlockChange(worldIn, pos.up()));
             } else {
-                ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.down()));
+                ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new SPacketBlockChange(worldIn, pos.down()));
             }
         }
     }

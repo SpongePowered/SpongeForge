@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.common.SpongeImpl;
 
 import java.util.Optional;
 
@@ -43,7 +44,7 @@ public abstract class MixinMinecraftDummyContainerServer implements PluginContai
 
     @Override
     public Optional<MinecraftServer> getInstance() {
-        return Optional.ofNullable(MinecraftServer.getServer());
+        return Optional.ofNullable(SpongeImpl.getServer());
     }
 
 }

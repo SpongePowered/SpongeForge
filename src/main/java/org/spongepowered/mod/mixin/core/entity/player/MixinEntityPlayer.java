@@ -28,14 +28,13 @@ import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.event.SpongeEventFactory;
@@ -51,9 +50,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.entity.player.ISpongeUser;
-import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
-import org.spongepowered.common.registry.type.world.WorldPropertyRegistryModule;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.common.world.DimensionManager;
 import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLivingBase;
 
 import java.util.HashMap;
@@ -101,7 +99,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         if (cir.getReturnValue() == EnumStatus.OK) {
             // A cut-down version of trySleep handling for OK status
             if (this.nmsPlayer.isRiding()) {
-                this.nmsPlayer.mountEntity((Entity) null);
+                this.nmsPlayer.dismountRidingEntity();
             }
             this.setSize(0.2F, 0.2F);
             this.nmsPlayer.setPosition((double) ((float) bedLocation.getX() + 0.5F), (double) ((float) bedLocation.getY() + 0.6875F),
@@ -121,9 +119,9 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         IBlockState iblockstate = this.nmsPlayer.worldObj.getBlockState(this.playerLocation);
 
         Transform<World> newLocation = null;
-        if (this.playerLocation != null && iblockstate.getBlock().isBed(this.nmsPlayer.worldObj, this.playerLocation, this.nmsPlayer)) {
+        if (this.playerLocation != null && iblockstate.getBlock().isBed(iblockstate, this.nmsPlayer.worldObj, this.playerLocation, this.nmsPlayer)) {
             iblockstate.getBlock().setBedOccupied(this.nmsPlayer.worldObj, this.playerLocation, this.nmsPlayer, false);
-            BlockPos blockpos = iblockstate.getBlock().getBedSpawnPosition(this.nmsPlayer.worldObj, this.playerLocation, this.nmsPlayer);
+            BlockPos blockpos = iblockstate.getBlock().getBedSpawnPosition(iblockstate, this.nmsPlayer.worldObj, this.playerLocation, this.nmsPlayer);
 
             if (blockpos == null) {
                 blockpos = this.nmsPlayer.playerLocation.up();
@@ -173,13 +171,13 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     public Map<UUID, RespawnLocation> getBedlocations() {
         Map<UUID, RespawnLocation> locations = Maps.newHashMap();
         if (this.spawnChunk != null) {
-            locations.put(WorldPropertyRegistryModule.dimIdToUuid(0), RespawnLocation.builder()
-                    .world(WorldPropertyRegistryModule.dimIdToUuid(0))
+            locations.put(DimensionManager.dimIdToUuid(0), RespawnLocation.builder() //TODO - Zidane needs to come up with a way to get the uuid by dimension id
+                    .world(DimensionManager.dimIdToUuid(0)) //TODO - Zidane needs to come up with a way to get the uuid by dimension id
                     .position(VecHelper.toVector3d(this.spawnChunk))
                     .build());
         }
         for (Entry<Integer, BlockPos> entry : this.spawnChunkMap.entrySet()) {
-            UUID uuid = WorldPropertyRegistryModule.dimIdToUuid(entry.getKey());
+            UUID uuid = DimensionManager.dimIdToUuid(entry.getKey()); //TODO - Zidane needs to come up with a way to get the uuid by dimension id
             if (uuid != null) {
                 locations.put(uuid, RespawnLocation.builder().world(uuid).position(VecHelper.toVector3d(entry.getValue())).build());
             }
@@ -195,7 +193,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         setSpawnChunk(null, false, 0);
         // Add replacement values
         for (Entry<UUID, RespawnLocation> entry : locations.entrySet()) {
-            int dim = WorldPropertyRegistryModule.uuidToDimId(entry.getKey());
+            int dim = DimensionManager.uuidToDimId(entry.getKey()); //TODO - Zidane needs to come up with a way to get the uuid by dimension id
             if (dim != Integer.MIN_VALUE) {
                 // Note: No way to set 'force' parameter
                 setSpawnChunk(VecHelper.toBlockPos(entry.getValue().getPosition()), false, dim);

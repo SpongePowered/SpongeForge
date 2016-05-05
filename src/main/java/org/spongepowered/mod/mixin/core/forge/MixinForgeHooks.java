@@ -48,6 +48,7 @@ public class MixinForgeHooks {
      */
     @Overwrite
     public static boolean canHarvestBlock(Block block, EntityPlayer player, IBlockAccess world, BlockPos pos) {
+
         if (block.getMaterial().isToolNotRequired()) {
             return true;
         }
@@ -55,6 +56,7 @@ public class MixinForgeHooks {
         ItemStack stack = player.inventory.getCurrentItem();
         // Sponge start - If we are currently sending a break event for Forge, use the event's extended state.
         IBlockState state = null;
+        // TODO - gabizou - This was refactored in the CauseTracking system, it's not needed, but needs to be properly handled
         if (StaticMixinHelper.breakEventExtendedState != null) {
             state = StaticMixinHelper.breakEventExtendedState;
         } else {
@@ -66,12 +68,12 @@ public class MixinForgeHooks {
         // Sponge end
 
         if (stack == null || tool == null) {
-            return player.canHarvestBlock(block);
+            return player.canHarvestBlock(state);
         }
 
         int toolLevel = stack.getItem().getHarvestLevel(stack, tool);
         if (toolLevel < 0) {
-            return player.canHarvestBlock(block);
+            return player.canHarvestBlock(state);
         }
 
         return toolLevel >= block.getHarvestLevel(state);
