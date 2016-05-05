@@ -50,9 +50,11 @@ import net.minecraftforge.fml.common.versioning.VersionParser;
 import net.minecraftforge.fml.common.versioning.VersionRange;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.guice.SpongePluginGuiceModule;
 import org.spongepowered.common.plugin.PluginContainerExtension;
+import org.spongepowered.common.util.ServiceManagerFactory;
 
 import java.io.File;
 import java.net.URL;
@@ -64,6 +66,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Nullable;
 
 // PluginContainer is implemented indirectly through the mixin to ModContainer
 public class SpongeModPluginContainer implements ModContainer, PluginContainerExtension {
@@ -84,6 +88,7 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
     private LoadController controller;
 
     private Injector injector;
+    @Nullable private ServiceManager serviceManager;
 
     private PluginContainer pluginContainer = (PluginContainer) (Object) this;
     private static final String ID_WARNING = "Plugin IDs should be lowercase, and only contain characters from "
@@ -409,4 +414,13 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
                 .add("source", this.pluginContainer.getSource().orElse(null))
                 .toString();
     }
+
+    public ServiceManager getServiceManager() {
+        if (this.serviceManager == null) {
+            this.serviceManager = ServiceManagerFactory.createServiceManager();
+        }
+
+        return this.serviceManager;
+    }
+
 }
