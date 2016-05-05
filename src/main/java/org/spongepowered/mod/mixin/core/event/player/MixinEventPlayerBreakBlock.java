@@ -27,7 +27,7 @@ package org.spongepowered.mod.mixin.core.event.player;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
@@ -77,7 +77,7 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EntityPlayer player, CallbackInfo ci) {
         this.blockOriginal = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-        this.blockReplacement = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector(pos)));
+        this.blockReplacement = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector3i(pos)));
         this.blockTransactions = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
             new Transaction<>(this.blockOriginal, this.blockReplacement)).build();
         this.cause = Cause.of(NamedCause.source(this.player));

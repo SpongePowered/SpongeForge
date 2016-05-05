@@ -26,8 +26,11 @@ package org.spongepowered.mod.mixin.core.item;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.stats.StatList;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,13 +43,15 @@ public abstract class MixinItemStack {
 
     // Disable Forge PlaceEvent patch as we handle this in World setBlockState
     @Overwrite
-    public boolean onItemUse(EntityPlayer playerIn, net.minecraft.world.World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
-        boolean flag = this.getItem().onItemUse((net.minecraft.item.ItemStack)(Object)this, playerIn, worldIn, pos, side, hitX, hitY, hitZ);
+    public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing
+            side, float hitX, float hitY, float hitZ) {
+        final EnumActionResult result = this.getItem().onItemUse((net.minecraft.item.ItemStack)(Object)this, playerIn, worldIn, pos, hand, side, hitX,
+                hitY, hitZ);
 
-        if (flag) {
-            playerIn.triggerAchievement(StatList.objectUseStats[net.minecraft.item.Item.getIdFromItem(this.item)]);
+        if (result == EnumActionResult.SUCCESS) {
+            playerIn.addStat(StatList.getObjectUseStats(this.item));
         }
 
-        return flag;
+        return result;
     }
 }

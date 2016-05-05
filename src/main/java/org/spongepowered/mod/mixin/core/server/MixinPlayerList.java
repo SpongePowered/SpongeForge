@@ -25,7 +25,7 @@
 package org.spongepowered.mod.mixin.core.server;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.server.management.PlayerList;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,8 +33,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @NonnullByDefault
-@Mixin(ServerConfigurationManager.class)
-public abstract class MixinServerConfigurationManager {
+@Mixin(PlayerList.class)
+public abstract class MixinPlayerList {
 
     /**
      * @author Simon816

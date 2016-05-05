@@ -26,7 +26,7 @@ package org.spongepowered.mod.text;
 
 import org.spongepowered.api.text.translation.Translation;
 
-public interface SpongeChatComponentTranslation {
+public interface SpongeTextComponentTranslation {
 
     void setTranslation(Translation translation);
 }

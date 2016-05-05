@@ -44,9 +44,8 @@ import net.minecraft.entity.passive.EntityWaterMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.entity.projectile.EntityThrowable;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
@@ -64,12 +63,12 @@ import java.util.List;
 
 public class ActivationRange {
 
-    static AxisAlignedBB maxBB = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
-    static AxisAlignedBB miscBB = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
-    static AxisAlignedBB creatureBB = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
-    static AxisAlignedBB monsterBB = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
-    static AxisAlignedBB aquaticBB = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
-    static AxisAlignedBB ambientBB = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
+    static AxisAlignedBB maxBB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+    static AxisAlignedBB miscBB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+    static AxisAlignedBB creatureBB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+    static AxisAlignedBB monsterBB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+    static AxisAlignedBB aquaticBB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+    static AxisAlignedBB ambientBB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
     /**
      * Initializes an entities type on construction to specify what group this
      * entity is in for activation ranges.

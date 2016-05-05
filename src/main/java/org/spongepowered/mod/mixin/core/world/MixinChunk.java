@@ -51,12 +51,13 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
             return false;
         }
 
-        if (this.worldObj.provider.canRespawnHere() && DimensionManager.shouldLoadSpawn(this.worldObj.provider.getDimensionId())) {
+        // TODO 1.9 Update - Zidane's thing
+        if (this.worldObj.provider.canRespawnHere() && DimensionManager.shouldLoadSpawn(this.worldObj.provider.getDimension())) {
             if (this.worldObj.isSpawnChunk(this.xPosition, this.zPosition)) {
                 return false;
             }
         }
-        ((WorldServer) this.worldObj).theChunkProviderServer.dropChunk(this.xPosition, this.zPosition);
+        ((WorldServer) this.worldObj).getChunkProvider().dropChunk(this.xPosition, this.zPosition);
         return true;
     }
 

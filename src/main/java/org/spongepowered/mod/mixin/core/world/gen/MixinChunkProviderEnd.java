@@ -29,7 +29,7 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderEnd;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.terraingen.ChunkProviderEvent.ReplaceBiomeBlocks;
+import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -46,7 +46,7 @@ public abstract class MixinChunkProviderEnd implements IChunkProvider {
 
     @Inject(method = "func_180519_a(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
     public void cancelEndStone(ChunkPrimer chunk, CallbackInfo ci) {
-        ReplaceBiomeBlocks event = new ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.endWorld);
+        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.endWorld);
         MinecraftForge.EVENT_BUS.post(event);
         ci.cancel();
     }

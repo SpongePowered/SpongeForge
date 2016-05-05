@@ -34,7 +34,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.DamageSource;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
@@ -135,7 +135,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         SleepingEvent.Post post = null;
         if (!this.nmsPlayer.worldObj.isRemote) {
             post = SpongeEventFactory.createSleepingEventPost(Cause.of(NamedCause.source(this)),
-                this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), Optional.ofNullable(newLocation), this, setSpawn);
+                this.getWorld().createSnapshot(VecHelper.toVector3i(this.playerLocation)), Optional.ofNullable(newLocation), this, setSpawn);
             Sponge.getEventManager().post(post);
             if (post.isCancelled()) {
                 return;
@@ -164,10 +164,11 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         }
         if (post != null) {
             Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(post.getCause(),
-                    this.getWorld().createSnapshot(VecHelper.toVector(this.playerLocation)), this));
+                    this.getWorld().createSnapshot(VecHelper.toVector3i(this.playerLocation)), this));
         }
     }
 
+    // TODO 1.9 Update - Zidane's deal with the next two methods.
     @Override
     public Map<UUID, RespawnLocation> getBedlocations() {
         Map<UUID, RespawnLocation> locations = Maps.newHashMap();

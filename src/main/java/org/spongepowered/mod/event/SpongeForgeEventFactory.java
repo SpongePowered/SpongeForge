@@ -33,10 +33,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
@@ -814,16 +814,16 @@ public class SpongeForgeEventFactory {
         }
 
         Text spongeText = spongeEvent.getOriginalMessage();
-        IChatComponent component = SpongeTexts.toComponent(spongeText);
-        if (!(component instanceof ChatComponentTranslation)) {
-            component = new ChatComponentTranslation("%s", component);
+        ITextComponent component = SpongeTexts.toComponent(spongeText);
+        if (!(component instanceof TextComponentTranslation)) {
+            component = new TextComponentTranslation("%s", component);
         }
 
         // Using toPlain here is fine, since the raw message from the client
         // can't have formatting.
         ServerChatEvent forgeEvent =
                 new ServerChatEvent((EntityPlayerMP) player.get(), spongeEvent.getOriginalMessage().toPlain(),
-                        (ChatComponentTranslation) component);
+                        (TextComponentTranslation) component);
         ((IMixinInitCause) forgeEvent).initCause(spongeEvent.getCause());
 
         return forgeEvent;

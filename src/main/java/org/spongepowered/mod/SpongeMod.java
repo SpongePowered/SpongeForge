@@ -255,7 +255,7 @@ public class SpongeMod extends DummyModContainer {
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         try {
             // Register vanilla-style commands (if necessary -- not necessary on client)
-            ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerEarlyCommands(this.game);
+            ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerEarlyCommands(this.game);
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
         }
@@ -265,7 +265,7 @@ public class SpongeMod extends DummyModContainer {
     public void onServerStarted(FMLServerStartedEvent event) {
         SpongePlayerDataHandler.init();
         try {
-            ((IMixinServerCommandManager) MinecraftServer.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
+            ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
         }
@@ -276,11 +276,8 @@ public class SpongeMod extends DummyModContainer {
     public void onServerStopped(FMLServerStoppedEvent event) throws IOException {
         try {
             CommandManager service = this.game.getCommandManager();
-            for (CommandMapping mapping : service.getCommands()) {
-                if (mapping.getCallable() instanceof MinecraftCommandWrapper) {
-                    service.removeMapping(mapping);
-                }
-            }
+            service.getCommands().stream().filter(mapping -> mapping.getCallable() instanceof MinecraftCommandWrapper)
+                    .forEach(service::removeMapping);
             ((SqlServiceImpl) this.game.getServiceManager().provideUnchecked(SqlService.class)).close();
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);

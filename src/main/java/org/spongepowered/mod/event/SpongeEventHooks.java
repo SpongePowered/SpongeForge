@@ -37,10 +37,10 @@ public class SpongeEventHooks {
     @SideOnly(Side.SERVER)
     @SubscribeEvent
     public void onChunkWatchEvent(ChunkWatchEvent event) {
-        IMixinEntity spongeEntity = (IMixinEntity) event.player;
+        IMixinEntity spongeEntity = (IMixinEntity) event.getPlayer();
 
         if (spongeEntity.isTeleporting()) {
-            event.player.mountEntity(spongeEntity.getTeleportVehicle());
+            event.getPlayer().mountEntity(spongeEntity.getTeleportVehicle());
             spongeEntity.setTeleportVehicle(null);
             spongeEntity.setIsTeleporting(false);
         }
@@ -49,7 +49,7 @@ public class SpongeEventHooks {
     @SideOnly(Side.SERVER)
     @SubscribeEvent
     public void onEntityDeathEvent(LivingDeathEvent event) {
-        SpongeHooks.logEntityDeath(event.entity);
+        SpongeHooks.logEntityDeath(event.getEntity());
     }
 
 }

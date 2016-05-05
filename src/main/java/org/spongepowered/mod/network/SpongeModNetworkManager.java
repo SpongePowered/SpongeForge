@@ -35,9 +35,8 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.C17PacketCustomPayload;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.network.play.client.CPacketCustomPayload;
+import net.minecraft.server.management.PlayerList;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketRegistrationEvent;
@@ -65,34 +64,36 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onCustomPacketRegistration(CustomPacketRegistrationEvent<?> event) {
-        Set<String> channels = ((IMixinNetPlayHandler) event.handler).getRegisteredChannels();
-        if (event.operation.equals("REGISTER")) {
-            channels.addAll(event.registrations);
-            for (String channel : event.registrations) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Cause.of(NamedCause.source(event.handler)), channel));
+        Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
+        if (event.getOperation().equals("REGISTER")) {
+            channels.addAll(event.getRegistrations());
+            for (String channel : event.getRegistrations()) {
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Cause.of(NamedCause.source(event.getHandler())), channel));
             }
-        } else if (event.operation.equals("UNREGISTER")) {
-            channels.removeAll(event.registrations);
-            for (String channel : event.registrations) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(Cause.of(NamedCause.source(event.handler)), channel));
+        } else if (event.getOperation().equals("UNREGISTER")) {
+            channels.removeAll(event.getRegistrations());
+            for (String channel : event.getRegistrations()) {
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(Cause.of(NamedCause.source(event.getHandler())), channel));
             }
         }
     }
 
-    protected static C17PacketCustomPayload getRegPacketClient(String channelName) {
-        return new C17PacketCustomPayload("REGISTER", new PacketBuffer(wrappedBuffer(channelName.getBytes(Charsets.UTF_8))));
+    protected static CPacketCustomPayload getRegPacketClient(String channelName) {
+        return new CPacketCustomPayload("REGISTER", new PacketBuffer(wrappedBuffer(channelName.getBytes(Charsets.UTF_8))));
     }
 
-    protected static C17PacketCustomPayload getUnregPacketClient(String channelName) {
-        return new C17PacketCustomPayload("UNREGISTER", new PacketBuffer(wrappedBuffer(channelName.getBytes(Charsets.UTF_8))));
+    protected static CPacketCustomPayload getUnregPacketClient(String channelName) {
+        return new CPacketCustomPayload("UNREGISTER", new PacketBuffer(wrappedBuffer(channelName.getBytes(Charsets.UTF_8))));
     }
 
     private <T extends SpongeModChannelBinding> T registerChannel(T channel) {
         this.channelMap.put(channel.getName(), channel);
-        ServerConfigurationManager confMgr = MinecraftServer.getServer().getConfigurationManager();
-        if (confMgr != null) {
-            // Register channel to all players (when registering server side)
-            confMgr.sendPacketToAllPlayers(getRegPacket(channel.getName()));
+        if (SpongeImpl.getGame().isServerAvailable()) {
+            final PlayerList playerList = SpongeImpl.getServer().getPlayerList();
+            if (playerList != null) {
+                // Register channel to all players (when registering server side)
+                playerList.sendPacketToAllPlayers(getRegPacket(channel.getName()));
+            }
         }
         if (SpongeImpl.getGame().getPlatform().getExecutionType().isClient()) {
             EntityPlayerSP clientPlayer = Minecraft.getMinecraft().thePlayer;
@@ -135,9 +136,11 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         checkState(boundChannel != null, "Channel is already unbound");
         boundChannel.invalidate();
 
-        ServerConfigurationManager confMgr = MinecraftServer.getServer().getConfigurationManager();
-        if (confMgr != null) { // Server side
-            confMgr.sendPacketToAllPlayers(getUnregPacket(channel.getName()));
+        if (SpongeImpl.getGame().isServerAvailable()) {
+            final PlayerList playerList = SpongeImpl.getServer().getPlayerList();
+            if (playerList != null) { // Server side
+                playerList.sendPacketToAllPlayers(getUnregPacket(channel.getName()));
+            }
         }
         if (SpongeImpl.getGame().getPlatform().getExecutionType().isClient()) {
             EntityPlayerSP clientPlayer = Minecraft.getMinecraft().thePlayer;

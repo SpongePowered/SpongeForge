@@ -27,8 +27,8 @@ package org.spongepowered.mod.mixin.core.client.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiOverlayDebug;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -64,7 +64,7 @@ public abstract class MixinGuiOverlayDebug implements IMixinGuiOverlayDebug {
     private void addOwnerInfo(CallbackInfoReturnable<List<String>> cir) {
         List<String> arraylist = cir.getReturnValue();
         if (this.mc.objectMouseOver != null
-                && this.mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK
+                && this.mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK
                 && this.mc.objectMouseOver.getBlockPos() != null) {
             BlockPos blockpos1 = this.mc.objectMouseOver.getBlockPos();
             SpongeMessageHandler.getChannel().sendToServer(
@@ -72,7 +72,7 @@ public abstract class MixinGuiOverlayDebug implements IMixinGuiOverlayDebug {
             arraylist.add("Block Owner: " + this.blockOwner);
             arraylist.add("Block Notifier: " + this.blockNotifier);
             this.cursorPos = this.mc.objectMouseOver.getBlockPos();
-        } else if (this.mc.objectMouseOver != null && this.mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
+        } else if (this.mc.objectMouseOver != null && this.mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY) {
             Entity target = this.mc.objectMouseOver.entityHit;
             BlockPos blockPos = target.getPosition();
             if (!blockPos.equals(this.cursorPos)) {

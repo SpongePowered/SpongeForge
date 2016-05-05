@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.EnumStatus;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.action.SleepingEvent;

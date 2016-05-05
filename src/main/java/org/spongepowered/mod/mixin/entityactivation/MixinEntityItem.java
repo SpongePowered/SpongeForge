@@ -24,15 +24,12 @@
  */
 package org.spongepowered.mod.mixin.entityactivation;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 
 @NonnullByDefault
 @Mixin(EntityItem.class)
@@ -52,7 +49,7 @@ public abstract class MixinEntityItem extends MixinEntity {
             --this.delayBeforeCanPickup;
         }
 
-        if (!this.worldObj.isRemote && this.age >= ((IMixinWorld) this.worldObj).getWorldConfig().getConfig().getEntity().getItemDespawnRate()) {
+        if (!this.worldObj.isRemote && this.age >= ((IMixinWorldServer) this.worldObj).getWorldConfig().getConfig().getEntity().getItemDespawnRate()) {
             this.setDead();
         }
     }

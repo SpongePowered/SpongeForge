@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.event.block;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.api.block.BlockState;

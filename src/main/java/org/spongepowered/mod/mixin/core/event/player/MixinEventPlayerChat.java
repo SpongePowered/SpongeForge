@@ -25,8 +25,8 @@
 package org.spongepowered.mod.mixin.core.event.player;
 
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.event.ServerChatEvent;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
@@ -52,8 +52,7 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 @Mixin(value = ServerChatEvent.class, remap = false)
 public abstract class MixinEventPlayerChat extends MixinEvent implements MessageChannelEvent.Chat, IMixinInitCause {
-
-    private IChatComponent forgeComponent;
+    private ITextComponent forgeComponent;
 
     private final MessageFormatter formatter = new MessageFormatter();
     private boolean messageCancelled;
@@ -65,10 +64,10 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
 
     @Shadow @Final public EntityPlayerMP player;
 
-    @Shadow public abstract void setComponent(IChatComponent component);
+    @Shadow public abstract void setComponent(ITextComponent component);
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(EntityPlayerMP player, String message, ChatComponentTranslation component, CallbackInfo ci) {
+    public void onConstructed(EntityPlayerMP player, String message, TextComponentTranslation component, CallbackInfo ci) {
         this.forgeComponent = component;
         Text[] chat = SpongeTexts.splitChatMessage(component);
         if (chat[0] == null || chat[1] == null) {
@@ -144,7 +143,7 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     public void syncDataToSponge(Event spongeEvent) {
         super.syncDataToSponge(spongeEvent);
         final MessageChannelEvent.Chat chat = (MessageChannelEvent.Chat) spongeEvent;
-        final IChatComponent event = SpongeTexts.toComponent(chat.getRawMessage());
+        final ITextComponent event = SpongeTexts.toComponent(chat.getRawMessage());
         if (!this.forgeComponent.equals(event)) {
             chat.setMessage(SpongeTexts.toText(this.forgeComponent));
         }

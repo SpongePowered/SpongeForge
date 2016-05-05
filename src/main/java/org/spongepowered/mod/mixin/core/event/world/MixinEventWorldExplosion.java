@@ -25,8 +25,7 @@
 package org.spongepowered.mod.mixin.core.event.world;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.util.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;

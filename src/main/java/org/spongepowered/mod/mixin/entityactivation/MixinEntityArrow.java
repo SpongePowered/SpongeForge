@@ -25,10 +25,7 @@
 package org.spongepowered.mod.mixin.entityactivation;
 
 import net.minecraft.entity.projectile.EntityArrow;
-import org.spongepowered.api.entity.projectile.Arrow;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 

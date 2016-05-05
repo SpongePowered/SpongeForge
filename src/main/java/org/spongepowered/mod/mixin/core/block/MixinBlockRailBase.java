@@ -25,7 +25,7 @@
 package org.spongepowered.mod.mixin.core.block;
 
 import net.minecraft.block.BlockRailBase;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.asm.mixin.Mixin;

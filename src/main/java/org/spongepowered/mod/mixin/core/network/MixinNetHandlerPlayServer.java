@@ -31,11 +31,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.C01PacketChatMessage;
+import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.ItemInWorldManager;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.server.management.PlayerInteractionManager;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
@@ -79,10 +79,10 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
     @Shadow public abstract void kickPlayerFromServer(String message);
 
     @Inject(method = "processChatMessage", at = @At(value = "INVOKE", target = "net.minecraftforge.common.ForgeHooks.onServerChatEvent"
-            + "(Lnet/minecraft/network/NetHandlerPlayServer;Ljava/lang/String;Lnet/minecraft/util/ChatComponentTranslation;)"
-            + "Lnet/minecraft/util/ChatComponentTranslation;", remap = false),
+            + "(Lnet/minecraft/network/NetHandlerPlayServer;Ljava/lang/String;Lnet/minecraft/util/TextComponentTranslation;)"
+            + "Lnet/minecraft/util/TextComponentTranslation;", remap = false),
             cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void injectChatEvent(C01PacketChatMessage packetIn, CallbackInfo ci, String s, ChatComponentTranslation component) {
+    public void injectChatEvent(CPacketChatMessage packetIn, CallbackInfo ci, String s, TextComponentTranslation component) {
         final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
         ((IMixinInitCause) event).initCause(Cause.of(NamedCause.source(this.playerEntity)));
 
@@ -105,16 +105,16 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
     }
 
     @Redirect(method = "processPlayerBlockPlacement", at = @At(value = "INVOKE", target = ACTIVATE_BLOCK_OR_USE_ITEM))
-    public boolean onActivateBlockOrUseItem(ItemInWorldManager itemManager, EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack,
+    public boolean onActivateBlockOrUseItem(PlayerInteractionManager playerInteractionManager, EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack,
             BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
-        boolean result = itemManager.activateBlockOrUseItem(player, worldIn, stack, pos, side, hitX, hitY, hitZ);
+        boolean result = playerInteractionManager.activateBlockOrUseItem(player, worldIn, stack, pos, side, hitX, hitY, hitZ);
         if (stack != null && !result) {
             // Don't run item use part of hook if PlayerInteractEvent was cancelled.
             // This is only set in SpongeForge, so it's safe to put here
             if (StaticMixinHelper.lastPlayerInteractCancelled) {
                 return false;
             }
-            itemManager.tryUseItem(player, worldIn, stack);
+            playerInteractionManager.tryUseItem(player, worldIn, stack);
         }
         return result;
     }
