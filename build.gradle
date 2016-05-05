@@ -13,7 +13,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-20160116.192356-17'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
         classpath('nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0') {
             exclude module: 'guava'
         }
@@ -25,11 +25,10 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-// Forge Version
-ext.forgeBuild = '1808'
-
+ext.forgeBuild = '1888'
 minecraft {
-    forgeVersion = forgeBuild
+    version = '1.9-12.16.1.1888'
+	mappings = 'snapshot_20160429'	
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
 }
 
