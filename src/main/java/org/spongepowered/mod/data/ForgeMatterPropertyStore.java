@@ -48,7 +48,7 @@ public class ForgeMatterPropertyStore extends AbstractBlockPropertyStore<MatterP
     protected Optional<MatterProperty> getForBlock(Block block) {
         if (block instanceof BlockLiquid || block instanceof BlockFluidBase || block instanceof IFluidBlock) {
             return Optional.of(LIQUID);
-        } else if (block.getMaterial() == Material.air) {
+        } else if (block.getMaterial() == Material.AIR) {
             return Optional.of(GAS);
         } else {
             return Optional.of(SOLID);

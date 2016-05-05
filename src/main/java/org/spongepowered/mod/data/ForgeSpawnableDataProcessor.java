@@ -62,10 +62,10 @@ public class ForgeSpawnableDataProcessor extends SpawnableDataProcessor {
     @SuppressWarnings({"unchecked", "SuspiciousMethodCalls"})
     @Override
     public boolean set(ItemStack itemStack, EntityType value) {
-        final String name = EntityList.classToStringMapping.get(value.getEntityClass());
-        if (EntityList.stringToIDMapping.containsKey(name)) {
-            final int id = EntityList.stringToIDMapping.get(name);
-            if (EntityList.entityEggs.containsKey(id)) {
+        final String name = EntityList.CLASS_TO_NAME.get(value.getEntityClass());
+        if (EntityList.ID_TO_CLASS.containsKey(name)) {
+            final int id = EntityList.NAME_TO_ID.get(name);
+            if (EntityList.ENTITY_EGGS.containsKey(id)) {
                 itemStack.setItemDamage(id);
                 return true;
             }
@@ -85,7 +85,7 @@ public class ForgeSpawnableDataProcessor extends SpawnableDataProcessor {
 
     @Override
     public Optional<EntityType> getVal(ItemStack itemStack) {
-        final Class<? extends Entity> entity = EntityList.stringToClassMapping.get(ItemMonsterPlacer.getEntityName(itemStack));
+        final Class<? extends Entity> entity = EntityList.NAME_TO_CLASS.get(ItemMonsterPlacer.getEntityIdFromItem(itemStack));
         for (EntityType type : SpongeImpl.getRegistry().getAllOf(EntityType.class)) {
             if (type.getEntityClass().equals(entity)) {
                 return Optional.of(type);

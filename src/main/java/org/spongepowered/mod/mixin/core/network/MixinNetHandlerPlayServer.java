@@ -50,6 +50,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
@@ -87,8 +88,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
 
             // Chat spam suppression from MC
             this.chatSpamThresholdCount += 20;
-            if (this.chatSpamThresholdCount > 200 && !MinecraftServer.getServer().getConfigurationManager()
-                    .canSendCommands(this.playerEntity.getGameProfile())) {
+            if (this.chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(this.playerEntity.getGameProfile())) {
                 this.kickPlayerFromServer("disconnect.spam");
             }
         }

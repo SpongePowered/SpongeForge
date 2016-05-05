@@ -66,6 +66,7 @@ import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.effect.potion.PotionEffectType;
 import org.spongepowered.api.event.Event;
+import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -132,8 +133,7 @@ public class SpongeMod extends DummyModContainer {
                 ItemTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ITEMS.getKey(obj).toString(),
                         (ItemType) obj));
         SpongeGameData.addRegistryCallback(ForgeRegistries.ENCHANTMENTS, (obj, id, location) ->
-                EnchantmentRegistryModule
-        );
+                EnchantmentRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ENCHANTMENTS.getKey(obj).toString(), (Enchantment) obj));
         SpongeGameData.addRegistryCallback(ForgeRegistries.POTION_TYPES, (obj, id, location) ->
                 PotionEffectTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.POTION_TYPES.getKey(obj).toString(),
                         (PotionEffectType) obj));

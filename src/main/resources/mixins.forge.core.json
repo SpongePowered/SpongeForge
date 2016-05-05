@@ -94,7 +94,6 @@
         "world.biome.MixinBiomeDecorator",
         "world.biome.MixinBiomeGenBaseForge",
         "world.gen.MixinChunkProviderEnd",
-        "world.gen.MixinChunkProviderServer",
         "world.gen.feature.MixinWorldGeneratorForge",
         "world.storage.MixinSaveHandler",
         "fml.common.registry.MixinVillagerCareer",

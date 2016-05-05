@@ -34,27 +34,28 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemDoor;
-import net.minecraft.item.ItemDoublePlant;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.S23PacketBlockChange;
-import net.minecraft.network.play.server.S2EPacketCloseWindow;
-import net.minecraft.server.management.ItemInWorldManager;
+import net.minecraft.network.play.server.SPacketBlockChange;
+import net.minecraft.network.play.server.SPacketCloseWindow;
+import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.WorldSettings;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 
@@ -70,13 +71,13 @@ public abstract class MixinPlayerInteractionManager {
     @Shadow public abstract boolean isCreative();
     @Shadow public abstract boolean tryUseItem(EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack);
 
+    // TODO - need to possibly rewrite this overwrite as forge's hooks are all over the place.
     /**
      * @author blood - April 6th, 2016
      * @reason Activate the clicked on block, otherwise use the held item. Throw events.
      */
     @Overwrite
-    public boolean activateBlockOrUseItem(EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack, BlockPos pos, EnumFacing side, float offsetX,
-            float offsetY, float offsetZ) {
+    public EnumActionResult processRightClickBlock(EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack, EnumHand hand, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (this.gameType == WorldSettings.GameType.SPECTATOR) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
 
@@ -90,77 +91,81 @@ public abstract class MixinPlayerInteractionManager {
 
                 if (ilockablecontainer != null) {
                     player.displayGUIChest(ilockablecontainer);
-                    return true;
+                    return EnumActionResult.SUCCESS;
                 }
             } else if (tileentity instanceof IInventory) {
                 player.displayGUIChest((IInventory) tileentity);
-                return true;
+                return EnumActionResult.SUCCESS;
             }
 
-            return false;
+            return EnumActionResult.PASS;
         } else {
             BlockSnapshot currentSnapshot = ((World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
             InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(Cause.of(NamedCause.source(player)),
-                    Optional.of(new Vector3d(offsetX, offsetY, offsetZ)), currentSnapshot, DirectionFacingProvider.getInstance().getKey(side).get());
+                    Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot, DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
 
             if (event.isCancelled()) {
                 final IBlockState state = worldIn.getBlockState(pos);
 
-                if (state.getBlock() == Blocks.command_block) {
+                if (state.getBlock() == Blocks.COMMAND_BLOCK) {
                     // CommandBlock GUI opens solely on the client, we need to force it close on cancellation
-                    ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S2EPacketCloseWindow(0));
+                    ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new SPacketCloseWindow(0));
 
                 } else if (state.getProperties().containsKey(BlockDoor.HALF)) {
                     // Stopping a door from opening while interacting the top part will allow the door to open, we need to update the
                     // client to resolve this
                     if (state.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) {
-                        ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.up()));
+                        ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new SPacketBlockChange(worldIn, pos.up()));
                     } else {
-                        ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.down()));
+                        ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new SPacketBlockChange(worldIn, pos.down()));
                     }
 
                 } else if (stack != null) {
-                    // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-side of the block. We need to remove it
-                    if (stack.getItem() instanceof ItemDoor || stack.getItem() instanceof ItemDoublePlant) {
-                        ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldIn, pos.up(2)));
+                    // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-facing of the block. We need to remove it
+                    // TODO - This is likely broken because of reasons. ItemDoublePlant no longer exists.
+                    if (stack.getItem() instanceof ItemDoor || stack.getItem() == ItemTypes.DOUBLE_PLANT) {
+                        ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new SPacketBlockChange(worldIn, pos.up(2)));
                     }
                 }
 
-                return false;
+                return EnumActionResult.PASS;
             }
 
-            if (stack != null && stack.getItem().onItemUseFirst(stack, player, worldIn, pos, side, offsetX, offsetY, offsetZ)) {
+            if (stack != null && stack.getItem().onItemUseFirst(stack, player, worldIn, pos, facing, hitX, hitY, hitZ, hand)) {
                 if (stack.stackSize <= 0) {
-                    net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(thisPlayerMP, stack);
+                    net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(thisPlayerMP, stack, hand);
                 }
-                return true;
+                return EnumActionResult.SUCCESS;
             }
 
             IBlockState iblockstate = worldIn.getBlockState(pos);
-            boolean useBlock = !player.isSneaking() || player.getHeldItem() == null;
+            boolean useBlock = !player.isSneaking() || player.getHeldItem(hand) == null;
             if (!useBlock) {
-                useBlock = player.getHeldItem().getItem().doesSneakBypassUse(worldIn, pos, player);
+                useBlock = player.getHeldItem(hand).getItem().doesSneakBypassUse(stack, worldIn, pos, player);
             }
-            boolean result = false;
+            EnumActionResult result = EnumActionResult.PASS;
 
             if (useBlock) {
                 if (event.getUseBlockResult() != Tristate.FALSE) {
-                    result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, side, offsetX, offsetY, offsetZ);
+                    if (iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, stack, facing, hitX, hitY, hitZ)) {
+                        result = EnumActionResult.SUCCESS;
+                    }
                 } else {
-                    thisPlayerMP.playerNetServerHandler.sendPacket(new S23PacketBlockChange(theWorld, pos));
-                    result = event.getUseItemResult() != Tristate.TRUE;
+                    thisPlayerMP.playerNetServerHandler.sendPacket(new SPacketBlockChange(theWorld, pos));
+                    // TODO - This entire thing needs to be rewritten most likely
+                    result = event.getUseItemResult() != Tristate.TRUE ? EnumActionResult.FAIL : EnumActionResult.PASS;
                 }
             }
             if (stack != null && !result && event.getUseItemResult() != Tristate.FALSE) {
                 int meta = stack.getMetadata();
                 int size = stack.stackSize;
-                result = stack.onItemUse(player, worldIn, pos, side, offsetX, offsetY, offsetZ);
+                result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
                 if (isCreative()) {
                     stack.setItemDamage(meta);
                     stack.stackSize = size;
                 }
                 if (stack.stackSize <= 0) {
-                    net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(thisPlayerMP, stack);
+                    net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(thisPlayerMP, stack, hand);
                 }
             }
 
