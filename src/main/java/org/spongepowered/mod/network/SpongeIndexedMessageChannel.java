@@ -81,7 +81,7 @@ class SpongeIndexedMessageChannel extends SpongeModChannelBinding implements Cha
 
     @Override
     public <M extends Message> void addHandler(Class<M> messageClass, Platform.Type side, MessageHandler<M> handler) {
-        checkArgument(knownClasses.contains(messageClass));
+        checkArgument(this.knownClasses.contains(checkNotNull(messageClass, "messageClass")), "Message class %s is not registered", messageClass);
         checkNotNull(handler, "handler");
         checkArgument(checkNotNull(side, "side").isKnown(), "Invalid side");
         addHandlerForSide(side, messageClass, handler);
@@ -89,7 +89,7 @@ class SpongeIndexedMessageChannel extends SpongeModChannelBinding implements Cha
 
     @Override
     public <M extends Message> void addHandler(Class<M> messageClass, MessageHandler<M> handler) {
-        checkArgument(knownClasses.contains(messageClass));
+        checkArgument(this.knownClasses.contains(checkNotNull(messageClass, "messageClass")), "Message class %s is not registered", messageClass);
         checkNotNull(handler, "handler");
         addHandlerForSide(Platform.Type.CLIENT, messageClass, handler);
         addHandlerForSide(Platform.Type.SERVER, messageClass, handler);

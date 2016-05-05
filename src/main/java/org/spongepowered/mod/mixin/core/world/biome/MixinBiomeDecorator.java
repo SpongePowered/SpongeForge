@@ -22,50 +22,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.entityactivation;
+package org.spongepowered.mod.mixin.core.world.biome;
 
-import net.minecraft.entity.EntityAgeable;
-import net.minecraft.entity.EntityCreature;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import org.spongepowered.api.entity.living.Ageable;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.biome.BiomeDecorator;
+import net.minecraft.world.biome.BiomeGenBase;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.SoftOverride;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@NonnullByDefault
-@Mixin(EntityAgeable.class)
-public abstract class MixinEntityAgeable extends EntityCreature {
+import java.util.Random;
 
-    private MixinEntityAgeable super$;
+@Mixin(BiomeDecorator.class)
+public class MixinBiomeDecorator {
 
-    public MixinEntityAgeable(World worldIn) {
-        super(worldIn);
-    }
-
-    @Shadow public abstract int getGrowingAge();
-    @Shadow public abstract void setGrowingAge(int age);
-    @Shadow public abstract void setScaleForAge(boolean baby);
-
-    @SoftOverride
-    public void inactiveTick() {
-        this.super$.inactiveTick();
-
-        if (this.worldObj.isRemote) {
-            this.setScaleForAge(this.isChild());
-        } else {
-            int i = this.getGrowingAge();
-
-            if (i < 0) {
-                ++i;
-                this.setGrowingAge(i);
-            } else if (i > 0) {
-                --i;
-                this.setGrowingAge(i);
-            }
+    @Inject(method = "decorate", at = @At("HEAD") , cancellable = true)
+    protected void onBiomeDecorateHead(World worldIn, Random random, BiomeGenBase biome, BlockPos pos, CallbackInfo ci) {
+        if (!worldIn.isRemote) {
+            WorldServer world = (WorldServer) worldIn;
+            // don't allow chunks to load while decorating
+            world.theChunkProviderServer.chunkLoadOverride = false;
         }
     }
 
+    @Inject(method = "decorate", at = @At("RETURN") , cancellable = true)
+    protected void onBiomeDecorateReturn(World worldIn, Random random, BiomeGenBase biome, BlockPos pos, CallbackInfo ci) {
+        if (!worldIn.isRemote) {
+            WorldServer world = (WorldServer) worldIn;
+            // decorate is finished, allow chunks to load
+            world.theChunkProviderServer.chunkLoadOverride = true;
+        }
+    }
 }

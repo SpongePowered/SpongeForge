@@ -52,8 +52,7 @@ public abstract class MixinItemLilyPad extends ItemColored {
 
     /**
      * @author bloodmc - December 16th, 2015
-     *
-     *         Purpose: Restored to vanilla method as we do not need Forge's
+     * @reason Restored to vanilla method as we do not need Forge's
      *         block snapshot calls nor event call due to our tracking system.
      */
     @Override

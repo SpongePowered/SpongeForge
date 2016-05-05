@@ -22,25 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.entityactivation;
+package org.spongepowered.mod.interfaces.fml.common;
 
-import net.minecraft.entity.EntityLivingBase;
-import org.spongepowered.api.entity.living.Living;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+public interface IMixinFMLCommonHandler {
 
-@Mixin(EntityLivingBase.class)
-public abstract class MixinEntityLivingBase extends MixinEntity {
-
-    @Shadow protected int entityAge;
-
-    @Override
-    public void inactiveTick() {
-        super.inactiveTick();
-        ++this.entityAge;
-    }
+    void bruteShutdown();
 
 }

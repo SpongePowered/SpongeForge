@@ -1,16 +1,10 @@
 {
     "minVersion": "0.5.1",
     "package": "org.spongepowered.mod.mixin.entityactivation",
-    "plugin": "org.spongepowered.mod.mixin.plugin.entityactivation.EntityActivationRangePlugin",
+    "plugin": "org.spongepowered.common.mixin.plugin.entityactivation.EntityActivationRangePlugin",
     "refmap": "mixins.forge.refmap.json",
     "mixins": [
-        "MixinEntity",
-        "MixinEntityAgeable",
-        "MixinEntityArrow",
-        "MixinEntityFireworkRocket",
-        "MixinEntityItem",
-        "MixinEntityLivingBase",
-        "MixinWorld"
+        "MixinWorld_Activation"
     ],
     "injectors": {
         "defaultRequire": 1

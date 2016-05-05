@@ -36,4 +36,8 @@ public interface IMixinEvent {
     Event createSpongeEvent();
 
     Cause getCause();
+
+    default void postProcess() {
+    }
+
 }

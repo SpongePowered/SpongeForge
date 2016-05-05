@@ -26,16 +26,21 @@ package org.spongepowered.mod.mixin.core.fml.common;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.mod.interfaces.fml.common.IMixinFMLCommonHandler;
 
 @Mixin(value = FMLCommonHandler.class, remap = false)
-public class MixinFMLCommonHandler {
+public class MixinFMLCommonHandler implements IMixinFMLCommonHandler{
 
-    @Inject(method = "handleExit", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V", remap = false))
-    public void onPost(int exitCode) {
-        SpongeImpl.postShutdownEvents();
+    @Override
+    public void bruteShutdown() {
+        delegate1();
     }
 
+    private void delegate1() {
+        delegate2();
+    }
+
+    private void delegate2() {
+        Runtime.getRuntime().exit(1);
+    }
 }

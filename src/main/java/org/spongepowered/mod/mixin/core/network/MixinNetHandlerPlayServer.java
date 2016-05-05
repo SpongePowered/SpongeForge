@@ -25,9 +25,7 @@
 package org.spongepowered.mod.mixin.core.network;
 
 import com.google.common.collect.Sets;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -50,21 +48,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.interfaces.IMixinInitCause;
-import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
 import java.util.Set;
 
 @Mixin(value = NetHandlerPlayServer.class, priority = 1001)
 public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler {
-
-    private static final String ACTIVATE_BLOCK_OR_USE_ITEM =
-            "Lnet/minecraft/server/management/ItemInWorldManager;activateBlockOrUseItem(Lnet/minecraft/entity/player/EntityPlayer;"
-            + "Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/BlockPos;Lnet/minecraft/util/EnumFacing;FFF)Z";
 
     @Shadow @Final private static Logger logger;
     @Shadow @Final public NetworkManager netManager;
@@ -75,7 +67,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
 
     private final Set<String> registeredChannels = Sets.newHashSet();
 
-    @Shadow public abstract void sendPacket(final Packet packetIn);
+    @Shadow public abstract void sendPacket(final Packet<?> packetIn);
     @Shadow public abstract void kickPlayerFromServer(String message);
 
     @Inject(method = "processChatMessage", at = @At(value = "INVOKE", target = "net.minecraftforge.common.ForgeHooks.onServerChatEvent"
@@ -102,21 +94,6 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
         }
 
         ci.cancel();
-    }
-
-    @Redirect(method = "processPlayerBlockPlacement", at = @At(value = "INVOKE", target = ACTIVATE_BLOCK_OR_USE_ITEM))
-    public boolean onActivateBlockOrUseItem(PlayerInteractionManager playerInteractionManager, EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack,
-            BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
-        boolean result = playerInteractionManager.activateBlockOrUseItem(player, worldIn, stack, pos, side, hitX, hitY, hitZ);
-        if (stack != null && !result) {
-            // Don't run item use part of hook if PlayerInteractEvent was cancelled.
-            // This is only set in SpongeForge, so it's safe to put here
-            if (StaticMixinHelper.lastPlayerInteractCancelled) {
-                return false;
-            }
-            playerInteractionManager.tryUseItem(player, worldIn, stack);
-        }
-        return result;
     }
 
     @Override

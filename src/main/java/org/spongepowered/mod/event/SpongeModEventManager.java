@@ -52,7 +52,6 @@ import net.minecraftforge.event.terraingen.WorldTypeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -118,14 +117,9 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(TargetEntityEvent.class, EntityEvent.class)
                     .put(DestructEntityEvent.Death.class, LivingDeathEvent.class)
                     .put(MessageChannelEvent.Chat.class, ServerChatEvent.class)
-                    .put(DropItemEvent.Destruct.class, LivingDropsEvent.class)
                     .put(DropItemEvent.Dispense.class, ItemTossEvent.class)
                     //.put(DropItemEvent.Harvest.class, BlockEvent.HarvestDropsEvent.class)
-                    .put(InteractBlockEvent.class, PlayerInteractEvent.class)
-                    .put(InteractBlockEvent.Primary.class, PlayerInteractEvent.class)
-                    .put(InteractBlockEvent.Secondary.class, PlayerInteractEvent.class)
                     .put(InteractEntityEvent.Primary.class, AttackEntityEvent.class)
-                    .put(InteractEntityEvent.Secondary.class, EntityInteractEvent.class)
                     .put(TargetWorldEvent.class, WorldEvent.class)
                     .put(LoadWorldEvent.class, WorldEvent.Load.class)
                     .put(SaveWorldEvent.class, WorldEvent.Save.class)
@@ -139,26 +133,6 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(SleepingEvent.Pre.class, PlayerSleepInBedEvent.class)
                     .build();
 
-    public static final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventBulkMappings =
-            new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
-                .put(CollideEntityEvent.class, EntityItemPickupEvent.class)
-                .put(SpawnEntityEvent.class, EntityJoinWorldEvent.class)
-                .put(ChangeBlockEvent.Break.class, BlockEvent.BreakEvent.class)
-                .put(ChangeBlockEvent.Place.class, BlockEvent.PlaceEvent.class)
-                .build();
-
-    private final ImmutableMap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus> busMappings =
-            new ImmutableMap.Builder<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, EventBus>()
-                    .put(OreGenEvent.class, MinecraftForge.ORE_GEN_BUS)
-                    .put(WorldTypeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-                    .put(BiomeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-                    .put(DecorateBiomeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-                    .put(InitMapGenEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-                    .put(InitNoiseGensEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-                    .put(PopulateChunkEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-                    .put(SaplingGrowTreeEvent.class, MinecraftForge.TERRAIN_GEN_BUS)
-                    .put(PlayerEvent.class, FMLCommonHandler.instance().bus())
-                    .build();
 
     @Inject
     public SpongeModEventManager(PluginManager pluginManager) {
@@ -202,6 +176,8 @@ public class SpongeModEventManager extends SpongeEventManager {
         // sync plugin data for Forge
         ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
 
+        ((IMixinEvent) forgeEvent).postProcess();
+
         if (spongeEvent instanceof Cancellable && spongeEvent != forgeEvent) {
             if (forgeEvent.isCancelable() && ((Cancellable) spongeEvent).isCancelled()) {
                 forgeEvent.setCanceled(true);
@@ -232,10 +208,12 @@ public class SpongeModEventManager extends SpongeEventManager {
     @SuppressWarnings("unchecked")
     protected static boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced) {
         ModContainer oldContainer = ((IMixinLoadController) SpongeMod.instance.getController()).getActiveModContainer();
-        for (@SuppressWarnings("rawtypes") RegisteredListener listener : listeners) {
+        for (@SuppressWarnings("rawtypes")
+        RegisteredListener listener : listeners) {
             ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer((ModContainer) listener.getPlugin());
             try {
-                if (forced || (!listener.isBeforeModifications() && !beforeModifications) || (listener.isBeforeModifications() && beforeModifications)) {
+                if (forced || (!listener.isBeforeModifications() && !beforeModifications)
+                        || (listener.isBeforeModifications() && beforeModifications)) {
                     listener.handle(event);
                 }
             } catch (Throwable e) {
@@ -257,30 +235,73 @@ public class SpongeModEventManager extends SpongeEventManager {
             return false;
         }
 
-        if(spongeEvent.getClass().getInterfaces().length > 0) {
-            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = this.eventMappings.get(spongeEvent.getClass().getInterfaces()[0]);
+        if (spongeEvent.getClass().getInterfaces().length > 0) {
+            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz =
+                    this.eventMappings.get(spongeEvent.getClass().getInterfaces()[0]);
             if (clazz == null) {
-                clazz = eventBulkMappings.get(spongeEvent.getClass().getInterfaces()[0]);
+                clazz = getBulkEventClass(spongeEvent.getClass());
                 if (clazz != null) {
                     return postBulk(spongeEvent, clazz);
                 }
+
             } else {
                 StaticMixinHelper.processingInternalForgeEvent = true;
                 net.minecraftforge.fml.common.eventhandler.Event forgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent(spongeEvent, clazz);
                 StaticMixinHelper.processingInternalForgeEvent = false;
                 if (forgeEvent != null) {
-                    // Avoid separate mappings for events defined as inner classes
-                    Class<?> enclosingClass = forgeEvent.getClass().getEnclosingClass();
-                    EventBus bus = this.busMappings.get(enclosingClass == null ? forgeEvent.getClass() : enclosingClass);
-                    if (bus == null) {
-                        bus = MinecraftForge.EVENT_BUS;
-                    }
-
-                    return post(spongeEvent, forgeEvent, forgeEvent.getListenerList().getListeners(((IMixinEventBus) bus).getBusID()));
+                    return post(spongeEvent, forgeEvent,
+                            forgeEvent.getListenerList().getListeners(((IMixinEventBus) getForgeEventBus(forgeEvent.getClass())).getBusID()));
                 }
             }
         }
-        return post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true); // no checking for modifications required
+        // no checking for modifications required
+        return post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true);
     }
 
+    private Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getBulkEventClass(Class<? extends Event> clazz) {
+        if (CollideEntityEvent.class.isAssignableFrom(clazz)) {
+            return EntityItemPickupEvent.class;
+        }
+        if (DropItemEvent.Destruct.class.isAssignableFrom(clazz)) {
+            return LivingDropsEvent.class;
+        }
+        if (InteractBlockEvent.class.isAssignableFrom(clazz)) {
+            return PlayerInteractEvent.class;
+        }
+        if (InteractBlockEvent.Primary.class.isAssignableFrom(clazz)) {
+            return PlayerInteractEvent.class;
+        }
+        if (InteractBlockEvent.Secondary.class.isAssignableFrom(clazz)) {
+            return PlayerInteractEvent.class;
+        }
+        if (InteractEntityEvent.Secondary.class.isAssignableFrom(clazz)) {
+            return EntityInteractEvent.class;
+        }
+        if (SpawnEntityEvent.class.isAssignableFrom(clazz)) {
+            return EntityJoinWorldEvent.class;
+        }
+        if (ChangeBlockEvent.Break.class.isAssignableFrom(clazz)) {
+            return BlockEvent.BreakEvent.class;
+        }
+        if (ChangeBlockEvent.Place.class.isAssignableFrom(clazz)) {
+            return BlockEvent.PlaceEvent.class;
+        }
+        return null;
+    }
+
+    private EventBus getForgeEventBus(Class<?> clazz) {
+        if (OreGenEvent.class.isAssignableFrom(clazz)) {
+            return MinecraftForge.ORE_GEN_BUS;
+        } else if (WorldTypeEvent.class.isAssignableFrom(clazz)
+                || BiomeEvent.class.isAssignableFrom(clazz)
+                || DecorateBiomeEvent.class.isAssignableFrom(clazz)
+                || InitMapGenEvent.class.isAssignableFrom(clazz)
+                || InitNoiseGensEvent.class.isAssignableFrom(clazz)
+                || PopulateChunkEvent.class.isAssignableFrom(clazz)
+                || SaplingGrowTreeEvent.class.isAssignableFrom(clazz)) {
+            return MinecraftForge.TERRAIN_GEN_BUS;
+        }
+
+        return MinecraftForge.EVENT_BUS;
+    }
 }

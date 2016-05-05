@@ -119,7 +119,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
-        this.rand.setSeed((long) chunkX * i1 + (long) chunkZ * j1 ^ this.world.getSeed());
+        this.rand.setSeed(chunkX * i1 + chunkZ * j1 ^ this.world.getSeed());
         BlockFalling.fallInstantly = true;
 
         BlockPos blockpos = new BlockPos(chunkX * 16, 0, chunkZ * 16);
@@ -226,9 +226,11 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 otype = GenerateMinable.EventType.LAPIS;
             } else if (type.equals(BlockTypes.QUARTZ_ORE)) {
                 otype = GenerateMinable.EventType.QUARTZ;
+            } else if(type.equals(BlockTypes.EMERALD_ORE)) {
+                otype = GenerateMinable.EventType.EMERALD;
+            } else if(type.equals(BlockTypes.MONSTER_EGG)) {
+                otype = GenerateMinable.EventType.SILVERFISH;
             }
-            // TODO once we update forge we need to add silverfish and emeralds
-            // here
             if (otype != null) {
                 return TerrainGen.generateOre((net.minecraft.world.World) chunk.getWorld(), this.rand, (WorldGenerator) populator,
                         VecHelper.toBlockPos(chunk.getBlockMin()), otype);
@@ -251,9 +253,8 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             if (((Lake) populator).getLiquidType().getType().equals(BlockTypes.LAVA)
                     || ((Lake) populator).getLiquidType().getType().equals(BlockTypes.FLOWING_LAVA)) {
                 return Populate.EventType.LAVA;
-            } else {
-                return Populate.EventType.LAKE;
             }
+            return Populate.EventType.LAKE;
         }
         if (populator instanceof Dungeon) {
             return Populate.EventType.DUNGEON;

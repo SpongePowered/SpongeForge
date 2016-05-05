@@ -35,13 +35,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.util.StaticMixinHelper;
 
-@Mixin(ForgeHooks.class)
+@Mixin(value = ForgeHooks.class, remap = false)
 public class MixinForgeHooks {
 
     /**
      * @author bloodmc
      *
-     * Purpose: Since we capture blocks as they are set in the world, getting
+     * @reason Since we capture blocks as they are set in the world, getting
      * the current blockstate will not work during Forge's BlockBreak event
      * as the state will be post. In order to workaround this issue, we set
      * the captured extended state before creating the event.

@@ -70,11 +70,14 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     public void onConstructed(EntityPlayerMP player, String message, TextComponentTranslation component, CallbackInfo ci) {
         this.forgeComponent = component;
         Text[] chat = SpongeTexts.splitChatMessage(component);
-        if (chat[0] == null || chat[1] == null) {
-            throw new IllegalStateException("Forge posted an invalid ServerChatEvent to the event bus.");
+        if (chat[1] == null) {
+            // Move content from head part to body part
+            chat[1] = chat[0] != null ? chat[0] : SpongeTexts.toText(component);
+            chat[0] = null;
         }
-
-        getFormatter().getHeader().add(new DefaultHeaderApplier(chat[0]));
+        if (chat[0] != null) {
+            getFormatter().getHeader().add(new DefaultHeaderApplier(chat[0]));
+        }
         getFormatter().getBody().add(new DefaultBodyApplier(chat[1]));
 
         this.rawSpongeMessage = Text.of(message);

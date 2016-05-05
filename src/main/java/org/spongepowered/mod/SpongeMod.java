@@ -208,9 +208,9 @@ public class SpongeMod extends DummyModContainer {
                     input -> input.registerContextCalculator(new SpongeContextCalculator()));
 
             // Add the SyncScheduler as a listener for ServerTickEvents
-            FMLCommonHandler.instance().bus().register(this);
+            MinecraftForge.EVENT_BUS.register(this);
 
-            FMLCommonHandler.instance().bus().register(this.game.getChannelRegistrar());
+            MinecraftForge.EVENT_BUS.register(this.game.getChannelRegistrar());
 
             if (event.getSide().isServer()) {
                 SpongeHooks.enableThreadContentionMonitoring();
@@ -269,6 +269,8 @@ public class SpongeMod extends DummyModContainer {
 
     @Subscribe
     public void onServerStarted(FMLServerStartedEvent event) {
+        // This is intentionally called multiple times on the client -
+        // once for each time a new server is started (when a world is selected from the gui)
         SpongePlayerDataHandler.init();
         try {
             ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerLowPriorityCommands(this.game);

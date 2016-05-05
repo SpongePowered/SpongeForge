@@ -22,24 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.entityactivation;
+package org.spongepowered.mod.mixin.core.client.multiplayer;
 
-import net.minecraft.entity.projectile.EntityArrow;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import com.flowpowered.math.vector.Vector3i;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
+import net.minecraft.util.LongHashMap;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.chunk.Chunk;
+import org.spongepowered.api.util.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.interfaces.IMixinChunk;
+import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 
-@NonnullByDefault
-@Mixin(EntityArrow.class)
-public abstract class MixinEntityArrow extends MixinEntity {
+import javax.annotation.Nullable;
 
-    @Shadow private int ticksInGround;
+@Mixin(ChunkProviderClient.class)
+public abstract class MixinChunkProviderClient implements IMixinChunkProviderServer {
 
+    @Shadow private LongHashMap<Chunk> chunkMapping;
+
+    @Nullable
     @Override
-    public void inactiveTick() {
-        if (this.onGround) {
-            this.ticksInGround += 1;
-        }
-        super.inactiveTick();
+    public Chunk getChunkIfLoaded(int x, int z) {
+        return this.chunkMapping.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(x, z));
     }
 }

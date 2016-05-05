@@ -25,12 +25,26 @@
 package org.spongepowered.mod.mixin.core.event.entity;
 
 import net.minecraftforge.event.entity.EntityEvent;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.common.entity.EntityUtil;
 
 @NonnullByDefault
 @Mixin(value = EntityEvent.EntityConstructing.class, remap = false)
 public abstract class MixinEventEntityConstructing extends MixinEventEntity implements ConstructEntityEvent.Post {
+
+    @Override
+    public Transform<World> getTransform() {
+        return EntityUtil.fromNative(this.entity).getTransform();
+    }
+
+    @Override
+    public EntityType getTargetType() {
+        return EntityUtil.fromNative(this.entity).getType();
+    }
 
 }

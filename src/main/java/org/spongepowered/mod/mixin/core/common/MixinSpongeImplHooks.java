@@ -26,11 +26,15 @@ package org.spongepowered.mod.mixin.core.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.entity.Transform;
@@ -119,13 +123,23 @@ public abstract class MixinSpongeImplHooks {
     }
 
     // Required for torches and comparators
+
+    /**
+     * @author blood - November 15th, 2015
+     * @reason Use forge added block methods for updating
+     * comparator output levels.
+     *
+     * @param world The world
+     * @param pos The position to update
+     * @param blockIn The block being updated
+     */
     @Overwrite
     public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
-        Optional<User> user = Optional.empty();
-        IMixinChunk spongeChunk = null;
+        Optional<User> user;
+        IMixinChunk spongeChunk;
         if (StaticMixinHelper.packetPlayer != null || StaticMixinHelper.blockEventUser != null) {
             user = Optional
-                    .of(StaticMixinHelper.packetPlayer != null ? (User) StaticMixinHelper.packetPlayer : (User) StaticMixinHelper.blockEventUser);
+                    .of(StaticMixinHelper.packetPlayer != null ? (User) StaticMixinHelper.packetPlayer : StaticMixinHelper.blockEventUser);
         } else {
             spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(pos);
             user = Optional.empty();
@@ -160,5 +174,20 @@ public abstract class MixinSpongeImplHooks {
                 }
             }
         }
+    }
+
+    @Overwrite
+    public static boolean checkAttackEntity(EntityPlayer entityPlayer, Entity targetEntity) {
+        return net.minecraftforge.common.ForgeHooks.onPlayerAttackTarget(entityPlayer, targetEntity);
+    }
+
+    @Overwrite
+    public static boolean isCreatureOfType(Entity entity, EnumCreatureType type) {
+        return entity.isCreatureType(type, false);
+    }
+
+    @Overwrite
+    public static boolean isFakePlayer(Entity entity) {
+        return entity instanceof FakePlayer;
     }
 }

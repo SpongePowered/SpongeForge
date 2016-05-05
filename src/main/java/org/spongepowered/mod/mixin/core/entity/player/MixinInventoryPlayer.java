@@ -38,6 +38,11 @@ public class MixinInventoryPlayer {
     @Shadow public ItemStack[] armorInventory;
     @Shadow public EntityPlayer player;
 
+    /**
+     * @author blood - October 7th, 2015
+     * @reason Modifies the implementation to read slots after the next tick
+     * to throw events.
+     */
     @Overwrite
     public void dropAllItems() {
         int i;

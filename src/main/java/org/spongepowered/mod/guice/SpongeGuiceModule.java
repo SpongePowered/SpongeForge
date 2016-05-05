@@ -29,19 +29,18 @@ import static com.google.inject.name.Names.named;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import net.minecraftforge.fml.common.Loader;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.MinecraftVersion;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.asset.AssetManager;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.SimpleServiceManager;
-import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.asset.SpongeAssetManager;
@@ -64,7 +63,7 @@ public class SpongeGuiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(SpongeMod.class).toInstance(SpongeMod.instance);
-        bind(Logger.class).toInstance(LogManager.getLogger(SpongeImpl.ECOSYSTEM_NAME));
+        bind(Logger.class).toInstance(SpongeImpl.getLogger());
 
         bind(PluginContainer.class).annotatedWith(named(SpongeImpl.ECOSYSTEM_ID)).toInstance((PluginContainer) SpongeMod.instance);
         bind(PluginContainer.class).annotatedWith(named(SpongeImpl.API_ID)).to(SpongeApiContainer.class).in(Scopes.SINGLETON);

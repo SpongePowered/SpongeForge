@@ -67,8 +67,10 @@ public abstract class MixinGuiOverlayDebug implements IMixinGuiOverlayDebug {
                 && this.mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK
                 && this.mc.objectMouseOver.getBlockPos() != null) {
             BlockPos blockpos1 = this.mc.objectMouseOver.getBlockPos();
-            SpongeMessageHandler.getChannel().sendToServer(
-                    new MessageTrackerDataRequest(0, -1, blockpos1.getX(), blockpos1.getY(), blockpos1.getZ()));
+            if (!blockpos1.equals(this.cursorPos)) {
+                SpongeMessageHandler.getChannel().sendToServer(
+                        new MessageTrackerDataRequest(0, -1, blockpos1.getX(), blockpos1.getY(), blockpos1.getZ()));
+            }
             arraylist.add("Block Owner: " + this.blockOwner);
             arraylist.add("Block Notifier: " + this.blockNotifier);
             this.cursorPos = this.mc.objectMouseOver.getBlockPos();

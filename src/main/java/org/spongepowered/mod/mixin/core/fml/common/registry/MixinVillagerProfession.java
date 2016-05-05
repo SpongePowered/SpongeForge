@@ -43,8 +43,7 @@ import org.spongepowered.mod.registry.SpongeVillagerRegistry;
 @Mixin(value = VillagerRegistry.VillagerProfession.class, remap = false)
 public abstract class MixinVillagerProfession implements IMixinVillagerProfession {
 
-    private static final String REGISTER = "Lnet/minecraftforge/fml/common/registry/VillagerRegistry$"
-                                           + "VillagerProfession;register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerCareer;)V";
+    private static final String REGISTER = "Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerProfession;register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerCareer;)V";
     @Shadow private ResourceLocation name;
 
     @Override
@@ -52,7 +51,7 @@ public abstract class MixinVillagerProfession implements IMixinVillagerProfessio
         return this.name.getResourcePath();
     }
 
-    @Inject(method = REGISTER, at = @At("RETURN"), remap = false)
+    @Inject(method = REGISTER, at = @At(value = "RETURN"), remap = false)
     private void registerForgeCareer(VillagerRegistry.VillagerCareer career, CallbackInfo callbackInfo) {
         Profession profession = SpongeVillagerRegistry.getProfession(((IMixinVillagerCareer) career).getProfession()).get();
         Career career1 = new SpongeCareer(((IMixinVillagerCareer) career).getId(), ((IMixinVillagerCareer) career).getName(), profession, new SpongeTranslation("entity.Villager." + ((IMixinVillagerCareer) career).getName()));

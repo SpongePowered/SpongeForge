@@ -28,12 +28,16 @@ import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.extensibility.IMixinConfig;
 import org.spongepowered.asm.mixin.extensibility.IMixinErrorHandler;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+import org.spongepowered.asm.util.ConstraintParser;
 import org.spongepowered.asm.util.ConstraintParser.Constraint;
 import org.spongepowered.asm.util.ConstraintViolationException;
 import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.launch.Main;
+
+import javax.annotation.Nullable;
 
 /**
  * Error handler for Sponge mixins
@@ -44,31 +48,6 @@ public class MixinErrorHandler implements IMixinErrorHandler {
      * Captain's log, stardate 68788.5
      */
     private final Logger log = LogManager.getLogger("Sponge");
-
-    @Override
-    public ErrorAction onError(String targetClassName, Throwable th, IMixinInfo mixin, ErrorAction action) {
-        if (action == ErrorAction.ERROR && mixin.getConfig().getMixinPackage().startsWith("org.spongepowered.")) {
-            PrettyPrinter errorPrinter = new PrettyPrinter();
-            
-            if (th.getCause() instanceof ConstraintViolationException) {
-                ConstraintViolationException ex = (ConstraintViolationException) th.getCause();
-                Constraint constraint = ex.getConstraint();
-                if ("FORGE".equals(constraint.getToken())) {
-                    errorPrinter = this.forgeVersionNotValid(errorPrinter, constraint);
-                } else {
-                    errorPrinter = this.patchConstraintFailed(errorPrinter, constraint, ex);
-                }
-            } else {
-                errorPrinter = this.itsAllGoneHorriblyWrong(errorPrinter);
-            }
-            
-            this.appendTechnicalInfo(errorPrinter, targetClassName, th, mixin).log(this.log);
-            
-            FMLCommonHandler.instance().exitJava(1, true);
-        }
-        
-        return null;
-    }
 
     private PrettyPrinter forgeVersionNotValid(PrettyPrinter errorPrinter, Constraint constraint) {
         String forgeVer = Main.getManifestAttribute("TargetForgeVersion", null);
@@ -149,4 +128,46 @@ public class MixinErrorHandler implements IMixinErrorHandler {
             .add();
     }
 
+    @Override
+    public ErrorAction onPrepareError(IMixinConfig config, Throwable th, IMixinInfo mixin, ErrorAction action) {
+        if (action == ErrorAction.ERROR && mixin.getConfig().getMixinPackage().startsWith("org.spongepowered.")) {
+            PrettyPrinter errorPrinter = new PrettyPrinter();
+
+            errorPrinter = getPrettyPrinter(th, errorPrinter);
+
+            this.appendTechnicalInfo(errorPrinter, "N/A", th, mixin).log(this.log);
+
+            FMLCommonHandler.instance().exitJava(1, true);
+        }
+        return null;
+    }
+
+    @Override
+    public ErrorAction onApplyError(String targetClassName, Throwable th, IMixinInfo mixin, ErrorAction action) {
+        if (action == ErrorAction.ERROR && mixin.getConfig().getMixinPackage().startsWith("org.spongepowered.")) {
+            PrettyPrinter errorPrinter = new PrettyPrinter();
+
+            errorPrinter = getPrettyPrinter(th, errorPrinter);
+
+            this.appendTechnicalInfo(errorPrinter, targetClassName, th, mixin).log(this.log);
+
+            FMLCommonHandler.instance().exitJava(1, true);
+        }
+        return null;
+    }
+
+    public PrettyPrinter getPrettyPrinter(Throwable th, PrettyPrinter errorPrinter) {
+        if (th.getCause() instanceof ConstraintViolationException) {
+            ConstraintViolationException ex = (ConstraintViolationException) th.getCause();
+            Constraint constraint = ex.getConstraint();
+            if ("FORGE".equals(constraint.getToken())) {
+                errorPrinter = this.forgeVersionNotValid(errorPrinter, constraint);
+            } else {
+                errorPrinter = this.patchConstraintFailed(errorPrinter, constraint, ex);
+            }
+        } else {
+            errorPrinter = this.itsAllGoneHorriblyWrong(errorPrinter);
+        }
+        return errorPrinter;
+    }
 }

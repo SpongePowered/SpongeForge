@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.IMixinMinecart;
@@ -50,19 +51,22 @@ public abstract class MixinEntityMinecart extends Entity implements IMixinMineca
 
     // These are provided by Common
     protected double maxSpeed;
-    protected Vector3d derailedMod;
     protected Vector3d airborneMod;
 
     public MixinEntityMinecart(World worldIn) {
         super(worldIn);
     }
 
-    @Shadow(remap = false)
-    public abstract double getDragAir();
-    @Shadow(remap = false)
-    public abstract double getMaxSpeed();
+    @Shadow(remap = false) public abstract double getDragAir();
+    @Shadow(remap = false) public abstract double getMaxSpeed();
 
     // this method overwrites the vanilla accessor for maximum speed
+
+    /**
+     * @author gabizou - April 22nd, 2015
+     * @reason Updates the forge added method to use our fieldvariable
+     * @return
+     */
     @Overwrite
     public double getMaximumSpeed() {
         return this.maxSpeed;
@@ -71,11 +75,6 @@ public abstract class MixinEntityMinecart extends Entity implements IMixinMineca
     @Override
     public double getMaximumMinecartSpeed() {
         return getMaximumSpeed();
-    }
-
-    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_Y_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 1))
-    private void onDecelerateY(EntityMinecart self, double modifier) {
-        self.motionY *= this.derailedMod.getY();
     }
 
     @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_X_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 2))
