@@ -27,8 +27,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 ext.forgeBuild = '1888'
 minecraft {
-    version = "1.9-12.16.1.${project.forgeBuild}"
-	mappings = 'snapshot_20160429'
+    version = forgeBuild
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
 }
 
