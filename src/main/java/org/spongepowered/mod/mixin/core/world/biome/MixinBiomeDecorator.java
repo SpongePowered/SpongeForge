@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.world.biome;
 
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.BiomeDecorator;
@@ -39,21 +39,23 @@ import java.util.Random;
 @Mixin(BiomeDecorator.class)
 public class MixinBiomeDecorator {
 
-    @Inject(method = "decorate", at = @At("HEAD") , cancellable = true)
+    @Inject(method = "decorate", at = @At("HEAD"))
     protected void onBiomeDecorateHead(World worldIn, Random random, BiomeGenBase biome, BlockPos pos, CallbackInfo ci) {
         if (!worldIn.isRemote) {
             WorldServer world = (WorldServer) worldIn;
             // don't allow chunks to load while decorating
-            world.theChunkProviderServer.chunkLoadOverride = false;
+            // TODO - gabizou - evaluate whether this is still needed and whether we should be preventing chunk loads
+            // world.getChunkProvider().chunkLoadOverride = false;
         }
     }
 
-    @Inject(method = "decorate", at = @At("RETURN") , cancellable = true)
+    @Inject(method = "decorate", at = @At("RETURN"))
     protected void onBiomeDecorateReturn(World worldIn, Random random, BiomeGenBase biome, BlockPos pos, CallbackInfo ci) {
         if (!worldIn.isRemote) {
             WorldServer world = (WorldServer) worldIn;
             // decorate is finished, allow chunks to load
-            world.theChunkProviderServer.chunkLoadOverride = true;
+            // TODO - gabizou - evaluate whether this is still needed and whether we should be preventing chunk loads
+            // world.theChunkProviderServer.chunkLoadOverride = true;
         }
     }
 }

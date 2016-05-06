@@ -26,25 +26,45 @@ package org.spongepowered.mod.mixin.core.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLeaves;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.phase.BlockPhase;
+import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.mixin.core.block.MixinBlock;
 
 @NonnullByDefault
 @Mixin(value = BlockLeaves.class, priority = 1001)
 public abstract class MixinBlockLeaves extends MixinBlock {
 
-    @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;)V", remap = false))
-    public void onBreakBlock(Block block, World worldIn, BlockPos pos) {
-        IMixinWorld spongeWorld = (IMixinWorld) worldIn;
-        spongeWorld.getCauseTracker().setCapturingBlockDecay(true);
-        block.beginLeavesDecay(worldIn, pos);
-        spongeWorld.getCauseTracker().setCapturingBlockDecay(false);
+    @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", remap = false))
+    public void onBreakBlock(IBlockState state, Block block, World worldIn, BlockPos pos) {
+        if (!worldIn.isRemote) {
+            IMixinWorldServer spongeWorld = (IMixinWorldServer) worldIn;
+            final CauseTracker causeTracker = spongeWorld.getCauseTracker();
+            final boolean isBlockAlready = causeTracker.getStack().current() != TrackingPhases.BLOCK;
+            final IBlockState blockState = worldIn.getBlockState(pos);
+            final IBlockState actualState = blockState.getBlock().getActualState(blockState, worldIn, pos);
+            if (isBlockAlready) {
+                causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.BLOCK_DECAY, PhaseContext.start()
+                        .add(NamedCause.source(spongeWorld.createSpongeBlockSnapshot(blockState, actualState, pos, 3)))
+                        .addCaptures()
+                        .complete());
+            }
+            block.beginLeavesDecay(blockState, worldIn, pos);
+            if (isBlockAlready) {
+                causeTracker.completePhase();
+            }
+        }
     }
 
 }

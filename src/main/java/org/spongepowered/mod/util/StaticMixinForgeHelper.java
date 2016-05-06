@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.util;
 
+import com.google.common.collect.Lists;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemArmor;
@@ -37,7 +38,7 @@ import org.spongepowered.api.event.cause.entity.damage.DamageModifierTypes;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
 import org.spongepowered.api.util.Tuple;
-import org.spongepowered.common.event.DamageEventHandler;
+import org.spongepowered.common.event.damage.DamageEventHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,22 +55,23 @@ public final class StaticMixinForgeHelper {
 
     public static Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> createArmorModifiers(
         EntityLivingBase entityLivingBase, DamageSource damageSource, double damage) {
-        ItemStack[] inventory = (entityLivingBase instanceof EntityPlayer) ? ((EntityPlayer) entityLivingBase).inventory.armorInventory : entityLivingBase.getInventory();
+        Iterable<ItemStack> inventory = entityLivingBase.getArmorInventoryList();
+        final List<ItemStack> itemStacks = Lists.newArrayList(inventory);
         damage *= 25;
         // Beware all ye who enter here, for there's nothing but black magic here.
         ArrayList<ISpecialArmor.ArmorProperties> dmgVals = new ArrayList<ISpecialArmor.ArmorProperties>();
-        for (int x = 0; x < inventory.length; x++) {
-            ISpecialArmor.ArmorProperties properties = getProperties(entityLivingBase, inventory[x], damageSource, damage, x);
+        for (int x = 0; x < itemStacks.size(); x++) {
+            ISpecialArmor.ArmorProperties properties = getProperties(entityLivingBase, itemStacks.get(x), damageSource, damage, x);
             if (properties != null) {
                 dmgVals.add(properties);
             }
         }
-        return createArmorModifiers(dmgVals, inventory, damage);
+        return createArmorModifiers(dmgVals, itemStacks, damage);
     }
 
     public static void acceptArmorModifier(EntityLivingBase entity, DamageSource damageSource, DamageModifier modifier, double damage) {
         Optional<ISpecialArmor.ArmorProperties> property = modifier.getCause().first(ISpecialArmor.ArmorProperties.class);
-        final ItemStack[] inventory = entity instanceof EntityPlayer ? ((EntityPlayer) entity).inventory.armorInventory : entity.getInventory();
+        final ItemStack[] inventory = entity instanceof EntityPlayer ? ((EntityPlayer) entity).inventory.armorInventory : entity.armorArray;
         if (property.isPresent()) {
             damage = Math.abs(damage) * 25;
             ItemStack stack = inventory[property.get().Slot];
@@ -87,7 +89,7 @@ public final class StaticMixinForgeHelper {
 
     private static double damageToHandle;
 
-    private static Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> createArmorModifiers(List<ISpecialArmor.ArmorProperties> dmgVals, ItemStack[] inventory, double damage) {
+    private static Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> createArmorModifiers(List<ISpecialArmor.ArmorProperties> dmgVals, List<ItemStack> inventory, double damage) {
         if (dmgVals.size() > 0) {
             final List<Tuple<DamageModifier, Function<? super Double, Double>>> list = new ArrayList<>();
             ISpecialArmor.ArmorProperties[] props = dmgVals.toArray(new ISpecialArmor.ArmorProperties[dmgVals.size()]);
@@ -133,7 +135,7 @@ public final class StaticMixinForgeHelper {
 
                 DamageModifier modifier = DamageModifier.builder()
                     .cause(Cause.of(NamedCause.of(DamageEntityEvent.GENERAL_ARMOR + ":" + type.getId(),
-                                                  ((org.spongepowered.api.item.inventory.ItemStack) (Object) inventory[prop.Slot]).createSnapshot()),
+                                                  ((org.spongepowered.api.item.inventory.ItemStack) (Object) inventory.get(prop.Slot)).createSnapshot()),
                                     NamedCause.of("ArmorProperty", prop),
                                     NamedCause.of("0xDEADBEEF", object)))
                     .type(DamageModifierTypes.ARMOR)
