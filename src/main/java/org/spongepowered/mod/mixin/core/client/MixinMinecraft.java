@@ -28,7 +28,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiOverlayDebug;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
@@ -41,7 +40,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
-import org.spongepowered.common.world.DimensionManager;
+import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 
@@ -67,7 +66,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     }, locals = LocalCapture.CAPTURE_FAILHARD)
     public void onlaunchIntegratedServerBeforeStart(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
             ISaveHandler isavehandler, WorldInfo worldInfo) {
-        DimensionManager.registerWorldProperties((WorldProperties) worldInfo);
+        WorldManager.registerWorldProperties((WorldProperties) worldInfo);
     }
 
     @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = SAVE_HANDLER_SAVE_WORLD_INFO, shift = At.Shift.AFTER) , locals = LocalCapture.CAPTURE_FAILHARD)

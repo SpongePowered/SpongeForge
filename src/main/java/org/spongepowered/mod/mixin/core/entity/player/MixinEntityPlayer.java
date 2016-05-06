@@ -51,7 +51,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.entity.player.ISpongeUser;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.common.world.DimensionManager;
+import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLivingBase;
 
 import java.util.HashMap;
@@ -200,14 +200,14 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     public Map<UUID, RespawnLocation> getBedlocations() {
         Map<UUID, RespawnLocation> locations = Maps.newHashMap();
         if (this.spawnChunk != null) {
-            locations.put(DimensionManager.dimIdToUuid(0), RespawnLocation.builder() //TODO - Zidane needs to come up with a way to get the uuid by dimension id
-                    .world(DimensionManager.dimIdToUuid(0)) //TODO - Zidane needs to come up with a way to get the uuid by dimension id
+            locations.put(WorldManager.dimIdToUuid(0), RespawnLocation.builder() //TODO - Zidane needs to come up with a way to get the uuid by dimension id
+                    .world(WorldManager.dimIdToUuid(0)) //TODO - Zidane needs to come up with a way to get the uuid by dimension id
                     .position(VecHelper.toVector3d(this.spawnChunk))
                     .forceSpawn(this.spawnForced)
                     .build());
         }
         for (Entry<Integer, BlockPos> entry : this.spawnChunkMap.entrySet()) {
-            UUID uuid = DimensionManager.dimIdToUuid(entry.getKey()); //TODO - Zidane needs to come up with a way to get the uuid by dimension id
+            UUID uuid = WorldManager.dimIdToUuid(entry.getKey()); //TODO - Zidane needs to come up with a way to get the uuid by dimension id
             if (uuid != null) {
                 Boolean forced = this.spawnForcedMap.get(entry.getKey());
                 locations.put(uuid, RespawnLocation.builder()
@@ -228,7 +228,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         setSpawnChunk(null, false, 0);
         // Add replacement values
         for (Entry<UUID, RespawnLocation> entry : locations.entrySet()) {
-            int dim = DimensionManager.uuidToDimId(entry.getKey()); //TODO - Zidane needs to come up with a way to get the uuid by dimension id
+            int dim = WorldManager.uuidToDimId(entry.getKey()); //TODO - Zidane needs to come up with a way to get the uuid by dimension id
             if (dim != Integer.MIN_VALUE) {
                 setSpawnChunk(VecHelper.toBlockPos(entry.getValue().getPosition()), entry.getValue().isForced(), dim);
             }
