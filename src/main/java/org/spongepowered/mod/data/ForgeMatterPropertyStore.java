@@ -24,9 +24,9 @@
  */
 package org.spongepowered.mod.data;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fluids.IFluidBlock;
 import org.spongepowered.api.data.property.block.MatterProperty;
@@ -45,7 +45,7 @@ public class ForgeMatterPropertyStore extends AbstractBlockPropertyStore<MatterP
     }
 
     @Override
-    protected Optional<MatterProperty> getForBlock(Block block) {
+    protected Optional<MatterProperty> getForBlock(IBlockState block) {
         if (block instanceof BlockLiquid || block instanceof BlockFluidBase || block instanceof IFluidBlock) {
             return Optional.of(LIQUID);
         } else if (block.getMaterial() == Material.AIR) {

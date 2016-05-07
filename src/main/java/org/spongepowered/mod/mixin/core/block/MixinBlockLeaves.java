@@ -38,7 +38,6 @@ import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.mixin.core.block.MixinBlock;
 
@@ -64,6 +63,8 @@ public abstract class MixinBlockLeaves extends MixinBlock {
             if (isBlockAlready) {
                 causeTracker.completePhase();
             }
+        } else {
+            block.beginLeavesDecay(state, worldIn, pos);
         }
     }
 
