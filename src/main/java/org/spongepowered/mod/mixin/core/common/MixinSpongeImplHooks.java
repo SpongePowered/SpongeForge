@@ -29,17 +29,14 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.message.MessageEvent;
@@ -50,10 +47,7 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.entity.PlayerTracker;
-import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.IMixinInitCause;
-import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.interfaces.IMixinInitMessageChannelEvent;
 import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
 
@@ -120,60 +114,6 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static TileEntity createTileEntity(Block block, net.minecraft.world.World world, IBlockState state) {
         return block.createTileEntity(world, state);
-    }
-
-    // Required for torches and comparators
-
-    /**
-     * @author blood - November 15th, 2015
-     * @reason Use forge added block methods for updating
-     * comparator output levels.
-     *
-     * @param world The world
-     * @param pos The position to update
-     * @param blockIn The block being updated
-     */
-    @Overwrite
-    public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
-        Optional<User> user;
-        IMixinChunk spongeChunk;
-        if (StaticMixinHelper.packetPlayer != null || StaticMixinHelper.blockEventUser != null) {
-            user = Optional
-                    .of(StaticMixinHelper.packetPlayer != null ? (User) StaticMixinHelper.packetPlayer : StaticMixinHelper.blockEventUser);
-        } else {
-            spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(pos);
-            user = Optional.empty();
-            if (spongeChunk != null) {
-                user = spongeChunk.getBlockNotifier(pos);
-            }
-        }
-        for (EnumFacing enumfacing : EnumFacing.values()) {
-            BlockPos blockpos1 = pos.offset(enumfacing);
-
-            if (world.isBlockLoaded(blockpos1)) {
-                IBlockState iblockstate = world.getBlockState(blockpos1);
-                iblockstate.getBlock().onNeighborChange(world, blockpos1, pos);
-                if (user.isPresent()) {
-                    spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(blockpos1);
-                    if (spongeChunk != null) {
-                        spongeChunk.addTrackedBlockPosition(iblockstate.getBlock(), blockpos1, user.get(), PlayerTracker.Type.NOTIFIER);
-                    }
-                }
-                if (iblockstate.getBlock().isNormalCube(world, blockpos1)) {
-                    BlockPos posOther = blockpos1.offset(enumfacing);
-                    Block other = world.getBlockState(posOther).getBlock();
-                    if (other.getWeakChanges(world, posOther)) {
-                        other.onNeighborChange(world, posOther, pos);
-                        if (user.isPresent()) {
-                            spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(posOther);
-                            if (spongeChunk != null) {
-                                spongeChunk.addTrackedBlockPosition(other, posOther, user.get(), PlayerTracker.Type.NOTIFIER);
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     @Overwrite
