@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.world.gen;
 
+import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.block.BlockFalling;
@@ -55,6 +56,7 @@ import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.api.world.biome.BiomeType;
+import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.api.world.extent.ImmutableBiomeArea;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GenerationPopulator;
@@ -86,6 +88,7 @@ import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.common.world.extent.SoftBufferExtentViewDownsize;
 import org.spongepowered.common.world.gen.SpongeChunkGenerator;
 import org.spongepowered.common.world.gen.SpongeGenerationPopulator;
 import org.spongepowered.common.world.gen.WorldGenConstants;
@@ -161,6 +164,9 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(this.world, this.rand, blockpos));
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Pre(this.world, this.rand, blockpos));
         List<String> flags = Lists.newArrayList();
+        Vector3i min = new Vector3i(chunkX * 16 + 8, 0, chunkZ * 16 + 8);
+        org.spongepowered.api.world.World spongeWorld = (org.spongepowered.api.world.World) this.world;
+        Extent volume = new SoftBufferExtentViewDownsize(chunk.getWorld(), min, min.add(15, 0, 15), min.sub(8, 0, 8), min.add(23, 0, 23));
         for (Populator populator : populators) {
             if (!checkForgeEvent(populator, this, chunkX, chunkZ, flags, chunk)) {
                 continue;
@@ -169,17 +175,17 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             if (type == null) {
                 System.err.printf("Found a populator with a null type: %s populator%n", populator);
             }
+            if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(populateCause, populator, chunk))) {
+                continue;
+            }
             causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
                     .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
                     .addEntityCaptures()
                     .complete());
-            if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(populateCause, populator, chunk))) {
-                continue;
-            }
             if (populator instanceof IFlaggedPopulator) {
-                ((IFlaggedPopulator) populator).populate(chunk, this.rand, flags);
+                ((IFlaggedPopulator) populator).populate(volume, spongeWorld, this.rand, flags);
             } else {
-                populator.populate(chunk, this.rand);
+                populator.populate(spongeWorld, volume, this.rand);
             }
             causeTracker.completePhase();
         }
