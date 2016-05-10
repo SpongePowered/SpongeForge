@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 
-@Mixin(value = ChunkProviderServer.class, priority = 999)
+@Mixin(value = ChunkProviderServer.class, priority = 1001)
 public abstract class MixinChunkProviderServer {
 
     @Shadow public WorldServer worldObj;
