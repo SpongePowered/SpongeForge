@@ -40,7 +40,7 @@ public class SpongeEventHooks {
         IMixinEntity spongeEntity = (IMixinEntity) event.getPlayer();
 
         if (spongeEntity.isTeleporting()) {
-            event.getPlayer().mountEntity(spongeEntity.getTeleportVehicle());
+            spongeEntity.getTeleportVehicle().getPassengers().add(event.getPlayer());
             spongeEntity.setTeleportVehicle(null);
             spongeEntity.setIsTeleporting(false);
         }

@@ -75,11 +75,6 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
     }
 
     @Override
-    public List<EntitySnapshot> getEntitySnapshots() {
-        return this.entitySnapshots;
-    }
-
-    @Override
     public World getTargetWorld() {
         return (World) this.entity.worldObj;
     }

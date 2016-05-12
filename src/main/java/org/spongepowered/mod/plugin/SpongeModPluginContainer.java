@@ -392,6 +392,16 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
     }
 
     @Override
+    public void setClassVersion(int classVersion) {
+
+    }
+
+    @Override
+    public int getClassVersion() {
+        return 0;
+    }
+
+    @Override
     public Injector getInjector() {
         return this.injector;
     }

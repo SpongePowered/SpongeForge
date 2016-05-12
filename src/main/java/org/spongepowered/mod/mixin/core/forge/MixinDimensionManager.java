@@ -27,15 +27,16 @@ package org.spongepowered.mod.mixin.core.forge;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.DimensionType;
-import net.minecraft.world.WorldManager;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.world.WorldManager;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Hashtable;
 
 /**
@@ -63,22 +64,27 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static boolean isDimensionRegistered(int dim) {
+        return true;
     }
 
     @Overwrite
     public static DimensionType getProviderType(int dim) {
+        return WorldManager.getDimensionType(dim).orElse(null);
     }
 
     @Overwrite
     public static WorldProvider getProvider(int dim) {
+        return null;
     }
 
     @Overwrite
     public static Integer[] getIDs(boolean check) {
+        return new Integer[0];
     }
 
     @Overwrite
     public static Integer[] getIDs() {
+        return new Integer[0];
     }
 
     @Overwrite
@@ -91,18 +97,23 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static WorldServer getWorld(int id) {
+        return WorldManager.getWorldByDimensionId(id).orElse(null);
     }
 
     @Overwrite
     public static WorldServer[] getWorlds() {
+        final Collection<WorldServer> worlds = WorldManager.getWorlds();
+        return worlds.toArray(new WorldServer[worlds.size()]);
     }
 
     @Overwrite
     public static Integer[] getStaticDimensionIDs() {
+        return new Integer[0];
     }
 
     @Overwrite
     public static WorldProvider createProviderFor(int dim) {
+        return null;
     }
 
     @Overwrite
@@ -115,10 +126,12 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static int getNextFreeDimId() {
+        return 2;
     }
 
     @Overwrite
     public static NBTTagCompound saveDimensionDataMap() {
+        return new NBTTagCompound();
     }
 
     @Overwrite

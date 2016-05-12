@@ -104,12 +104,12 @@ public abstract class MixinSpongeImplHooks {
 
     @Overwrite
     public static int getBlockLightValue(Block block, BlockPos pos, IBlockAccess world) {
-        return block.getLightValue(world, pos);
+        return block.getLightValue(world.getBlockState(pos), world, pos);
     }
 
     @Overwrite
     public static int getBlockLightOpacity(Block block, IBlockAccess world, BlockPos pos) {
-        return block.getLightOpacity(world, pos);
+        return block.getLightOpacity(world.getBlockState(pos), world, pos);
     }
 
     @Overwrite
@@ -120,60 +120,6 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static TileEntity createTileEntity(Block block, net.minecraft.world.World world, IBlockState state) {
         return block.createTileEntity(world, state);
-    }
-
-    // Required for torches and comparators
-
-    /**
-     * @author blood - November 15th, 2015
-     * @reason Use forge added block methods for updating
-     * comparator output levels.
-     *
-     * @param world The world
-     * @param pos The position to update
-     * @param blockIn The block being updated
-     */
-    @Overwrite
-    public static void updateComparatorOutputLevel(net.minecraft.world.World world, BlockPos pos, Block blockIn) {
-        Optional<User> user;
-        IMixinChunk spongeChunk;
-        if (StaticMixinHelper.packetPlayer != null || StaticMixinHelper.blockEventUser != null) {
-            user = Optional
-                    .of(StaticMixinHelper.packetPlayer != null ? (User) StaticMixinHelper.packetPlayer : StaticMixinHelper.blockEventUser);
-        } else {
-            spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(pos);
-            user = Optional.empty();
-            if (spongeChunk != null) {
-                user = spongeChunk.getBlockNotifier(pos);
-            }
-        }
-        for (EnumFacing enumfacing : EnumFacing.values()) {
-            BlockPos blockpos1 = pos.offset(enumfacing);
-
-            if (world.isBlockLoaded(blockpos1)) {
-                IBlockState iblockstate = world.getBlockState(blockpos1);
-                iblockstate.getBlock().onNeighborChange(world, blockpos1, pos);
-                if (user.isPresent()) {
-                    spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(blockpos1);
-                    if (spongeChunk != null) {
-                        spongeChunk.addTrackedBlockPosition(iblockstate.getBlock(), blockpos1, user.get(), PlayerTracker.Type.NOTIFIER);
-                    }
-                }
-                if (iblockstate.getBlock().isNormalCube(world, blockpos1)) {
-                    BlockPos posOther = blockpos1.offset(enumfacing);
-                    Block other = world.getBlockState(posOther).getBlock();
-                    if (other.getWeakChanges(world, posOther)) {
-                        other.onNeighborChange(world, posOther, pos);
-                        if (user.isPresent()) {
-                            spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(posOther);
-                            if (spongeChunk != null) {
-                                spongeChunk.addTrackedBlockPosition(other, posOther, user.get(), PlayerTracker.Type.NOTIFIER);
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     @Overwrite

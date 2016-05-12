@@ -104,7 +104,6 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
         if (sourceCreator.isPresent()) {
             causes.add(NamedCause.owner(sourceCreator.get()));
         }
-        StaticMixinHelper.dropCause = Cause.of(causes);
     }
 
     @Override

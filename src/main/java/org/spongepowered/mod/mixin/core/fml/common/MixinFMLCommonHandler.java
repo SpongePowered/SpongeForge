@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.mod.interfaces.fml.common.IMixinFMLCommonHandler;
 
 @Mixin(value = FMLCommonHandler.class, remap = false)
-public class MixinFMLCommonHandler implements IMixinFMLCommonHandler{
+public class MixinFMLCommonHandler implements IMixinFMLCommonHandler {
 
     @Override
     public void bruteShutdown() {

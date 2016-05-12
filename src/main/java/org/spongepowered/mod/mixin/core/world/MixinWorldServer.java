@@ -21,7 +21,7 @@ public abstract class MixinWorldServer implements World, IMixinWorldServer {
     }
 
     @Override
-    public int getDimensionId() {
+    public Integer getDimensionId() {
         return this.worldProvider.getDimension();
     }
 

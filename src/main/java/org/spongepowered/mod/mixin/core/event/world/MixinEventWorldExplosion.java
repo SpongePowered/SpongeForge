@@ -118,7 +118,7 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
             List<BlockPos> affectedPositions = this.explosion.getAffectedBlockPositions();
             ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<>();
             for (BlockPos pos : affectedPositions) {
-                Location<World> location = new Location<>((World) this.world, VecHelper.toVector(pos));
+                Location<World> location = new Location<>((World) this.world, VecHelper.toVector3d(pos));
                 BlockSnapshot originalSnapshot =
                         ((IMixinBlockSnapshot) net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(this.world, pos))
                                 .createSpongeBlockSnapshot();
@@ -154,11 +154,6 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
                 }
             }
             return this.blockTransactions;
-        }
-
-        @Override
-        public ImmutableList<EntitySnapshot> getEntitySnapshots() {
-            return this.entitySnapshots;
         }
 
         @SuppressWarnings("unchecked")

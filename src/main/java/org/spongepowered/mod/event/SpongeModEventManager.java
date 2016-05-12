@@ -36,11 +36,9 @@ import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
-import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
@@ -72,7 +70,6 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
-import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
@@ -124,10 +121,10 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(LoadWorldEvent.class, WorldEvent.Load.class)
                     .put(SaveWorldEvent.class, WorldEvent.Save.class)
                     .put(UnloadWorldEvent.class, WorldEvent.Unload.class)
-                    .put(UseItemStackEvent.Start.class, PlayerUseItemEvent.Start.class)
-                    .put(UseItemStackEvent.Tick.class, PlayerUseItemEvent.Tick.class)
-                    .put(UseItemStackEvent.Stop.class, PlayerUseItemEvent.Stop.class)
-                    .put(UseItemStackEvent.Finish.class, PlayerUseItemEvent.Finish.class)
+//                    .put(UseItemStackEvent.Start.class, PlayerUseItemEvent.Start.class)
+//                    .put(UseItemStackEvent.Tick.class, PlayerUseItemEvent.Tick.class)
+//                    .put(UseItemStackEvent.Stop.class, PlayerUseItemEvent.Stop.class)
+//                    .put(UseItemStackEvent.Finish.class, PlayerUseItemEvent.Finish.class)
                     .put(ClientConnectionEvent.Join.class, PlayerEvent.PlayerLoggedInEvent.class)
                     .put(ClientConnectionEvent.Disconnect.class, PlayerEvent.PlayerLoggedOutEvent.class)
                     .put(SleepingEvent.Pre.class, PlayerSleepInBedEvent.class)
@@ -275,7 +272,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             return PlayerInteractEvent.class;
         }
         if (InteractEntityEvent.Secondary.class.isAssignableFrom(clazz)) {
-            return EntityInteractEvent.class;
+//            return EntityInteractEvent.class;
         }
         if (SpawnEntityEvent.class.isAssignableFrom(clazz)) {
             return EntityJoinWorldEvent.class;

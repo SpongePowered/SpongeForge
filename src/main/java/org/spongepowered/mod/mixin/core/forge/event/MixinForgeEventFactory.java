@@ -31,7 +31,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -43,24 +42,24 @@ import org.spongepowered.mod.interfaces.IMixinEventBus;
 @Mixin(value = ForgeEventFactory.class, remap = false)
 public abstract class MixinForgeEventFactory {
 
-    @Overwrite
-    public static PlayerInteractEvent onPlayerInteract(EntityPlayer player, Action action, net.minecraft.world.World world, BlockPos pos,
-            EnumFacing face, Vec3d localPos) {
-        if (world.isRemote) {
-            PlayerInteractEvent event = new PlayerInteractEvent(player, action, pos, face, world, localPos);
-            MinecraftForge.EVENT_BUS.post(event);
-            return event;
-        }
-
-        PlayerInteractEvent forgeEvent = new PlayerInteractEvent(player, action, pos, face, world, localPos);
-        Event spongeEvent = ((IMixinEvent) forgeEvent).createSpongeEvent();
-
-        // Bypass ForgeEventFactory so we maintain the same event reference.
-        if (((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent,
-                forgeEvent.getListenerList().getListeners(((IMixinEventBus) MinecraftForge.EVENT_BUS).getBusID()))) {
-            forgeEvent.setCanceled(true);
-        }
-
-        return forgeEvent;
-    }
+//    @Overwrite
+//    public static PlayerInteractEvent onPlayerInteract(EntityPlayer player, Action action, net.minecraft.world.World world, BlockPos pos,
+//            EnumFacing face, Vec3d localPos) {
+//        if (world.isRemote) {
+//            PlayerInteractEvent event = new PlayerInteractEvent(player, action, pos, face, world, localPos);
+//            MinecraftForge.EVENT_BUS.post(event);
+//            return event;
+//        }
+//
+//        PlayerInteractEvent forgeEvent = new PlayerInteractEvent(player, action, pos, face, world, localPos);
+//        Event spongeEvent = ((IMixinEvent) forgeEvent).createSpongeEvent();
+//
+//        // Bypass ForgeEventFactory so we maintain the same event reference.
+//        if (((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent,
+//                forgeEvent.getListenerList().getListeners(((IMixinEventBus) MinecraftForge.EVENT_BUS).getBusID()))) {
+//            forgeEvent.setCanceled(true);
+//        }
+//
+//        return forgeEvent;
+//    }
 }

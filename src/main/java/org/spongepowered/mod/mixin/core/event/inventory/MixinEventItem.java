@@ -77,10 +77,10 @@ public abstract class MixinEventItem extends MixinEventEntity implements AffectE
         return this.entities;
     }
 
-    @Override
-    public List<EntitySnapshot> getEntitySnapshots() {
-        return this.entitySnapshots;
-    }
+//    @Override
+//    public List<EntitySnapshot> getEntitySnapshots() {
+//        return this.entitySnapshots;
+//    }
 
     @Mixin(value = ItemTossEvent.class, remap = false)
     static abstract class Toss extends MixinEventItem implements DropItemEvent.Dispense {

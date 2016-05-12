@@ -47,6 +47,6 @@ public class ForgeLightEmissionPropertyStore extends LightEmissionPropertyStore 
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
         Block block = (Block) location.getBlockType();
         final BlockState blockState = location.getBlock();
-        return Optional.of(new LightEmissionProperty(block.getLightValue(BlockUtil.toBlockState(blockState), world, VecHelper.toBlockPos(location))));
+        return Optional.of(new LightEmissionProperty(block.getLightValue(BlockUtil.toNative(blockState), world, VecHelper.toBlockPos(location))));
     }
 }

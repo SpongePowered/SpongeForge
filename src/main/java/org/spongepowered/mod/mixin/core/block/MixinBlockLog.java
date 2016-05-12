@@ -47,7 +47,7 @@ import org.spongepowered.common.mixin.core.block.MixinBlock;
 public abstract class MixinBlockLog extends MixinBlock {
 
     @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", remap = false))
-    public void onBreakBlock(IBlockState state, Block block, World worldIn, BlockPos pos) {
+    public void onBreakBlock(Block block, IBlockState state, World worldIn, BlockPos pos) {
         if (!worldIn.isRemote) {
             IMixinWorldServer spongeWorld = (IMixinWorldServer) worldIn;
             final CauseTracker causeTracker = spongeWorld.getCauseTracker();

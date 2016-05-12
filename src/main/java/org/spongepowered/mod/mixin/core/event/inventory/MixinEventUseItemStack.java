@@ -40,99 +40,99 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.mod.mixin.core.event.player.MixinEventPlayer;
 
-@Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.class, remap = false)
+//@Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.class, remap = false)
 public abstract class MixinEventUseItemStack extends MixinEventPlayer implements UseItemStackEvent {
 
-    private int originalDuration;
-    private ItemStackSnapshot itemSnapshot;
-    private Transaction<ItemStackSnapshot> itemTransaction;
-
-    @Shadow @Final @Mutable public net.minecraft.item.ItemStack item;
-    @Shadow public int duration;
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, CallbackInfo ci) {
-        this.itemSnapshot = ((ItemStack) (Object) item).createSnapshot();
-        this.itemTransaction = new Transaction<>(this.itemSnapshot, this.itemSnapshot.copy());
-        this.originalDuration = duration;
-    }
-
-    @Override
-    public int getOriginalRemainingDuration() {
-        return this.originalDuration;
-    }
-
-    @Override
-    public int getRemainingDuration() {
-        return this.duration;
-    }
-
-    @Override
-    public void setRemainingDuration(int duration) {
-        this.duration = duration;
-    }
-
-    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start.class, remap = false)
-    static abstract class Start extends MixinEventUseItemStack implements UseItemStackEvent.Start {
-
-    }
-
-    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick.class, remap = false)
-    static abstract class Tick extends MixinEventUseItemStack implements UseItemStackEvent.Tick {
-
-    }
-
-    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop.class, remap = false)
-    static abstract class Stop extends MixinEventUseItemStack implements UseItemStackEvent.Stop {
-
-    }
-
-    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish.class, remap = false)
-    static abstract class Finish extends MixinEventUseItemStack implements UseItemStackEvent.Finish {
-
-        private ItemStackSnapshot itemResultSnapshot;
-        private Transaction<ItemStackSnapshot> itemResultTransaction;
-
-        @Inject(method = "<init>", at = @At("RETURN"))
-        public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, net.minecraft.item.ItemStack result, CallbackInfo ci) {
-            // some mods use null to clear the stack, proper way is to set stackSize to 0, so to be valid in Sponge
-            // convert this method to a Sponge compatible 0 stack.
-            if (result == null) {
-                result = item.copy();
-                result.stackSize = 0;
-            }
-            this.itemResultSnapshot = ((ItemStack) (Object) result).createSnapshot();
-            this.itemResultTransaction = new Transaction<>(this.itemResultSnapshot, this.itemResultSnapshot.copy());
-        }
-
-        @Override
-        public Transaction<ItemStackSnapshot> getItemStackResult() {
-            return this.itemResultTransaction;
-        }
-
-    }
-
-    @Override
-    public Transaction<ItemStackSnapshot> getItemStackInUse() {
-        return this.itemTransaction;
-    }
-
-    @Override
-    public void syncDataToSponge(org.spongepowered.api.event.Event spongeEvent) {
-        super.syncDataToSponge(spongeEvent);
-        UseItemStackEvent event = (UseItemStackEvent) spongeEvent;
-        final ItemStack defaultStack = event.getItemStackInUse().getDefault().createStack();
-        if (!ItemStackUtil.compare(defaultStack, this.item)) {
-            event.getItemStackInUse().setCustom(ItemStackUtil.createSnapshot(this.item));
-        }
-    }
-
-    @Override
-    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
-        super.syncDataToForge(spongeEvent);
-
-        UseItemStackEvent event = (UseItemStackEvent) spongeEvent;
-        this.item = (net.minecraft.item.ItemStack) (Object) event.getItemStackInUse().getFinal().createStack();
-        this.duration = event.getRemainingDuration();
-    }
+//    private int originalDuration;
+//    private ItemStackSnapshot itemSnapshot;
+//    private Transaction<ItemStackSnapshot> itemTransaction;
+//
+//    @Shadow @Final @Mutable public net.minecraft.item.ItemStack item;
+//    @Shadow public int duration;
+//
+//    @Inject(method = "<init>", at = @At("RETURN"))
+//    public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, CallbackInfo ci) {
+//        this.itemSnapshot = ((ItemStack) (Object) item).createSnapshot();
+//        this.itemTransaction = new Transaction<>(this.itemSnapshot, this.itemSnapshot.copy());
+//        this.originalDuration = duration;
+//    }
+//
+//    @Override
+//    public int getOriginalRemainingDuration() {
+//        return this.originalDuration;
+//    }
+//
+//    @Override
+//    public int getRemainingDuration() {
+//        return this.duration;
+//    }
+//
+//    @Override
+//    public void setRemainingDuration(int duration) {
+//        this.duration = duration;
+//    }
+//
+//    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Start.class, remap = false)
+//    static abstract class Start extends MixinEventUseItemStack implements UseItemStackEvent.Start {
+//
+//    }
+//
+//    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick.class, remap = false)
+//    static abstract class Tick extends MixinEventUseItemStack implements UseItemStackEvent.Tick {
+//
+//    }
+//
+//    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Stop.class, remap = false)
+//    static abstract class Stop extends MixinEventUseItemStack implements UseItemStackEvent.Stop {
+//
+//    }
+//
+//    @Mixin(value = net.minecraftforge.event.entity.player.PlayerUseItemEvent.Finish.class, remap = false)
+//    static abstract class Finish extends MixinEventUseItemStack implements UseItemStackEvent.Finish {
+//
+//        private ItemStackSnapshot itemResultSnapshot;
+//        private Transaction<ItemStackSnapshot> itemResultTransaction;
+//
+//        @Inject(method = "<init>", at = @At("RETURN"))
+//        public void onConstructed(EntityPlayer player, net.minecraft.item.ItemStack item, int duration, net.minecraft.item.ItemStack result, CallbackInfo ci) {
+//            // some mods use null to clear the stack, proper way is to set stackSize to 0, so to be valid in Sponge
+//            // convert this method to a Sponge compatible 0 stack.
+//            if (result == null) {
+//                result = item.copy();
+//                result.stackSize = 0;
+//            }
+//            this.itemResultSnapshot = ((ItemStack) (Object) result).createSnapshot();
+//            this.itemResultTransaction = new Transaction<>(this.itemResultSnapshot, this.itemResultSnapshot.copy());
+//        }
+//
+//        @Override
+//        public Transaction<ItemStackSnapshot> getItemStackResult() {
+//            return this.itemResultTransaction;
+//        }
+//
+//    }
+//
+//    @Override
+//    public Transaction<ItemStackSnapshot> getItemStackInUse() {
+//        return this.itemTransaction;
+//    }
+//
+//    @Override
+//    public void syncDataToSponge(org.spongepowered.api.event.Event spongeEvent) {
+//        super.syncDataToSponge(spongeEvent);
+//        UseItemStackEvent event = (UseItemStackEvent) spongeEvent;
+//        final ItemStack defaultStack = event.getItemStackInUse().getDefault().createStack();
+//        if (!ItemStackUtil.compare(defaultStack, this.item)) {
+//            event.getItemStackInUse().setCustom(ItemStackUtil.createSnapshot(this.item));
+//        }
+//    }
+//
+//    @Override
+//    public void syncDataToForge(org.spongepowered.api.event.Event spongeEvent) {
+//        super.syncDataToForge(spongeEvent);
+//
+//        UseItemStackEvent event = (UseItemStackEvent) spongeEvent;
+//        this.item = (net.minecraft.item.ItemStack) (Object) event.getItemStackInUse().getFinal().createStack();
+//        this.duration = event.getRemainingDuration();
+//    }
 }

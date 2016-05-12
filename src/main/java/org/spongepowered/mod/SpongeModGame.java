@@ -24,12 +24,16 @@
  */
 package org.spongepowered.mod;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.asset.AssetManager;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.network.ChannelRegistrar;
@@ -57,6 +61,18 @@ public final class SpongeModGame extends SpongeGame {
     @Override
     public Path getSavesDirectory() {
         return FMLCommonHandler.instance().getSavesDirectory().toPath();
+    }
+
+    @Override
+    public boolean isServerAvailable() {
+        return FMLCommonHandler.instance().getSidedDelegate().getServer() != null;
+    }
+
+    @Override
+    public Server getServer() {
+        final MinecraftServer server = FMLCommonHandler.instance().getSidedDelegate().getServer();
+        checkState(server != null, "Server has not been initialized yet!");
+        return (Server) server;
     }
 
     @Override

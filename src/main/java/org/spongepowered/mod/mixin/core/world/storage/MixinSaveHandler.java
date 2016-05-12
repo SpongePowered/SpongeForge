@@ -25,6 +25,8 @@
 package org.spongepowered.mod.mixin.core.world.storage;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.datafix.DataFixer;
+import net.minecraft.world.storage.SaveFormatOld;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -45,15 +47,8 @@ import java.io.IOException;
 @Mixin(value = SaveHandler.class, priority = 1001)
 public abstract class MixinSaveHandler {
 
+    @Shadow @Final protected DataFixer dataFixer;
     @Shadow @Final private File worldDirectory;
-
-    @Redirect(method = "saveWorldInfo", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;handleWorldDataSave"
-            + "(Lnet/minecraft/world/storage/SaveHandler;Lnet/minecraft/world/storage/WorldInfo;Lnet/minecraft/nbt/NBTTagCompound;)V", remap = false))
-    public void redirectHandleWorldDataSave(FMLCommonHandler fml, SaveHandler handler, WorldInfo worldInformation, NBTTagCompound compound) {
-        if (fml.getSavesDirectory().equals(this.worldDirectory.getParentFile())) {
-            fml.handleWorldDataSave(handler, worldInformation, compound);
-        }
-    }
 
     @Redirect(method = "saveWorldInfoWithPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;handleWorldDataSave"
             + "(Lnet/minecraft/world/storage/SaveHandler;Lnet/minecraft/world/storage/WorldInfo;Lnet/minecraft/nbt/NBTTagCompound;)V", remap = false))
@@ -64,39 +59,17 @@ public abstract class MixinSaveHandler {
         }
     }
 
-    @Inject(method = "loadWorldInfo", at = @At(value = "RETURN", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD)
-    public void onLoadWorldInfoBeforeReturn0(CallbackInfoReturnable<WorldInfo> cir, File file1, NBTTagCompound nbttagcompound,
-            NBTTagCompound nbttagcompound1, WorldInfo worldInfo) throws IOException {
-        loadDimensionAndOtherData((SaveHandler) (Object) this, worldInfo, nbttagcompound);
-        ((IMixinSaveHandler) this).loadSpongeDatData(worldInfo);
+    @Redirect(method = "loadWorldInfo", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/SaveFormatOld;loadAndFix(Ljava/io/File;Lnet/minecraft/util/datafix/DataFixer;Lnet/minecraft/world/storage/SaveHandler;)Lnet/minecraft/world/storage/WorldInfo;"))
+    private WorldInfo onLoadWorldInfo(File file, DataFixer fixer, SaveHandler handler) {
+        final WorldInfo worldInfo = SaveFormatOld.loadAndFix(file, fixer, handler);
+        if (worldInfo != null) {
+            try {
+                ((IMixinSaveHandler) handler).loadSpongeDatData(worldInfo);
+            } catch (Exception e) {
+                throw new RuntimeException("derp", e);
+            }
+        }
+        return worldInfo;
     }
 
-    @Surrogate
-    public void onLoadWorldInfoBeforeReturn0(CallbackInfoReturnable<WorldInfo> cir, File file1, WorldInfo worldInfo, NBTTagCompound nbttagcompound,
-            NBTTagCompound nbttagcompound1) throws IOException {
-        loadDimensionAndOtherData((SaveHandler) (Object) this, worldInfo, nbttagcompound);
-        ((IMixinSaveHandler) this).loadSpongeDatData(worldInfo);
-    }
-
-    @Inject(method = "loadWorldInfo", at = @At(value = "RETURN", ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD)
-    public void onLoadWorldInfoBeforeReturn1(CallbackInfoReturnable<WorldInfo> cir, File file1, NBTTagCompound nbttagcompound,
-            NBTTagCompound nbttagcompound1, WorldInfo worldInfo) throws IOException {
-        loadDimensionAndOtherData((SaveHandler) (Object) this, worldInfo, nbttagcompound);
-        ((IMixinSaveHandler) this).loadSpongeDatData(worldInfo);
-    }
-
-    @Surrogate
-    public void onLoadWorldInfoBeforeReturn1(CallbackInfoReturnable<WorldInfo> cir, File file1, WorldInfo worldInfo, NBTTagCompound nbttagcompound,
-            NBTTagCompound nbttagcompound1) throws IOException {
-        loadDimensionAndOtherData((SaveHandler) (Object) this, worldInfo, nbttagcompound);
-        ((IMixinSaveHandler) this).loadSpongeDatData(worldInfo);
-    }
-
-    private void loadDimensionAndOtherData(SaveHandler handler, WorldInfo info, NBTTagCompound compound) {
-        //NOOP cause Forge does this in the SaveHandler
-    }
-
-    private void saveDimensionAndOtherData(SaveHandler handler, WorldInfo info, NBTTagCompound compound) {
-        //NOOP cause Forge does this in the SaveHandler
-    }
 }

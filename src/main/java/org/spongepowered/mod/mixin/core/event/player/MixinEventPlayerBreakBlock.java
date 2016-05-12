@@ -57,23 +57,6 @@ public abstract class MixinEventPlayerBreakBlock extends MixinEventBlock impleme
     @Shadow private int exp;
     private Cause cause;
 
-    /**
-     * @author Simon816
-     *
-     * Same reason as MixinForgeHooks#canHarvestBlock, use the captured block
-     * state when checking canSilkHarvest.
-     *
-     */
-    @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;canSilkHarvest"
-            + "(Lnet/minecraft/world/World;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/state/IBlockState;"
-            + "Lnet/minecraft/entity/player/EntityPlayer;)Z"))
-    private IBlockState fixBlockStateOnConstruct(IBlockState state) {
-        if (StaticMixinHelper.breakEventExtendedState != null) {
-            return StaticMixinHelper.breakEventExtendedState;
-        }
-        return state;
-    }
-
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EntityPlayer player, CallbackInfo ci) {
         this.blockOriginal = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());

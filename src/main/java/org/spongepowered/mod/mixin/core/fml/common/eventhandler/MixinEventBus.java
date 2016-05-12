@@ -66,7 +66,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
             if (event instanceof BlockEvent.PlaceEvent
                 || event instanceof BlockEvent.BreakEvent
                 || event instanceof ItemTossEvent
-                || (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent)) {
+                || (event instanceof AttackEntityEvent)) {
                 return false; // let the event happen, we will just capture it
             }
             boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(null, event, listeners);

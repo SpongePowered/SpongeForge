@@ -91,30 +91,6 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         this.damageEntityHook(damageSource, damage);
     }
 
-    // Restore methods to original as we handle PlayerTossEvent in DropItemEvent
-    /**
-     * @author blood - October 16th, 2015
-     * @reason Redirects to our method for event handling
-     *
-     * @param dropAll The damage source
-     */
-    @Overwrite
-    public EntityItem dropOneItem(boolean dropAll) {
-        return this.dropItem(this.inventory.decrStackSize(this.inventory.currentItem, dropAll && this.inventory.getCurrentItem() != null ? this.inventory.getCurrentItem().stackSize : 1), false, true);
-    }
-
-    /**
-     * @author blood - October 16th, 2015
-     * @reason Redirects to our method for event handling
-     *
-     * @param itemStackIn The itemstack to drop
-     * @param unused Unused parameter
-     */
-    @Overwrite
-    public EntityItem dropPlayerItemWithRandomChoice(ItemStack itemStackIn, boolean unused) {
-        return this.dropItem(itemStackIn, false, false);
-    }
-
     @Inject(method = "trySleep", at = @At(value = "RETURN", ordinal = 0))
     private void onSleepEvent(BlockPos bedLocation, CallbackInfoReturnable<EntityPlayer.EnumStatus> cir) {
         if (cir.getReturnValue() == EnumStatus.OK) {
@@ -199,24 +175,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     @Override
     public Map<UUID, RespawnLocation> getBedlocations() {
         Map<UUID, RespawnLocation> locations = Maps.newHashMap();
-        if (this.spawnChunk != null) {
-            locations.put(WorldManager.dimIdToUuid(0), RespawnLocation.builder() //TODO - Zidane needs to come up with a way to get the uuid by dimension id
-                    .world(WorldManager.dimIdToUuid(0)) //TODO - Zidane needs to come up with a way to get the uuid by dimension id
-                    .position(VecHelper.toVector3d(this.spawnChunk))
-                    .forceSpawn(this.spawnForced)
-                    .build());
-        }
-        for (Entry<Integer, BlockPos> entry : this.spawnChunkMap.entrySet()) {
-            UUID uuid = WorldManager.dimIdToUuid(entry.getKey()); //TODO - Zidane needs to come up with a way to get the uuid by dimension id
-            if (uuid != null) {
-                Boolean forced = this.spawnForcedMap.get(entry.getKey());
-                locations.put(uuid, RespawnLocation.builder()
-                        .world(uuid)
-                        .position(VecHelper.toVector3d(entry.getValue()))
-                        .forceSpawn(forced == null ? false : forced)
-                        .build());
-            }
-        }
+
         return locations;
     }
 
@@ -228,10 +187,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         setSpawnChunk(null, false, 0);
         // Add replacement values
         for (Entry<UUID, RespawnLocation> entry : locations.entrySet()) {
-            int dim = WorldManager.uuidToDimId(entry.getKey()); //TODO - Zidane needs to come up with a way to get the uuid by dimension id
-            if (dim != Integer.MIN_VALUE) {
-                setSpawnChunk(VecHelper.toBlockPos(entry.getValue().getPosition()), entry.getValue().isForced(), dim);
-            }
+
         }
         return true;
     }

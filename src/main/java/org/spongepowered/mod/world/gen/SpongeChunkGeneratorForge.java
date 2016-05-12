@@ -284,7 +284,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         if (populator instanceof RandomBlock) {
             BlockType type = ((RandomBlock) populator).getBlock().getType();
             if (type.equals(BlockTypes.FLOWING_LAVA) || type.equals(BlockTypes.LAVA)) {
-                if (chunk.getWorld().getCreationSettings().getGeneratorType().equals(GeneratorTypes.NETHER)) {
+                if (chunk.getWorld().getProperties().getGeneratorType().equals(GeneratorTypes.NETHER)) {
                     if (((RandomBlock) populator).getPlacementTarget().equals(WorldGenConstants.HELL_LAVA_ENCLOSED)) {
                         return Populate.EventType.NETHER_LAVA2;
                     }
@@ -292,7 +292,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 }
                 return null;
             } else if (type.equals(BlockTypes.FIRE)) {
-                if (chunk.getWorld().getCreationSettings().getGeneratorType().equals(GeneratorTypes.NETHER)) {
+                if (chunk.getWorld().getProperties().getGeneratorType().equals(GeneratorTypes.NETHER)) {
                     return Populate.EventType.FIRE;
                 }
                 return null;
@@ -351,7 +351,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             if (type.equals(BlockTypes.FLOWING_WATER) || type.equals(BlockTypes.WATER)) {
                 return Decorate.EventType.LAKE_WATER;
             } else if (type.equals(BlockTypes.FLOWING_LAVA) || type.equals(BlockTypes.LAVA)) {
-                if (chunk.getWorld().getCreationSettings().getGeneratorType().equals(GeneratorTypes.NETHER)) {
+                if (chunk.getWorld().getProperties().getGeneratorType().equals(GeneratorTypes.NETHER)) {
                     return null;
                 }
                 return Decorate.EventType.LAKE_LAVA;

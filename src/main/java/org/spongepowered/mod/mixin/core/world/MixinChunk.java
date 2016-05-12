@@ -72,7 +72,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         }
 
         // TODO 1.9 Update - Zidane's thing
-        if (this.worldObj.provider.canRespawnHere() && DimensionManager.shouldLoadSpawn(this.worldObj.provider.getDimension())) {
+        if (this.worldObj.provider.canRespawnHere()) {//&& DimensionManager.shouldLoadSpawn(this.worldObj.provider.getDimension())) {
             if (this.worldObj.isSpawnChunk(this.xPosition, this.zPosition)) {
                 return false;
             }

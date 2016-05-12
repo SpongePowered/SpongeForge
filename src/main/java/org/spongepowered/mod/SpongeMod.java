@@ -134,16 +134,16 @@ public class SpongeMod extends DummyModContainer {
                         (ItemType) obj));
         SpongeGameData.addRegistryCallback(ForgeRegistries.ENCHANTMENTS, (obj, id, location) ->
                 EnchantmentRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ENCHANTMENTS.getKey(obj).toString(), (Enchantment) obj));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.POTION_TYPES, (obj, id, location) ->
-                PotionEffectTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.POTION_TYPES.getKey(obj).toString(),
+        SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (obj, id, location) ->
+                PotionEffectTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.POTIONS.getKey(obj).toString(),
                         (PotionEffectType) obj));
 
         VillagerRegistry.instance();
+        RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
         this.game.getRegistry().preRegistryInit();
         SpongeForgeModuleRegistry.registerForgeData();
 
         this.game.getEventManager().registerListeners(this, this);
-        RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
         SpongeImpl.getInternalPlugins().add((PluginContainer) ForgeModContainer.getInstance());
     }
 

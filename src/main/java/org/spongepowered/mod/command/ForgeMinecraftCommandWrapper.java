@@ -46,8 +46,8 @@ public class ForgeMinecraftCommandWrapper extends MinecraftCommandWrapper {
     protected boolean throwEvent(ICommandSender sender, String[] args) throws InvocationCommandException {
         CommandEvent event = new CommandEvent(this.command, sender, args);
         if (MinecraftForge.EVENT_BUS.post(event)) {
-            if (event.exception != null) {
-                throw new InvocationCommandException(Text.of("Error while firing Forge event"), event.exception);
+            if (event.getException() != null) {
+                throw new InvocationCommandException(Text.of("Error while firing Forge event"), event.getException());
             }
             return false;
         }
