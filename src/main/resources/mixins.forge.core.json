@@ -90,6 +90,7 @@
         "world.MixinChunk",
         "world.MixinExplosion",
         "world.MixinWorld",
+        "world.MixinWorldServer",
         "world.MixinWorldProvider",
         "world.biome.MixinBiomeDecorator",
         "world.biome.MixinBiomeGenBaseForge",

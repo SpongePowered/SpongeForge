@@ -24,8 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.WorldInfo;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,6 +38,7 @@ import org.spongepowered.common.interfaces.world.IMixinWorld;
 @Mixin(value = net.minecraft.world.World.class, priority = 1001)
 public abstract class MixinWorld implements org.spongepowered.api.world.World, IMixinWorld {
 
+    @Shadow @Final public WorldProvider provider;
     @Shadow public WorldInfo worldInfo;
 
     @Shadow public abstract IChunkProvider getChunkProvider();

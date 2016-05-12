@@ -65,13 +65,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static boolean isDimensionRegistered(int dim) {
-
-        int[] foo = new int[10];
-        Integer[] integers = new Integer[foo.length];
-        for (int i = 0; i < foo.length; i++) {
-            integers[i] = foo[i];
-        }
-        return true;
+        return WorldManager.isDimensionRegistered(dim);
     }
 
     @Overwrite
@@ -92,12 +86,17 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static Integer[] getIDs(boolean check) {
-        return new Integer[0];
+        return getIDs();
     }
 
     @Overwrite
     public static Integer[] getIDs() {
-        return new Integer[0];
+        final int[] spongeDimIds = WorldManager.worldByDimensionId.keys();
+        Integer[] forgeDimIds = new Integer[spongeDimIds.length];
+        for (int i = 0; i < spongeDimIds.length; i++) {
+            forgeDimIds[i] = spongeDimIds[i];
+        }
+        return forgeDimIds;
     }
 
     @Overwrite
@@ -122,9 +121,11 @@ public abstract class MixinDimensionManager {
     @Overwrite
     public static Integer[] getStaticDimensionIDs() {
         final int[] spongeDimIds = WorldManager.dimensionTypeByDimensionId.keys();
-        final Integer[] dimIds = new Integer[spongeDimIds.length];
-        System.arraycopy(spongeDimIds, 0, dimIds, 0, dimIds.length);
-        return dimIds;
+        Integer[] forgeDimIds = new Integer[spongeDimIds.length];
+        for (int i = 0; i < spongeDimIds.length; i++) {
+            forgeDimIds[i] = spongeDimIds[i];
+        }
+        return forgeDimIds;
     }
 
     @Overwrite
@@ -132,7 +133,9 @@ public abstract class MixinDimensionManager {
         final Optional<DimensionType> dimensionType = WorldManager.getDimensionType(dim);
         if (dimensionType.isPresent()) {
             try {
-                return dimensionType.get().createDimension();
+                final WorldProvider provider = dimensionType.get().createDimension();
+                provider.setDimension(dim);
+                return provider;
             } catch (Exception e) {
                 SpongeImpl.getLogger().error("Failed to create provider for dimension id [{}]!", dim);
                 throw new RuntimeException(e);
