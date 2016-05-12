@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.core.world.gen;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunkGenerator;
-import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderEnd;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
@@ -42,12 +41,12 @@ public abstract class MixinChunkProviderEnd implements IChunkGenerator {
 
     @Shadow(remap = false) private int chunkX; // Forge added
     @Shadow(remap = false) private int chunkZ; // Forge added
-    @Shadow private World endWorld;
+    @Shadow private World worldObj;
 
 
     @Inject(method = "buildSurfaces(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
     public void cancelEndStone(ChunkPrimer chunk, CallbackInfo ci) {
-        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.endWorld);
+        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.worldObj);
         MinecraftForge.EVENT_BUS.post(event);
         ci.cancel();
     }

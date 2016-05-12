@@ -13,6 +13,7 @@
         "common.MixinSpongeImplHooks",
         "common.MixinSpongeProxyBlockAccess",
         "common.fluid.MixinSpongeFluidStackBuilder",
+        "common.world.MixinWorldManager",
         "entity.MixinEntity",
         "entity.ai.MixinEntityAIBase",
         "entity.item.MixinEntityItem",

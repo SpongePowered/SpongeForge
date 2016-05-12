@@ -38,6 +38,7 @@ import org.spongepowered.common.world.WorldManager;
 import java.io.File;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Optional;
 
 /**
  * TODO This is Zidane's Mixin...DO NOT TOUCH IT, I'M FINISHING IT.
@@ -74,7 +75,13 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static WorldProvider getProvider(int dim) {
-        return null;
+        final Optional<WorldServer> optWorldServer = WorldManager.getWorldByDimensionId(dim);
+        if (optWorldServer.isPresent()) {
+            return optWorldServer.get().provider;
+        } else {
+            SpongeImpl.getLogger().error("Attempt made to get a provider for dimension id [{}] but it has no provider!");
+            throw new RuntimeException();
+        }
     }
 
     @Overwrite
@@ -108,25 +115,41 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static Integer[] getStaticDimensionIDs() {
-        return new Integer[0];
+        final int[] spongeDimIds = WorldManager.dimensionTypeByDimensionId.keys();
+        final Integer[] dimIds = new Integer[spongeDimIds.length];
+        System.arraycopy(spongeDimIds, 0, dimIds, 0, dimIds.length);
+        return dimIds;
     }
 
     @Overwrite
     public static WorldProvider createProviderFor(int dim) {
-        return null;
+        final Optional<DimensionType> dimensionType = WorldManager.getDimensionType(dim);
+        if (dimensionType.isPresent()) {
+            try {
+                return dimensionType.get().createDimension();
+            } catch (Exception e) {
+                SpongeImpl.getLogger().error("Failed to create provider for dimension id [{}]!", dim);
+                throw new RuntimeException(e);
+            }
+        } else {
+            SpongeImpl.getLogger().error("Attempt to create provider for dimension id [{}] failed because it has not been registered!");
+            throw new RuntimeException();
+        }
     }
 
     @Overwrite
     public static void unloadWorld(int id) {
+        WorldManager.queueWorldToUnload(WorldManager.worldByDimensionId.get(id));
     }
 
     @Overwrite
     public static void unloadWorlds(Hashtable<Integer, long[]> worldTickTimes) {
+        WorldManager.unloadQueuedWorlds();
     }
 
     @Overwrite
     public static int getNextFreeDimId() {
-        return 2;
+        return WorldManager.getNextFreeDimensionId();
     }
 
     @Overwrite
@@ -136,10 +159,11 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static void loadDimensionDataMap(NBTTagCompound compoundTag) {
+        WorldManager.loadDimensionDataMap(compoundTag);
     }
 
     @Overwrite
     public static File getCurrentSaveRootDirectory() {
-        return SpongeImpl.getGame().getSavesDirectory().toFile();
+        return WorldManager.getCurrentSavesDirectory().get().toFile();
     }
 }

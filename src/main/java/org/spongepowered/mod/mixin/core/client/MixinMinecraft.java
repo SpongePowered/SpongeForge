@@ -69,12 +69,13 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         WorldManager.registerWorldProperties((WorldProperties) worldInfo);
     }
 
-    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = SAVE_HANDLER_SAVE_WORLD_INFO, shift = At.Shift.AFTER) , locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = SAVE_HANDLER_SAVE_WORLD_INFO) , locals = LocalCapture.CAPTURE_FAILHARD)
     public void onlaunchIntegratedServerAfterSaveWorldInfo(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
             ISaveHandler isavehandler, WorldInfo worldInfo) {
         // initialize overworld properties
         UUID uuid = UUID.randomUUID();
         ((IMixinWorldInfo) worldInfo).setUUID(uuid);
+        ((IMixinWorldInfo) worldInfo).setDimensionId(0);
     }
 
     @Override
