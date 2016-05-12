@@ -51,11 +51,17 @@ import org.spongepowered.mod.mixin.core.event.block.MixinEventBlock;
 @Mixin(value = BlockEvent.PlaceEvent.class, remap = false)
 public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock implements ChangeBlockEvent.Place {
 
-    @Shadow @Final public EntityPlayer player;
-    @Shadow @Final public ItemStack itemInHand;
-    @Shadow @Final public net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
-    @Shadow @Final public IBlockState placedAgainst;
-    @Shadow @Final @Mutable public IBlockState placedBlock;
+    @Shadow @Final private EntityPlayer player;
+    @Shadow @Final private ItemStack itemInHand;
+    @Shadow @Final private net.minecraftforge.common.util.BlockSnapshot blockSnapshot;
+    @Shadow @Final private IBlockState placedAgainst;
+    @Shadow @Final @Mutable private IBlockState placedBlock;
+
+    @Shadow public abstract EntityPlayer getPlayer();
+    @Shadow public abstract ItemStack getItemInHand();
+    @Shadow public abstract net.minecraftforge.common.util.BlockSnapshot getBlockSnapshot();
+    @Shadow public abstract IBlockState getPlacedBlock();
+    @Shadow public abstract IBlockState getPlacedAgainst();
 
     private Cause cause;
 

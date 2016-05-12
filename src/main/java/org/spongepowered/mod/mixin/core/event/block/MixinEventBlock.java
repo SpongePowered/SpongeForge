@@ -55,9 +55,13 @@ public abstract class MixinEventBlock extends MixinEvent implements ChangeBlockE
     protected BlockSnapshot blockReplacement;
     protected ImmutableList<Transaction<BlockSnapshot>> blockTransactions;
 
-    @Shadow @Final @Mutable public BlockPos pos;
-    @Shadow @Final @Mutable public IBlockState state;
-    @Shadow @Final public net.minecraft.world.World world;
+    @Shadow @Final @Mutable private BlockPos pos;
+    @Shadow @Final @Mutable private IBlockState state;
+    @Shadow @Final private net.minecraft.world.World world;
+
+    @Shadow public abstract net.minecraft.world.World getWorld();
+    @Shadow public abstract BlockPos getPos();
+    @Shadow public abstract IBlockState getState();
 
     @Override
     public ImmutableList<Transaction<BlockSnapshot>> getTransactions() {

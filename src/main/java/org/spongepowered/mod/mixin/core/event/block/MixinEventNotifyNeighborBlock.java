@@ -91,9 +91,9 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
         this.neighbors = new HashMap<>();
         if (this.notifiedSides != null) {
             for (EnumFacing notifiedSide : this.notifiedSides) {
-                BlockPos offset = this.pos.offset(notifiedSide);
+                BlockPos offset = this.getPos().offset(notifiedSide);
                 Direction direction = DirectionFacingProvider.getInstance().getKey(notifiedSide).get();
-                Location<World> location = new Location<>((World) this.world, VecHelper.toVector3d(offset));
+                Location<World> location = new Location<>((World) this.getWorld(), VecHelper.toVector3d(offset));
                 if (location.getBlockY() >=0 && location.getBlockY() <= 255) {
                     this.neighbors.put(direction, location.getBlock());
                 }

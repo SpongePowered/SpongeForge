@@ -47,7 +47,7 @@ import java.util.List;
 @Mixin(value = BlockEvent.MultiPlaceEvent.class, remap = false)
 public abstract class MixinEventPlayerPlaceMultiBlock extends MixinEventPlayerPlaceBlock implements ChangeBlockEvent.Place {
 
-    @Shadow @Final public List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots;
+    @Shadow @Final private List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots, IBlockState placedAgainst, EntityPlayer player,
