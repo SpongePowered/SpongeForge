@@ -254,33 +254,33 @@ public class SpongeForgeEventFactory {
             }
         }
 
-        // World events
-        else if (WorldEvent.class.isAssignableFrom(clazz)) {
-            if (ChunkEvent.class.isAssignableFrom(clazz)) {
-                if (clazz == ChunkEvent.Load.class) {
-                    return createChunkLoadEvent(event);
-                } else if (clazz == ChunkEvent.Unload.class) {
-                    return createChunkUnloadEvent(event);
-                } else if (clazz == ChunkDataEvent.Load.class) {
-
-                } else if (clazz == ChunkDataEvent.Save.class) {
-
-                } else if (clazz == ChunkWatchEvent.UnWatch.class) {
-
-                } else if (clazz == ChunkWatchEvent.Watch.class) {
-
-                }
-                return createChunkEvent(event);
-            } else if (clazz == WorldEvent.Load.class) {
-                return createWorldLoadEvent(event);
-            } else if (clazz == WorldEvent.Unload.class) {
-                return createWorldUnloadEvent(event);
-            } else if (clazz == WorldEvent.Save.class) {
-                return createWorldSaveEvent(event);
-            } else {
-                return createWorldEvent(event);
-            }
-        }
+//        // World events
+//        else if (WorldEvent.class.isAssignableFrom(clazz)) {
+//            if (ChunkEvent.class.isAssignableFrom(clazz)) {
+//                if (clazz == ChunkEvent.Load.class) {
+//                    return createChunkLoadEvent(event);
+//                } else if (clazz == ChunkEvent.Unload.class) {
+//                    return createChunkUnloadEvent(event);
+//                } else if (clazz == ChunkDataEvent.Load.class) {
+//
+//                } else if (clazz == ChunkDataEvent.Save.class) {
+//
+//                } else if (clazz == ChunkWatchEvent.UnWatch.class) {
+//
+//                } else if (clazz == ChunkWatchEvent.Watch.class) {
+//
+//                }
+//                return createChunkEvent(event);
+//            } else if (clazz == WorldEvent.Load.class) {
+//                return createWorldLoadEvent(event);
+//            } else if (clazz == WorldEvent.Unload.class) {
+//                return createWorldUnloadEvent(event);
+//            } else if (clazz == WorldEvent.Save.class) {
+//                return createWorldSaveEvent(event);
+//            } else {
+//                return createWorldEvent(event);
+//            }
+//        }
 
         // Explosion events
         else if (net.minecraftforge.event.world.ExplosionEvent.class.isAssignableFrom(clazz)) {

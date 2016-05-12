@@ -103,13 +103,8 @@ public abstract class MixinSpongeImplHooks {
     }
 
     @Overwrite
-    public static int getBlockLightValue(Block block, BlockPos pos, IBlockAccess world) {
-        return block.getLightValue(world.getBlockState(pos), world, pos);
-    }
-
-    @Overwrite
-    public static int getBlockLightOpacity(Block block, IBlockAccess world, BlockPos pos) {
-        return block.getLightOpacity(world.getBlockState(pos), world, pos);
+    public static int getBlockLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return state.getLightOpacity(world, pos);
     }
 
     @Overwrite
