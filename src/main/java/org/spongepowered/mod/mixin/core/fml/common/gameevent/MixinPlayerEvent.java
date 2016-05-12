@@ -42,7 +42,7 @@ import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 @Mixin(value = PlayerEvent.class, remap = false)
 public abstract class MixinPlayerEvent extends MixinEvent implements TargetPlayerEvent {
 
-    @Shadow @Final public EntityPlayer entityPlayer;
+    @Shadow @Final public EntityPlayer player;
 
     protected Transform<World> fromTransform;
     protected Transform<World> toTransform;
@@ -57,7 +57,7 @@ public abstract class MixinPlayerEvent extends MixinEvent implements TargetPlaye
 
     @Override
     public Player getTargetEntity() {
-        return (Player) this.entityPlayer;
+        return (Player) this.player;
     }
 
 }

@@ -46,6 +46,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.data.util.NbtDataUtil;
+import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
@@ -89,15 +90,15 @@ public abstract class MixinEventLivingDeath extends MixinEventLiving implements 
             sourceCreator = spongeEntity.getTrackedPlayer(NbtDataUtil.SPONGE_ENTITY_CREATOR);
         }
         if (sourceCreator.isPresent()) {
-            this.cause = Cause.of(NamedCause.source(this.source), NamedCause.of("Victim", this.entityLiving),
+            this.cause = Cause.of(NamedCause.source(this.source), NamedCause.of("Victim", this.getEntityLiving()),
                 NamedCause.owner(sourceCreator.get()));
         } else {
-            this.cause = Cause.of(NamedCause.source(this.source), NamedCause.of("Victim", this.entityLiving));
+            this.cause = Cause.of(NamedCause.source(this.source), NamedCause.of("Victim", this.getEntityLiving()));
         }
         // Store cause for drop event which is called after this event
         List<NamedCause> causes = new ArrayList<>();
         causes.add(NamedCause.source(EntitySpawnCause.builder()
-                .entity(((Entity) this.entityLiving))
+                .entity(EntityUtil.fromNative(this.getEntityLiving()))
                 .type(SpawnTypes.DROPPED_ITEM)
                 .build()));
         causes.add(NamedCause.of("Attacker", this.source));

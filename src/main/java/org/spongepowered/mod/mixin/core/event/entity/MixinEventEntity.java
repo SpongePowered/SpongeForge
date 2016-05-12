@@ -37,7 +37,9 @@ import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 @Mixin(value = EntityEvent.class, remap = false)
 public abstract class MixinEventEntity extends MixinEvent implements TargetEntityEvent {
 
-    @Shadow @Final public net.minecraft.entity.Entity entity;
+    @Shadow @Final private net.minecraft.entity.Entity entity;
+
+    @Shadow public abstract net.minecraft.entity.Entity shadow$getEntity();
 
     @Override
     public Entity getTargetEntity() {

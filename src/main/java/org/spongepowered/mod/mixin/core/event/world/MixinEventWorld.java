@@ -42,7 +42,9 @@ import org.spongepowered.mod.mixin.core.fml.common.eventhandler.MixinEvent;
 @Mixin(value = WorldEvent.class, remap = false)
 public abstract class MixinEventWorld extends MixinEvent implements TargetWorldEvent {
 
-    @Shadow @Final public net.minecraft.world.World world;
+    @Shadow @Final private net.minecraft.world.World world;
+
+    @Shadow public abstract net.minecraft.world.World getWorld();
 
     private Cause cause;
 

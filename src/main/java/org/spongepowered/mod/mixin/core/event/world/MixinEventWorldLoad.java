@@ -43,7 +43,7 @@ public abstract class MixinEventWorldLoad extends MixinEventWorld implements Loa
 
     @Override
     public World getTargetWorld() {
-        return (World) this.world;
+        return (World) this.getWorld();
     }
 
 }

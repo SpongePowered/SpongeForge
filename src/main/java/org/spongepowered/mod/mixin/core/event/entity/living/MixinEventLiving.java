@@ -36,7 +36,9 @@ import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 @Mixin(value = LivingEvent.class, remap = false)
 public abstract class MixinEventLiving extends MixinEventEntity implements TargetLivingEvent {
 
-    @Shadow @Final public EntityLivingBase entityLiving;
+    @Shadow @Final private EntityLivingBase entityLiving;
+
+    @Shadow public abstract EntityLivingBase getEntityLiving();
 
     @Override
     public Living getTargetEntity() {

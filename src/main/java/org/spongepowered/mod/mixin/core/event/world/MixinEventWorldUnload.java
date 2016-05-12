@@ -43,7 +43,7 @@ public abstract class MixinEventWorldUnload extends MixinEventWorld implements U
 
     @Override
     public World getTargetWorld() {
-        return (World) this.world;
+        return (World) this.getWorld();
     }
 
 }

@@ -39,12 +39,12 @@ public abstract class MixinEventEntityConstructing extends MixinEventEntity impl
 
     @Override
     public Transform<World> getTransform() {
-        return EntityUtil.fromNative(this.entity).getTransform();
+        return EntityUtil.fromNative(this.shadow$getEntity()).getTransform();
     }
 
     @Override
     public EntityType getTargetType() {
-        return EntityUtil.fromNative(this.entity).getType();
+        return EntityUtil.fromNative(this.shadow$getEntity()).getType();
     }
 
 }

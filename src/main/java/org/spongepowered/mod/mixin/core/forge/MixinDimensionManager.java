@@ -65,6 +65,12 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static boolean isDimensionRegistered(int dim) {
+
+        int[] foo = new int[10];
+        Integer[] integers = new Integer[foo.length];
+        for (int i = 0; i < foo.length; i++) {
+            integers[i] = foo[i];
+        }
         return true;
     }
 

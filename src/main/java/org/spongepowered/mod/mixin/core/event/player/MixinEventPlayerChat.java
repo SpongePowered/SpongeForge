@@ -67,9 +67,9 @@ public abstract class MixinEventPlayerChat extends MixinEvent implements Message
     @Shadow public abstract void setComponent(ITextComponent component);
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(EntityPlayerMP player, String message, TextComponentTranslation component, CallbackInfo ci) {
+    public void onConstructed(EntityPlayerMP player, String message, ITextComponent component, CallbackInfo ci) {
         this.forgeComponent = component;
-        Text[] chat = SpongeTexts.splitChatMessage(component);
+        Text[] chat = SpongeTexts.splitChatMessage((TextComponentTranslation) component);
         if (chat[1] == null) {
             // Move content from head part to body part
             chat[1] = chat[0] != null ? chat[0] : SpongeTexts.toText(component);

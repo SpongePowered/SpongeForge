@@ -56,7 +56,7 @@ public abstract class MixinExplosion implements Explosion {
         }
     }*/
 
-    @Redirect(method = "doExplosionA", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntitiesWithinAABBExcludingEntity(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/AxisAlignedBB;)Ljava/util/List;"))
+    @Redirect(method = "doExplosionA", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntitiesWithinAABBExcludingEntity(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/AxisAlignedBB;)Ljava/util/List;"))
     private List<Entity> getEntities(net.minecraft.world.World world, Entity ignored, AxisAlignedBB axisAlignedBB) {
         return this.shouldDamageEntities() ? world.getEntitiesWithinAABBExcludingEntity(ignored, axisAlignedBB) : Collections.emptyList();
     }

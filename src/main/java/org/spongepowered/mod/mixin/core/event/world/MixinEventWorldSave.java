@@ -43,7 +43,7 @@ public abstract class MixinEventWorldSave extends MixinEventWorld implements Sav
 
     @Override
     public World getTargetWorld() {
-        return (World) this.world;
+        return (World) this.getWorld();
     }
 
 }

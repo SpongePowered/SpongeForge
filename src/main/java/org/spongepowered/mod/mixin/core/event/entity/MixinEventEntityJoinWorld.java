@@ -61,11 +61,11 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
         }
 
         if (!world.isRemote) { // ignore client
-            this.entitySnapshot = ((Entity) this.entity).createSnapshot();
+            this.entitySnapshot = this.getTargetEntity().createSnapshot();
             this.entities = new ArrayList<>();
-            this.entities.add((Entity) this.entity);
+            this.entities.add(this.getTargetEntity());
             this.entitySnapshots = ImmutableList.of(this.entitySnapshot);
-            this.cause = Cause.of(NamedCause.source(this.entity));
+            this.cause = Cause.of(NamedCause.source(this.getTargetEntity()));
         }
     }
 
@@ -76,7 +76,7 @@ public abstract class MixinEventEntityJoinWorld extends MixinEventEntity impleme
 
     @Override
     public World getTargetWorld() {
-        return (World) this.entity.worldObj;
+        return this.getTargetEntity().getWorld();
     }
 
     @Override
