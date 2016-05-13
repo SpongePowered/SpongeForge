@@ -79,12 +79,21 @@ import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
+import net.minecraftforge.event.terraingen.BiomeEvent;
+import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
+import net.minecraftforge.event.terraingen.InitMapGenEvent;
+import net.minecraftforge.event.terraingen.InitNoiseGensEvent;
+import net.minecraftforge.event.terraingen.OreGenEvent;
+import net.minecraftforge.event.terraingen.PopulateChunkEvent;
+import net.minecraftforge.event.terraingen.SaplingGrowTreeEvent;
+import net.minecraftforge.event.terraingen.WorldTypeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.EventBus;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.data.Transaction;
@@ -303,6 +312,76 @@ public class SpongeForgeEventFactory {
         return (net.minecraftforge.fml.common.eventhandler.Event) event;
     }
 
+    public static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Class<? extends Event> clazz) {
+        if (CollideEntityEvent.class.isAssignableFrom(clazz)) {
+            return EntityItemPickupEvent.class;
+        }
+        if (DestructEntityEvent.Death.class.isAssignableFrom(clazz)) {
+            return LivingDeathEvent.class;
+        }
+        if (DropItemEvent.Destruct.class.isAssignableFrom(clazz)) {
+            return LivingDropsEvent.class;
+        }
+        if (InteractBlockEvent.class.isAssignableFrom(clazz)) {
+            return PlayerInteractEvent.class;
+        }
+        if (InteractBlockEvent.Primary.class.isAssignableFrom(clazz)) {
+            return PlayerInteractEvent.class;
+        }
+        if (InteractBlockEvent.Secondary.class.isAssignableFrom(clazz)) {
+            return PlayerInteractEvent.class;
+        }
+        if (InteractEntityEvent.Secondary.class.isAssignableFrom(clazz)) {
+            return EntityInteractEvent.class;
+        }
+        if (SpawnEntityEvent.class.isAssignableFrom(clazz)) {
+            return EntityJoinWorldEvent.class;
+        }
+        if (ChangeBlockEvent.Break.class.isAssignableFrom(clazz)) {
+            return BlockEvent.BreakEvent.class;
+        }
+        if (ChangeBlockEvent.Place.class.isAssignableFrom(clazz)) {
+            return BlockEvent.PlaceEvent.class;
+        }
+        return null;
+    }
+
+    public static EventBus getForgeEventBus(Class<?> clazz) {
+        if (OreGenEvent.class.isAssignableFrom(clazz)) {
+            return MinecraftForge.ORE_GEN_BUS;
+        } else if (WorldTypeEvent.class.isAssignableFrom(clazz)
+                || BiomeEvent.class.isAssignableFrom(clazz)
+                || DecorateBiomeEvent.class.isAssignableFrom(clazz)
+                || InitMapGenEvent.class.isAssignableFrom(clazz)
+                || InitNoiseGensEvent.class.isAssignableFrom(clazz)
+                || PopulateChunkEvent.class.isAssignableFrom(clazz)
+                || SaplingGrowTreeEvent.class.isAssignableFrom(clazz)) {
+            return MinecraftForge.TERRAIN_GEN_BUS;
+        }
+
+        return MinecraftForge.EVENT_BUS;
+    }
+
+    // Used for firing Forge events after a Sponge event has been triggered
+    public static Event callForgeEvent(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
+        if (EntityItemPickupEvent.class.isAssignableFrom(clazz)) {
+            return callEntityItemPickupEvent(spongeEvent);
+        } else if (EntityInteractEvent.class.isAssignableFrom(clazz)) {
+            return callEntityInteractEvent(spongeEvent);
+        } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
+            return callEntityJoinWorldEvent(spongeEvent);
+        } else if (BlockEvent.BreakEvent.class.isAssignableFrom(clazz)) {
+            return callBlockBreakEvent(spongeEvent);
+        } else if (BlockEvent.PlaceEvent.class.isAssignableFrom(clazz)) {
+            return callBlockPlaceEvent(spongeEvent);
+        } else if (PlayerInteractEvent.class.isAssignableFrom(clazz)) {
+            return createPlayerInteractEvent(spongeEvent);
+        } else if (LivingDropsEvent.class.isAssignableFrom(clazz)) {
+            return callLivingDropsEvent(spongeEvent);
+        }
+        return spongeEvent;
+    }
+
     private static LivingDropsEvent createLivingDropItemEvent(Event event) {
         if (!(event instanceof DropItemEvent.Destruct)) {
             throw new IllegalArgumentException("Event is not a valid DestructEntityEvent.Death event.");
@@ -326,26 +405,6 @@ public class SpongeForgeEventFactory {
         }
         LivingDropsEvent forgeEvent = new LivingDropsEvent(spawnCause.get(), (net.minecraft.util.DamageSource) source.get(), items, 0, false);
         return forgeEvent;
-    }
-
-    // Used for firing single events to Forge from sponge bulk events
-    public static Event callForgeEvent(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
-        if (EntityItemPickupEvent.class.isAssignableFrom(clazz)) {
-            return callEntityItemPickupEvent(spongeEvent);
-        } else if (EntityInteractEvent.class.isAssignableFrom(clazz)) {
-            return callEntityInteractEvent(spongeEvent);
-        } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
-            return callEntityJoinWorldEvent(spongeEvent);
-        } else if (BlockEvent.BreakEvent.class.isAssignableFrom(clazz)) {
-            return callBlockBreakEvent(spongeEvent);
-        } else if (BlockEvent.PlaceEvent.class.isAssignableFrom(clazz)) {
-            return callBlockPlaceEvent(spongeEvent);
-        } else if (PlayerInteractEvent.class.isAssignableFrom(clazz)) {
-            return createPlayerInteractEvent(spongeEvent);
-        } else if (LivingDropsEvent.class.isAssignableFrom(clazz)) {
-            return callLivingDropsEvent(spongeEvent);
-        }
-        return spongeEvent;
     }
 
     // Block events
@@ -758,12 +817,6 @@ public class SpongeForgeEventFactory {
                 List<BlockPos> affectedBlocks = explosionEvent.explosion.getAffectedBlockPositions();
                 affectedBlocks.clear();
             }
-        } else if (forgeEvent instanceof LivingDeathEvent) {
-            MessageChannelEvent spongeEvent = (MessageChannelEvent) forgeEvent;
-            Text message = spongeEvent.getMessage();
-            if (!spongeEvent.isMessageCancelled() && !message.isEmpty()) {
-                spongeEvent.getChannel().ifPresent(channel -> channel.send(((LivingDeathEvent) forgeEvent).entityLiving, spongeEvent.getMessage()));
-            }
         }
     }
 
@@ -840,6 +893,27 @@ public class SpongeForgeEventFactory {
         return spongeEvent;
     }
 
+    // unused
+    public static DestructEntityEvent.Death callLivingDeathEvent(Event event) {
+        if (!(event instanceof DestructEntityEvent.Death)) {
+            throw new IllegalArgumentException("Event is not a valid DestructEntityEvent.Death.");
+        }
+
+        DestructEntityEvent.Death spongeEvent = (DestructEntityEvent.Death) event;
+        if (!spongeEvent.getCause().first(DamageSource.class).isPresent()) {
+            System.out.println("no DamageSource found!! for cause " + spongeEvent.getCause());
+            return spongeEvent;
+        }
+
+        EntityLivingBase entity = (net.minecraft.entity.EntityLivingBase) spongeEvent.getTargetEntity();
+        net.minecraft.util.DamageSource damageSource = (net.minecraft.util.DamageSource) spongeEvent.getCause().first(DamageSource.class).get();
+        LivingDeathEvent forgeEvent = new LivingDeathEvent(entity, damageSource);
+
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+
+        return spongeEvent;
+    }
+
     @SuppressWarnings("unchecked")
     public static DropItemEvent.Destruct callLivingDropsEvent(Event event) {
         if (!(event instanceof DropItemEvent.Destruct)) {
@@ -893,6 +967,9 @@ public class SpongeForgeEventFactory {
             if (forgeEvent.isCanceled()) {
                 iterator.remove();
             }
+        }
+        if (spongeEvent.getEntities().size() == 0) {
+            spongeEvent.setCancelled(true);
         }
         return spongeEvent;
     }

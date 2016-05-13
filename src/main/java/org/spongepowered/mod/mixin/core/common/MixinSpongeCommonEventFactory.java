@@ -22,30 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.event;
+package org.spongepowered.mod.mixin.core.common;
 
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.world.ChunkWatchEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.spongepowered.common.interfaces.entity.IMixinEntity;
-import org.spongepowered.common.util.SpongeHooks;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.DamageSource;
+import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.event.SpongeCommonEventFactory;
 
-public class SpongeEventHooks {
+@Mixin(value = SpongeCommonEventFactory.class, remap = false)
+public abstract class MixinSpongeCommonEventFactory {
 
-    @SubscribeEvent
-    public void onChunkWatchEvent(ChunkWatchEvent event) {
-        IMixinEntity spongeEntity = (IMixinEntity) event.player;
-
-        if (spongeEntity.isTeleporting()) {
-            event.player.mountEntity(spongeEntity.getTeleportVehicle());
-            spongeEntity.setTeleportVehicle(null);
-            spongeEntity.setIsTeleporting(false);
+    @Inject(method = "callDestructEntityEventDeath", at = @At("HEAD"), cancellable = true)
+    private static void onCallDestructEntityEventDeath(EntityLivingBase entity, DamageSource source, CallbackInfoReturnable<DestructEntityEvent.Death> cir) {
+        if (net.minecraftforge.common.ForgeHooks.onLivingDeath(entity, source)) {
+            cir.setReturnValue(null);
         }
     }
-
-    @SubscribeEvent
-    public void onEntityDeathEvent(LivingDeathEvent event) {
-        SpongeHooks.logEntityDeath(event.entity);
-    }
-
 }
