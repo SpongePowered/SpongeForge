@@ -48,7 +48,6 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
-import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
