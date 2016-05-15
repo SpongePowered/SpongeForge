@@ -129,8 +129,10 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.entity.SpongeEntitySnapshot;
+import org.spongepowered.common.event.CauseTracker;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
@@ -1018,14 +1020,15 @@ public class SpongeForgeEventFactory {
         if (spongeEvent.getCause().first(Player.class).isPresent()) {
             EntityPlayer player = (EntityPlayer) spongeEvent.getCause().first(Player.class).get();
             net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getTargetWorld();
+            final CauseTracker causeTracker = ((IMixinWorld) world).getCauseTracker();
 
             if (spongeEvent.getTransactions().size() == 1) {
                 BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTransactions().get(0).getOriginal().getPosition());
                 IBlockState state = (IBlockState) spongeEvent.getTransactions().get(0).getOriginal().getState();
                 net.minecraftforge.common.util.BlockSnapshot blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
                 IBlockState placedAgainst = Blocks.air.getDefaultState();
-                if (StaticMixinHelper.packetPlayer != null && StaticMixinHelper.processingPacket instanceof C08PacketPlayerBlockPlacement) {
-                    C08PacketPlayerBlockPlacement packet = (C08PacketPlayerBlockPlacement) StaticMixinHelper.processingPacket;
+                if (causeTracker.getCurrentPlayerPacket() instanceof C08PacketPlayerBlockPlacement) {
+                    C08PacketPlayerBlockPlacement packet = (C08PacketPlayerBlockPlacement) causeTracker.getCurrentPlayerPacket();
                     EnumFacing facing = EnumFacing.getFront(packet.getPlacedBlockDirection());
                     placedAgainst = blockSnapshot.world.getBlockState(blockSnapshot.pos.offset(facing.getOpposite()));
                 }
@@ -1049,8 +1052,8 @@ public class SpongeForgeEventFactory {
                 }
 
                 IBlockState placedAgainst = Blocks.air.getDefaultState();
-                if (StaticMixinHelper.packetPlayer != null && StaticMixinHelper.processingPacket instanceof C08PacketPlayerBlockPlacement) {
-                    C08PacketPlayerBlockPlacement packet = (C08PacketPlayerBlockPlacement) StaticMixinHelper.processingPacket;
+                if (causeTracker.getCurrentPlayerPacket() instanceof C08PacketPlayerBlockPlacement) {
+                    C08PacketPlayerBlockPlacement packet = (C08PacketPlayerBlockPlacement) causeTracker.getCurrentPlayerPacket();
                     EnumFacing facing = EnumFacing.getFront(packet.getPlacedBlockDirection());
                     placedAgainst = blockSnapshots.get(0).world.getBlockState(blockSnapshots.get(0).pos.offset(facing.getOpposite()));
                 }
