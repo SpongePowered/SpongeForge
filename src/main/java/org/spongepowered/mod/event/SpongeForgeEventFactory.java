@@ -247,7 +247,8 @@ public class SpongeForgeEventFactory {
             if (clazz == ItemExpireEvent.class) {
 
             } else if (clazz == ItemTossEvent.class) {
-                return createItemTossEvent(event);
+                // This is handled in SpongeImplHooks.onPlayerToss
+                return null;
             } else {
                 return createItemEvent(event);
             }
@@ -310,8 +311,8 @@ public class SpongeForgeEventFactory {
             return createServerChatEvent(event);
         }
 
-        // return same event if not currently supported
-        return (net.minecraftforge.fml.common.eventhandler.Event) event;
+        // return null if not currently supported
+        return null;
     }
 
     public static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Class<? extends Event> clazz) {

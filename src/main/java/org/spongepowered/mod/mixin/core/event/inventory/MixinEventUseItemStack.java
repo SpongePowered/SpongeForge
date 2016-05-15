@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.event.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
