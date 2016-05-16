@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
 import com.google.common.base.Throwables;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
@@ -66,8 +65,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
         if (!forgeOnly && event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
             if (event instanceof BlockEvent.PlaceEvent || event instanceof BlockEvent.BreakEvent || event instanceof EntityInteractEvent
-                    || event instanceof LivingDropsEvent || event instanceof EntityJoinWorldEvent ||
-                    (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent)) {
+                    || event instanceof LivingDropsEvent || (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent)) {
                 return false; // let the event happen, we will just capture it
             }
             boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(null, event, listeners);

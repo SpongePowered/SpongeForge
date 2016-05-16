@@ -94,6 +94,9 @@ import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.data.Transaction;
@@ -113,9 +116,11 @@ import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
 import org.spongepowered.api.event.entity.living.TargetLivingEvent;
+import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.SaveWorldEvent;
@@ -346,6 +351,18 @@ public class SpongeForgeEventFactory {
         if (ChangeBlockEvent.Place.class.isAssignableFrom(clazz)) {
             return BlockEvent.PlaceEvent.class;
         }
+        if (DropItemEvent.Destruct.class.isAssignableFrom(clazz)) {
+            return LivingDropsEvent.class;
+        }
+        if (ClientConnectionEvent.Join.class.isAssignableFrom(clazz)) {
+            return PlayerLoggedInEvent.class;
+        }
+        if (ClientConnectionEvent.Disconnect.class.isAssignableFrom(clazz)) {
+            return PlayerLoggedOutEvent.class;
+        }
+        if (RespawnPlayerEvent.class.isAssignableFrom(clazz)) {
+            return PlayerRespawnEvent.class;
+        }
         return null;
     }
 
@@ -381,6 +398,12 @@ public class SpongeForgeEventFactory {
             return createPlayerInteractEvent(spongeEvent);
         } else if (LivingDropsEvent.class.isAssignableFrom(clazz)) {
             return callLivingDropsEvent(spongeEvent);
+        } else if (PlayerLoggedInEvent.class.isAssignableFrom(clazz)) {
+            return callPlayerLoggedInEvent(spongeEvent);
+        } else if (PlayerLoggedOutEvent.class.isAssignableFrom(clazz)) {
+            return callPlayerLoggedOutEvent(spongeEvent);
+        } else if (PlayerRespawnEvent.class.isAssignableFrom(clazz)) {
+            return callPlayerRespawnEvent(spongeEvent);
         }
         return spongeEvent;
     }
@@ -1090,6 +1113,42 @@ public class SpongeForgeEventFactory {
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);
         }
+
+        return spongeEvent;
+    }
+
+    private static ClientConnectionEvent.Join callPlayerLoggedInEvent(Event event) {
+        if (!(event instanceof ClientConnectionEvent.Join)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid ClientConnectionEvent.Join");
+        }
+
+        ClientConnectionEvent.Join spongeEvent = (ClientConnectionEvent.Join) event;
+        PlayerLoggedInEvent fmlEvent = new PlayerLoggedInEvent((EntityPlayer) spongeEvent.getTargetEntity());
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
+
+        return spongeEvent;
+    }
+
+    private static ClientConnectionEvent.Disconnect callPlayerLoggedOutEvent(Event event) {
+        if (!(event instanceof ClientConnectionEvent.Disconnect)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid ClientConnectionEvent.Disconnect");
+        }
+
+        ClientConnectionEvent.Disconnect spongeEvent = (ClientConnectionEvent.Disconnect) event;
+        PlayerLoggedOutEvent fmlEvent = new PlayerLoggedOutEvent((EntityPlayer) spongeEvent.getTargetEntity());
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
+
+        return spongeEvent;
+    }
+
+    private static RespawnPlayerEvent callPlayerRespawnEvent(Event event) {
+        if (!(event instanceof RespawnPlayerEvent)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid RespawnPlayerEvent");
+        }
+
+        RespawnPlayerEvent spongeEvent = (RespawnPlayerEvent) event;
+        PlayerRespawnEvent fmlEvent = new PlayerRespawnEvent((EntityPlayer) spongeEvent.getTargetEntity());
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
 
         return spongeEvent;
     }

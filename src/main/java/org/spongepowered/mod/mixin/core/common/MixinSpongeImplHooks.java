@@ -40,28 +40,15 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.entity.Transform;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
-import org.spongepowered.api.event.message.MessageEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
-import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.CauseTracker;
-import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
-import org.spongepowered.mod.interfaces.IMixinInitMessageChannelEvent;
-import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
-
-import java.util.Optional;
 
 @Mixin(value = SpongeImplHooks.class, remap = false)
 public abstract class MixinSpongeImplHooks {
@@ -69,36 +56,6 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static LoadWorldEvent createLoadWorldEvent(World world) {
         return (LoadWorldEvent) new WorldEvent.Load((net.minecraft.world.World) world);
-    }
-
-    @Overwrite
-    public static ClientConnectionEvent.Join createClientConnectionEventJoin(Cause cause, MessageChannel originalChannel,
-            Optional<MessageChannel> channel, MessageEvent.MessageFormatter formatter, Player targetEntity, boolean messageCancelled) {
-        final ClientConnectionEvent.Join event = (ClientConnectionEvent.Join) new PlayerEvent.PlayerLoggedInEvent((EntityPlayer) targetEntity);
-        ((IMixinInitCause) event).initCause(cause);
-        ((IMixinInitMessageChannelEvent) event).initMessage(formatter, messageCancelled);
-        ((IMixinInitMessageChannelEvent) event).initChannel(originalChannel, channel.orElse(null));
-        return event;
-    }
-
-    @Overwrite
-    public static RespawnPlayerEvent createRespawnPlayerEvent(Cause cause, Transform<World> fromTransform, Transform<World> toTransform,
-            Player targetEntity, boolean bedSpawn) {
-        final RespawnPlayerEvent event = (RespawnPlayerEvent) new PlayerEvent.PlayerRespawnEvent((EntityPlayer) targetEntity);
-        ((IMixinPlayerRespawnEvent) event).setIsBedSpawn(bedSpawn);
-        event.setToTransform(toTransform);
-        return event;
-    }
-
-    @Overwrite
-    public static ClientConnectionEvent.Disconnect createClientConnectionEventDisconnect(Cause cause, MessageChannel originalChannel,
-            Optional<MessageChannel> channel, MessageEvent.MessageFormatter formatter, Player targetEntity, boolean messageCancelled) {
-        final ClientConnectionEvent.Disconnect event =
-                (ClientConnectionEvent.Disconnect) new PlayerEvent.PlayerLoggedOutEvent((EntityPlayer) targetEntity);
-        ((IMixinInitCause) event).initCause(cause);
-        ((IMixinInitMessageChannelEvent) event).initMessage(formatter, messageCancelled);
-        ((IMixinInitMessageChannelEvent) event).initChannel(originalChannel, channel.orElse(null));
-        return event;
     }
 
     @Overwrite
