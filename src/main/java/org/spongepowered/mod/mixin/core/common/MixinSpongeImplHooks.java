@@ -33,6 +33,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C0EPacketClickWindow;
+import net.minecraft.network.play.client.C10PacketCreativeInventoryAction;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -123,7 +124,7 @@ public abstract class MixinSpongeImplHooks {
         final CauseTracker causeTracker = spongeWorld.getCauseTracker();
         ItemTossEvent event = new ItemTossEvent(ret, player);
         // We handle container drops in SpongeCommonEventFactory.handleClickInteractInventoryEvent
-        if (!(causeTracker.getCurrentPlayerPacket() instanceof C0EPacketClickWindow)) {
+        if (!(causeTracker.getCurrentPlayerPacket() instanceof C0EPacketClickWindow || causeTracker.getCurrentPlayerPacket() instanceof C10PacketCreativeInventoryAction)) {
             if (MinecraftForge.EVENT_BUS.post(event)) {
                 return null;
             }
