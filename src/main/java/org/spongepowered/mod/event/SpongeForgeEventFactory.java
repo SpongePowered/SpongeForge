@@ -94,6 +94,7 @@ import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
@@ -111,6 +112,7 @@ import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.api.event.entity.DisplaceEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
@@ -363,6 +365,9 @@ public class SpongeForgeEventFactory {
         if (RespawnPlayerEvent.class.isAssignableFrom(clazz)) {
             return PlayerRespawnEvent.class;
         }
+        if (DisplaceEntityEvent.Teleport.class.isAssignableFrom(clazz)) {
+            return PlayerChangedDimensionEvent.class;
+        }
         return null;
     }
 
@@ -404,6 +409,8 @@ public class SpongeForgeEventFactory {
             return callPlayerLoggedOutEvent(spongeEvent);
         } else if (PlayerRespawnEvent.class.isAssignableFrom(clazz)) {
             return callPlayerRespawnEvent(spongeEvent);
+        } else if (PlayerChangedDimensionEvent.class.isAssignableFrom(clazz)) {
+            return callPlayerChangedDimensionEvent(spongeEvent);
         }
         return spongeEvent;
     }
@@ -1148,6 +1155,25 @@ public class SpongeForgeEventFactory {
 
         RespawnPlayerEvent spongeEvent = (RespawnPlayerEvent) event;
         PlayerRespawnEvent fmlEvent = new PlayerRespawnEvent((EntityPlayer) spongeEvent.getTargetEntity());
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
+
+        return spongeEvent;
+    }
+
+    private static DisplaceEntityEvent.Teleport callPlayerChangedDimensionEvent(Event event) {
+        if (!(event instanceof DisplaceEntityEvent.Teleport)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid DisplaceEntityEvent.Teleport");
+        }
+
+        DisplaceEntityEvent.Teleport spongeEvent = (DisplaceEntityEvent.Teleport) event;
+        org.spongepowered.api.entity.Entity entity = spongeEvent.getTargetEntity();
+        if (!(entity instanceof EntityPlayerMP)) {
+            return spongeEvent;
+        }
+
+        int fromDimensionId = ((net.minecraft.world.World) spongeEvent.getFromTransform().getExtent()).provider.getDimensionId();
+        int toDimensionId = ((net.minecraft.world.World) spongeEvent.getToTransform().getExtent()).provider.getDimensionId();
+        PlayerChangedDimensionEvent fmlEvent = new PlayerChangedDimensionEvent((EntityPlayerMP) entity, fromDimensionId, toDimensionId);
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
 
         return spongeEvent;

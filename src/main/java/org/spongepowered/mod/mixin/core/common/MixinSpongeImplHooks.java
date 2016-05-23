@@ -37,6 +37,7 @@ import net.minecraft.network.play.client.C10PacketCreativeInventoryAction;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.Teleporter;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
@@ -49,6 +50,8 @@ import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.CauseTracker;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
+import org.spongepowered.common.world.SpongePortalAgentType;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
@@ -147,5 +150,21 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static String getModIdFromClass(Class<?> clazz) {
         return SpongeMod.instance.getModIdFromClass(clazz);
+    }
+
+    public static void registerPortalAgentType(Teleporter teleporter) {
+        // ignore default
+        if (teleporter.getClass().getSimpleName().equalsIgnoreCase("teleporter")) {
+            return;
+        }
+
+        // handle mod registration
+        String modId = SpongeMod.instance.getModIdFromClass(teleporter.getClass());
+        if (!modId.equalsIgnoreCase("unknown") && !modId.equalsIgnoreCase("minecraft")) {
+            String teleporterName = teleporter.getClass().getSimpleName().toLowerCase();
+            String id = modId.toLowerCase() + ":" + teleporterName;
+            SpongePortalAgentType portalAgentType = new SpongePortalAgentType(id, teleporter.getClass());
+            PortalAgentRegistryModule.getInstance().registerAdditionalCatalog(portalAgentType);
+        }
     }
 }
