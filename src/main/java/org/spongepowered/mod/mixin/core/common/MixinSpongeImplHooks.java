@@ -49,6 +49,7 @@ import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.CauseTracker;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 @Mixin(value = SpongeImplHooks.class, remap = false)
@@ -141,5 +142,10 @@ public abstract class MixinSpongeImplHooks {
             player.worldObj.spawnEntityInWorld(ret);
             return ret;
         }
+    }
+
+    @Overwrite
+    public static String getModIdFromClass(Class<?> clazz) {
+        return SpongeMod.instance.getModIdFromClass(clazz);
     }
 }
