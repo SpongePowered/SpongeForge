@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
+import co.aikar.timings.TimingsManager;
 import com.google.common.base.Throwables;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
@@ -43,6 +44,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.event.SpongeModEventManager;
+import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 @NonnullByDefault
@@ -78,12 +80,25 @@ public abstract class MixinEventBus implements IMixinEventBus {
             listeners = event.getListenerList().getListeners(this.busID);
             int index = 0;
             try {
+                if (SpongeImpl.isInitialized()) {
+                    TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
+                }
                 for (; index < listeners.length; index++) {
-                    listeners[index].invoke(event);
+                    if (listeners[index] instanceof IMixinASMEventHandler ) {
+                        IMixinASMEventHandler modListener = (IMixinASMEventHandler) listeners[index];
+                        modListener.getTimingsHandler().startTimingIfSync();
+                        listeners[index].invoke(event);
+                        modListener.getTimingsHandler().stopTimingIfSync();
+                    } else {
+                        listeners[index].invoke(event);
+                    }
                 }
             } catch (Throwable throwable) {
                 this.exceptionHandler.handleException(this.eventBus, event, listeners, index, throwable);
                 Throwables.propagate(throwable);
+            }
+            if (SpongeImpl.isInitialized()) {
+                TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
             }
             return (event.isCancelable() ? event.isCanceled() : false);
         }
