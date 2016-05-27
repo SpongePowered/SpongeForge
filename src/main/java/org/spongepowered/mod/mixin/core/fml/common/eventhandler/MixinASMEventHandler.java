@@ -44,17 +44,22 @@ import java.lang.reflect.Method;
 @Mixin(ASMEventHandler.class)
 public abstract class MixinASMEventHandler implements IMixinASMEventHandler {
 
-    Timing timingsHandler;
+    private Timing timingsHandler;
+    private String timingName;
 
     @Shadow @Final private IEventListener handler;
+    @Shadow private ModContainer owner;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstruction(Object target, Method method, ModContainer owner, CallbackInfo ci) {
-        this.timingsHandler = SpongeTimings.getModTimings((PluginContainer) owner, target.getClass().getSimpleName() + "_" + method.getName() + "(" + Type.getMethodDescriptor(method) + ")");
+        this.timingName = target.getClass().getSimpleName() + "_" + method.getName() + "(" + Type.getMethodDescriptor(method) + ")";
     }
 
     @Override
     public Timing getTimingsHandler() {
+        if (this.timingsHandler == null) {
+            this.timingsHandler = SpongeTimings.getModTimings((PluginContainer) this.owner, this.timingName);
+        }
         return this.timingsHandler;
     }
 }

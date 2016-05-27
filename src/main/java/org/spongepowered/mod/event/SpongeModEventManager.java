@@ -120,17 +120,17 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         // Fire events to plugins before modifications
-        TimingsManager.PLUGIN_EVENT_HANDLER.startTiming();
+        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
-        TimingsManager.PLUGIN_EVENT_HANDLER.stopTiming();
+        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
         // If there are no forge listeners for event, skip sync
         if (listeners.length > 0) {
             // sync plugin data for Mods
             ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
-            TimingsManager.MOD_EVENT_HANDLER.startTiming();
+            TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
             for (IEventListener listener : listeners) {
                 try {
                     if (listener instanceof IMixinASMEventHandler) {
@@ -145,18 +145,18 @@ public class SpongeModEventManager extends SpongeEventManager {
                     SpongeImpl.getLogger().catching(throwable);
                 }
             }
-            TimingsManager.MOD_EVENT_HANDLER.stopTiming();
+            TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
 
             // sync Forge data for Plugins
             ((IMixinEvent) forgeEvent).syncDataToSponge(spongeEvent);
         }
 
-        TimingsManager.PLUGIN_EVENT_HANDLER.startTiming();
+        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), false, false);
         }
-        TimingsManager.PLUGIN_EVENT_HANDLER.stopTiming();
+        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
         // sync plugin data for Forge
         ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
@@ -174,25 +174,25 @@ public class SpongeModEventManager extends SpongeEventManager {
     // Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
     public boolean post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
-        TimingsManager.PLUGIN_EVENT_HANDLER.startTiming();
+        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
-        TimingsManager.PLUGIN_EVENT_HANDLER.stopTiming();
+        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
-        TimingsManager.MOD_EVENT_HANDLER.startTiming();
+        TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
         StaticMixinHelper.processingInternalForgeEvent = true;
         spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
         StaticMixinHelper.processingInternalForgeEvent = false;
-        TimingsManager.MOD_EVENT_HANDLER.stopTiming();
+        TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
 
-        TimingsManager.PLUGIN_EVENT_HANDLER.startTiming();
+        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), false, false);
         }
-        TimingsManager.PLUGIN_EVENT_HANDLER.stopTiming();
+        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
         return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
     }

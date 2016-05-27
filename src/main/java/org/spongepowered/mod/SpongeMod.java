@@ -35,7 +35,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
 import net.minecraftforge.fml.client.FMLFolderResourcePack;
 import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.MetadataCollection;
@@ -132,8 +131,8 @@ public class SpongeMod extends DummyModContainer {
                 PotionEffectTypeRegistryModule.getInstance().registerFromGameData(GameData.getPotionRegistry().getNameForObject(obj).toString(),
                         (PotionEffectType) obj));
 
-        VillagerRegistry.instance();
         this.game.getRegistry().preRegistryInit();
+        VillagerRegistry.instance();
         SpongeForgeModuleRegistry.registerForgeData();
 
         this.game.getEventManager().registerListeners(this, this);
