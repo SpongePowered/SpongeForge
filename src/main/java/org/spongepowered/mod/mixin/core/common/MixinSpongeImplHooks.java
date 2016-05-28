@@ -55,6 +55,8 @@ import org.spongepowered.common.world.SpongePortalAgentType;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
+import javax.annotation.Nullable;
+
 @Mixin(value = SpongeImplHooks.class, remap = false)
 public abstract class MixinSpongeImplHooks {
 
@@ -152,7 +154,12 @@ public abstract class MixinSpongeImplHooks {
         return SpongeMod.instance.getModIdFromClass(clazz);
     }
 
-    public static void registerPortalAgentType(Teleporter teleporter) {
+    @Overwrite
+    public static void registerPortalAgentType(@Nullable Teleporter teleporter) {
+        if (teleporter == null) {
+            return;
+        }
+
         // ignore default
         if (teleporter.getClass().getSimpleName().equalsIgnoreCase("teleporter")) {
             return;
