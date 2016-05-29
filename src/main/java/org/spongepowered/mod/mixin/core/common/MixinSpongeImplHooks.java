@@ -166,12 +166,6 @@ public abstract class MixinSpongeImplHooks {
         }
 
         // handle mod registration
-        String modId = SpongeMod.instance.getModIdFromClass(teleporter.getClass());
-        if (!modId.equalsIgnoreCase("unknown") && !modId.equalsIgnoreCase("minecraft")) {
-            String teleporterName = teleporter.getClass().getSimpleName().toLowerCase();
-            String id = modId.toLowerCase() + ":" + teleporterName;
-            SpongePortalAgentType portalAgentType = new SpongePortalAgentType(id, teleporter.getClass());
-            PortalAgentRegistryModule.getInstance().registerAdditionalCatalog(portalAgentType);
-        }
+        PortalAgentRegistryModule.getInstance().validatePortalAgent(teleporter);
     }
 }
