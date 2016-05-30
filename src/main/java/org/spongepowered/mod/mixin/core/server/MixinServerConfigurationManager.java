@@ -25,8 +25,11 @@
 package org.spongepowered.mod.mixin.core.server;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -50,5 +53,18 @@ public abstract class MixinServerConfigurationManager {
             remap = false))
     public void onFirePlayerLoggedOutCall(FMLCommonHandler thisCtx, EntityPlayer playerIn) {
         // net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerLoggedOut(playerIn);
+    }
+
+    // Forge needs to know when a player changes to new a dimension
+    // This cannot be mapped to DisplaceEntityEvent.Teleport as this event is called BEFORE transfer.
+    @Redirect(method = "transferPlayerToDimension", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/management/ServerConfigurationManager;transferPlayerToDimension(Lnet/minecraft/entity/player/EntityPlayerMP;ILnet/minecraft/world/Teleporter;)V"))
+    public void onTransferPlayerToDimension(ServerConfigurationManager scm, EntityPlayerMP playerIn, int targetDimensionId, net.minecraft.world.Teleporter teleporter) {
+        int preTravelDimension = playerIn.dimension;
+        scm.transferPlayerToDimension(playerIn, targetDimensionId, teleporter);
+        int postTravelDimension = playerIn.dimension;
+        if (preTravelDimension != postTravelDimension) {
+            PlayerEvent.PlayerChangedDimensionEvent event = new PlayerEvent.PlayerChangedDimensionEvent(playerIn, preTravelDimension, postTravelDimension);
+            MinecraftForge.EVENT_BUS.post(event);
+        }
     }
 }

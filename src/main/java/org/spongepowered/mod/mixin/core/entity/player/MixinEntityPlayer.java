@@ -148,7 +148,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
             net.minecraftforge.event.ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);
             this.setSize(0.6F, 1.8F);
             if (post.getSpawnTransform().isPresent()) {
-                this.setTransform(post.getSpawnTransform().get());
+                this.setLocationAndAngles(post.getSpawnTransform().get());
             }
         } else {
             net.minecraftforge.event.ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);

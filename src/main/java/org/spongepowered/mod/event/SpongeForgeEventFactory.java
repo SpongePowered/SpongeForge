@@ -45,6 +45,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.item.ItemExpireEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
@@ -94,7 +95,6 @@ import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
@@ -144,7 +144,6 @@ import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -366,7 +365,7 @@ public class SpongeForgeEventFactory {
             return PlayerRespawnEvent.class;
         }
         if (DisplaceEntityEvent.Teleport.class.isAssignableFrom(clazz)) {
-            return PlayerChangedDimensionEvent.class;
+            return EntityTravelToDimensionEvent.class;
         }
         return null;
     }
@@ -409,8 +408,8 @@ public class SpongeForgeEventFactory {
             return callPlayerLoggedOutEvent(spongeEvent);
         } else if (PlayerRespawnEvent.class.isAssignableFrom(clazz)) {
             return callPlayerRespawnEvent(spongeEvent);
-        } else if (PlayerChangedDimensionEvent.class.isAssignableFrom(clazz)) {
-            return callPlayerChangedDimensionEvent(spongeEvent);
+        } else if (EntityTravelToDimensionEvent.class.isAssignableFrom(clazz)) {
+            return callEntityTravelToDimensionEvent(spongeEvent);
         }
         return spongeEvent;
     }
@@ -894,7 +893,7 @@ public class SpongeForgeEventFactory {
         PlayerInteractEvent forgeEvent =
                 new PlayerInteractEvent((EntityPlayer) player.get(), action, pos, face.isPresent() ? face.get() : null,
                         (net.minecraft.world.World) player.get().getWorld(), hitVec);
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+        MinecraftForge.EVENT_BUS.post(forgeEvent);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);
         }
@@ -916,7 +915,7 @@ public class SpongeForgeEventFactory {
                     EntityItem entityItem = (EntityItem) entity;
                     EntityItemPickupEvent forgeEvent =
                             new EntityItemPickupEvent((EntityPlayer) spongeEvent.getCause().first(Player.class).get(), entityItem);
-                    ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                    MinecraftForge.EVENT_BUS.post(forgeEvent);
                     if (forgeEvent.isCanceled()) {
                         iterator.remove();
                     }
@@ -942,7 +941,7 @@ public class SpongeForgeEventFactory {
         net.minecraft.util.DamageSource damageSource = (net.minecraft.util.DamageSource) spongeEvent.getCause().first(DamageSource.class).get();
         LivingDeathEvent forgeEvent = new LivingDeathEvent(entity, damageSource);
 
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+        MinecraftForge.EVENT_BUS.post(forgeEvent);
 
         return spongeEvent;
     }
@@ -976,7 +975,7 @@ public class SpongeForgeEventFactory {
                             ((IMixinEntityLivingBase) entity).getRecentlyHit() > 0);
         }
 
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+        MinecraftForge.EVENT_BUS.post(forgeEvent);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);
         }
@@ -996,7 +995,7 @@ public class SpongeForgeEventFactory {
             EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((net.minecraft.entity.Entity) entity,
                     (net.minecraft.world.World) entity.getLocation().getExtent());
 
-            ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+            MinecraftForge.EVENT_BUS.post(forgeEvent);
             if (forgeEvent.isCanceled()) {
                 iterator.remove();
             }
@@ -1032,7 +1031,7 @@ public class SpongeForgeEventFactory {
                                 (EntityPlayer) player);
                 StaticMixinHelper.breakEventExtendedState = null;
 
-                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                MinecraftForge.EVENT_BUS.post(forgeEvent);
                 if (forgeEvent.isCanceled()) {
                     transaction.setValid(false);
                 }
@@ -1065,7 +1064,7 @@ public class SpongeForgeEventFactory {
                 }
 
                 BlockEvent.PlaceEvent forgeEvent = new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player);
-                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                MinecraftForge.EVENT_BUS.post(forgeEvent);
                 if (forgeEvent.isCanceled()) {
                     spongeEvent.getTransactions().get(0).setValid(false);
                 }
@@ -1090,7 +1089,7 @@ public class SpongeForgeEventFactory {
                 }
 
                 BlockEvent.MultiPlaceEvent forgeEvent = new BlockEvent.MultiPlaceEvent(blockSnapshots, placedAgainst, player);
-                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                MinecraftForge.EVENT_BUS.post(forgeEvent);
                 if (forgeEvent.isCanceled()) {
                     while (iterator.hasNext()) {
                         iterator.next().setValid(false);
@@ -1116,7 +1115,7 @@ public class SpongeForgeEventFactory {
         final Entity entity = (Entity) spongeEvent.getTargetEntity();
 
         EntityInteractEvent forgeEvent = new EntityInteractEvent(entityPlayer, entity);
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+        MinecraftForge.EVENT_BUS.post(forgeEvent);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);
         }
@@ -1131,7 +1130,7 @@ public class SpongeForgeEventFactory {
 
         ClientConnectionEvent.Join spongeEvent = (ClientConnectionEvent.Join) event;
         PlayerLoggedInEvent fmlEvent = new PlayerLoggedInEvent((EntityPlayer) spongeEvent.getTargetEntity());
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
+        MinecraftForge.EVENT_BUS.post(fmlEvent);
 
         return spongeEvent;
     }
@@ -1143,7 +1142,7 @@ public class SpongeForgeEventFactory {
 
         ClientConnectionEvent.Disconnect spongeEvent = (ClientConnectionEvent.Disconnect) event;
         PlayerLoggedOutEvent fmlEvent = new PlayerLoggedOutEvent((EntityPlayer) spongeEvent.getTargetEntity());
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
+        MinecraftForge.EVENT_BUS.post(fmlEvent);
 
         return spongeEvent;
     }
@@ -1155,12 +1154,12 @@ public class SpongeForgeEventFactory {
 
         RespawnPlayerEvent spongeEvent = (RespawnPlayerEvent) event;
         PlayerRespawnEvent fmlEvent = new PlayerRespawnEvent((EntityPlayer) spongeEvent.getTargetEntity());
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
+        MinecraftForge.EVENT_BUS.post(fmlEvent);
 
         return spongeEvent;
     }
 
-    private static DisplaceEntityEvent.Teleport callPlayerChangedDimensionEvent(Event event) {
+    private static DisplaceEntityEvent.Teleport callEntityTravelToDimensionEvent(Event event) {
         if (!(event instanceof DisplaceEntityEvent.Teleport)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid DisplaceEntityEvent.Teleport");
         }
@@ -1173,8 +1172,11 @@ public class SpongeForgeEventFactory {
 
         int fromDimensionId = ((net.minecraft.world.World) spongeEvent.getFromTransform().getExtent()).provider.getDimensionId();
         int toDimensionId = ((net.minecraft.world.World) spongeEvent.getToTransform().getExtent()).provider.getDimensionId();
-        PlayerChangedDimensionEvent fmlEvent = new PlayerChangedDimensionEvent((EntityPlayerMP) entity, fromDimensionId, toDimensionId);
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
+        if (fromDimensionId != toDimensionId) {
+            if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension((EntityPlayerMP) entity, toDimensionId))  {
+                spongeEvent.setCancelled(true);
+            }
+        }
 
         return spongeEvent;
     }

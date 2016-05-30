@@ -43,6 +43,8 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
+import org.spongepowered.api.world.PortalAgent;
+import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -51,9 +53,7 @@ import org.spongepowered.common.event.CauseTracker;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
-import org.spongepowered.common.world.SpongePortalAgentType;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 import javax.annotation.Nullable;
 
@@ -140,8 +140,7 @@ public abstract class MixinSpongeImplHooks {
             spongeWorld.getCauseTracker().setIgnoreSpawnEvents(false);
             return event.entityItem;
         } else {
-            // Don't trigger a sponge event as we handle it during container capture
-            if (((IMixinEventBus) MinecraftForge.EVENT_BUS).post(event, true)) {
+            if (MinecraftForge.EVENT_BUS.post(event)) {
                 return null;
             }
             player.worldObj.spawnEntityInWorld(ret);
@@ -161,7 +160,7 @@ public abstract class MixinSpongeImplHooks {
         }
 
         // ignore default
-        if (teleporter.getClass().getSimpleName().equalsIgnoreCase("teleporter")) {
+        if (PortalAgentTypes.DEFAULT.equals(((PortalAgent) teleporter).getType())) {
             return;
         }
 

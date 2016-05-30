@@ -56,20 +56,32 @@ public abstract class MixinEventBus implements IMixinEventBus {
     @Shadow @Final private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;
 
-    @Overwrite
-    public boolean post(Event event) {
-        return post(event, false);
+    // Events that should not be posted on the event bus
+    private boolean isEventAllowed(Event event) {
+        if (event instanceof BlockEvent.PlaceEvent) {
+            return false;
+        } else if (event instanceof BlockEvent.BreakEvent) {
+            return false;
+        } else if (event instanceof EntityInteractEvent) {
+            return false;
+        } else if (event instanceof LivingDropsEvent) {
+            return false;
+        } else if (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent) {
+            return false;
+        }
+
+        return false;
     }
 
-    @Override
-    public boolean post(Event event, boolean forgeOnly) {
+    @Overwrite
+    public boolean post(Event event) {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
-        if (!forgeOnly && event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
-            if (event instanceof BlockEvent.PlaceEvent || event instanceof BlockEvent.BreakEvent || event instanceof EntityInteractEvent
-                    || event instanceof LivingDropsEvent || (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent)) {
-                return false; // let the event happen, we will just capture it
-            }
+        if (!isEventAllowed(event)) {
+            return false;
+        }
+
+        if (event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
             boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(null, event, listeners);
             if (!cancelled) {
                 SpongeForgeEventFactory.onForgePost(event);

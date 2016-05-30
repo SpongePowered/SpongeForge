@@ -24,11 +24,7 @@
  */
 package org.spongepowered.mod.interfaces;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
-
 public interface IMixinEventBus {
 
     int getBusID();
-
-    boolean post(Event event, boolean forgeOnly);
 }
