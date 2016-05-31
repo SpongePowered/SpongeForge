@@ -70,7 +70,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
             return false;
         }
 
-        return false;
+        return true;
     }
 
     @Overwrite
