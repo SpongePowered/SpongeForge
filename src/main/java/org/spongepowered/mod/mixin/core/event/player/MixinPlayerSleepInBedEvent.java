@@ -47,7 +47,9 @@ public abstract class MixinPlayerSleepInBedEvent extends MixinEventPlayer implem
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, BlockPos pos, CallbackInfo ci) {
-        this.bed = ((World) player.worldObj).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
+        if (!player.worldObj.isRemote) {
+            this.bed = ((World) player.worldObj).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
+        }
     }
 
     @Override
