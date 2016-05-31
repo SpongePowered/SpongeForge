@@ -80,7 +80,6 @@ public abstract class MixinServerConfigurationManager {
      * @param teleporter The teleporter used to transport and create the portal
      */
     public void transferPlayerToDimension(EntityPlayerMP playerIn, int targetDimensionId, net.minecraft.world.Teleporter teleporter) {
-        System.out.println("test");
         DisplaceEntityEvent.Teleport.Portal event = SpongeCommonEventFactory.handleDisplaceEntityPortalEvent(playerIn, targetDimensionId, teleporter);
         if (event.isCancelled()) {
             return;
