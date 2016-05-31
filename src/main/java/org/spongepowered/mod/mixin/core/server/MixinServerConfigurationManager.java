@@ -81,7 +81,7 @@ public abstract class MixinServerConfigurationManager {
      */
     public void transferPlayerToDimension(EntityPlayerMP playerIn, int targetDimensionId, net.minecraft.world.Teleporter teleporter) {
         DisplaceEntityEvent.Teleport.Portal event = SpongeCommonEventFactory.handleDisplaceEntityPortalEvent(playerIn, targetDimensionId, teleporter);
-        if (event.isCancelled()) {
+        if (event == null || event.isCancelled()) {
             return;
         }
 
@@ -112,7 +112,7 @@ public abstract class MixinServerConfigurationManager {
         }
         ((IMixinEntityPlayerMP) playerIn).refreshXpHealthAndFood();
         // Forge needs to know when a player changes to new a dimension
-        // This cannot be mapped to DisplaceEntityEvent.Teleport as this event is called BEFORE transfer.
+        // This cannot be mapped to DisplaceEntityEvent.Teleport as this event must be called AFTER transfer.
         net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerChangedDimensionEvent(playerIn, fromWorld.provider.getDimensionId(), toWorld.provider.getDimensionId());
     }
 }
