@@ -27,18 +27,20 @@ package org.spongepowered.mod.mixin.core.server;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.ServerConfigurationManager;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.world.Teleporter;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @NonnullByDefault
-@Mixin(ServerConfigurationManager.class)
+@Mixin(value = ServerConfigurationManager.class, priority = 1001)
 public abstract class MixinServerConfigurationManager {
 
+    private int preTravelDimension;
     /**
      * @author Simon816
      *
@@ -57,14 +59,15 @@ public abstract class MixinServerConfigurationManager {
 
     // Forge needs to know when a player changes to new a dimension
     // This cannot be mapped to DisplaceEntityEvent.Teleport as this event is called BEFORE transfer.
-    @Redirect(method = "transferPlayerToDimension", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/management/ServerConfigurationManager;transferPlayerToDimension(Lnet/minecraft/entity/player/EntityPlayerMP;ILnet/minecraft/world/Teleporter;)V"), remap = false)
-    public void onTransferPlayerToDimension(ServerConfigurationManager scm, EntityPlayerMP playerIn, int targetDimensionId, net.minecraft.world.Teleporter teleporter) {
-        int preTravelDimension = playerIn.dimension;
-        scm.transferPlayerToDimension(playerIn, targetDimensionId, teleporter);
-        int postTravelDimension = playerIn.dimension;
-        if (preTravelDimension != postTravelDimension) {
-            PlayerEvent.PlayerChangedDimensionEvent event = new PlayerEvent.PlayerChangedDimensionEvent(playerIn, preTravelDimension, postTravelDimension);
-            MinecraftForge.EVENT_BUS.post(event);
+    @Inject(method = "transferPlayerToDimension", at = @At(value = "HEAD", ordinal = 1), remap = false)
+    public void onTransferPlayerToDimensionHead(EntityPlayerMP playerIn, int targetDimensionId, Teleporter teleporter, CallbackInfo ci) {
+        this.preTravelDimension = playerIn.dimension;
+    }
+
+    @Inject(method = "transferPlayerToDimension", at = @At(value = "RETURN", ordinal = 1), remap = false)
+    public void onTransferPlayerToDimensionReturn(EntityPlayerMP playerIn, int targetDimensionId, Teleporter teleporter, CallbackInfo ci) {
+        if (this.preTravelDimension != playerIn.dimension) {
+            net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerChangedDimensionEvent(playerIn, this.preTravelDimension, playerIn.dimension);
         }
     }
 }

@@ -86,6 +86,7 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
 
     private Injector injector;
 
+    @SuppressWarnings("deprecation")
     public SpongeModPluginContainer(String className, ModCandidate candidate, Map<String, Object> descriptor) {
         this.id = checkNotNull((String) descriptor.get("id"), "id");
 
