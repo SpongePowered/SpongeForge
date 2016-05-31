@@ -52,12 +52,12 @@ public abstract class MixinChunkProviderServer {
         this.spongeWorld = (IMixinWorld) world;
     }
 
-    @Inject(method = "originalLoadChunk", at = @At(value = "INVOKE", target = "Ljava/util/Set;add(Ljava/lang/Object;)Z"))
+    @Inject(method = "originalLoadChunk", at = @At(value = "INVOKE", target = "Ljava/util/Set;add(Ljava/lang/Object;)Z"), remap = false)
     public void onOriginalLoadChunkStart(int chunkX, int chunkZ, CallbackInfoReturnable<Chunk> cir) {
         this.spongeWorld.getTimingsHandler().syncChunkLoadDataTimer.startTiming();
     }
 
-    @Inject(method = "originalLoadChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;populateChunk(Lnet/minecraft/world/chunk/IChunkProvider;Lnet/minecraft/world/chunk/IChunkProvider;II)V"))
+    @Inject(method = "originalLoadChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;populateChunk(Lnet/minecraft/world/chunk/IChunkProvider;Lnet/minecraft/world/chunk/IChunkProvider;II)V"), remap = false)
     public void onOriginalLoadChunkEnd(int chunkX, int chunkZ, CallbackInfoReturnable<Chunk> cir) {
         this.spongeWorld.getTimingsHandler().syncChunkLoadDataTimer.stopTiming();
     }

@@ -41,7 +41,7 @@ import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 
 import java.lang.reflect.Method;
 
-@Mixin(ASMEventHandler.class)
+@Mixin(value = ASMEventHandler.class, remap = false)
 public abstract class MixinASMEventHandler implements IMixinASMEventHandler {
 
     private Timing timingsHandler;

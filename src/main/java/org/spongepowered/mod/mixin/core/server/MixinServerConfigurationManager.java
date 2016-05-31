@@ -57,7 +57,7 @@ public abstract class MixinServerConfigurationManager {
 
     // Forge needs to know when a player changes to new a dimension
     // This cannot be mapped to DisplaceEntityEvent.Teleport as this event is called BEFORE transfer.
-    @Redirect(method = "transferPlayerToDimension", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/management/ServerConfigurationManager;transferPlayerToDimension(Lnet/minecraft/entity/player/EntityPlayerMP;ILnet/minecraft/world/Teleporter;)V"))
+    @Redirect(method = "transferPlayerToDimension", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/management/ServerConfigurationManager;transferPlayerToDimension(Lnet/minecraft/entity/player/EntityPlayerMP;ILnet/minecraft/world/Teleporter;)V"), remap = false)
     public void onTransferPlayerToDimension(ServerConfigurationManager scm, EntityPlayerMP playerIn, int targetDimensionId, net.minecraft.world.Teleporter teleporter) {
         int preTravelDimension = playerIn.dimension;
         scm.transferPlayerToDimension(playerIn, targetDimensionId, teleporter);
