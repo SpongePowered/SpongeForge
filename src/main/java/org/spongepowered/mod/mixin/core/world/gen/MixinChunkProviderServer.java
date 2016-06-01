@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.event.CauseTracker;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 
 @Mixin(value = ChunkProviderServer.class, priority = 1001)
@@ -79,12 +80,16 @@ public abstract class MixinChunkProviderServer {
             chunk.func_150809_p();
 
             if (this.serverChunkGenerator != null) {
-                boolean capturingTerrain = this.spongeWorld.getCauseTracker().isCapturingTerrainGen();
-                this.spongeWorld.getCauseTracker().setCapturingTerrainGen(true);
+                final CauseTracker causeTracker = this.spongeWorld.getCauseTracker();
+                boolean captureBlocks = causeTracker.isCapturingBlocks();
+                boolean capturingTerrain = causeTracker.isCapturingTerrainGen();
+                causeTracker.setCapturingTerrainGen(true);
+                causeTracker.setCaptureBlocks(false);
                 this.serverChunkGenerator.populate(chunkProvider, x, z);
                 net.minecraftforge.fml.common.registry.GameRegistry.generateWorld(x, z, worldObj, serverChunkGenerator, chunkProvider);
                 chunk.setChunkModified();
-                this.spongeWorld.getCauseTracker().setCapturingTerrainGen(capturingTerrain);
+                causeTracker.setCapturingTerrainGen(capturingTerrain);
+                causeTracker.setCaptureBlocks(captureBlocks);
             }
         }
     }
