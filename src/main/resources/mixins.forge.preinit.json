@@ -4,10 +4,12 @@
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "mixins": [
+        "fml.common.MixinFMLCommonHandler",
         "fml.common.MixinModMetadata",
         "fml.common.MixinModContainer",
+        "fml.common.eventhandler.MixinASMEventHandler",
         "fml.common.eventhandler.MixinEvent",
-        "fml.common.MixinFMLCommonHandler"
+        "fml.common.registry.MixinGameRegistry"
     ],
     "client": [
         "fml.common.MixinMinecraftDummyContainerClient"

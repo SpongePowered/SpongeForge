@@ -26,15 +26,12 @@ package org.spongepowered.mod.event;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import co.aikar.timings.TimingsManager;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -51,7 +48,6 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -60,16 +56,12 @@ import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.action.SleepingEvent;
-import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
-import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
-import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
+import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
@@ -85,6 +77,7 @@ import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 import org.spongepowered.mod.interfaces.IMixinEvent;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinLoadController;
@@ -112,19 +105,16 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(UnloadChunkEvent.class, ChunkEvent.Unload.class)
                     .put(ConstructEntityEvent.Post.class, EntityEvent.EntityConstructing.class)
                     .put(TargetEntityEvent.class, EntityEvent.class)
-                    .put(DestructEntityEvent.Death.class, LivingDeathEvent.class)
                     .put(MessageChannelEvent.Chat.class, ServerChatEvent.class)
-                    .put(DropItemEvent.Dispense.class, ItemTossEvent.class)
-                    //.put(DropItemEvent.Harvest.class, BlockEvent.HarvestDropsEvent.class)
                     .put(InteractEntityEvent.Primary.class, AttackEntityEvent.class)
                     .put(TargetWorldEvent.class, WorldEvent.class)
                     .put(LoadWorldEvent.class, WorldEvent.Load.class)
                     .put(SaveWorldEvent.class, WorldEvent.Save.class)
                     .put(UnloadWorldEvent.class, WorldEvent.Unload.class)
-//                    .put(UseItemStackEvent.Start.class, PlayerUseItemEvent.Start.class)
-//                    .put(UseItemStackEvent.Tick.class, PlayerUseItemEvent.Tick.class)
-//                    .put(UseItemStackEvent.Stop.class, PlayerUseItemEvent.Stop.class)
-//                    .put(UseItemStackEvent.Finish.class, PlayerUseItemEvent.Finish.class)
+                    .put(UseItemStackEvent.Start.class, LivingEntityUseItemEvent.Start.class)
+                    .put(UseItemStackEvent.Tick.class, LivingEntityUseItemEvent.Tick.class)
+                    .put(UseItemStackEvent.Stop.class, LivingEntityUseItemEvent.Stop.class)
+                    .put(UseItemStackEvent.Finish.class, LivingEntityUseItemEvent.Finish.class)
                     .put(ClientConnectionEvent.Join.class, PlayerEvent.PlayerLoggedInEvent.class)
                     .put(ClientConnectionEvent.Disconnect.class, PlayerEvent.PlayerLoggedOutEvent.class)
                     .put(SleepingEvent.Pre.class, PlayerSleepInBedEvent.class)
@@ -136,6 +126,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         super(pluginManager);
     }
 
+    // Uses Forge mixins
     public boolean post(Event spongeEvent, net.minecraftforge.fml.common.eventhandler.Event forgeEvent, IEventListener[] listeners) {
         checkNotNull(forgeEvent, "forgeEvent");
 
@@ -144,31 +135,43 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         // Fire events to plugins before modifications
+        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
+        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
         // If there are no forge listeners for event, skip sync
         if (listeners.length > 0) {
             // sync plugin data for Mods
             ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
-
+            TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
             for (IEventListener listener : listeners) {
                 try {
-                    listener.invoke(forgeEvent);
+                    if (listener instanceof IMixinASMEventHandler) {
+                        IMixinASMEventHandler modListener = (IMixinASMEventHandler) listener;
+                        modListener.getTimingsHandler().startTimingIfSync();
+                        listener.invoke(forgeEvent);
+                        modListener.getTimingsHandler().stopTimingIfSync();
+                    } else {
+                        listener.invoke(forgeEvent);
+                    }
                 } catch (Throwable throwable) {
                     SpongeImpl.getLogger().catching(throwable);
                 }
             }
+            TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
 
             // sync Forge data for Plugins
             ((IMixinEvent) forgeEvent).syncDataToSponge(spongeEvent);
         }
 
+        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), false, false);
         }
+        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
         // sync plugin data for Forge
         ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
@@ -183,21 +186,28 @@ public class SpongeModEventManager extends SpongeEventManager {
         return forgeEvent.isCancelable() && forgeEvent.isCanceled();
     }
 
-    public boolean postBulk(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
+    // Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
+    public boolean post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
+        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
+        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
+        TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
         StaticMixinHelper.processingInternalForgeEvent = true;
         spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
         StaticMixinHelper.processingInternalForgeEvent = false;
+        TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
 
+        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), false, false);
         }
+        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
         return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
     }
@@ -211,7 +221,9 @@ public class SpongeModEventManager extends SpongeEventManager {
             try {
                 if (forced || (!listener.isBeforeModifications() && !beforeModifications)
                         || (listener.isBeforeModifications() && beforeModifications)) {
+                    listener.getTimingsHandler().startTimingIfSync();
                     listener.handle(event);
+                    listener.getTimingsHandler().stopTimingIfSync();
                 }
             } catch (Throwable e) {
                 SpongeImpl.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
@@ -236,18 +248,17 @@ public class SpongeModEventManager extends SpongeEventManager {
             Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz =
                     this.eventMappings.get(spongeEvent.getClass().getInterfaces()[0]);
             if (clazz == null) {
-                clazz = getBulkEventClass(spongeEvent.getClass());
+                clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent.getClass());
                 if (clazz != null) {
-                    return postBulk(spongeEvent, clazz);
+                    return post(spongeEvent, clazz);
                 }
-
             } else {
                 StaticMixinHelper.processingInternalForgeEvent = true;
                 net.minecraftforge.fml.common.eventhandler.Event forgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent(spongeEvent, clazz);
                 StaticMixinHelper.processingInternalForgeEvent = false;
                 if (forgeEvent != null) {
                     return post(spongeEvent, forgeEvent,
-                            forgeEvent.getListenerList().getListeners(((IMixinEventBus) getForgeEventBus(forgeEvent.getClass())).getBusID()));
+                            forgeEvent.getListenerList().getListeners(((IMixinEventBus) SpongeForgeEventFactory.getForgeEventBus(forgeEvent.getClass())).getBusID()));
                 }
             }
         }
@@ -255,50 +266,4 @@ public class SpongeModEventManager extends SpongeEventManager {
         return post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true);
     }
 
-    private Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getBulkEventClass(Class<? extends Event> clazz) {
-        if (CollideEntityEvent.class.isAssignableFrom(clazz)) {
-            return EntityItemPickupEvent.class;
-        }
-        if (DropItemEvent.Destruct.class.isAssignableFrom(clazz)) {
-            return LivingDropsEvent.class;
-        }
-        if (InteractBlockEvent.class.isAssignableFrom(clazz)) {
-            return PlayerInteractEvent.class;
-        }
-        if (InteractBlockEvent.Primary.class.isAssignableFrom(clazz)) {
-            return PlayerInteractEvent.class;
-        }
-        if (InteractBlockEvent.Secondary.class.isAssignableFrom(clazz)) {
-            return PlayerInteractEvent.class;
-        }
-        if (InteractEntityEvent.Secondary.class.isAssignableFrom(clazz)) {
-//            return EntityInteractEvent.class;
-        }
-        if (SpawnEntityEvent.class.isAssignableFrom(clazz)) {
-            return EntityJoinWorldEvent.class;
-        }
-        if (ChangeBlockEvent.Break.class.isAssignableFrom(clazz)) {
-            return BlockEvent.BreakEvent.class;
-        }
-        if (ChangeBlockEvent.Place.class.isAssignableFrom(clazz)) {
-            return BlockEvent.PlaceEvent.class;
-        }
-        return null;
-    }
-
-    private EventBus getForgeEventBus(Class<?> clazz) {
-        if (OreGenEvent.class.isAssignableFrom(clazz)) {
-            return MinecraftForge.ORE_GEN_BUS;
-        } else if (WorldTypeEvent.class.isAssignableFrom(clazz)
-                || BiomeEvent.class.isAssignableFrom(clazz)
-                || DecorateBiomeEvent.class.isAssignableFrom(clazz)
-                || InitMapGenEvent.class.isAssignableFrom(clazz)
-                || InitNoiseGensEvent.class.isAssignableFrom(clazz)
-                || PopulateChunkEvent.class.isAssignableFrom(clazz)
-                || SaplingGrowTreeEvent.class.isAssignableFrom(clazz)) {
-            return MinecraftForge.TERRAIN_GEN_BUS;
-        }
-
-        return MinecraftForge.EVENT_BUS;
-    }
 }

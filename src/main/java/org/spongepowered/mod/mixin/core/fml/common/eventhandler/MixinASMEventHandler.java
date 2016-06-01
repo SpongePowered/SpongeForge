@@ -22,48 +22,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.player;
+package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
-import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.event.action.SleepingEvent;
-import org.spongepowered.api.world.World;
+import co.aikar.timings.SpongeTimings;
+import co.aikar.timings.Timing;
+import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.eventhandler.ASMEventHandler;
+import net.minecraftforge.fml.common.eventhandler.IEventListener;
+import org.objectweb.asm.Type;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 
-@Mixin(value = PlayerSleepInBedEvent.class, remap = false)
-public abstract class MixinPlayerSleepInBedEvent extends MixinEventPlayer implements SleepingEvent.Pre {
+import java.lang.reflect.Method;
 
-    @Shadow @Final public BlockPos pos;
-    @Shadow public EntityPlayer.SleepResult result;
-    private BlockSnapshot bed;
+@Mixin(value = ASMEventHandler.class, remap = false)
+public abstract class MixinASMEventHandler implements IMixinASMEventHandler {
+
+    private Timing timingsHandler;
+    private String timingName;
+
+    @Shadow @Final private IEventListener handler;
+    @Shadow private ModContainer owner;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstructed(EntityPlayer player, BlockPos pos, CallbackInfo ci) {
-        if (!player.worldObj.isRemote) {
-            this.bed = ((World) player.worldObj).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
+    public void onConstruction(Object target, Method method, ModContainer owner, CallbackInfo ci) {
+        this.timingName = target.getClass().getSimpleName() + "_" + method.getName() + "(" + Type.getMethodDescriptor(method) + ")";
+    }
+
+    @Override
+    public Timing getTimingsHandler() {
+        if (this.timingsHandler == null) {
+            this.timingsHandler = SpongeTimings.getModTimings((PluginContainer) this.owner, this.timingName);
         }
+        return this.timingsHandler;
     }
-
-    @Override
-    public BlockSnapshot getBed() {
-        return this.bed;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return this.result != EntityPlayer.SleepResult.OK;
-    }
-
-    @Override
-    public void setCancelled(boolean cancel) {
-        this.result = cancel ? EntityPlayer.SleepResult.OTHER_PROBLEM : EntityPlayer.SleepResult.OK;
-    }
-
 }

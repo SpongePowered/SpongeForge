@@ -22,26 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.client.multiplayer;
+package org.spongepowered.mod.mixin.core.common;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import net.minecraft.client.multiplayer.ChunkProviderClient;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.DamageSource;
+import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.event.SpongeCommonEventFactory;
 
-import javax.annotation.Nullable;
+@Mixin(value = SpongeCommonEventFactory.class, remap = false)
+public abstract class MixinSpongeCommonEventFactory {
 
-@Mixin(ChunkProviderClient.class)
-public abstract class MixinChunkProviderClient implements IMixinChunkProviderServer {
-
-    @Shadow private Long2ObjectMap<Chunk> chunkMapping;
-
-    @Nullable
-    @Override
-    public Chunk getChunkIfLoaded(int x, int z) {
-        return this.chunkMapping.get(ChunkPos.chunkXZ2Int(x, z));
+    @Inject(method = "callDestructEntityEventDeath", at = @At("HEAD"), cancellable = true)
+    private static void onCallDestructEntityEventDeath(EntityLivingBase entity, DamageSource source, CallbackInfoReturnable<DestructEntityEvent.Death> cir) {
+        if (net.minecraftforge.common.ForgeHooks.onLivingDeath(entity, source)) {
+            cir.setReturnValue(null);
+        }
     }
 }

@@ -27,14 +27,11 @@ package org.spongepowered.mod.event;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.util.SpongeHooks;
 
 public class SpongeEventHooks {
 
-    @SideOnly(Side.SERVER)
     @SubscribeEvent
     public void onChunkWatchEvent(ChunkWatchEvent event) {
         IMixinEntity spongeEntity = (IMixinEntity) event.getPlayer();
@@ -46,7 +43,6 @@ public class SpongeEventHooks {
         }
     }
 
-    @SideOnly(Side.SERVER)
     @SubscribeEvent
     public void onEntityDeathEvent(LivingDeathEvent event) {
         SpongeHooks.logEntityDeath(event.getEntity());

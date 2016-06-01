@@ -91,7 +91,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static Integer[] getIDs() {
-        final int[] spongeDimIds = WorldManager.worldByDimensionId.keys();
+        final int[] spongeDimIds = WorldManager.worldByDimensionId.keySet().toIntArray();
         Integer[] forgeDimIds = new Integer[spongeDimIds.length];
         for (int i = 0; i < spongeDimIds.length; i++) {
             forgeDimIds[i] = spongeDimIds[i];
@@ -120,7 +120,8 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static Integer[] getStaticDimensionIDs() {
-        final int[] spongeDimIds = WorldManager.dimensionTypeByDimensionId.keys();
+        // TODO - Zidane  - Confirm?
+        final int[] spongeDimIds = WorldManager.dimensionTypeByDimensionId.keySet().toIntArray();
         Integer[] forgeDimIds = new Integer[spongeDimIds.length];
         for (int i = 0; i < spongeDimIds.length; i++) {
             forgeDimIds[i] = spongeDimIds[i];

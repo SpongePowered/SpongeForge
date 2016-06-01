@@ -36,6 +36,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
@@ -69,13 +71,13 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         WorldManager.registerWorldProperties((WorldProperties) worldInfo);
     }
 
-    @Inject(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = SAVE_HANDLER_SAVE_WORLD_INFO) , locals = LocalCapture.CAPTURE_FAILHARD)
-    public void onlaunchIntegratedServerAfterSaveWorldInfo(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
-            ISaveHandler isavehandler, WorldInfo worldInfo) {
+    @ModifyArg(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = SAVE_HANDLER_SAVE_WORLD_INFO))
+    private WorldInfo onlaunchIntegratedServerAfterSaveWorldInfo(WorldInfo worldInfo) {
         // initialize overworld properties
         UUID uuid = UUID.randomUUID();
         ((IMixinWorldInfo) worldInfo).setUUID(uuid);
         ((IMixinWorldInfo) worldInfo).setDimensionId(0);
+        return worldInfo;
     }
 
     @Override

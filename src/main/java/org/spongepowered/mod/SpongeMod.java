@@ -37,7 +37,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
 import net.minecraftforge.fml.client.FMLFolderResourcePack;
 import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.MetadataCollection;
@@ -116,7 +115,10 @@ public class SpongeMod extends DummyModContainer {
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
     public SpongeMod() throws Exception {
-        super(SpongeMod.createMetadata(ImmutableMap.<String, Object>of("modid", SpongeImpl.ECOSYSTEM_ID, "name", "SpongeForge", "version", "DEV")));
+        super(SpongeMod.createMetadata(ImmutableMap.<String, Object>of(
+                "modid", SpongeImpl.ECOSYSTEM_ID,
+                "name", "SpongeForge",
+                "version", SpongeImpl.IMPLEMENTATION_VERSION.isPresent() ? SpongeImpl.IMPLEMENTATION_VERSION.get() : "DEV")));
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
 
@@ -127,6 +129,10 @@ public class SpongeMod extends DummyModContainer {
         Guice.createInjector(new SpongeGuiceModule()).getInstance(SpongeImpl.class);
         this.game = SpongeImpl.getGame();
 
+
+
+        RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
+        this.game.getRegistry().preRegistryInit();
         SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (obj, id, location) ->
                 BlockTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.BLOCKS.getKey(obj).toString(), (BlockType) obj));
         SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (obj, id, location) ->
@@ -137,10 +143,7 @@ public class SpongeMod extends DummyModContainer {
         SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (obj, id, location) ->
                 PotionEffectTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.POTIONS.getKey(obj).toString(),
                         (PotionEffectType) obj));
-
         VillagerRegistry.instance();
-        RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
-        this.game.getRegistry().preRegistryInit();
         SpongeForgeModuleRegistry.registerForgeData();
 
         this.game.getEventManager().registerListeners(this, this);

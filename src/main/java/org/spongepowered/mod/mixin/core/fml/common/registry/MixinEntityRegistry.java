@@ -49,17 +49,6 @@ public abstract class MixinEntityRegistry {
         registerCustomEntity(entityClass, entityName, id, FMLCommonHandler.instance().findContainerFor(mod));
     }
 
-    @Inject(method = "registerGlobalEntityID", at = @At(value = "RETURN"))
-    private static void onRegisterGlobal(Class<? extends Entity> entityClass, String entityName, int id, CallbackInfo ci) {
-        registerCustomEntity(entityClass, entityName, id, Loader.instance().activeModContainer());
-    }
-
-    @Inject(method = "registerGlobalEntityID(Ljava/lang/Class;Ljava/lang/String;III)V", at = @At(value = "RETURN"))
-    private static void onRegisterGlobal(Class<? extends Entity> entityClass, String entityName, int id, int backgroundEggColour,
-            int foregroundEggColour, CallbackInfo ci) {
-        registerCustomEntity(entityClass, entityName, id, Loader.instance().activeModContainer());
-    }
-
     private static void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, ModContainer modContainer) {
         // fix bad entity name registrations from mods
         if (entityName.contains(".")) {

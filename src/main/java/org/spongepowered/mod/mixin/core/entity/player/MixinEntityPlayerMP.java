@@ -33,9 +33,9 @@ import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
 
 @Mixin(value = EntityPlayerMP.class, priority = 1001)
 public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
-    @Shadow private NetHandlerPlayServer playerNetServerHandler;
+    @Shadow private NetHandlerPlayServer connection;
 
     public boolean usesCustomClient() {
-        return this.playerNetServerHandler.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
+        return this.connection.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
     }
 }

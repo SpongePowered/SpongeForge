@@ -30,7 +30,6 @@ import com.google.common.collect.Maps;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
@@ -51,7 +50,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.entity.player.ISpongeUser;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLivingBase;
 
 import java.util.HashMap;
@@ -92,8 +90,8 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     }
 
     @Inject(method = "trySleep", at = @At(value = "RETURN", ordinal = 0))
-    private void onSleepEvent(BlockPos bedLocation, CallbackInfoReturnable<EntityPlayer.EnumStatus> cir) {
-        if (cir.getReturnValue() == EnumStatus.OK) {
+    private void onSleepEvent(BlockPos bedLocation, CallbackInfoReturnable<EntityPlayer.SleepResult> cir) {
+        if (cir.getReturnValue() == EntityPlayer.SleepResult.OK) {
             // A cut-down version of trySleep handling for OK status
             if (this.nmsPlayer.isRiding()) {
                 this.nmsPlayer.dismountRidingEntity();
@@ -147,7 +145,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
             net.minecraftforge.event.ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);
             this.setSize(0.6F, 1.8F);
             if (post.getSpawnTransform().isPresent()) {
-                this.setTransform(post.getSpawnTransform().get());
+                this.setLocationAndAngles(post.getSpawnTransform().get());
             }
         } else {
             net.minecraftforge.event.ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);

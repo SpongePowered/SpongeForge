@@ -38,7 +38,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion("1.9")
+@IFMLLoadingPlugin.MCVersion("1.9.4")
 public class SpongeCoremod implements IFMLLoadingPlugin {
 
     public static final class TokenProvider implements IEnvironmentTokenProvider {

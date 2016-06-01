@@ -22,42 +22,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.fml.common.gameevent;
+package org.spongepowered.mod.interfaces;
 
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import org.spongepowered.api.entity.Transform;
-import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
-import org.spongepowered.api.world.World;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.mod.interfaces.IMixinPlayerRespawnEvent;
+import co.aikar.timings.Timing;
 
-@Mixin(PlayerEvent.PlayerRespawnEvent.class)
-public abstract class MixinPlayerRespawnEvent extends MixinPlayerEvent implements RespawnPlayerEvent, IMixinPlayerRespawnEvent {
+public interface IMixinASMEventHandler {
 
-    private boolean isBedSpawn;
-
-    @Override
-    public void setIsBedSpawn(boolean isBedSpawn) {
-        this.isBedSpawn = isBedSpawn;
-    }
-
-    @Override
-    public boolean isBedSpawn() {
-        return this.isBedSpawn;
-    }
-
-    @Override
-    public void setToTransform(Transform<World> toTransform) {
-        this.toTransform = toTransform;
-    }
-
-    @Override
-    public Transform<World> getFromTransform() {
-        return this.fromTransform;
-    }
-
-    @Override
-    public Transform<World> getToTransform() {
-        return this.toTransform;
-    }
+    Timing getTimingsHandler();
 }

@@ -99,7 +99,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
             EntityPlayerSP clientPlayer = Minecraft.getMinecraft().thePlayer;
             if (clientPlayer != null) {
                 // Register channel on server (when on client side)
-                clientPlayer.sendQueue.addToSendQueue(getRegPacketClient(channel.getName()));
+                clientPlayer.connection.sendPacket(getRegPacketClient(channel.getName()));
             }
         }
         return channel;
@@ -145,7 +145,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         if (SpongeImpl.getGame().getPlatform().getExecutionType().isClient()) {
             EntityPlayerSP clientPlayer = Minecraft.getMinecraft().thePlayer;
             if (clientPlayer != null) { // Client side
-                clientPlayer.sendQueue.addToSendQueue(getUnregPacketClient(channel.getName()));
+                clientPlayer.connection.sendPacket(getUnregPacketClient(channel.getName()));
             }
         }
     }

@@ -24,46 +24,51 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.registry;
 
+import co.aikar.timings.Timings;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraftforge.fml.common.IWorldGenerator;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.InternalNamedCauses;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.WorldPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 
+import java.util.Random;
+
 @NonnullByDefault
 @Mixin(value = GameRegistry.class, remap = false)
 public class MixinGameRegistry {
 
-    @Inject(method = "generateWorld", at = @At(value = "INVOKE", target = "Ljava/util/Random;setSeed(J)V"))
-    private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
-            CallbackInfo ci) {
+    @Redirect(method = "generateWorld", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/IWorldGenerator;generate(Ljava/util/Random;IILnet/minecraft/world/World;Lnet/minecraft/world/chunk/IChunkGenerator;Lnet/minecraft/world/chunk/IChunkProvider;)V"))
+    private static void onWorldgeneratorGenerate(IWorldGenerator worldGenerator, Random random, int chunkX, int chunkZ, World world, IChunkGenerator generator, IChunkProvider provider) {
         if (world instanceof WorldServer) {
             final IMixinWorldServer mixinWorldServer = (IMixinWorldServer) world;
+            if (Timings.isTimingsEnabled()) {
+                mixinWorldServer.getTimingsHandler().chunkPopulate.startTimingIfSync();
+            }
             mixinWorldServer.getCauseTracker().switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
-                    .add(NamedCause.source(chunkGenerator))
-                    .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CHUNK_PROVIDER, chunkProvider))
+                    .add(NamedCause.source(generator))
+                    .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CHUNK_PROVIDER, provider))
                     .addCaptures()
                     .complete());
         }
-    }
-
-    @Inject(method = "generateWorld", at = @At(value = "RETURN"))
-    private static void onGenerateWorldReturn(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
-            CallbackInfo ci) {
+        worldGenerator.generate(random, chunkX, chunkZ, world, generator, provider);
         if (world instanceof WorldServer) {
             final IMixinWorldServer mixinWorldServer = (IMixinWorldServer) world;
             mixinWorldServer.getCauseTracker().completePhase();
-
+            if (Timings.isTimingsEnabled()) {
+                mixinWorldServer.getTimingsHandler().chunkPopulate.stopTimingIfSync();
+            }
         }
     }
+
 }

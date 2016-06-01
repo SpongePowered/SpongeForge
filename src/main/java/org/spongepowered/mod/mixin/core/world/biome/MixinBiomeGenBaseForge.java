@@ -25,8 +25,8 @@
 package org.spongepowered.mod.mixin.core.world.biome;
 
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeDecorator;
-import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.event.terraingen.DeferredBiomeDecorator;
 import org.spongepowered.api.world.biome.BiomeGenerationSettings;
 import org.spongepowered.asm.mixin.Implements;
@@ -35,9 +35,8 @@ import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
-import org.spongepowered.common.mixin.core.world.biome.MixinBiomeGenBase;
 
-@Mixin(value = BiomeGenBase.class, priority = 1001)
+@Mixin(value = Biome.class, priority = 1001)
 @Implements(value = @Interface(iface = IBiomeGenBase.class, prefix = "super$") )
 public abstract class MixinBiomeGenBaseForge implements IBiomeGenBase {
 
@@ -46,7 +45,7 @@ public abstract class MixinBiomeGenBaseForge implements IBiomeGenBase {
     @Intrinsic(displace = true)
     public BiomeGenerationSettings super$initPopulators(World world) {
         if (this.theBiomeDecorator instanceof DeferredBiomeDecorator) {
-            ((DeferredBiomeDecorator) this.theBiomeDecorator).fireCreateEventAndReplace((BiomeGenBase) (Object) this);
+            ((DeferredBiomeDecorator) this.theBiomeDecorator).fireCreateEventAndReplace((Biome) (Object) this);
         }
         return initPopulators(world);
     }

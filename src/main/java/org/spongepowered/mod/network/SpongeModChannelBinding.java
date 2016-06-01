@@ -62,7 +62,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
 
     protected void sendTo(Player player, Object data) {
         checkValidState();
-        if (!((IMixinNetPlayHandler) ((EntityPlayerMP) player).playerNetServerHandler).getRegisteredChannels().contains(getName())) {
+        if (!((IMixinNetPlayHandler) ((EntityPlayerMP) player).connection).getRegisteredChannels().contains(getName())) {
             return; // Player doesn't accept this channel
         }
         this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
@@ -72,7 +72,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
 
     protected void sendToServer(Object data) {
         checkValidState();
-        if (!((IMixinNetPlayHandler) Minecraft.getMinecraft().thePlayer.sendQueue).getRegisteredChannels().contains(getName())) {
+        if (!((IMixinNetPlayHandler) Minecraft.getMinecraft().thePlayer.connection).getRegisteredChannels().contains(getName())) {
             return; // Server doesn't accept this channel
         }
         this.channels.get(Side.CLIENT).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.TOSERVER);

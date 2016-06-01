@@ -27,8 +27,8 @@ package org.spongepowered.mod.mixin.core.world.biome;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeDecorator;
-import net.minecraft.world.biome.BiomeGenBase;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,7 +40,7 @@ import java.util.Random;
 public class MixinBiomeDecorator {
 
     @Inject(method = "decorate", at = @At("HEAD"))
-    protected void onBiomeDecorateHead(World worldIn, Random random, BiomeGenBase biome, BlockPos pos, CallbackInfo ci) {
+    protected void onBiomeDecorateHead(World worldIn, Random random, Biome biome, BlockPos pos, CallbackInfo ci) {
         if (!worldIn.isRemote) {
             WorldServer world = (WorldServer) worldIn;
             // don't allow chunks to load while decorating
@@ -50,7 +50,7 @@ public class MixinBiomeDecorator {
     }
 
     @Inject(method = "decorate", at = @At("RETURN"))
-    protected void onBiomeDecorateReturn(World worldIn, Random random, BiomeGenBase biome, BlockPos pos, CallbackInfo ci) {
+    protected void onBiomeDecorateReturn(World worldIn, Random random, Biome biome, BlockPos pos, CallbackInfo ci) {
         if (!worldIn.isRemote) {
             WorldServer world = (WorldServer) worldIn;
             // decorate is finished, allow chunks to load

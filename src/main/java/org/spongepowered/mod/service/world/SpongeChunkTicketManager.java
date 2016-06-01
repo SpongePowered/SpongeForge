@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ListMultimap;
-import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import org.spongepowered.api.entity.Entity;
@@ -133,10 +133,10 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     @Override
     public ImmutableSetMultimap<Vector3i, LoadingTicket> getForcedChunks(World world) {
-        ImmutableSetMultimap<ChunkCoordIntPair, Ticket> forgeForcedChunks =
+        ImmutableSetMultimap<ChunkPos, Ticket> forgeForcedChunks =
                 ForgeChunkManager.getPersistentChunksFor((net.minecraft.world.World) world);
         ImmutableSetMultimap.Builder<Vector3i, LoadingTicket> spongeForcedChunks = ImmutableSetMultimap.builder();
-        for (Map.Entry<ChunkCoordIntPair, Ticket> ticketPair : forgeForcedChunks.entries()) {
+        for (Map.Entry<ChunkPos, Ticket> ticketPair : forgeForcedChunks.entries()) {
             spongeForcedChunks.put(new Vector3i(ticketPair.getKey().chunkXPos, 0, ticketPair.getKey().chunkZPos),
                     new SpongeLoadingTicket(ticketPair.getValue()));
         }
@@ -189,7 +189,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
             }
 
             Set<Vector3i> forgeChunkList = new HashSet<>();
-            for (ChunkCoordIntPair chunkCoord : this.forgeTicket.getChunkList()) {
+            for (ChunkPos chunkCoord : this.forgeTicket.getChunkList()) {
                 forgeChunkList.add(new Vector3i(chunkCoord.chunkXPos, 0, chunkCoord.chunkZPos));
             }
 

@@ -24,9 +24,12 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
+import co.aikar.timings.TimingsManager;
 import com.google.common.base.Throwables;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
@@ -42,6 +45,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.event.SpongeModEventManager;
+import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 @NonnullByDefault
@@ -53,22 +57,32 @@ public abstract class MixinEventBus implements IMixinEventBus {
     @Shadow @Final private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;
 
-    @Overwrite
-    public boolean post(Event event) {
-        return post(event, false);
+    // Events that should not be posted on the event bus
+    private boolean isEventAllowed(Event event) {
+        if (event instanceof BlockEvent.PlaceEvent) {
+            return false;
+        } else if (event instanceof BlockEvent.BreakEvent) {
+            return false;
+        } else if (event instanceof PlayerInteractEvent.EntityInteract) {
+            return false;
+        } else if (event instanceof LivingDropsEvent) {
+            return false;
+        } else if (event instanceof AttackEntityEvent) { // TODO - gabizou - figure this one out
+            return false;
+        }
+
+        return true;
     }
 
-    @Override
-    public boolean post(Event event, boolean forgeOnly) {
+    @Overwrite
+    public boolean post(Event event) {
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
 
-        if (!forgeOnly && event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
-            if (event instanceof BlockEvent.PlaceEvent
-                || event instanceof BlockEvent.BreakEvent
-                || event instanceof ItemTossEvent
-                || (event instanceof AttackEntityEvent)) {
-                return false; // let the event happen, we will just capture it
-            }
+        if (!isEventAllowed(event)) {
+            return false;
+        }
+
+        if (event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
             boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(null, event, listeners);
             if (!cancelled) {
                 SpongeForgeEventFactory.onForgePost(event);
@@ -79,12 +93,25 @@ public abstract class MixinEventBus implements IMixinEventBus {
             listeners = event.getListenerList().getListeners(this.busID);
             int index = 0;
             try {
+                if (SpongeImpl.isInitialized()) {
+                    TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
+                }
                 for (; index < listeners.length; index++) {
-                    listeners[index].invoke(event);
+                    if (listeners[index] instanceof IMixinASMEventHandler ) {
+                        IMixinASMEventHandler modListener = (IMixinASMEventHandler) listeners[index];
+                        modListener.getTimingsHandler().startTimingIfSync();
+                        listeners[index].invoke(event);
+                        modListener.getTimingsHandler().stopTimingIfSync();
+                    } else {
+                        listeners[index].invoke(event);
+                    }
                 }
             } catch (Throwable throwable) {
                 this.exceptionHandler.handleException(this.eventBus, event, listeners, index, throwable);
                 Throwables.propagate(throwable);
+            }
+            if (SpongeImpl.isInitialized()) {
+                TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
             }
             return (event.isCancelable() ? event.isCanceled() : false);
         }
