@@ -34,7 +34,6 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.plugin.AbstractPluginContainer;
 import org.spongepowered.mod.interfaces.IMixinModMetadata;
 
 import java.io.File;
@@ -52,10 +51,6 @@ public interface MixinModContainer extends ModContainer {
 
     default String getId() {
         return checkNotNull(emptyToNull(getModId()), "modid");
-    }
-
-    default String getUnqualifiedId() {
-        return AbstractPluginContainer.getUnqualifiedId(getId());
     }
 
     default Optional<String> plugin$getVersion() {
