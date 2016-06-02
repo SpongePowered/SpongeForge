@@ -42,6 +42,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.config.SpongeConfig;
+import org.spongepowered.common.config.type.WorldConfig;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.IMixinWorldProvider;
 import org.spongepowered.common.registry.type.world.DimensionRegistryModule;
@@ -116,7 +117,7 @@ public abstract class MixinDimensionManager {
     public static boolean shouldLoadSpawn(int dim) {
         if (dim != 0) {
             final WorldServer worldServer = DimensionManager.getWorld(dim);
-            final SpongeConfig<SpongeConfig.WorldConfig> worldConfig = ((IMixinWorld) worldServer).getWorldConfig();
+            final SpongeConfig<WorldConfig> worldConfig = ((IMixinWorld) worldServer).getWorldConfig();
 
             if (worldConfig.getConfig().isConfigEnabled()) {
                 return worldConfig.getConfig().getWorld().getKeepSpawnLoaded();
