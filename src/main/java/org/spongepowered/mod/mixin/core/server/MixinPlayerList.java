@@ -76,7 +76,7 @@ public abstract class MixinPlayerList implements IMixinPlayerList {
     /**
      * @author blood - May 21st, 2016
      *
-     * @reason - adjusted to support {@link MoveEntityEvent.Position.Teleport.Portal}
+     * @reason - adjusted to support {@link MoveEntityEvent.Teleport.Portal}
      *
      * @param playerIn The player teleporting to another dimension
      * @param targetDimensionId The id of target dimension.
@@ -84,7 +84,7 @@ public abstract class MixinPlayerList implements IMixinPlayerList {
      */
     @Overwrite
     public void transferPlayerToDimension(EntityPlayerMP playerIn, int targetDimensionId, net.minecraft.world.Teleporter teleporter) {
-        MoveEntityEvent.Position.Teleport.Portal event = SpongeCommonEventFactory.handleDisplaceEntityPortalEvent(playerIn, targetDimensionId, teleporter);
+        MoveEntityEvent.Teleport.Portal event = SpongeCommonEventFactory.handleDisplaceEntityPortalEvent(playerIn, targetDimensionId, teleporter);
         if (event != null || event.isCancelled()) {
             return;
         }

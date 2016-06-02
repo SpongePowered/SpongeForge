@@ -362,7 +362,7 @@ public class SpongeForgeEventFactory {
         if (RespawnPlayerEvent.class.isAssignableFrom(clazz)) {
             return PlayerRespawnEvent.class;
         }
-        if (MoveEntityEvent.Position.Teleport.class.isAssignableFrom(clazz)) {
+        if (MoveEntityEvent.Teleport.class.isAssignableFrom(clazz)) {
             return EntityTravelToDimensionEvent.class;
         }
         return null;
@@ -1158,12 +1158,12 @@ public class SpongeForgeEventFactory {
         return spongeEvent;
     }
 
-    private static MoveEntityEvent.Position.Teleport callEntityTravelToDimensionEvent(Event event) {
-        if (!(event instanceof MoveEntityEvent.Position.Teleport)) {
+    private static MoveEntityEvent.Teleport callEntityTravelToDimensionEvent(Event event) {
+        if (!(event instanceof MoveEntityEvent.Teleport)) {
             throw new IllegalArgumentException("Event " + event + " is not a valid DisplaceEntityEvent.Teleport");
         }
 
-        MoveEntityEvent.Position.Teleport spongeEvent = (MoveEntityEvent.Position.Teleport) event;
+        MoveEntityEvent.Teleport spongeEvent = (MoveEntityEvent.Teleport) event;
         org.spongepowered.api.entity.Entity entity = spongeEvent.getTargetEntity();
         if (!(entity instanceof EntityPlayerMP)) {
             return spongeEvent;
