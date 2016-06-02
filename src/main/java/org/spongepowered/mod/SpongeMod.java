@@ -29,9 +29,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
@@ -55,14 +52,12 @@ import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
-import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.effect.potion.PotionEffectType;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.item.Enchantment;
@@ -128,8 +123,6 @@ public class SpongeMod extends DummyModContainer {
         // Initialize Sponge
         Guice.createInjector(new SpongeGuiceModule()).getInstance(SpongeImpl.class);
         this.game = SpongeImpl.getGame();
-
-
 
         RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
         this.game.getRegistry().preRegistryInit();

@@ -25,10 +25,14 @@
 package org.spongepowered.mod.mixin.core.server;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
 import java.util.Hashtable;
@@ -47,5 +51,21 @@ public abstract class MixinMinecraftServer implements Server {
     @Override
     public ChunkTicketManager getChunkTicketManager() {
         return this.chunkTicketManager;
+    }
+
+    @Overwrite
+    public WorldServer worldServerForDimension(int dimensionId) {
+        WorldServer ret = WorldManager.getWorldByDimensionId(dimensionId).orElse(null);
+        if (ret == null) {
+            DimensionManager.initDimension(dimensionId);
+            ret = WorldManager.getWorldByDimensionId(dimensionId).orElse(null);
+        }
+
+        if (ret == null) {
+            return WorldManager.getWorldByDimensionId(0).orElseThrow(() -> new RuntimeException("Attempt made to initialize "
+                    + "dimension before overworld is loaded!"));
+        }
+
+        return ret;
     }
 }
