@@ -25,6 +25,7 @@
 package org.spongepowered.mod.util;
 
 import com.google.common.collect.Lists;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemArmor;
@@ -46,7 +47,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import javax.annotation.Nullable;
+
 public final class StaticMixinForgeHelper {
+
+    @Nullable
+    public static IBlockState breakEventExtendedState = null;
 
     public static DamageSource exchangeDamageSource(DamageSource damageSource) {
 

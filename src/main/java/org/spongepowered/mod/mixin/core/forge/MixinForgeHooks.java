@@ -33,7 +33,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.ForgeHooks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.common.util.StaticMixinHelper;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 @Mixin(value = ForgeHooks.class, remap = false)
 public class MixinForgeHooks {
@@ -49,19 +49,21 @@ public class MixinForgeHooks {
     @Overwrite
     public static boolean canHarvestBlock(Block block, EntityPlayer player, IBlockAccess world, BlockPos pos) {
 
-        if (block.getMaterial(world.getBlockState(pos)).isToolNotRequired()) {
+        // Sponge Start - Use our breakExtendedState
+        final IBlockState state;
+        final IBlockState staticState = StaticMixinForgeHelper.breakEventExtendedState;
+        if (staticState != null) {
+            state = staticState;
+        } else {
+            state = world.getBlockState(pos).getActualState(world, pos);
+        }
+        // Sponge End
+        if (state.getMaterial().isToolNotRequired()) {
             return true;
         }
 
         ItemStack stack = player.inventory.getCurrentItem();
-        // Sponge start - If we are currently sending a break event for Forge, use the event's extended state.
-        IBlockState state = null;
-        // TODO - gabizou - This was refactored in the CauseTracking system, it's not needed, but needs to be properly handled
-        state = world.getBlockState(pos);
-        state = state.getBlock().getActualState(state, world, pos);
-
         String tool = block.getHarvestTool(state);
-        // Sponge end
 
         if (stack == null || tool == null) {
             return player.canHarvestBlock(state);

@@ -140,6 +140,7 @@ import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -1020,11 +1021,11 @@ public class SpongeForgeEventFactory {
                 net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
                 BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
-//                StaticMixinHelper.breakEventExtendedState = (IBlockState) transaction.getOriginal().getExtendedState();
+                StaticMixinForgeHelper.breakEventExtendedState = (IBlockState) transaction.getOriginal().getExtendedState();
                 BlockEvent.BreakEvent forgeEvent =
                         new BlockEvent.BreakEvent(world, pos, (IBlockState) transaction.getOriginal().getState(),
                                 (EntityPlayer) player);
-//                StaticMixinHelper.breakEventExtendedState = null;
+                StaticMixinForgeHelper.breakEventExtendedState = null;
 
                 MinecraftForge.EVENT_BUS.post(forgeEvent);
                 if (forgeEvent.isCanceled()) {
