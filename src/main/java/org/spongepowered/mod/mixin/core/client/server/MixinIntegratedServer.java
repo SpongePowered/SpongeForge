@@ -24,6 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.client.server;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiMultiplayer;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.world.WorldType;
@@ -54,5 +58,24 @@ public abstract class MixinIntegratedServer extends MinecraftServer {
     @Overwrite
     protected void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
         super.loadAllWorlds(overworldFolder, unused, seed, type, generator);
+    }
+
+    public void shutdown() {
+        Minecraft.getMinecraft().addScheduledTask(() -> {
+            boolean flag = Minecraft.getMinecraft().isIntegratedServerRunning();
+            // Need to null check in-case this is invoked very early in login
+            if (Minecraft.getMinecraft().theWorld != null) {
+                Minecraft.getMinecraft().theWorld.sendQuittingDisconnectingPacket();
+            }
+
+            Minecraft.getMinecraft().loadWorld((WorldClient)null);
+
+            if (flag) {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
+            }
+            else {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
+            }
+        });
     }
 }
