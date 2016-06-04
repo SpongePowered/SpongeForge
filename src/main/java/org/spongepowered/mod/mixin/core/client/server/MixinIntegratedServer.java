@@ -28,16 +28,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.world.WorldType;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.common.text.SpongeTexts;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 
 import java.io.File;
@@ -46,6 +46,8 @@ import java.net.Proxy;
 @NonnullByDefault
 @Mixin(IntegratedServer.class)
 public abstract class MixinIntegratedServer extends MinecraftServer {
+
+    @Shadow @Final private Minecraft mc;
 
     public MixinIntegratedServer(File workDir, Proxy proxy, File profileCacheDir) {
         super(workDir, proxy, profileCacheDir);
@@ -66,43 +68,24 @@ public abstract class MixinIntegratedServer extends MinecraftServer {
     }
 
     public void shutdown() {
-        Minecraft.getMinecraft().addScheduledTask(() -> {
-            boolean flag = Minecraft.getMinecraft().isIntegratedServerRunning();
+        if (!this.mc.isIntegratedServerRunning()) {
+            return;
+        }
+
+        this.mc.addScheduledTask(() -> {
             // Need to null check in-case this is invoked very early in login
-            if (Minecraft.getMinecraft().theWorld != null) {
-                Minecraft.getMinecraft().theWorld.sendQuittingDisconnectingPacket();
+            if (this.mc.theWorld != null) {
+                this.mc.theWorld.sendQuittingDisconnectingPacket();
             }
 
-            Minecraft.getMinecraft().loadWorld((WorldClient)null);
-
-            if (flag) {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
-            }
-            else {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
-            }
+            this.mc.loadWorld((WorldClient)null);
+            this.mc.displayGuiScreen(new GuiMainMenu());
         });
     }
 
     public void shutdown(Text kickMessage) {
         checkNotNull(kickMessage);
-        Minecraft.getMinecraft().addScheduledTask(() -> {
-            ((IMixinMinecraft) Minecraft.getMinecraft()).setSinglePlayerKickMessage(kickMessage);
-            boolean flag = Minecraft.getMinecraft().isIntegratedServerRunning();
-            // Need to null check in-case this is invoked very early in login
-            if (Minecraft.getMinecraft().theWorld != null) {
-                // Different from the above so that we send our message
-                Minecraft.getMinecraft().getNetHandler().getNetworkManager().closeChannel(SpongeTexts.toComponent(kickMessage));
-            }
-
-            Minecraft.getMinecraft().loadWorld((WorldClient)null);
-
-            if (flag) {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
-            }
-            else {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
-            }
-        });
+        ((IMixinMinecraft) Minecraft.getMinecraft()).setSinglePlayerKickMessage(kickMessage);
+        shutdown();
     }
 }

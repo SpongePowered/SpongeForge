@@ -148,7 +148,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     }
 
     @Redirect(method="loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value="INVOKE", target="Lnet/minecraft/"
-            + "client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V"))
+            + "client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V", ordinal = 0))
     public void onLoadWorld(LoadingScreenRenderer loadingScreen, String message) {
         // TODO Minecrell should review this...
         if (kickMessage == null) {
