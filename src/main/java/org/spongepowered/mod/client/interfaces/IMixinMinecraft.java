@@ -25,10 +25,15 @@
 package org.spongepowered.mod.client.interfaces;
 
 import net.minecraft.client.gui.GuiOverlayDebug;
+import org.spongepowered.api.text.Text;
 
 public interface IMixinMinecraft {
 
     void setDebugGui(GuiOverlayDebug debugGui);
 
     GuiOverlayDebug getDebugGui();
+
+    Text getSinglePlayerKickMessage();
+
+    void setSinglePlayerKickMessage(Text text);
 }

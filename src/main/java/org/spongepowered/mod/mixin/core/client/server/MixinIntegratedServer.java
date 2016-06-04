@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.client.server;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiMultiplayer;
@@ -31,9 +33,12 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.world.WorldType;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.common.text.SpongeTexts;
+import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 
 import java.io.File;
 import java.net.Proxy;
@@ -66,6 +71,28 @@ public abstract class MixinIntegratedServer extends MinecraftServer {
             // Need to null check in-case this is invoked very early in login
             if (Minecraft.getMinecraft().theWorld != null) {
                 Minecraft.getMinecraft().theWorld.sendQuittingDisconnectingPacket();
+            }
+
+            Minecraft.getMinecraft().loadWorld((WorldClient)null);
+
+            if (flag) {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
+            }
+            else {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
+            }
+        });
+    }
+
+    public void shutdown(Text kickMessage) {
+        checkNotNull(kickMessage);
+        Minecraft.getMinecraft().addScheduledTask(() -> {
+            ((IMixinMinecraft) Minecraft.getMinecraft()).setSinglePlayerKickMessage(kickMessage);
+            boolean flag = Minecraft.getMinecraft().isIntegratedServerRunning();
+            // Need to null check in-case this is invoked very early in login
+            if (Minecraft.getMinecraft().theWorld != null) {
+                // Different from the above so that we send our message
+                Minecraft.getMinecraft().getNetHandler().getNetworkManager().closeChannel(SpongeTexts.toComponent(kickMessage));
             }
 
             Minecraft.getMinecraft().loadWorld((WorldClient)null);
