@@ -33,7 +33,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.network.message.MessageKeyState;
 import org.spongepowered.common.network.message.SpongeMessageHandler;
 import org.spongepowered.mod.client.interfaces.IMixinKeyBinding;
@@ -48,9 +47,9 @@ import java.util.stream.Collectors;
 @Mixin(KeyBinding.class)
 public abstract class MixinKeyBinding implements IMixinKeyBinding, Comparable<KeyBinding> {
 
-    @Shadow public abstract String getKeyDescription();
-    @Shadow public abstract String getKeyCategory();
-    @Shadow(remap = false) public abstract boolean isKeyDown();
+    @Shadow public abstract String shadow$getKeyDescription();
+    @Shadow public abstract String shadow$getKeyCategory();
+    @Shadow(remap = false) public abstract boolean shadow$isKeyDown();
 
     @Final @Shadow private static List<KeyBinding> KEYBIND_ARRAY;
     @Final @Shadow(remap = false) private static KeyBindingMap HASH;
@@ -72,7 +71,7 @@ public abstract class MixinKeyBinding implements IMixinKeyBinding, Comparable<Ke
     }
 
     private void trySendPressedUpdate() {
-        boolean pressed = this.isKeyDown();
+        boolean pressed = this.shadow$isKeyDown();
         if (this.lastPressedState != pressed && this.internalId != -1) {
             SpongeMessageHandler.getChannel().sendToServer(new MessageKeyState(this.internalId, pressed));
         }
@@ -86,12 +85,12 @@ public abstract class MixinKeyBinding implements IMixinKeyBinding, Comparable<Ke
 
     @Override
     public String getFormattedCategory() {
-        return I18n.format(this.getKeyCategory());
+        return I18n.format(this.shadow$getKeyCategory());
     }
 
     @Override
     public String getFormattedDisplayName() {
-        return I18n.format(this.getKeyDescription());
+        return I18n.format(this.shadow$getKeyDescription());
     }
 
     @Overwrite
