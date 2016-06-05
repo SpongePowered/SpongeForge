@@ -27,10 +27,12 @@ package org.spongepowered.mod.network;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.common.network.message.MessageKeyboardData;
 import org.spongepowered.common.network.message.MessageTrackerDataResponse;
 import org.spongepowered.common.network.message.SpongeMessageHandler;
 import org.spongepowered.mod.client.interfaces.IMixinGuiOverlayDebug;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
+import org.spongepowered.mod.keyboard.KeyboardNetworkHandler;
 
 public final class SpongeModMessageHandler {
 
@@ -40,6 +42,7 @@ public final class SpongeModMessageHandler {
     public static void init() {
         SpongeMessageHandler.init();
         SpongeMessageHandler.getChannel().addHandler(MessageTrackerDataResponse.class, Platform.Type.CLIENT, SpongeModMessageHandler::handleResponse);
+        SpongeMessageHandler.getChannel().addHandler(MessageKeyboardData.class, Platform.Type.CLIENT, KeyboardNetworkHandler::handleKeyboardData);
     }
 
     public static void handleResponse(MessageTrackerDataResponse message, RemoteConnection connection, Platform.Type side) {

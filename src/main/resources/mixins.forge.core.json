@@ -99,9 +99,13 @@
     "client": [
         "client.MixinMinecraft",
         "client.gui.MixinGuiOverlayDebug",
+        "client.gui.MixinGuiKeyBindingList",
         "client.multiplayer.MixinChunkProviderClient",
         "client.network.MixinNetHandlerPlayClient",
+        "client.network.MixinNetworkManager",
         "client.server.MixinIntegratedServer",
+        "client.settings.MixinGameSettings",
+        "client.settings.MixinKeyBinding",
         "server.MixinIntegratedServerAnonInner3"
     ],
     "server": [
