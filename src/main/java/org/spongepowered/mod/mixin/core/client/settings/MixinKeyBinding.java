@@ -49,10 +49,10 @@ public abstract class MixinKeyBinding implements IMixinKeyBinding, Comparable<Ke
 
     @Shadow public abstract String shadow$getKeyDescription();
     @Shadow public abstract String shadow$getKeyCategory();
-    @Shadow(remap = false) public abstract boolean shadow$isKeyDown();
+    @Shadow public abstract boolean shadow$isKeyDown();
 
     @Final @Shadow private static List<KeyBinding> KEYBIND_ARRAY;
-    @Final @Shadow(remap = false) private static KeyBindingMap HASH;
+    @Final @Shadow private static KeyBindingMap HASH;
     @Shadow private boolean pressed;
     @Shadow private int pressTime;
 
