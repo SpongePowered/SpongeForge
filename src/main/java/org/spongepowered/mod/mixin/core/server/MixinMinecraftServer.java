@@ -32,6 +32,8 @@ import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
@@ -67,5 +69,15 @@ public abstract class MixinMinecraftServer implements Server {
         }
 
         return ret;
+    }
+
+    @Redirect(method = "stopServer", at = @At(value = "INVOKE", target="Lnet/minecraftforge/common/DimensionManager;setWorld"
+            + "(ILnet/minecraft/world/WorldServer;Lnet/minecraft/server/MinecraftServer;)V"))
+    public void onSetWorldUnload(int id, WorldServer world, MinecraftServer server) {
+        final WorldServer stoppingWorld = WorldManager.getWorldByDimensionId(id).orElse(null);
+        if (stoppingWorld == null) {
+            return;
+        }
+        WorldManager.unloadWorld(stoppingWorld, false, false);
     }
 }

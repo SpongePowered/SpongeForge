@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.DimensionType;
@@ -41,37 +43,47 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.WorldServerMultiAdapterWorldInfo;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 /**
- * TODO This is Zidane's Mixin...DO NOT TOUCH IT, I'M FINISHING IT.
+ * This mixin redirects all logic in Forge to our WorldManager.
  */
 @Mixin(value = DimensionManager.class, remap = false)
 public abstract class MixinDimensionManager {
 
+    @Shadow static Multiset<Integer> leakedWorlds = HashMultiset.create();
+
     @Overwrite
     public static int[] getDimensions(DimensionType type) {
-        return null;
+        return (int[]) (Object) WorldManager.getRegisteredDimensionIdsFor(type);
     }
 
     @Overwrite
     public static void init() {
+        // This is handled by us in WorldManager#loadAllWorlds
     }
 
     @Overwrite
     public static void registerDimension(int id, DimensionType type) {
+        WorldManager.registerDimension(id, type);
     }
 
     @Overwrite
     public static void unregisterDimension(int id) {
+        WorldManager.unregisterDimension(id);
     }
 
     @Overwrite
@@ -95,8 +107,35 @@ public abstract class MixinDimensionManager {
         }
     }
 
+    /**
+     * Gets loaded dimension ids
+     * @param check Check for leaked worlds
+     * @return An array of loaded dimension ids
+     */
     @Overwrite
     public static Integer[] getIDs(boolean check) {
+        if (check) {
+
+            final List<WorldServer> candidateLeakedWorlds = new ArrayList<>(WorldManager.getWeakWorldMap().values());
+            candidateLeakedWorlds.removeAll(WorldManager.getWorlds());
+            final Iterator<WorldServer> candidateLeakedWorldsIterator = candidateLeakedWorlds.iterator();
+
+            for (final WorldServer candidateLeakedWorld = candidateLeakedWorldsIterator.next(); candidateLeakedWorldsIterator.hasNext();) {
+                leakedWorlds.add(System.identityHashCode(candidateLeakedWorld));
+            }
+
+            for (WorldServer worldServer : WorldManager.getWorlds()) {
+                final int hashCode = System.identityHashCode(worldServer);
+                final int leakCount = leakedWorlds.count(hashCode);
+
+                // Log every 5 loops
+                if (leakCount % 5 == 0) {
+                    SpongeImpl.getLogger().warn("World [{}] (DIM{}) (HASH: {}) may have leaked. Encountered [{}] times", worldServer.getWorldInfo()
+                            .getWorldName(), ((IMixinWorldServer) worldServer).getDimensionId(), hashCode, leakCount);
+                }
+            }
+        }
+
         return getIDs();
     }
 
@@ -112,6 +151,10 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static void setWorld(int id, WorldServer world, MinecraftServer server) {
+        if (world == null) {
+            WorldManager.unloadWorld(WorldManager.getWorldByDimensionId(id).orElseThrow(() -> new RuntimeException("Attempt made to unload a "
+                    + "world with dimension id [" + id + "].")), false, true);
+        }
     }
 
     /**
@@ -179,7 +222,6 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static Integer[] getStaticDimensionIDs() {
-        // TODO - Zidane  - Confirm?
         final int[] spongeDimIds = WorldManager.getRegisteredDimensionIds();
         Integer[] forgeDimIds = new Integer[spongeDimIds.length];
         for (int i = 0; i < spongeDimIds.length; i++) {
@@ -208,7 +250,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static void unloadWorld(int id) {
-        WorldManager.getWorldByDimensionId(id).ifPresent(worldServer -> WorldManager.queueWorldToUnload(worldServer, false));
+        WorldManager.getWorldByDimensionId(id).ifPresent(WorldManager::queueWorldToUnload);
     }
 
     @Overwrite
@@ -223,7 +265,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static NBTTagCompound saveDimensionDataMap() {
-        return new NBTTagCompound();
+        return WorldManager.saveDimensionDataMap();
     }
 
     @Overwrite
