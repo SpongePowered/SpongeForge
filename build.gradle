@@ -26,7 +26,7 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-ext.forgeBuild = '1937'
+ext.forgeBuild = '1954'
 minecraft {
     version = forgeBuild
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
