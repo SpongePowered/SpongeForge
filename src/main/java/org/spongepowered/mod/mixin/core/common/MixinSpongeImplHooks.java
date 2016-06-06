@@ -28,19 +28,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.C0EPacketClickWindow;
-import net.minecraft.network.play.client.C10PacketCreativeInventoryAction;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.Teleporter;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.world.PortalAgent;
@@ -49,9 +44,6 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.event.CauseTracker;
-import org.spongepowered.common.interfaces.entity.IMixinEntity;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.SpongeMod;
 
@@ -112,40 +104,6 @@ public abstract class MixinSpongeImplHooks {
         }
 
         return item.onDroppedByPlayer(stack, player);
-    }
-
-    @Overwrite
-    public static EntityItem onPlayerToss(EntityPlayer player, ItemStack item, boolean includeName)  {
-        IMixinEntity spongeEntity = (IMixinEntity) player;
-        spongeEntity.setCaptureItemDrops(true);
-        EntityItem ret = player.dropItem(item, false, includeName);
-        spongeEntity.getCapturedItemDrops().clear();
-        spongeEntity.setCaptureItemDrops(false);
-
-        if (ret == null) {
-            return null;
-        }
-
-        IMixinWorld spongeWorld = (IMixinWorld) player.worldObj;
-        final CauseTracker causeTracker = spongeWorld.getCauseTracker();
-        ItemTossEvent event = new ItemTossEvent(ret, player);
-        // We handle container drops in SpongeCommonEventFactory.handleClickInteractInventoryEvent
-        if (!(causeTracker.getCurrentPlayerPacket() instanceof C0EPacketClickWindow || causeTracker.getCurrentPlayerPacket() instanceof C10PacketCreativeInventoryAction)) {
-            if (MinecraftForge.EVENT_BUS.post(event)) {
-                return null;
-            }
-
-            spongeWorld.getCauseTracker().setIgnoreSpawnEvents(true);
-            player.worldObj.spawnEntityInWorld(event.entityItem);
-            spongeWorld.getCauseTracker().setIgnoreSpawnEvents(false);
-            return event.entityItem;
-        } else {
-            if (MinecraftForge.EVENT_BUS.post(event)) {
-                return null;
-            }
-            player.worldObj.spawnEntityInWorld(ret);
-            return ret;
-        }
     }
 
     @Overwrite

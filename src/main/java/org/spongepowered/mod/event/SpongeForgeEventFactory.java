@@ -355,6 +355,9 @@ public class SpongeForgeEventFactory {
         if (DropItemEvent.Destruct.class.isAssignableFrom(clazz)) {
             return LivingDropsEvent.class;
         }
+        if (DropItemEvent.Dispense.class.isAssignableFrom(clazz)) {
+            return ItemTossEvent.class;
+        }
         if (ClientConnectionEvent.Join.class.isAssignableFrom(clazz)) {
             return PlayerLoggedInEvent.class;
         }
@@ -402,6 +405,8 @@ public class SpongeForgeEventFactory {
             return createPlayerInteractEvent(spongeEvent);
         } else if (LivingDropsEvent.class.isAssignableFrom(clazz)) {
             return callLivingDropsEvent(spongeEvent);
+        } else if (ItemTossEvent.class.isAssignableFrom(clazz)) {
+            return callItemTossEvent(spongeEvent);
         } else if (PlayerLoggedInEvent.class.isAssignableFrom(clazz)) {
             return callPlayerLoggedInEvent(spongeEvent);
         } else if (PlayerLoggedOutEvent.class.isAssignableFrom(clazz)) {
@@ -975,6 +980,34 @@ public class SpongeForgeEventFactory {
                             ((IMixinEntityLivingBase) entity).getRecentlyHit() > 0);
         }
 
+        MinecraftForge.EVENT_BUS.post(forgeEvent);
+        if (forgeEvent.isCanceled()) {
+            spongeEvent.setCancelled(true);
+        }
+
+        return spongeEvent;
+    }
+
+    public static DropItemEvent.Dispense callItemTossEvent(Event event) {
+        if (!(event instanceof DropItemEvent.Dispense)) {
+            throw new IllegalArgumentException("Event is not a valid DropItemEvent.Dispense.");
+        }
+
+        DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
+        Object source = spongeEvent.getCause().root();
+        if (!(source instanceof EntitySpawnCause) || spongeEvent.getEntities().size() <= 0) {
+            return spongeEvent;
+        }
+
+        EntitySpawnCause spawnCause = (EntitySpawnCause) source;
+        SpongeEntitySnapshot snapshot = (SpongeEntitySnapshot) spawnCause.getEntity();
+        Entity entity = (Entity) snapshot.getEntityReference().get();
+        EntityItem item = (EntityItem) spongeEvent.getEntities().get(0);
+        if (entity == null || !(entity instanceof Player)) {
+            return spongeEvent;
+        }
+
+        ItemTossEvent forgeEvent = new ItemTossEvent(item, (EntityPlayerMP) entity);
         MinecraftForge.EVENT_BUS.post(forgeEvent);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);

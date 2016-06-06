@@ -26,18 +26,13 @@ package org.spongepowered.mod.mixin.core.event.inventory;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.item.ItemExpireEvent;
-import net.minecraftforge.event.entity.item.ItemTossEvent;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.Item;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.AffectEntityEvent;
 import org.spongepowered.api.event.entity.ExpireEntityEvent;
-import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Final;
@@ -77,29 +72,6 @@ public abstract class MixinEventItem extends MixinEventEntity implements AffectE
     @Override
     public List<EntitySnapshot> getEntitySnapshots() {
         return this.entitySnapshots;
-    }
-
-    @Mixin(value = ItemTossEvent.class, remap = false)
-    static abstract class Toss extends MixinEventItem implements DropItemEvent.Dispense {
-
-        @Shadow @Final public EntityPlayer player;
-
-        private Cause cause;
-
-        @Inject(method = "<init>", at = @At("RETURN"))
-        private void onConstruct(CallbackInfo callbackInfo) {
-            this.cause = Cause.of(NamedCause.source(this.player));
-        }
-
-        @Override
-        public World getTargetWorld() {
-            return (World) this.player.worldObj;
-        }
-
-        @Override
-        public Cause getCause() {
-            return this.cause;
-        }
     }
 
     @Mixin(value = ItemExpireEvent.class, remap = false)
