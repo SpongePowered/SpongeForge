@@ -35,18 +35,19 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(value = WorldProvider.class)
 @Implements(@Interface(iface = Dimension.class, prefix = "dimension$"))
-public abstract class MixinWorldProvider {
+public abstract class MixinWorldProvider implements Dimension {
     @Shadow protected World worldObj;
-    @Shadow(remap = false) public abstract int getHeight();
-    @Shadow(remap = false) public abstract int getActualHeight();
+    @Shadow(remap = false) public abstract int shadow$getHeight();
+    @Shadow(remap = false) public abstract int shadow$getActualHeight();
 
     @Intrinsic
     public int dimension$getHeight() {
-        return getActualHeight();
+        return shadow$getActualHeight();
     }
 
+    @Override
     public int getBuildHeight() {
-        return getHeight();
+        return shadow$getHeight();
     }
 
 }
