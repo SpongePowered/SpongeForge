@@ -54,9 +54,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This mixin redirects all logic in Forge to our WorldManager.
@@ -118,18 +118,17 @@ public abstract class MixinDimensionManager {
 
             final List<WorldServer> candidateLeakedWorlds = new ArrayList<>(WorldManager.getWeakWorldMap().values());
             candidateLeakedWorlds.removeAll(WorldManager.getWorlds());
-            final Iterator<WorldServer> candidateLeakedWorldsIterator = candidateLeakedWorlds.iterator();
 
-            for (final WorldServer candidateLeakedWorld = candidateLeakedWorldsIterator.next(); candidateLeakedWorldsIterator.hasNext();) {
-                leakedWorlds.add(System.identityHashCode(candidateLeakedWorld));
-            }
+            leakedWorlds
+                    .addAll(candidateLeakedWorlds.stream().map(System::identityHashCode).collect(Collectors.toList()));
 
             for (WorldServer worldServer : WorldManager.getWorlds()) {
                 final int hashCode = System.identityHashCode(worldServer);
                 final int leakCount = leakedWorlds.count(hashCode);
 
+
                 // Log every 5 loops
-                if (leakCount % 5 == 0) {
+                if (leakCount > 0 && leakCount % 5 == 0) {
                     SpongeImpl.getLogger().warn("World [{}] (DIM{}) (HASH: {}) may have leaked. Encountered [{}] times", worldServer.getWorldInfo()
                             .getWorldName(), ((IMixinWorldServer) worldServer).getDimensionId(), hashCode, leakCount);
                 }
