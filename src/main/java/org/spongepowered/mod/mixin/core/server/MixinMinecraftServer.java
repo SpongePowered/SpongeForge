@@ -39,7 +39,7 @@ import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
 import java.util.Hashtable;
 
-@Mixin(value = MinecraftServer.class, priority = 1001, remap = false)
+@Mixin(value = MinecraftServer.class, priority = 1001)
 public abstract class MixinMinecraftServer implements Server {
 
     public ChunkTicketManager chunkTicketManager = new SpongeChunkTicketManager();
