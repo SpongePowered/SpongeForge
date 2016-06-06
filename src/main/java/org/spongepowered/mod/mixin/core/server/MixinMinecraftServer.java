@@ -34,18 +34,20 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.interfaces.IMixinMinecraftServer;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
 import java.util.Hashtable;
 
 @Mixin(value = MinecraftServer.class, priority = 1001)
-public abstract class MixinMinecraftServer implements Server {
+public abstract class MixinMinecraftServer implements Server, IMixinMinecraftServer {
 
     public ChunkTicketManager chunkTicketManager = new SpongeChunkTicketManager();
 
     @Shadow(remap = false) public Hashtable<Integer, long[]> worldTickTimes = new Hashtable<>();
 
+    @Override
     public Hashtable<Integer, long[]> getWorldTickTimes() {
         return this.worldTickTimes;
     }
@@ -55,6 +57,13 @@ public abstract class MixinMinecraftServer implements Server {
         return this.chunkTicketManager;
     }
 
+    /**
+     * @author Zidane - May 11th, 2016
+     * @reason Directs to {@link WorldManager} for multi world handling.
+     *
+     * @param dimensionId The requested dimension id
+     * @return The world server, if available, or else the overworld
+     */
     @Overwrite
     public WorldServer worldServerForDimension(int dimensionId) {
         WorldServer ret = WorldManager.getWorldByDimensionId(dimensionId).orElse(null);
