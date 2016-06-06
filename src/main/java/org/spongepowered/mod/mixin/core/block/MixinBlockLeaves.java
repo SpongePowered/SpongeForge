@@ -52,7 +52,7 @@ public abstract class MixinBlockLeaves extends MixinBlock {
             final CauseTracker causeTracker = spongeWorld.getCauseTracker();
             final boolean isBlockAlready = causeTracker.getStack().current() != TrackingPhases.BLOCK;
             final IBlockState blockState = worldIn.getBlockState(pos);
-            final IBlockState actualState = blockState.getBlock().getActualState(blockState, worldIn, pos);
+            final IBlockState actualState = blockState.getActualState(worldIn, pos);
             if (isBlockAlready) {
                 causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.BLOCK_DECAY, PhaseContext.start()
                         .add(NamedCause.source(spongeWorld.createSpongeBlockSnapshot(blockState, actualState, pos, 3)))

@@ -77,7 +77,7 @@ public abstract class MixinItemLilyPad extends ItemColored {
                 BlockPos blockpos1 = blockpos.up();
                 IBlockState iblockstate = worldIn.getBlockState(blockpos);
 
-                if (iblockstate.getBlock().getMaterial(iblockstate) == Material.WATER && iblockstate.getValue(BlockLiquid.LEVEL)
+                if (iblockstate.getMaterial() == Material.WATER && iblockstate.getValue(BlockLiquid.LEVEL)
                         == 0 && worldIn.isAirBlock(blockpos1)) {
                     worldIn.setBlockState(blockpos1, Blocks.WATERLILY.getDefaultState());
 

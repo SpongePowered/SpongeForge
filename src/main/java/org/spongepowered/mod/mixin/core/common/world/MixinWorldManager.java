@@ -34,8 +34,15 @@ import org.spongepowered.common.world.WorldManager;
 import java.nio.file.Path;
 import java.util.Optional;
 
-@Mixin(WorldManager.class)
+@Mixin(value = WorldManager.class, remap = false)
 public abstract class MixinWorldManager {
+
+    /**
+     * @author Zidane - May 11th, 2016
+     * @reason Rewrites our save directory finding to use FML for client and server.
+     *
+     * @return The path if available
+     */
     @Overwrite
     public static Optional<Path> getCurrentSavesDirectory() {
         final Optional<WorldServer> optWorldServer = WorldManager.getWorldByDimensionId(0);

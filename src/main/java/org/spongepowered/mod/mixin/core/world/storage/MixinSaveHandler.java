@@ -59,7 +59,7 @@ public abstract class MixinSaveHandler {
         }
     }
 
-    @Redirect(method = "loadWorldInfo", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/SaveFormatOld;loadAndFix(Ljava/io/File;Lnet/minecraft/util/datafix/DataFixer;Lnet/minecraft/world/storage/SaveHandler;)Lnet/minecraft/world/storage/WorldInfo;"))
+    @Redirect(method = "loadWorldInfo", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/SaveFormatOld;loadAndFix(Ljava/io/File;Lnet/minecraft/util/datafix/DataFixer;Lnet/minecraft/world/storage/SaveHandler;)Lnet/minecraft/world/storage/WorldInfo;", remap = false))
     private WorldInfo onLoadWorldInfo(File file, DataFixer fixer, SaveHandler handler) {
         final WorldInfo worldInfo = SaveFormatOld.loadAndFix(file, fixer, handler);
         if (worldInfo != null) {

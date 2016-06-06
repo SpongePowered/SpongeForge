@@ -25,11 +25,11 @@
 package org.spongepowered.mod.data;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.value.ValueContainer;
@@ -51,47 +51,66 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class ForgeFluidTankDataProcessor extends AbstractSingleDataSingleTargetProcessor<IFluidHandler, Map<Direction, List<FluidStackSnapshot>>,
+public class ForgeFluidTankDataProcessor extends AbstractSingleDataSingleTargetProcessor<TileEntity, Map<Direction, List<FluidStackSnapshot>>,
         MapValue<Direction, List<FluidStackSnapshot>>, FluidTankData, ImmutableFluidTankData> {
 
     public ForgeFluidTankDataProcessor() {
-        super(Keys.FLUID_TANK_CONTENTS, IFluidHandler.class);
+        super(Keys.FLUID_TANK_CONTENTS, TileEntity.class);
     }
 
     @Override
-    protected boolean set(IFluidHandler dataHolder, Map<Direction, List<FluidStackSnapshot>> value) {
-        for (Map.Entry<Direction, List<FluidStackSnapshot>> entry : value.entrySet()) {
-            final EnumFacing direction = DirectionFacingProvider.getInstance().get(entry.getKey()).get();
-            final FluidTankInfo[] oldInfo = dataHolder.getTankInfo(direction);
-            if (oldInfo != null) {
-                for (FluidTankInfo old : oldInfo) {
-                    if (old != null && old.fluid != null) {
-                        dataHolder.drain(direction, old.fluid, true);
+    protected boolean supports(TileEntity dataHolder) {
+        for (EnumFacing enumFacing : EnumFacing.values()) {
+            if (dataHolder.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, enumFacing)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    protected boolean set(TileEntity dataHolder, Map<Direction, List<FluidStackSnapshot>> value) {
+        for (EnumFacing enumFacing : EnumFacing.values()) {
+            final Direction direction = DirectionFacingProvider.getInstance().getKey(enumFacing)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid EnumFacing: " + enumFacing));
+            if (dataHolder.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, enumFacing)) {
+                final IFluidHandler handler = dataHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, enumFacing);
+                final IFluidTankProperties[] oldInfo = handler.getTankProperties();
+                if (oldInfo != null) {
+                    for (IFluidTankProperties old : oldInfo) {
+                        if (old != null && old.getContents() != null) {
+                            handler.drain(old.getContents(), true);
+                        }
                     }
                 }
-            }
-            for (FluidStackSnapshot snapshot : entry.getValue()) {
-                dataHolder.fill(direction, ((net.minecraftforge.fluids.FluidStack) snapshot.createStack()), true);
+                for (FluidStackSnapshot snapshot : value.get(direction)) {
+                    handler.fill(((net.minecraftforge.fluids.FluidStack) snapshot.createStack()), true);
+                }
             }
         }
         return true;
     }
 
     @Override
-    protected Optional<Map<Direction, List<FluidStackSnapshot>>> getVal(IFluidHandler dataHolder) {
+    protected Optional<Map<Direction, List<FluidStackSnapshot>>> getVal(TileEntity dataHolder) {
         Map<Direction, List<FluidStackSnapshot>> map = new HashMap<>();
-        for (Direction api : Direction.values()) {
-            final EnumFacing direction = DirectionFacingProvider.getInstance().get(api).get();
-            final FluidTankInfo[] data = dataHolder.getTankInfo(direction);
-            if (data != null) {
-                ImmutableList.Builder<FluidStackSnapshot> snapshotBuilder = ImmutableList.builder();
-                for (FluidTankInfo info : data) {
-                    if (info != null && info.fluid != null) {
-                        snapshotBuilder.add(((FluidStack) info.fluid).createSnapshot());
-                        dataHolder.drain(direction, info.fluid, true);
+        for (EnumFacing facing : EnumFacing.values()) {
+            final Direction direction = DirectionFacingProvider.getInstance().getKey(facing).get();
+            if (dataHolder.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing)) {
+                final IFluidHandler handler = dataHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing);
+                final IFluidTankProperties[] tankProperties = handler.getTankProperties();
+                if (tankProperties != null) {
+                    ImmutableList.Builder<FluidStackSnapshot> snapshotBuilder = ImmutableList.builder();
+                    for (IFluidTankProperties info : tankProperties) {
+                        if (info != null && info.getContents() != null) {
+                            final FluidStack drained = (FluidStack) handler.drain(info.getContents(), false);
+                            if (drained != null) {
+                                snapshotBuilder.add(drained.createSnapshot());
+                            }
+                        }
                     }
+                    map.put(direction, snapshotBuilder.build());
                 }
-                map.put(api, snapshotBuilder.build());
             }
         }
         return Optional.of(map);

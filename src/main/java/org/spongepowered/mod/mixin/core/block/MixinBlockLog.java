@@ -52,7 +52,7 @@ public abstract class MixinBlockLog extends MixinBlock {
             IMixinWorldServer spongeWorld = (IMixinWorldServer) worldIn;
             final CauseTracker causeTracker = spongeWorld.getCauseTracker();
             final boolean isBlockAlready = causeTracker.getStack().current() != TrackingPhases.BLOCK;
-            final IBlockState actualState = state.getBlock().getActualState(state, worldIn, pos);
+            final IBlockState actualState = state.getActualState(worldIn, pos);
             if (isBlockAlready) {
                 causeTracker.switchToPhase(TrackingPhases.BLOCK, BlockPhase.State.BLOCK_DECAY, PhaseContext.start()
                         .add(NamedCause.source(spongeWorld.createSpongeBlockSnapshot(state, actualState, pos, 3)))

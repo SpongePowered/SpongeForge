@@ -35,7 +35,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.entity.EntityDummy;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 
-// TODO 1.9 Update - Fire DisplaceEntityEvent.Teleport in Common
 @NonnullByDefault
 @Mixin(value = Entity.class, priority = 1001)
 public abstract class MixinEntity implements IMixinEntity {
@@ -47,7 +46,7 @@ public abstract class MixinEntity implements IMixinEntity {
     // @formatter:on
 
     @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge"
-            + "/fml/common/eventhandler/Event;)Z"))
+            + "/fml/common/eventhandler/Event;)Z", remap = false))
     private boolean onEntityConstruct(EventBus eventBus, Event event) {
         return !((Object) this instanceof EntityDummy) && eventBus.post(event);
     }
