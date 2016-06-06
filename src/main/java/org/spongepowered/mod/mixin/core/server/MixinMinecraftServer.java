@@ -39,12 +39,12 @@ import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
 import java.util.Hashtable;
 
-@Mixin(value = MinecraftServer.class, priority = 1001, remap = false)
+@Mixin(value = MinecraftServer.class, priority = 1001)
 public abstract class MixinMinecraftServer implements Server {
 
     public ChunkTicketManager chunkTicketManager = new SpongeChunkTicketManager();
 
-    @Shadow public Hashtable<Integer, long[]> worldTickTimes = new Hashtable<>();
+    @Shadow(remap = false) public Hashtable<Integer, long[]> worldTickTimes = new Hashtable<>();
 
     public Hashtable<Integer, long[]> getWorldTickTimes() {
         return this.worldTickTimes;
@@ -72,7 +72,7 @@ public abstract class MixinMinecraftServer implements Server {
     }
 
     @Redirect(method = "stopServer", at = @At(value = "INVOKE", target="Lnet/minecraftforge/common/DimensionManager;setWorld"
-            + "(ILnet/minecraft/world/WorldServer;Lnet/minecraft/server/MinecraftServer;)V"))
+            + "(ILnet/minecraft/world/WorldServer;Lnet/minecraft/server/MinecraftServer;)V", remap = false))
     public void onSetWorldUnload(int id, WorldServer world, MinecraftServer server) {
         final WorldServer stoppingWorld = WorldManager.getWorldByDimensionId(id).orElse(null);
         if (stoppingWorld == null) {
