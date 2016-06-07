@@ -26,19 +26,13 @@ package org.spongepowered.mod.mixin.core.fml.common.registry;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
-import org.spongepowered.api.data.type.Career;
-import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.entity.SpongeCareer;
-import org.spongepowered.common.registry.type.entity.CareerRegistryModule;
-import org.spongepowered.common.text.translation.SpongeTranslation;
-import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
-import org.spongepowered.mod.registry.SpongeVillagerRegistry;
+import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
 @Mixin(value = VillagerRegistry.VillagerProfession.class, remap = false)
 public abstract class MixinVillagerProfession implements IMixinVillagerProfession {
@@ -53,9 +47,7 @@ public abstract class MixinVillagerProfession implements IMixinVillagerProfessio
 
     @Inject(method = REGISTER, at = @At(value = "RETURN"), remap = false)
     private void registerForgeCareer(VillagerRegistry.VillagerCareer career, CallbackInfo callbackInfo) {
-        Profession profession = SpongeVillagerRegistry.getProfession(((IMixinVillagerCareer) career).getProfession()).get();
-        Career career1 = new SpongeCareer(((IMixinVillagerCareer) career).getId(), ((IMixinVillagerCareer) career).getName(), profession, new SpongeTranslation("entity.Villager." + ((IMixinVillagerCareer) career).getName()));
-        CareerRegistryModule.getInstance().registerCareer(career1);
+        SpongeForgeVillagerRegistry.registerForgeCareer(career);
     }
 
 }

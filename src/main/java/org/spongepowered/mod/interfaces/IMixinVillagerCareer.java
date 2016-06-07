@@ -32,6 +32,4 @@ public interface IMixinVillagerCareer {
 
     int getId();
 
-    String getName();
-
 }
