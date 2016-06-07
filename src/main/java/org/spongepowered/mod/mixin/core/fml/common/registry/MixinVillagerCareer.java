@@ -57,11 +57,21 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
         return this.id;
     }
 
+    /**
+     * @author gabizou - June 6th, 2016
+     * @reason Adds a {@link SpongeVillagerRegistry} handling for registering custom trade
+     * lists.
+     *
+     * @param level The level
+     * @param trades The trades
+     * @return This career
+     */
     @Overwrite
     public VillagerRegistry.VillagerCareer addTrade(int level, EntityVillager.ITradeList... trades) {
         if (level <= 0) {
             throw new IllegalArgumentException("Levels start at 1");
         }
+        // Sponge start
         final Optional<SpongeCareer> spongeCareer = SpongeForgeVillagerRegistry.fromNative((VillagerRegistry.VillagerCareer) (Object) this);
         if (!spongeCareer.isPresent()) {
             System.err.printf("Sponge has no registration for this career: %s!%n", this.name);
@@ -70,6 +80,7 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
                 SpongeVillagerRegistry.getInstance().addMutator(spongeCareer.get(), level, (TradeOfferListMutator) trade);
             }
         }
+        // Sponge end
 
         List<EntityVillager.ITradeList> levelTrades = level <= this.trades.size() ? this.trades.get(level - 1) : null;
         if (levelTrades == null) {
