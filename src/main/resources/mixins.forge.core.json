@@ -69,6 +69,7 @@
         "forge.fluids.MixinFluidRegistry",
         "forge.fluids.MixinFluidStack",
         "item.MixinEnchantment",
+        "item.MixinItem",
         "item.MixinItemStack",
         "item.MixinItemLilyPad",
         "nbt.MixinNBTTagCompound",
