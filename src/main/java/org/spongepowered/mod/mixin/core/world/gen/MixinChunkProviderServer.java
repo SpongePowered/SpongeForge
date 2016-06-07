@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.world.gen;
 
+import com.google.common.base.Objects;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.ChunkProviderServer;
 import org.spongepowered.asm.mixin.Final;
@@ -41,5 +42,12 @@ public abstract class MixinChunkProviderServer {
     @Redirect(method = "unloadQueuedChunks", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/DimensionManager;unloadWorld(I)V", remap = false))
     private void unloadWorld(int dimId) {
         WorldManager.unloadWorld(this.worldObj, true, true, false);
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("worldObj", this.worldObj)
+                .toString();
     }
 }

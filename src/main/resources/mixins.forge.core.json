@@ -73,6 +73,8 @@
         "item.MixinItemStack",
         "item.MixinItemLilyPad",
         "nbt.MixinNBTTagCompound",
+        "network.packet.MixinCPacketClickWindow",
+        "network.packet.MixinCPacketPlayerTryUseItemOnBlock",
         "network.MixinNetHandlerPlayServer",
         "server.MixinMinecraftServer",
         "server.MixinPlayerList",

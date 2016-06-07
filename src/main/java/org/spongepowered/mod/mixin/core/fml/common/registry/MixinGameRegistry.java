@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.fml.common.registry;
 
 import co.aikar.timings.Timings;
+import com.flowpowered.math.vector.Vector2i;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkGenerator;
@@ -58,6 +59,7 @@ public class MixinGameRegistry {
             mixinWorldServer.getCauseTracker().switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
                     .add(NamedCause.source(generator))
                     .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CHUNK_PROVIDER, provider))
+                    .add(NamedCause.of("ChunkPos", new Vector2i(chunkX, chunkZ)))
                     .addCaptures()
                     .complete());
         }
