@@ -51,6 +51,7 @@ import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.WorldServerMultiAdapterWorldInfo;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -274,6 +275,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static File getCurrentSaveRootDirectory() {
-        return WorldManager.getCurrentSavesDirectory().get().toFile();
+        final Optional<Path> optCurrentSavesDir = WorldManager.getCurrentSavesDirectory();
+        return optCurrentSavesDir.isPresent() ? optCurrentSavesDir.get().toFile() : null;
     }
 }
