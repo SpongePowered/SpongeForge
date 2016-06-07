@@ -78,6 +78,6 @@ public abstract class MixinMinecraftServer implements Server {
         if (stoppingWorld == null) {
             return;
         }
-        WorldManager.unloadWorld(stoppingWorld, false, false);
+        WorldManager.unloadWorld(stoppingWorld, false, false, true);
     }
 }

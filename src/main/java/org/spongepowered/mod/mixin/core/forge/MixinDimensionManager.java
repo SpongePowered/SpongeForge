@@ -152,7 +152,7 @@ public abstract class MixinDimensionManager {
     public static void setWorld(int id, WorldServer world, MinecraftServer server) {
         if (world == null) {
             WorldManager.unloadWorld(WorldManager.getWorldByDimensionId(id).orElseThrow(() -> new RuntimeException("Attempt made to unload a "
-                    + "world with dimension id [" + id + "].")), false, true);
+                    + "world with dimension id [" + id + "].")), false, true, false);
         }
     }
 
