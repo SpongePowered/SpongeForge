@@ -28,7 +28,6 @@
         "event.entity.MixinEventEntityConstructing",
         "event.entity.living.MixinEventLiving",
         "event.inventory.MixinEventItem",
-        "event.inventory.MixinEventItem$Toss",
         "event.inventory.MixinEventItem$Expire",
         "event.player.MixinEventPlayer",
         "event.player.MixinEventPlayerBreakBlock",

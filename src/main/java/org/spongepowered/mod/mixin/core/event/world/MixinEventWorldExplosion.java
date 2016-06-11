@@ -67,6 +67,10 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstruct(CallbackInfo callbackInfo) {
+        if (this.world.isRemote) {
+            return;
+        }
+
         if (this.explosion.exploder == null) {
             this.cause = Cause.of(NamedCause.source(this.world.getBlockState(new BlockPos(this.explosion.getPosition()))));
         } else {
@@ -115,6 +119,10 @@ public abstract class MixinEventWorldExplosion extends MixinEvent implements Exp
         @Inject(method = "<init>", at = @At("RETURN"))
         public void onConstructed(net.minecraft.world.World world, net.minecraft.world.Explosion explosion, List<Entity> entityList,
                 CallbackInfo ci) {
+            if (this.getWorld().isRemote) {
+                return;
+            }
+
             createSpongeData();
         }
 

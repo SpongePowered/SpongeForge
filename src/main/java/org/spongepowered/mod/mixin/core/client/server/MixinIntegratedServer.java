@@ -24,16 +24,34 @@
  */
 package org.spongepowered.mod.mixin.core.client.server;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.world.WorldType;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.mixin.core.server.MixinMinecraftServer;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
+
+import java.io.File;
+import java.net.Proxy;
 
 @NonnullByDefault
 @Mixin(IntegratedServer.class)
 public abstract class MixinIntegratedServer extends MixinMinecraftServer {
+
+    @Shadow @Final private Minecraft mc;
 
     /**
      * @author bloodmc
@@ -47,6 +65,28 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer {
     @Overwrite
     protected void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
         super.loadAllWorlds(overworldFolder, unused, seed, type, generator);
+    }
+
+    public void shutdown() {
+        if (!this.mc.isIntegratedServerRunning()) {
+            return;
+        }
+
+        this.mc.addScheduledTask(() -> {
+            // Need to null check in-case this is invoked very early in login
+            if (this.mc.theWorld != null) {
+                this.mc.theWorld.sendQuittingDisconnectingPacket();
+            }
+
+            this.mc.loadWorld((WorldClient)null);
+            this.mc.displayGuiScreen(new GuiMainMenu());
+        });
+    }
+
+    public void shutdown(Text kickMessage) {
+        checkNotNull(kickMessage);
+        ((IMixinMinecraft) Minecraft.getMinecraft()).setSinglePlayerKickMessage(kickMessage);
+        shutdown();
     }
 
 }

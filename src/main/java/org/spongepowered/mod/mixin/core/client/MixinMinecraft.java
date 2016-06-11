@@ -24,15 +24,22 @@
  */
 package org.spongepowered.mod.mixin.core.client;
 
+import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiOverlayDebug;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TranslatableText;
+import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,6 +54,7 @@ import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -60,6 +68,10 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     private static final String FORGE_TRANSFORMER_EXIT_VISITOR =
             "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V";
     private GuiOverlayDebug debugGui;
+
+    private Text kickMessage;
+
+    @Shadow private LanguageManager mcLanguageManager;
 
     @Group(name = "launchIntegratedServer", min = 1, max = 1)
     @Inject(method = "launchIntegratedServer", at = {
@@ -88,6 +100,16 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     @Override
     public GuiOverlayDebug getDebugGui() {
         return this.debugGui;
+    }
+
+    @Override
+    public Text getSinglePlayerKickMessage() {
+        return this.kickMessage;
+    }
+
+    @Override
+    public void setSinglePlayerKickMessage(Text text) {
+        this.kickMessage = text;
     }
 
     @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = FORGE_TRANSFORMER_EXIT_VISITOR, remap = false))
@@ -122,5 +144,24 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
             SpongeImpl.getLogger().error("Could not retrieve the player instance or single player instance to get the join data.");
         }
 
+    }
+
+    @Redirect(method="loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value="INVOKE", target="Lnet/minecraft/"
+            + "client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V", ordinal = 0))
+    public void onLoadWorld(LoadingScreenRenderer loadingScreen, String message) {
+        // TODO Minecrell should review this...
+        if (kickMessage == null) {
+            loadingScreen.displayLoadingString(I18n.format("forge.client.shutdown.internal"));
+        } else {
+            String loadingString;
+            if (kickMessage instanceof TranslatableText) {
+                loadingString = ((TranslatableText) kickMessage).getTranslation().get(Locale.forLanguageTag(mcLanguageManager.getCurrentLanguage()
+                        .getLanguageCode()));
+            } else {
+                loadingString = TextSerializers.LEGACY_FORMATTING_CODE.serialize(kickMessage);
+            }
+            loadingScreen.displayLoadingString(loadingString);
+            kickMessage = null;
+        }
     }
 }

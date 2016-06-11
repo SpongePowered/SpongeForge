@@ -25,26 +25,16 @@
 package org.spongepowered.mod.mixin.core.server;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.management.PlayerList;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.play.server.SPacketRespawn;
-import net.minecraft.network.play.server.SPacketEntityEffect;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.world.DimensionType;
+import net.minecraft.server.management.PlayerList;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.event.SpongeCommonEventFactory;
-import org.spongepowered.common.interfaces.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.IMixinPlayerList;
-import org.spongepowered.common.interfaces.entity.IMixinEntity;
-import org.spongepowered.common.world.WorldManager;
 
 import javax.annotation.Nullable;
 
