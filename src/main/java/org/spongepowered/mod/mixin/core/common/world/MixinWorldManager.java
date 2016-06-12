@@ -24,11 +24,20 @@
  */
 package org.spongepowered.mod.mixin.core.common.world;
 
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.network.ForgeMessage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
+import net.minecraftforge.fml.common.network.FMLOutboundHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 import org.spongepowered.common.world.WorldManager;
 
 import java.nio.file.Path;
@@ -55,5 +64,16 @@ public abstract class MixinWorldManager {
             return Optional.ofNullable(FMLCommonHandler.instance().getSavesDirectory().toPath());
         }
         return Optional.empty();
+    }
+
+    @Overwrite
+    public static void sendDimensionRegistration(EntityPlayerMP player, WorldProvider provider) {
+        // register dimension on client-side
+        if (((IMixinEntityPlayerMP) player).usesCustomClient()) {
+            FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
+            serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
+            serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
+            serverChannel.writeOutbound(new ForgeMessage.DimensionRegisterMessage(provider.getDimension(), provider.getDimensionType().name()));
+        }
     }
 }

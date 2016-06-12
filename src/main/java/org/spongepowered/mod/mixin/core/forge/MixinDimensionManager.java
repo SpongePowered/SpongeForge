@@ -243,7 +243,7 @@ public abstract class MixinDimensionManager {
                 throw new RuntimeException(e);
             }
         } else {
-            SpongeImpl.getLogger().error("Attempt to create provider for dimension id [{}] failed because it has not been registered!");
+            SpongeImpl.getLogger().error("Attempt to create provider for dimension id [{}] failed because it has not been registered!", dim);
             throw new RuntimeException();
         }
     }
