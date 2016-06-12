@@ -41,11 +41,6 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
     }
 
     @Override
-    public void setDimensionId(int dimensionId) {
-        this.provider.setDimension(dimensionId);
-    }
-
-    @Override
     public SpongeChunkGenerator createChunkGenerator(SpongeWorldGenerator newGenerator) {
         return new SpongeChunkGeneratorForge((net.minecraft.world.World) (Object) this, newGenerator.getBaseGenerationPopulator(),
                 newGenerator.getBiomeGenerator());

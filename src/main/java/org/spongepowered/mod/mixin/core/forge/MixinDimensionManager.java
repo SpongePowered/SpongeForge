@@ -203,10 +203,10 @@ public abstract class MixinDimensionManager {
         final WorldServerMulti worldServerMulti = new WorldServerMulti(SpongeImpl.getServer(), new WorldServerMultiAdapterWorldInfo(saveHandler,
                 (WorldInfo) properties), dim, worldServer, SpongeImpl.getServer().theProfiler);
 
+        WorldManager.forceAddWorld(dim, worldServerMulti);
+
         Sponge.getEventManager().post(SpongeEventFactory.createLoadWorldEvent(Cause.of(NamedCause.source(SpongeImpl.getServer())), (World)
                 worldServerMulti));
-
-        WorldManager.forceAddWorld(dim, worldServerMulti);
     }
 
     @Overwrite
@@ -232,19 +232,14 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static WorldProvider createProviderFor(int dim) {
-        final Optional<DimensionType> dimensionType = WorldManager.getDimensionType(dim);
-        if (dimensionType.isPresent()) {
-            try {
-                final WorldProvider provider = dimensionType.get().createDimension();
-                provider.setDimension(dim);
-                return provider;
-            } catch (Exception e) {
-                SpongeImpl.getLogger().error("Failed to create provider for dimension id [{}]!", dim);
-                throw new RuntimeException(e);
-            }
-        } else {
-            SpongeImpl.getLogger().error("Attempt to create provider for dimension id [{}] failed because it has not been registered!", dim);
-            throw new RuntimeException();
+        final DimensionType dimensionType = WorldManager.getDimensionType(dim).orElseThrow(() -> new RuntimeException("Attempt to create "
+                + "provider for dimension id [" + dim + "] failed because it has not been registered!"));
+        try {
+            final WorldProvider provider = dimensionType.createDimension();
+            provider.setDimension(dim);
+            return provider;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create provider for dimension id [" + dim + "]!");
         }
     }
 

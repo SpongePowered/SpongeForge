@@ -29,29 +29,25 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.IMixinIntegratedServer;
 import org.spongepowered.common.mixin.core.server.MixinMinecraftServer;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
-
-import java.io.File;
-import java.net.Proxy;
 
 @NonnullByDefault
 @Mixin(IntegratedServer.class)
-public abstract class MixinIntegratedServer extends MixinMinecraftServer {
-
+public abstract class MixinIntegratedServer extends MixinMinecraftServer implements IMixinIntegratedServer {
+    @Shadow @Final private WorldSettings theWorldSettings;
     @Shadow @Final private Minecraft mc;
+    private boolean isNewSave;
 
     /**
      * @author bloodmc
@@ -89,4 +85,18 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer {
         shutdown();
     }
 
+    @Override
+    public WorldSettings getSettings() {
+        return this.theWorldSettings;
+    }
+
+    @Override
+    public void markNewSave() {
+        this.isNewSave = true;
+    }
+
+    @Override
+    public boolean isNewSave() {
+        return this.isNewSave;
+    }
 }

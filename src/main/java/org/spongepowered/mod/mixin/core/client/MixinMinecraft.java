@@ -31,25 +31,20 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.WorldSettings;
-import net.minecraft.world.storage.ISaveHandler;
-import net.minecraft.world.storage.WorldInfo;
+import net.minecraft.server.integrated.IntegratedServer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.serializer.TextSerializers;
-import org.spongepowered.api.world.storage.WorldProperties;
+import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
-import org.spongepowered.common.world.WorldManager;
+import org.spongepowered.common.interfaces.IMixinIntegratedServer;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 
@@ -67,30 +62,47 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
             "Lnet/minecraft/world/storage/ISaveHandler;saveWorldInfo(Lnet/minecraft/world/storage/WorldInfo;)V";
     private static final String FORGE_TRANSFORMER_EXIT_VISITOR =
             "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V";
-    private GuiOverlayDebug debugGui;
-
-    private Text kickMessage;
 
     @Shadow private LanguageManager mcLanguageManager;
+    @Shadow private IntegratedServer theIntegratedServer;
 
-    @Group(name = "launchIntegratedServer", min = 1, max = 1)
-    @Inject(method = "launchIntegratedServer", at = {
-            @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;startServerThread()V", remap = false, shift = At.Shift.BEFORE),
-            @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;func_71256_s()V", remap = false, shift = At.Shift.BEFORE),
-    }, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void onlaunchIntegratedServerBeforeStart(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
-            ISaveHandler isavehandler, WorldInfo worldInfo) {
-        WorldManager.registerWorldProperties((WorldProperties) worldInfo);
+    private GuiOverlayDebug debugGui;
+    private Text kickMessage;
+    private boolean isNewSave;
+
+    @Inject(method = "launchIntegratedServer", at = @At(value = "NEW", args = {"class=net/minecraft/world/storage/WorldInfo"}, ordinal = 0))
+    public void onCreateWorldInfo(CallbackInfo ci) {
+        this.isNewSave = true;
     }
 
-    @ModifyArg(method = "launchIntegratedServer", at = @At(value = "INVOKE", target = SAVE_HANDLER_SAVE_WORLD_INFO))
-    private WorldInfo onlaunchIntegratedServerAfterSaveWorldInfo(WorldInfo worldInfo) {
-        // initialize overworld properties
-        UUID uuid = UUID.randomUUID();
-        ((IMixinWorldInfo) worldInfo).setUUID(uuid);
-        ((IMixinWorldInfo) worldInfo).setDimensionId(0);
-        return worldInfo;
+    @Redirect(method = "launchIntegratedServer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "theIntegratedServer:Lnet/minecraft/server/integrated/IntegratedServer;", ordinal = 0))
+    public void onSetIntegratedServerField(Minecraft minecraft, IntegratedServer server) {
+        this.theIntegratedServer = server;
+        if (this.isNewSave) {
+            ((IMixinIntegratedServer) this.theIntegratedServer).markNewSave();
+        }
+        this.isNewSave = false;
     }
+
+//    @Group(name = "launchIntegratedServer", min = 1, max = 1)
+//    @Inject(method = "launchIntegratedServer", at = {
+//            @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;startServerThread()V", remap = false, shift = At.Shift.BEFORE),
+//            @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;func_71256_s()V", remap = false, shift = At.Shift.BEFORE),
+//    }, locals = LocalCapture.CAPTURE_FAILHARD)
+//    public void onlaunchIntegratedServerBeforeStart(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
+//            ISaveHandler isavehandler, WorldInfo worldInfo) {
+//        final IMixinWorldInfo mixinWorldInfo = (IMixinWorldInfo) worldInfo;
+//
+//        if (mixinWorldInfo.getDimensionId() == null) {
+//            mixinWorldInfo.setDimensionId(0);
+//        }
+//
+//        if (((WorldProperties) mixinWorldInfo).getUniqueId() == null) {
+//            mixinWorldInfo.setUniqueId(UUID.randomUUID());
+//        }
+//
+//        WorldManager.registerWorldProperties((WorldProperties) worldInfo);
+//    }
 
     @Override
     public void setDebugGui(GuiOverlayDebug debugGui) {
