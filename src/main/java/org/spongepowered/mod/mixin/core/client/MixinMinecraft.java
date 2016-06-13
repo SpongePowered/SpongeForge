@@ -75,7 +75,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         this.isNewSave = true;
     }
 
-    @Redirect(method = "launchIntegratedServer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "theIntegratedServer:Lnet/minecraft/server/integrated/IntegratedServer;", ordinal = 0))
+    @Redirect(method = "launchIntegratedServer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/Minecraft;theIntegratedServer:Lnet/minecraft/server/integrated/IntegratedServer;", ordinal = 0))
     public void onSetIntegratedServerField(Minecraft minecraft, IntegratedServer server) {
         this.theIntegratedServer = server;
         if (this.isNewSave) {
