@@ -321,6 +321,7 @@ public class SpongeForgeEventFactory {
         return null;
     }
 
+    // Order matters
     public static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Class<? extends Event> clazz) {
         if (CollideEntityEvent.class.isAssignableFrom(clazz)) {
             return EntityItemPickupEvent.class;
@@ -328,23 +329,17 @@ public class SpongeForgeEventFactory {
         if (DestructEntityEvent.Death.class.isAssignableFrom(clazz)) {
             return LivingDeathEvent.class;
         }
-        if (DropItemEvent.Destruct.class.isAssignableFrom(clazz)) {
-            return LivingDropsEvent.class;
-        }
-        if (InteractBlockEvent.class.isAssignableFrom(clazz)) {
-            return PlayerInteractEvent.class;
-        }
         if (InteractBlockEvent.Primary.class.isAssignableFrom(clazz)) {
             return PlayerInteractEvent.class;
         }
         if (InteractBlockEvent.Secondary.class.isAssignableFrom(clazz)) {
             return PlayerInteractEvent.class;
         }
+        if (InteractBlockEvent.class.isAssignableFrom(clazz)) {
+            return PlayerInteractEvent.class;
+        }
         if (InteractEntityEvent.Secondary.class.isAssignableFrom(clazz)) {
             return PlayerInteractEvent.EntityInteract.class;
-        }
-        if (SpawnEntityEvent.class.isAssignableFrom(clazz)) {
-            return EntityJoinWorldEvent.class;
         }
         if (ChangeBlockEvent.Break.class.isAssignableFrom(clazz)) {
             return BlockEvent.BreakEvent.class;
@@ -369,6 +364,9 @@ public class SpongeForgeEventFactory {
         }
         if (MoveEntityEvent.Teleport.class.isAssignableFrom(clazz)) {
             return EntityTravelToDimensionEvent.class;
+        }
+        if (SpawnEntityEvent.class.isAssignableFrom(clazz)) {
+            return EntityJoinWorldEvent.class;
         }
         return null;
     }
@@ -395,8 +393,6 @@ public class SpongeForgeEventFactory {
             return callEntityItemPickupEvent(spongeEvent);
         } else if (PlayerInteractEvent.EntityInteract.class.isAssignableFrom(clazz)) {
             return callEntityInteractEvent(spongeEvent);
-        } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
-            return callEntityJoinWorldEvent(spongeEvent);
         } else if (BlockEvent.BreakEvent.class.isAssignableFrom(clazz)) {
             return callBlockBreakEvent(spongeEvent);
         } else if (BlockEvent.PlaceEvent.class.isAssignableFrom(clazz)) {
@@ -415,6 +411,8 @@ public class SpongeForgeEventFactory {
             return callPlayerRespawnEvent(spongeEvent);
         } else if (EntityTravelToDimensionEvent.class.isAssignableFrom(clazz)) {
             return callEntityTravelToDimensionEvent(spongeEvent);
+        } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
+            return callEntityJoinWorldEvent(spongeEvent);
         }
         return spongeEvent;
     }
