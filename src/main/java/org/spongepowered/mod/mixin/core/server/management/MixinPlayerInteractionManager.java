@@ -220,14 +220,6 @@ public abstract class MixinPlayerInteractionManager {
                 }
             }
 
-            // Since we cancel the second packet received while looking at a block with
-            // item in hand, we need to make sure to make an attempt to run the 'tryUseItem'
-            // method during the first packet.
-
-            // TODO - should this even be a thing? Do we really want to manually trigger right click air, when it didn't happen?
-            if (stack != null && result != EnumActionResult.FAIL && !event.isCancelled() && event.getUseItemResult() != Tristate.FALSE) {
-                this.processRightClick(player, worldIn, stack, hand);
-            }
 
             // if cancelled, force client itemstack update
             if (!ItemStack.areItemStacksEqual(player.getHeldItem(hand), oldStack) || result != EnumActionResult.SUCCESS) {
