@@ -63,6 +63,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Optional;
 
@@ -148,15 +149,15 @@ public abstract class MixinPlayerInteractionManager {
             // Forge Start
             PlayerInteractEvent.RightClickBlock forgeEvent = ForgeHooks
                     .onRightClickBlock(player, hand, stack, pos, facing,
-                            ForgeHooks.rayTraceEyeHitVec(this.thisPlayerMP, getBlockReachDistance() + 1));
+                            ForgeHooks.rayTraceEyeHitVec(this.thisPlayerMP, this.getBlockReachDistance() + 1));
             if (forgeEvent.isCanceled()) {
                 return EnumActionResult.PASS;
             }
 
             net.minecraft.item.Item item = stack == null ? null : stack.getItem();
             EnumActionResult ret = item == null
-                                   ? EnumActionResult.PASS
-                                   : item.onItemUseFirst(stack, player, worldIn, pos, facing, hitX, hitY, hitZ, hand);
+                    ? EnumActionResult.PASS
+                    : item.onItemUseFirst(stack, player, worldIn, pos, facing, hitX, hitY, hitZ, hand);
             if (ret != EnumActionResult.PASS) {
                 return ret;
             }
@@ -167,7 +168,7 @@ public abstract class MixinPlayerInteractionManager {
                 bypass = bypass && (s == null || s.getItem().doesSneakBypassUse(s, worldIn, pos, player));
             }
 
-            EnumActionResult result = EnumActionResult.PASS; // Sponge - Forge deems the default to be PASS, but Sponge is deeming it to be FAIL
+            EnumActionResult result = EnumActionResult.FAIL; // Sponge - Forge deems the default to be PASS, but Sponge is deeming it to be FAIL
 
             // if (!player.isSneaking() || player.getHeldItemMainhand() == null && player.getHeldItemOffhand() == null) { // Forge - Adds bypass event checks
             if (!player.isSneaking() || bypass || forgeEvent.getUseBlock() == Event.Result.ALLOW) {
@@ -176,8 +177,8 @@ public abstract class MixinPlayerInteractionManager {
                 if (event.getUseBlockResult() != Tristate.FALSE) {
                     IBlockState iblockstate = worldIn.getBlockState(pos);
                     result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, stack, facing, hitX, hitY, hitZ)
-                             ? EnumActionResult.SUCCESS
-                             : EnumActionResult.FAIL;
+                            ? EnumActionResult.SUCCESS
+                            : EnumActionResult.FAIL;
                 } else {
                     this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(this.theWorld, pos));
                     result = TristateUtil.toActionResult(event.getUseItemResult());
@@ -201,17 +202,17 @@ public abstract class MixinPlayerInteractionManager {
             } else {
                 // Run if useItemResult is true, or if useItemResult is undefined and the block interaction failed
                 if (stack != null
-                    && (event.getUseItemResult() == Tristate.TRUE
-                        || (event.getUseItemResult() == Tristate.UNDEFINED && result == EnumActionResult.FAIL)
-                    )
-                    && (result != EnumActionResult.SUCCESS && forgeEvent.getUseItem() != Event.Result.DENY
-                        || result == EnumActionResult.SUCCESS && forgeEvent.getUseItem() == Event.Result.ALLOW
-                    )) {
+                        && (event.getUseItemResult() == Tristate.TRUE
+                                    || (event.getUseItemResult() == Tristate.UNDEFINED && result == EnumActionResult.FAIL)
+                )
+                        && (result != EnumActionResult.SUCCESS && forgeEvent.getUseItem() != Event.Result.DENY
+                                    || result == EnumActionResult.SUCCESS && forgeEvent.getUseItem() == Event.Result.ALLOW
+                )) {
                     int meta = stack.getMetadata(); // meta == j
                     int size = stack.stackSize; // size == i
                     // EnumActionResult enumactionresult = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ); // Sponge
                     result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
-                    if (isCreative()) {
+                    if (this.isCreative()) {
                         stack.setItemDamage(meta);
                         stack.stackSize = size;
                         // return enumactionresult; // Sponge
