@@ -1,8 +1,10 @@
 {
-  "minVersion": "0.5.1",
+  "minVersion": "0.5.7",
   "package": "org.spongepowered.mod.mixin.bungee",
   "plugin": "org.spongepowered.mod.mixin.plugin.bungee.BungeePlugin",
   "refmap": "mixins.forge.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
   "mixins": [
     "network.MixinNetHandlerHandshakeTCP"
   ],

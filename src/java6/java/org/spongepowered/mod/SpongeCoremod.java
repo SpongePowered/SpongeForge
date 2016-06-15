@@ -30,6 +30,7 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
+import org.spongepowered.asm.mixin.Mixins;
 import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
 import org.spongepowered.common.launch.SpongeLaunch;
 import org.spongepowered.launch.JavaVersionCheckUtils;
@@ -79,20 +80,22 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.spongepowered.common.launch.");
 
         // Let's get this party started
-        SpongeLaunch.setupMixinEnvironment()
-                .addConfiguration("mixins.forge.core.json")
-                .addConfiguration("mixins.forge.bungeecord.json")
-                .addConfiguration("mixins.forge.entityactivation.json")
-                .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
+        SpongeLaunch.setupMixinEnvironment();
+
+        Mixins.addConfiguration("mixins.forge.core.json");
+        Mixins.addConfiguration("mixins.forge.bungeecord.json");
+        Mixins.addConfiguration("mixins.forge.entityactivation.json");
+
+        MixinEnvironment.getDefaultEnvironment().registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
         // Add pre-init mixins
-        MixinEnvironment.getEnvironment(Phase.PREINIT)
-                .addConfiguration("mixins.forge.preinit.json")
-                .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
-        MixinEnvironment.getEnvironment(Phase.INIT)
-                .addConfiguration("mixins.forge.init.json")
-                .registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
+        Mixins.addConfiguration("mixins.forge.preinit.json");
+        MixinEnvironment.getEnvironment(Phase.PREINIT).registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
+
+
+        Mixins.addConfiguration("mixins.forge.init.json");
+        MixinEnvironment.getEnvironment(Phase.INIT).registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.Cause");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.NamedCause");
@@ -141,8 +144,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     @Override
     public void injectData(Map<String, Object> data) {
         if ((Boolean)data.get("runtimeDeobfuscationEnabled")) {
-            MixinEnvironment.getDefaultEnvironment()
-                    .registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
+            Mixins.registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
         }
         SpongeJava6Bridge.modFile = (File) data.get("coremodLocation");
         if (SpongeJava6Bridge.modFile == null) {
