@@ -1,9 +1,11 @@
 {
     "required": true,
-    "minVersion": "0.5.1",
+    "minVersion": "0.5.7",
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "priority": 1111,
+    "target": "@env(DEFAULT)",
+    "compatibilityLevel": "JAVA_8",
     "mixins": [
         "api.event.MixinAbstractEvent",
         "block.MixinBlockLeaves",

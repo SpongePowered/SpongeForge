@@ -31,10 +31,9 @@ import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfig;
 import org.spongepowered.asm.mixin.extensibility.IMixinErrorHandler;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-import org.spongepowered.asm.util.ConstraintParser;
 import org.spongepowered.asm.util.ConstraintParser.Constraint;
-import org.spongepowered.asm.util.ConstraintViolationException;
 import org.spongepowered.asm.util.PrettyPrinter;
+import org.spongepowered.asm.util.throwables.ConstraintViolationException;
 import org.spongepowered.launch.Main;
 
 import javax.annotation.Nullable;
@@ -52,7 +51,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
     private PrettyPrinter forgeVersionNotValid(PrettyPrinter errorPrinter, Constraint constraint) {
         String forgeVer = Main.getManifestAttribute("TargetForgeVersion", null);
         String forgeMessage = forgeVer == null ? String.valueOf(constraint.getMin()) : forgeVer;
-        
+
         return errorPrinter
             .add()
             .add("Oh dear. It seems like this version of Sponge is not compatible with the version")
