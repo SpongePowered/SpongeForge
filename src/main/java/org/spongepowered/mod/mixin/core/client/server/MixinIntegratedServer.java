@@ -63,6 +63,7 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
         super.loadAllWorlds(overworldFolder, unused, seed, type, generator);
     }
 
+    @Override
     public void shutdown() {
         if (!this.mc.isIntegratedServerRunning()) {
             return;
@@ -79,6 +80,7 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
         });
     }
 
+    @Override
     public void shutdown(Text kickMessage) {
         checkNotNull(kickMessage);
         ((IMixinMinecraft) Minecraft.getMinecraft()).setSinglePlayerKickMessage(kickMessage);

@@ -82,6 +82,11 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         // Let's get this party started
         SpongeLaunch.setupMixinEnvironment();
 
+        // Detect dev/production env
+        if (this.isProductionEnvironment()) {
+            Mixins.registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
+        }
+
         Mixins.addConfiguration("mixins.forge.core.json");
         Mixins.addConfiguration("mixins.forge.bungeecord.json");
         Mixins.addConfiguration("mixins.forge.entityactivation.json");
@@ -109,6 +114,10 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
 
         SpongeLaunch.setupSuperClassTransformer();
+    }
+
+    private boolean isProductionEnvironment() {
+        return System.getProperty("net.minecraftforge.gradle.GradleStart.csvDir") == null;
     }
 
     private void clearSecurityManager() {
@@ -143,9 +152,6 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
     @Override
     public void injectData(Map<String, Object> data) {
-        if ((Boolean)data.get("runtimeDeobfuscationEnabled")) {
-            Mixins.registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
-        }
         SpongeJava6Bridge.modFile = (File) data.get("coremodLocation");
         if (SpongeJava6Bridge.modFile == null) {
             SpongeJava6Bridge.modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
