@@ -39,7 +39,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.InternalNamedCauses;
 import org.spongepowered.common.event.tracking.PhaseContext;
-import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.WorldPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 
@@ -56,7 +55,7 @@ public class MixinGameRegistry {
             if (Timings.isTimingsEnabled()) {
                 mixinWorldServer.getTimingsHandler().chunkPopulate.startTimingIfSync();
             }
-            mixinWorldServer.getCauseTracker().switchToPhase(TrackingPhases.WORLD, WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
+            mixinWorldServer.getCauseTracker().switchToPhase(WorldPhase.State.TERRAIN_GENERATION, PhaseContext.start()
                     .add(NamedCause.source(generator))
                     .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CHUNK_PROVIDER, provider))
                     .add(NamedCause.of("ChunkPos", new Vector2i(chunkX, chunkZ)))
