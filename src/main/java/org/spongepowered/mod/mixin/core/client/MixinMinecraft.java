@@ -158,22 +158,23 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Redirect(method="loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value="INVOKE", target="Lnet/minecraft/"
             + "client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V", ordinal = 0))
     public void onLoadWorld(LoadingScreenRenderer loadingScreen, String message) {
         // TODO Minecrell should review this...
-        if (kickMessage == null) {
+        if (this.kickMessage == null) {
             loadingScreen.displayLoadingString(I18n.format("forge.client.shutdown.internal"));
         } else {
             String loadingString;
-            if (kickMessage instanceof TranslatableText) {
-                loadingString = ((TranslatableText) kickMessage).getTranslation().get(Locale.forLanguageTag(mcLanguageManager.getCurrentLanguage()
+            if (this.kickMessage instanceof TranslatableText) {
+                loadingString = ((TranslatableText) this.kickMessage).getTranslation().get(Locale.forLanguageTag(this.mcLanguageManager.getCurrentLanguage()
                         .getLanguageCode()));
             } else {
-                loadingString = TextSerializers.LEGACY_FORMATTING_CODE.serialize(kickMessage);
+                loadingString = TextSerializers.LEGACY_FORMATTING_CODE.serialize(this.kickMessage);
             }
             loadingScreen.displayLoadingString(loadingString);
-            kickMessage = null;
+            this.kickMessage = null;
         }
     }
 }
