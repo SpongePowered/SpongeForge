@@ -74,7 +74,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static void init() {
-        // This is handled by us in WorldManager#loadAllWorlds
+        WorldManager.registerDimensions();
     }
 
     @Overwrite
