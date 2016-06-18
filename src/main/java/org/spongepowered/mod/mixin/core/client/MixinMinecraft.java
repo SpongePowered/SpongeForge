@@ -32,13 +32,13 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.integrated.IntegratedServer;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -84,26 +84,6 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         this.isNewSave = false;
     }
 
-//    @Group(name = "launchIntegratedServer", min = 1, max = 1)
-//    @Inject(method = "launchIntegratedServer", at = {
-//            @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;startServerThread()V", remap = false, shift = At.Shift.BEFORE),
-//            @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServer;func_71256_s()V", remap = false, shift = At.Shift.BEFORE),
-//    }, locals = LocalCapture.CAPTURE_FAILHARD)
-//    public void onlaunchIntegratedServerBeforeStart(String folderName, String worldName, WorldSettings worldSettingsIn, CallbackInfo ci,
-//            ISaveHandler isavehandler, WorldInfo worldInfo) {
-//        final IMixinWorldInfo mixinWorldInfo = (IMixinWorldInfo) worldInfo;
-//
-//        if (mixinWorldInfo.getDimensionId() == null) {
-//            mixinWorldInfo.setDimensionId(0);
-//        }
-//
-//        if (((WorldProperties) mixinWorldInfo).getUniqueId() == null) {
-//            mixinWorldInfo.setUniqueId(UUID.randomUUID());
-//        }
-//
-//        WorldManager.registerWorldProperties((WorldProperties) worldInfo);
-//    }
-
     @Override
     public void setDebugGui(GuiOverlayDebug debugGui) {
         this.debugGui = debugGui;
@@ -143,7 +123,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     @Inject(method = LOAD_WORLD, at = @At(value = "INVOKE", target = ENTITY_PLAYER_PREPARE_TO_SPAWN, shift = At.Shift.AFTER))
     private void onSpawn(WorldClient client, String name, CallbackInfo callbackInfo) {
         try {
-            if (SpongeImpl.getServer().isSinglePlayer()) {
+            if (Sponge.isServerAvailable() && SpongeImpl.getServer().isSinglePlayer()) {
                 EntityPlayer player = Minecraft.getMinecraft().thePlayer;
                 UUID uuid = player.getUniqueID();
                 Optional<Instant> joined = SpongePlayerDataHandler.getFirstJoined(uuid);
@@ -153,7 +133,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
                 }
             }
         } catch (Exception e) {
-            SpongeImpl.getLogger().error("Could not retrieve the player instance or single player instance to get the join data.");
+            SpongeImpl.getLogger().error("Could not retrieve the player instance or single player instance to get the join data.", e);
         }
 
     }
