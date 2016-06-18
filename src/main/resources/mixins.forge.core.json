@@ -82,6 +82,7 @@
         "server.MixinServerCommandManager",
         "server.management.MixinPlayerInteractionManager",
         "world.MixinChunk",
+        "world.MixinDimensionType",
         "world.MixinExplosion",
         "world.MixinWorld",
         "world.MixinWorldServer",
