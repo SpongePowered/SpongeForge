@@ -76,13 +76,17 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     @Overwrite
     public boolean post(Event event) {
-        IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
+        return post(event, false);
+    }
 
-        if (!isEventAllowed(event)) {
+    @Override
+    public boolean post(Event event, boolean forced) {
+        if (!forced && !isEventAllowed(event)) {
             return false;
         }
 
-        if (event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
+        IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
+        if (!forced && event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
             boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(null, event, listeners);
             if (!cancelled) {
                 SpongeForgeEventFactory.onForgePost(event);

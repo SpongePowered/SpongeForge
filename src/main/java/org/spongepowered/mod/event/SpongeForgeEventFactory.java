@@ -141,6 +141,7 @@ import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.ArrayList;
@@ -916,7 +917,7 @@ public class SpongeForgeEventFactory {
                     EntityItem entityItem = (EntityItem) entity;
                     EntityItemPickupEvent forgeEvent =
                             new EntityItemPickupEvent((EntityPlayer) spongeEvent.getCause().first(Player.class).get(), entityItem);
-                    MinecraftForge.EVENT_BUS.post(forgeEvent);
+                    ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                     if (forgeEvent.isCanceled()) {
                         iterator.remove();
                     }
@@ -942,7 +943,7 @@ public class SpongeForgeEventFactory {
         net.minecraft.util.DamageSource damageSource = (net.minecraft.util.DamageSource) spongeEvent.getCause().first(DamageSource.class).get();
         LivingDeathEvent forgeEvent = new LivingDeathEvent(entity, damageSource);
 
-        MinecraftForge.EVENT_BUS.post(forgeEvent);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
 
         return spongeEvent;
     }
@@ -975,7 +976,7 @@ public class SpongeForgeEventFactory {
                             ((IMixinEntityLivingBase) entity).getRecentlyHit() > 0);
         }
 
-        MinecraftForge.EVENT_BUS.post(forgeEvent);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);
         }
@@ -1002,7 +1003,7 @@ public class SpongeForgeEventFactory {
         }
 
         ItemTossEvent forgeEvent = new ItemTossEvent(item, (EntityPlayerMP) entity);
-        MinecraftForge.EVENT_BUS.post(forgeEvent);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);
         }
@@ -1022,7 +1023,7 @@ public class SpongeForgeEventFactory {
             EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((net.minecraft.entity.Entity) entity,
                     (net.minecraft.world.World) entity.getLocation().getExtent());
 
-            MinecraftForge.EVENT_BUS.post(forgeEvent);
+            ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
             if (forgeEvent.isCanceled()) {
                 iterator.remove();
             }
@@ -1058,7 +1059,7 @@ public class SpongeForgeEventFactory {
                                 (EntityPlayer) player);
                 StaticMixinForgeHelper.breakEventExtendedState = null;
 
-                MinecraftForge.EVENT_BUS.post(forgeEvent);
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
                     transaction.setValid(false);
                 }
@@ -1146,7 +1147,7 @@ public class SpongeForgeEventFactory {
         final Entity entity = (Entity) spongeEvent.getTargetEntity();
 
         PlayerInteractEvent.EntityInteract forgeEvent = new PlayerInteractEvent.EntityInteract(entityPlayer, hand, handStack, entity);
-        MinecraftForge.EVENT_BUS.post(forgeEvent);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);
         }
@@ -1161,7 +1162,7 @@ public class SpongeForgeEventFactory {
 
         ClientConnectionEvent.Join spongeEvent = (ClientConnectionEvent.Join) event;
         PlayerLoggedInEvent fmlEvent = new PlayerLoggedInEvent((EntityPlayer) spongeEvent.getTargetEntity());
-        MinecraftForge.EVENT_BUS.post(fmlEvent);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
 
         return spongeEvent;
     }
@@ -1173,7 +1174,7 @@ public class SpongeForgeEventFactory {
 
         ClientConnectionEvent.Disconnect spongeEvent = (ClientConnectionEvent.Disconnect) event;
         PlayerLoggedOutEvent fmlEvent = new PlayerLoggedOutEvent((EntityPlayer) spongeEvent.getTargetEntity());
-        MinecraftForge.EVENT_BUS.post(fmlEvent);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
 
         return spongeEvent;
     }
@@ -1185,7 +1186,7 @@ public class SpongeForgeEventFactory {
 
         RespawnPlayerEvent spongeEvent = (RespawnPlayerEvent) event;
         PlayerRespawnEvent fmlEvent = new PlayerRespawnEvent((EntityPlayer) spongeEvent.getTargetEntity());
-        MinecraftForge.EVENT_BUS.post(fmlEvent);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
 
         return spongeEvent;
     }
