@@ -49,8 +49,8 @@ public abstract class MixinSpongeProxyBlockAccess implements IBlockAccess {
     }
 
     @Override
-    public Biome getBiomeGenForCoords(BlockPos pos) {
-        return this.original.getBiomeGenForCoords(pos);
+    public Biome getBiome(BlockPos pos) {
+        return this.original.getBiome(pos);
     }
 
     @Override

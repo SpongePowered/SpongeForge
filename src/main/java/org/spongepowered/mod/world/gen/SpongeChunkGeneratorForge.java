@@ -152,7 +152,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         BlockFalling.fallInstantly = true;
 
         BlockPos blockpos = new BlockPos(chunkX * 16, 0, chunkZ * 16);
-        BiomeType biome = (BiomeType) this.world.getBiomeGenForCoords(blockpos.add(16, 0, 16));
+        BiomeType biome = (BiomeType) this.world.getBiome(blockpos.add(16, 0, 16));
 
         Chunk chunk = (Chunk) this.world.getChunkFromChunkCoords(chunkX, chunkZ);
 
