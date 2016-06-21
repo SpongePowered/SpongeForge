@@ -41,6 +41,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
 import java.util.ArrayList;
@@ -50,18 +51,14 @@ import java.util.List;
 @Mixin(value = ItemEvent.class, remap = false)
 public abstract class MixinEventItem extends MixinEventEntity implements AffectEntityEvent {
 
-    protected EntitySnapshot entitySnapshot;
-    protected ImmutableList<EntitySnapshot> entitySnapshots;
     protected List<Entity> entities;
 
     @Shadow @Final public EntityItem entityItem;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityItem itemEntity, CallbackInfo ci) {
-        this.entitySnapshot = ((Entity) itemEntity).createSnapshot();
         this.entities = new ArrayList<>();
         this.entities.add((Entity) itemEntity);
-        this.entitySnapshots = ImmutableList.of(this.entitySnapshot);
     }
 
     @Override
