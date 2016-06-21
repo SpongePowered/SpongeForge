@@ -24,12 +24,10 @@
  */
 package org.spongepowered.mod.mixin.core.event.inventory;
 
-import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.item.ItemExpireEvent;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.event.entity.AffectEntityEvent;
 import org.spongepowered.api.event.entity.ExpireEntityEvent;
@@ -41,7 +39,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.mod.mixin.core.event.entity.MixinEventEntity;
 
 import java.util.ArrayList;
@@ -53,7 +50,8 @@ public abstract class MixinEventItem extends MixinEventEntity implements AffectE
 
     protected List<Entity> entities;
 
-    @Shadow @Final public EntityItem entityItem;
+    @Shadow @Final private EntityItem entityItem;
+    @Shadow public abstract EntityItem getEntityItem();
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityItem itemEntity, CallbackInfo ci) {
@@ -76,12 +74,12 @@ public abstract class MixinEventItem extends MixinEventEntity implements AffectE
 
         @Override
         public Item getTargetEntity() {
-            return (Item) this.entityItem;
+            return (Item) this.getEntityItem();
         }
 
         @Override
         public World getTargetWorld() {
-            return (World) this.entityItem.worldObj;
+            return (World) this.getEntityItem().worldObj;
         }
 
     }
