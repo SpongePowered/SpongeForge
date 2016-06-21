@@ -71,6 +71,7 @@
         "forge.fluids.MixinFluidStack",
         "item.MixinEnchantment",
         "item.MixinItem",
+        "item.MixinItemShears",
         "item.MixinItemStack",
         "item.MixinItemLilyPad",
         "nbt.MixinNBTTagCompound",
