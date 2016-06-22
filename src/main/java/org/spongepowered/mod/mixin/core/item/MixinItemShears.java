@@ -70,7 +70,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-@Mixin(ItemShears.class)
+@Mixin(value = ItemShears.class, remap = false)
 public abstract class MixinItemShears extends Item {
 
 
