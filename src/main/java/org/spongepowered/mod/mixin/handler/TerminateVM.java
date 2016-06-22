@@ -42,7 +42,7 @@ import java.lang.reflect.Constructor;
  * Really wish this wasn't necessary but unfortunately FML doesn't have any
  * mechanism to shut down the VM when a fatal error occurs.
  */
-final class TerminateVM implements IExitHandler {
+public final class TerminateVM implements IExitHandler {
     
     static class MasqueradeClassLoader extends ClassLoader {
 
@@ -105,7 +105,7 @@ final class TerminateVM implements IExitHandler {
     }
     
     @SuppressWarnings("unchecked")
-    static void terminate(String masqueradePackage, int status) {
+    public static void terminate(String masqueradePackage, int status) {
         final Logger log = LogManager.getLogger("Sponge");
         
         try {

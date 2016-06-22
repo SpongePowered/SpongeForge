@@ -35,7 +35,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.mod.interfaces.fml.common.IMixinFMLCommonHandler;
+
+import java.lang.reflect.Method;
 
 @Mixin(NBTTagCompound.class)
 public class MixinNBTTagCompound {
@@ -53,7 +54,14 @@ public class MixinNBTTagCompound {
             final PEBKACException pebkacException = new PEBKACException("Someone is trying to store a null to an NBTTagCompound!");
             printer.add(pebkacException);
             printer.log(SpongeImpl.getLogger(), Level.ERROR);
-            ((IMixinFMLCommonHandler) FMLCommonHandler.instance()).bruteShutdown();
+            try {
+                final Class<?> terminateVm = Class.forName("org.spongepowered.mixin.handler.TerminateVM");
+                final Method terminate = terminateVm.getMethod("terminate");
+                terminate.setAccessible(true);
+                terminate.invoke(null, "net.minecraftforge.fml", -2);
+            } catch (Exception e) {
+                FMLCommonHandler.instance().exitJava(-2, true);
+            }
         }
     }
 

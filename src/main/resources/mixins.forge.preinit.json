@@ -6,7 +6,6 @@
     "target": "@env(PREINIT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "fml.common.MixinFMLCommonHandler",
         "fml.common.MixinModMetadata",
         "fml.common.MixinModContainer",
         "fml.common.eventhandler.MixinASMEventHandler",
