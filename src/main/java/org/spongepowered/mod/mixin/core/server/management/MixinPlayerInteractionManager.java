@@ -46,9 +46,9 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameType;
 import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldSettings;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
@@ -63,7 +63,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
-import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Optional;
 
@@ -72,7 +71,7 @@ public abstract class MixinPlayerInteractionManager {
 
     @Shadow public EntityPlayerMP thisPlayerMP;
     @Shadow public World theWorld;
-    @Shadow private WorldSettings.GameType gameType;
+    @Shadow private GameType gameType;
 
     @Shadow public abstract boolean isCreative();
     @Shadow public abstract EnumActionResult processRightClick(EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack, EnumHand hand);
@@ -89,7 +88,7 @@ public abstract class MixinPlayerInteractionManager {
      */
     @Overwrite
     public EnumActionResult processRightClickBlock(EntityPlayer player, World worldIn, ItemStack stack, EnumHand hand, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (this.gameType == WorldSettings.GameType.SPECTATOR) {
+        if (this.gameType == GameType.SPECTATOR) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
 
             if (tileentity instanceof ILockableContainer) {

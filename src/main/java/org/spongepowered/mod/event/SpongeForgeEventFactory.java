@@ -75,7 +75,6 @@ import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerFlyableFallEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.terraingen.BiomeEvent;
@@ -201,8 +200,6 @@ public class SpongeForgeEventFactory {
             } else if (clazz == PlayerFlyableFallEvent.class) {
 
             } else if (clazz == PlayerInteractEvent.class) {
-
-            } else if (clazz == PlayerOpenContainerEvent.class) {
 
             } else if (clazz == PlayerPickupXpEvent.class) {
 
