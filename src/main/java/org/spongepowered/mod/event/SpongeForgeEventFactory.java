@@ -995,7 +995,7 @@ public class SpongeForgeEventFactory {
         EntitySpawnCause spawnCause = (EntitySpawnCause) source;
         Entity entity = EntityUtil.toNative(spawnCause.getEntity());
         EntityItem item = (EntityItem) spongeEvent.getEntities().get(0);
-        if (entity == null || !(entity instanceof Player)) {
+        if (entity == null || item == null || item.getEntityItem() == null || !(entity instanceof Player)) {
             return spongeEvent;
         }
 
