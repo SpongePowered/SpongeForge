@@ -26,16 +26,49 @@ package org.spongepowered.mod.mixin.core.entity.player;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
+import org.spongepowered.common.text.SpongeTexts;
 
 @Mixin(value = EntityPlayerMP.class, priority = 1001)
-public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
+public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements Player {
     @Shadow private NetHandlerPlayServer connection;
 
     public boolean usesCustomClient() {
         return this.connection.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
+    }
+
+    @Override
+    public MessageChannelEvent.Chat chat(Text message) {
+        String messageRaw = SpongeTexts.toLegacy(message);
+        ITextComponent itextcomponent = new TextComponentTranslation("chat.type.text", SpongeTexts.toComponent(getDisplayNameText()), net.minecraftforge.common.ForgeHooks.newChatWithLinks(messageRaw));
+
+        EntityPlayerMP thisPlayer = (EntityPlayerMP)(Object) this;
+
+        final ServerChatEvent event = new ServerChatEvent(thisPlayer, messageRaw, itextcomponent);
+        ((IMixinInitCause) event).initCause(Cause.of(NamedCause.source(this)));
+
+        if (!MinecraftForge.EVENT_BUS.post(event)) {
+            MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) event;
+            Text theMessage = spongeEvent.getMessage();
+            if (!spongeEvent.isMessageCancelled()) {
+                spongeEvent.getChannel().ifPresent(channel -> channel.send(this, theMessage, ChatTypes.CHAT));
+            }
+        }
+
+        return (MessageChannelEvent.Chat) event;
     }
 }
