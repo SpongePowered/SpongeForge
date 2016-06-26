@@ -74,7 +74,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static void init() {
-        WorldManager.registerVanillaDimensions();
+        WorldManager.registerVanillaTypesAndDimensions();
     }
 
     @Overwrite
