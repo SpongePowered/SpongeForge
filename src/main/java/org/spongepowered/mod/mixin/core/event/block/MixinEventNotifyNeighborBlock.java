@@ -43,8 +43,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
-import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
 
 import java.util.EnumSet;
@@ -64,7 +64,7 @@ public abstract class MixinEventNotifyNeighborBlock extends MixinEventBlock impl
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraft.world.World world, BlockPos pos, IBlockState state, EnumSet<EnumFacing> notifiedSides, CallbackInfo ci) {
-        if (!world.isRemote && !StaticMixinHelper.processingInternalForgeEvent) {
+        if (!world.isRemote && !SpongeCommonEventFactory.processingInternalForgeEvent) {
             createSpongeEventData();
         }
     }
