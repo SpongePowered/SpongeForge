@@ -52,8 +52,6 @@ public abstract class MixinGuiOverlayDebug implements IMixinGuiOverlayDebug {
 
     @Shadow @Final private Minecraft mc;
 
-    @Shadow public abstract boolean isReducedDebug();
-
     @Inject(method = "<init>", at = @At(value = "RETURN") )
     public void onConstructDebugGui(Minecraft mc, CallbackInfo ci) {
         IMixinMinecraft spongeMc = (IMixinMinecraft) mc;

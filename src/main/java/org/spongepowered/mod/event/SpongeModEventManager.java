@@ -74,8 +74,8 @@ import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
+import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.SpongeEventManager;
-import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 import org.spongepowered.mod.interfaces.IMixinEvent;
@@ -197,9 +197,9 @@ public class SpongeModEventManager extends SpongeEventManager {
         TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
         TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
-        StaticMixinHelper.processingInternalForgeEvent = true;
+        SpongeCommonEventFactory.processingInternalForgeEvent = true;
         spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
-        StaticMixinHelper.processingInternalForgeEvent = false;
+        SpongeCommonEventFactory.processingInternalForgeEvent = false;
         TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
 
         TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
@@ -253,9 +253,9 @@ public class SpongeModEventManager extends SpongeEventManager {
                     return post(spongeEvent, clazz);
                 }
             } else {
-                StaticMixinHelper.processingInternalForgeEvent = true;
+                SpongeCommonEventFactory.processingInternalForgeEvent = true;
                 net.minecraftforge.fml.common.eventhandler.Event forgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent(spongeEvent, clazz);
-                StaticMixinHelper.processingInternalForgeEvent = false;
+                SpongeCommonEventFactory.processingInternalForgeEvent = false;
                 if (forgeEvent != null) {
                     return post(spongeEvent, forgeEvent,
                             forgeEvent.getListenerList().getListeners(((IMixinEventBus) SpongeForgeEventFactory.getForgeEventBus(forgeEvent.getClass())).getBusID()));

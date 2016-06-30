@@ -54,11 +54,6 @@ public abstract class MixinSpongeProxyBlockAccess implements IBlockAccess {
     }
 
     @Override
-    public boolean extendedLevelsInChunkCache() {
-        return this.original.extendedLevelsInChunkCache();
-    }
-
-    @Override
     public WorldType getWorldType() {
         return this.original.getWorldType();
     }
