@@ -74,7 +74,7 @@ public class MixinGameRegistry {
     }
 
     @Inject(method = "generateWorld", at = @At("HEAD"))
-    private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
+    private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         if (Timings.isTimingsEnabled()) {
             ((IMixinWorldServer) world).getTimingsHandler().chunkPopulate.startTimingIfSync();
@@ -82,7 +82,7 @@ public class MixinGameRegistry {
     }
 
     @Inject(method = "generateWorld", at = @At(value = "RETURN"))
-    private static void onGenerateWorldEnd(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider,
+    private static void onGenerateWorldEnd(int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         if (Timings.isTimingsEnabled()) {
             ((IMixinWorldServer) world).getTimingsHandler().chunkPopulate.stopTimingIfSync();
