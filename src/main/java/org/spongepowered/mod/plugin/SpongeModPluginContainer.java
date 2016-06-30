@@ -327,8 +327,12 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
 
     @Override
     public Class<?> getCustomResourcePackClass() {
-        // Note: Has meaning only on client side, so skipping for now.
-        return null;
+        try {
+            return Class.forName(getSource().isDirectory() ? "net.minecraftforge.fml.client.FMLFolderResourcePack" :
+                    "net.minecraftforge.fml.client.FMLFileResourcePack", true, getClass().getClassLoader());
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
     }
 
     @Override
