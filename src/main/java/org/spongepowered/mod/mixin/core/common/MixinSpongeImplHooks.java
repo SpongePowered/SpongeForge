@@ -35,6 +35,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.Teleporter;
+import net.minecraft.world.WorldProvider;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
@@ -124,5 +125,15 @@ public abstract class MixinSpongeImplHooks {
 
         // handle mod registration
         PortalAgentRegistryModule.getInstance().validatePortalAgent(teleporter);
+    }
+
+    @Overwrite
+    public static boolean canDoLightning(WorldProvider provider, net.minecraft.world.chunk.Chunk chunk) {
+        return provider.canDoLightning(chunk);
+    }
+
+    @Overwrite
+    public static boolean canDoRainSnowIce(WorldProvider provider, net.minecraft.world.chunk.Chunk chunk) {
+        return provider.canDoRainSnowIce(chunk);
     }
 }
