@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.server.management.PlayerList;
@@ -43,6 +44,7 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketRegistr
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
@@ -56,6 +58,7 @@ import org.spongepowered.common.network.SpongeNetworkManager;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class SpongeModNetworkManager extends SpongeNetworkManager {
@@ -65,15 +68,16 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onCustomPacketRegistration(CustomPacketRegistrationEvent<?> event) {
         Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
+        Optional<Player> player = event.getHandler() instanceof NetHandlerPlayServer ? Optional.of((Player) ((NetHandlerPlayServer) event.getHandler()).playerEntity) : Optional.empty();
         if (event.getOperation().equals("REGISTER")) {
             channels.addAll(event.getRegistrations());
             for (String channel : event.getRegistrations()) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Cause.of(NamedCause.source(event.getHandler())), channel));
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Cause.of(NamedCause.source(event.getHandler())), channel, player));
             }
         } else if (event.getOperation().equals("UNREGISTER")) {
             channels.removeAll(event.getRegistrations());
             for (String channel : event.getRegistrations()) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(Cause.of(NamedCause.source(event.getHandler())), channel));
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(Cause.of(NamedCause.source(event.getHandler())), channel, player));
             }
         }
     }

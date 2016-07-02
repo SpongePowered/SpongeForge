@@ -73,7 +73,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     public void onSetChunkLoaded(boolean loaded, CallbackInfo ci) {
         Direction[] directions = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
         for (Direction direction : directions) {
-            Vector3i neighborPosition = this.getPosition().add(direction.toVector3d().toInt());
+            Vector3i neighborPosition = this.getPosition().add(direction.asBlockOffset());
             net.minecraft.world.chunk.Chunk neighbor = ((IMixinChunkProviderServer) this.worldObj.getChunkProvider()).getChunkIfLoaded
                     (neighborPosition.getX(), neighborPosition.getZ());
             if (neighbor != null) {
