@@ -69,17 +69,21 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onCustomPacketRegistration(CustomPacketRegistrationEvent<?> event) {
         Set<String> channels = ((IMixinNetPlayHandler) event.handler).getRegisteredChannels();
-        Optional<Player> player = event.handler instanceof NetHandlerPlayServer ? Optional.of((Player) ((NetHandlerPlayServer) event.handler).playerEntity) : Optional.empty();
+        Cause.Builder builder = Cause.builder();
+        if (event.handler instanceof NetHandlerPlayServer) {
+            builder.named(NamedCause.source(((NetHandlerPlayServer) event.handler).playerEntity));
+        }
+        Cause cause = builder.named(NamedCause.of("NetHandler", event.handler)).build();
 
         if (event.operation.equals("REGISTER")) {
             channels.addAll(event.registrations);
             for (String channel : event.registrations) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Cause.of(NamedCause.source(event.handler)), channel, player));
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(cause, channel));
             }
         } else if (event.operation.equals("UNREGISTER")) {
             channels.removeAll(event.registrations);
             for (String channel : event.registrations) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(Cause.of(NamedCause.source(event.handler)), channel, player));
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(cause, channel));
             }
         }
     }
