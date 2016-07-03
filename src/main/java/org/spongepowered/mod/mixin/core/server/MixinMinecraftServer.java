@@ -87,6 +87,7 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
         if (stoppingWorld == null) {
             return;
         }
-        WorldManager.unloadWorld(stoppingWorld, false, false, true);
+        // Let forge handle throwing the event but we need to clean up
+        WorldManager.unloadWorld(stoppingWorld, false, false, false, true);
     }
 }

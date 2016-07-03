@@ -41,7 +41,7 @@ public abstract class MixinChunkProviderServer {
 
     @Redirect(method = "unloadQueuedChunks", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/DimensionManager;unloadWorld(I)V", remap = false))
     private void unloadWorld(int dimId) {
-        WorldManager.unloadWorld(this.worldObj, true, true, false);
+        WorldManager.unloadWorld(this.worldObj, true, true, true, false);
     }
 
     @Override
