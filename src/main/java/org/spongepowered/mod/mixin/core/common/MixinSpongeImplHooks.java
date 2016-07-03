@@ -36,6 +36,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
@@ -47,6 +48,8 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.SpongeMod;
+
+import java.util.Iterator;
 
 import javax.annotation.Nullable;
 
@@ -119,12 +122,18 @@ public abstract class MixinSpongeImplHooks {
     }
 
     @Overwrite
-    public static boolean canDoLightning(WorldProvider provider, net.minecraft.world.chunk.Chunk chunk) {
+    public static boolean canDoLightning(WorldProvider provider, Chunk chunk) {
         return provider.canDoLightning(chunk);
     }
 
     @Overwrite
-    public static boolean canDoRainSnowIce(WorldProvider provider, net.minecraft.world.chunk.Chunk chunk) {
+    public static boolean canDoRainSnowIce(WorldProvider provider, Chunk chunk) {
         return provider.canDoRainSnowIce(chunk);
     }
+
+    @Overwrite
+    public static Iterator<Chunk> getChunkIterator(WorldServer world) {
+        return world.getPersistentChunkIterable(world.getPlayerChunkMap().getChunkIterator());
+    }
+
 }
