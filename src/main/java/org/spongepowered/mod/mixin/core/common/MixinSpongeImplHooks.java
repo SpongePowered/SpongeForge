@@ -37,11 +37,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.world.WorldEvent;
-import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
-import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
@@ -52,11 +49,6 @@ import javax.annotation.Nullable;
 
 @Mixin(value = SpongeImplHooks.class, remap = false)
 public abstract class MixinSpongeImplHooks {
-
-    @Overwrite
-    public static LoadWorldEvent createLoadWorldEvent(World world) {
-        return (LoadWorldEvent) new WorldEvent.Load((net.minecraft.world.World) world);
-    }
 
     @Overwrite
     public static boolean blockHasTileEntity(Block block, IBlockState state) {
