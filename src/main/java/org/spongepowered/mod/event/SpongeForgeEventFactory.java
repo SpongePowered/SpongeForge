@@ -289,9 +289,7 @@ public class SpongeForgeEventFactory {
                 }
                 return createChunkEvent(event);
             } else if (clazz == WorldEvent.Load.class) {
-                return createWorldLoadEvent(event);
             } else if (clazz == WorldEvent.Unload.class) {
-                return createWorldUnloadEvent(event);
             } else if (clazz == WorldEvent.Save.class) {
                 return createWorldSaveEvent(event);
             } else {
@@ -366,6 +364,12 @@ public class SpongeForgeEventFactory {
         if (SpawnEntityEvent.class.isAssignableFrom(clazz)) {
             return EntityJoinWorldEvent.class;
         }
+        if (LoadWorldEvent.class.isAssignableFrom(clazz)) {
+            return WorldEvent.Load.class;
+        }
+        if (UnloadWorldEvent.class.isAssignableFrom(clazz)) {
+            return WorldEvent.Unload.class;
+        }
         return null;
     }
 
@@ -411,6 +415,10 @@ public class SpongeForgeEventFactory {
             return callEntityTravelToDimensionEvent(spongeEvent);
         } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
             return callEntityJoinWorldEvent(spongeEvent);
+        } else if (WorldEvent.Unload.class.isAssignableFrom(clazz)) {
+            return callWorldUnloadEvent(spongeEvent);
+        } else if (WorldEvent.Load.class.isAssignableFrom(clazz)) {
+            return callWorldLoadEvent(spongeEvent);
         }
         return spongeEvent;
     }
@@ -690,17 +698,6 @@ public class SpongeForgeEventFactory {
         return forgeEvent;
     }
 
-    public static WorldEvent.Load createWorldLoadEvent(Event event) {
-        if (!(event instanceof LoadWorldEvent)) {
-            throw new IllegalArgumentException("Event is not a valid LoadWorldEvent.");
-        }
-
-        LoadWorldEvent spongeEvent = (LoadWorldEvent) event;
-        WorldEvent.Load forgeEvent =
-                new WorldEvent.Load((net.minecraft.world.World) spongeEvent.getTargetWorld());
-        return forgeEvent;
-    }
-
     public static WorldEvent.Save createWorldSaveEvent(Event event) {
         if (!(event instanceof SaveWorldEvent)) {
             throw new IllegalArgumentException("Event is not a valid SaveWorldEvent.");
@@ -709,17 +706,6 @@ public class SpongeForgeEventFactory {
         SaveWorldEvent spongeEvent = (SaveWorldEvent) event;
         WorldEvent.Save forgeEvent =
                 new WorldEvent.Save((net.minecraft.world.World) spongeEvent.getTargetWorld());
-        return forgeEvent;
-    }
-
-    public static WorldEvent.Unload createWorldUnloadEvent(Event event) {
-        if (!(event instanceof UnloadWorldEvent)) {
-            throw new IllegalArgumentException("Event is not a valid UnloadWorldEvent.");
-        }
-
-        UnloadWorldEvent spongeEvent = (UnloadWorldEvent) event;
-        WorldEvent.Unload forgeEvent =
-                new WorldEvent.Unload((net.minecraft.world.World) spongeEvent.getTargetWorld());
         return forgeEvent;
     }
 
@@ -1206,6 +1192,28 @@ public class SpongeForgeEventFactory {
                 spongeEvent.setCancelled(true);
             }
         }
+
+        return spongeEvent;
+    }
+
+    private static LoadWorldEvent callWorldLoadEvent(Event event) {
+        if (!(event instanceof LoadWorldEvent)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid LoadWorldEvent.");
+        }
+
+        LoadWorldEvent spongeEvent = (LoadWorldEvent) event;
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new WorldEvent.Load((net.minecraft.world.World) spongeEvent.getTargetWorld()), true);
+
+        return spongeEvent;
+    }
+
+    private static UnloadWorldEvent callWorldUnloadEvent(Event event) {
+        if (!(event instanceof UnloadWorldEvent)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid UnloadWorldEvent.");
+        }
+
+        UnloadWorldEvent spongeEvent = (UnloadWorldEvent) event;
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new WorldEvent.Unload((net.minecraft.world.World) spongeEvent.getTargetWorld()), true);
 
         return spongeEvent;
     }
