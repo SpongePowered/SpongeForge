@@ -27,12 +27,17 @@ package org.spongepowered.mod.mixin.core.forge;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.ForgeHooks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.IPhaseState;
+import org.spongepowered.common.event.tracking.PhaseData;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 @Mixin(value = ForgeHooks.class, remap = false)
@@ -56,6 +61,13 @@ public class MixinForgeHooks {
             state = staticState;
         } else {
             state = world.getBlockState(pos).getActualState(world, pos);
+        }
+        // Add cause tracker checks for pre and post ticks
+        if (world instanceof IMixinWorldServer && player instanceof EntityPlayerMP) {
+            final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+            final PhaseData peek = causeTracker.getStack().peek();
+            final IPhaseState phaseState = peek.getState();
+            phaseState.getPhase().capturePlayerUsingStackToBreakBlock(null, (EntityPlayerMP) player, phaseState, peek.getContext(), causeTracker);
         }
         // Sponge End
         if (state.getMaterial().isToolNotRequired()) {

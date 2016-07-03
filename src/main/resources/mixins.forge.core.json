@@ -61,6 +61,7 @@
         "event.world.MixinEventWorldUnload",
         "fml.common.eventhandler.MixinEventBus",
         "fml.common.gameevent.MixinPlayerEvent",
+        "fml.common.gameevent.MixinWorldTickEvent",
         "fml.common.registry.MixinEntityRegistry",
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",

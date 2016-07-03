@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
+import net.minecraft.block.BlockAir;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
@@ -130,8 +131,13 @@ public class SpongeMod extends DummyModContainer {
 
         RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
         this.game.getRegistry().preRegistryInit();
-        SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (obj, id, location) ->
-                BlockTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.BLOCKS.getKey(obj).toString(), (BlockType) obj));
+        SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (obj, id, location) -> {
+            if (obj instanceof BlockAir && !"minecraft:air".equalsIgnoreCase(location.toString())) {
+                BlockTypeRegistryModule.getInstance().registerFromGameData(location.toString(), (BlockType) obj);
+            } else {
+                BlockTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.BLOCKS.getKey(obj).toString(), (BlockType) obj);
+            }
+        });
         SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (obj, id, location) ->
                 ItemTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ITEMS.getKey(obj).toString(),
                         (ItemType) obj));
