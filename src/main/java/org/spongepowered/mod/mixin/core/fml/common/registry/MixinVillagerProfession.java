@@ -42,6 +42,11 @@ public abstract class MixinVillagerProfession implements IMixinVillagerProfessio
 
     @Override
     public String getId() {
+        return this.name.toString();
+    }
+
+    @Override
+    public String getProfessionName() {
         return this.name.getResourcePath();
     }
 

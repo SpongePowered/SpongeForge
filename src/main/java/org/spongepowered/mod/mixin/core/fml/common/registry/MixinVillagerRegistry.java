@@ -51,7 +51,8 @@ public class MixinVillagerRegistry {
         final VillagerRegistry.VillagerProfession villagerProfession = (VillagerRegistry.VillagerProfession) thing;
         registry.register(id, name, villagerProfession);
         final int professionId = registry.getId(villagerProfession);
-        final SpongeProfession spongeProfession = new SpongeProfession(professionId, ((IMixinVillagerProfession) thing).getId());
+        final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) villagerProfession;
+        final SpongeProfession spongeProfession = new SpongeProfession(professionId, mixinProfession.getId(), mixinProfession.getProfessionName());
         final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(villagerProfession, spongeProfession);
         ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
     }
