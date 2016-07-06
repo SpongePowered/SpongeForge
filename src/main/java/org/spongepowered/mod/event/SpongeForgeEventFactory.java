@@ -100,6 +100,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Event;
@@ -161,7 +162,7 @@ public class SpongeForgeEventFactory {
         // Block events
         if (BlockEvent.class.isAssignableFrom(clazz)) {
             if (clazz == BlockEvent.NeighborNotifyEvent.class) {
-                return createBlockNeighborNotifyEvent(event);
+
             } else if (clazz == BlockEvent.HarvestDropsEvent.class) {
                 // return createBlockHarvestEvent(event);
             } else if (clazz == BlockEvent.MultiPlaceEvent.class ||
@@ -345,6 +346,9 @@ public class SpongeForgeEventFactory {
         if (SpawnEntityEvent.class.isAssignableFrom(clazz)) {
             return EntityJoinWorldEvent.class;
         }
+        if (NotifyNeighborBlockEvent.class.isAssignableFrom(clazz)) {
+            return BlockEvent.NeighborNotifyEvent.class;
+        }
         if (ChangeBlockEvent.Break.class.isAssignableFrom(clazz)) {
             return BlockEvent.BreakEvent.class;
         }
@@ -402,6 +406,8 @@ public class SpongeForgeEventFactory {
             return callEntityInteractEvent(spongeEvent);
         } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
             return callEntityJoinWorldEvent(spongeEvent);
+        } else if (BlockEvent.NeighborNotifyEvent.class.isAssignableFrom(clazz)) {
+            return callNeighborNotifyEvent(spongeEvent);
         } else if (BlockEvent.BreakEvent.class.isAssignableFrom(clazz)) {
             return callBlockBreakEvent(spongeEvent);
         } else if (BlockEvent.PlaceEvent.class.isAssignableFrom(clazz)) {
@@ -487,30 +493,6 @@ public class SpongeForgeEventFactory {
         BlockEvent.PlaceEvent forgeEvent =
                 new BlockEvent.PlaceEvent(forgeSnapshot, world.getBlockState(pos),
                         (EntityPlayer) player.get());
-        return forgeEvent;
-    }
-
-    public static BlockEvent.NeighborNotifyEvent createBlockNeighborNotifyEvent(Event event) {
-        if (!(event instanceof NotifyNeighborBlockEvent)) {
-            throw new IllegalArgumentException("Event " + event.getClass() + " is not a valid NotifyNeighborBlockEvent.");
-        }
-
-        NotifyNeighborBlockEvent spongeEvent = (NotifyNeighborBlockEvent) event;
-        Optional<BlockSnapshot> blockSnapshot = spongeEvent.getCause().first(BlockSnapshot.class);
-        if (!blockSnapshot.isPresent() || !blockSnapshot.get().getLocation().isPresent()) {
-            return null;
-        }
-
-        EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
-        for (Map.Entry<Direction, BlockState> mapEntry : spongeEvent.getNeighbors().entrySet()) {
-            facings.add(DirectionFacingProvider.getInstance().get(mapEntry.getKey()).get());
-        }
-
-        IBlockState state = (IBlockState) blockSnapshot.get().getState();
-        BlockPos pos = VecHelper.toBlockPos(blockSnapshot.get().getLocation().get());
-        net.minecraft.world.World world = (net.minecraft.world.World) blockSnapshot.get().getLocation().get().getExtent();
-
-        final NeighborNotifyEvent forgeEvent = new NeighborNotifyEvent(world, pos, state, facings);
         return forgeEvent;
     }
 
@@ -1023,6 +1005,49 @@ public class SpongeForgeEventFactory {
         if (spongeEvent.getEntities().size() == 0) {
             spongeEvent.setCancelled(true);
         }
+        return spongeEvent;
+    }
+
+    public static NotifyNeighborBlockEvent callNeighborNotifyEvent(Event event) {
+        if (!(event instanceof NotifyNeighborBlockEvent)) {
+            throw new IllegalArgumentException("Event is not a valid NotifyNeighborBlockEvent");
+        }
+
+        NotifyNeighborBlockEvent spongeEvent = (NotifyNeighborBlockEvent) event;
+        Optional<BlockSnapshot> blockSnapshot = spongeEvent.getCause().first(BlockSnapshot.class);
+        Optional<TileEntity> tileEntitySource = spongeEvent.getCause().first(TileEntity.class);
+        Location<World> sourceLocation = null;
+        IBlockState state = null;
+        if (blockSnapshot.isPresent()) {
+            Location<World> location = blockSnapshot.get().getLocation().orElse(null);
+            if (location == null) {
+                return null;
+            }
+
+            sourceLocation = location;
+            state = (IBlockState) blockSnapshot.get().getState();
+        } else if (tileEntitySource.isPresent()) {
+            sourceLocation = tileEntitySource.get().getLocation();
+            state = (IBlockState) sourceLocation.getBlock();
+        } else {
+            return null;
+        }
+
+        EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
+        for (Map.Entry<Direction, BlockState> mapEntry : spongeEvent.getNeighbors().entrySet()) {
+            if (mapEntry.getKey() != Direction.NONE) {
+                facings.add(DirectionFacingProvider.getInstance().get(mapEntry.getKey()).get());
+            }
+        }
+
+        BlockPos pos = VecHelper.toBlockPos(sourceLocation);
+        net.minecraft.world.World world = (net.minecraft.world.World) sourceLocation.getExtent();
+        final NeighborNotifyEvent forgeEvent = new NeighborNotifyEvent(world, pos, state, facings);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+        if (forgeEvent.isCanceled()) {
+            spongeEvent.setCancelled(true);
+        }
+
         return spongeEvent;
     }
 

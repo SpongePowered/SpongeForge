@@ -25,7 +25,6 @@
         "entity.player.MixinEntityPlayerMP",
         "entity.vehicle.MixinEntityMinecart",
         "event.block.MixinEventBlock",
-        "event.block.MixinEventNotifyNeighborBlock",
         "event.entity.MixinEventEntity",
         "event.entity.MixinEventEntityConstructing",
         "event.entity.MixinEventEntityItemPickup",
