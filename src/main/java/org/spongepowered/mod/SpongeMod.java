@@ -30,6 +30,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import net.minecraft.block.BlockAir;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
@@ -80,6 +81,7 @@ import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
+import org.spongepowered.common.interfaces.block.IMixinBlock;
 import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
@@ -134,11 +136,12 @@ public class SpongeMod extends DummyModContainer {
         RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
         this.game.getRegistry().preRegistryInit();
         SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (obj, id, location) -> {
-            if (obj instanceof BlockAir && !"minecraft:air".equalsIgnoreCase(location.toString())) {
-                BlockTypeRegistryModule.getInstance().registerFromGameData(location.toString(), (BlockType) obj);
-            } else {
-                BlockTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.BLOCKS.getKey(obj).toString(), (BlockType) obj);
+            final ResourceLocation key = ForgeRegistries.BLOCKS.getKey(obj);
+            if (key == null || ((IMixinBlock) obj).isDummy()) {
+                return;
             }
+            BlockTypeRegistryModule.getInstance().registerFromGameData(key.toString(), (BlockType) obj);
+
         });
         SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (obj, id, location) ->
                 ItemTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ITEMS.getKey(obj).toString(),

@@ -60,6 +60,7 @@
         "fml.common.gameevent.MixinPlayerEvent",
         "fml.common.gameevent.MixinWorldTickEvent",
         "fml.common.registry.MixinEntityRegistry",
+        "fml.common.registry.MixinBlockDummyAir",
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",
         "forge.MixinForgeHooks",
