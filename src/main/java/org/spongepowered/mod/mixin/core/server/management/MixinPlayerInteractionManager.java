@@ -228,14 +228,6 @@ public abstract class MixinPlayerInteractionManager {
                         player.inventory.getCurrentItem());*/
             }
 
-            // Since we cancel the second packet received while looking at a block with
-            // item in hand, we need to make sure to make an attempt to run the 'tryUseItem'
-            // method during the first packet.
-            if (stack != null && result != EnumActionResult.SUCCESS && !event.isCancelled() && event.getUseItemResult() != Tristate.FALSE) {
-                SpongeCommonEventFactory.ignoreRightClickAirEvent = true;
-                this.processRightClick(player, worldIn, oldStack, hand);
-                SpongeCommonEventFactory.ignoreRightClickAirEvent = false;
-            }
             return result;
         }
     }
