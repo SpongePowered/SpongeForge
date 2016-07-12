@@ -30,6 +30,7 @@ import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraft.world.gen.ChunkProviderEnd;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,7 +42,7 @@ public abstract class MixinChunkProviderEnd implements IChunkGenerator {
 
     @Shadow(remap = false) private int chunkX; // Forge added
     @Shadow(remap = false) private int chunkZ; // Forge added
-    @Shadow private World worldObj;
+    @Shadow @Final private World worldObj;
 
 
     @Inject(method = "buildSurfaces(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
