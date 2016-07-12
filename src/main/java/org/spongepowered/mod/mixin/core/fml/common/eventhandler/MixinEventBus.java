@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import co.aikar.timings.TimingsManager;
 import com.google.common.base.Throwables;
+import com.google.common.reflect.TypeToken;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -139,16 +140,19 @@ public abstract class MixinEventBus implements IMixinEventBus {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Redirect(method = "register(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/reflect/Method;Lnet/minecraftforge/fml/common/ModContainer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;register(ILnet/minecraftforge/fml/common/eventhandler/EventPriority;Lnet/minecraftforge/fml/common/eventhandler/IEventListener;)V"))
     public void onRegister(ListenerList list, int id, EventPriority priority, IEventListener listener, Class<? extends Event> eventType, Object target, Method method, ModContainer owner) {
         list.register(id, priority, listener);
 
         SpongeModEventManager manager = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager());
 
-        Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(eventType);
-        if (spongeEvents != null) {
-            for (Class<? extends org.spongepowered.api.event.Event> event: spongeEvents) {
-                manager.checker.registerListenerFor(event);
+        for (Class clazz: TypeToken.of(eventType).getTypes().rawTypes()) {
+            Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(clazz);
+            if (spongeEvents != null) {
+                for (Class<? extends org.spongepowered.api.event.Event> event : spongeEvents) {
+                    manager.checker.registerListenerFor(event);
+                }
             }
         }
 
@@ -161,10 +165,12 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
         SpongeModEventManager manager = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager());
 
-        Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(checkNotNull(this.forgeListenerRegistry.remove(listener)));
-        if (spongeEvents != null) {
-            for (Class<? extends org.spongepowered.api.event.Event> event: spongeEvents) {
-                manager.checker.unregisterListenerFor(event);
+        for (Class clazz: TypeToken.of(checkNotNull(this.forgeListenerRegistry.remove(listener))).getTypes().rawTypes()) {
+            Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(clazz);
+            if (spongeEvents != null) {
+                for (Class<? extends org.spongepowered.api.event.Event> event : spongeEvents) {
+                    manager.checker.unregisterListenerFor(event);
+                }
             }
         }
     }
