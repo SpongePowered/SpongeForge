@@ -138,6 +138,7 @@ import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.entity.SpongeEntitySnapshot;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
+import org.spongepowered.common.interfaces.world.IMixinLocation;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -1033,7 +1034,7 @@ public class SpongeForgeEventFactory {
             }
         }
 
-        BlockPos pos = VecHelper.toBlockPos(sourceLocation);
+        BlockPos pos = ((IMixinLocation) (Object) sourceLocation).getBlockPos();
         net.minecraft.world.World world = (net.minecraft.world.World) sourceLocation.getExtent();
         final NeighborNotifyEvent forgeEvent = new NeighborNotifyEvent(world, pos, state, facings);
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
