@@ -223,7 +223,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
 
     @Override
     public DataHolder copy() {
-        FluidStack fluidStack = new FluidStack(this.fluidDelegate.get(), this.amount, (NBTTagCompound) this.tag.copy());
+        FluidStack fluidStack = new FluidStack(this.fluidDelegate.get(), this.amount, this.tag);
         return (DataHolder) fluidStack;
     }
 

@@ -34,8 +34,11 @@ import org.spongepowered.common.world.WorldManager;
 @Mixin(DimensionType.class)
 public abstract class MixinDimensionType {
 
-    @Redirect(method = "register", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/util/EnumHelper;addEnum(Ljava/lang/Class;Ljava/lang"
-            + "/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Enum;"), remap = false)
+    private static final String ADD_ENUM = "Lnet/minecraftforge/common/util/EnumHelper;addEnum(Ljava/lang/Class;"
+                                           + "Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Enum;";
+
+    @SuppressWarnings("unchecked")
+    @Redirect(method = "register", at = @At(value = "INVOKE", target = ADD_ENUM), remap = false)
     private static <T extends Enum<? >> T onAddEnum(Class<T> enumType, String enumName, Class<?>[] paramTypes, Object... paramValues) {
         final DimensionType dimensionType = (DimensionType) EnumHelper.addEnum(enumType, enumName, paramTypes, paramValues);
         WorldManager.registerDimensionType(dimensionType);

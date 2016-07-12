@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.event.forge.IMixinWorldTickEvent;
 
-@Mixin(TickEvent.WorldTickEvent.class)
+@Mixin(value = TickEvent.WorldTickEvent.class, remap = false)
 @Implements(@Interface(iface = IMixinWorldTickEvent.class, prefix = "worldTick$", unique = true))
 public class MixinWorldTickEvent implements IMixinWorldTickEvent {
 
