@@ -24,22 +24,29 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import co.aikar.timings.TimingsManager;
 import com.google.common.base.Throwables;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
+import net.minecraftforge.fml.common.eventhandler.ListenerList;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.event.SpongeForgeEventHooks;
@@ -47,11 +54,20 @@ import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 @NonnullByDefault
 @Mixin(value = EventBus.class, remap = false)
 public abstract class MixinEventBus implements IMixinEventBus {
 
     private EventBus eventBus = (EventBus) (Object) this;
+
+    // Because Forge can't be bothered to keep track of this information itself
+    private Map<IEventListener, Class<? extends Event>> forgeListenerRegistry = new HashMap<>();
 
     @Shadow @Final private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;
@@ -120,6 +136,36 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
             }
             return (event.isCancelable() ? event.isCanceled() : false);
+        }
+    }
+
+    @Redirect(method = "register(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/reflect/Method;Lnet/minecraftforge/fml/common/ModContainer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;register(ILnet/minecraftforge/fml/common/eventhandler/EventPriority;Lnet/minecraftforge/fml/common/eventhandler/IEventListener;)V"))
+    public void onRegister(ListenerList list, int id, EventPriority priority, IEventListener listener, Class<? extends Event> eventType, Object target, Method method, ModContainer owner) {
+        list.register(id, priority, listener);
+
+        SpongeModEventManager manager = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager());
+
+        Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(eventType);
+        if (spongeEvents != null) {
+            for (Class<? extends org.spongepowered.api.event.Event> event: spongeEvents) {
+                manager.checker.registerListenerFor(event);
+            }
+        }
+
+        forgeListenerRegistry.put(listener, eventType);
+    }
+
+    @Redirect(method = "unregister", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;unregisterAll(ILnet/minecraftforge/fml/common/eventhandler/IEventListener;)V"))
+    public void onUnregisterListener(int id, IEventListener listener) {
+        ListenerList.unregisterAll(id, listener);
+
+        SpongeModEventManager manager = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager());
+
+        Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(checkNotNull(this.forgeListenerRegistry.remove(listener)));
+        if (spongeEvents != null) {
+            for (Class<? extends org.spongepowered.api.event.Event> event: spongeEvents) {
+                manager.checker.unregisterListenerFor(event);
+            }
         }
     }
 
