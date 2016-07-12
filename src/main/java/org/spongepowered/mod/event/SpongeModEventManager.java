@@ -160,7 +160,7 @@ public class SpongeModEventManager extends SpongeEventManager {
     Class[] useItemStack = new Class[] {UseItemStackEvent.Start.class, UseItemStackEvent.Tick.class, UseItemStackEvent.Stop.class, UseItemStackEvent.Finish.class, UseItemStackEvent.Replace.class, UseItemStackEvent.Reset.class};
     Class[] interactEntity = new Class[] {InteractEntityEvent.Primary.MainHand.class, InteractEntityEvent.Primary.OffHand.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class};
     Class[] interactBlock = new Class[] {InteractBlockEvent.Primary.MainHand.class, InteractBlockEvent.Primary.OffHand.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class};
-    Class[] spawnEntityEvent = new Class[] {SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class, SpawnEntityEvent.Custom.class};
+    Class[] spawnEntityEvent = new Class[] {SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class};
 
     @SuppressWarnings("unchecked")
     public final ImmutableMultimap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, Class<? extends Event>>
@@ -179,31 +179,36 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(LivingExperienceDropEvent.class, HarvestEntityEvent.TargetPlayer.class)
                     .put(LivingHealEvent.class, HealEntityEvent.class)
                     .put(LivingHurtEvent.class, org.spongepowered.api.event.entity.AttackEntityEvent.class)
-                    .putAll(LivingSpawnEvent.class, SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class, SpawnEntityEvent.Custom.class)
-                    .putAll(ZombieEvent.class, SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class, SpawnEntityEvent.Custom.class)
+                    .putAll(LivingSpawnEvent.class, SpawnEntityEvent.Spawner.class)
+                    .putAll(ZombieEvent.class, SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class)
 
                     .put(MinecartCollisionEvent.class, CollideEntityEvent.Impact.class)
                     .putAll(MinecartInteractEvent.class, interactEntity)
 
-                    .put(ArrowLooseEvent.class, SpawnEntityEvent.Custom.class)
+                    .put(ArrowLooseEvent.class, SpawnEntityEvent.Spawner.class)
                     .putAll(ArrowNockEvent.class, useItemStack)
                     .put(AttackEntityEvent.class, org.spongepowered.api.event.entity.AttackEntityEvent.class)
 
                     .putAll(BonemealEvent.class, interactBlock)
                     .putAll(BonemealEvent.class, useItemStack)
 
-                    .putAll(EntityItemPickupEvent.class, ChangeInventoryEvent.Pickup.class, ChangeInventoryEvent.Equipment.class, DestructEntityEvent.class)
+                    .putAll(EntityItemPickupEvent.class, ChangeInventoryEvent.Pickup.class,  DestructEntityEvent.class)
 
                     .putAll(FillBucketEvent.class, interactBlock)
                     .putAll(FillBucketEvent.class, useItemStack)
 
-                    .putAll(PlayerDestroyItemEvent.class, DestructEntityEvent.class, DropItemEvent.Dispense.class, DropItemEvent.Destruct.class)
-                    .putAll(PlayerDropsEvent.class, DropItemEvent.Dispense.class, DropItemEvent.Destruct.class, DestructEntityEvent.class)
+                    .putAll(PlayerDestroyItemEvent.class, DestructEntityEvent.class, DropItemEvent.Destruct.class)
+                    .putAll(PlayerDropsEvent.class, DropItemEvent.Dispense.class, DropItemEvent.Destruct.class, DestructEntityEvent.Death.class)
                     .putAll(net.minecraftforge.event.entity.player.PlayerEvent.HarvestCheck.class, ChangeBlockEvent.Modify.class, ChangeBlockEvent.Post.class)
                     .put(PlayerFlyableFallEvent.class, MoveEntityEvent.class)
 
-                    .putAll(PlayerInteractEvent.class, interactBlock)
-                    .putAll(PlayerInteractEvent.class, interactEntity)
+
+                    .putAll(PlayerInteractEvent.EntityInteract.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class)
+                    .putAll(PlayerInteractEvent.EntityInteractSpecific.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class)
+                    .putAll(PlayerInteractEvent.RightClickBlock.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class)
+                    .putAll(PlayerInteractEvent.RightClickItem.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class)
+                    .putAll(PlayerInteractEvent.LeftClickBlock.class, InteractBlockEvent.Primary.MainHand.class, InteractBlockEvent.Primary.OffHand.class)
+                    .putAll(PlayerInteractEvent.LeftClickEmpty.class, InteractBlockEvent.Primary.MainHand.class, InteractBlockEvent.Primary.OffHand.class)
 
                     .putAll(PlayerPickupXpEvent.class, ChangeEntityExperienceEvent.class, DestructEntityEvent.class)
 
@@ -222,10 +227,9 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .putAll(BlockEvent.HarvestDropsEvent.class, SpawnEntityEvent.class, DropItemEvent.class, ChangeBlockEvent.class)
                     .putAll(BlockEvent.BreakEvent.class, ChangeBlockEvent.Break.class, ChangeBlockEvent.Post.class)
                     .putAll(BlockEvent.PlaceEvent.class, ChangeBlockEvent.Place.class, ChangeBlockEvent.Modify.class, ChangeBlockEvent.Post.class)
-                    .putAll(BlockEvent.MultiPlaceEvent.class, ChangeBlockEvent.Place.class, ChangeBlockEvent.Modify.class, ChangeBlockEvent.Post.class)
+                    .putAll(BlockEvent.MultiPlaceEvent.class, ChangeBlockEvent.Place.class)
                     .put(BlockEvent.NeighborNotifyEvent.class, NotifyNeighborBlockEvent.class)
 
-                    .put(ChunkDataEvent.Load.class, LoadChunkEvent.class)
                     .put(ChunkEvent.Load.class, LoadChunkEvent.class)
 
                     .putAll(ExplosionEvent.class, org.spongepowered.api.event.world.ExplosionEvent.Pre.class,
