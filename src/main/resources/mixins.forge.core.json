@@ -80,6 +80,7 @@
         "server.MixinServerCommandManager",
         "server.MixinServerConfigurationManager",
         "server.management.MixinItemInWorldManager",
+        "server.management.MixinPlayerInstance",
         "world.MixinChunk",
         "world.MixinExplosion",
         "world.MixinWorld",
