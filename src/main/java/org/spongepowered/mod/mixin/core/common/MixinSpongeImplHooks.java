@@ -31,6 +31,7 @@ import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -49,6 +50,8 @@ import javax.annotation.Nullable;
 
 @Mixin(value = SpongeImplHooks.class, remap = false)
 public abstract class MixinSpongeImplHooks {
+
+    private static Boolean deobfuscatedEnvironment;
 
     @Overwrite
     public static boolean blockHasTileEntity(Block block, IBlockState state) {
@@ -127,5 +130,15 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static boolean canDoRainSnowIce(WorldProvider provider, net.minecraft.world.chunk.Chunk chunk) {
         return provider.canDoRainSnowIce(chunk);
+    }
+
+    @Overwrite
+    public static boolean isDeobfuscatedEnvironment() {
+        if (deobfuscatedEnvironment != null) {
+            return deobfuscatedEnvironment;
+        }
+
+        deobfuscatedEnvironment = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+        return deobfuscatedEnvironment;
     }
 }
