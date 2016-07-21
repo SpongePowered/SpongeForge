@@ -44,6 +44,7 @@ import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.extra.fluid.FluidStackSnapshot;
 import org.spongepowered.api.extra.fluid.FluidType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -110,9 +111,30 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
         return DataTransactionResult.failNoData();
     }
 
+    @Override
+    public <E> DataTransactionResult offer(Key<? extends BaseValue<E>> key, E value, Cause cause) {
+        final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = SpongeDataManager.getInstance().getBaseValueProcessor(key);
+        if (optional.isPresent()) {
+            return optional.get().offerToStore(this, value);
+        } else if (this instanceof IMixinCustomDataHolder) {
+            return ((IMixinCustomDataHolder) this).offerCustom(key, value);
+        }
+        return DataTransactionResult.failNoData();    }
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public DataTransactionResult offer(DataManipulator<?, ?> valueContainer, MergeFunction function) {
+        final Optional<DataProcessor> optional = SpongeDataManager.getInstance().getWildDataProcessor(valueContainer.getClass());
+        if (optional.isPresent()) {
+            return optional.get().set(this, valueContainer, checkNotNull(function));
+        } else if (this instanceof IMixinCustomDataHolder) {
+            return ((IMixinCustomDataHolder) this).offerCustom(valueContainer, function);
+        }
+        return DataTransactionResult.failResult(valueContainer.getValues());
+    }
+
+    @Override
+    public DataTransactionResult offer(DataManipulator<?, ?> valueContainer, MergeFunction function, Cause cause) {
         final Optional<DataProcessor> optional = SpongeDataManager.getInstance().getWildDataProcessor(valueContainer.getClass());
         if (optional.isPresent()) {
             return optional.get().set(this, valueContainer, checkNotNull(function));
