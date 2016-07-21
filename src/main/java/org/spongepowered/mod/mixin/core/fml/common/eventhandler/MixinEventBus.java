@@ -95,13 +95,14 @@ public abstract class MixinEventBus implements IMixinEventBus {
         } else {
             listeners = event.getListenerList().getListeners(this.busID);
             int index = 0;
+            IMixinASMEventHandler modListener = null;
             try {
                 if (SpongeImpl.isInitialized()) {
                     TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
                 }
                 for (; index < listeners.length; index++) {
                     if (listeners[index] instanceof IMixinASMEventHandler ) {
-                        IMixinASMEventHandler modListener = (IMixinASMEventHandler) listeners[index];
+                        modListener = (IMixinASMEventHandler) listeners[index];
                         modListener.getTimingsHandler().startTimingIfSync();
                         listeners[index].invoke(event);
                         modListener.getTimingsHandler().stopTimingIfSync();
@@ -110,6 +111,9 @@ public abstract class MixinEventBus implements IMixinEventBus {
                     }
                 }
             } catch (Throwable throwable) {
+                if (modListener != null) {
+                    modListener.getTimingsHandler().stopTimingIfSync();
+                }
                 this.exceptionHandler.handleException(this.eventBus, event, listeners, index, throwable);
                 Throwables.propagate(throwable);
             }
