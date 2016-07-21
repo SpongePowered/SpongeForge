@@ -6,6 +6,7 @@
     "target": "@env(PREINIT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
+        "forge.MixinUsernameCache",
         "fml.common.MixinFMLCommonHandler",
         "fml.common.MixinLoader",
         "fml.common.MixinModMetadata",

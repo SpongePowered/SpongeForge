@@ -70,7 +70,6 @@
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",
         "forge.MixinForgeHooks",
-        "forge.MixinUsernameCache",
         "forge.event.MixinForgeEventFactory",
         "forge.fluids.MixinFluid",
         "forge.fluids.MixinFluidRegistry",
