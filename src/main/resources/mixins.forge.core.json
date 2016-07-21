@@ -64,9 +64,13 @@
         "fml.common.eventhandler.MixinEventBus",
         "fml.common.gameevent.MixinPlayerEvent",
         "fml.common.registry.MixinEntityRegistry",
+        "fml.common.registry.MixinVillagerCareer",
+        "fml.common.registry.MixinVillagerProfession",
+        "fml.common.registry.MixinVillagerRegistry",
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",
         "forge.MixinForgeHooks",
+        "forge.MixinUsernameCache",
         "forge.event.MixinForgeEventFactory",
         "forge.fluids.MixinFluid",
         "forge.fluids.MixinFluidRegistry",
@@ -81,6 +85,7 @@
         "server.MixinServerConfigurationManager",
         "server.management.MixinItemInWorldManager",
         "server.management.MixinPlayerInstance",
+        "server.management.MixinPlayerProfileCache",
         "world.MixinChunk",
         "world.MixinExplosion",
         "world.MixinWorld",
@@ -90,10 +95,7 @@
         "world.gen.MixinChunkProviderEnd",
         "world.gen.MixinChunkProviderServer",
         "world.gen.feature.MixinWorldGeneratorForge",
-        "world.storage.MixinSaveHandler",
-        "fml.common.registry.MixinVillagerCareer",
-        "fml.common.registry.MixinVillagerProfession",
-        "fml.common.registry.MixinVillagerRegistry"
+        "world.storage.MixinSaveHandler"
     ],
     "client": [
         "client.MixinMinecraft",
