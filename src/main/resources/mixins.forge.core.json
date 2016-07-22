@@ -60,7 +60,6 @@
         "event.world.MixinEventWorldExplosion",
         "event.world.MixinEventWorldExplosion$Pre",
         "event.world.MixinEventWorldExplosion$Detonate",
-        "event.world.MixinEventWorldSave",
         "fml.common.eventhandler.MixinEventBus",
         "fml.common.gameevent.MixinPlayerEvent",
         "fml.common.registry.MixinEntityRegistry",

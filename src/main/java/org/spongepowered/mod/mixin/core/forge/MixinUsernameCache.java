@@ -62,7 +62,7 @@ public class MixinUsernameCache {
 
     @Overwrite
     protected static void save() {
-        SpongeUsernameCache.save();
+        // saves are only performed during world save
     }
 
     @Overwrite

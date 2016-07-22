@@ -30,6 +30,7 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
@@ -65,6 +66,8 @@ public abstract class MixinEventBus implements IMixinEventBus {
         } else if (event instanceof EntityInteractEvent) {
             return false;
         } else if (event instanceof LivingDropsEvent) {
+            return false;
+        } else if (event instanceof WorldEvent.Save) {
             return false;
         } else if (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent) {
             return false;

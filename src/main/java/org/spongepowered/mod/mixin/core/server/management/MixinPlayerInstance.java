@@ -49,13 +49,13 @@ public class MixinPlayerInstance implements IMixinPlayerInstance {
 
     private PlayerInstance playerInstance = (PlayerInstance)(Object) this;
     private Chunk chunk;
-    @Shadow(aliases = "this$0") @Final private PlayerManager playerManager;
+    @Shadow(aliases = "this$0", remap = false) @Final private PlayerManager playerManager;
     @Shadow @Final public List<EntityPlayerMP> playersWatchingChunk;
     @Shadow @Final public ChunkCoordIntPair chunkCoords;
-    @Shadow @Final private java.util.HashMap<EntityPlayerMP, Runnable> players;
+    @Shadow(remap = false) @Final private java.util.HashMap<EntityPlayerMP, Runnable> players;
     @Shadow public long previousWorldTime;
-    @Shadow private Runnable loadedRunnable;
-    @Shadow private boolean loaded;
+    @Shadow(remap = false) private Runnable loadedRunnable;
+    @Shadow(remap = false) private boolean loaded;
 
     @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;loadChunk(IILjava/lang/Runnable;)Lnet/minecraft/world/chunk/Chunk;", remap = false))
     public Chunk onLoadChunk(ChunkProviderServer chunkProviderServer, int chunkX, int chunkZ, Runnable runnable) {
