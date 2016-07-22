@@ -84,7 +84,6 @@
         "server.MixinServerConfigurationManager",
         "server.management.MixinItemInWorldManager",
         "server.management.MixinPlayerInstance",
-        "server.management.MixinPlayerProfileCache",
         "world.MixinChunk",
         "world.MixinExplosion",
         "world.MixinWorld",

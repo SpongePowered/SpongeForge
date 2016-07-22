@@ -57,7 +57,7 @@ public class MixinPlayerInstance implements IMixinPlayerInstance {
     @Shadow private Runnable loadedRunnable;
     @Shadow private boolean loaded;
 
-    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;loadChunk(IILjava/lang/Runnable;)Lnet/minecraft/world/chunk/Chunk;"))
+    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;loadChunk(IILjava/lang/Runnable;)Lnet/minecraft/world/chunk/Chunk;", remap = false))
     public Chunk onLoadChunk(ChunkProviderServer chunkProviderServer, int chunkX, int chunkZ, Runnable runnable) {
         this.loadedRunnable = new PlayerChunkRunnable(this.playerManager, this.playerInstance);
         this.chunk = playerManager.getWorldServer().theChunkProviderServer.loadChunk(chunkX, chunkZ, this.loadedRunnable);
