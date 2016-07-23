@@ -52,7 +52,7 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements P
     }
 
     @Override
-    public MessageChannelEvent.Chat chat(Text message) {
+    public MessageChannelEvent.Chat simulateChat(Text message) {
         String messageRaw = SpongeTexts.toLegacy(message);
         ITextComponent itextcomponent = new TextComponentTranslation("chat.type.text", SpongeTexts.toComponent(getDisplayNameText()), net.minecraftforge.common.ForgeHooks.newChatWithLinks(messageRaw));
 
