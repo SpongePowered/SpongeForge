@@ -293,7 +293,6 @@ public class SpongeForgeEventFactory {
             } else if (clazz == WorldEvent.Load.class) {
             } else if (clazz == WorldEvent.Unload.class) {
             } else if (clazz == WorldEvent.Save.class) {
-                return createWorldSaveEvent(event);
             } else {
                 return createWorldEvent(event);
             }
@@ -428,6 +427,8 @@ public class SpongeForgeEventFactory {
             return callWorldUnloadEvent(spongeEvent);
         } else if (WorldEvent.Load.class.isAssignableFrom(clazz)) {
             return callWorldLoadEvent(spongeEvent);
+        } else if (WorldEvent.Save.class.isAssignableFrom(clazz)) {
+            return callWorldSaveEvent(spongeEvent);
         }
         return spongeEvent;
     }
@@ -680,17 +681,6 @@ public class SpongeForgeEventFactory {
         TargetWorldEvent spongeEvent = (TargetWorldEvent) event;
         WorldEvent forgeEvent =
                 new WorldEvent((net.minecraft.world.World) spongeEvent.getTargetWorld());
-        return forgeEvent;
-    }
-
-    public static WorldEvent.Save createWorldSaveEvent(Event event) {
-        if (!(event instanceof SaveWorldEvent)) {
-            throw new IllegalArgumentException("Event is not a valid SaveWorldEvent.");
-        }
-
-        SaveWorldEvent spongeEvent = (SaveWorldEvent) event;
-        WorldEvent.Save forgeEvent =
-                new WorldEvent.Save((net.minecraft.world.World) spongeEvent.getTargetWorld());
         return forgeEvent;
     }
 
@@ -1220,6 +1210,17 @@ public class SpongeForgeEventFactory {
                 spongeEvent.setCancelled(true);
             }
         }
+
+        return spongeEvent;
+    }
+
+    private static SaveWorldEvent callWorldSaveEvent(Event event) {
+        if (!(event instanceof SaveWorldEvent)) {
+            throw new IllegalArgumentException("Event " + event + " is not a valid SaveWorldEvent.");
+        }
+
+        SaveWorldEvent spongeEvent = (SaveWorldEvent) event;
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new WorldEvent.Save((net.minecraft.world.World) spongeEvent.getTargetWorld()), true);
 
         return spongeEvent;
     }

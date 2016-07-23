@@ -34,6 +34,7 @@ import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -83,6 +84,8 @@ public abstract class MixinEventBus implements IMixinEventBus {
             return false;
         } else if (event instanceof LivingDropsEvent) {
             return false;
+        } else if (event instanceof WorldEvent.Save) {
+            return false;
         } else if (event instanceof AttackEntityEvent) { // TODO - gabizou - figure this one out
             return false;
         }
@@ -112,6 +115,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         } else {
             listeners = event.getListenerList().getListeners(this.busID);
             int index = 0;
+            IMixinASMEventHandler modListener = null;
             try {
                 if (SpongeImpl.isInitialized()) {
                     TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
@@ -119,7 +123,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 for (; index < listeners.length; index++) {
                     final IEventListener listener = listeners[index];
                     if (listener instanceof IMixinASMEventHandler ) {
-                        IMixinASMEventHandler modListener = (IMixinASMEventHandler) listener;
+                        modListener = (IMixinASMEventHandler) listener;
                         modListener.getTimingsHandler().startTimingIfSync();
                         SpongeForgeEventHooks.preEventPhaseCheck(listener, event);
                         listener.invoke(event);
@@ -130,6 +134,9 @@ public abstract class MixinEventBus implements IMixinEventBus {
                     }
                 }
             } catch (Throwable throwable) {
+                if (modListener != null) {
+                    modListener.getTimingsHandler().stopTimingIfSync();
+                }
                 this.exceptionHandler.handleException(this.eventBus, event, listeners, index, throwable);
                 Throwables.propagate(throwable);
             }
@@ -156,7 +163,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
             }
         }
 
-        forgeListenerRegistry.put(listener, eventType);
+        this.forgeListenerRegistry.put(listener, eventType);
     }
 
     @Redirect(method = "unregister", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;unregisterAll(ILnet/minecraftforge/fml/common/eventhandler/IEventListener;)V"))

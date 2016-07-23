@@ -22,28 +22,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.world;
+package org.spongepowered.mod.mixin.core.forge;
 
-import net.minecraftforge.event.world.WorldEvent;
-import org.spongepowered.api.event.world.SaveWorldEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.World;
+import net.minecraftforge.common.UsernameCache;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.common.util.SpongeUsernameCache;
 
-@NonnullByDefault
-@Mixin(value = WorldEvent.Save.class, remap = false)
-public abstract class MixinEventWorldSave extends MixinEventWorld implements SaveWorldEvent {
+import java.util.Map;
+import java.util.UUID;
 
-    @SuppressWarnings("unused")
-    private static WorldEvent.Save fromSpongeEvent(SaveWorldEvent spongeEvent) {
-        WorldEvent.Save event =
-                new WorldEvent.Save((net.minecraft.world.World) spongeEvent.getTargetWorld());
-        return event;
+@Mixin(value = UsernameCache.class, remap = false)
+public class MixinUsernameCache {
+
+    @Overwrite
+    protected static void setUsername(UUID uuid, String username) {
+        SpongeUsernameCache.setUsername(uuid, username);
     }
 
-    @Override
-    public World getTargetWorld() {
-        return (World) this.getWorld();
+    @Overwrite
+    protected static boolean removeUsername(UUID uuid) {
+        return SpongeUsernameCache.removeUsername(uuid);
     }
 
+    @Overwrite
+    public static String getLastKnownUsername(UUID uuid) {
+        return SpongeUsernameCache.getLastKnownUsername(uuid);
+    }
+
+    @Overwrite
+    public static boolean containsUUID(UUID uuid) {
+        return SpongeUsernameCache.containsUUID(uuid);
+    }
+
+    @Overwrite
+    public static Map<UUID, String> getMap() {
+        return SpongeUsernameCache.getMap();
+    }
+
+    @Overwrite
+    protected static void save() {
+        // saves are only performed during world save
+    }
+
+    @Overwrite
+    protected static void load() {
+        SpongeUsernameCache.load();
+    }
 }

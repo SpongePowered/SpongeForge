@@ -73,7 +73,7 @@ public abstract class MixinLoader {
         target = "Lnet/minecraftforge/fml/common/discovery/ModDiscoverer;findModDirMods(Ljava/io/File;[Ljava/io/File;)V"
     ))
     private void discoverMods(ModDiscoverer modDiscoverer, File modsDir, File[] additionalMods) {
-        modDiscoverer.findModDirMods(modsDir);
+        modDiscoverer.findModDirMods(modsDir, additionalMods);
         
         File pluginsDir = this.getPluginsDir();
         if (pluginsDir.isDirectory() && !pluginsDir.equals(modsDir)) {
