@@ -32,13 +32,11 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.IMixinChunk;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.mod.entity.PlayerChunkRunnable;
 import org.spongepowered.mod.interfaces.IMixinPlayerChunkMapEntry;
 
@@ -49,15 +47,15 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
 
     private Chunk chunk;
     @Shadow @Final private PlayerChunkMap playerChunkMap;
-    @Shadow @Final public List<EntityPlayerMP> playersWatchingChunk;
+    @Shadow @Final public List<EntityPlayerMP> players;
     @Shadow @Final public ChunkPos pos;
-    @Shadow(remap = false) @Final private java.util.HashMap<EntityPlayerMP, Runnable> players;
-    @Shadow public long previousWorldTime;
+    @Shadow public boolean sentToPlayers;
     @Shadow(remap = false) private Runnable loadedRunnable;
     @Shadow(remap = false) private boolean loading;
 
     @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;loadChunk(IILjava/lang/Runnable;)Lnet/minecraft/world/chunk/Chunk;", remap = false))
     public Chunk onLoadChunk(ChunkProviderServer chunkProviderServer, int chunkX, int chunkZ, Runnable runnable) {
+        this.loading = true;
         this.loadedRunnable = new PlayerChunkRunnable(this.playerChunkMap, (PlayerChunkMapEntry) (Object) this);
         this.chunk = this.playerChunkMap.getWorldServer().getChunkProvider().loadChunk(chunkX, chunkZ, this.loadedRunnable);
         return this.chunk;
@@ -71,32 +69,32 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
 
         IMixinChunk spongeChunk = (IMixinChunk) this.chunk;
         spongeChunk.setScheduledForUnload(null);
-        this.loading = true;
+        this.loading = false;
     }
 
-    @Inject(method = "addPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/management/PlayerManager$PlayerInstance$2;<init>(Lnet/minecraft/server/management/PlayerManager$PlayerInstance;Lnet/minecraft/entity/player/EntityPlayerMP;)V", remap = false), cancellable = true)
-    public void onAddPlayer(EntityPlayerMP player, CallbackInfo ci) {
-        Runnable playerRunnable = new PlayerChunkRunnable(player, this.playerChunkMap, (PlayerChunkMapEntry) (Object) this);
-        this.chunk = this.playerChunkMap.getWorldServer().getChunkProvider().loadChunk(this.pos.chunkXPos, this.pos.chunkZPos, playerRunnable);
-        this.players.put(player, playerRunnable);
-        ci.cancel();
-    }
-
-    @Redirect(method = "removePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;dropChunk(II)V"))
-    public void onPlayerDropChunk(ChunkProviderServer chunkProviderServer, int chunkX, int chunkZ) {
-        // We remove the ability for a PlayerInstance to queue chunks for unload to prevent chunk thrashing
-        // where the same chunks repeatedly unload and load. This is caused by a player moving in and out of the same chunks.
-        // Instead, the Chunk GC will now be responsible for going through loaded chunks and queuing any chunk where no player
-        // is within view distance or a spawn chunk is force loaded. However, if the Chunk GC is disabled then we will fall back to vanilla
-        // and queue the chunk to be unloaded.
-        // -- blood
-
-        if (((IMixinWorldServer) chunkProviderServer.worldObj).getChunkGCTickInterval() <= 0 || ((IMixinWorldServer) chunkProviderServer.worldObj).getChunkUnloadDelay() <= 0) {
-            chunkProviderServer.unload(this.chunk);
+    /**
+     * @author blood - July 24th, 2016
+     * @reason Add chunk async load support
+     */
+    @Overwrite
+    public boolean providePlayerChunk(boolean canGenerate) {
+        if (this.loading) {
+            return false;
+        }
+        if (this.chunk != null) {
+            return true;
         } else {
-            if (this.chunk != null) {
-                ((IMixinChunk) this.chunk).setScheduledForUnload(System.currentTimeMillis());
+            // Sponge start
+            if (!this.playerChunkMap.getWorldServer().getChunkProvider().chunkExists(this.pos.chunkXPos, this.pos.chunkZPos) && canGenerate) {
+                this.chunk = this.playerChunkMap.getWorldServer().getChunkProvider().provideChunk(this.pos.chunkXPos, this.pos.chunkZPos);
+            } else if (!this.loading) {
+                // try to load chunk async
+                this.loading = true;
+                this.chunk = this.playerChunkMap.getWorldServer().getChunkProvider().loadChunk(this.pos.chunkXPos, this.pos.chunkZPos, this.loadedRunnable);
+                this.markChunkUsed();
             }
+            // Sponge end
+            return this.chunk != null;
         }
     }
 
@@ -108,8 +106,7 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
     }
 
     @Override
-    public void setLoaded(boolean loaded) {
-        // TODO - loaded is no longer added by forge
-//        this.loaded = loaded;
+    public void setLoading(boolean loading) {
+        this.loading = loading;
     }
 }

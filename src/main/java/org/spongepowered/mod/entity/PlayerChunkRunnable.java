@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.entity;
 
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.world.chunk.Chunk;
@@ -35,12 +34,6 @@ public class PlayerChunkRunnable implements Runnable {
 
     private PlayerChunkMap playerChunkMap;
     private PlayerChunkMapEntry playerChunkMapEntry;
-    private EntityPlayerMP player;
-
-    public PlayerChunkRunnable(EntityPlayerMP player, PlayerChunkMap playerChunkMap, PlayerChunkMapEntry playerChunkMapEntry) {
-        this(playerChunkMap, playerChunkMapEntry);
-        this.player = player;
-    }
 
     public PlayerChunkRunnable(PlayerChunkMap playerChunkMap, PlayerChunkMapEntry playerChunkMapEntry) {
         this.playerChunkMap = playerChunkMap;
@@ -51,17 +44,13 @@ public class PlayerChunkRunnable implements Runnable {
     @Override
     public void run() {
         IMixinPlayerChunkMapEntry spongePlayerChunkMapEntry = (IMixinPlayerChunkMapEntry) this.playerChunkMapEntry;
-        IMixinChunkProviderServer spongeChunkProviderServer = (IMixinChunkProviderServer) this.playerChunkMap.getWorldServer().getChunkProvider();
-        Chunk chunk = spongeChunkProviderServer.getChunkIfLoaded(this.playerChunkMapEntry.pos.chunkXPos, this.playerChunkMapEntry.pos.chunkZPos);
+        Chunk chunk = this.playerChunkMap.getWorldServer().getChunkProvider().getLoadedChunk(this.playerChunkMapEntry.pos.chunkXPos, this.playerChunkMapEntry.pos.chunkZPos);
         if (chunk != null) {
-            // mark chunk used
             spongePlayerChunkMapEntry.setChunk(chunk);
-            if (this.player != null) {
-//                this.player.loadedChunks.add(this.playerChunkMapEntry.pos);
-            }
             return;
         }
-        spongePlayerChunkMapEntry.setLoaded(false);
+        // Since we weren't able to load the chunk async, set loading to false to allow the PlayerChunkMap tick to load
+        spongePlayerChunkMapEntry.setLoading(false);
     }
 
 }

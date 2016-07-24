@@ -82,8 +82,9 @@
         "server.MixinMinecraftServer",
         "server.MixinPlayerList",
         "server.MixinServerCommandManager",
+        "server.management.MixinPlayerChunkMap",
+        "server.management.MixinPlayerChunkMapEntry",
         "server.management.MixinPlayerInteractionManager",
-//        "server.management.MixinPlayerChunkMapEntry",
         "world.MixinChunk",
         "world.MixinDimensionType",
         "world.MixinExplosion",
@@ -100,7 +101,6 @@
     "client": [
         "client.MixinMinecraft",
         "client.gui.MixinGuiOverlayDebug",
-        "client.multiplayer.MixinChunkProviderClient",
         "client.network.MixinNetHandlerPlayClient",
         "client.server.MixinIntegratedServer",
         "server.MixinIntegratedServerAnonInner3"

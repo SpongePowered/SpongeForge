@@ -30,5 +30,5 @@ public interface IMixinPlayerChunkMapEntry {
 
     void setChunk(Chunk chunk);
 
-    void setLoaded(boolean loaded);
+    void setLoading(boolean loading);
 }
