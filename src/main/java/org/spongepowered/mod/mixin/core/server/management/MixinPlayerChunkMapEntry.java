@@ -74,11 +74,14 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
 
     @Redirect(method = "providePlayerChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;provideChunk(II)Lnet/minecraft/world/chunk/Chunk;"))
     public Chunk onProvidePlayerChunk(ChunkProviderServer chunkProviderServer, int chunkX, int chunkZ) {
+        this.loading = true;
         if (!chunkProviderServer.chunkExists(chunkX, chunkZ)) {
-            this.loading = true;
             this.chunk = chunkProviderServer.provideChunk(chunkX, chunkZ);
-            markChunkUsed();
+        } else {
+            // try to load chunk async
+            this.chunk = chunkProviderServer.loadChunk(chunkX, chunkZ, this.loadedRunnable);
         }
+        markChunkUsed();
         return this.chunk;
     }
 
