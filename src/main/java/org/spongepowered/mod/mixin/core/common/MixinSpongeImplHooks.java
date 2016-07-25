@@ -46,6 +46,7 @@ import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.interfaces.block.IMixinBlock;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.SpongeMod;
 
@@ -142,5 +143,27 @@ public abstract class MixinSpongeImplHooks {
 
         deobfuscatedEnvironment = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
         return deobfuscatedEnvironment;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Overwrite
+    public static int getChunkPosLight(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
+        if (((IMixinBlock) blockState.getBlock()).requiresLocationCheckForLightValue()) {
+            return blockState.getLightValue(worldObj, pos);
+        }
+        return blockState.getLightValue();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Overwrite
+    public static int getChunkBlockLightOpacity(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
+
+        return blockState.getLightOpacity();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Overwrite
+    public static int getChunkBlockLightOpacity(IBlockState state, net.minecraft.world.World worldObj, int x, int y, int z) {
+        return state.getLightOpacity();
     }
 }
