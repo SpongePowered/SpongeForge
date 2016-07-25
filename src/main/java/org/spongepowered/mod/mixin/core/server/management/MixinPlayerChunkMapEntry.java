@@ -32,7 +32,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -58,6 +57,7 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
         this.loading = true;
         this.loadedRunnable = new PlayerChunkRunnable(this.playerChunkMap, (PlayerChunkMapEntry) (Object) this);
         this.chunk = this.playerChunkMap.getWorldServer().getChunkProvider().loadChunk(chunkX, chunkZ, this.loadedRunnable);
+        this.markChunkUsed();
         return this.chunk;
     }
 
@@ -72,30 +72,27 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
         this.loading = false;
     }
 
+    @Redirect(method = "providePlayerChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;provideChunk(II)Lnet/minecraft/world/chunk/Chunk;"))
+    public Chunk onProvidePlayerChunk(ChunkProviderServer chunkProviderServer, int chunkX, int chunkZ) {
+        if (!chunkProviderServer.chunkExists(chunkX, chunkZ)) {
+            this.loading = true;
+            this.chunk = chunkProviderServer.provideChunk(chunkX, chunkZ);
+            markChunkUsed();
+        }
+        return this.chunk;
+    }
+
     /**
      * @author blood - July 24th, 2016
      * @reason Add chunk async load support
      */
-    @Overwrite
-    public boolean providePlayerChunk(boolean canGenerate) {
-        if (this.loading) {
-            return false;
-        }
-        if (this.chunk != null) {
-            return true;
-        } else {
-            // Sponge start
-            if (!this.playerChunkMap.getWorldServer().getChunkProvider().chunkExists(this.pos.chunkXPos, this.pos.chunkZPos) && canGenerate) {
-                this.chunk = this.playerChunkMap.getWorldServer().getChunkProvider().provideChunk(this.pos.chunkXPos, this.pos.chunkZPos);
-            } else if (!this.loading) {
-                // try to load chunk async
-                this.loading = true;
-                this.chunk = this.playerChunkMap.getWorldServer().getChunkProvider().loadChunk(this.pos.chunkXPos, this.pos.chunkZPos, this.loadedRunnable);
-                this.markChunkUsed();
-            }
-            // Sponge end
-            return this.chunk != null;
-        }
+    @Redirect(method = "providePlayerChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;loadChunk(II)Lnet/minecraft/world/chunk/Chunk;"))
+    public Chunk onLoadPlayerChunk(ChunkProviderServer chunkProviderServer, int chunkX, int chunkZ) {
+        // try to load chunk async
+        this.loading = true;
+        this.chunk = chunkProviderServer.loadChunk(chunkX, chunkZ, this.loadedRunnable);
+        this.markChunkUsed();
+        return this.chunk;
     }
 
     // Called by PlayerChunkRunnable after a chunk is loaded
