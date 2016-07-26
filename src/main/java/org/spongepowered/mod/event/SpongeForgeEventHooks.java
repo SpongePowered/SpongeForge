@@ -50,7 +50,7 @@ public final class SpongeForgeEventHooks {
             }
             if (worldTickEvent.phase == TickEvent.Phase.START) {
                 final CauseTracker causeTracker = ((IMixinWorldServer) worldTickEvent.world).getCauseTracker();
-                causeTracker.switchToPhase(PluginPhase.Listener.PRE_SERVER_TICK_LISTENER, PhaseContext.start()
+                causeTracker.switchToPhase(PluginPhase.Listener.PRE_WORLD_TICK_LISTENER, PhaseContext.start()
                         .add(NamedCause.source(listener))
                         .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
                         .addCaptures()
@@ -63,7 +63,7 @@ public final class SpongeForgeEventHooks {
                         continue;
                     }
                     final CauseTracker otherCauseTracker = ((IMixinWorldServer) worldServer).getCauseTracker();
-                    otherCauseTracker.switchToPhase(PluginPhase.Listener.PRE_SERVER_TICK_LISTENER, PhaseContext.start()
+                    otherCauseTracker.switchToPhase(PluginPhase.Listener.PRE_WORLD_TICK_LISTENER, PhaseContext.start()
                             .add(NamedCause.source(listener))
                             .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
                             .addCaptures()
