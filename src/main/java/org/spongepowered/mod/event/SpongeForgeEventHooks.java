@@ -25,7 +25,6 @@
 package org.spongepowered.mod.event;
 
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.WorldServerMulti;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -51,20 +50,20 @@ public final class SpongeForgeEventHooks {
             }
             if (worldTickEvent.phase == TickEvent.Phase.START) {
                 final CauseTracker causeTracker = ((IMixinWorldServer) worldTickEvent.world).getCauseTracker();
-                causeTracker.switchToPhase(PluginPhase.Listener.PRE_WORLD_TICK_LISTENER, PhaseContext.start()
+                causeTracker.switchToPhase(PluginPhase.Listener.PRE_SERVER_TICK_LISTENER, PhaseContext.start()
                         .add(NamedCause.source(listener))
                         .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
                         .addCaptures()
                         .player()
                         .complete()
                     );
-                // Need to prepare all worlds pending https://github.com/SlimeKnights/TinkersConstruct/issues/2224 resolution
+                // Need to prepare all worlds
                 for (WorldServer worldServer : WorldManager.getWorlds()) {
                     if (worldServer == worldTickEvent.world) {
                         continue;
                     }
                     final CauseTracker otherCauseTracker = ((IMixinWorldServer) worldServer).getCauseTracker();
-                    otherCauseTracker.switchToPhase(PluginPhase.Listener.PRE_WORLD_TICK_LISTENER, PhaseContext.start()
+                    otherCauseTracker.switchToPhase(PluginPhase.Listener.PRE_SERVER_TICK_LISTENER, PhaseContext.start()
                             .add(NamedCause.source(listener))
                             .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
                             .addCaptures()
@@ -82,7 +81,7 @@ public final class SpongeForgeEventHooks {
                         .player()
                         .complete()
                 );
-                // Need to prepare all worlds pending https://github.com/SlimeKnights/TinkersConstruct/issues/2224 resolution
+                // Need to prepare all worlds
                 for (WorldServer worldServer : WorldManager.getWorlds()) {
                     if (worldServer == worldTickEvent.world) {
                         continue;
@@ -102,10 +101,10 @@ public final class SpongeForgeEventHooks {
         if (event instanceof TickEvent.ServerTickEvent) {
             final TickEvent.ServerTickEvent serverTickEvent = (TickEvent.ServerTickEvent) event;
             if (serverTickEvent.phase == TickEvent.Phase.START) {
-                // Need to prepare all worlds pending https://github.com/SlimeKnights/TinkersConstruct/issues/2224 resolution
+                // Need to prepare all worlds many mods do this
                 for (WorldServer worldServer : WorldManager.getWorlds()) {
                     final CauseTracker otherCauseTracker = ((IMixinWorldServer) worldServer).getCauseTracker();
-                    otherCauseTracker.switchToPhase(PluginPhase.Listener.PRE_WORLD_TICK_LISTENER, PhaseContext.start()
+                    otherCauseTracker.switchToPhase(PluginPhase.Listener.PRE_SERVER_TICK_LISTENER, PhaseContext.start()
                             .add(NamedCause.source(listener))
                             .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
                             .addCaptures()
@@ -114,10 +113,10 @@ public final class SpongeForgeEventHooks {
                     );
                 }
             } else if (serverTickEvent.phase == TickEvent.Phase.END) {
-                // Need to prepare all worlds pending https://github.com/SlimeKnights/TinkersConstruct/issues/2224 resolution
+                // Need to prepare all worlds many mods use this
                 for (WorldServer worldServer : WorldManager.getWorlds()) {
                     final CauseTracker otherCauseTracker = ((IMixinWorldServer) worldServer).getCauseTracker();
-                    otherCauseTracker.switchToPhase(PluginPhase.Listener.POST_WORLD_TICK_LISTENER, PhaseContext.start()
+                    otherCauseTracker.switchToPhase(PluginPhase.Listener.POST_SERVER_TICK_LISTENER, PhaseContext.start()
                             .add(NamedCause.source(listener))
                             .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
                             .addCaptures()
@@ -141,7 +140,7 @@ public final class SpongeForgeEventHooks {
             if (worldTickEvent.phase == TickEvent.Phase.START) {
                 final CauseTracker causeTracker = ((IMixinWorldServer) worldTickEvent.world).getCauseTracker();
                 causeTracker.completePhase();
-                // Need to complete all worlds pending https://github.com/SlimeKnights/TinkersConstruct/issues/2224 resolution
+                // Need to complete all worlds
                 for (WorldServer worldServer : WorldManager.getWorlds()) {
                     if (worldServer == worldTickEvent.world) {
                         continue;
@@ -151,7 +150,7 @@ public final class SpongeForgeEventHooks {
             } else if (worldTickEvent.phase == TickEvent.Phase.END) {
                 final CauseTracker causeTracker = ((IMixinWorldServer) worldTickEvent.world).getCauseTracker();
                 causeTracker.completePhase();
-                // Need to complete all worlds pending https://github.com/SlimeKnights/TinkersConstruct/issues/2224 resolution
+                // Need to complete all worlds
                 for (WorldServer worldServer : WorldManager.getWorlds()) {
                     if (worldServer == worldTickEvent.world) {
                         continue;
