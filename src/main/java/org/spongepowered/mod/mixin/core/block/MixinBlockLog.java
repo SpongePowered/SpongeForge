@@ -48,11 +48,11 @@ public abstract class MixinBlockLog extends MixinBlock {
 
     @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", remap = false))
     public void onBreakBlock(Block block, IBlockState state, World worldIn, BlockPos pos) {
-        if (!worldIn.isRemote) {
+        if (CauseTracker.ENABLED && !worldIn.isRemote) {
             IMixinWorldServer spongeWorld = (IMixinWorldServer) worldIn;
             final CauseTracker causeTracker = spongeWorld.getCauseTracker();
             final boolean isBlockAlready = causeTracker.getStack().current() != TrackingPhases.BLOCK;
-            final IPhaseState currentState = causeTracker.getStack().peek().getState();
+            final IPhaseState currentState = causeTracker.getStack().peek().state;
             final boolean isWorldGen = currentState.getPhase().isWorldGeneration(currentState);
             final IBlockState actualState = state.getActualState(worldIn, pos);
             if (isBlockAlready && !isWorldGen) {

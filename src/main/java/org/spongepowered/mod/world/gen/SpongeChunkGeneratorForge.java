@@ -198,10 +198,12 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(populateCause, populator, chunk))) {
                 continue;
             }
-            causeTracker.switchToPhase(WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
-                    .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
-                    .addEntityCaptures()
-                    .complete());
+            if (CauseTracker.ENABLED) {
+                causeTracker.switchToPhase(WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
+                        .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
+                        .addEntityCaptures()
+                        .complete());
+            }
             Timing timing = null;
             if (Timings.isTimingsEnabled()) {
                 timing = this.populatorTimings.get(populator.getType().getId());
@@ -216,7 +218,9 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             } else {
                 populator.populate(spongeWorld, volume, this.rand);
             }
-            causeTracker.completePhase();
+            if (CauseTracker.ENABLED) {
+                causeTracker.completePhase();
+            }
             if (Timings.isTimingsEnabled()) {
                 timing.stopTimingIfSync();
             }

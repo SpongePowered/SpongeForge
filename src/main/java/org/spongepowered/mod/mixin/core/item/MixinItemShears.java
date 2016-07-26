@@ -97,8 +97,8 @@ public abstract class MixinItemShears extends Item {
                 // Sponge Start - Handle drops according to the current phase
                 final CauseTracker causeTracker = ((IMixinWorldServer) entity.worldObj).getCauseTracker();
                 final PhaseData currentData = causeTracker.getStack().peek();
-                final IPhaseState currentState = currentData.getState();
-                final PhaseContext phaseContext = currentData.getContext();
+                final IPhaseState currentState = currentData.state;
+                final PhaseContext phaseContext = currentData.context;
                 final Random random = EntityUtil.fromNative(entity).getRandom();
                 final IMixinEntity mixinEntity = EntityUtil.toMixin(entity);
                 final double posX = entity.posX;

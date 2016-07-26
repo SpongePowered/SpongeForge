@@ -43,7 +43,7 @@ public final class SpongeForgeEventHooks {
     public static void preEventPhaseCheck(IEventListener listener, Event event) {
         if (event instanceof TickEvent.WorldTickEvent) {
             final TickEvent.WorldTickEvent worldTickEvent = (TickEvent.WorldTickEvent) event;
-            if (!(worldTickEvent.world instanceof IMixinWorldServer)) {
+            if (!CauseTracker.ENABLED || !(worldTickEvent.world instanceof IMixinWorldServer)) {
                 return;
             }
             if (worldTickEvent.phase == TickEvent.Phase.START) {
@@ -100,7 +100,7 @@ public final class SpongeForgeEventHooks {
     public static void postEventPhaseCheck(IEventListener listener, Event event) {
         if (event instanceof TickEvent.WorldTickEvent) {
             final TickEvent.WorldTickEvent worldTickEvent = (TickEvent.WorldTickEvent) event;
-            if (!(worldTickEvent.world instanceof IMixinWorldServer)) {
+            if (!CauseTracker.ENABLED || !(worldTickEvent.world instanceof IMixinWorldServer)) {
                 return;
             }
             if (worldTickEvent.phase == TickEvent.Phase.START) {
