@@ -374,6 +374,9 @@ public class SpongeForgeEventFactory {
         if (UnloadWorldEvent.class.isAssignableFrom(clazz)) {
             return WorldEvent.Unload.class;
         }
+        if (SaveWorldEvent.class.isAssignableFrom(clazz)) {
+            return WorldEvent.Save.class;
+        }
         return null;
     }
 

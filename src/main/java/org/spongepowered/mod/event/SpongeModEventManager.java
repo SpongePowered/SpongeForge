@@ -146,7 +146,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(MessageChannelEvent.Chat.class, ServerChatEvent.class)
                     .put(InteractEntityEvent.Primary.class, AttackEntityEvent.class)
                     .put(TargetWorldEvent.class, WorldEvent.class)
-                    .put(SaveWorldEvent.class, WorldEvent.Save.class)
+                    .put(SaveWorldEvent.Post.class, WorldEvent.Save.class)
                     .put(UseItemStackEvent.Start.class, LivingEntityUseItemEvent.Start.class)
                     .put(UseItemStackEvent.Tick.class, LivingEntityUseItemEvent.Tick.class)
                     .put(UseItemStackEvent.Stop.class, LivingEntityUseItemEvent.Stop.class)
