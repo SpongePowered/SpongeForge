@@ -86,7 +86,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.InternalNamedCauses;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
-import org.spongepowered.common.event.tracking.phase.WorldPhase;
+import org.spongepowered.common.event.tracking.phase.GenerationPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
@@ -199,7 +199,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 continue;
             }
             if (CauseTracker.ENABLED) {
-                causeTracker.switchToPhase(WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
+                causeTracker.switchToPhase(GenerationPhase.State.POPULATOR_RUNNING, PhaseContext.start()
                         .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
                         .addEntityCaptures()
                         .complete());
