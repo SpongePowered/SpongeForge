@@ -79,8 +79,12 @@ public final class StaticMixinForgeHelper {
         Optional<ISpecialArmor.ArmorProperties> property = modifier.getCause().first(ISpecialArmor.ArmorProperties.class);
         final ItemStack[] inventory = entity instanceof EntityPlayer ? ((EntityPlayer) entity).inventory.armorInventory : entity.armorArray;
         if (property.isPresent()) {
-            damage = Math.abs(damage) * 25;
             ItemStack stack = inventory[property.get().Slot];
+            if (stack == null) {
+                return;
+            }
+
+            damage = Math.abs(damage) * 25;
             int itemDamage = (int) (damage / 25D < 1 ? 1 : damage / 25D);
             if (stack.getItem() instanceof ISpecialArmor) {
                 ((ISpecialArmor) stack.getItem()).damageArmor(entity, stack, damageSource, itemDamage, property.get().Slot);
