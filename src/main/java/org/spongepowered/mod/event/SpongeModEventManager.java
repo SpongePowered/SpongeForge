@@ -66,7 +66,6 @@ import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -75,11 +74,9 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.weather.Lightning;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.action.InteractEvent;
 import org.spongepowered.api.event.action.LightningEvent;
 import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
@@ -151,8 +148,6 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(UseItemStackEvent.Tick.class, LivingEntityUseItemEvent.Tick.class)
                     .put(UseItemStackEvent.Stop.class, LivingEntityUseItemEvent.Stop.class)
                     .put(UseItemStackEvent.Finish.class, LivingEntityUseItemEvent.Finish.class)
-                    .put(ClientConnectionEvent.Join.class, PlayerEvent.PlayerLoggedInEvent.class)
-                    .put(ClientConnectionEvent.Disconnect.class, PlayerEvent.PlayerLoggedOutEvent.class)
                     .put(SleepingEvent.Pre.class, PlayerSleepInBedEvent.class)
                     .build();
 
