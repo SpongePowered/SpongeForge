@@ -41,7 +41,7 @@ import java.util.Random;
 @Mixin(BlockFire.class)
 public abstract class MixinBlockFire extends MixinBlock {
 
-    @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z"), remap = false, cancellable = true)
+    @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z"), cancellable = true)
     private void onCatchFirePreCheck(World world, BlockPos pos, int chance, Random random, int age, EnumFacing facing, CallbackInfo callbackInfo) {
         if (!world.isRemote) {
             if (SpongeCommonEventFactory.handleChangeBlockEventPre((IMixinWorldServer) world, pos)) {
@@ -50,7 +50,7 @@ public abstract class MixinBlockFire extends MixinBlock {
         }
     }
 
-    @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockToAir(Lnet/minecraft/util/math/BlockPos;)Z"), remap = false, cancellable = true)
+    @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockToAir(Lnet/minecraft/util/math/BlockPos;)Z"), cancellable = true)
     private void onCatchFirePreCheckOther(World world, BlockPos pos, int chance, Random random, int age, EnumFacing facing, CallbackInfo callbackInfo) {
         if (!world.isRemote) {
             if (SpongeCommonEventFactory.handleChangeBlockEventPre((IMixinWorldServer) world, pos)) {
