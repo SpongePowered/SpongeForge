@@ -8,6 +8,7 @@
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "api.event.MixinAbstractEvent",
+        "block.MixinBlockFire",
         "block.MixinBlockLeaves",
         "block.MixinBlockLog",
         "block.MixinBlockOldLeaf",
