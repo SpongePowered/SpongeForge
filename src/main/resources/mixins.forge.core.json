@@ -100,7 +100,6 @@
         "client.MixinMinecraft",
         "client.gui.MixinGuiOverlayDebug",
         "client.gui.MixinGuiKeyBindingList",
-        "client.multiplayer.MixinChunkProviderClient",
         "client.network.MixinNetHandlerPlayClient",
         "client.network.MixinNetworkManager",
         "client.server.MixinIntegratedServer",
