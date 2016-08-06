@@ -31,6 +31,7 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
@@ -45,7 +46,9 @@ import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
+import org.spongepowered.api.event.entity.DismountEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.MountEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
@@ -94,6 +97,8 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(UseItemStackEvent.Stop.class, PlayerUseItemEvent.Stop.class)
                     .put(UseItemStackEvent.Finish.class, PlayerUseItemEvent.Finish.class)
                     .put(SleepingEvent.Pre.class, PlayerSleepInBedEvent.class)
+                    .put(MountEntityEvent.class, EntityMountEvent.class)
+                    .put(DismountEntityEvent.class, EntityMountEvent.class)
                     .build();
 
 
