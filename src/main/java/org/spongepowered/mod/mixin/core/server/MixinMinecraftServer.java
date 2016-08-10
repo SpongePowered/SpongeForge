@@ -32,8 +32,6 @@ import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.interfaces.IMixinMinecraftServer;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
@@ -45,7 +43,7 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
 
     public ChunkTicketManager chunkTicketManager = new SpongeChunkTicketManager();
 
-    @Shadow(remap = false) public Hashtable<Integer, long[]> worldTickTimes = new Hashtable<>();
+    @Shadow(remap = false) public Hashtable<Integer, long[]> worldTickTimes;
 
     @Override
     public Hashtable<Integer, long[]> getWorldTickTimes() {
@@ -78,16 +76,5 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
         }
 
         return ret;
-    }
-
-    @Redirect(method = "stopServer", at = @At(value = "INVOKE", target="Lnet/minecraftforge/common/DimensionManager;setWorld"
-            + "(ILnet/minecraft/world/WorldServer;Lnet/minecraft/server/MinecraftServer;)V", remap = false))
-    public void onSetWorldUnload(int id, WorldServer world, MinecraftServer server) {
-        final WorldServer stoppingWorld = WorldManager.getWorldByDimensionId(id).orElse(null);
-        if (stoppingWorld == null) {
-            return;
-        }
-        // Let forge handle throwing the event but we need to clean up
-        WorldManager.unloadWorld(stoppingWorld, false, false, false, true);
     }
 }

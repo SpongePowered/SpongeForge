@@ -31,15 +31,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.WorldServerMulti;
-import net.minecraft.world.chunk.storage.AnvilSaveHandler;
-import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.world.World;
+import net.minecraftforge.fml.common.FMLLog;
+import org.spongepowered.api.world.WorldArchetype;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -48,7 +42,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.world.WorldManager;
-import org.spongepowered.common.world.storage.WorldServerMultiAdapterWorldInfo;
+import org.spongepowered.mod.SpongeMod;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -151,10 +145,15 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static void setWorld(int id, WorldServer world, MinecraftServer server) {
-        if (world == null) {
+        if (world != null) {
+            WorldManager.forceAddWorld(id, world);
+            FMLLog.info("Loading dimension %d (%s) (%s)", id, world.getWorldInfo().getWorldName(), world.getMinecraftServer());
+        } else {
             WorldManager.unloadWorld(WorldManager.getWorldByDimensionId(id).orElseThrow(() -> new RuntimeException("Attempt made to unload a "
                     + "world with dimension id [" + id + "].")), false, true, true, false);
         }
+
+        WorldManager.reorderWorldsVanillaFirst();
     }
 
     /**
@@ -174,39 +173,30 @@ public abstract class MixinDimensionManager {
             throw new RuntimeException("Attempt made to initialize overworld!");
         }
 
-        final WorldServer worldServer = WorldManager.getWorldByDimensionId(0).orElseThrow(() -> new RuntimeException("Attempt made to initialize "
+        WorldManager.getWorldByDimensionId(0).orElseThrow(() -> new RuntimeException("Attempt made to initialize "
                 + "dimension before overworld is loaded!"));
 
         final DimensionType dimensionType = WorldManager.getDimensionType(dim).orElseThrow(() -> new RuntimeException("Attempt made to initialize "
                 + "dimension who isn't registered!"));
 
         final WorldProvider provider = dimensionType.createDimension();
-        WorldProperties properties = WorldManager.getWorldProperties(provider.getSaveFolder()).orElse(null);
-        final AnvilSaveHandler saveHandler = new AnvilSaveHandler(getCurrentSaveRootDirectory(), provider.getSaveFolder(), true, SpongeImpl
-                .getServer().getDataFixer());
-
+        // make sure to set the dimension id to avoid getting a null save folder
+        provider.setDimension(dim);
+        String worldFolder = provider.getSaveFolder();
+        WorldProperties properties = WorldManager.getWorldProperties(worldFolder).orElse(null);
         if (properties == null) {
-            final WorldInfo info = saveHandler.loadWorldInfo();
-            final IMixinWorldInfo mixinWorldInfo = (IMixinWorldInfo) info;
-            ((IMixinWorldInfo) info).createWorldConfig();
-
-            mixinWorldInfo.setDimensionType((org.spongepowered.api.world.DimensionType) (Object) dimensionType);
-            mixinWorldInfo.setDimensionId(dim);
-            ((WorldProperties) mixinWorldInfo).setKeepSpawnLoaded(dimensionType.shouldLoadSpawn());
-            mixinWorldInfo.getWorldConfig().save();
-
-            WorldManager.setUuidOnProperties(WorldManager.getCurrentSavesDirectory().get(), ((WorldProperties) info));
-            properties = (WorldProperties) mixinWorldInfo;
-            WorldManager.registerWorldProperties(((WorldProperties) mixinWorldInfo));
+            final WorldArchetype.Builder builder = SpongeImpl.getRegistry().createBuilder(WorldArchetype.Builder.class)
+                    .dimension((org.spongepowered.api.world.DimensionType)(Object) dimensionType)
+                    .keepsSpawnLoaded(dimensionType.shouldLoadSpawn());
+            String modId = SpongeMod.instance.getModIdFromClass(provider.getClass());
+            final WorldArchetype archetype = builder.build(modId + ":" + dimensionType.getName().toLowerCase(), dimensionType.getName());
+            properties = WorldManager.createWorldProperties(worldFolder, archetype);
+            ((IMixinWorldInfo) properties).setDimensionId(dim);
         }
-
-        final WorldServerMulti worldServerMulti = new WorldServerMulti(SpongeImpl.getServer(), new WorldServerMultiAdapterWorldInfo(saveHandler,
-                (WorldInfo) properties), dim, worldServer, SpongeImpl.getServer().theProfiler);
-
-        WorldManager.forceAddWorld(dim, worldServerMulti);
-
-        Sponge.getEventManager().post(SpongeEventFactory.createLoadWorldEvent(Cause.of(NamedCause.source(SpongeImpl.getServer())), (World)
-                worldServerMulti));
+        Optional<WorldServer> optWorld = WorldManager.loadWorld(properties);
+        if (!optWorld.isPresent()) {
+            SpongeImpl.getLogger().error("Could not load world [{}]!", properties.getWorldName());
+        }
     }
 
     @Overwrite

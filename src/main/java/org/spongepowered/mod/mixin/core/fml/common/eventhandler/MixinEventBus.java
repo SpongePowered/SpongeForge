@@ -86,6 +86,8 @@ public abstract class MixinEventBus implements IMixinEventBus {
             return false;
         } else if (event instanceof WorldEvent.Save) {
             return false;
+        } else if (event instanceof WorldEvent.Unload) {
+            return false;
         } else if (event instanceof AttackEntityEvent) { // TODO - gabizou - figure this one out
             return false;
         }
