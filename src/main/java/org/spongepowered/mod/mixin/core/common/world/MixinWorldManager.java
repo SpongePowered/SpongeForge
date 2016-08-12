@@ -42,13 +42,14 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 import org.spongepowered.common.world.WorldManager;
 
 import java.nio.file.Path;
 import java.util.Optional;
 
-@Mixin(value = WorldManager.class, remap = false)
+@Mixin(value = WorldManager.class, priority = 999, remap = false)
 public abstract class MixinWorldManager {
 
     @Shadow @Final private static Int2ObjectMap<Path> dimensionPathByDimensionId;
@@ -101,7 +102,7 @@ public abstract class MixinWorldManager {
                 WorldProvider provider = dimensionType.createDimension();
                 provider.setDimension(dimensionType.getId());
                 String worldFolder = provider.getSaveFolder();
-                path = Sponge.getGame().getSavesDirectory().resolve(worldFolder);
+                path = SpongeImpl.getGame().getSavesDirectory().resolve(SpongeImpl.getServer().getFolderName()).resolve(worldFolder);
                 WorldManager.registerDimensionPath(dimensionType.getId(), path);
             } catch (Throwable t) {
                 return Optional.empty();
