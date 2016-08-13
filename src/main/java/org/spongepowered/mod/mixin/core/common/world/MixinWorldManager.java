@@ -31,6 +31,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.SaveHandler;
 import net.minecraftforge.common.network.ForgeMessage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
@@ -70,6 +71,10 @@ public abstract class MixinWorldManager {
 
         if (Sponge.getPlatform().getType().isClient()) {
             return Optional.ofNullable(FMLCommonHandler.instance().getSavesDirectory().toPath());
+        }
+        if (SpongeImpl.getServer() != null) {
+            SaveHandler saveHandler = (SaveHandler) SpongeImpl.getServer().getActiveAnvilConverter().getSaveLoader(SpongeImpl.getServer().getFolderName(), false);
+            return Optional.of(saveHandler.getWorldDirectory().toPath());
         }
         return Optional.empty();
     }

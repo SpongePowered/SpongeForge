@@ -150,7 +150,7 @@ public abstract class MixinDimensionManager {
             FMLLog.info("Loading dimension %d (%s) (%s)", id, world.getWorldInfo().getWorldName(), world.getMinecraftServer());
         } else {
             WorldManager.unloadWorld(WorldManager.getWorldByDimensionId(id).orElseThrow(() -> new RuntimeException("Attempt made to unload a "
-                    + "world with dimension id [" + id + "].")), false, true, true, false);
+                    + "world with dimension id [" + id + "].")), false);
         }
 
         WorldManager.reorderWorldsVanillaFirst();
