@@ -92,18 +92,19 @@ public abstract class MixinWorldManager {
      * @return The path if available
      */
     @Overwrite
-    public static Optional<Path> getWorldFolder(DimensionType dimensionType) {
+    public static Optional<Path> getWorldFolder(DimensionType dimensionType, int dimensionId) {
         if (dimensionType == null) {
             return Optional.empty();
         }
-        Path path = dimensionPathByDimensionId.get(dimensionType.getId());
+
+        Path path = dimensionPathByDimensionId.get(dimensionId);
         if (path == null) {
             try {
                 WorldProvider provider = dimensionType.createDimension();
-                provider.setDimension(dimensionType.getId());
+                provider.setDimension(dimensionId);
                 String worldFolder = provider.getSaveFolder();
                 path = SpongeImpl.getGame().getSavesDirectory().resolve(SpongeImpl.getServer().getFolderName()).resolve(worldFolder);
-                WorldManager.registerDimensionPath(dimensionType.getId(), path);
+                WorldManager.registerDimensionPath(dimensionId, path);
             } catch (Throwable t) {
                 return Optional.empty();
             }
