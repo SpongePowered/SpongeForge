@@ -108,7 +108,6 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
-import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
@@ -118,6 +117,7 @@ import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
 import org.spongepowered.api.event.entity.living.TargetLivingEvent;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
+import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
@@ -135,7 +135,6 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.entity.EntityUtil;
-import org.spongepowered.common.entity.SpongeEntitySnapshot;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
@@ -320,7 +319,7 @@ public class SpongeForgeEventFactory {
 
     // Order matters
     public static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Class<? extends Event> clazz) {
-        if (CollideEntityEvent.class.isAssignableFrom(clazz)) {
+        if (ChangeInventoryEvent.Pickup.class.isAssignableFrom(clazz)) {
             return EntityItemPickupEvent.class;
         }
         if (DestructEntityEvent.Death.class.isAssignableFrom(clazz)) {
@@ -402,8 +401,6 @@ public class SpongeForgeEventFactory {
             return callEntityItemPickupEvent(spongeEvent);
         } else if (PlayerInteractEvent.EntityInteract.class.isAssignableFrom(clazz)) {
             return callEntityInteractEvent(spongeEvent);
-        } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
-            return callEntityJoinWorldEvent(spongeEvent);
         } else if (BlockEvent.NeighborNotifyEvent.class.isAssignableFrom(clazz)) {
             return callNeighborNotifyEvent(spongeEvent);
         } else if (BlockEvent.BreakEvent.class.isAssignableFrom(clazz)) {
@@ -864,26 +861,18 @@ public class SpongeForgeEventFactory {
         return spongeEvent;
     }
 
-    public static CollideEntityEvent callEntityItemPickupEvent(Event event) {
-        if (!(event instanceof CollideEntityEvent)) {
-            throw new IllegalArgumentException("Event is not a valid CollideEntityEvent.");
+    public static ChangeInventoryEvent.Pickup callEntityItemPickupEvent(Event event) {
+        if (!(event instanceof ChangeInventoryEvent.Pickup)) {
+            throw new IllegalArgumentException("Event is not a valid ChangeInventoryEvent.Pickup.");
         }
 
-        CollideEntityEvent spongeEvent = (CollideEntityEvent) event;
-        if (spongeEvent.getCause().first(Player.class).isPresent()) {
-            Iterator<org.spongepowered.api.entity.Entity> iterator = spongeEvent.getEntities().iterator();
-            while (iterator.hasNext()) {
-                org.spongepowered.api.entity.Entity entity = iterator.next();
-                if (entity instanceof org.spongepowered.api.entity.Item) {
-                    EntityItem entityItem = (EntityItem) entity;
-                    EntityItemPickupEvent forgeEvent =
-                            new EntityItemPickupEvent((EntityPlayer) spongeEvent.getCause().first(Player.class).get(), entityItem);
-                    ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-                    if (forgeEvent.isCanceled()) {
-                        iterator.remove();
-                    }
-                }
-            }
+        ChangeInventoryEvent.Pickup spongeEvent = (ChangeInventoryEvent.Pickup) event;
+        EntityItem entityItem = (EntityItem) spongeEvent.getTargetEntity();
+        EntityItemPickupEvent forgeEvent =
+                new EntityItemPickupEvent((EntityPlayer) spongeEvent.getCause().first(Player.class).get(), entityItem);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+        if (forgeEvent.isCanceled()) {
+            spongeEvent.setCancelled(true);
         }
         return spongeEvent;
     }
@@ -967,6 +956,9 @@ public class SpongeForgeEventFactory {
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);
+        } else {
+            // Forge treats EntityJoinWorldEvent separately from Toss so we need to call it here
+            callEntityJoinWorldEvent(spongeEvent);
         }
 
         return spongeEvent;
