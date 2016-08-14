@@ -185,7 +185,7 @@ public abstract class MixinDimensionManager {
         String worldFolder = provider.getSaveFolder();
         WorldProperties properties = WorldManager.getWorldProperties(worldFolder).orElse(null);
         if (properties == null) {
-            final WorldArchetype.Builder builder = SpongeImpl.getRegistry().createBuilder(WorldArchetype.Builder.class)
+            final WorldArchetype.Builder builder = WorldArchetype.builder()
                     .dimension((org.spongepowered.api.world.DimensionType)(Object) dimensionType)
                     .keepsSpawnLoaded(dimensionType.shouldLoadSpawn());
             String modId = SpongeMod.instance.getModIdFromClass(provider.getClass());

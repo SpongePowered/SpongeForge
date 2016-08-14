@@ -25,6 +25,8 @@
 package org.spongepowered.mod.mixin.core.server;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import org.spongepowered.api.Server;
@@ -32,17 +34,23 @@ import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.config.SpongeConfig;
 import org.spongepowered.common.interfaces.IMixinMinecraftServer;
+import org.spongepowered.common.interfaces.world.IMixinDimensionType;
+import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
+import java.nio.file.Path;
 import java.util.Hashtable;
+import java.util.Optional;
 
 @Mixin(value = MinecraftServer.class, priority = 1001)
 public abstract class MixinMinecraftServer implements Server, IMixinMinecraftServer {
 
     public ChunkTicketManager chunkTicketManager = new SpongeChunkTicketManager();
 
+    @Shadow public WorldServer[] worldServers;
     @Shadow(remap = false) public Hashtable<Integer, long[]> worldTickTimes;
 
     @Override
@@ -65,14 +73,41 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
     @Overwrite
     public WorldServer worldServerForDimension(int dimensionId) {
         WorldServer ret = WorldManager.getWorldByDimensionId(dimensionId).orElse(null);
-        if (ret == null) {
-            DimensionManager.initDimension(dimensionId);
-            ret = WorldManager.getWorldByDimensionId(dimensionId).orElse(null);
+        if (ret != null) {
+            return ret;
         }
 
+        // They passed us an unknown dimension id, fail fast to overworld
+        if (!WorldManager.isDimensionRegistered(dimensionId)) {
+            System.err.println("Dimension not registered.");
+            return this.worldServers[0];
+        }
+
+        final DimensionType dimensionType = WorldManager.getDimensionType(dimensionId).orElse(null);
+        final Optional<Path> registeredWorldPath = WorldManager.getDimensionPath(dimensionId);
+        String worldFolderName;
+
+        if (registeredWorldPath.isPresent()) {
+            worldFolderName = registeredWorldPath.get().getFileName().toString();
+        } else {
+            // Only not present if this dimension instance has never been loaded
+            final WorldProvider provider = dimensionType.createDimension();
+            provider.setDimension(dimensionId);
+            worldFolderName = provider.getSaveFolder();
+        }
+
+        final SpongeConfig<?> config = SpongeHooks.getActiveConfig(((IMixinDimensionType) (Object) dimensionType).getConfigPath(), worldFolderName);
+        if (config.getConfig().isConfigEnabled() && !config.getConfig().getWorld().isWorldEnabled()) {
+            System.err.println("Dimension disabled.");
+            return this.worldServers[0];
+        }
+
+        DimensionManager.initDimension(dimensionId);
+        ret = WorldManager.getWorldByDimensionId(dimensionId).orElse(null);
+
         if (ret == null) {
-            return WorldManager.getWorldByDimensionId(0).orElseThrow(() -> new RuntimeException("Attempt made to initialize "
-                    + "dimension before overworld is loaded!"));
+            System.err.println("Dimension failed to initialize.");
+            ret = this.worldServers[0];
         }
 
         return ret;
