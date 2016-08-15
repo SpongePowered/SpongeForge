@@ -35,6 +35,7 @@ import net.minecraftforge.fml.common.registry.RegistryDelegate;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataTransactionResult;
+import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.Queries;
@@ -282,13 +283,13 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
     }
 
     @Override
-    public boolean validateRawData(DataContainer container) {
+    public boolean validateRawData(DataView container) {
         // TODO
         return false;
     }
 
     @Override
-    public void setRawData(DataContainer container) throws InvalidDataException {
+    public void setRawData(DataView container) throws InvalidDataException {
         // TODO
     }
 
