@@ -29,7 +29,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
-import net.minecraft.block.BlockAir;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
@@ -54,8 +53,6 @@ import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.VillagerRegistry;
-import org.apache.logging.log4j.Level;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -72,7 +69,6 @@ import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.ChunkTicketManager;
-import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
@@ -102,8 +98,8 @@ import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.registry.SpongeForgeModuleRegistry;
-import org.spongepowered.mod.registry.SpongeGameData;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
+import org.spongepowered.mod.registry.SpongeGameData;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
 import java.io.File;
@@ -117,13 +113,26 @@ public class SpongeMod extends DummyModContainer {
     private LoadController controller;
     private File modFile;
 
+    private static final ModMetadata spongeMeta;
+
+    static {
+        spongeMeta = SpongeMod.createMetadata(ImmutableMap.<String, Object>of(
+                "modid", SpongeImpl.ECOSYSTEM_ID,
+                "name", SpongeImpl.IMPLEMENTATION_NAME,
+                "version", SpongeImpl.IMPLEMENTATION_VERSION));
+
+        // FML may have resolved our metadata before our creation call above so to prevent our version
+        // appearing as an annoying "$version", change it to what our default one is here
+        if ("$version".equals(spongeMeta.version)) {
+            spongeMeta.version = SpongeImpl.IMPLEMENTATION_VERSION;
+        }
+    }
+
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
     public SpongeMod() throws Exception {
-        super(SpongeMod.createMetadata(ImmutableMap.<String, Object>of(
-                "modid", SpongeImpl.ECOSYSTEM_ID,
-                "name", "SpongeForge",
-                "version", SpongeImpl.IMPLEMENTATION_VERSION.isPresent() ? SpongeImpl.IMPLEMENTATION_VERSION.get() : "DEV")));
+        super(spongeMeta);
+
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
 

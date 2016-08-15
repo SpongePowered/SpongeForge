@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.spongepowered.api.plugin.Plugin.ID_PATTERN;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -83,6 +84,8 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
     private LoadController controller;
 
     private Injector injector;
+
+    private PluginContainer pluginContainer = (PluginContainer) (Object) this;
 
     @SuppressWarnings("deprecation")
     public SpongeModPluginContainer(String className, ModCandidate candidate, Map<String, Object> descriptor) {
@@ -393,4 +396,18 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
         return this.injector;
     }
 
+    @Override
+    public final String toString() {
+        return Objects.toStringHelper("Plugin")
+                .omitNullValues()
+                .add("id", this.pluginContainer.getId())
+                .add("name", this.pluginContainer.getName())
+                .add("version", this.pluginContainer.getVersion().orElse(null))
+                .add("description", this.pluginContainer.getDescription().orElse(null))
+                .add("url", this.pluginContainer.getUrl().orElse(null))
+                .add("assets", this.pluginContainer.getAssetDirectory().orElse(null))
+                .add("authors", this.pluginContainer.getAuthors().isEmpty() ? null : this.pluginContainer.getAuthors())
+                .add("source", this.pluginContainer.getSource().orElse(null))
+                .toString();
+    }
 }
