@@ -119,12 +119,12 @@ public class SpongeMod extends DummyModContainer {
         spongeMeta = SpongeMod.createMetadata(ImmutableMap.<String, Object>of(
                 "modid", SpongeImpl.ECOSYSTEM_ID,
                 "name", SpongeImpl.IMPLEMENTATION_NAME,
-                "version", SpongeImpl.IMPLEMENTATION_VERSION));
+                "version", SpongeImpl.IMPLEMENTATION_VERSION.orElse("DEV")));
 
         // FML may have resolved our metadata before our creation call above so to prevent our version
         // appearing as an annoying "$version", change it to what our default one is here
         if ("$version".equals(spongeMeta.version)) {
-            spongeMeta.version = SpongeImpl.IMPLEMENTATION_VERSION;
+            spongeMeta.version = SpongeImpl.IMPLEMENTATION_VERSION.orElse("DEV");
         }
     }
 
