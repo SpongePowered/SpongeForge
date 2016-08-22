@@ -152,16 +152,4 @@ public abstract class MixinSpongeImplHooks {
         return blockState.getLightValue();
     }
 
-    @SuppressWarnings("deprecation")
-    @Overwrite
-    public static int getChunkBlockLightOpacity(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
-
-        return blockState.getLightOpacity();
-    }
-
-    @SuppressWarnings("deprecation")
-    @Overwrite
-    public static int getChunkBlockLightOpacity(IBlockState state, net.minecraft.world.World worldObj, int x, int y, int z) {
-        return state.getLightOpacity();
-    }
 }
