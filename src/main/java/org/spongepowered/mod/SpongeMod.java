@@ -118,7 +118,7 @@ public class SpongeMod extends DummyModContainer {
     static {
         spongeMeta = SpongeMod.createMetadata(ImmutableMap.<String, Object>of(
                 "modid", SpongeImpl.ECOSYSTEM_ID,
-                "name", SpongeImpl.IMPLEMENTATION_NAME,
+                "name", "SpongeForge",
                 "version", SpongeImpl.IMPLEMENTATION_VERSION.orElse("DEV")));
 
         // FML may have resolved our metadata before our creation call above so to prevent our version

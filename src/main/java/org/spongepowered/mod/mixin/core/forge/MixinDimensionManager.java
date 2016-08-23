@@ -176,13 +176,17 @@ public abstract class MixinDimensionManager {
         WorldManager.getWorldByDimensionId(0).orElseThrow(() -> new RuntimeException("Attempt made to initialize "
                 + "dimension before overworld is loaded!"));
 
-        final DimensionType dimensionType = WorldManager.getDimensionType(dim).orElseThrow(() -> new RuntimeException("Attempt made to initialize "
-                + "dimension who isn't registered!"));
+        DimensionType dimensionType = WorldManager.getDimensionType(dim).orElse(null);
+        if (dimensionType == null) {
+            SpongeImpl.getLogger().warn("Attempt made to initialize dimension id {} which isn't registered!" 
+                    + ", falling back to overworld.", dim);
+            return;
+        }
 
         final WorldProvider provider = dimensionType.createDimension();
         // make sure to set the dimension id to avoid getting a null save folder
         provider.setDimension(dim);
-        String worldFolder = provider.getSaveFolder();
+        String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(provider.getSaveFolder());
         WorldProperties properties = WorldManager.getWorldProperties(worldFolder).orElse(null);
         if (properties == null) {
             final WorldArchetype.Builder builder = WorldArchetype.builder()
@@ -193,6 +197,12 @@ public abstract class MixinDimensionManager {
             properties = WorldManager.createWorldProperties(worldFolder, archetype);
             ((IMixinWorldInfo) properties).setDimensionId(dim);
         }
+        if (!properties.isEnabled()) {
+            SpongeImpl.getLogger().warn("World [{}] (DIM{}) is disabled. World will not be loaded...", worldFolder,
+                    dim);
+            return;
+        }
+
         Optional<WorldServer> optWorld = WorldManager.loadWorld(properties);
         if (!optWorld.isPresent()) {
             SpongeImpl.getLogger().error("Could not load world [{}]!", properties.getWorldName());
