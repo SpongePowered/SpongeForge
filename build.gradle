@@ -69,7 +69,33 @@ processResources {
     }
 }
 
-shadowJar {
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+task shadowDevJar(type: ShadowJar) {
+    classifier = 'dev-shaded'
+
+    from sourceSets.main.output
+    from sourceSets.java6.output
+
+    // Default settings for shadow tasks
+    configurations = [project.configurations.runtime]
+    manifest.inheritFrom tasks.jar.manifest
+    exclude 'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+}
+
+shadowDevJar shadowConfiguration
+
+// Upload shadowDevJar to Maven repository
+artifacts {
+    archives shadowDevJar
+}
+
+allprojects {
+    // Re-obfuscate only after creating the shadowDevJar
+    tasks.findByName('reobfJar')?.mustRunAfter rootProject.tasks.shadowDevJar
+}
+
+tasks.withType(ShadowJar) {
     exclude 'log4j2*.xml' // log4j2 configuration is for the development workspace only
 
     // Temporarily relocate and shade to avoid confict with forge. TODO: Remove when Forge updates to 1.3.0
