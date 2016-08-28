@@ -94,6 +94,7 @@ import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.guice.SpongeGuiceModule;
+import org.spongepowered.mod.interfaces.IMixinModMetadata;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
@@ -141,9 +142,15 @@ public class SpongeMod extends DummyModContainer {
 
         // Initialize Sponge
         Guice.createInjector(new SpongeGuiceModule()).getInstance(SpongeImpl.class);
-        this.game = SpongeImpl.getGame();
 
+        this.game = SpongeImpl.getGame();
         RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
+
+        String minecraftVersion = ((IMixinModMetadata) spongeMeta).getMinecraftVersion();
+        if (minecraftVersion == null || minecraftVersion.equals("$minecraftVersion")) {
+            ((IMixinModMetadata) spongeMeta).setMinecraftVersion(SpongeImpl.MINECRAFT_VERSION.getName());
+        }
+
         this.game.getRegistry().preRegistryInit();
         SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (obj, id, location) -> {
             final ResourceLocation key = ForgeRegistries.BLOCKS.getKey(obj);

@@ -26,6 +26,10 @@ package org.spongepowered.mod.interfaces;
 
 public interface IMixinModMetadata {
 
+    String getMinecraftVersion();
+
+    void setMinecraftVersion(String minecraftVersion);
+
     String getAssetDirectory();
 
 }

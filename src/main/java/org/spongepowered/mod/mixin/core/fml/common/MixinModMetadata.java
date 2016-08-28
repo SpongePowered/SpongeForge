@@ -32,7 +32,18 @@ import org.spongepowered.plugin.meta.SpongeExtension;
 @Mixin(value = ModMetadata.class, remap = false)
 public abstract class MixinModMetadata implements IMixinModMetadata {
 
+    public String mcversion;
     public SpongeExtension sponge = new SpongeExtension();
+
+    @Override
+    public String getMinecraftVersion() {
+        return this.mcversion;
+    }
+
+    @Override
+    public void setMinecraftVersion(String minecraftVersion) {
+        this.mcversion = minecraftVersion;
+    }
 
     @Override
     public String getAssetDirectory() {

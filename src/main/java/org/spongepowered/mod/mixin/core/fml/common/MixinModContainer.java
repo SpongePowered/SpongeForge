@@ -67,6 +67,11 @@ public interface MixinModContainer extends ModContainer {
         return meta != null ? Optional.ofNullable(emptyToNull(meta.url)) : Optional.empty();
     }
 
+    default Optional<String> getMinecraftVersion() {
+        ModMetadata meta = getMetadata();
+        return meta != null ? Optional.ofNullable(emptyToNull(((IMixinModMetadata) meta).getMinecraftVersion())) : Optional.empty();
+    }
+
     default Optional<Path> getAssetDirectory() {
         ModMetadata meta = getMetadata();
         if (meta != null) {
