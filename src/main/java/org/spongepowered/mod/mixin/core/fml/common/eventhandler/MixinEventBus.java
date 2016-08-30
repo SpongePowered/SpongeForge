@@ -69,6 +69,8 @@ public abstract class MixinEventBus implements IMixinEventBus {
             return false;
         } else if (event instanceof WorldEvent.Save) {
             return false;
+        } else if (event instanceof WorldEvent.Unload) {
+            return false;
         } else if (StaticMixinHelper.packetPlayer != null && event instanceof AttackEntityEvent) {
             return false;
         }
