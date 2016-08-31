@@ -22,35 +22,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.entity;
+package org.spongepowered.mod.mixin.core.client.multiplayer;
 
-import net.minecraft.server.management.PlayerChunkMap;
-import net.minecraft.server.management.PlayerChunkMapEntry;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
-import org.spongepowered.mod.interfaces.IMixinPlayerChunkMapEntry;
 
-public class PlayerChunkRunnable implements Runnable {
+import javax.annotation.Nullable;
 
-    private PlayerChunkMap playerChunkMap;
-    private PlayerChunkMapEntry playerChunkMapEntry;
+@Mixin(ChunkProviderClient.class)
+public abstract class MixinChunkProviderClient implements IMixinChunkProviderServer {
 
-    public PlayerChunkRunnable(PlayerChunkMap playerChunkMap, PlayerChunkMapEntry playerChunkMapEntry) {
-        this.playerChunkMap = playerChunkMap;
-        this.playerChunkMapEntry = playerChunkMapEntry;
-    }
+    @Shadow @Final private Long2ObjectMap<Chunk> chunkMapping;
 
-    // Callback logic which is called after a chunk loads async or sync
+    @Nullable
     @Override
-    public void run() {
-        IMixinPlayerChunkMapEntry spongePlayerChunkMapEntry = (IMixinPlayerChunkMapEntry) this.playerChunkMapEntry;
-        Chunk chunk = ((IMixinChunkProviderServer) this.playerChunkMap.getWorldServer().getChunkProvider()).getChunkIfLoaded(this.playerChunkMapEntry.pos.chunkXPos, this.playerChunkMapEntry.pos.chunkZPos);
-        if (chunk != null) {
-            spongePlayerChunkMapEntry.setChunk(chunk);
-            return;
-        }
-        // Since we weren't able to load the chunk async, set loading to false to allow the PlayerChunkMap tick to load
-        spongePlayerChunkMapEntry.setLoading(false);
+    public Chunk getChunkIfLoaded(int x, int z) {
+        return this.chunkMapping.get(ChunkPos.chunkXZ2Int(x, z));
     }
-
 }
