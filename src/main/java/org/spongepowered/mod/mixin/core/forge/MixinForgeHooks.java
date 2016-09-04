@@ -65,7 +65,7 @@ public class MixinForgeHooks {
         // Add cause tracker checks for pre and post ticks
         if (world instanceof IMixinWorldServer && player instanceof EntityPlayerMP) {
             final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
-            final PhaseData peek = causeTracker.getStack().peek();
+            final PhaseData peek = causeTracker.getCurrentPhaseData();
             final IPhaseState phaseState = peek.state;
             phaseState.getPhase().capturePlayerUsingStackToBreakBlock(null, (EntityPlayerMP) player, phaseState, peek.context, causeTracker);
         }

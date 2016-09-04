@@ -51,8 +51,8 @@ public abstract class MixinBlockLog extends MixinBlock {
         if (CauseTracker.ENABLED && !worldIn.isRemote) {
             IMixinWorldServer spongeWorld = (IMixinWorldServer) worldIn;
             final CauseTracker causeTracker = spongeWorld.getCauseTracker();
-            final boolean isBlockAlready = causeTracker.getStack().current() != TrackingPhases.BLOCK;
-            final IPhaseState currentState = causeTracker.getStack().peek().state;
+            final IPhaseState currentState = causeTracker.getCurrentState();
+            final boolean isBlockAlready = currentState.getPhase() != TrackingPhases.BLOCK;
             final boolean isWorldGen = currentState.getPhase().isWorldGeneration(currentState);
             final IBlockState actualState = state.getActualState(worldIn, pos);
             if (isBlockAlready && !isWorldGen) {

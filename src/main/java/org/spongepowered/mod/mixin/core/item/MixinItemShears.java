@@ -96,7 +96,7 @@ public abstract class MixinItemShears extends Item {
                 List<ItemStack> drops = target.onSheared(itemstack, entity.worldObj, pos, EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, itemstack));
                 // Sponge Start - Handle drops according to the current phase
                 final CauseTracker causeTracker = ((IMixinWorldServer) entity.worldObj).getCauseTracker();
-                final PhaseData currentData = causeTracker.getStack().peek();
+                final PhaseData currentData = causeTracker.getCurrentPhaseData();
                 final IPhaseState currentState = currentData.state;
                 final PhaseContext phaseContext = currentData.context;
                 final Random random = EntityUtil.fromNative(entity).getRandom();
