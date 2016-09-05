@@ -87,12 +87,11 @@ import org.spongepowered.api.event.entity.ChangeEntityExperienceEvent;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
-import org.spongepowered.api.event.entity.DismountEntityEvent;
 import org.spongepowered.api.event.entity.HarvestEntityEvent;
 import org.spongepowered.api.event.entity.HealEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.event.entity.MountEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
+import org.spongepowered.api.event.entity.RideEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
@@ -214,7 +213,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .putAll(EntityEvent.EntityConstructing.class, spawnEntityEvent)
                     .put(EntityEvent.EnteringChunk.class, MoveEntityEvent.class)
                     .putAll(EntityJoinWorldEvent.class, spawnEntityEvent)
-                    .putAll(EntityMountEvent.class, MountEntityEvent.class, DismountEntityEvent.class)
+                    .putAll(EntityMountEvent.class, RideEntityEvent.Mount.class, RideEntityEvent.Dismount.class)
                     .putAll(EntityStruckByLightningEvent.class, LightningEvent.Pre.class, LightningEvent.Strike.class, LightningEvent.Post.class)
                     .put(EntityTravelToDimensionEvent.class, MoveEntityEvent.Teleport.Portal.class)
 
