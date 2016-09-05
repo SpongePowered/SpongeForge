@@ -760,12 +760,8 @@ public class SpongeForgeEventFactory {
         }
 
         ExplosionEvent.Detonate spongeEvent = (ExplosionEvent.Detonate) event;
-        Optional<World> world = spongeEvent.getCause().first(World.class);
-        if (!world.isPresent()) {
-            return null;
-        }
 
-        net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
+        net.minecraft.world.World forgeWorld = (net.minecraft.world.World) spongeEvent.getTargetWorld();
         Explosion explosion = (Explosion) spongeEvent.getExplosion();
         net.minecraftforge.event.world.ExplosionEvent.Detonate forgeEvent =
                 new net.minecraftforge.event.world.ExplosionEvent.Detonate(forgeWorld, explosion,
