@@ -27,7 +27,6 @@ package org.spongepowered.mod.entity;
 import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.world.chunk.Chunk;
-import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 import org.spongepowered.mod.interfaces.IMixinPlayerChunkMapEntry;
 
 public class PlayerChunkRunnable implements Runnable {
@@ -44,7 +43,7 @@ public class PlayerChunkRunnable implements Runnable {
     @Override
     public void run() {
         IMixinPlayerChunkMapEntry spongePlayerChunkMapEntry = (IMixinPlayerChunkMapEntry) this.playerChunkMapEntry;
-        Chunk chunk = ((IMixinChunkProviderServer) this.playerChunkMap.getWorldServer().getChunkProvider()).getChunkIfLoaded(this.playerChunkMapEntry.pos.chunkXPos, this.playerChunkMapEntry.pos.chunkZPos);
+        Chunk chunk = this.playerChunkMap.getWorldServer().getChunkProvider().getLoadedChunk(this.playerChunkMapEntry.pos.chunkXPos, this.playerChunkMapEntry.pos.chunkZPos);
         if (chunk != null) {
             spongePlayerChunkMapEntry.setChunk(chunk);
             return;

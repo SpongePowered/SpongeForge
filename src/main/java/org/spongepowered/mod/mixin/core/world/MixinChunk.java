@@ -40,7 +40,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.IMixinChunk;
-import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.chunk.Chunk.class)
@@ -74,7 +73,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         Direction[] directions = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
         for (Direction direction : directions) {
             Vector3i neighborPosition = this.getPosition().add(direction.asBlockOffset());
-            net.minecraft.world.chunk.Chunk neighbor = ((IMixinChunkProviderServer) this.worldObj.getChunkProvider()).getChunkIfLoaded
+            net.minecraft.world.chunk.Chunk neighbor = this.worldObj.getChunkProvider().getLoadedChunk
                     (neighborPosition.getX(), neighborPosition.getZ());
             if (neighbor != null) {
                 this.setNeighbor(direction, (Chunk) neighbor);
