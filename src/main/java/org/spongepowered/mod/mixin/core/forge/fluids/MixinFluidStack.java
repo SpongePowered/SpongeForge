@@ -134,7 +134,8 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
         return DataTransactionResult.failResult(valueContainer.getValues());
     }
 
-    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
     public DataTransactionResult offer(DataManipulator<?, ?> valueContainer, MergeFunction function, Cause cause) {
         final Optional<DataProcessor> optional = SpongeDataManager.getInstance().getWildDataProcessor(valueContainer.getClass());
         if (optional.isPresent()) {

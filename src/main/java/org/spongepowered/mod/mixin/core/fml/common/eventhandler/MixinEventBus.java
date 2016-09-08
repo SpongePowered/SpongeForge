@@ -60,7 +60,6 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 @NonnullByDefault
 @Mixin(value = EventBus.class, remap = false)
@@ -149,7 +148,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Redirect(method = "register(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/reflect/Method;Lnet/minecraftforge/fml/common/ModContainer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;register(ILnet/minecraftforge/fml/common/eventhandler/EventPriority;Lnet/minecraftforge/fml/common/eventhandler/IEventListener;)V"))
     public void onRegister(ListenerList list, int id, EventPriority priority, IEventListener listener, Class<? extends Event> eventType, Object target, Method method, ModContainer owner) {
         list.register(id, priority, listener);
@@ -168,7 +167,8 @@ public abstract class MixinEventBus implements IMixinEventBus {
         this.forgeListenerRegistry.put(listener, eventType);
     }
 
-    @Redirect(method = "unregister", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;unregisterAll(ILnet/minecraftforge/fml/common/eventhandler/IEventListener;)V"))
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Redirect(method = "unregister", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;unregisterAll(ILnet/minecraftforge/fml/common/eventhandler/IEventListener;)V"))
     public void onUnregisterListener(int id, IEventListener listener) {
         ListenerList.unregisterAll(id, listener);
 

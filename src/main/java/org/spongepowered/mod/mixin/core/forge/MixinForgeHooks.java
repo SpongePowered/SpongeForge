@@ -51,7 +51,8 @@ public class MixinForgeHooks {
      * as the state will be post. In order to workaround this issue, we set
      * the captured extended state before creating the event.
      */
-    @Overwrite
+    @SuppressWarnings("deprecation")
+	@Overwrite
     public static boolean canHarvestBlock(Block block, EntityPlayer player, IBlockAccess world, BlockPos pos) {
 
         // Sponge Start - Use our breakExtendedState
