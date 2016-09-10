@@ -405,7 +405,6 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
                 .add("version", this.pluginContainer.getVersion().orElse(null))
                 .add("description", this.pluginContainer.getDescription().orElse(null))
                 .add("url", this.pluginContainer.getUrl().orElse(null))
-                .add("assets", this.pluginContainer.getAssetDirectory().orElse(null))
                 .add("authors", this.pluginContainer.getAuthors().isEmpty() ? null : this.pluginContainer.getAuthors())
                 .add("source", this.pluginContainer.getSource().orElse(null))
                 .toString();

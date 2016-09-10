@@ -45,9 +45,4 @@ public abstract class MixinModMetadata implements IMixinModMetadata {
         this.mcversion = minecraftVersion;
     }
 
-    @Override
-    public String getAssetDirectory() {
-        return this.sponge.getAssetDirectory();
-    }
-
 }

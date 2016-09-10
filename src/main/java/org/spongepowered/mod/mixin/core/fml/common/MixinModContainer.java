@@ -38,7 +38,6 @@ import org.spongepowered.mod.interfaces.IMixinModMetadata;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,15 +69,6 @@ public interface MixinModContainer extends ModContainer {
     default Optional<String> getMinecraftVersion() {
         ModMetadata meta = getMetadata();
         return meta != null ? Optional.ofNullable(emptyToNull(((IMixinModMetadata) meta).getMinecraftVersion())) : Optional.empty();
-    }
-
-    default Optional<Path> getAssetDirectory() {
-        ModMetadata meta = getMetadata();
-        if (meta != null) {
-            String path = ((IMixinModMetadata) meta).getAssetDirectory();
-            return path != null && !path.isEmpty() ? Optional.of(Paths.get(path)) : Optional.empty();
-        }
-        return Optional.empty();
     }
 
     default List<String> getAuthors() {
