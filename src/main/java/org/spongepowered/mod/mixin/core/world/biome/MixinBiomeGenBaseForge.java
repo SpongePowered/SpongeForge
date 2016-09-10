@@ -24,29 +24,28 @@
  */
 package org.spongepowered.mod.mixin.core.world.biome;
 
-import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeDecorator;
 import net.minecraftforge.event.terraingen.DeferredBiomeDecorator;
 import org.spongepowered.api.world.biome.BiomeGenerationSettings;
+import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.interfaces.world.biome.IMixinBiome;
 
 @Mixin(value = Biome.class, priority = 1001)
-@Implements(value = @Interface(iface = IMixinBiome.class, prefix = "super$") )
-public abstract class MixinBiomeGenBaseForge implements IMixinBiome {
+@Implements(value = @Interface(iface = BiomeType.class, prefix = "super$") )
+public abstract class MixinBiomeGenBaseForge implements BiomeType {
 
     @Shadow public BiomeDecorator theBiomeDecorator;
 
     @Intrinsic(displace = true)
-    public BiomeGenerationSettings super$initPopulators(World world) {
+    public BiomeGenerationSettings super$createDefaultGenerationSettings(org.spongepowered.api.world.World world) {
         if (this.theBiomeDecorator instanceof DeferredBiomeDecorator) {
             ((DeferredBiomeDecorator) this.theBiomeDecorator).fireCreateEventAndReplace((Biome) (Object) this);
         }
-        return initPopulators(world);
+        return createDefaultGenerationSettings(world);
     }
 }

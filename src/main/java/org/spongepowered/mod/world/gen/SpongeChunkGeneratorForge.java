@@ -27,6 +27,7 @@ package org.spongepowered.mod.world.gen;
 import co.aikar.timings.SpongeTimingsFactory;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
+import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
@@ -88,7 +89,6 @@ import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.GenerationPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
-import org.spongepowered.common.interfaces.world.biome.IMixinBiome;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.interfaces.world.gen.IGenerationPopulator;
 import org.spongepowered.common.util.VecHelper;
@@ -98,7 +98,6 @@ import org.spongepowered.common.world.gen.SpongeGenerationPopulator;
 import org.spongepowered.common.world.gen.WorldGenConstants;
 import org.spongepowered.common.world.gen.populators.AnimalPopulator;
 import org.spongepowered.common.world.gen.populators.SnowPopulator;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.ArrayList;
@@ -152,13 +151,18 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         this.rand.setSeed(chunkX * i1 + chunkZ * j1 ^ this.world.getSeed());
         BlockFalling.fallInstantly = true;
 
+        // Have to regeneate the biomes so that any virtual biomes can be passed to the populator.
+        this.cachedBiomes.reuse(new Vector2i(chunkX * 16, chunkZ * 16));
+        this.biomeGenerator.generateBiomes(this.cachedBiomes);
+        ImmutableBiomeArea biomeBuffer = this.cachedBiomes.getImmutableBiomeCopy();
+
         BlockPos blockpos = new BlockPos(chunkX * 16, 0, chunkZ * 16);
         BiomeType biome = (BiomeType) this.world.getBiome(blockpos.add(16, 0, 16));
 
         Chunk chunk = (Chunk) this.world.getChunkFromChunkCoords(chunkX, chunkZ);
 
         if (!this.biomeSettings.containsKey(biome)) {
-            this.biomeSettings.put(biome, ((IMixinBiome) biome).initPopulators(this.world));
+            this.biomeSettings.put(biome, biome.createDefaultGenerationSettings((org.spongepowered.api.world.World) this.world));
         }
 
         List<Populator> populators = new ArrayList<>(this.pop);
@@ -215,9 +219,9 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 timing.startTimingIfSync();
             }
             if (populator instanceof IFlaggedPopulator) {
-                ((IFlaggedPopulator) populator).populate(volume, spongeWorld, this.rand, flags);
+                ((IFlaggedPopulator) populator).populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
             } else {
-                populator.populate(spongeWorld, volume, this.rand);
+                populator.populate(spongeWorld, volume, this.rand, biomeBuffer);
             }
             if (CauseTracker.ENABLED) {
                 causeTracker.completePhase();
