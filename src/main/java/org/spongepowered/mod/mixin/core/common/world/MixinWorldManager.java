@@ -129,15 +129,4 @@ public abstract class MixinWorldManager {
         checkNotNull(type);
         return WorldManager.registerDimensionType(type.getId(), type);
     }
-
-    /**
-     * @author blood - August 23rd, 2016
-     * @reason Gets the dimension id from provider instance to support mods.
-     *
-     * @return provider dimension id
-     */
-    @Overwrite
-    public static int getDimensionId(WorldProvider provider) {
-        return provider.getDimension();
-    }
 }
