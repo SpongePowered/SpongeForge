@@ -88,7 +88,7 @@ import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.GenerationPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
-import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
+import org.spongepowered.common.interfaces.world.biome.IMixinBiome;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.interfaces.world.gen.IGenerationPopulator;
 import org.spongepowered.common.util.VecHelper;
@@ -99,6 +99,7 @@ import org.spongepowered.common.world.gen.WorldGenConstants;
 import org.spongepowered.common.world.gen.populators.AnimalPopulator;
 import org.spongepowered.common.world.gen.populators.SnowPopulator;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -116,7 +117,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         super(world, generationPopulator, biomeGenerator);
 
         String chunkGeneratorName = "";
-        String modId = SpongeMod.instance.getModIdFromClass(generationPopulator.getClass());
+        String modId = StaticMixinForgeHelper.getModIdFromClass(generationPopulator.getClass());
         if (modId.equalsIgnoreCase("unknown")) {
             if (generationPopulator instanceof SpongeGenerationPopulator) {
                 chunkGeneratorName = "chunkGenerator (" + ((SpongeGenerationPopulator) generationPopulator).getHandle(world).getClass().getSimpleName() + ")";
@@ -157,7 +158,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         Chunk chunk = (Chunk) this.world.getChunkFromChunkCoords(chunkX, chunkZ);
 
         if (!this.biomeSettings.containsKey(biome)) {
-            this.biomeSettings.put(biome, ((IBiomeGenBase) biome).initPopulators(this.world));
+            this.biomeSettings.put(biome, ((IMixinBiome) biome).initPopulators(this.world));
         }
 
         List<Populator> populators = new ArrayList<>(this.pop);

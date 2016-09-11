@@ -32,6 +32,8 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.ISpecialArmor;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
@@ -252,6 +254,20 @@ public final class StaticMixinForgeHelper {
                 }
             }
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static String getModIdFromClass(Class clazz) {
+        String modId = clazz.getName().contains("net.minecraft.") ? "minecraft" : "unknown";
+        String modPackage = clazz.getName().replace("." + clazz.getSimpleName(), "");
+        for (ModContainer mc : Loader.instance().getActiveModList()) {
+            if (mc.getOwnedPackages().contains(modPackage)) {
+                modId = mc.getModId();
+                break;
+            }
+        }
+
+        return modId;
     }
 
 }

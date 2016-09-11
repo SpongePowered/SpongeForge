@@ -34,11 +34,11 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.interfaces.world.biome.IBiomeGenBase;
+import org.spongepowered.common.interfaces.world.biome.IMixinBiome;
 
 @Mixin(value = Biome.class, priority = 1001)
-@Implements(value = @Interface(iface = IBiomeGenBase.class, prefix = "super$") )
-public abstract class MixinBiomeGenBaseForge implements IBiomeGenBase {
+@Implements(value = @Interface(iface = IMixinBiome.class, prefix = "super$") )
+public abstract class MixinBiomeGenBaseForge implements IMixinBiome {
 
     @Shadow public BiomeDecorator theBiomeDecorator;
 

@@ -47,6 +47,7 @@ import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Iterator;
 
@@ -94,7 +95,7 @@ public abstract class MixinSpongeImplHooks {
 
     @Overwrite
     public static String getModIdFromClass(Class<?> clazz) {
-        return SpongeMod.instance.getModIdFromClass(clazz);
+        return StaticMixinForgeHelper.getModIdFromClass(clazz);
     }
 
     @Overwrite

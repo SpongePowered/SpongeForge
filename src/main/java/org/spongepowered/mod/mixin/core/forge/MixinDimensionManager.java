@@ -43,6 +43,7 @@ import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -178,7 +179,7 @@ public abstract class MixinDimensionManager {
 
         DimensionType dimensionType = WorldManager.getDimensionType(dim).orElse(null);
         if (dimensionType == null) {
-            SpongeImpl.getLogger().warn("Attempt made to initialize dimension id {} which isn't registered!" 
+            SpongeImpl.getLogger().warn("Attempt made to initialize dimension id {} which isn't registered!"
                     + ", falling back to overworld.", dim);
             return;
         }
@@ -192,7 +193,7 @@ public abstract class MixinDimensionManager {
             final WorldArchetype.Builder builder = WorldArchetype.builder()
                     .dimension((org.spongepowered.api.world.DimensionType)(Object) dimensionType)
                     .keepsSpawnLoaded(dimensionType.shouldLoadSpawn());
-            String modId = SpongeMod.instance.getModIdFromClass(provider.getClass());
+            String modId = StaticMixinForgeHelper.getModIdFromClass(provider.getClass());
             final WorldArchetype archetype = builder.build(modId + ":" + dimensionType.getName().toLowerCase(), dimensionType.getName());
             properties = WorldManager.createWorldProperties(worldFolder, archetype);
             ((IMixinWorldInfo) properties).setDimensionId(dim);

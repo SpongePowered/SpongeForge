@@ -45,6 +45,7 @@ import org.spongepowered.mod.data.ForgeLightEmissionPropertyStore;
 import org.spongepowered.mod.data.ForgeMatterPropertyStore;
 import org.spongepowered.mod.data.ForgeSolidCubePropertyStore;
 import org.spongepowered.mod.data.ForgeSpawnableDataProcessor;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 public class SpongeForgeModuleRegistry {
 
@@ -66,7 +67,7 @@ public class SpongeForgeModuleRegistry {
 
         //Populator types
         PopulatorTypeRegistryModule populatorTypeModule = PopulatorTypeRegistryModule.getInstance();
-        populatorTypeModule.customTypeFunction = (type) -> new SpongePopulatorType(type.getSimpleName(), SpongeMod.instance.getModIdFromClass(type));
+        populatorTypeModule.customTypeFunction = (type) -> new SpongePopulatorType(type.getSimpleName(), StaticMixinForgeHelper.getModIdFromClass(type));
     }
 
 }

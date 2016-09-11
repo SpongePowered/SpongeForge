@@ -41,6 +41,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Map;
 import java.util.Random;
@@ -61,7 +62,7 @@ public class MixinGameRegistry {
         if (Timings.isTimingsEnabled()) {
             timing = worldGeneratorTimings.get(worldGenerator.getClass());
             if (timing == null) {
-                String modId = SpongeMod.instance.getModIdFromClass(worldGenerator.getClass());
+                String modId = StaticMixinForgeHelper.getModIdFromClass(worldGenerator.getClass());
                 timing = SpongeTimingsFactory.ofSafe("worldGenerator (" + modId + ":" + worldGenerator.getClass().getName() + ")");
                 worldGeneratorTimings.put(worldGenerator.getClass(), timing);
             }
