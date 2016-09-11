@@ -33,6 +33,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemDoor;
@@ -61,13 +62,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
+import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
 
 import java.util.Optional;
 
 @Mixin(value = PlayerInteractionManager.class, priority = 1001)
-public abstract class MixinPlayerInteractionManager {
+public abstract class MixinPlayerInteractionManager implements IMixinPlayerInteractionManager {
 
     @Shadow public EntityPlayerMP thisPlayerMP;
     @Shadow public World theWorld;
@@ -175,9 +177,13 @@ public abstract class MixinPlayerInteractionManager {
                 // Also, store the result instead of returning immediately
                 if (event.getUseBlockResult() != Tristate.FALSE) {
                     IBlockState iblockstate = worldIn.getBlockState(pos);
+                    Container lastOpenContainer = player.openContainer;
+
                     result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, stack, facing, hitX, hitY, hitZ)
                             ? EnumActionResult.SUCCESS
                             : EnumActionResult.FAIL;
+
+                    result = this.handleOpenEvent(lastOpenContainer, (EntityPlayerMP) player, result);
                 } else {
                     this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(this.theWorld, pos));
                     result = TristateUtil.toActionResult(event.getUseItemResult());
