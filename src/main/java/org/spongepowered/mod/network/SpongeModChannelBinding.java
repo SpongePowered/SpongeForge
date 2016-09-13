@@ -37,7 +37,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.network.SpongeNetworkManager.AbstractChannelBinding;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
