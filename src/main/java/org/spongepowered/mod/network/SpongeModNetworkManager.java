@@ -44,7 +44,6 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketRegistr
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.Platform;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
@@ -136,6 +135,11 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
             throw new ChannelRegistrationException("Error registering channel \"" + channelName + "\" to " + pluginContainer, e);
         }
         return this.registerChannel(channel);
+    }
+
+    @Override
+    public Optional<ChannelBinding> getChannel(String channel) {
+        return Optional.ofNullable(this.channelMap.get(channel));
     }
 
     @Override
