@@ -86,6 +86,8 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
     private Injector injector;
 
     private PluginContainer pluginContainer = (PluginContainer) (Object) this;
+    private static final String ID_WARNING = "Plugin IDs should be lowercase, and only contain characters from "
+            + "a-z, dashes or underscores, start with a lowercase letter, and not exceed 64 characters.";
 
     @SuppressWarnings("deprecation")
     public SpongeModPluginContainer(String className, ModCandidate candidate, Map<String, Object> descriptor) {
@@ -95,9 +97,15 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
         this.candidate = candidate;
         this.descriptor = descriptor;
 
-        if (!ID_PATTERN.matcher(this.id).matches()) {
-            SpongeImpl.getLogger().error("Skipping plugin with invalid plugin ID '{}'. Plugin IDs should be lowercase, and only contain "
-                    + "characters from a-z, dashes, underscores or dots.", this.id);
+        String fixedId = this.id;
+        if (this.id.contains(".")) {
+            String[] parts = this.id.split("\\.");
+            fixedId = parts[parts.length - 1];
+            SpongeImpl.getLogger().warn("Detected plugin with invalid plugin ID '{}'. Setting ID to " + fixedId + ". " + ID_WARNING, this.id);
+        }
+
+        if (!ID_PATTERN.matcher(fixedId).matches()) {
+            SpongeImpl.getLogger().error("Skipping plugin with invalid plugin ID '{}'. " + ID_WARNING, this.id);
             this.invalid = true;
         }
     }
