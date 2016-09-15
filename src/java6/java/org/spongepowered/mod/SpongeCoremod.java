@@ -27,6 +27,7 @@ package org.spongepowered.mod;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.relauncher.FMLInjectionData;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
@@ -152,6 +153,9 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
     @Override
     public void injectData(Map<String, Object> data) {
+        // Register SpongeAPI mod container
+        FMLInjectionData.containers.add("org.spongepowered.mod.SpongeApiModContainer");
+
         SpongeJava6Bridge.modFile = (File) data.get("coremodLocation");
         if (SpongeJava6Bridge.modFile == null) {
             SpongeJava6Bridge.modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());

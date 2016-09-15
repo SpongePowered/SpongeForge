@@ -53,7 +53,12 @@ public interface MixinModContainer extends ModContainer {
     }
 
     default Optional<String> plugin$getVersion() {
-        return Optional.ofNullable(emptyToNull(getVersion()));
+        String version = emptyToNull(getVersion());
+        if (version != null && (version.equalsIgnoreCase("unknown") || version.equalsIgnoreCase("dev"))) {
+            version = null;
+        }
+
+        return Optional.ofNullable(version);
     }
 
     default Optional<String> getDescription() {

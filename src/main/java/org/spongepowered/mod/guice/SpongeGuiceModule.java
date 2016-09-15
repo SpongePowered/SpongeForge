@@ -45,9 +45,9 @@ import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.asset.SpongeAssetManager;
 import org.spongepowered.common.guice.ConfigDirAnnotation;
-import org.spongepowered.common.plugin.SpongeApiContainer;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.world.SpongeTeleportHelper;
+import org.spongepowered.mod.SpongeApiModContainer;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.SpongeModGame;
 import org.spongepowered.mod.SpongeModPlatform;
@@ -66,7 +66,7 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(Logger.class).toInstance(SpongeImpl.getLogger());
 
         bind(PluginContainer.class).annotatedWith(named(SpongeImpl.ECOSYSTEM_ID)).toInstance((PluginContainer) SpongeMod.instance);
-        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.API_ID)).to(SpongeApiContainer.class).in(Scopes.SINGLETON);
+        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.API_ID)).toInstance(SpongeApiModContainer.instance);
         bind(PluginContainer.class).annotatedWith(named(SpongeImpl.GAME_ID)).toInstance((PluginContainer) Loader.instance().getMinecraftModContainer());
 
         bind(Game.class).to(SpongeModGame.class).in(Scopes.SINGLETON);
