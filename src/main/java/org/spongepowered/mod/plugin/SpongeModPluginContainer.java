@@ -90,25 +90,23 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
             + "a-z, dashes or underscores, start with a lowercase letter, and not exceed 64 characters.";
 
     public SpongeModPluginContainer(String className, ModCandidate candidate, Map<String, Object> descriptor) {
-        String tempId = checkNotNull((String) descriptor.get("id"), "id");
+        this.id = checkNotNull((String) descriptor.get("id"), "id");
 
         this.className = className;
         this.candidate = candidate;
         this.descriptor = descriptor;
-
-        // @Temporary: After version 5.x this should be removed as all plugins should have updated their ids.
+        String tempId = this.id;
+        // TODO Temporary: After version 5.x this should be removed as all plugins should have updated their ids.
         if (tempId.contains(".")) {
             String[] parts = tempId.split("\\.");
-            String fixedId = parts[parts.length - 1];
-            SpongeImpl.getLogger().warn("Detected plugin with invalid plugin ID '{}'. Setting ID to {}. " + ID_WARNING, tempId, fixedId);
-            tempId = fixedId;
+            SpongeImpl.getLogger().warn("Detected plugin with invalid plugin ID '{}'. " + ID_WARNING, tempId);
+            tempId = parts[parts.length - 1];
         }
 
         if (!ID_PATTERN.matcher(tempId).matches()) {
             SpongeImpl.getLogger().error("Skipping plugin with invalid plugin ID '{}'. " + ID_WARNING, tempId);
             this.invalid = true;
         }
-        this.id = tempId;
     }
 
     @Override
