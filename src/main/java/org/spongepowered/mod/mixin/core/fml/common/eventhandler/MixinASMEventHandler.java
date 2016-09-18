@@ -50,8 +50,8 @@ public abstract class MixinASMEventHandler implements IMixinASMEventHandler {
     @Shadow @Final private IEventListener handler;
     @Shadow private ModContainer owner;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    public void onConstruction(Object target, Method method, ModContainer owner, CallbackInfo ci) {
+    @Inject(method = "<init>(Ljava/lang/Object;Ljava/lang/reflect/Method;Lnet/minecraftforge/fml/common/ModContainer;Z)V", at = @At("RETURN"))
+    public void onConstruction(Object target, Method method, ModContainer owner, boolean isGeneric, CallbackInfo ci) {
         this.timingName = target.getClass().getSimpleName() + "_" + method.getName() + "(" + Type.getMethodDescriptor(method) + ")";
     }
 
