@@ -40,7 +40,7 @@ public abstract class MixinDimensionType implements org.spongepowered.api.world.
      *
      * @reason - Uses forge's var for determining whether a dimension type should generate spawn.
      */
-    @Overwrite
+    @Override
     public boolean shouldGenerateSpawnOnLoad() {
         return this.shouldLoadSpawn;
     }
