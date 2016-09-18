@@ -91,6 +91,7 @@ import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
@@ -132,6 +133,7 @@ import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.entity.EntityUtil;
@@ -837,24 +839,44 @@ public class SpongeForgeEventFactory {
                 spongeEvent.setCancelled(true);
             }
         } else if (spongeEvent instanceof InteractBlockEvent.Secondary) {
+            PlayerInteractEvent.RightClickBlock forgeEvent = null;
             if (spongeEvent instanceof InteractBlockEvent.Secondary.MainHand) {
                 final ItemStack heldItem = entityPlayerMP.getHeldItem(EnumHand.MAIN_HAND);
-                PlayerInteractEvent.RightClickBlock forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.MAIN_HAND, heldItem, pos, face.orElse(null), hitVec);
+                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.MAIN_HAND, heldItem, pos, face.orElse(null), hitVec);
                 MinecraftForge.EVENT_BUS.post(forgeEvent);
                 if (forgeEvent.isCanceled()) {
                     spongeEvent.setCancelled(true);
                 }
             } else if (spongeEvent instanceof InteractBlockEvent.Secondary.OffHand) {
                 final ItemStack heldItem = entityPlayerMP.getHeldItem(EnumHand.OFF_HAND);
-                PlayerInteractEvent.RightClickBlock forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.OFF_HAND, heldItem, pos, face.orElse(null), hitVec);
+                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.OFF_HAND, heldItem, pos, face.orElse(null), hitVec);
                 MinecraftForge.EVENT_BUS.post(forgeEvent);
                 if (forgeEvent.isCanceled()) {
                     spongeEvent.setCancelled(true);
                 }
             }
+            // Mods have higher priority
+            if (forgeEvent != null) {
+                if (forgeEvent.getUseItem() != Result.DEFAULT) {
+                    ((InteractBlockEvent.Secondary) spongeEvent).setUseItemResult(getTristateFromResult(forgeEvent.getUseItem()));
+                }
+                if (forgeEvent.getUseBlock() != Result.DEFAULT) {
+                    ((InteractBlockEvent.Secondary) spongeEvent).setUseBlockResult(getTristateFromResult(forgeEvent.getUseBlock()));
+                }
+            }
         }
 
         return spongeEvent;
+    }
+
+    private static Tristate getTristateFromResult(Result result) {
+        if (result == Result.ALLOW) {
+            return Tristate.TRUE;
+        } else if (result == Result.DENY) {
+            return Tristate.FALSE;
+        }
+
+        return Tristate.UNDEFINED;
     }
 
     public static ChangeInventoryEvent.Pickup callEntityItemPickupEvent(Event event) {

@@ -50,9 +50,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameType;
 import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
@@ -116,11 +113,16 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
 
             ItemStack oldStack = ItemStack.copyItemStack(stack);
 
+            // Store reference of current player's itemstack in case it changes
+            ItemStack currentPlayerItem = this.thisPlayerMP.getHeldItemMainhand();
             BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
             InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(Cause.of(NamedCause.source(player)),
                     Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
                     DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
-
+            ItemStack newPlayerItem = this.thisPlayerMP.getHeldItemMainhand();
+            if (!ItemStack.areItemStacksEqual(currentPlayerItem, newPlayerItem)) {
+                SpongeCommonEventFactory.playerInteractItemChanged = true;
+            }
             if (event.isCancelled()) {
                 final IBlockState state = worldIn.getBlockState(pos);
 
@@ -147,13 +149,6 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
 
                 return EnumActionResult.FAIL;
             }
-            // Forge Start
-            PlayerInteractEvent.RightClickBlock forgeEvent = ForgeHooks
-                    .onRightClickBlock(player, hand, stack, pos, facing,
-                            ForgeHooks.rayTraceEyeHitVec(this.thisPlayerMP, this.getBlockReachDistance() + 1));
-            if (forgeEvent.isCanceled()) {
-                return EnumActionResult.PASS;
-            }
 
             net.minecraft.item.Item item = stack == null ? null : stack.getItem();
             EnumActionResult ret = item == null
@@ -172,7 +167,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             EnumActionResult result = EnumActionResult.FAIL; // Sponge - Forge deems the default to be PASS, but Sponge is deeming it to be FAIL
 
             // if (!player.isSneaking() || player.getHeldItemMainhand() == null && player.getHeldItemOffhand() == null) { // Forge - Adds bypass event checks
-            if (!player.isSneaking() || bypass || forgeEvent.getUseBlock() == Event.Result.ALLOW) {
+            if (!player.isSneaking() || bypass || event.getUseBlockResult() == Tristate.TRUE) {
                 // Sponge start - check event useBlockResult, and revert the client if it's FALSE.
                 // Also, store the result instead of returning immediately
                 if (event.getUseBlockResult() != Tristate.FALSE) {
@@ -210,8 +205,8 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                         && (event.getUseItemResult() == Tristate.TRUE
                                     || (event.getUseItemResult() == Tristate.UNDEFINED && result == EnumActionResult.FAIL)
                 )
-                        && (result != EnumActionResult.SUCCESS && forgeEvent.getUseItem() != Event.Result.DENY
-                                    || result == EnumActionResult.SUCCESS && forgeEvent.getUseItem() == Event.Result.ALLOW
+                        && (result != EnumActionResult.SUCCESS && event.getUseItemResult() != Tristate.FALSE
+                                    || result == EnumActionResult.SUCCESS && event.getUseItemResult() == Tristate.TRUE
                 )) {
                     int meta = stack.getMetadata(); // meta == j
                     int size = stack.stackSize; // size == i
