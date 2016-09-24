@@ -24,10 +24,7 @@
  */
 package org.spongepowered.mod;
 
-import static org.spongepowered.common.SpongeImpl.API_ID;
-import static org.spongepowered.common.SpongeImpl.API_NAME;
 import static org.spongepowered.common.SpongeImpl.ECOSYSTEM_ID;
-import static org.spongepowered.common.SpongeImpl.ECOSYSTEM_NAME;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

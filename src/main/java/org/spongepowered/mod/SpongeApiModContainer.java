@@ -29,6 +29,7 @@ import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
 import org.slf4j.Logger;
+import org.spongepowered.api.Platform;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.SpongeImpl;
 
@@ -42,7 +43,7 @@ public class SpongeApiModContainer extends DummyModContainer {
         super(new ModMetadata());
 
         ModMetadata md = getMetadata();
-        md.modId = SpongeImpl.API_ID;
+        md.modId = Platform.API_ID;
         md.name = SpongeImpl.API_NAME;
         md.version = SpongeImpl.API_VERSION.orElse("");
 
