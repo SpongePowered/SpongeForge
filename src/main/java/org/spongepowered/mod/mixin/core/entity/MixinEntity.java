@@ -42,7 +42,7 @@ public abstract class MixinEntity implements IMixinEntity {
     // @formatter:off
     @Shadow public net.minecraft.world.World worldObj;
 
-    @Shadow public abstract void setSize(float width, float height);
+    @Shadow protected abstract void setSize(float width, float height);
     // @formatter:on
 
     @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge"
