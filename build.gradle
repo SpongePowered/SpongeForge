@@ -6,34 +6,33 @@ buildscript {
             url = 'https://plugins.gradle.org/m2'
         }
         maven {
-            name = 'forge'
-            url = 'http://files.minecraftforge.net/maven'
+            name = 'sponge'
+            url = 'https://repo.spongepowered.org/maven'
         }
         maven {
-            name = 'sponge'
-            url = 'http://repo.spongepowered.org/maven'
+            name = 'forge'
+            url = 'http://files.minecraftforge.net/maven'
         }
     }
 
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-        classpath 'gradle.plugin.net.minecrell:licenser:0.2.1'
+        classpath 'gradle.plugin.net.minecrell:licenser:0.3'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
         classpath 'gradle.plugin.org.spongepowered:spongegradle:0.7'
         classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-
-ext.forgeBuild = '2092'
-minecraft {
-    version = forgeBuild
-    coreMod = 'org.spongepowered.mod.SpongeCoremod'
-}
+// On Forge, we use the Forge build number as Minecraft version for ForgeGradle
+ext.minecraftVersion = forgeBuild
 
 // Apply shared implementation Gradle config
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
+
+minecraft {
+    coreMod = 'org.spongepowered.mod.SpongeCoremod'
+}
 
 version = "$minecraft.version-$forgeBuild-$apiSuffix-$buildNumber"
 
