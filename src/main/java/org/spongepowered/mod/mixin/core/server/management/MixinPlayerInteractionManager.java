@@ -147,6 +147,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                     }
                 }
 
+                SpongeCommonEventFactory.interactBlockEventCancelled = true;
                 return EnumActionResult.FAIL;
             }
 
