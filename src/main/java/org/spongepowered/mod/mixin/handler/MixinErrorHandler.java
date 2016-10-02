@@ -101,19 +101,39 @@ public class MixinErrorHandler implements IMixinErrorHandler {
             .add()
             .kv("Class Name", ex.getTarget())
             .add();
-        
+
         if (ex.getTarget().startsWith("net.minecraftforge")) {
             pp.hr('-').add().add("Loaded forge classes: ").add();
             for (String loadedClass : LaunchClassLoaderUtil.forClassLoader(Launch.classLoader).getLoadedClasses("net.minecraftforge")) {
                 pp.add("    %s", loadedClass);
             }
         }
-        
+
         return pp;
     }
-    
+
     private PrettyPrinter itsAllGoneHorriblyWrong() {
         String forgeVer = Main.getManifestAttribute("TargetForgeVersion", null);
+        if (forgeVer != null && !forgeVer.equals(ForgeVersion.getVersion())) {
+            return new PrettyPrinter()
+                    .add()
+                    .add("Oh dear. It seems like this version of Sponge is not compatible with the version")
+                    .add("of Forge you are running.")
+                    .add()
+                    .hr('-')
+                    .add()
+                    .add("A errpr was encountered whilst patching:")
+                    .add()
+                    .add("  One or more Sponge patches could not be applied whilst loading Sponge, this is")
+                    .add("  a permanent error and you must either:")
+                    .add()
+                    .add("   * Use the correct build of Forge for this version of Sponge (%s)", forgeVer)
+                    .add()
+                    .add("   * Use a version of Sponge for built for your version of Forge")
+                    .add()
+                    .addWrapped("  The patch which failed requires Forge build: %s", forgeVer)
+                    .addWrapped("  but you are running build:                   %s", ForgeVersion.getVersion());
+        }
         String forgeMessage = forgeVer == null ? "is usually specified in the sponge mod's jar filename" : "version is for " + forgeVer;
 
         return new PrettyPrinter()
