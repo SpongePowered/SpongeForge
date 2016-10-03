@@ -30,6 +30,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -91,6 +92,7 @@ import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -136,6 +138,7 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
@@ -150,6 +153,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -988,13 +992,18 @@ public class SpongeForgeEventFactory {
         }
 
         SpawnEntityEvent spongeEvent = (SpawnEntityEvent) event;
-        Iterator<org.spongepowered.api.entity.Entity> iterator = spongeEvent.getEntities().iterator();
+        ListIterator<org.spongepowered.api.entity.Entity> iterator = spongeEvent.getEntities().listIterator();
+
         while (iterator.hasNext()) {
             org.spongepowered.api.entity.Entity entity = iterator.next();
             EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((net.minecraft.entity.Entity) entity,
                     (net.minecraft.world.World) entity.getLocation().getExtent());
 
+            boolean prev = StaticMixinForgeHelper.preventInternalForgeEntityListener;
+            StaticMixinForgeHelper.preventInternalForgeEntityListener = true;
             ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+            StaticMixinForgeHelper.preventInternalForgeEntityListener = prev;
+
             if (forgeEvent.isCanceled()) {
                 iterator.remove();
             }
@@ -1003,6 +1012,66 @@ public class SpongeForgeEventFactory {
             spongeEvent.setCancelled(true);
         }
         return spongeEvent;
+    }
+
+    public static void handlePrefireLogic(Event event) {
+        if (event instanceof SpawnEntityEvent) {
+            handleCustomStack((SpawnEntityEvent) event);
+        }
+    }
+
+    // Copied from ForgeInternalHandler.onEntityJoinWorld, but with modifications
+    private static void handleCustomStack(SpawnEntityEvent event) {
+        // Sponge start - iterate over entities
+        ListIterator<org.spongepowered.api.entity.Entity> it = event.getEntities().listIterator();
+        while (it.hasNext()) {
+            Entity entity = (Entity) it.next(); //Sponge - use entity from event
+            if (entity.getClass().equals(EntityItem.class)) {
+                ItemStack stack = ((EntityItem) entity).getEntityItem();
+
+                if (stack == null) {
+                    //entity.setDead();
+                    //event.setCanceled(true);
+                    continue; // Sponge - continue instead of return
+                }
+
+                Item item = stack.getItem();
+                if (item == null) {
+                    // Sponge - technically, this check is in the wrong place, as it normally runs in Forge's listener (i.e. after 'beforeModifications' listener)
+                    // However, it's really only a sanity check for something that should never happen, so it's fine
+                    FMLLog.warning("Attempted to add a EntityItem to the world with a invalid item at " +
+                                    "(%2.2f,  %2.2f, %2.2f), this is most likely a config issue between you and the server. Please double check your configs",
+                            entity.posX, entity.posY, entity.posZ);
+                    entity.setDead();
+                    event.setCancelled(true); // Sponge - use our setCancelled method
+                    continue; // Sponge - continue instead of return
+                }
+
+                if (item.hasCustomEntity(stack)) {
+                    Entity newEntity = item.createEntity(entity.getEntityWorld(), entity, stack); // Sponge - use world from entity
+                    if (newEntity != null) {
+                        entity.setDead();
+                        //event.setCanceled(true); Sponge - don't cancel the event
+                        // Sponge start - fire cancelled event, and return new event.
+                        // We don't need to set 'StaticMixinForgeHelper.preventInternalForgeEntityListener' to 'true',
+                        // since Forge's listener only handled uncancelled events
+
+                        EntityJoinWorldEvent cancelledEvent = new EntityJoinWorldEvent(entity, entity.getEntityWorld());
+                        cancelledEvent.setCanceled(true);
+                        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(cancelledEvent, true);
+
+                        if (!cancelledEvent.isCanceled()) {
+                            SpongeImpl.getLogger()
+                                    .error("A mod has un-cancelled the EntityJoinWorld event for the original EntityItem (from before Item#createEntity is called). This is almost certainly a terrible idea!");
+                        }
+
+                        it.set((org.spongepowered.api.entity.Entity) newEntity);
+                        continue;
+                        // Sponge end
+                    }
+                }
+            }
+        }
     }
 
     public static NotifyNeighborBlockEvent callNeighborNotifyEvent(Event event) {

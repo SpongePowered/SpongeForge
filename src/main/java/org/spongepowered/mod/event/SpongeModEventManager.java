@@ -318,6 +318,9 @@ public class SpongeModEventManager extends SpongeEventManager {
     public boolean post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
+
+        SpongeForgeEventFactory.handlePrefireLogic(spongeEvent);
+
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);

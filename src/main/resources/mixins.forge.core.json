@@ -65,6 +65,7 @@
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",
         "forge.MixinForgeHooks",
+        "forge.MixinForgeInternalHandler",
         "forge.event.MixinForgeEventFactory",
         "forge.fluids.MixinFluid",
         "forge.fluids.MixinFluidRegistry",
