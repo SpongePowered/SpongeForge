@@ -38,7 +38,9 @@ import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,6 +49,7 @@ import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Iterator;
@@ -142,6 +145,11 @@ public abstract class MixinSpongeImplHooks {
 
         deobfuscatedEnvironment = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
         return deobfuscatedEnvironment;
+    }
+
+    @Overwrite
+    public static void firePlayerJoinSpawnEvent(EntityPlayerMP playerMP) {
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new EntityJoinWorldEvent(playerMP, playerMP.getEntityWorld()), true);
     }
 
     @SuppressWarnings("deprecation")
