@@ -268,7 +268,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             if (type.equals(BlockTypes.DIRT)) {
                 otype = GenerateMinable.EventType.DIRT;
             } else if (type.equals(BlockTypes.GRAVEL)) {
-                otype = GenerateMinable.EventType.DIRT;
+                otype = GenerateMinable.EventType.GRAVEL;
             } else if (type.equals(BlockTypes.STONE)) {
                 BlockState state = ((Ore) populator).getOreBlock();
                 Optional<StoneType> stype;
