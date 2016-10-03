@@ -113,8 +113,10 @@ import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.api.event.entity.DismountEntityEvent;
 import org.spongepowered.api.event.entity.DisplaceEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.MountEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.entity.item.TargetItemEvent;
@@ -267,7 +269,7 @@ public class SpongeForgeEventFactory {
             if (clazz == EntityEvent.EntityConstructing.class) {
                 return createEntityConstructingEvent(event);
             } else if (clazz == EntityMountEvent.class) {
-
+                return createEntityMountEvent(event);
             } else if (clazz == EntityStruckByLightningEvent.class) {
 
             } else {
@@ -521,6 +523,24 @@ public class SpongeForgeEventFactory {
         EntityEvent.EntityConstructing forgeEvent =
                 new EntityEvent.EntityConstructing((Entity) spongeEvent.getTargetEntity());
         return forgeEvent;
+    }
+
+    public static EntityMountEvent createEntityMountEvent(Event event) {
+        boolean isMount;
+        if (event instanceof MountEntityEvent) {
+            isMount = true;
+        } else if (event instanceof DismountEntityEvent) {
+            isMount = false;
+        } else {
+            throw new IllegalArgumentException("Event is not a valid MountEntityEvent or DismountEntityEvent.");
+        }
+        Optional<Entity> entityMounting = event.getCause().last(Entity.class);
+        if (!entityMounting.isPresent()) {
+            return null;
+        }
+
+        Entity targetEntity = (Entity) ((TargetEntityEvent) event).getTargetEntity();
+        return new EntityMountEvent(entityMounting.get(), targetEntity, targetEntity.worldObj, isMount);
     }
 
     public static AttackEntityEvent createAttackEntityEvent(Event event) {

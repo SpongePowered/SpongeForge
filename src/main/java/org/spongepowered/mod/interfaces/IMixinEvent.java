@@ -31,7 +31,7 @@ public interface IMixinEvent {
 
     void syncDataToForge(Event spongeEvent);
 
-    void syncDataToSponge(Event forgeEvent);
+    void syncDataToSponge(Event spongeEvent);
 
     Event createSpongeEvent();
 
