@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.event.player;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.world.BlockEvent;
@@ -67,7 +68,7 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraftforge.common.util.BlockSnapshot blockSnapshot, IBlockState placedAgainst, EntityPlayer player, CallbackInfo ci) {
-        if (SpongeCommonEventFactory.processingInternalForgeEvent) {
+        if (SpongeCommonEventFactory.processingInternalForgeEvent || player.getEntityWorld() instanceof WorldClient) {
             return;
         }
 
