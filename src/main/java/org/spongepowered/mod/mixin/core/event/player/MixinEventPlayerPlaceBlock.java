@@ -68,7 +68,7 @@ public abstract class MixinEventPlayerPlaceBlock extends MixinEventBlock impleme
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(net.minecraftforge.common.util.BlockSnapshot blockSnapshot, IBlockState placedAgainst, EntityPlayer player, CallbackInfo ci) {
-        if (SpongeCommonEventFactory.processingInternalForgeEvent || player.getEntityWorld() instanceof WorldClient) {
+        if (SpongeCommonEventFactory.processingInternalForgeEvent || player.getEntityWorld().isRemote) {
             return;
         }
 
