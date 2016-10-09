@@ -27,7 +27,6 @@ package org.spongepowered.mod.world.gen;
 import co.aikar.timings.SpongeTimingsFactory;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
-import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
@@ -62,7 +61,7 @@ import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.extent.Extent;
-import org.spongepowered.api.world.extent.ImmutableBiomeArea;
+import org.spongepowered.api.world.extent.ImmutableBiomeVolume;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GenerationPopulator;
 import org.spongepowered.api.world.gen.Populator;
@@ -131,7 +130,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
     }
 
     @Override
-    public void replaceBiomeBlocks(World world, Random rand, int x, int z, ChunkPrimer chunk, ImmutableBiomeArea biomes) {
+    public void replaceBiomeBlocks(World world, Random rand, int x, int z, ChunkPrimer chunk, ImmutableBiomeVolume biomes) {
         ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, x, z, chunk, world);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.getResult() == Result.DENY)
@@ -152,9 +151,9 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         BlockFalling.fallInstantly = true;
 
         // Have to regeneate the biomes so that any virtual biomes can be passed to the populator.
-        this.cachedBiomes.reuse(new Vector2i(chunkX * 16, chunkZ * 16));
+        this.cachedBiomes.reuse(new Vector3i(chunkX * 16, 0, chunkZ * 16));
         this.biomeGenerator.generateBiomes(this.cachedBiomes);
-        ImmutableBiomeArea biomeBuffer = this.cachedBiomes.getImmutableBiomeCopy();
+        ImmutableBiomeVolume biomeBuffer = this.cachedBiomes.getImmutableBiomeCopy();
 
         BlockPos blockpos = new BlockPos(chunkX * 16, 0, chunkZ * 16);
         BiomeType biome = (BiomeType) this.world.getBiome(blockpos.add(16, 0, 16));
