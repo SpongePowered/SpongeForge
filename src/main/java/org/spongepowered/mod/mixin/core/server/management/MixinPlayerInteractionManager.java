@@ -111,18 +111,19 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         } else {
             // Sponge Start - fire event, and revert the client if cancelled
 
+            // Store reference of current player's itemstack in case it changes
             ItemStack oldStack = ItemStack.copyItemStack(stack);
 
-            // Store reference of current player's itemstack in case it changes
-            ItemStack currentPlayerItem = this.thisPlayerMP.getHeldItemMainhand();
+
             BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
             InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(Cause.of(NamedCause.source(player)),
                     Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
                     DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
             ItemStack newPlayerItem = this.thisPlayerMP.getHeldItemMainhand();
-            if (!ItemStack.areItemStacksEqual(currentPlayerItem, newPlayerItem)) {
+            if (!ItemStack.areItemStacksEqual(oldStack, newPlayerItem)) {
                 SpongeCommonEventFactory.playerInteractItemChanged = true;
             }
+
             if (event.isCancelled()) {
                 final IBlockState state = worldIn.getBlockState(pos);
 
