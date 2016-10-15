@@ -836,9 +836,8 @@ public class SpongeForgeEventFactory {
             hitVec = VecHelper.toVec3d(spongeEvent.getInteractionPoint().get());
         }
         if (spongeEvent instanceof InteractBlockEvent.Primary) {
-
             PlayerInteractEvent.LeftClickBlock forgeEvent = new PlayerInteractEvent.LeftClickBlock(entityPlayerMP, pos, face.orElse(null), hitVec);
-            MinecraftForge.EVENT_BUS.post(forgeEvent);
+            ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
             if (forgeEvent.isCanceled()) {
                 spongeEvent.setCancelled(true);
             }
@@ -847,14 +846,14 @@ public class SpongeForgeEventFactory {
             if (spongeEvent instanceof InteractBlockEvent.Secondary.MainHand) {
                 final ItemStack heldItem = entityPlayerMP.getHeldItem(EnumHand.MAIN_HAND);
                 forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.MAIN_HAND, heldItem, pos, face.orElse(null), hitVec);
-                MinecraftForge.EVENT_BUS.post(forgeEvent);
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
                     spongeEvent.setCancelled(true);
                 }
             } else if (spongeEvent instanceof InteractBlockEvent.Secondary.OffHand) {
                 final ItemStack heldItem = entityPlayerMP.getHeldItem(EnumHand.OFF_HAND);
                 forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.OFF_HAND, heldItem, pos, face.orElse(null), hitVec);
-                MinecraftForge.EVENT_BUS.post(forgeEvent);
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
                     spongeEvent.setCancelled(true);
                 }

@@ -47,9 +47,11 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
 import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
@@ -58,6 +60,8 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
@@ -119,8 +123,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(Cause.of(NamedCause.source(player)),
                     Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
                     DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
-            ItemStack newPlayerItem = this.thisPlayerMP.getHeldItemMainhand();
-            if (!ItemStack.areItemStacksEqual(oldStack, newPlayerItem)) {
+            if (!ItemStack.areItemStacksEqual(oldStack, this.thisPlayerMP.getHeldItem(hand))) {
                 SpongeCommonEventFactory.playerInteractItemChanged = true;
             }
 
@@ -129,22 +132,22 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
 
                 if (state.getBlock() == Blocks.COMMAND_BLOCK) {
                     // CommandBlock GUI opens solely on the client, we need to force it close on cancellation
-                    ((EntityPlayerMP) player).connection.sendPacket(new SPacketCloseWindow(0));
+                    this.thisPlayerMP.connection.sendPacket(new SPacketCloseWindow(0));
 
                 } else if (state.getProperties().containsKey(BlockDoor.HALF)) {
                     // Stopping a door from opening while interacting the top part will allow the door to open, we need to update the
                     // client to resolve this
                     if (state.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) {
-                        ((EntityPlayerMP) player).connection.sendPacket(new SPacketBlockChange(worldIn, pos.up()));
+                        this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(worldIn, pos.up()));
                     } else {
-                        ((EntityPlayerMP) player).connection.sendPacket(new SPacketBlockChange(worldIn, pos.down()));
+                        this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(worldIn, pos.down()));
                     }
 
                 } else if (stack != null) {
                     // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-side of the block. We need to remove it
                     if (stack.getItem() instanceof ItemDoor || (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock()
                             .equals(Blocks.DOUBLE_PLANT))) {
-                        ((EntityPlayerMP) player).connection.sendPacket(new SPacketBlockChange(worldIn, pos.up(2)));
+                        this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(worldIn, pos.up(2)));
                     }
                 }
 
@@ -179,8 +182,13 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                     result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, stack, facing, hitX, hitY, hitZ)
                             ? EnumActionResult.SUCCESS
                             : EnumActionResult.FAIL;
+                    // mods such as StorageDrawers alter the stack on block activation
+                    // if itemstack changed, avoid restore
+                    if (!ItemStack.areItemStacksEqual(oldStack, this.thisPlayerMP.getHeldItem(hand))) {
+                        SpongeCommonEventFactory.playerInteractItemChanged = true;
+                    }
 
-                    result = this.handleOpenEvent(lastOpenContainer, (EntityPlayerMP) player, result);
+                    result = this.handleOpenEvent(lastOpenContainer, this.thisPlayerMP, result);
                 } else {
                     this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(this.theWorld, pos));
                     result = TristateUtil.toActionResult(event.getUseItemResult());
@@ -222,16 +230,17 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 }
             }
 
-
-            // if cancelled, force client itemstack update
             if (!ItemStack.areItemStacksEqual(player.getHeldItem(hand), oldStack) || result != EnumActionResult.SUCCESS) {
-                // TODO - maybe send just main/off hand?
                 player.openContainer.detectAndSendChanges();
-                /*((EntityPlayerMP) player).playerNetServerHandler.sendPacket(new SPacketSetSlot(player.openContainer.windowId, player.openContainer.getSlotFromInventory(player.inventory, player.inventory.currentItem),
-                        player.inventory.getCurrentItem());*/
             }
-
             return result;
         }
+    }
+
+    @Redirect(method = "onBlockClicked", at = @At(value = "INVOKE", args = "log=true", target = "Lnet/minecraftforge/common/ForgeHooks;onLeftClickBlock(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;Lnet/minecraft/util/math/Vec3d;)Lnet/minecraftforge/event/entity/player/PlayerInteractEvent$LeftClickBlock;", remap = false))
+    public PlayerInteractEvent.LeftClickBlock onForgeCallLeftClickBlock(EntityPlayer player, BlockPos pos, EnumFacing side, Vec3d hitVec) {
+        // We fire Forge's LeftClickBlock event when InteractBlockEvent.Primary is invoked which occurs before this method.
+        // Due to this, we will simply return a dummy event
+        return new PlayerInteractEvent.LeftClickBlock(player, pos, side, hitVec);
     }
 }

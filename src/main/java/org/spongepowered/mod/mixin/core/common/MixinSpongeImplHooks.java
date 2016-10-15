@@ -48,7 +48,6 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
@@ -161,4 +160,8 @@ public abstract class MixinSpongeImplHooks {
         return blockState.getLightValue();
     }
 
+    @Overwrite
+    public static double getBlockReachDistance(EntityPlayerMP player) {
+        return player.interactionManager.getBlockReachDistance();
+    }
 }
