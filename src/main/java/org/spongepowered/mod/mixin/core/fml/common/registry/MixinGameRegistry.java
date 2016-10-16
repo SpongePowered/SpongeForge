@@ -28,11 +28,15 @@ import co.aikar.timings.SpongeTimingsFactory;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
 import com.google.common.collect.Maps;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.fml.common.IWorldGenerator;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
+import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,7 +44,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
-import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.common.registry.type.effect.SoundRegistryModule;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Map;
@@ -54,6 +58,13 @@ public class MixinGameRegistry {
             "Lnet/minecraftforge/fml/common/IWorldGenerator;generate("
             + "Ljava/util/Random;IILnet/minecraft/world/World;Lnet/minecraft/world/chunk/IChunkGenerator;"
             + "Lnet/minecraft/world/chunk/IChunkProvider;)V";
+
+    public static final String REGISTER = "register(Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;)"
+            + "Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;";
+
+    public static final String REGISTER_WITH_LOCATION = "register(Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;"
+            + "Lnet/minecraft/util/ResourceLocation;)Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;";
+
     private static Map<Class<?>, Timing> worldGeneratorTimings = Maps.newHashMap();
 
     @Redirect(method = "generateWorld", at = @At(value = "INVOKE", target = WORLD_GENERATOR_GENERATE))
@@ -88,6 +99,20 @@ public class MixinGameRegistry {
         if (Timings.isTimingsEnabled()) {
             ((IMixinWorldServer) world).getTimingsHandler().chunkPopulate.stopTimingIfSync();
         }
+    }
+
+    @Inject(method = REGISTER, at = @At(value = "RETURN"))
+    private static void onRegisterSound(IForgeRegistryEntry<?> object, CallbackInfo ci) {
+        if (!(object instanceof SoundEvent)) {
+            return;
+        }
+
+        SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) object);
+    }
+
+    @Inject(method = REGISTER_WITH_LOCATION, at = @At(value = "RETURN"))
+    private static void onRegisterSoundWithLocation(IForgeRegistryEntry<?> object, ResourceLocation name, CallbackInfo ci) {
+        onRegisterSound(object, ci);
     }
 
 }
