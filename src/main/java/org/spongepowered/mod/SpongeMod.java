@@ -59,6 +59,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.effect.potion.PotionEffectType;
+import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemType;
@@ -82,6 +83,7 @@ import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
 import org.spongepowered.common.registry.type.effect.PotionEffectTypeRegistryModule;
+import org.spongepowered.common.registry.type.effect.SoundRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.item.EnchantmentRegistryModule;
 import org.spongepowered.common.scheduler.SpongeScheduler;
@@ -173,6 +175,9 @@ public class SpongeMod extends DummyModContainer {
             final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
             final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(obj, spongeProfession);
             ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
+        }));
+        SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, ((obj, id, location) -> {
+            SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) obj);
         }));
         SpongeForgeModuleRegistry.registerForgeData();
 
