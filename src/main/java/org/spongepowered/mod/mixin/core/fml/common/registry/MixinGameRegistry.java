@@ -102,22 +102,4 @@ public class MixinGameRegistry {
         }
     }
 
-    @Inject(method = REGISTER, at = @At(value = "RETURN"))
-    private static void onRegisterSound(IForgeRegistryEntry<?> object, CallbackInfoReturnable ci) {
-        registerModSound(object);
-    }
-
-    @Inject(method = REGISTER_WITH_LOCATION, at = @At(value = "RETURN"))
-    private static void onRegisterSoundWithLocation(IForgeRegistryEntry<?> object, ResourceLocation name, CallbackInfoReturnable ci) {
-        registerModSound(object);
-    }
-
-    private static void registerModSound(IForgeRegistryEntry<?> object) {
-        if (!(object instanceof SoundEvent)) {
-            return;
-        }
-
-        SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) object);
-    }
-
 }
