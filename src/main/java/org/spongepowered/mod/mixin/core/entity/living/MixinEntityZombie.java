@@ -42,10 +42,10 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 @NonnullByDefault
-@Mixin(value = EntityZombie.class, priority = 1001, remap = false)
+@Mixin(value = EntityZombie.class, priority = 1001)
 public abstract class MixinEntityZombie implements Zombie {
 
-    @Shadow @Nullable public abstract VillagerRegistry.VillagerProfession getVillagerTypeForge();
+    @Shadow(remap = false) @Nullable public abstract VillagerRegistry.VillagerProfession getVillagerTypeForge();
     @Shadow @Nullable public abstract net.minecraft.entity.monster.ZombieType getZombieType();
 
     // Changes method on Common mixin, to use Forge professions
