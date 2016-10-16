@@ -43,6 +43,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.registry.type.effect.SoundRegistryModule;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
@@ -59,10 +60,10 @@ public class MixinGameRegistry {
             + "Ljava/util/Random;IILnet/minecraft/world/World;Lnet/minecraft/world/chunk/IChunkGenerator;"
             + "Lnet/minecraft/world/chunk/IChunkProvider;)V";
 
-    public static final String REGISTER = "register(Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;)"
+    private static final String REGISTER = "register(Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;)"
             + "Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;";
 
-    public static final String REGISTER_WITH_LOCATION = "register(Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;"
+    private static final String REGISTER_WITH_LOCATION = "register(Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;"
             + "Lnet/minecraft/util/ResourceLocation;)Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;";
 
     private static Map<Class<?>, Timing> worldGeneratorTimings = Maps.newHashMap();
@@ -102,7 +103,7 @@ public class MixinGameRegistry {
     }
 
     @Inject(method = REGISTER, at = @At(value = "RETURN"))
-    private static void onRegisterSound(IForgeRegistryEntry<?> object, CallbackInfo ci) {
+    private static void onRegisterSound(IForgeRegistryEntry<?> object, CallbackInfoReturnable ci) {
         if (!(object instanceof SoundEvent)) {
             return;
         }
@@ -111,7 +112,7 @@ public class MixinGameRegistry {
     }
 
     @Inject(method = REGISTER_WITH_LOCATION, at = @At(value = "RETURN"))
-    private static void onRegisterSoundWithLocation(IForgeRegistryEntry<?> object, ResourceLocation name, CallbackInfo ci) {
+    private static void onRegisterSoundWithLocation(IForgeRegistryEntry<?> object, ResourceLocation name, CallbackInfoReturnable ci) {
         onRegisterSound(object, ci);
     }
 
