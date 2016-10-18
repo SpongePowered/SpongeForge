@@ -24,30 +24,132 @@
  */
 package org.spongepowered.mod.mixin.entityactivation;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.mixin.plugin.entityactivation.ActivationRange;
 import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.IModData_Activation;
 
 @NonnullByDefault
-@Mixin(net.minecraft.world.World.class)
+@Mixin(value = net.minecraft.world.World.class, priority = 999)
 public abstract class MixinWorld_Activation implements IMixinWorld {
 
-    @Inject(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE",
-            target = "Lnet/minecraftforge/event/ForgeEventFactory;canEntityUpdate(Lnet/minecraft/entity/Entity;)Z",
-            shift = At.Shift.BY, by = 3, ordinal = 0, remap = false), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void onUpdateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate, CallbackInfo ci, int i, int j,
-            boolean isForced, int k, boolean canUpdate) {
-        if (forceUpdate && !ActivationRange.checkIfActive(entity)) {
-            entity.ticksExisted++;
-            ((IModData_Activation) entity).inactiveTick();
-            ci.cancel();
+    @Shadow @Final public boolean isRemote;
+
+    @Shadow protected abstract boolean isChunkLoaded(int x, int z, boolean allowEmpty);
+    @Shadow public abstract Chunk getChunkFromChunkCoords(int chunkX, int chunkZ);
+    @Shadow public abstract void updateEntity(Entity ent);
+
+    @Overwrite
+    public void updateEntityWithOptionalForce(Entity entityIn, boolean forceUpdate)
+    {
+        // Sponge start - area is handled in ActivationRange
+        //int i = MathHelper.floor_double(entityIn.posX);
+        //int j = MathHelper.floor_double(entityIn.posZ);
+        //boolean isForced = getPersistentChunks().containsKey(new net.minecraft.util.math.ChunkPos(i >> 4, j >> 4));
+        //int k = isForced ? 0 : 32;
+        //boolean canUpdate = !forceUpdate || this.isAreaLoaded(i - k, 0, j - k, i + k, 0, j + k, true);
+        boolean canUpdate = ActivationRange.checkIfActive(entityIn);
+        // Allow forge mods to force an update
+        if (!canUpdate) canUpdate = net.minecraftforge.event.ForgeEventFactory.canEntityUpdate(entityIn);
+
+        if (!canUpdate) {
+            entityIn.ticksExisted++;
+            ((IModData_Activation) entityIn).inactiveTick();
+            return;
+        } else {
+        // Sponge end
+            entityIn.lastTickPosX = entityIn.posX;
+            entityIn.lastTickPosY = entityIn.posY;
+            entityIn.lastTickPosZ = entityIn.posZ;
+            entityIn.prevRotationYaw = entityIn.rotationYaw;
+            entityIn.prevRotationPitch = entityIn.rotationPitch;
+
+            if (forceUpdate && entityIn.addedToChunk)
+            {
+                ++entityIn.ticksExisted;
+                ++co.aikar.timings.TimingHistory.activatedEntityTicks; // Sponge
+
+                if (entityIn.isRiding())
+                {
+                    entityIn.updateRidden();
+                }
+                else
+                {
+                    entityIn.onUpdate();
+                }
+            }
+
+            //this.theProfiler.startSection("chunkCheck");
+
+            if (Double.isNaN(entityIn.posX) || Double.isInfinite(entityIn.posX))
+            {
+                entityIn.posX = entityIn.lastTickPosX;
+            }
+
+            if (Double.isNaN(entityIn.posY) || Double.isInfinite(entityIn.posY))
+            {
+                entityIn.posY = entityIn.lastTickPosY;
+            }
+
+            if (Double.isNaN(entityIn.posZ) || Double.isInfinite(entityIn.posZ))
+            {
+                entityIn.posZ = entityIn.lastTickPosZ;
+            }
+
+            if (Double.isNaN((double)entityIn.rotationPitch) || Double.isInfinite((double)entityIn.rotationPitch))
+            {
+                entityIn.rotationPitch = entityIn.prevRotationPitch;
+            }
+
+            if (Double.isNaN((double)entityIn.rotationYaw) || Double.isInfinite((double)entityIn.rotationYaw))
+            {
+                entityIn.rotationYaw = entityIn.prevRotationYaw;
+            }
+
+            int l = MathHelper.floor_double(entityIn.posX / 16.0D);
+            int i1 = MathHelper.floor_double(entityIn.posY / 16.0D);
+            int j1 = MathHelper.floor_double(entityIn.posZ / 16.0D);
+
+            if (!entityIn.addedToChunk || entityIn.chunkCoordX != l || entityIn.chunkCoordY != i1 || entityIn.chunkCoordZ != j1)
+            {
+                if (entityIn.addedToChunk && this.isChunkLoaded(entityIn.chunkCoordX, entityIn.chunkCoordZ, true))
+                {
+                    this.getChunkFromChunkCoords(entityIn.chunkCoordX, entityIn.chunkCoordZ).removeEntityAtIndex(entityIn, entityIn.chunkCoordY);
+                }
+
+                if (!entityIn.setPositionNonDirty() && !this.isChunkLoaded(l, j1, true))
+                {
+                    entityIn.addedToChunk = false;
+                }
+                else
+                {
+                    this.getChunkFromChunkCoords(l, j1).addEntity(entityIn);
+                }
+            }
+
+            //this.theProfiler.endSection();
+
+            if (forceUpdate && entityIn.addedToChunk)
+            {
+                for (Entity entity : entityIn.getPassengers())
+                {
+                    if (!entity.isDead && entity.getRidingEntity() == entityIn)
+                    {
+                        this.updateEntity(entity);
+                    }
+                    else
+                    {
+                        entity.dismountRidingEntity();
+                    }
+                }
+            }
         }
     }
-
 }
