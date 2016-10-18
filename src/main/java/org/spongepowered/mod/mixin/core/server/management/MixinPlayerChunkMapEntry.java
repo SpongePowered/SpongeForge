@@ -44,7 +44,7 @@ import java.util.List;
 @Mixin(value = PlayerChunkMapEntry.class, priority = 1001)
 public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
 
-    private Chunk chunk;
+    @Shadow public Chunk chunk;
     @Shadow @Final private PlayerChunkMap playerChunkMap;
     @Shadow @Final public List<EntityPlayerMP> players;
     @Shadow @Final public ChunkPos pos;
