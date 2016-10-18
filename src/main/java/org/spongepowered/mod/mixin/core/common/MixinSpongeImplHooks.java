@@ -164,4 +164,9 @@ public abstract class MixinSpongeImplHooks {
     public static double getBlockReachDistance(EntityPlayerMP player) {
         return player.interactionManager.getBlockReachDistance();
     }
+
+    @Overwrite
+    public static void onTileChunkUnload(TileEntity te) {
+        te.onChunkUnload();
+    }
 }
