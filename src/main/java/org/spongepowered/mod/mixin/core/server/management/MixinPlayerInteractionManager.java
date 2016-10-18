@@ -237,7 +237,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         }
     }
 
-    @Redirect(method = "onBlockClicked", at = @At(value = "INVOKE", args = "log=true", target = "Lnet/minecraftforge/common/ForgeHooks;onLeftClickBlock(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;Lnet/minecraft/util/math/Vec3d;)Lnet/minecraftforge/event/entity/player/PlayerInteractEvent$LeftClickBlock;", remap = false))
+    @Redirect(method = "onBlockClicked", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onLeftClickBlock(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;Lnet/minecraft/util/math/Vec3d;)Lnet/minecraftforge/event/entity/player/PlayerInteractEvent$LeftClickBlock;", remap = false))
     public PlayerInteractEvent.LeftClickBlock onForgeCallLeftClickBlock(EntityPlayer player, BlockPos pos, EnumFacing side, Vec3d hitVec) {
         // We fire Forge's LeftClickBlock event when InteractBlockEvent.Primary is invoked which occurs before this method.
         // Due to this, we will simply return a dummy event

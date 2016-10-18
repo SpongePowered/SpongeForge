@@ -5,7 +5,7 @@
     "refmap": "mixins.forge.refmap.json",
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
-    "mixins": [
+    "server": [
         "MixinWorld_Activation"
     ],
     "injectors": {
