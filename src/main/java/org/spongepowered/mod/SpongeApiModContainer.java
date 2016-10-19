@@ -52,11 +52,6 @@ public class SpongeApiModContainer extends DummyModContainer {
 
     // Implement methods in PluginContainer
 
-    public Optional<String> getMinecraftVersion() {
-        // Return the same Minecraft version as returned by the implementation
-        return SpongeImpl.getPlugin().getMinecraftVersion();
-    }
-
     public Logger getLogger() {
         return SpongeImpl.getSlf4jLogger();
     }
