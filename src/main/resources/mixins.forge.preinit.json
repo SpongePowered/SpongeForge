@@ -8,7 +8,6 @@
     "mixins": [
         "forge.MixinUsernameCache",
         "fml.common.MixinLoader",
-        "fml.common.MixinModMetadata",
         "fml.common.MixinModContainer",
         "fml.common.eventhandler.MixinASMEventHandler",
         "fml.common.eventhandler.MixinEvent",

@@ -34,7 +34,6 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.mod.interfaces.IMixinModMetadata;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -69,11 +68,6 @@ public interface MixinModContainer extends ModContainer {
     default Optional<String> getUrl() {
         ModMetadata meta = getMetadata();
         return meta != null ? Optional.ofNullable(emptyToNull(meta.url)) : Optional.empty();
-    }
-
-    default Optional<String> getMinecraftVersion() {
-        ModMetadata meta = getMetadata();
-        return meta != null ? Optional.ofNullable(emptyToNull(((IMixinModMetadata) meta).getMinecraftVersion())) : Optional.empty();
     }
 
     default List<String> getAuthors() {
