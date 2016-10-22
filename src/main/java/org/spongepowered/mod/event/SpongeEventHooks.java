@@ -24,10 +24,14 @@
  */
 package org.spongepowered.mod.event;
 
+import net.minecraftforge.common.ForgeChunkManager.ForceChunkEvent;
+import net.minecraftforge.common.ForgeChunkManager.UnforceChunkEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
+import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 import org.spongepowered.common.util.SpongeHooks;
 
 public class SpongeEventHooks {
@@ -48,4 +52,19 @@ public class SpongeEventHooks {
         SpongeHooks.logEntityDeath(event.getEntity());
     }
 
+    @SubscribeEvent
+    public void onForceChunk(ForceChunkEvent event) {
+        final net.minecraft.world.chunk.Chunk chunk = ((IMixinChunkProviderServer) event.getTicket().world.getChunkProvider()).getLoadedChunkWithoutMarkingActive(event.getLocation().chunkXPos,  event.getLocation().chunkZPos);
+        if (chunk != null) {
+            ((IMixinChunk) chunk).setPersistedChunk(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onUnforceChunk(UnforceChunkEvent event) {
+        final net.minecraft.world.chunk.Chunk chunk = ((IMixinChunkProviderServer) event.getTicket().world.getChunkProvider()).getLoadedChunkWithoutMarkingActive(event.getLocation().chunkXPos,  event.getLocation().chunkZPos);
+        if (chunk != null) {
+            ((IMixinChunk) chunk).setPersistedChunk(false);
+        }
+    }
 }

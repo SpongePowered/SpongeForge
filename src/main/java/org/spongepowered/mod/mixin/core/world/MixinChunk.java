@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.core.world;
 import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.util.Direction;
@@ -45,15 +44,26 @@ import org.spongepowered.common.interfaces.IMixinChunk;
 @Mixin(net.minecraft.world.chunk.Chunk.class)
 public abstract class MixinChunk implements Chunk, IMixinChunk {
 
-    private ChunkPos chunkCoordIntPair;
-
     @Shadow @Final private net.minecraft.world.World worldObj;
     @Shadow @Final public int xPosition;
     @Shadow @Final public int zPosition;
 
+    @Inject(method = "onChunkLoad()V", at = @At("RETURN"))
+    public void onChunkLoadInject(CallbackInfo ci) {
+        if (!this.worldObj.isRemote) {
+            for (ChunkPos forced : this.worldObj.getPersistentChunks().keySet()) {
+                if (forced.chunkXPos == this.xPosition && forced.chunkZPos == this.zPosition) {
+                    ((IMixinChunk) this).setPersistedChunk(true);
+                    return;
+                }
+            }
+            ((IMixinChunk) this).setPersistedChunk(false);
+        }
+    }
+
     @Override
     public boolean unloadChunk() {
-        if (ForgeChunkManager.getPersistentChunksFor(this.worldObj).containsKey(this.chunkCoordIntPair)) {
+        if (((IMixinChunk) this).isPersistedChunk()) {
             return false;
         }
 
