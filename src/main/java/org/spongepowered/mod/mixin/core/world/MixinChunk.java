@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.core.world;
 import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.util.Direction;
@@ -44,8 +43,6 @@ import org.spongepowered.common.interfaces.IMixinChunk;
 @NonnullByDefault
 @Mixin(net.minecraft.world.chunk.Chunk.class)
 public abstract class MixinChunk implements Chunk, IMixinChunk {
-
-    private ChunkPos chunkCoordIntPair;
 
     @Shadow @Final private net.minecraft.world.World worldObj;
     @Shadow @Final public int xPosition;
@@ -72,7 +69,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
 
     @Override
     public boolean unloadChunk() {
-        if (ForgeChunkManager.getPersistentChunksFor(this.worldObj).containsKey(this.chunkCoordIntPair)) {
+        if (((IMixinChunk) this).isPersistedChunk()) {
             return false;
         }
 
