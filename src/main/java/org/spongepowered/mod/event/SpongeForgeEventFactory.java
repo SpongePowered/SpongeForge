@@ -906,7 +906,6 @@ public class SpongeForgeEventFactory {
 
         DestructEntityEvent.Death spongeEvent = (DestructEntityEvent.Death) event;
         if (!spongeEvent.getCause().first(DamageSource.class).isPresent()) {
-            System.out.println("no DamageSource found!! for cause " + spongeEvent.getCause());
             return spongeEvent;
         }
 
@@ -939,8 +938,10 @@ public class SpongeForgeEventFactory {
         }
 
         LivingDropsEvent forgeEvent = null;
+        EntityPlayer player = null;
         if (entity instanceof EntityPlayer) {
-            forgeEvent = new PlayerDropsEvent((EntityPlayer) entity, (net.minecraft.util.DamageSource) damageSource.get(), (List<EntityItem>)(List<?>)spongeEvent.getEntities(),
+            player = (EntityPlayer) entity;
+            forgeEvent = new PlayerDropsEvent(player, (net.minecraft.util.DamageSource) damageSource.get(), (List<EntityItem>)(List<?>)spongeEvent.getEntities(),
                             ((IMixinEntityLivingBase) entity).getRecentlyHit() > 0);
         } else {
             forgeEvent = new LivingDropsEvent((EntityLivingBase) entity, (net.minecraft.util.DamageSource) damageSource.get(), (List<EntityItem>)(List<?>)spongeEvent.getEntities(), 0,
@@ -949,6 +950,12 @@ public class SpongeForgeEventFactory {
 
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         if (forgeEvent.isCanceled()) {
+            // Forge always clears items on player death so we will do the same if cancelled
+            if (player != null) {
+                if (!player.worldObj.getGameRules().getBoolean("keepInventory") && !player.isSpectator()) {
+                    player.inventory.clear();
+                }
+            }
             spongeEvent.setCancelled(true);
         }
 
