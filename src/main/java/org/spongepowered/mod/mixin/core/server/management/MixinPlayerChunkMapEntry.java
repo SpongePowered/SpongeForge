@@ -68,7 +68,7 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
         }
 
         IMixinChunk spongeChunk = (IMixinChunk) this.chunk;
-        spongeChunk.setScheduledForUnload(null);
+        spongeChunk.setScheduledForUnload(-1);
         this.loading = false;
     }
 
