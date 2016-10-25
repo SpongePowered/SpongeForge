@@ -48,7 +48,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     @Shadow @Final public int xPosition;
     @Shadow @Final public int zPosition;
 
-    @Inject(method = "onChunkLoad()V", at = @At("RETURN"))
+    @Inject(method = "onChunkLoad", at = @At("RETURN"))
     public void onChunkLoadInject(CallbackInfo ci) {
         if (!this.worldObj.isRemote) {
             for (ChunkPos forced : this.worldObj.getPersistentChunks().keySet()) {
@@ -59,6 +59,12 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
             }
             ((IMixinChunk) this).setPersistedChunk(false);
         }
+    }
+
+    @Inject(method = "onChunkUnload", at = @At("RETURN"))
+    public void onChunkUnloadInject(CallbackInfo ci) {
+        // Moved from ChunkProviderServer
+        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.chunkXZ2Int(this.xPosition, this.zPosition), (net.minecraft.world.chunk.Chunk)(Object) this);
     }
 
     @Override
