@@ -196,6 +196,11 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             }
             // Sponge end
 
+            // Same issue as above with OpenComputers
+            // This handles the event not cancelled and block not activated
+            if (result != EnumActionResult.SUCCESS) {
+                this.thisPlayerMP.closeScreen();
+            }
 
             // Sponge start - store result instead of returning
             if (stack == null) {
