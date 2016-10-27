@@ -118,7 +118,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
 
             return EnumActionResult.PASS;
         } else {
-            // Sponge Start - fire event, and revert the client if cancelled
+            // Sponge start - refactor rest of method
 
             // Store reference of current player's itemstack in case it changes
             ItemStack oldStack = ItemStack.copyItemStack(stack);
@@ -180,12 +180,11 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 bypass = bypass && (s == null || s.getItem().doesSneakBypassUse(s, worldIn, pos, player));
             }
 
-            EnumActionResult result = EnumActionResult.FAIL; // Sponge - Forge deems the default to be PASS, but Sponge is deeming it to be FAIL
+            EnumActionResult result = EnumActionResult.PASS;
 
-            // if (!player.isSneaking() || player.getHeldItemMainhand() == null && player.getHeldItemOffhand() == null) { // Forge - Adds bypass event checks
             if (!player.isSneaking() || bypass || event.getUseBlockResult() == Tristate.TRUE) {
-                // Sponge start - check event useBlockResult, and revert the client if it's FALSE.
-                // Also, store the result instead of returning immediately
+                // Check event useBlockResult, and revert the client if it's FALSE.
+                // also, store the result instead of returning immediately
                 if (event.getUseBlockResult() != Tristate.FALSE) {
                     IBlockState iblockstate = worldIn.getBlockState(pos);
                     Container lastOpenContainer = player.openContainer;
@@ -193,7 +192,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                     result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, stack, facing, hitX, hitY, hitZ)
                             ? EnumActionResult.SUCCESS
                             : EnumActionResult.FAIL;
-                    // mods such as StorageDrawers alter the stack on block activation
+                    // Mods such as StorageDrawers alter the stack on block activation
                     // if itemstack changed, avoid restore
                     if (!ItemStack.areItemStacksEqual(oldStack, this.thisPlayerMP.getHeldItem(hand))) {
                         SpongeCommonEventFactory.playerInteractItemChanged = true;
@@ -205,7 +204,6 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                     result = TristateUtil.toActionResult(event.getUseItemResult());
                 }
             }
-            // Sponge end
 
             // Same issue as above with OpenComputers
             // This handles the event not cancelled and block not activated
@@ -222,7 +220,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 result = EnumActionResult.FAIL;
             } else {
                 if ((result != EnumActionResult.SUCCESS && event.getUseItemResult() != Tristate.FALSE
-                     || result == EnumActionResult.SUCCESS && event.getUseItemResult() == Tristate.TRUE)) {
+                      || result == EnumActionResult.SUCCESS && event.getUseItemResult() == Tristate.TRUE)) {
                     int meta = stack.getMetadata();
                     int size = stack.stackSize;
                     result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
@@ -238,6 +236,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 player.openContainer.detectAndSendChanges();
             }
             return result;
+            // Sponge end
         }
     }
 
