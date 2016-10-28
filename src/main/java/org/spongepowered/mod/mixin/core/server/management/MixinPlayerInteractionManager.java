@@ -127,6 +127,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 SpongeCommonEventFactory.playerInteractItemChanged = true;
             }
 
+            TileEntity tileEntity = worldIn.getTileEntity(pos);
             if (event.isCancelled()) {
                 final IBlockState state = worldIn.getBlockState(pos);
 
@@ -152,8 +153,10 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 }
 
                 // Some mods such as OpenComputers open a GUI on client-side
-                // To workaround this, we will always send a SPacketCloseWindow to client
-                this.thisPlayerMP.closeScreen();
+                // To workaround this, we will always send a SPacketCloseWindow to client if interacting with a TE
+                if (tileEntity != null) {
+                    this.thisPlayerMP.closeScreen();
+                }
                 SpongeCommonEventFactory.interactBlockEventCancelled = true;
                 return EnumActionResult.FAIL;
             }
