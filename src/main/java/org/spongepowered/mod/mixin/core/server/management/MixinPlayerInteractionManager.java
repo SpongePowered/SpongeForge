@@ -198,7 +198,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
 
             // Same issue as above with OpenComputers
             // This handles the event not cancelled and block not activated
-            if (result != EnumActionResult.SUCCESS) {
+            if (result != EnumActionResult.SUCCESS && tileEntity != null) {
                 this.thisPlayerMP.closeScreen();
             }
 
