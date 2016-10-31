@@ -36,8 +36,13 @@ public abstract class MixinEntity implements IMixinEntity {
 
     // @formatter:off
     @Shadow public net.minecraft.world.World worldObj;
+    @Shadow(remap = false) private net.minecraftforge.common.capabilities.CapabilityDispatcher capabilities;
 
     @Shadow protected abstract void setSize(float width, float height);
     // @formatter:on
 
+    @Override
+    public void createForgeCapabilities() {
+        this.capabilities = net.minecraftforge.event.ForgeEventFactory.gatherCapabilities((Entity)(Object) this);
+    }
 }
