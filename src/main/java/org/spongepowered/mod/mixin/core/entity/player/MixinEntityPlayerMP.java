@@ -43,8 +43,9 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
         return this.connection.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
     }
 
-    @Inject(method = "reset", at = @At("RETURN"), remap = false)
+    // TODO - figure out a better way to handle this
+    /*@Inject(method = "reset", at = @At("RETURN"), remap = false)
     public void onPlayerReset(CallbackInfo ci) {
         ((IMixinEntity)(Object) this).createForgeCapabilities();
-    }
+    }*/
 }
