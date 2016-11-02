@@ -24,10 +24,12 @@
  */
 package org.spongepowered.mod.keyboard;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import org.spongepowered.api.util.Tuple;
 import org.spongepowered.common.SpongeImpl;
@@ -47,6 +49,12 @@ public class CustomClientKeyBinding extends net.minecraft.client.settings.KeyBin
     @Nullable private ITextComponent categoryTitle;
     @Nullable private String categoryTranslationKey;
 
+    private static IKeyConflictContext getContext(SpongeKeyBinding keyBinding) {
+        final IKeyConflictContext context = CustomClientKeyConflictContext.get(keyBinding.getKeyContextId());
+        checkState(context != null, "context");
+        return context;
+    }
+
     /**
      * Creates a new custom key binding for the
      * specified key binding settings.
@@ -54,7 +62,7 @@ public class CustomClientKeyBinding extends net.minecraft.client.settings.KeyBin
      * @param keyBinding The key binding
      */
     public CustomClientKeyBinding(SpongeKeyBinding keyBinding, @Nullable Tuple<KeyModifier, Integer> data) {
-        super("", KeyConflictContext.UNIVERSAL, data == null ? KeyModifier.NONE : data.getFirst(), data == null ? 0 : data.getSecond(), "");
+        super("", getContext(keyBinding), data == null ? KeyModifier.NONE : data.getFirst(), data == null ? 0 : data.getSecond(), "");
         ((IMixinKeyBinding) this).setInternalId(keyBinding.getInternalId());
         this.id = keyBinding.getId();
         this.displayName = ((IMixinText) keyBinding.getDisplayName()).toComponent();

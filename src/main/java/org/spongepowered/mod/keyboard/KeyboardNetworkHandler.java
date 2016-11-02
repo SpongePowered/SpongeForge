@@ -42,6 +42,10 @@ public class KeyboardNetworkHandler {
 
     private static boolean initialized;
 
+    public static boolean isInitialized() {
+        return initialized;
+    }
+
     public static void handleKeyboardData(MessageKeyboardData message, RemoteConnection connection, Platform.Type side) {
         if (initialized) {
             return;
@@ -74,8 +78,11 @@ public class KeyboardNetworkHandler {
         ((IMixinKeyBinding) gameSettings.keyBindCommand).setInternalId(28);
         ((IMixinKeyBinding) gameSettings.keyBindPlayerList).setInternalId(29);
 
+        // Load the conflict context data
+        CustomClientKeyConflictContext.load(message.getConflictContextData());
+
         // Get the key binding storage
-        KeyBindingStorage storage = ((IMixinGameSettings) Minecraft.getMinecraft().gameSettings).getKeyBindingStorage();
+        final KeyBindingStorage storage = ((IMixinGameSettings) Minecraft.getMinecraft().gameSettings).getKeyBindingStorage();
 
         // Build all the custom key bindings
         List<net.minecraft.client.settings.KeyBinding> keyBindings = new ArrayList<>(Arrays.asList(gameSettings.keyBindings));
@@ -105,6 +112,7 @@ public class KeyboardNetworkHandler {
                 ((IMixinKeyBinding) keyBinding).setInternalId(-1);
             }
         }
+        CustomClientKeyConflictContext.cleanup();
         // Update the key bindings array in the settings menu
         gameSettings.keyBindings = keyBindings.toArray(new net.minecraft.client.settings.KeyBinding[keyBindings.size()]);
         // Reprocess the key bindings mappings after removal

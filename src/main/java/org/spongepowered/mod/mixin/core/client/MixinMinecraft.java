@@ -27,6 +27,7 @@ package org.spongepowered.mod.mixin.core.client;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiOverlayDebug;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.LanguageManager;
@@ -45,13 +46,19 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.IMixinIntegratedServer;
+import org.spongepowered.common.network.message.MessageGuiState;
+import org.spongepowered.common.network.message.MessageKeyState;
+import org.spongepowered.common.network.message.SpongeMessageHandler;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
+import org.spongepowered.mod.keyboard.KeyboardNetworkHandler;
 
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft implements IMixinMinecraft {
@@ -65,6 +72,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
 
     @Shadow private LanguageManager mcLanguageManager;
     @Shadow private IntegratedServer theIntegratedServer;
+    @Shadow @Nullable public GuiScreen currentScreen;
 
     private GuiOverlayDebug debugGui;
     private Text kickMessage;
@@ -155,6 +163,21 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
             }
             loadingScreen.displayLoadingString(loadingString);
             this.kickMessage = null;
+        }
+    }
+
+    private GuiScreen lastDisplayScreen;
+
+    @Inject(method = "displayGuiScreen", at = @At("HEAD"))
+    public void onDisplayGuiScreenHead(@Nullable GuiScreen guiScreen, CallbackInfo ci) {
+        this.lastDisplayScreen = this.currentScreen;
+    }
+
+    @Inject(method = "displayGuiScreen", at = @At("RETURN"))
+    public void onDisplayGuiScreenReturn(@Nullable GuiScreen guiScreen, CallbackInfo ci) {
+        if (((this.lastDisplayScreen == null && this.currentScreen != null) ||
+                (this.lastDisplayScreen != null && this.currentScreen == null)) && KeyboardNetworkHandler.isInitialized()) {
+            SpongeMessageHandler.getChannel().sendToServer(new MessageGuiState(this.currentScreen != null));
         }
     }
 }
