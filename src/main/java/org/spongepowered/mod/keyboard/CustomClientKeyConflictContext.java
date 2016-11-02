@@ -77,7 +77,6 @@ public class CustomClientKeyConflictContext implements IKeyConflictContext {
 
     @Nullable
     public static IKeyConflictContext get(int internalId) {
-        System.out.println("Use the conflict context: " + internalId);
         return contexts.get(internalId);
     }
 
@@ -97,7 +96,6 @@ public class CustomClientKeyConflictContext implements IKeyConflictContext {
                 contexts.put(contextId, createContext(contextId, null));
             }
         }
-        System.out.println("DEBUG: " + conflictContextData.size());
     }
 
     private static IKeyConflictContext createContext(int internalId, @Nullable BitSet conflicts) {
