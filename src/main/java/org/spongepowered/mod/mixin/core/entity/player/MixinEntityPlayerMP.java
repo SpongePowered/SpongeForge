@@ -29,10 +29,6 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
 
 @Mixin(value = EntityPlayerMP.class, priority = 1001)
@@ -42,10 +38,4 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
     public boolean usesCustomClient() {
         return this.connection.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
     }
-
-    // TODO - figure out a better way to handle this
-    /*@Inject(method = "reset", at = @At("RETURN"), remap = false)
-    public void onPlayerReset(CallbackInfo ci) {
-        ((IMixinEntity)(Object) this).createForgeCapabilities();
-    }*/
 }

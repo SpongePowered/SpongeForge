@@ -86,7 +86,6 @@
         "server.management.MixinPlayerChunkMapEntry",
         "server.management.MixinPlayerInteractionManager",
         "world.MixinChunk",
-        "world.MixinWorld",
         "world.MixinWorldServer",
         "world.MixinWorldProvider",
         "world.biome.MixinBiomeDecorator",
