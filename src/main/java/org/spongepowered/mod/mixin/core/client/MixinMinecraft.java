@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.client;
 
+import com.google.common.base.Throwables;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiOverlayDebug;
@@ -31,8 +32,10 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.LanguageManager;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraftforge.client.settings.KeyBindingMap;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TranslatableText;
@@ -47,12 +50,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.IMixinIntegratedServer;
 import org.spongepowered.common.network.message.MessageGuiState;
-import org.spongepowered.common.network.message.MessageKeyState;
 import org.spongepowered.common.network.message.SpongeMessageHandler;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 import org.spongepowered.mod.keyboard.KeyboardNetworkHandler;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -78,6 +81,19 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     private Text kickMessage;
     private boolean isNewSave;
 
+    private KeyBindingMap keyBindingMap;
+
+    @Inject(method = "startGame", at = @At("HEAD"))
+    public void onStartGame(CallbackInfo ci) {
+        try {
+            final Field field = KeyBinding.class.getDeclaredField("HASH");
+            field.setAccessible(true);
+            this.keyBindingMap = (KeyBindingMap) field.get(null);
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
     @Inject(method = "launchIntegratedServer", at = @At(value = "NEW", args = {"class=net/minecraft/world/storage/WorldInfo"}, ordinal = 0))
     public void onCreateWorldInfo(CallbackInfo ci) {
         this.isNewSave = true;
@@ -90,6 +106,11 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
             ((IMixinIntegratedServer) this.theIntegratedServer).markNewSave();
         }
         this.isNewSave = false;
+    }
+
+    @Override
+    public KeyBindingMap getKeyBindingMap() {
+        return this.keyBindingMap;
     }
 
     @Override
@@ -166,18 +187,20 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         }
     }
 
-    private GuiScreen lastDisplayScreen;
+    private boolean lastGuiState;
 
-    @Inject(method = "displayGuiScreen", at = @At("HEAD"))
-    public void onDisplayGuiScreenHead(@Nullable GuiScreen guiScreen, CallbackInfo ci) {
-        this.lastDisplayScreen = this.currentScreen;
-    }
-
-    @Inject(method = "displayGuiScreen", at = @At("RETURN"))
-    public void onDisplayGuiScreenReturn(@Nullable GuiScreen guiScreen, CallbackInfo ci) {
-        if (((this.lastDisplayScreen == null && this.currentScreen != null) ||
-                (this.lastDisplayScreen != null && this.currentScreen == null)) && KeyboardNetworkHandler.isInitialized()) {
-            SpongeMessageHandler.getChannel().sendToServer(new MessageGuiState(this.currentScreen != null));
+    /**
+     * Check the changed gui state and
+     * send the state to the server.
+     */
+    @Inject(method = "runTick", at = @At("RETURN"))
+    private void onRunTick(CallbackInfo ci) {
+        final boolean guiState = this.currentScreen != null;
+        if (guiState != this.lastGuiState) {
+            this.lastGuiState = guiState;
+            if (KeyboardNetworkHandler.isInitialized()) {
+                SpongeMessageHandler.getChannel().sendToServer(new MessageGuiState(guiState));
+            }
         }
     }
 }

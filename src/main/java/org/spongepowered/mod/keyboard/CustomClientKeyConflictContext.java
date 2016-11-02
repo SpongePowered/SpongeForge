@@ -28,17 +28,19 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
+import org.spongepowered.common.keyboard.SpongeKeyBinding;
 
 import java.util.BitSet;
+import java.util.Collection;
 
 import javax.annotation.Nullable;
 
 public class CustomClientKeyConflictContext implements IKeyConflictContext {
 
     private final int internalId;
-    private final BitSet conflicts;
+    @Nullable private final BitSet conflicts;
 
-    public CustomClientKeyConflictContext(int internalId, BitSet conflicts) {
+    public CustomClientKeyConflictContext(int internalId, @Nullable BitSet conflicts) {
         this.internalId = internalId;
         this.conflicts = conflicts;
     }
@@ -53,7 +55,7 @@ public class CustomClientKeyConflictContext implements IKeyConflictContext {
     public boolean conflicts(IKeyConflictContext other) {
         final int index = getConflictIndex(other);
         // Lets just assume any conflicts with all the mods
-        return index == -1 || this.conflicts.get(index);
+        return index == -1 || (this.conflicts != null && this.conflicts.get(index));
     }
 
     private static int getConflictIndex(IKeyConflictContext other) {
@@ -75,21 +77,48 @@ public class CustomClientKeyConflictContext implements IKeyConflictContext {
 
     @Nullable
     public static IKeyConflictContext get(int internalId) {
+        System.out.println("Use the conflict context: " + internalId);
         return contexts.get(internalId);
     }
 
     /**
      * Loads the {@link CustomClientKeyConflictContext}s from the conflict context data.
      *
+     * @param keyBindings The key bindings, which will contain all the used conflict contexts
      * @param conflictContextData The conflict context data
      */
-    public static void load(Int2ObjectMap<BitSet> conflictContextData) {
-        contexts.put(0, KeyConflictContext.UNIVERSAL);
-        contexts.put(1, KeyConflictContext.IN_GAME);
-        contexts.put(2, KeyConflictContext.GUI);
+    public static void load(Collection<SpongeKeyBinding> keyBindings, Int2ObjectMap<BitSet> conflictContextData) {
         for (Int2ObjectMap.Entry<BitSet> entry : conflictContextData.int2ObjectEntrySet()) {
-            contexts.put(entry.getIntKey(), new CustomClientKeyConflictContext(entry.getIntKey(), entry.getValue()));
+            contexts.put(entry.getIntKey(), createContext(entry.getIntKey(), entry.getValue()));
         }
+        for (SpongeKeyBinding keyBinding : keyBindings) {
+            final int contextId = keyBinding.getKeyContextId();
+            if (!contexts.containsKey(contextId)) {
+                contexts.put(contextId, createContext(contextId, null));
+            }
+        }
+        System.out.println("DEBUG: " + conflictContextData.size());
+    }
+
+    private static IKeyConflictContext createContext(int internalId, @Nullable BitSet conflicts) {
+        if (internalId == 0) {
+            return KeyConflictContext.UNIVERSAL;
+        } else if (internalId == 1) {
+            return new CustomClientKeyConflictContext(internalId, conflicts) {
+                @Override
+                public boolean conflicts(IKeyConflictContext other) {
+                    return other == KeyConflictContext.IN_GAME || super.conflicts(other);
+                }
+            };
+        } else if (internalId == 2) {
+            return new CustomClientKeyConflictContext(internalId, conflicts) {
+                @Override
+                public boolean conflicts(IKeyConflictContext other) {
+                    return other == KeyConflictContext.GUI || super.conflicts(other);
+                }
+            };
+        }
+        return new CustomClientKeyConflictContext(internalId, conflicts);
     }
 
     /**

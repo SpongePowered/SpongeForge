@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.keyboard;
 
+import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
 import org.spongepowered.api.Platform;
@@ -33,8 +34,6 @@ import org.spongepowered.common.network.message.MessageKeyboardData;
 import org.spongepowered.mod.client.interfaces.IMixinGameSettings;
 import org.spongepowered.mod.client.interfaces.IMixinKeyBinding;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -79,15 +78,15 @@ public class KeyboardNetworkHandler {
         ((IMixinKeyBinding) gameSettings.keyBindPlayerList).setInternalId(29);
 
         // Load the conflict context data
-        CustomClientKeyConflictContext.load(message.getConflictContextData());
+        CustomClientKeyConflictContext.load(message.getKeyBindings(), message.getConflictContextData());
 
         // Get the key binding storage
         final KeyBindingStorage storage = ((IMixinGameSettings) Minecraft.getMinecraft().gameSettings).getKeyBindingStorage();
 
         // Build all the custom key bindings
-        List<net.minecraft.client.settings.KeyBinding> keyBindings = new ArrayList<>(Arrays.asList(gameSettings.keyBindings));
+        final List<net.minecraft.client.settings.KeyBinding> keyBindings = Lists.newArrayList(gameSettings.keyBindings);
         for (SpongeKeyBinding keyBinding : message.getKeyBindings()) {
-            CustomClientKeyBinding clientKeyBinding = new CustomClientKeyBinding(
+            final CustomClientKeyBinding clientKeyBinding = new CustomClientKeyBinding(
                     keyBinding, storage.get(keyBinding.getId()).orElse(null));
             keyBindings.add(clientKeyBinding);
         }
@@ -100,11 +99,11 @@ public class KeyboardNetworkHandler {
         if (!initialized) {
             return;
         }
-        GameSettings gameSettings = Minecraft.getMinecraft().gameSettings;
-        List<net.minecraft.client.settings.KeyBinding> keyBindings = new ArrayList<>(Arrays.asList(gameSettings.keyBindings));
-        Iterator<net.minecraft.client.settings.KeyBinding> it = keyBindings.iterator();
+        final GameSettings gameSettings = Minecraft.getMinecraft().gameSettings;
+        final List<net.minecraft.client.settings.KeyBinding> keyBindings = Lists.newArrayList(gameSettings.keyBindings);
+        final Iterator<net.minecraft.client.settings.KeyBinding> it = keyBindings.iterator();
         while (it.hasNext()) {
-            net.minecraft.client.settings.KeyBinding keyBinding = it.next();
+            final net.minecraft.client.settings.KeyBinding keyBinding = it.next();
             if (keyBinding instanceof CustomClientKeyBinding) {
                 ((IMixinKeyBinding) keyBinding).remove();
                 it.remove();

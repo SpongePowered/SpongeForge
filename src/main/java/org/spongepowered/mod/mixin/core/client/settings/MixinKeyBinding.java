@@ -28,6 +28,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.KeyBindingMap;
+import org.lwjgl.Sys;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -71,7 +72,7 @@ public abstract class MixinKeyBinding implements IMixinKeyBinding, Comparable<Ke
     }
 
     private void trySendPressedUpdate() {
-        boolean pressed = this.shadow$isKeyDown();
+        boolean pressed = shadow$isKeyDown();
         if (this.lastPressedState != pressed && this.internalId != -1) {
             SpongeMessageHandler.getChannel().sendToServer(new MessageKeyState(this.internalId, pressed));
         }
@@ -81,21 +82,22 @@ public abstract class MixinKeyBinding implements IMixinKeyBinding, Comparable<Ke
     @Override
     public void remove() {
         KEYBIND_ARRAY.remove(this);
+        HASH.removeKey((KeyBinding) (Object) this);
     }
 
     @Override
     public String getFormattedCategory() {
-        return I18n.format(this.shadow$getKeyCategory());
+        return I18n.format(shadow$getKeyCategory());
     }
 
     @Override
     public String getFormattedDisplayName() {
-        return I18n.format(this.shadow$getKeyDescription());
+        return I18n.format(shadow$getKeyDescription());
     }
 
     @Overwrite
     private void unpressKey() {
-        this.setPressed(false);
+        setPressed(false);
         this.pressTime = 0;
     }
 
@@ -111,7 +113,7 @@ public abstract class MixinKeyBinding implements IMixinKeyBinding, Comparable<Ke
      */
     @Overwrite
     public static Set<String> getKeybinds() {
-        return Arrays.asList(Minecraft.getMinecraft().gameSettings.keyBindings).stream()
+        return Arrays.stream(Minecraft.getMinecraft().gameSettings.keyBindings)
                 .map(KeyBinding::getKeyCategory)
                 .collect(Collectors.toSet());
     }
@@ -143,9 +145,9 @@ public abstract class MixinKeyBinding implements IMixinKeyBinding, Comparable<Ke
     @Overwrite
     @Override
     public int compareTo(KeyBinding keyBinding) {
-        int i = this.getFormattedCategory().compareTo(((IClientKeyBinding) keyBinding).getFormattedCategory());
+        int i = getFormattedCategory().compareTo(((IClientKeyBinding) keyBinding).getFormattedCategory());
         if (i == 0) {
-            i = this.getFormattedDisplayName().compareTo(((IClientKeyBinding) keyBinding).getFormattedDisplayName());
+            i = getFormattedDisplayName().compareTo(((IClientKeyBinding) keyBinding).getFormattedDisplayName());
         }
         return i;
     }

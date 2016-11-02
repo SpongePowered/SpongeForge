@@ -25,6 +25,7 @@
 package org.spongepowered.mod.client.interfaces;
 
 import net.minecraft.client.gui.GuiOverlayDebug;
+import net.minecraftforge.client.settings.KeyBindingMap;
 import org.spongepowered.api.text.Text;
 
 public interface IMixinMinecraft {
@@ -36,4 +37,6 @@ public interface IMixinMinecraft {
     Text getSinglePlayerKickMessage();
 
     void setSinglePlayerKickMessage(Text text);
+
+    KeyBindingMap getKeyBindingMap();
 }
