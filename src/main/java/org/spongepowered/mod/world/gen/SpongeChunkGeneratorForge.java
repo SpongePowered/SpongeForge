@@ -59,6 +59,7 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.GeneratorTypes;
+import org.spongepowered.api.world.biome.BiomeGenerationSettings;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.api.world.extent.ImmutableBiomeVolume;
@@ -160,9 +161,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
         Chunk chunk = (Chunk) this.world.getChunkFromChunkCoords(chunkX, chunkZ);
 
-        if (!this.biomeSettings.containsKey(biome)) {
-            this.biomeSettings.put(biome, biome.createDefaultGenerationSettings((org.spongepowered.api.world.World) this.world));
-        }
+        BiomeGenerationSettings settings = getBiomeSettings(biome);
 
         List<Populator> populators = new ArrayList<>(this.pop);
 
@@ -177,7 +176,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             }
         }
 
-        populators.addAll(this.biomeSettings.get(biome).getPopulators());
+        populators.addAll(settings.getPopulators());
         if (snowPopulator != null) {
             populators.add(snowPopulator);
         }
