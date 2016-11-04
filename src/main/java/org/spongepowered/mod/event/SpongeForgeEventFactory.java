@@ -30,8 +30,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -140,9 +143,13 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.event.InternalNamedCauses;
+import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -1157,57 +1164,59 @@ public class SpongeForgeEventFactory {
 
         ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) event;
 
-        // TODO - This potentially has to be re-checked, the Causetracker may be able to be of use for the"currentProcessingPhase".
-//        if (spongeEvent.getCause().first(Player.class).isPresent()) {
-//            EntityPlayer player = (EntityPlayer) spongeEvent.getCause().first(Player.class).get();
-//            net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getTargetWorld();
-//            final CauseTracker causeTracker = ((IMixinWorld) world).getCauseTracker();
-//
-//            if (spongeEvent.getTransactions().size() == 1) {
-//                BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTransactions().get(0).getOriginal().getPosition());
-//                IBlockState state = (IBlockState) spongeEvent.getTransactions().get(0).getOriginal().getState();
-//                net.minecraftforge.common.util.BlockSnapshot blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
-//                IBlockState placedAgainst = Blocks.air.getDefaultState();
-//                if (causeTracker.getCurrentPlayerPacket() instanceof C08PacketPlayerBlockPlacement) {
-//                    C08PacketPlayerBlockPlacement packet = (C08PacketPlayerBlockPlacement) causeTracker.getCurrentPlayerPacket();
-//                    EnumFacing facing = EnumFacing.getFront(packet.getPlacedBlockDirection());
-//                    placedAgainst = blockSnapshot.world.getBlockState(blockSnapshot.pos.offset(facing.getOpposite()));
-//                }
-//
-//                BlockEvent.PlaceEvent forgeEvent = new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player);
-//                MinecraftForge.EVENT_BUS.post(forgeEvent);
-//                if (forgeEvent.isCanceled()) {
-//                    spongeEvent.getTransactions().get(0).setValid(false);
-//                }
-//            } else { // multi
-//                Iterator<Transaction<BlockSnapshot>> iterator = spongeEvent.getTransactions().iterator();
-//                List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots = new ArrayList<>();
-//
-//                while (iterator.hasNext()) {
-//                    Transaction<BlockSnapshot> transaction = iterator.next();
-//                    Location<World> location = transaction.getOriginal().getLocation().get();
-//                    IBlockState state = (IBlockState) transaction.getOriginal().getState();
-//                    BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-//                    net.minecraftforge.common.util.BlockSnapshot blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
-//                    blockSnapshots.add(blockSnapshot);
-//                }
-//
-//                IBlockState placedAgainst = Blocks.air.getDefaultState();
-//                if (causeTracker.getCurrentPlayerPacket() instanceof CPacketPlayer) {
-//                    C08PacketPlayerBlockPlacement packet = (C08PacketPlayerBlockPlacement) causeTracker.getCurrentPlayerPacket();
-//                    EnumFacing facing = EnumFacing.getFront(packet.getPlacedBlockDirection());
-//                    placedAgainst = blockSnapshots.get(0).world.getBlockState(blockSnapshots.get(0).pos.offset(facing.getOpposite()));
-//                }
-//
-//                BlockEvent.MultiPlaceEvent forgeEvent = new BlockEvent.MultiPlaceEvent(blockSnapshots, placedAgainst, player);
-//                MinecraftForge.EVENT_BUS.post(forgeEvent);
-//                if (forgeEvent.isCanceled()) {
-//                    while (iterator.hasNext()) {
-//                        iterator.next().setValid(false);
-//                    }
-//                }
-//            }
-//        }
+        if (spongeEvent.getCause().root() instanceof Player) {
+            EntityPlayer player = (EntityPlayer) spongeEvent.getCause().first(Player.class).get();
+            net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getTargetWorld();
+            final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+            PhaseContext context = causeTracker.getCurrentContext();
+            Packet<?> contextPacket = context.firstNamed(InternalNamedCauses.Packet.CAPTURED_PACKET, Packet.class).orElse(null);
+            if (contextPacket == null) {
+                return spongeEvent;
+            }
+
+            if (spongeEvent.getTransactions().size() == 1) {
+                BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTransactions().get(0).getOriginal().getPosition());
+                IBlockState state = (IBlockState) spongeEvent.getTransactions().get(0).getOriginal().getState();
+                net.minecraftforge.common.util.BlockSnapshot blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
+                IBlockState placedAgainst = Blocks.AIR.getDefaultState();
+                if (contextPacket instanceof CPacketPlayerTryUseItemOnBlock) {
+                    CPacketPlayerTryUseItemOnBlock packet = (CPacketPlayerTryUseItemOnBlock) contextPacket;
+                    EnumFacing facing = packet.getDirection();
+                    placedAgainst = blockSnapshot.getWorld().getBlockState(blockSnapshot.getPos().offset(facing.getOpposite()));
+                }
+
+                BlockEvent.PlaceEvent forgeEvent = new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player);
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                if (forgeEvent.isCanceled()) {
+                    spongeEvent.setCancelled(true);
+                }
+            } else { // multi
+                Iterator<Transaction<BlockSnapshot>> iterator = spongeEvent.getTransactions().iterator();
+                List<net.minecraftforge.common.util.BlockSnapshot> blockSnapshots = new ArrayList<>();
+
+                while (iterator.hasNext()) {
+                    Transaction<BlockSnapshot> transaction = iterator.next();
+                    Location<World> location = transaction.getOriginal().getLocation().get();
+                    IBlockState state = (IBlockState) transaction.getOriginal().getState();
+                    BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+                    net.minecraftforge.common.util.BlockSnapshot blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
+                    blockSnapshots.add(blockSnapshot);
+                }
+
+                IBlockState placedAgainst = Blocks.AIR.getDefaultState();
+                if (contextPacket instanceof CPacketPlayerTryUseItemOnBlock) {
+                    CPacketPlayerTryUseItemOnBlock packet = (CPacketPlayerTryUseItemOnBlock) contextPacket;
+                    EnumFacing facing = packet.getDirection();
+                    placedAgainst = blockSnapshots.get(0).getWorld().getBlockState(blockSnapshots.get(0).getPos().offset(facing.getOpposite()));
+                }
+
+                BlockEvent.MultiPlaceEvent forgeEvent = new BlockEvent.MultiPlaceEvent(blockSnapshots, placedAgainst, player);
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                if (forgeEvent.isCanceled()) {
+                    spongeEvent.setCancelled(true);
+                }
+            }
+        }
         return spongeEvent;
     }
 
