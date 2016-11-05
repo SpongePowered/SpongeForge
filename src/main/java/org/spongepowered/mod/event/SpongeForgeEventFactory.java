@@ -934,7 +934,7 @@ public class SpongeForgeEventFactory {
         DropItemEvent.Destruct spongeEvent = (DropItemEvent.Destruct) event;
         Object source = spongeEvent.getCause().root();
         Optional<DamageSource> damageSource = spongeEvent.getCause().first(DamageSource.class);
-        if (!(source instanceof EntitySpawnCause) || !damageSource.isPresent() || spongeEvent.getEntities().size() <= 0) {
+        if (!(source instanceof EntitySpawnCause) || !damageSource.isPresent()) {
             return spongeEvent;
         }
 
