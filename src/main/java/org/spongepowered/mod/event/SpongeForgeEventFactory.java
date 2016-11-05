@@ -353,9 +353,6 @@ public class SpongeForgeEventFactory {
         if (NotifyNeighborBlockEvent.class.isAssignableFrom(clazz)) {
             return BlockEvent.NeighborNotifyEvent.class;
         }
-        if (ChangeBlockEvent.Break.class.isAssignableFrom(clazz)) {
-            return BlockEvent.BreakEvent.class;
-        }
         if (ChangeBlockEvent.Place.class.isAssignableFrom(clazz)) {
             return BlockEvent.PlaceEvent.class;
         }
@@ -416,8 +413,6 @@ public class SpongeForgeEventFactory {
             return callEntityInteractEvent(spongeEvent);
         } else if (BlockEvent.NeighborNotifyEvent.class.isAssignableFrom(clazz)) {
             return callNeighborNotifyEvent(spongeEvent);
-        } else if (BlockEvent.BreakEvent.class.isAssignableFrom(clazz)) {
-            return callBlockBreakEvent(spongeEvent);
         } else if (BlockEvent.PlaceEvent.class.isAssignableFrom(clazz)) {
             return callBlockPlaceEvent(spongeEvent);
         } else if (PlayerInteractEvent.class.isAssignableFrom(clazz)) {
@@ -1120,40 +1115,6 @@ public class SpongeForgeEventFactory {
             spongeEvent.setCancelled(true);
         }
 
-        return spongeEvent;
-    }
-
-    public static ChangeBlockEvent.Break callBlockBreakEvent(Event event) {
-        if (!(event instanceof ChangeBlockEvent.Break)) {
-            throw new IllegalArgumentException("Event is not a valid ChangeBlockEventBreak");
-        }
-
-        ChangeBlockEvent.Break spongeEvent = (ChangeBlockEvent.Break) event;
-
-        if (spongeEvent.getCause().first(Player.class).isPresent()) {
-            Player player = spongeEvent.getCause().first(Player.class).get();
-            Iterator<Transaction<BlockSnapshot>> iterator = spongeEvent.getTransactions().iterator();
-            while (iterator.hasNext()) {
-                Transaction<BlockSnapshot> transaction = iterator.next();
-                if (!transaction.getOriginal().getLocation().isPresent()) {
-                    continue;
-                }
-                Location<World> location = transaction.getOriginal().getLocation().get();
-                net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
-                BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-
-                StaticMixinForgeHelper.breakEventExtendedState = (IBlockState) transaction.getOriginal().getExtendedState();
-                BlockEvent.BreakEvent forgeEvent =
-                        new BlockEvent.BreakEvent(world, pos, (IBlockState) transaction.getOriginal().getState(),
-                                (EntityPlayer) player);
-                StaticMixinForgeHelper.breakEventExtendedState = null;
-
-                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-                if (forgeEvent.isCanceled()) {
-                    transaction.setValid(false);
-                }
-            }
-        }
         return spongeEvent;
     }
 
