@@ -127,6 +127,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 SpongeCommonEventFactory.playerInteractItemChanged = true;
             }
 
+            TileEntity tileEntity = worldIn.getTileEntity(pos);
             if (event.isCancelled()) {
                 final IBlockState state = worldIn.getBlockState(pos);
 
@@ -151,6 +152,11 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                     }
                 }
 
+                // Some mods such as OpenComputers open a GUI on client-side
+                // To workaround this, we will always send a SPacketCloseWindow to client if interacting with a TE
+                if (tileEntity != null) {
+                    this.thisPlayerMP.closeScreen();
+                }
                 SpongeCommonEventFactory.interactBlockEventCancelled = true;
                 return EnumActionResult.FAIL;
             }
@@ -202,35 +208,23 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 this.thisPlayerMP.closeScreen();
             }
 
-            // Sponge start - store result instead of returning
+            // store result instead of returning
             if (stack == null) {
-                // return EnumActionResult.PASS; // Sponge
                 result = EnumActionResult.PASS;
             } else if (player.getCooldownTracker().hasCooldown(stack.getItem())) {
-                // return EnumActionResult.PASS; // Sponge
                 result = EnumActionResult.PASS;
             } else if (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock() instanceof BlockCommandBlock && !player.canCommandSenderUseCommand(2, "")) {
-                // return EnumActionResult.FAIL; // Sponge
                 result = EnumActionResult.FAIL;
-                // Sponge start - nest isCreative check instead of calling the method twice.
-                // } else if (this.isCreative()) {
             } else {
-                // Run if useItemResult is true, or if useItemResult is undefined and the block interaction failed
-                if (stack != null
-                        && (event.getUseItemResult() == Tristate.TRUE
-                                    || (event.getUseItemResult() == Tristate.UNDEFINED && result == EnumActionResult.FAIL)
-                )
-                        && (result != EnumActionResult.SUCCESS && event.getUseItemResult() != Tristate.FALSE
-                                    || result == EnumActionResult.SUCCESS && event.getUseItemResult() == Tristate.TRUE
-                )) {
-                    int meta = stack.getMetadata(); // meta == j
-                    int size = stack.stackSize; // size == i
-                    // EnumActionResult enumactionresult = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ); // Sponge
+                if ((result != EnumActionResult.SUCCESS && event.getUseItemResult() != Tristate.FALSE
+                     || result == EnumActionResult.SUCCESS && event.getUseItemResult() == Tristate.TRUE)) {
+                    int meta = stack.getMetadata();
+                    int size = stack.stackSize;
                     result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+                    // nest isCreative check instead of calling the method twice.
                     if (this.isCreative()) {
                         stack.setItemDamage(meta);
                         stack.stackSize = size;
-                        // return enumactionresult; // Sponge
                     }
                 }
             }
