@@ -123,6 +123,14 @@ public class SpongeMod extends DummyModContainer {
                 "name", "SpongeForge",
                 "version", SpongeImpl.IMPLEMENTATION_VERSION.orElse("DEV")));
 
+        if (spongeMeta.name == null) {
+            spongeMeta.name = "SpongeForge";
+        }
+
+        if (spongeMeta.version == null) {
+            spongeMeta.version = "DEV";
+        }
+
         // FML may have resolved our metadata before our creation call above so to prevent our version
         // appearing as an annoying "$version", change it to what our default one is here
         if ("$version".equals(spongeMeta.version)) {
