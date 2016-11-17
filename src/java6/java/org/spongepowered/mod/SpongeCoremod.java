@@ -100,7 +100,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         MixinEnvironment.getEnvironment(Phase.PREINIT).registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
 
-        Mixins.addConfiguration("mixins.forge.init.json");
+//        Mixins.addConfiguration("mixins.forge.init.json");
         MixinEnvironment.getEnvironment(Phase.INIT).registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.Cause");
