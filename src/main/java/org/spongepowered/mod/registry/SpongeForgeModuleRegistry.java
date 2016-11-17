@@ -24,21 +24,13 @@
  */
 package org.spongepowered.mod.registry;
 
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableZombieData;
-import org.spongepowered.api.data.manipulator.immutable.item.ImmutableSpawnableData;
-import org.spongepowered.api.data.manipulator.mutable.entity.ZombieData;
-import org.spongepowered.api.data.manipulator.mutable.item.SpawnableData;
 import org.spongepowered.api.data.property.block.LightEmissionProperty;
 import org.spongepowered.api.data.property.block.MatterProperty;
 import org.spongepowered.api.data.property.block.SolidCubeProperty;
 import org.spongepowered.api.extra.fluid.data.manipulator.immutable.ImmutableFluidTankData;
 import org.spongepowered.api.extra.fluid.data.manipulator.mutable.FluidTankData;
 import org.spongepowered.common.data.SpongeDataManager;
-import org.spongepowered.common.data.manipulator.immutable.entity.ImmutableSpongeZombieData;
 import org.spongepowered.common.data.manipulator.immutable.extra.ImmutableSpongeFluidTankData;
-import org.spongepowered.common.data.manipulator.immutable.item.ImmutableSpongeSpawnableData;
-import org.spongepowered.common.data.manipulator.mutable.entity.SpongeZombieData;
 import org.spongepowered.common.data.manipulator.mutable.extra.SpongeFluidTankData;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
 import org.spongepowered.common.registry.type.world.gen.PopulatorTypeRegistryModule;
@@ -47,9 +39,6 @@ import org.spongepowered.mod.data.ForgeFluidTankDataProcessor;
 import org.spongepowered.mod.data.ForgeLightEmissionPropertyStore;
 import org.spongepowered.mod.data.ForgeMatterPropertyStore;
 import org.spongepowered.mod.data.ForgeSolidCubePropertyStore;
-import org.spongepowered.mod.data.ForgeVillagerZombieProfessionValueProcessor;
-import org.spongepowered.mod.data.ForgeZombieDataProcessor;
-import org.spongepowered.mod.data.ForgeZombieTypeValueProcessor;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 public class SpongeForgeModuleRegistry {
@@ -68,12 +57,7 @@ public class SpongeForgeModuleRegistry {
         dataRegistry.registerDualProcessor(FluidTankData.class, SpongeFluidTankData.class, ImmutableFluidTankData.class,
                 ImmutableSpongeFluidTankData.class, new ForgeFluidTankDataProcessor());
 
-        dataRegistry.registerDataProcessorAndImpl(ZombieData.class, SpongeZombieData.class, ImmutableZombieData.class,
-                ImmutableSpongeZombieData.class, new ForgeZombieDataProcessor());
-
         // Value registration
-        dataRegistry.registerValueProcessor(Keys.ZOMBIE_TYPE, new ForgeZombieTypeValueProcessor());
-        dataRegistry.registerValueProcessor(Keys.VILLAGER_ZOMBIE_PROFESSION, new ForgeVillagerZombieProfessionValueProcessor());
 
         //Populator types
         PopulatorTypeRegistryModule populatorTypeModule = PopulatorTypeRegistryModule.getInstance();

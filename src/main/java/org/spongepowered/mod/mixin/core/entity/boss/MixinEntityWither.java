@@ -52,7 +52,7 @@ public abstract class MixinEntityWither extends MixinEntityMob implements Wither
         for (int i = 0; i < 2; i++) {
             int id = getWatchedTargetId(i);
             if (id > 0) {
-                values.add((Living) this.worldObj.getEntityByID(id));
+                values.add((Living) this.world.getEntityByID(id));
             }
         }
         return values;

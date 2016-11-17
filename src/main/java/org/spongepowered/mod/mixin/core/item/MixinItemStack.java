@@ -60,8 +60,7 @@ public abstract class MixinItemStack {
     @Overwrite
     public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing
             side, float hitX, float hitY, float hitZ) {
-        final EnumActionResult result = this.getItem().onItemUse((net.minecraft.item.ItemStack)(Object)this, playerIn, worldIn, pos, hand, side, hitX,
-                hitY, hitZ);
+        final EnumActionResult result = this.getItem().onItemUse(playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ);
 
         if (result == EnumActionResult.SUCCESS) {
             playerIn.addStat(StatList.getObjectUseStats(this.item));

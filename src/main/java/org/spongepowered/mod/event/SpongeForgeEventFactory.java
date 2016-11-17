@@ -847,14 +847,14 @@ public class SpongeForgeEventFactory {
             PlayerInteractEvent.RightClickBlock forgeEvent = null;
             if (spongeEvent instanceof InteractBlockEvent.Secondary.MainHand) {
                 final ItemStack heldItem = entityPlayerMP.getHeldItem(EnumHand.MAIN_HAND);
-                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.MAIN_HAND, heldItem, pos, face.orElse(null), hitVec);
+                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.MAIN_HAND, pos, face.orElse(null), hitVec);
                 ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
                     spongeEvent.setCancelled(true);
                 }
             } else if (spongeEvent instanceof InteractBlockEvent.Secondary.OffHand) {
                 final ItemStack heldItem = entityPlayerMP.getHeldItem(EnumHand.OFF_HAND);
-                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.OFF_HAND, heldItem, pos, face.orElse(null), hitVec);
+                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.OFF_HAND, pos, face.orElse(null), hitVec);
                 ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
                     spongeEvent.setCancelled(true);
@@ -1109,7 +1109,8 @@ public class SpongeForgeEventFactory {
 
         BlockPos pos = ((IMixinLocation) (Object) sourceLocation).getBlockPos();
         net.minecraft.world.World world = (net.minecraft.world.World) sourceLocation.getExtent();
-        final NeighborNotifyEvent forgeEvent = new NeighborNotifyEvent(world, pos, state, facings);
+        // TODO - the boolean forced redstone bit needs to be set properly
+        final NeighborNotifyEvent forgeEvent = new NeighborNotifyEvent(world, pos, state, facings, false);
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);
@@ -1198,7 +1199,7 @@ public class SpongeForgeEventFactory {
         final EntityPlayer entityPlayer = (EntityPlayer) player.get();
         final Entity entity = (Entity) spongeEvent.getTargetEntity();
 
-        PlayerInteractEvent.EntityInteract forgeEvent = new PlayerInteractEvent.EntityInteract(entityPlayer, hand, handStack, entity);
+        PlayerInteractEvent.EntityInteract forgeEvent = new PlayerInteractEvent.EntityInteract(entityPlayer, hand, entity);
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);

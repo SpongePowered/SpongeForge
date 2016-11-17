@@ -71,7 +71,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
 
     protected void sendToServer(Object data) {
         checkValidState();
-        if (!((IMixinNetPlayHandler) Minecraft.getMinecraft().thePlayer.connection).getRegisteredChannels().contains(getName())) {
+        if (!((IMixinNetPlayHandler) Minecraft.getMinecraft().player.connection).getRegisteredChannels().contains(getName())) {
             return; // Server doesn't accept this channel
         }
         this.channels.get(Side.CLIENT).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.TOSERVER);

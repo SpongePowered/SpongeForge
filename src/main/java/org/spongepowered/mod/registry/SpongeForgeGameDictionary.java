@@ -44,7 +44,7 @@ public class SpongeForgeGameDictionary implements GameDictionary {
     @Override
     public void register(String key, Entry entry) {
         ItemStack stack = ((SpongeGameDictionaryEntry) entry).createDictionaryStack(OreDictionary.WILDCARD_VALUE);
-        stack.stackSize = 1;
+        stack.func_190920_e(1);
         OreDictionary.registerOre(key, stack);
     }
 
@@ -53,7 +53,7 @@ public class SpongeForgeGameDictionary implements GameDictionary {
         ImmutableSet.Builder<Entry> items = ImmutableSet.builder();
         for (ItemStack itemStack : OreDictionary.getOres(key)) {
         	itemStack = itemStack.copy();
-        	itemStack.stackSize = 1;
+        	itemStack.func_190920_e(1);
             items.add(SpongeGameDictionaryEntry.of(itemStack, OreDictionary.WILDCARD_VALUE));
         }
         return items.build();

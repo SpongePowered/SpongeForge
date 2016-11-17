@@ -121,7 +121,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             // Sponge start - refactor rest of method
 
             // Store reference of current player's itemstack in case it changes
-            ItemStack oldStack = ItemStack.copyItemStack(stack);
+            ItemStack oldStack = stack.copy();
 
 
             BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
@@ -169,7 +169,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             net.minecraft.item.Item item = stack == null ? null : stack.getItem();
             EnumActionResult ret = item == null
                     ? EnumActionResult.PASS
-                    : item.onItemUseFirst(stack, player, worldIn, pos, facing, hitX, hitY, hitZ, hand);
+                    : item.onItemUseFirst(player, worldIn, pos, facing, hitX, hitY, hitZ, hand);
             if (ret != EnumActionResult.PASS) {
                 return ret;
             }
@@ -189,7 +189,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                     IBlockState iblockstate = worldIn.getBlockState(pos);
                     Container lastOpenContainer = player.openContainer;
 
-                    result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, stack, facing, hitX, hitY, hitZ)
+                    result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, facing, hitX, hitY, hitZ)
                             ? EnumActionResult.SUCCESS
                             : EnumActionResult.FAIL;
                     // Mods such as StorageDrawers alter the stack on block activation
@@ -222,12 +222,12 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 if ((result != EnumActionResult.SUCCESS && event.getUseItemResult() != Tristate.FALSE
                       || result == EnumActionResult.SUCCESS && event.getUseItemResult() == Tristate.TRUE)) {
                     int meta = stack.getMetadata();
-                    int size = stack.stackSize;
+                    int size = stack.func_190916_E();
                     result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
                     // nest isCreative check instead of calling the method twice.
                     if (this.isCreative()) {
                         stack.setItemDamage(meta);
-                        stack.stackSize = size;
+                        stack.func_190920_e(size);
                     }
                 }
             }

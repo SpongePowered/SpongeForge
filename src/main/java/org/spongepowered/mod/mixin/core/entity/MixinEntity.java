@@ -35,7 +35,7 @@ import org.spongepowered.common.interfaces.entity.IMixinEntity;
 public abstract class MixinEntity implements IMixinEntity {
 
     // @formatter:off
-    @Shadow public net.minecraft.world.World worldObj;
+    @Shadow public net.minecraft.world.World world;
 
     @Shadow protected abstract void setSize(float width, float height);
     // @formatter:on

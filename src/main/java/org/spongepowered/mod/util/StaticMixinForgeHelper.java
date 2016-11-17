@@ -31,6 +31,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -82,9 +83,9 @@ public final class StaticMixinForgeHelper {
 
     public static void acceptArmorModifier(EntityLivingBase entity, DamageSource damageSource, DamageModifier modifier, double damage) {
         Optional<ISpecialArmor.ArmorProperties> property = modifier.getCause().first(ISpecialArmor.ArmorProperties.class);
-        final ItemStack[] inventory = entity instanceof EntityPlayer ? ((EntityPlayer) entity).inventory.armorInventory : entity.armorArray;
+        final NonNullList<ItemStack> inventory = entity instanceof EntityPlayer ? ((EntityPlayer) entity).inventory.armorInventory : entity.armorArray;
         if (property.isPresent()) {
-            ItemStack stack = inventory[property.get().Slot];
+            ItemStack stack = inventory.get(property.get().Slot);
             if (stack == null) {
                 return;
             }
@@ -96,8 +97,8 @@ public final class StaticMixinForgeHelper {
             } else {
                 stack.damageItem(itemDamage, entity);
             }
-            if (stack.stackSize <= 0) {
-                inventory[property.get().Slot] = null;
+            if (stack.func_190916_E() <= 0) {
+                inventory.remove(property.get().Slot); // Totally unsure whether this is right....
             }
         }
     }
