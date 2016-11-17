@@ -1,16 +1,7 @@
 [
     {
         "modid": "sponge",
-        "name": "SpongeForge",
-        "description": "The Sponge API Implementation",
-        "version": "$version",
         "credits": "Copyright (C) SpongePowered and contributors",
-        "logoFile": "/org/spongepowered/launch/gui/sponge_logo.png",
-        "url": "$url",
-        "updateUrl": "",
-        "authors": [ "SpongePowered" ],
-        "parent":"",
-        "screenshots": [],
-        "dependencies": []
+        "logoFile": "/org/spongepowered/launch/gui/sponge_logo.png"
     }
 ]
