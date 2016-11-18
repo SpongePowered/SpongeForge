@@ -24,46 +24,21 @@
  */
 package org.spongepowered.mod;
 
-import com.google.common.eventbus.EventBus;
-import net.minecraftforge.fml.common.DummyModContainer;
-import net.minecraftforge.fml.common.LoadController;
-import net.minecraftforge.fml.common.ModMetadata;
-import org.slf4j.Logger;
 import org.spongepowered.api.Platform;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.mod.plugin.MetaModContainer;
 
-import java.util.Optional;
+import java.io.File;
 
-public class SpongeApiModContainer extends DummyModContainer {
-
-    public static PluginContainer instance;
+public class SpongeApiModContainer extends MetaModContainer {
 
     public SpongeApiModContainer() {
-        super(new ModMetadata());
-
-        ModMetadata md = getMetadata();
-        md.modId = Platform.API_ID;
-        md.name = SpongeImpl.API_NAME;
-        md.version = SpongeImpl.API_VERSION.orElse("");
-
-        instance = (PluginContainer) this;
-    }
-
-    // Implement methods in PluginContainer
-
-    public Logger getLogger() {
-        return SpongeImpl.getSlf4jLogger();
+        super(SpongeModMetadata.get(Platform.API_ID, SpongeImpl.API_NAME));
     }
 
     @Override
-    public Object getMod() {
-        return SpongeImpl.getGame();
-    }
-
-    @Override
-    public boolean registerBus(EventBus bus, LoadController controller) {
-        return true;
+    public File getSource() {
+        return SpongeJava6Bridge.modFile;
     }
 
 }

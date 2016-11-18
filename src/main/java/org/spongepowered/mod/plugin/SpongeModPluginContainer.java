@@ -95,16 +95,9 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
         this.className = className;
         this.candidate = candidate;
         this.descriptor = descriptor;
-        String tempId = this.id;
-        // TODO Temporary: After version 5.x this should be removed as all plugins should have updated their ids.
-        if (tempId.contains(".")) {
-            String[] parts = tempId.split("\\.");
-            SpongeImpl.getLogger().warn("Detected plugin with invalid plugin ID '{}'. " + ID_WARNING, tempId);
-            tempId = parts[parts.length - 1];
-        }
 
-        if (!ID_PATTERN.matcher(tempId).matches()) {
-            SpongeImpl.getLogger().error("Skipping plugin with invalid plugin ID '{}'. " + ID_WARNING, tempId);
+        if (!ID_PATTERN.matcher(this.id).matches()) {
+            SpongeImpl.getLogger().error("Skipping plugin with invalid plugin ID '{}'. " + ID_WARNING, this.id);
             this.invalid = true;
         }
     }
@@ -168,7 +161,6 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
                 if (depDescriptors != null) {
                     Set<ArtifactVersion> requirements = this.metadata.requiredMods;
                     List<ArtifactVersion> dependencies = this.metadata.dependencies;
-                    //List<ArtifactVersion> dependants = this.metadata.dependants; // TODO
 
                     for (Map<String, Object> depDescriptor : depDescriptors) {
                         String dep = checkNotNull((String) depDescriptor.get("id"), "dependency id");
@@ -211,9 +203,9 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
             }
 
             if (!this.metadata.dependants.isEmpty()) {
-                SpongeImpl.getLogger().error("Invalid dependency with load order BEFORE on plugin '{}'. This is currently not supported for Sponge "
+                SpongeImpl.getLogger().error("Invalid dependency with load order AFTER on plugin '{}'. This is currently not supported for Sponge "
                         + "plugins. Requested dependencies: {}", this.id, this.metadata.dependants);
-                //this.invalid = true;
+                this.invalid = true;
             }
 
             this.metadata.dependants = ImmutableList.of();

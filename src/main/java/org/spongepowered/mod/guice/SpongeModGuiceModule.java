@@ -24,11 +24,8 @@
  */
 package org.spongepowered.mod.guice;
 
-import static com.google.inject.name.Names.named;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-import net.minecraftforge.fml.common.Loader;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
@@ -37,7 +34,6 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.asset.AssetManager;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.network.ChannelRegistrar;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.SimpleServiceManager;
@@ -47,32 +43,27 @@ import org.spongepowered.common.asset.SpongeAssetManager;
 import org.spongepowered.common.guice.ConfigDirAnnotation;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.world.SpongeTeleportHelper;
-import org.spongepowered.mod.SpongeApiModContainer;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.SpongeModGame;
 import org.spongepowered.mod.SpongeModPlatform;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.network.SpongeModNetworkManager;
-import org.spongepowered.mod.plugin.SpongePluginManager;
+import org.spongepowered.mod.plugin.SpongeModPluginManager;
 
 import java.io.File;
 import java.nio.file.Path;
 
-public class SpongeGuiceModule extends AbstractModule {
+public class SpongeModGuiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
         bind(SpongeMod.class).toInstance(SpongeMod.instance);
         bind(Logger.class).toInstance(SpongeImpl.getLogger());
 
-        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.ECOSYSTEM_ID)).toInstance((PluginContainer) SpongeMod.instance);
-        bind(PluginContainer.class).annotatedWith(named(Platform.API_ID)).toInstance(SpongeApiModContainer.instance);
-        bind(PluginContainer.class).annotatedWith(named(SpongeImpl.GAME_ID)).toInstance((PluginContainer) Loader.instance().getMinecraftModContainer());
-
         bind(Game.class).to(SpongeModGame.class).in(Scopes.SINGLETON);
         bind(MinecraftVersion.class).toInstance(SpongeImpl.MINECRAFT_VERSION);
         bind(Platform.class).to(SpongeModPlatform.class).in(Scopes.SINGLETON);
-        bind(PluginManager.class).to(SpongePluginManager.class).in(Scopes.SINGLETON);
+        bind(PluginManager.class).to(SpongeModPluginManager.class).in(Scopes.SINGLETON);
         bind(ServiceManager.class).to(SimpleServiceManager.class).in(Scopes.SINGLETON);
         bind(EventManager.class).to(SpongeModEventManager.class).in(Scopes.SINGLETON);
         bind(AssetManager.class).to(SpongeAssetManager.class).in(Scopes.SINGLETON);

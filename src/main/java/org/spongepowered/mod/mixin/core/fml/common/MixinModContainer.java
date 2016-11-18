@@ -34,11 +34,14 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.mod.plugin.DependencyHandler;
+import org.spongepowered.plugin.meta.PluginDependency;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Make FML mod containers our mod containers.
@@ -73,6 +76,14 @@ public interface MixinModContainer extends ModContainer {
     default List<String> getAuthors() {
         ModMetadata meta = getMetadata();
         return meta != null ? ImmutableList.copyOf(meta.authorList) : ImmutableList.of();
+    }
+
+    default Set<PluginDependency> plugin$getDependencies() {
+        return DependencyHandler.collectDependencies(this);
+    }
+
+    default Optional<PluginDependency> getDependency(String id) {
+        return Optional.ofNullable(DependencyHandler.findDependency(this, id));
     }
 
     default Optional<Path> plugin$getSource() {

@@ -22,28 +22,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.fml.common;
+package org.spongepowered.mod.plugin;
 
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.MinecraftDummyContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.asm.mixin.Mixin;
+import com.google.common.eventbus.EventBus;
+import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.ModMetadata;
+import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.Set;
 
-@Mixin(MinecraftDummyContainer.class)
-public abstract class MixinMinecraftDummyContainerClient implements PluginContainer {
+/**
+ * Extends {@link DummyModContainer} with implemented getters for the
+ * dependencies.
+ */
+public class MetaModContainer extends DummyModContainer {
 
-    @Override
-    public Logger getLogger() {
-        return LoggerFactory.getLogger(Minecraft.class);
+    public MetaModContainer(ModMetadata md) {
+        super(md);
     }
 
     @Override
-    public Optional<Minecraft> getInstance() {
-        return Optional.ofNullable(Minecraft.getMinecraft());
+    public Set<ArtifactVersion> getRequirements() {
+        return getMetadata().requiredMods;
+    }
+
+    @Override
+    public List<ArtifactVersion> getDependencies() {
+        return getMetadata().dependencies;
+    }
+
+    @Override
+    public List<ArtifactVersion> getDependants() {
+        return getMetadata().dependants;
+    }
+
+    @Override
+    public boolean registerBus(EventBus bus, LoadController controller) {
+        return true;
     }
 
 }
