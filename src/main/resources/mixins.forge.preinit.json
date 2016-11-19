@@ -13,12 +13,6 @@
         "fml.common.eventhandler.MixinEvent",
         "fml.common.registry.MixinGameRegistry"
     ],
-    "client": [
-        "fml.common.MixinMinecraftDummyContainerClient"
-    ],
-    "server": [
-        "fml.common.MixinMinecraftDummyContainerServer"
-    ],
     "injectors": {
         "defaultRequire": 1
     }

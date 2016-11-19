@@ -30,15 +30,15 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.discovery.ModDiscoverer;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
+import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
+import net.minecraftforge.fml.common.versioning.VersionRange;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.plugin.meta.version.DefaultArtifactVersion;
-import org.spongepowered.plugin.meta.version.InvalidVersionSpecificationException;
-import org.spongepowered.plugin.meta.version.VersionRange;
+import org.spongepowered.plugin.meta.version.ComparableVersion;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -130,34 +130,32 @@ public abstract class MixinLoader {
 
     @Redirect(method = "sortModList", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/versioning/ArtifactVersion;containsVersion"
             + "(Lnet/minecraftforge/fml/common/versioning/ArtifactVersion;)Z"))
-    private boolean onCheckContainsVersion(ArtifactVersion expected, ArtifactVersion installed) throws InvalidVersionSpecificationException {
-        String rangeString = expected.getRangeString();
-        String versionString = installed.getVersionString();
+    private boolean onCheckContainsVersion(ArtifactVersion expected, ArtifactVersion installed) {
+        String installedVersion = installed.getVersionString();
 
-        if (!rangeString.equals("any") && !versionString.equals("unknown")) {
+        if (!installedVersion.equals("unknown") && expected instanceof DefaultArtifactVersion) {
+            VersionRange range = ((DefaultArtifactVersion) expected).getRange();
 
-            VersionRange range = VersionRange.createFromVersionSpec(rangeString);
-            if (range.getRecommendedVersion() instanceof DefaultArtifactVersion) {
+            if (range != null && range.getRecommendedVersion() != null
+                    && !installedVersion.equals(range.getRecommendedVersion().getVersionString())) {
 
-                BigInteger majorExpected = ((DefaultArtifactVersion) range.getRecommendedVersion()).getVersion().getFirstInteger();
+                BigInteger majorExpected = new ComparableVersion(range.getRecommendedVersion().getVersionString()).getFirstInteger();
                 if (majorExpected != null) {
 
-                    DefaultArtifactVersion installedVersion = new DefaultArtifactVersion(versionString);
-                    BigInteger majorInstalled = installedVersion.getVersion().getFirstInteger();
+                    BigInteger majorInstalled = new ComparableVersion(installedVersion).getFirstInteger();
 
                     // Show a warning if the major version does not match,
                     // or if the installed version is lower than the recommended version
                     if (majorInstalled != null
-                            && (!majorExpected.equals(majorInstalled) || installedVersion.compareTo(range.getRecommendedVersion()) < 0)) {
+                            && (!majorExpected.equals(majorInstalled) || installed.compareTo(range.getRecommendedVersion()) < 0)) {
                         SpongeImpl.getLogger().warn("The mod {} was designed for {} {}. It may not work properly.",
-                                this.mod.getModId(), expected.getLabel(), rangeString);
+                                this.mod.getModId(), expected.getLabel(), expected.getRangeString());
                     }
                 }
             }
 
         }
 
-        this.mod = null;
         return expected.containsVersion(installed);
     }
 
