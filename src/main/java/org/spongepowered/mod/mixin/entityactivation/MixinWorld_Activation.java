@@ -113,9 +113,9 @@ public abstract class MixinWorld_Activation implements IMixinWorld {
                 entityIn.rotationYaw = entityIn.prevRotationYaw;
             }
 
-            int l = MathHelper.floor_double(entityIn.posX / 16.0D);
-            int i1 = MathHelper.floor_double(entityIn.posY / 16.0D);
-            int j1 = MathHelper.floor_double(entityIn.posZ / 16.0D);
+            int l = MathHelper.floor(entityIn.posX / 16.0D);
+            int i1 = MathHelper.floor(entityIn.posY / 16.0D);
+            int j1 = MathHelper.floor(entityIn.posZ / 16.0D);
 
             if (!entityIn.addedToChunk || entityIn.chunkCoordX != l || entityIn.chunkCoordY != i1 || entityIn.chunkCoordZ != j1)
             {

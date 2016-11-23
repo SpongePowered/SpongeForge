@@ -36,7 +36,7 @@ public class MixinCPacketClickWindow {
 
     @Shadow private int windowId;
     @Shadow private int slotId;
-    @Shadow private int usedButton;
+    @Shadow private int packedClickData;
     @Shadow private short actionNumber;
     @Shadow private ItemStack clickedItem;
     @Shadow private ClickType mode;
@@ -47,7 +47,7 @@ public class MixinCPacketClickWindow {
         return Objects.toStringHelper(this)
                 .add("windowId", this.windowId)
                 .add("slotId", this.slotId)
-                .add("usedButton", this.usedButton)
+                .add("usedButton", this.packedClickData)
                 .add("actionNumber", this.actionNumber)
                 .add("clickedItem", this.clickedItem)
                 .add("mode", this.mode)

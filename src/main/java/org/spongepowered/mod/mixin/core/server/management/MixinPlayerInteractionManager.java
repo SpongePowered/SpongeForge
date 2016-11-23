@@ -77,8 +77,8 @@ import java.util.Optional;
 @Mixin(value = PlayerInteractionManager.class, priority = 1001)
 public abstract class MixinPlayerInteractionManager implements IMixinPlayerInteractionManager {
 
-    @Shadow public EntityPlayerMP thisPlayerMP;
-    @Shadow public World theWorld;
+    @Shadow public EntityPlayerMP player;
+    @Shadow public World world;
     @Shadow private GameType gameType;
 
     @Shadow public abstract boolean isCreative();
@@ -128,7 +128,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(Cause.of(NamedCause.source(player)),
                     Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
                     DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
-            if (!ItemStack.areItemStacksEqual(oldStack, this.thisPlayerMP.getHeldItem(hand))) {
+            if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
                 SpongeCommonEventFactory.playerInteractItemChanged = true;
             }
 
@@ -138,29 +138,29 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
 
                 if (state.getBlock() == Blocks.COMMAND_BLOCK) {
                     // CommandBlock GUI opens solely on the client, we need to force it close on cancellation
-                    this.thisPlayerMP.connection.sendPacket(new SPacketCloseWindow(0));
+                    this.player.connection.sendPacket(new SPacketCloseWindow(0));
 
                 } else if (state.getProperties().containsKey(BlockDoor.HALF)) {
                     // Stopping a door from opening while interacting the top part will allow the door to open, we need to update the
                     // client to resolve this
                     if (state.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) {
-                        this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(worldIn, pos.up()));
+                        this.player.connection.sendPacket(new SPacketBlockChange(worldIn, pos.up()));
                     } else {
-                        this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(worldIn, pos.down()));
+                        this.player.connection.sendPacket(new SPacketBlockChange(worldIn, pos.down()));
                     }
 
                 } else if (stack != null) {
                     // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-side of the block. We need to remove it
                     if (stack.getItem() instanceof ItemDoor || (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock()
                             .equals(Blocks.DOUBLE_PLANT))) {
-                        this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(worldIn, pos.up(2)));
+                        this.player.connection.sendPacket(new SPacketBlockChange(worldIn, pos.up(2)));
                     }
                 }
 
                 // Some mods such as OpenComputers open a GUI on client-side
                 // To workaround this, we will always send a SPacketCloseWindow to client if interacting with a TE
                 if (tileEntity != null) {
-                    this.thisPlayerMP.closeScreen();
+                    this.player.closeScreen();
                 }
                 SpongeCommonEventFactory.interactBlockEventCancelled = true;
                 return EnumActionResult.FAIL;
@@ -194,13 +194,13 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                             : EnumActionResult.FAIL;
                     // Mods such as StorageDrawers alter the stack on block activation
                     // if itemstack changed, avoid restore
-                    if (!ItemStack.areItemStacksEqual(oldStack, this.thisPlayerMP.getHeldItem(hand))) {
+                    if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
                         SpongeCommonEventFactory.playerInteractItemChanged = true;
                     }
 
-                    result = this.handleOpenEvent(lastOpenContainer, this.thisPlayerMP, result);
+                    result = this.handleOpenEvent(lastOpenContainer, this.player, result);
                 } else {
-                    this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(this.theWorld, pos));
+                    this.player.connection.sendPacket(new SPacketBlockChange(this.world, pos));
                     result = TristateUtil.toActionResult(event.getUseItemResult());
                 }
             }
@@ -208,7 +208,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             // Same issue as above with OpenComputers
             // This handles the event not cancelled and block not activated
             if (result != EnumActionResult.SUCCESS && tileEntity != null && hand == EnumHand.MAIN_HAND) {
-                this.thisPlayerMP.closeScreen();
+                this.player.closeScreen();
             }
 
             // store result instead of returning
@@ -216,18 +216,18 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 result = EnumActionResult.PASS;
             } else if (player.getCooldownTracker().hasCooldown(stack.getItem())) {
                 result = EnumActionResult.PASS;
-            } else if (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock() instanceof BlockCommandBlock && !player.canCommandSenderUseCommand(2, "")) {
+            } else if (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock() instanceof BlockCommandBlock && !player.canUseCommand(2, "")) {
                 result = EnumActionResult.FAIL;
             } else {
                 if ((result != EnumActionResult.SUCCESS && event.getUseItemResult() != Tristate.FALSE
                       || result == EnumActionResult.SUCCESS && event.getUseItemResult() == Tristate.TRUE)) {
                     int meta = stack.getMetadata();
-                    int size = stack.func_190916_E();
+                    int size = stack.getCount();
                     result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
                     // nest isCreative check instead of calling the method twice.
                     if (this.isCreative()) {
                         stack.setItemDamage(meta);
-                        stack.func_190920_e(size);
+                        stack.setCount(size);
                     }
                 }
             }
@@ -255,7 +255,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
     // so plugins have a chance to alter the final result.
     @Redirect(method = "tryHarvestBlock", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onBlockBreakEvent(Lnet/minecraft/world/World;Lnet/minecraft/world/GameType;Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/util/math/BlockPos;)I", remap = false))
     public int onTryHarvestBlockBreakEvent(World worldIn, GameType gameType, EntityPlayerMP entityPlayer, BlockPos pos) {
-        int exp = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(theWorld, gameType, thisPlayerMP, pos);
+        int exp = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(world, gameType, player, pos);
         Location<org.spongepowered.api.world.World> location = new Location<>((org.spongepowered.api.world.World) worldIn, pos.getX(), pos.getY(), pos.getZ());
         ChangeBlockEvent.Pre event = SpongeEventFactory.createChangeBlockEventPre(Cause.of(NamedCause.source(entityPlayer)), ImmutableList.of(location),
                 (org.spongepowered.api.world.World) worldIn);

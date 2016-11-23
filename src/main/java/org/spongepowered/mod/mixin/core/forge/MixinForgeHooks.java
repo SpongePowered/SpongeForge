@@ -82,7 +82,7 @@ public class MixinForgeHooks {
             return player.canHarvestBlock(state);
         }
 
-        int toolLevel = stack.getItem().getHarvestLevel(stack, tool);
+        int toolLevel = stack.getItem().getHarvestLevel(stack, tool, player, state);
         if (toolLevel < 0) {
             return player.canHarvestBlock(state);
         }

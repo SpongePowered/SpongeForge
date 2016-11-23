@@ -83,7 +83,7 @@ public abstract class MixinItemLilyPad extends ItemColored {
                     worldIn.setBlockState(blockpos1, Blocks.WATERLILY.getDefaultState());
 
                     if (!playerIn.capabilities.isCreativeMode) {
-                        itemstack.func_190918_g(1);
+                        itemstack.shrink(1);
                     }
 
                     playerIn.addStat(StatList.getObjectUseStats(this));

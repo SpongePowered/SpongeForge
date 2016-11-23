@@ -69,8 +69,8 @@ public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
         }
         TileEntity te = getTileEntity();
         if (te != null) {
-            if (!te.hasWorldObj()) {
-                te.setWorldObj(this.world);
+            if (!te.hasWorld()) {
+                te.setWorld(this.world);
             }
             for (DataManipulator<?, ?> manipulator : ((org.spongepowered.api.block.tileentity.TileEntity) te).getContainers()) {
                 builder.add(manipulator);

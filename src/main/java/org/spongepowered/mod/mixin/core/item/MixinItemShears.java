@@ -109,7 +109,7 @@ public abstract class MixinItemShears extends Item {
                 for (ItemStack drop : drops) {
                     final ItemStack item;
 
-                    if (!drop.func_190926_b()) {
+                    if (!drop.isEmpty()) {
                         // FIRST we want to throw the DropItemEvent.PRE
                         final ItemStackSnapshot snapshot = ItemStackUtil.createSnapshot(drop);
                         final List<ItemStackSnapshot> original = new ArrayList<>();
@@ -133,7 +133,7 @@ public abstract class MixinItemShears extends Item {
                     if (item == null) {
                         continue;
                     }
-                    if (!item.func_190926_b()) {
+                    if (!item.isEmpty()) {
                         if (!currentState.getPhase().ignoresItemPreMerging(currentState) && SpongeImpl.getGlobalConfig().getConfig().getOptimizations().doDropsPreMergeItemDrops()) {
                             if (currentState.tracksEntitySpecificDrops()) {
                                 final Multimap<UUID, ItemDropData> multimap = phaseContext.getCapturedEntityDropSupplier().get();
@@ -171,7 +171,7 @@ public abstract class MixinItemShears extends Item {
                             continue;
                         }
                         // FINALLY - Spawn the entity in the world if all else didn't fail
-                        entity.world.spawnEntityInWorld(entityitem);
+                        entity.world.spawnEntity(entityitem);
 
                     }
                 }

@@ -58,13 +58,13 @@ public abstract class MixinC00Handshake {
     public void readPacketData(PacketBuffer buf, CallbackInfo callbackInfo) throws IOException {
 
         // Sponge start
-        this.protocolVersion = buf.readVarIntFromBuffer();
+        this.protocolVersion = buf.readVarInt();
 
         if (!SpongeImpl.getGlobalConfig().getConfig().getModules().usePluginBungeeCord()
                 || !SpongeImpl.getGlobalConfig().getConfig().getBungeeCord().getIpForwarding()) {
-            this.ip = buf.readStringFromBuffer(255);
+            this.ip = buf.readString(255);
         } else {
-            this.ip = buf.readStringFromBuffer(Short.MAX_VALUE);
+            this.ip = buf.readString(Short.MAX_VALUE);
             String split[] = this.ip.split("\0\\|", 2);
             this.ip = split[0];
             // If we have extra data, check to see if it is telling us we have a
@@ -84,7 +84,7 @@ public abstract class MixinC00Handshake {
         }
 
         this.port = buf.readUnsignedShort();
-        this.requestedState = EnumConnectionState.getById(buf.readVarIntFromBuffer());
+        this.requestedState = EnumConnectionState.getById(buf.readVarInt());
         // Sponge end
 
         callbackInfo.cancel();

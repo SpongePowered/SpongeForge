@@ -97,7 +97,7 @@ public final class StaticMixinForgeHelper {
             } else {
                 stack.damageItem(itemDamage, entity);
             }
-            if (stack.func_190916_E() <= 0) {
+            if (stack.getCount() <= 0) {
                 inventory.remove(property.get().Slot); // Totally unsure whether this is right....
             }
         }
