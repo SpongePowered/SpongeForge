@@ -27,11 +27,13 @@ package org.spongepowered.mod.mixin.core.common;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.Teleporter;
@@ -169,4 +171,15 @@ public abstract class MixinSpongeImplHooks {
     public static void onTileChunkUnload(TileEntity te) {
         te.onChunkUnload();
     }
+
+    @Overwrite
+    public static Class<? extends Entity> getEntityClass(ResourceLocation name) {
+        return EntityList.getClass(name);
+    }
+
+    @Overwrite
+    public static int getEntityId(Class<? extends Entity> entityClass) {
+        return EntityList.getID(entityClass);
+    }
+
 }
