@@ -44,7 +44,6 @@ sponge.plugin.meta {
 
         forge {
             version = project.minecraft.forgeVersion
-            optional = true // TODO: Remove in 1.11
         }
     }
 }
