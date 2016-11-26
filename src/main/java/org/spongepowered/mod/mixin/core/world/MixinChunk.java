@@ -44,14 +44,14 @@ import org.spongepowered.common.interfaces.IMixinChunk;
 @Mixin(net.minecraft.world.chunk.Chunk.class)
 public abstract class MixinChunk implements Chunk, IMixinChunk {
 
-    @Shadow @Final private net.minecraft.world.World worldObj;
+    @Shadow @Final private net.minecraft.world.World world;
     @Shadow @Final public int xPosition;
     @Shadow @Final public int zPosition;
 
     @Inject(method = "onChunkLoad", at = @At("RETURN"))
     public void onChunkLoadInject(CallbackInfo ci) {
-        if (!this.worldObj.isRemote) {
-            for (ChunkPos forced : this.worldObj.getPersistentChunks().keySet()) {
+        if (!this.world.isRemote) {
+            for (ChunkPos forced : this.world.getPersistentChunks().keySet()) {
                 if (forced.chunkXPos == this.xPosition && forced.chunkZPos == this.zPosition) {
                     ((IMixinChunk) this).setPersistedChunk(true);
                     return;
@@ -64,7 +64,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     @Inject(method = "onChunkUnload", at = @At("RETURN"))
     public void onChunkUnloadInject(CallbackInfo ci) {
         // Moved from ChunkProviderServer
-        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.chunkXZ2Int(this.xPosition, this.zPosition), (net.minecraft.world.chunk.Chunk)(Object) this);
+        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(this.xPosition, this.zPosition), (net.minecraft.world.chunk.Chunk)(Object) this);
     }
 
     @Override
@@ -74,12 +74,12 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         }
 
         // TODO 1.9 Update - Zidane's thing
-        if (this.worldObj.provider.canRespawnHere()) {//&& DimensionManager.shouldLoadSpawn(this.worldObj.provider.getDimension())) {
-            if (this.worldObj.isSpawnChunk(this.xPosition, this.zPosition)) {
+        if (this.world.provider.canRespawnHere()) {//&& DimensionManager.shouldLoadSpawn(this.world.provider.getDimension())) {
+            if (this.world.isSpawnChunk(this.xPosition, this.zPosition)) {
                 return false;
             }
         }
-        ((WorldServer) this.worldObj).getChunkProvider().unload((net.minecraft.world.chunk.Chunk) (Object) this);
+        ((WorldServer) this.world).getChunkProvider().unload((net.minecraft.world.chunk.Chunk) (Object) this);
         return true;
     }
 
@@ -89,7 +89,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         Direction[] directions = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
         for (Direction direction : directions) {
             Vector3i neighborPosition = this.getPosition().add(direction.asBlockOffset());
-            net.minecraft.world.chunk.Chunk neighbor = this.worldObj.getChunkProvider().getLoadedChunk
+            net.minecraft.world.chunk.Chunk neighbor = this.world.getChunkProvider().getLoadedChunk
                     (neighborPosition.getX(), neighborPosition.getZ());
             if (neighbor != null) {
                 this.setNeighbor(direction, (Chunk) neighbor);

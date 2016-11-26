@@ -69,7 +69,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
     private final Set<String> registeredChannels = Sets.newHashSet();
 
     @Shadow public abstract void sendPacket(final Packet<?> packetIn);
-    @Shadow public abstract void kickPlayerFromServer(String message);
+    @Shadow public abstract void disconnect(String message);
 
     @Inject(method = "processChatMessage", at = @At(value = "INVOKE", target = "net.minecraftforge.common.ForgeHooks.onServerChatEvent"
             + "(Lnet/minecraft/network/NetHandlerPlayServer;Ljava/lang/String;Lnet/minecraft/util/text/ITextComponent;)"
@@ -89,7 +89,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
             // Chat spam suppression from MC
             this.chatSpamThresholdCount += 20;
             if (this.chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(this.playerEntity.getGameProfile())) {
-                this.kickPlayerFromServer("disconnect.spam");
+                this.disconnect("disconnect.spam");
             }
         }
 

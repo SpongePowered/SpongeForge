@@ -71,8 +71,8 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
 
         this.mc.addScheduledTask(() -> {
             // Need to null check in-case this is invoked very early in login
-            if (this.mc.theWorld != null) {
-                this.mc.theWorld.sendQuittingDisconnectingPacket();
+            if (this.mc.world != null) {
+                this.mc.world.sendQuittingDisconnectingPacket();
             }
 
             this.mc.loadWorld((WorldClient)null);

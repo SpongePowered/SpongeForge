@@ -47,6 +47,6 @@ public abstract class MixinChunkProviderClient implements IMixinChunkProviderSer
     @Nullable
     @Override
     public Chunk getLoadedChunkWithoutMarkingActive(int x, int z) {
-        return this.chunkMapping.get(ChunkPos.chunkXZ2Int(x, z));
+        return this.chunkMapping.get(ChunkPos.asLong(x, z));
     }
 }

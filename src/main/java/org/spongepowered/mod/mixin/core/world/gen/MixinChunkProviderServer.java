@@ -39,14 +39,14 @@ import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 @Mixin(value = ChunkProviderServer.class, priority = 1001)
 public abstract class MixinChunkProviderServer implements IMixinChunkProviderServer {
 
-    @Shadow @Final public WorldServer worldObj;
+    @Shadow @Final public WorldServer world;
     @Shadow @Final public Long2ObjectMap<Chunk> id2ChunkMap;
 
-    @Inject(method = "unloadQueuedChunks", at = @At("RETURN"))
-    public void onUnloadQueuedChunksReturn(CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "tick", at = @At("RETURN"))
+    public void onTickReturn(CallbackInfoReturnable<Boolean> cir) {
         // Remove forge's persistent chunk check since we cache it in the chunk
-        if (id2ChunkMap.size() == 0 && !this.worldObj.provider.getDimensionType().shouldLoadSpawn()){
-            net.minecraftforge.common.DimensionManager.unloadWorld(this.worldObj.provider.getDimension());
+        if (id2ChunkMap.size() == 0 && !this.world.provider.getDimensionType().shouldLoadSpawn()){
+            net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
         }
     }
 }

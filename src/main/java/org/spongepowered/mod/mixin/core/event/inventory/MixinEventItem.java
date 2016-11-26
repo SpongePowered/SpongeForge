@@ -79,7 +79,7 @@ public abstract class MixinEventItem extends MixinEventEntity implements AffectE
 
         @Override
         public World getTargetWorld() {
-            return (World) this.getEntityItem().worldObj;
+            return (World) this.getEntityItem().world;
         }
 
     }

@@ -57,21 +57,22 @@ public abstract class MixinItemLilyPad extends ItemColored {
      */
     @Override
     @Overwrite
-    public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand) {
-        final RayTraceResult rayTraceResult = this.rayTrace(worldIn, playerIn, true);
+    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn) {
+        ItemStack itemstack = playerIn.getHeldItem(handIn);
+        RayTraceResult rayTraceResult = this.rayTrace(worldIn, playerIn, true);
 
         if (rayTraceResult == null) {
-            return new ActionResult<>(EnumActionResult.PASS, itemStackIn);
+            return new ActionResult<>(EnumActionResult.PASS, itemstack);
         } else {
             if (rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK) {
                 BlockPos blockpos = rayTraceResult.getBlockPos();
 
                 if (!worldIn.isBlockModifiable(playerIn, blockpos)) {
-                    return new ActionResult<>(EnumActionResult.FAIL, itemStackIn);
+                    return new ActionResult<>(EnumActionResult.FAIL, itemstack);
                 }
 
-                if (!playerIn.canPlayerEdit(blockpos.offset(rayTraceResult.sideHit), rayTraceResult.sideHit, itemStackIn)) {
-                    return new ActionResult<>(EnumActionResult.FAIL, itemStackIn);
+                if (!playerIn.canPlayerEdit(blockpos.offset(rayTraceResult.sideHit), rayTraceResult.sideHit, itemstack)) {
+                    return new ActionResult<>(EnumActionResult.FAIL, itemstack);
                 }
 
                 BlockPos blockpos1 = blockpos.up();
@@ -82,14 +83,14 @@ public abstract class MixinItemLilyPad extends ItemColored {
                     worldIn.setBlockState(blockpos1, Blocks.WATERLILY.getDefaultState());
 
                     if (!playerIn.capabilities.isCreativeMode) {
-                        --itemStackIn.stackSize;
+                        itemstack.shrink(1);
                     }
 
                     playerIn.addStat(StatList.getObjectUseStats(this));
                 }
             }
 
-            return new ActionResult<>(EnumActionResult.FAIL, itemStackIn);
+            return new ActionResult<>(EnumActionResult.FAIL, itemstack);
         }
     }
 }

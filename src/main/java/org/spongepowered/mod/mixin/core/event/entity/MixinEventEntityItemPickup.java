@@ -86,7 +86,7 @@ public abstract class MixinEventEntityItemPickup extends MixinEventPlayer implem
     }
     @Override
     public World getTargetWorld() {
-        return (World) this.entityPlayer.worldObj;
+        return (World) this.entityPlayer.world;
     }
 
 }

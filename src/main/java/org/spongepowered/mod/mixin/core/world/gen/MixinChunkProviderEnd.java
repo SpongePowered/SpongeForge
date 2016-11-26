@@ -42,12 +42,12 @@ public abstract class MixinChunkProviderEnd implements IChunkGenerator {
 
     @Shadow(remap = false) private int chunkX; // Forge added
     @Shadow(remap = false) private int chunkZ; // Forge added
-    @Shadow @Final private World worldObj;
+    @Shadow @Final private World world;
 
 
     @Inject(method = "buildSurfaces(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
     public void cancelEndStone(ChunkPrimer chunk, CallbackInfo ci) {
-        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.worldObj);
+        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.world);
         MinecraftForge.EVENT_BUS.post(event);
         ci.cancel();
     }

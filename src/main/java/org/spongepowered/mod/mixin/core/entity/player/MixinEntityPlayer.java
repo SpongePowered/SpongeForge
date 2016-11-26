@@ -34,6 +34,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.event.ForgeEventFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.event.SpongeEventFactory;
@@ -64,7 +65,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     private EntityPlayer nmsPlayer = (EntityPlayer)(Object) this;
 
     @Shadow public InventoryPlayer inventory;
-    @Shadow public BlockPos playerLocation;
+    @Shadow public BlockPos bedLocation;
     @Shadow protected boolean sleeping;
     @Shadow private int sleepTimer;
     @Shadow private BlockPos spawnChunk;
@@ -101,10 +102,10 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
                     (double) ((float) bedLocation.getZ() + 0.5F));
             this.sleeping = true;
             this.sleepTimer = 0;
-            this.playerLocation = bedLocation;
+            this.bedLocation = bedLocation;
             this.nmsPlayer.motionX = this.nmsPlayer.motionZ = this.nmsPlayer.motionY = 0.0D;
-            if (!this.worldObj.isRemote) {
-                this.worldObj.updateAllPlayersSleepingFlag();
+            if (!this.world.isRemote) {
+                this.world.updateAllPlayersSleepingFlag();
             }
         }
     }
@@ -119,53 +120,53 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
      */
     @Overwrite
     public void wakeUpPlayer(boolean immediately, boolean updateWorldFlag, boolean setSpawn) {
-        IBlockState iblockstate = this.nmsPlayer.worldObj.getBlockState(this.playerLocation);
+        IBlockState iblockstate = this.nmsPlayer.world.getBlockState(this.bedLocation);
 
         Transform<World> newLocation = null;
-        if (this.playerLocation != null && iblockstate.getBlock().isBed(iblockstate, this.nmsPlayer.worldObj, this.playerLocation, this.nmsPlayer)) {
-            iblockstate.getBlock().setBedOccupied(this.nmsPlayer.worldObj, this.playerLocation, this.nmsPlayer, false);
-            BlockPos blockpos = iblockstate.getBlock().getBedSpawnPosition(iblockstate, this.nmsPlayer.worldObj, this.playerLocation, this.nmsPlayer);
+        if (this.bedLocation != null && iblockstate.getBlock().isBed(iblockstate, this.nmsPlayer.world, this.bedLocation, this.nmsPlayer)) {
+            iblockstate.getBlock().setBedOccupied(this.nmsPlayer.world, this.bedLocation, this.nmsPlayer, false);
+            BlockPos blockpos = iblockstate.getBlock().getBedSpawnPosition(iblockstate, this.nmsPlayer.world, this.bedLocation, this.nmsPlayer);
 
             if (blockpos == null) {
-                blockpos = this.nmsPlayer.playerLocation.up();
+                blockpos = this.nmsPlayer.bedLocation.up();
             }
 
             newLocation = this.getTransform().setPosition(new Vector3d(blockpos.getX() + 0.5F, blockpos.getY() + 0.1F, blockpos.getZ() + 0.5F));
         }
 
         SleepingEvent.Post post = null;
-        if (!this.nmsPlayer.worldObj.isRemote) {
+        if (!this.nmsPlayer.world.isRemote) {
             post = SpongeEventFactory.createSleepingEventPost(Cause.of(NamedCause.source(this)),
-                this.getWorld().createSnapshot(VecHelper.toVector3i(this.playerLocation)), Optional.ofNullable(newLocation), this, setSpawn);
+                this.getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), Optional.ofNullable(newLocation), this, setSpawn);
             Sponge.getEventManager().post(post);
             if (post.isCancelled()) {
                 return;
             }
 
-            net.minecraftforge.event.ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);
+            ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);
             this.setSize(0.6F, 1.8F);
             if (post.getSpawnTransform().isPresent()) {
                 this.setLocationAndAngles(post.getSpawnTransform().get());
             }
         } else {
-            net.minecraftforge.event.ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);
+            ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);
             this.setSize(0.6F, 1.8F);
         }
 
         this.sleeping = false;
 
-        if (!this.nmsPlayer.worldObj.isRemote && updateWorldFlag) {
-            this.nmsPlayer.worldObj.updateAllPlayersSleepingFlag();
+        if (!this.nmsPlayer.world.isRemote && updateWorldFlag) {
+            this.nmsPlayer.world.updateAllPlayersSleepingFlag();
         }
 
         this.sleepTimer = immediately ? 0 : 100;
 
         if (setSpawn) {
-            this.setSpawnPoint(this.playerLocation, false);
+            this.setSpawnPoint(this.bedLocation, false);
         }
         if (post != null) {
             Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(post.getCause(),
-                    this.getWorld().createSnapshot(VecHelper.toVector3i(this.playerLocation)), this));
+                    this.getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), this));
         }
     }
 

@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.fml.common.registry;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -44,8 +45,8 @@ import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 public abstract class MixinEntityRegistry {
 
     @Inject(method = "doModEntityRegistration", at = @At(value = "RETURN", ordinal = 1))
-    private void onModEntityRegistration(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange,
-            int updateFrequency, boolean sendsVelocityUpdates, CallbackInfo ci) {
+    private void onModEntityRegistration(ResourceLocation registryName, Class<? extends Entity> entityClass, String entityName,
+            int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, CallbackInfo ci) {
         registerCustomEntity(entityClass, entityName, id, FMLCommonHandler.instance().findContainerFor(mod));
     }
 

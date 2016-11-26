@@ -22,7 +22,6 @@
         "entity.ai.MixinEntityAIBase",
         "entity.item.MixinEntityItem",
         "entity.living.MixinEntityLivingBase",
-        "entity.living.MixinEntityZombie",
         "entity.player.MixinEntityPlayer",
         "entity.player.MixinEntityPlayerMP",
         "entity.vehicle.MixinEntityMinecart",

@@ -40,7 +40,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion("1.10.2")
+@IFMLLoadingPlugin.MCVersion("1.11")
 public class SpongeCoremod implements IFMLLoadingPlugin {
 
     public static final class TokenProvider implements IEnvironmentTokenProvider {

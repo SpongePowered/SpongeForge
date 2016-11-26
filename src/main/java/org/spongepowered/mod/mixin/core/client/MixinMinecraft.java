@@ -124,7 +124,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     private void onSpawn(WorldClient client, String name, CallbackInfo callbackInfo) {
         try {
             if (Sponge.isServerAvailable() && SpongeImpl.getServer().isSinglePlayer()) {
-                EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+                EntityPlayer player = Minecraft.getMinecraft().player;
                 UUID uuid = player.getUniqueID();
                 Optional<Instant> joined = SpongePlayerDataHandler.getFirstJoined(uuid);
                 if (!joined.isPresent()) {
