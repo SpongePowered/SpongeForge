@@ -199,17 +199,17 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
         @Override
         public void forceChunk(Vector3i chunk) {
-            ForgeChunkManager.forceChunk(this.forgeTicket, VecHelper.toChunkCoordIntPair(chunk));
+            ForgeChunkManager.forceChunk(this.forgeTicket, VecHelper.toChunkPos(chunk));
         }
 
         @Override
         public void unforceChunk(Vector3i chunk) {
-            ForgeChunkManager.unforceChunk(this.forgeTicket, VecHelper.toChunkCoordIntPair(chunk));
+            ForgeChunkManager.unforceChunk(this.forgeTicket, VecHelper.toChunkPos(chunk));
         }
 
         @Override
         public void prioritizeChunk(Vector3i chunk) {
-            ForgeChunkManager.reorderChunk(this.forgeTicket, VecHelper.toChunkCoordIntPair(chunk));
+            ForgeChunkManager.reorderChunk(this.forgeTicket, VecHelper.toChunkPos(chunk));
         }
 
         @Override
