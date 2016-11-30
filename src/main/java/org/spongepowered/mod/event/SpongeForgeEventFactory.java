@@ -1238,7 +1238,8 @@ public class SpongeForgeEventFactory {
         }
 
         RespawnPlayerEvent spongeEvent = (RespawnPlayerEvent) event;
-        PlayerRespawnEvent fmlEvent = new PlayerRespawnEvent((EntityPlayer) spongeEvent.getTargetEntity());
+        // TODO blood - is !isDeath correct here? you use !conqueredEnd when calling the sponge variant of this event
+        PlayerRespawnEvent fmlEvent = new PlayerRespawnEvent((EntityPlayer) spongeEvent.getTargetEntity(), !spongeEvent.isDeath());
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
 
         return spongeEvent;
