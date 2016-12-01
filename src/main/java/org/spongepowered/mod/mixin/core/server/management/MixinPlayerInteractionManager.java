@@ -251,12 +251,13 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
     // fires a break event AFTER it occurs in order to capture.
     // This causes mods to receive the BreakEvent AFTER HarvestDropsEvent which breaks mods such as
     // EnderIO's BlockPoweredSpawner.
-    // To workaround this issue, the BreakEvent will only be fired here along with a ChangeBlockEvent.Pre
+    // To workaround this issue, the BreakEvent will only be fired here along with a ChangeBlockEvent.Break
     // so plugins have a chance to alter the final result.
     @Redirect(method = "tryHarvestBlock", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onBlockBreakEvent(Lnet/minecraft/world/World;Lnet/minecraft/world/GameType;Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/util/math/BlockPos;)I", remap = false))
     public int onTryHarvestBlockBreakEvent(World worldIn, GameType gameType, EntityPlayerMP entityPlayer, BlockPos pos) {
         int exp = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(world, gameType, player, pos);
-        Location<org.spongepowered.api.world.World> location = new Location<>((org.spongepowered.api.world.World) worldIn, pos.getX(), pos.getY(), pos.getZ());
+        // TODO: This should fire a break event to plugins and will be fixed during refactor of Forge -> Sponge events
+        /*Location<org.spongepowered.api.world.World> location = new Location<>((org.spongepowered.api.world.World) worldIn, pos.getX(), pos.getY(), pos.getZ());
         ChangeBlockEvent.Pre event = SpongeEventFactory.createChangeBlockEventPre(Cause.of(NamedCause.source(entityPlayer)), ImmutableList.of(location),
                 (org.spongepowered.api.world.World) worldIn);
         if (exp == -1) {
@@ -264,7 +265,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         }
         if (SpongeImpl.postEvent(event)) {
             return -1;
-        }
+        }*/
 
         return exp;
     }
