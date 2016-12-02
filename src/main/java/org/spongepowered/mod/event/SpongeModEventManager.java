@@ -226,7 +226,7 @@ public class SpongeModEventManager extends SpongeEventManager {
 
                     // These are handled in MixinPlayerInteractionManager#onTryHarvestBlock
                     //.putAll(BlockEvent.HarvestDropsEvent.class, SpawnEntityEvent.class, DropItemEvent.class, ChangeBlockEvent.class)
-                    //.putAll(BlockEvent.BreakEvent.class, ChangeBlockEvent.Break.class, ChangeBlockEvent.Post.class)
+                    //.putAll(BlockEvent.BreakEvent.class, ChangeBlockEvent.Break.class)
                     .putAll(BlockEvent.PlaceEvent.class, ChangeBlockEvent.Place.class, ChangeBlockEvent.Modify.class, ChangeBlockEvent.Post.class)
                     .putAll(BlockEvent.MultiPlaceEvent.class, ChangeBlockEvent.Place.class)
                     .put(BlockEvent.NeighborNotifyEvent.class, NotifyNeighborBlockEvent.class)

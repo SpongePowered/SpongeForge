@@ -95,14 +95,30 @@ public abstract class MixinEventBus implements IMixinEventBus {
     }
 
     @Override
+    public org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent) {
+        org.spongepowered.api.event.Event spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent);
+        IEventListener[] listeners = forgeEvent.getListenerList().getListeners(this.busID);
+        boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners);
+        if (!cancelled) {
+            SpongeForgeEventFactory.onForgePost(forgeEvent);
+        }
+
+        return spongeEvent;
+    }
+
+    @Override
     public boolean post(Event event, boolean forced) {
-        if (!forced && !isEventAllowed(event)) {
-            return false;
+        org.spongepowered.api.event.Event spongeEvent = null;
+        if (!forced) {
+            if (!isEventAllowed(event)) {
+                return false;
+            }
+            spongeEvent = SpongeForgeEventFactory.createSpongeEvent(event);
         }
 
         IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
-        if (!forced && event instanceof org.spongepowered.api.event.Event && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
-            boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(null, event, listeners);
+        if (!forced && (event instanceof org.spongepowered.api.event.Event || spongeEvent != null) && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
+            boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, event, listeners);
             if (!cancelled) {
                 SpongeForgeEventFactory.onForgePost(event);
             }
