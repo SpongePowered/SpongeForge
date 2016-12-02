@@ -28,7 +28,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import co.aikar.timings.TimingsManager;
 import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
@@ -63,7 +62,6 @@ import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerFlyableFallEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
-import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.UseHoeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkEvent;
@@ -78,7 +76,6 @@ import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.action.LightningEvent;
-import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
@@ -93,19 +90,14 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.RideEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
-import org.spongepowered.api.event.entity.TargetEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
-import org.spongepowered.api.event.world.SaveWorldEvent;
-import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
-import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
-import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
@@ -114,7 +106,6 @@ import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 import org.spongepowered.mod.interfaces.IMixinEvent;
-import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinLoadController;
 
 import java.util.List;
@@ -130,26 +121,6 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(EventPriority.NORMAL, Order.DEFAULT)
                     .put(EventPriority.LOW, Order.LATE)
                     .put(EventPriority.LOWEST, Order.LAST)
-                    .build();
-
-    private final ImmutableMap<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> eventMappings =
-            new ImmutableMap.Builder<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>>()
-                    .put(TargetChunkEvent.class, ChunkEvent.class)
-                    .put(LoadChunkEvent.class, ChunkEvent.Load.class)
-                    .put(UnloadChunkEvent.class, ChunkEvent.Unload.class)
-                    .put(ConstructEntityEvent.Post.class, EntityEvent.EntityConstructing.class)
-                    .put(TargetEntityEvent.class, EntityEvent.class)
-                    .put(MessageChannelEvent.Chat.class, ServerChatEvent.class)
-                    .put(InteractEntityEvent.Primary.class, AttackEntityEvent.class)
-                    .put(TargetWorldEvent.class, WorldEvent.class)
-                    .put(SaveWorldEvent.Post.class, WorldEvent.Save.class)
-                    .put(UseItemStackEvent.Start.class, LivingEntityUseItemEvent.Start.class)
-                    .put(UseItemStackEvent.Tick.class, LivingEntityUseItemEvent.Tick.class)
-                    .put(UseItemStackEvent.Stop.class, LivingEntityUseItemEvent.Stop.class)
-                    .put(UseItemStackEvent.Finish.class, LivingEntityUseItemEvent.Finish.class)
-                    .put(SleepingEvent.Pre.class, PlayerSleepInBedEvent.class)
-                    .put(org.spongepowered.api.event.world.ExplosionEvent.Pre.class, ExplosionEvent.Start.class)
-                    .put(org.spongepowered.api.event.world.ExplosionEvent.Detonate.class, ExplosionEvent.Detonate.class)
                     .build();
 
 
@@ -377,21 +348,9 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
 
         if (spongeEvent.getClass().getInterfaces().length > 0) {
-            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz =
-                    this.eventMappings.get(spongeEvent.getClass().getInterfaces()[0]);
-            if (clazz == null) {
-                clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent.getClass());
-                if (clazz != null) {
-                    return post(spongeEvent, clazz);
-                }
-            } else {
-                SpongeCommonEventFactory.processingInternalForgeEvent = true;
-                net.minecraftforge.fml.common.eventhandler.Event forgeEvent = SpongeForgeEventFactory.findAndCreateForgeEvent(spongeEvent, clazz);
-                SpongeCommonEventFactory.processingInternalForgeEvent = false;
-                if (forgeEvent != null) {
-                    return post(spongeEvent, forgeEvent,
-                            forgeEvent.getListenerList().getListeners(((IMixinEventBus) SpongeForgeEventFactory.getForgeEventBus(forgeEvent.getClass())).getBusID()));
-                }
+            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent.getClass());
+            if (clazz != null) {
+                return post(spongeEvent, clazz);
             }
         }
         // no checking for modifications required
