@@ -24,8 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraftforge.common.ForgeInternalHandler;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.spongepowered.asm.mixin.Mixin;

@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.server.management;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockCommandBlock;
@@ -54,19 +53,15 @@ import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.Tristate;
-import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
@@ -149,7 +144,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                         this.player.connection.sendPacket(new SPacketBlockChange(worldIn, pos.down()));
                     }
 
-                } else if (stack != null) {
+                } else if (!stack.isEmpty()) {
                     // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-side of the block. We need to remove it
                     if (stack.getItem() instanceof ItemDoor || (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock()
                             .equals(Blocks.DOUBLE_PLANT))) {
@@ -166,7 +161,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 return EnumActionResult.FAIL;
             }
 
-            net.minecraft.item.Item item = stack == null ? null : stack.getItem();
+            net.minecraft.item.Item item = stack.isEmpty() ? null : stack.getItem();
             EnumActionResult ret = item == null
                     ? EnumActionResult.PASS
                     : item.onItemUseFirst(player, worldIn, pos, facing, hitX, hitY, hitZ, hand);
@@ -177,7 +172,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             boolean bypass = true;
             final ItemStack[] itemStacks = {player.getHeldItemMainhand(), player.getHeldItemOffhand()};
             for (ItemStack s : itemStacks) {
-                bypass = bypass && (s == null || s.getItem().doesSneakBypassUse(s, worldIn, pos, player));
+                bypass = bypass && (s.isEmpty() || s.getItem().doesSneakBypassUse(s, worldIn, pos, player));
             }
 
             EnumActionResult result = EnumActionResult.PASS;
@@ -212,7 +207,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             }
 
             // store result instead of returning
-            if (stack == null) {
+            if (stack.isEmpty()) {
                 result = EnumActionResult.PASS;
             } else if (player.getCooldownTracker().hasCooldown(stack.getItem())) {
                 result = EnumActionResult.PASS;
@@ -245,28 +240,5 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         // We fire Forge's LeftClickBlock event when InteractBlockEvent.Primary is invoked which occurs before this method.
         // Due to this, we will simply return a dummy event
         return new PlayerInteractEvent.LeftClickBlock(player, pos, side, hitVec);
-    }
-
-    // Forge treats their BreakEvent as a Pre event BEFORE the break actually occurs while Sponge 
-    // fires a break event AFTER it occurs in order to capture.
-    // This causes mods to receive the BreakEvent AFTER HarvestDropsEvent which breaks mods such as
-    // EnderIO's BlockPoweredSpawner.
-    // To workaround this issue, the BreakEvent will only be fired here along with a ChangeBlockEvent.Break
-    // so plugins have a chance to alter the final result.
-    @Redirect(method = "tryHarvestBlock", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onBlockBreakEvent(Lnet/minecraft/world/World;Lnet/minecraft/world/GameType;Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/util/math/BlockPos;)I", remap = false))
-    public int onTryHarvestBlockBreakEvent(World worldIn, GameType gameType, EntityPlayerMP entityPlayer, BlockPos pos) {
-        int exp = net.minecraftforge.common.ForgeHooks.onBlockBreakEvent(world, gameType, player, pos);
-        // TODO: This should fire a break event to plugins and will be fixed during refactor of Forge -> Sponge events
-        /*Location<org.spongepowered.api.world.World> location = new Location<>((org.spongepowered.api.world.World) worldIn, pos.getX(), pos.getY(), pos.getZ());
-        ChangeBlockEvent.Pre event = SpongeEventFactory.createChangeBlockEventPre(Cause.of(NamedCause.source(entityPlayer)), ImmutableList.of(location),
-                (org.spongepowered.api.world.World) worldIn);
-        if (exp == -1) {
-            event.setCancelled(true);
-        }
-        if (SpongeImpl.postEvent(event)) {
-            return -1;
-        }*/
-
-        return exp;
     }
 }

@@ -31,16 +31,10 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerInteractionManager;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatTypes;
@@ -52,7 +46,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.interfaces.IMixinInitCause;
+import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
 import java.util.Set;
@@ -77,10 +71,8 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
             cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     public void injectChatEvent(CPacketChatMessage packetIn, CallbackInfo ci, String s, ITextComponent component) {
         final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
-        ((IMixinInitCause) event).initCause(Cause.of(NamedCause.source(this.playerEntity)));
-
-        if (!MinecraftForge.EVENT_BUS.post(event)) {
-            MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) event;
+        MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) ((IMixinEventBus) MinecraftForge.EVENT_BUS).postForgeAndCreateSpongeEvent(event);
+        if (!spongeEvent.isCancelled()) {
             Text message = spongeEvent.getMessage();
             if (!spongeEvent.isMessageCancelled()) {
                 spongeEvent.getChannel().ifPresent(channel -> channel.send(this.playerEntity, message, ChatTypes.CHAT));

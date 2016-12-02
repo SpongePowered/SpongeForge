@@ -31,4 +31,6 @@ public interface IMixinEventBus {
     int getBusID();
 
     boolean post(Event event, boolean forced);
+
+    org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent);
 }
