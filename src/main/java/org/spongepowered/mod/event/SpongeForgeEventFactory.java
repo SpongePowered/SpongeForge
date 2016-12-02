@@ -48,39 +48,17 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.EntityMountEvent;
-import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.item.ItemEvent;
-import net.minecraftforge.event.entity.item.ItemExpireEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.living.LivingHealEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.LivingPackSizeEvent;
-import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
-import net.minecraftforge.event.entity.player.AchievementEvent;
-import net.minecraftforge.event.entity.player.AnvilRepairEvent;
-import net.minecraftforge.event.entity.player.ArrowLooseEvent;
-import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.BonemealEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.FillBucketEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerFlyableFallEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.terraingen.BiomeEvent;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
@@ -92,9 +70,7 @@ import net.minecraftforge.event.terraingen.SaplingGrowTreeEvent;
 import net.minecraftforge.event.terraingen.WorldTypeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
-import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
@@ -177,170 +153,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public class SpongeForgeEventFactory {
-
-    public static net.minecraftforge.fml.common.eventhandler.Event findAndCreateForgeEvent(Event event,
-            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
-
-        // Block events
-        if (BlockEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == BlockEvent.NeighborNotifyEvent.class) {
-
-            } else if (clazz == BlockEvent.HarvestDropsEvent.class) {
-                // return createBlockHarvestEvent(event);
-            } else if (clazz == BlockEvent.MultiPlaceEvent.class ||
-                    clazz == BlockEvent.PlaceEvent.class) {
-                return createBlockPlaceEvent(event);
-            } else {
-                return createBlockEvent(event);
-            }
-        }
-
-        // Player events
-        else if (PlayerEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == AchievementEvent.class) {
-
-            } else if (clazz == AnvilRepairEvent.class) {
-
-            } else if (clazz == ArrowLooseEvent.class) {
-
-            } else if (clazz == ArrowNockEvent.class) {
-
-            } else if (clazz == AttackEntityEvent.class) {
-                return createAttackEntityEvent(event);
-            } else if (clazz == BonemealEvent.class) {
-
-            } else if (clazz == PlayerInteractEvent.EntityInteract.class) {
-
-            } else if (clazz == PlayerInteractEvent.EntityInteractSpecific.class) {
-
-            } else if (clazz == EntityItemPickupEvent.class) {
-
-            } else if (clazz == FillBucketEvent.class) {
-
-            } else if (clazz == ItemTooltipEvent.class) {
-
-            } else if (clazz == PlayerDropsEvent.class) {
-
-            } else if (clazz == PlayerDestroyItemEvent.class) {
-
-            } else if (clazz == PlayerFlyableFallEvent.class) {
-
-            } else if (clazz == PlayerInteractEvent.class) {
-
-            } else if (clazz == PlayerPickupXpEvent.class) {
-
-            } else if (clazz == PlayerSleepInBedEvent.class) {
-                return createPlayerSleepInBedEvent(event);
-            } else if (clazz == LivingEntityUseItemEvent.Start.class) {
-                return createPlayerUseItemStartEvent(event);
-            } else if (clazz == LivingEntityUseItemEvent.Tick.class) {
-                return createPlayerUseItemTickEvent(event);
-            } else if (clazz == LivingEntityUseItemEvent.Stop.class) {
-                return createPlayerUseItemStopEvent(event);
-            } else if (clazz == LivingEntityUseItemEvent.Finish.class) {
-                return createPlayerUseItemFinishEvent(event);
-            } else {
-                return (net.minecraftforge.fml.common.eventhandler.Event) event;
-            }
-        }
-
-        // Living events
-        else if (LivingEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == LivingAttackEvent.class) {
-
-            } else if (clazz == LivingDeathEvent.class) {
-                return createLivingDeathEvent(event);
-            } else if (clazz == LivingDropsEvent.class) {
-                return createLivingDropItemEvent(event);
-            } else if (clazz == LivingExperienceDropEvent.class) {
-
-            } else if (clazz == LivingFallEvent.class) {
-
-            } else if (clazz == LivingHealEvent.class) {
-
-            } else if (clazz == LivingHurtEvent.class) {
-
-            } else if (clazz == LivingPackSizeEvent.class) {
-
-            } else if (clazz == LivingSetAttackTargetEvent.class) {
-
-            } else if (clazz == LivingSpawnEvent.class) {
-
-            } else {
-                return createLivingEvent(event);
-            }
-        }
-
-        // Item events - need to come before EntityEvent filtering because of
-        // class hierarchies.
-        else if (ItemEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == ItemExpireEvent.class) {
-
-            } else if (clazz == ItemTossEvent.class) {
-                // This is handled in SpongeImplHooks.onPlayerToss
-                return null;
-            } else {
-                return createItemEvent(event);
-            }
-        }
-
-        // Entity events
-        else if (EntityEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == EntityEvent.EntityConstructing.class) {
-                return createEntityConstructingEvent(event);
-            } else if (clazz == EntityMountEvent.class) {
-
-            } else if (clazz == EntityStruckByLightningEvent.class) {
-
-            } else {
-                return createEntityEvent(event);
-            }
-        }
-
-        // World events
-        else if (WorldEvent.class.isAssignableFrom(clazz)) {
-            if (ChunkEvent.class.isAssignableFrom(clazz)) {
-                if (clazz == ChunkEvent.Load.class) {
-                    return createChunkLoadEvent(event);
-                } else if (clazz == ChunkEvent.Unload.class) {
-                    return createChunkUnloadEvent(event);
-                } else if (clazz == ChunkDataEvent.Load.class) {
-
-                } else if (clazz == ChunkDataEvent.Save.class) {
-
-                } else if (clazz == ChunkWatchEvent.UnWatch.class) {
-
-                } else if (clazz == ChunkWatchEvent.Watch.class) {
-
-                }
-                return createChunkEvent(event);
-            } else if (clazz == WorldEvent.Load.class) {
-            } else if (clazz == WorldEvent.Unload.class) {
-            } else if (clazz == WorldEvent.Save.class) {
-            } else {
-                return createWorldEvent(event);
-            }
-        }
-
-        // Explosion events
-        else if (net.minecraftforge.event.world.ExplosionEvent.class.isAssignableFrom(clazz)) {
-            if (clazz == net.minecraftforge.event.world.ExplosionEvent.Start.class) {
-                return createExplosionStartEvent(event);
-            } else if (clazz == net.minecraftforge.event.world.ExplosionEvent.Detonate.class) {
-                return createExplosionDetonateEvent(event);
-            } else {
-                return createExplosionEvent(event);
-            }
-        }
-
-        // Server events
-        else if (clazz == ServerChatEvent.class) {
-            return createServerChatEvent(event);
-        }
-
-        // return null if not currently supported
-        return null;
-    }
 
     // Order matters
     public static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Class<? extends Event> clazz) {
