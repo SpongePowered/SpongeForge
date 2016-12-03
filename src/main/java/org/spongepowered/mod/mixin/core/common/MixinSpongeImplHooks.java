@@ -33,6 +33,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -127,6 +128,13 @@ public abstract class MixinSpongeImplHooks {
         return EntityList.getID(entityClass);
     }
 
+    // Block
+
+    @Overwrite
+    public static boolean isBlockFlammable(Block block, IBlockAccess world, BlockPos pos, EnumFacing face) {
+        return block.isFlammable(world, pos, face);
+    }
+
     // Tile entity
 
     @Overwrite
@@ -181,6 +189,11 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static boolean canDoRainSnowIce(WorldProvider provider, Chunk chunk) {
         return provider.canDoRainSnowIce(chunk);
+    }
+
+    @Overwrite
+    public static int getRespawnDimension(WorldProvider targetDimension, EntityPlayerMP player) {
+        return targetDimension.getRespawnDimension(player);
     }
 
     @Overwrite

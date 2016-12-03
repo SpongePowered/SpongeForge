@@ -46,8 +46,18 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
     @Shadow(remap = false) public Hashtable<Integer, long[]> worldTickTimes;
 
     @Override
-    public Hashtable<Integer, long[]> getWorldTickTimes() {
-        return this.worldTickTimes;
+    public long[] getWorldTickTimes(int dimensionId) {
+        return worldTickTimes.get(dimensionId);
+    }
+
+    @Override
+    public void putWorldTickTimes(int dimensionId, long[] tickTimes) {
+        worldTickTimes.put(dimensionId, tickTimes);
+    }
+
+    @Override
+    public void removeWorldTickTimes(int dimensionId) {
+        worldTickTimes.remove(dimensionId);
     }
 
     @Override
