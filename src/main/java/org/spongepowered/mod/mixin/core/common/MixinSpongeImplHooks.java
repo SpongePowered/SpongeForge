@@ -43,6 +43,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -63,29 +64,26 @@ public abstract class MixinSpongeImplHooks {
     private static Boolean deobfuscatedEnvironment;
 
     @Overwrite
-    public static boolean blockHasTileEntity(Block block, IBlockState state) {
-        return block.hasTileEntity(state);
+    public static boolean isVanilla() {
+        return false;
     }
 
     @Overwrite
-    public static int getBlockLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
-        return state.getLightOpacity(world, pos);
+    public static boolean isDeobfuscatedEnvironment() {
+        if (deobfuscatedEnvironment != null) {
+            return deobfuscatedEnvironment;
+        }
+
+        deobfuscatedEnvironment = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+        return deobfuscatedEnvironment;
     }
 
     @Overwrite
-    public static boolean shouldRefresh(TileEntity tile, net.minecraft.world.World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
-        return tile.shouldRefresh(world, pos, oldState, newState);
+    public static String getModIdFromClass(Class<?> clazz) {
+        return StaticMixinForgeHelper.getModIdFromClass(clazz);
     }
 
-    @Overwrite
-    public static TileEntity createTileEntity(Block block, net.minecraft.world.World world, IBlockState state) {
-        return block.createTileEntity(world, state);
-    }
-
-    @Overwrite
-    public static boolean checkAttackEntity(EntityPlayer entityPlayer, Entity targetEntity) {
-        return net.minecraftforge.common.ForgeHooks.onPlayerAttackTarget(entityPlayer, targetEntity);
-    }
+    // Entity
 
     @Overwrite
     public static boolean isCreatureOfType(Entity entity, EnumCreatureType type) {
@@ -98,8 +96,64 @@ public abstract class MixinSpongeImplHooks {
     }
 
     @Overwrite
-    public static String getModIdFromClass(Class<?> clazz) {
-        return StaticMixinForgeHelper.getModIdFromClass(clazz);
+    public static void firePlayerJoinSpawnEvent(EntityPlayerMP playerMP) {
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new EntityJoinWorldEvent(playerMP, playerMP.getEntityWorld()), true);
+    }
+
+    @Overwrite
+    public static void handlePostChangeDimensionEvent(EntityPlayerMP playerIn, WorldServer fromWorld, WorldServer toWorld) {
+        FMLCommonHandler.instance().firePlayerChangedDimensionEvent(playerIn, fromWorld.provider.getDimension(), toWorld.provider.getDimension());
+    }
+
+    @Overwrite
+    public static boolean checkAttackEntity(EntityPlayer entityPlayer, Entity targetEntity) {
+        return net.minecraftforge.common.ForgeHooks.onPlayerAttackTarget(entityPlayer, targetEntity);
+    }
+
+    @Overwrite
+    public static double getBlockReachDistance(EntityPlayerMP player) {
+        return player.interactionManager.getBlockReachDistance();
+    }
+
+    // Entity registry
+
+    @Overwrite
+    public static Class<? extends Entity> getEntityClass(ResourceLocation name) {
+        return EntityList.getClass(name);
+    }
+
+    @Overwrite
+    public static int getEntityId(Class<? extends Entity> entityClass) {
+        return EntityList.getID(entityClass);
+    }
+
+    // Tile entity
+
+    @Overwrite
+    public static TileEntity createTileEntity(Block block, net.minecraft.world.World world, IBlockState state) {
+        return block.createTileEntity(world, state);
+    }
+
+    @Overwrite
+    public static boolean hasBlockTileEntity(Block block, IBlockState state) {
+        return block.hasTileEntity(state);
+    }
+
+    @Overwrite
+    public static boolean shouldRefresh(TileEntity tile, net.minecraft.world.World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+        return tile.shouldRefresh(world, pos, oldState, newState);
+    }
+
+    @Overwrite
+    public static void onTileChunkUnload(TileEntity te) {
+        te.onChunkUnload();
+    }
+
+    // World
+
+    @Overwrite
+    public static Iterator<Chunk> getChunkIterator(WorldServer world) {
+        return world.getPersistentChunkIterable(world.getPlayerChunkMap().getChunkIterator());
     }
 
     @Overwrite
@@ -117,10 +171,7 @@ public abstract class MixinSpongeImplHooks {
         PortalAgentRegistryModule.getInstance().validatePortalAgent(teleporter);
     }
 
-    @Overwrite
-    public static void handlePostChangeDimensionEvent(EntityPlayerMP playerIn, WorldServer fromWorld, WorldServer toWorld) {
-        net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerChangedDimensionEvent(playerIn, fromWorld.provider.getDimension(), toWorld.provider.getDimension());
-    }
+    // World provider
 
     @Overwrite
     public static boolean canDoLightning(WorldProvider provider, Chunk chunk) {
@@ -133,25 +184,11 @@ public abstract class MixinSpongeImplHooks {
     }
 
     @Overwrite
-    public static Iterator<Chunk> getChunkIterator(WorldServer world) {
-        return world.getPersistentChunkIterable(world.getPlayerChunkMap().getChunkIterator());
+    public static BlockPos getRandomizedSpawnPoint(WorldServer world) {
+        return world.provider.getRandomizedSpawnPoint();
     }
 
-
-    @Overwrite
-    public static boolean isDeobfuscatedEnvironment() {
-        if (deobfuscatedEnvironment != null) {
-            return deobfuscatedEnvironment;
-        }
-
-        deobfuscatedEnvironment = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
-        return deobfuscatedEnvironment;
-    }
-
-    @Overwrite
-    public static void firePlayerJoinSpawnEvent(EntityPlayerMP playerMP) {
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new EntityJoinWorldEvent(playerMP, playerMP.getEntityWorld()), true);
-    }
+    // Light optimization
 
     @SuppressWarnings("deprecation")
     @Overwrite
@@ -163,23 +200,8 @@ public abstract class MixinSpongeImplHooks {
     }
 
     @Overwrite
-    public static double getBlockReachDistance(EntityPlayerMP player) {
-        return player.interactionManager.getBlockReachDistance();
-    }
-
-    @Overwrite
-    public static void onTileChunkUnload(TileEntity te) {
-        te.onChunkUnload();
-    }
-
-    @Overwrite
-    public static Class<? extends Entity> getEntityClass(ResourceLocation name) {
-        return EntityList.getClass(name);
-    }
-
-    @Overwrite
-    public static int getEntityId(Class<? extends Entity> entityClass) {
-        return EntityList.getID(entityClass);
+    public static int getBlockLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return state.getLightOpacity(world, pos);
     }
 
 }
