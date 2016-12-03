@@ -81,6 +81,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.spongepowered.common.launch.");
 
         // Let's get this party started
+        SpongeLaunch.initPaths((File) FMLInjectionData.data()[6]); // 6 = game dir
         SpongeLaunch.setupMixinEnvironment();
 
         // Detect dev/production env
