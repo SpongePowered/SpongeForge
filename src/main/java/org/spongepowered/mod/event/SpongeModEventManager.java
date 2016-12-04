@@ -26,7 +26,6 @@ package org.spongepowered.mod.event;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import co.aikar.timings.TimingsManager;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMultimap;
 import net.minecraftforge.event.CommandEvent;
@@ -101,7 +100,6 @@ import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
-import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
@@ -235,17 +233,12 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         // Fire events to plugins before modifications
-        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
-        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
         // If there are no forge listeners for event, skip sync
         if (listeners.length > 0) {
-            // sync plugin data for Mods
-            ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
-            TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
             for (IEventListener listener : listeners) {
                 try {
                     if (listener instanceof IMixinASMEventHandler) {
@@ -260,23 +253,12 @@ public class SpongeModEventManager extends SpongeEventManager {
                     SpongeImpl.getLogger().catching(throwable);
                 }
             }
-            TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
-
-            // sync Forge data for Plugins
-            ((IMixinEvent) forgeEvent).syncDataToSponge(spongeEvent);
         }
 
-        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), false, false);
         }
-        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
-
-        // sync plugin data for Forge
-        ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
-
-        ((IMixinEvent) forgeEvent).postProcess();
 
         if (spongeEvent instanceof Cancellable && spongeEvent != forgeEvent) {
             if (forgeEvent.isCancelable() && ((Cancellable) spongeEvent).isCancelled()) {
@@ -289,28 +271,19 @@ public class SpongeModEventManager extends SpongeEventManager {
     // Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
     public boolean post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
-        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
-
         SpongeForgeEventFactory.handlePrefireLogic(spongeEvent);
 
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
-        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
-        TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
-        SpongeCommonEventFactory.processingInternalForgeEvent = true;
         spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
-        SpongeCommonEventFactory.processingInternalForgeEvent = false;
-        TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
 
-        TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), false, false);
         }
-        TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
 
         return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
     }
