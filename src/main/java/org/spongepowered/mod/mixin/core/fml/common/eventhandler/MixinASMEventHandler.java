@@ -29,7 +29,6 @@ import co.aikar.timings.Timing;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.ASMEventHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
-import org.objectweb.asm.Type;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -52,7 +51,7 @@ public abstract class MixinASMEventHandler implements IMixinASMEventHandler {
 
     @Inject(method = "<init>(Ljava/lang/Object;Ljava/lang/reflect/Method;Lnet/minecraftforge/fml/common/ModContainer;Z)V", at = @At("RETURN"))
     public void onConstruction(Object target, Method method, ModContainer owner, boolean isGeneric, CallbackInfo ci) {
-        this.timingName = target.getClass().getSimpleName() + "_" + method.getName() + "(" + Type.getMethodDescriptor(method) + ")";
+        this.timingName = target.getClass().getSimpleName().replace("$", "") + "_" + method.getName();
     }
 
     @Override

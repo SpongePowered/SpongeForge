@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import co.aikar.timings.TimingsManager;
 import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
@@ -129,9 +128,6 @@ public abstract class MixinEventBus implements IMixinEventBus {
             int index = 0;
             IMixinASMEventHandler modListener = null;
             try {
-                if (SpongeImpl.isInitialized()) {
-                    TimingsManager.MOD_EVENT_HANDLER.startTimingIfSync();
-                }
                 for (; index < listeners.length; index++) {
                     final IEventListener listener = listeners[index];
                     if (listener instanceof IMixinASMEventHandler ) {
@@ -151,9 +147,6 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 }
                 this.exceptionHandler.handleException(this.eventBus, event, listeners, index, throwable);
                 Throwables.propagate(throwable);
-            }
-            if (SpongeImpl.isInitialized()) {
-                TimingsManager.MOD_EVENT_HANDLER.stopTimingIfSync();
             }
             return (event.isCancelable() ? event.isCanceled() : false);
         }
