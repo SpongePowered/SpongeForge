@@ -32,6 +32,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -43,6 +44,7 @@ import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
 import org.spongepowered.api.util.Tuple;
 import org.spongepowered.common.event.damage.DamageEventHandler;
+import org.spongepowered.mod.interfaces.IMixinBlock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -272,6 +274,14 @@ public final class StaticMixinForgeHelper {
         }
 
         return modId;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static int getChunkPosLight(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
+        if (((IMixinBlock) blockState.getBlock()).requiresLocationCheckForLightValue()) {
+            return blockState.getLightValue(worldObj, pos);
+        }
+        return blockState.getLightValue();
     }
 
 }

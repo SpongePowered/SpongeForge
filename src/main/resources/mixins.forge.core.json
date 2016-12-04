@@ -8,6 +8,7 @@
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "api.event.MixinAbstractEvent",
+        "block.MixinBlock",
         "block.MixinBlockFire",
         "block.MixinBlockLeaves",
         "block.MixinBlockLog",
@@ -66,6 +67,7 @@
         "server.management.MixinPlayerChunkMapEntry",
         "server.management.MixinPlayerInteractionManager",
         "world.MixinChunk",
+        "world.MixinWorld",
         "world.MixinWorldServer",
         "world.MixinWorldProvider",
         "world.biome.MixinBiomeDecorator",

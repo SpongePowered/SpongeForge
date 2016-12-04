@@ -50,7 +50,6 @@ import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.interfaces.block.IMixinBlock;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
@@ -135,6 +134,11 @@ public abstract class MixinSpongeImplHooks {
         return block.isFlammable(world, pos, face);
     }
 
+    @Overwrite
+    public static int getBlockLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return state.getLightOpacity(world, pos);
+    }
+
     // Tile entity
 
     @Overwrite
@@ -199,22 +203,6 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static BlockPos getRandomizedSpawnPoint(WorldServer world) {
         return world.provider.getRandomizedSpawnPoint();
-    }
-
-    // Light optimization
-
-    @SuppressWarnings("deprecation")
-    @Overwrite
-    public static int getChunkPosLight(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
-        if (((IMixinBlock) blockState.getBlock()).requiresLocationCheckForLightValue()) {
-            return blockState.getLightValue(worldObj, pos);
-        }
-        return blockState.getLightValue();
-    }
-
-    @Overwrite
-    public static int getBlockLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
-        return state.getLightOpacity(world, pos);
     }
 
 }
