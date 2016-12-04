@@ -1,3 +1,4 @@
 [submodule "SpongeCommon"]
 	path = SpongeCommon
 	url = https://github.com/SpongePowered/SpongeCommon.git
+	branch = stable-5
