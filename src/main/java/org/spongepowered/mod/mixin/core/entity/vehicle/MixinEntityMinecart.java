@@ -25,56 +25,32 @@
 package org.spongepowered.mod.mixin.core.entity.vehicle;
 
 import com.flowpowered.math.vector.Vector3d;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityMinecart;
-import net.minecraft.world.World;
 import org.spongepowered.api.entity.vehicle.minecart.Minecart;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.interfaces.IMixinMinecart;
 
 @NonnullByDefault
-@Mixin(EntityMinecart.class)
-public abstract class MixinEntityMinecart extends Entity implements IMixinMinecart {
+@Mixin(value = EntityMinecart.class, priority = 1111)
+public abstract class MixinEntityMinecart implements Minecart {
 
     private static final String MINECART_MOTION_X_FIELD = "Lnet/minecraft/entity/item/EntityMinecart;motionX:D";
     private static final String MINECART_MOTION_Y_FIELD = "Lnet/minecraft/entity/item/EntityMinecart;motionY:D";
     private static final String MINECART_MOTION_Z_FIELD = "Lnet/minecraft/entity/item/EntityMinecart;motionZ:D";
 
-    // These are provided by Common
-    protected double maxSpeed;
-    protected Vector3d airborneMod;
-
-    public MixinEntityMinecart(World worldIn) {
-        super(worldIn);
-    }
-
-    @Shadow(remap = false) public abstract double getDragAir();
     @Shadow(remap = false) public abstract double getMaxSpeed();
 
-    // this method overwrites the vanilla accessor for maximum speed
-
-    /**
-     * @author gabizou - April 22nd, 2015
-     * @reason Updates the forge added method to use our fieldvariable
-     * @return
-     */
-    @Overwrite
-    public double getMaximumSpeed() {
-        return this.maxSpeed;
-    }
+    // Added in SpongeCommon
+    private Vector3d airborneMod;
 
     @Override
-    public double getMaximumMinecartSpeed() {
-        return getMaximumSpeed();
+    public double getPotentialMaxSpeed() {
+        // Return result of Forge method
+        return getMaxSpeed();
     }
 
     @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_X_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 2))
