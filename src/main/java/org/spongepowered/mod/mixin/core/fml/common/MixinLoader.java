@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common;
 
-import com.google.common.collect.Maps;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -33,18 +32,16 @@ import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionRange;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.util.PathTokens;
 import org.spongepowered.plugin.meta.version.ComparableVersion;
 
 import java.io.File;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * MixinLoader adds support for a second, user-defined, mods search directory.
@@ -55,25 +52,6 @@ import java.util.Map.Entry;
  */
 @Mixin(value = Loader.class, remap = false)
 public abstract class MixinLoader {
-    
-    /**
-     * Token which contains the fully-qualified path to FML's "mods" folder 
-     */
-    private static final String PATHTOKEN_CANONICAL_MODS_DIR = "CANONICAL_MODS_DIR";
-    
-    /**
-     * Token which contains the fully-qualified path to the game directory (profile root) 
-     */
-    private static final String PATHTOKEN_CANONICAL_GAME_DIR = "CANONICAL_GAME_DIR";
-    
-    /**
-     * Token which contains the current minecraft version as a string 
-     */
-    private static final String PATHTOKEN_MC_VERSION = "MC_VERSION";
-    
-    // Shadowed for tokens
-    @Shadow private static File minecraftDir;
-    @Shadow private File canonicalModsDir;
 
     private ModContainer mod;
     
@@ -98,27 +76,7 @@ public abstract class MixinLoader {
     
     @Unique
     private File getPluginsDir() {
-        String pluginsDirName = SpongeImpl.getGlobalConfig().getConfig().getGeneral().pluginsDir();
-        Map<String, String> tokens = this.getPathTokens();
-        for (Entry<String, String> token : tokens.entrySet()) {
-            pluginsDirName = pluginsDirName.replace(token.getKey(), token.getValue());
-        }
-            
-        return new File(pluginsDirName);
-    }
-
-    @Unique
-    private Map<String, String> getPathTokens() {
-        Map<String, String> tokens = Maps.newHashMap();
-        tokens.put(MixinLoader.formatToken(MixinLoader.PATHTOKEN_CANONICAL_MODS_DIR), this.canonicalModsDir.getAbsolutePath());
-        tokens.put(MixinLoader.formatToken(MixinLoader.PATHTOKEN_CANONICAL_GAME_DIR), MixinLoader.minecraftDir.getAbsolutePath());
-        tokens.put(MixinLoader.formatToken(MixinLoader.PATHTOKEN_MC_VERSION), Loader.MC_VERSION);
-        return tokens;
-    }
-    
-    @Unique
-    private static String formatToken(String name) {
-        return String.format("${%s}", name);
+        return new File(PathTokens.replace(SpongeImpl.getGlobalConfig().getConfig().getGeneral().pluginsDir()));
     }
 
     @Redirect(method = "sortModList", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/ModContainer;getDependencies"
