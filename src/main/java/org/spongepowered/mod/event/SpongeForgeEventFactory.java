@@ -93,6 +93,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
@@ -238,7 +239,7 @@ public class SpongeForgeEventFactory {
             return createChangeBlockEventPlace((BlockEvent.MultiPlaceEvent) forgeEvent);
         }
         if (forgeEvent instanceof BlockEvent.BreakEvent) {
-            return createChangeBlockEventBreak((BlockEvent.BreakEvent) forgeEvent);
+            return createChangeBlockEventPre((BlockEvent.BreakEvent) forgeEvent);
         }
         if (forgeEvent instanceof ServerChatEvent) {
             return createMessageChannelEventChat((ServerChatEvent) forgeEvent);
@@ -247,6 +248,43 @@ public class SpongeForgeEventFactory {
             return createSleepingEventPre((PlayerSleepInBedEvent) forgeEvent);
         }
         return null;
+    }
+
+    public static ChangeBlockEvent.Pre createChangeBlockEventPre(BlockEvent.BreakEvent forgeEvent) {
+        final net.minecraft.world.World world = forgeEvent.getWorld();
+        final BlockPos pos = forgeEvent.getPos();
+        final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+        final PhaseData data = causeTracker.getCurrentPhaseData();
+
+        Cause.Builder builder = null;
+        User owner = data.context.getOwner().orElse(null);
+        User notifier = data.context.getNotifier().orElse(null);
+        EntityPlayer player = forgeEvent.getPlayer();
+        if (SpongeImplHooks.isFakePlayer(player)) {
+            if (owner != null) {
+                builder = Cause.source(owner);
+                builder.named(NamedCause.FAKE_PLAYER, player);
+            } else if (notifier != null) {
+                builder = Cause.source(notifier);
+                builder.named(NamedCause.FAKE_PLAYER, player);
+            } else {
+                builder = Cause.builder().named(NamedCause.FAKE_PLAYER, player);
+            }
+        }
+        if (builder == null) {
+            builder = Cause.source(player);
+        }
+
+        if (owner != null) {
+            builder.owner(owner);
+        }
+        if (notifier != null) {
+            builder.notifier(notifier);
+        }
+        builder.named(NamedCause.PLAYER_BREAK, world);
+
+        ChangeBlockEvent.Pre spongeEvent = SpongeEventFactory.createChangeBlockEventPre(builder.build(), ImmutableList.of(new Location<>((World) world, pos.getX(), pos.getY(), pos.getZ())), (World) world);
+        return spongeEvent;
     }
 
     public static ChangeBlockEvent.Break createChangeBlockEventBreak(BlockEvent.BreakEvent forgeEvent) {
@@ -266,12 +304,12 @@ public class SpongeForgeEventFactory {
         if (SpongeImplHooks.isFakePlayer(player)) {
             if (owner != null) {
                 builder = Cause.source(owner);
-                builder.named("FakePlayer", player);
+                builder.named(NamedCause.FAKE_PLAYER, player);
             } else if (notifier != null) {
                 builder = Cause.source(notifier);
-                builder.named("FakePlayer", player);
+                builder.named(NamedCause.FAKE_PLAYER, player);
             } else {
-                builder = Cause.builder().named("FakePlayer", player);
+                builder = Cause.builder().named(NamedCause.FAKE_PLAYER, player);
             }
         }
         if (builder == null) {
@@ -284,6 +322,7 @@ public class SpongeForgeEventFactory {
         if (notifier != null) {
             builder.notifier(notifier);
         }
+        builder.named(NamedCause.PLAYER_BREAK, world);
         ChangeBlockEvent.Break spongeEvent = SpongeEventFactory.createChangeBlockEventBreak(builder.build(), (World) world, blockSnapshots);
         return spongeEvent;
     }
@@ -305,12 +344,12 @@ public class SpongeForgeEventFactory {
         if (SpongeImplHooks.isFakePlayer(player)) {
             if (owner != null) {
                 builder = Cause.source(owner);
-                builder.named("FakePlayer", player);
+                builder.named(NamedCause.FAKE_PLAYER, player);
             } else if (notifier != null) {
                 builder = Cause.source(notifier);
-                builder.named("FakePlayer", player);
+                builder.named(NamedCause.FAKE_PLAYER, player);
             } else {
-                builder = Cause.builder().named("FakePlayer", player);
+                builder = Cause.builder().named(NamedCause.FAKE_PLAYER, player);
             }
         }
         if (builder == null) {
@@ -323,6 +362,7 @@ public class SpongeForgeEventFactory {
         if (notifier != null) {
             builder.notifier(notifier);
         }
+        builder.named(NamedCause.PLAYER_PLACE, world);
         ChangeBlockEvent.Place spongeEvent = SpongeEventFactory.createChangeBlockEventPlace(builder.build(), (World) world, blockSnapshots);
         return spongeEvent;
     }
