@@ -81,7 +81,7 @@ public class SpongeGuiceModule extends AbstractModule {
         bind(ChannelRegistrar.class).to(SpongeModNetworkManager.class).in(Scopes.SINGLETON);
 
         ConfigDirAnnotation sharedRoot = new ConfigDirAnnotation(true);
-        bind(Path.class).annotatedWith(sharedRoot).toInstance(SpongeImpl.getConfigDir());
-        bind(File.class).annotatedWith(sharedRoot).toInstance(SpongeImpl.getConfigDir().toFile());
+        bind(Path.class).annotatedWith(sharedRoot).toInstance(SpongeImpl.getPluginConfigDir());
+        bind(File.class).annotatedWith(sharedRoot).toInstance(SpongeImpl.getPluginConfigDir().toFile());
     }
 }
