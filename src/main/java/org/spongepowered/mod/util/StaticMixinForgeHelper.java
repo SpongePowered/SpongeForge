@@ -88,9 +88,6 @@ public final class StaticMixinForgeHelper {
         final NonNullList<ItemStack> inventory = entity instanceof EntityPlayer ? ((EntityPlayer) entity).inventory.armorInventory : entity.armorArray;
         if (property.isPresent()) {
             ItemStack stack = inventory.get(property.get().Slot);
-            if (stack == null) {
-                return;
-            }
 
             damage = Math.abs(damage) * 25;
             int itemDamage = (int) (damage / 25D < 1 ? 1 : damage / 25D);
@@ -99,8 +96,8 @@ public final class StaticMixinForgeHelper {
             } else {
                 stack.damageItem(itemDamage, entity);
             }
-            if (stack.getCount() <= 0) {
-                inventory.remove(property.get().Slot); // Totally unsure whether this is right....
+            if (stack.isEmpty()) {
+                inventory.set(property.get().Slot, ItemStack.EMPTY); // Totally unsure whether this is right....
             }
         }
     }
