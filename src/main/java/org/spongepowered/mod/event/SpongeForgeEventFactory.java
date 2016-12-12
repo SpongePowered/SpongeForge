@@ -667,21 +667,21 @@ public class SpongeForgeEventFactory {
     public static ChunkEvent createChunkEvent(Event event) {
         TargetChunkEvent spongeEvent = (TargetChunkEvent) event;
         ChunkEvent forgeEvent =
-                new ChunkEvent(((Chunk) spongeEvent.getTargetChunk()));
+                new ChunkEvent(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
         return forgeEvent;
     }
 
     public static ChunkEvent.Load createChunkLoadEvent(Event event) {
         LoadChunkEvent spongeEvent = (LoadChunkEvent) event;
         ChunkEvent.Load forgeEvent =
-                new ChunkEvent.Load(((Chunk) spongeEvent.getTargetChunk()));
+                new ChunkEvent.Load(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
         return forgeEvent;
     }
 
     public static ChunkEvent.Unload createChunkUnloadEvent(Event event) {
         UnloadChunkEvent spongeEvent = (UnloadChunkEvent) event;
         ChunkEvent.Unload forgeEvent =
-                new ChunkEvent.Unload(((Chunk) spongeEvent.getTargetChunk()));
+                new ChunkEvent.Unload(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
         return forgeEvent;
     }
 
