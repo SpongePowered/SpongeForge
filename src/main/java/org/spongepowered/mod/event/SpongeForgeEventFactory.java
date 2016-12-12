@@ -43,7 +43,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.Explosion;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -125,6 +124,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.Tristate;
+import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
@@ -246,6 +246,12 @@ public class SpongeForgeEventFactory {
         }
         if (forgeEvent instanceof PlayerSleepInBedEvent) {
             return createSleepingEventPre((PlayerSleepInBedEvent) forgeEvent);
+        }
+        if (forgeEvent instanceof ChunkEvent.Load) {
+            return createLoadChunkEvent((ChunkEvent.Load) forgeEvent);
+        }
+        if (forgeEvent instanceof ChunkEvent.Unload) {
+            return createUnloadChunkEvent((ChunkEvent.Unload) forgeEvent);
         }
         return null;
     }
@@ -408,6 +414,14 @@ public class SpongeForgeEventFactory {
         BlockSnapshot bedSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         SleepingEvent.Pre spongeEvent = SpongeEventFactory.createSleepingEventPre(Cause.source(forgeEvent.getEntity()).build(), bedSnapshot, (org.spongepowered.api.entity.Entity) forgeEvent.getEntity());
         return spongeEvent;
+    }
+
+    public static LoadChunkEvent createLoadChunkEvent(ChunkEvent.Load forgeEvent) {
+        return SpongeEventFactory.createLoadChunkEvent(Cause.of(NamedCause.source(forgeEvent.getWorld())), (Chunk) forgeEvent.getChunk());
+    }
+
+    public static UnloadChunkEvent createUnloadChunkEvent(ChunkEvent.Unload forgeEvent) {
+        return SpongeEventFactory.createUnloadChunkEvent(Cause.of(NamedCause.source(forgeEvent.getWorld())), (Chunk) forgeEvent.getChunk());
     }
     // ====================================  FORGE TO SPONGE END ==================================== \\
 
@@ -653,21 +667,21 @@ public class SpongeForgeEventFactory {
     public static ChunkEvent createChunkEvent(Event event) {
         TargetChunkEvent spongeEvent = (TargetChunkEvent) event;
         ChunkEvent forgeEvent =
-                new ChunkEvent(((Chunk) spongeEvent.getTargetChunk()));
+                new ChunkEvent(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
         return forgeEvent;
     }
 
     public static ChunkEvent.Load createChunkLoadEvent(Event event) {
         LoadChunkEvent spongeEvent = (LoadChunkEvent) event;
         ChunkEvent.Load forgeEvent =
-                new ChunkEvent.Load(((Chunk) spongeEvent.getTargetChunk()));
+                new ChunkEvent.Load(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
         return forgeEvent;
     }
 
     public static ChunkEvent.Unload createChunkUnloadEvent(Event event) {
         UnloadChunkEvent spongeEvent = (UnloadChunkEvent) event;
         ChunkEvent.Unload forgeEvent =
-                new ChunkEvent.Unload(((Chunk) spongeEvent.getTargetChunk()));
+                new ChunkEvent.Unload(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
         return forgeEvent;
     }
 
