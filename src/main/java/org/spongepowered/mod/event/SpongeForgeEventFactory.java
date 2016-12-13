@@ -302,7 +302,7 @@ public class SpongeForgeEventFactory {
         BlockSnapshot finalSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
         ImmutableList<Transaction<BlockSnapshot>> blockSnapshots = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
                 new Transaction<>(originalSnapshot, finalSnapshot)).build();
-        
+
         Cause.Builder builder = null;
         User owner = data.context.getOwner().orElse(null);
         User notifier = data.context.getNotifier().orElse(null);
@@ -410,6 +410,10 @@ public class SpongeForgeEventFactory {
 
     public static SleepingEvent.Pre createSleepingEventPre(PlayerSleepInBedEvent forgeEvent) {
         final net.minecraft.world.World world = forgeEvent.getEntity().getEntityWorld();
+        if (world.isRemote) {
+            return null;
+        }
+
         final BlockPos pos = forgeEvent.getPos();
         BlockSnapshot bedSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         SleepingEvent.Pre spongeEvent = SpongeEventFactory.createSleepingEventPre(Cause.source(forgeEvent.getEntity()).build(), bedSnapshot, (org.spongepowered.api.entity.Entity) forgeEvent.getEntity());
