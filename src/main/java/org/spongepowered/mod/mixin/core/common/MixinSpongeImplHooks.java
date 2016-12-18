@@ -35,9 +35,11 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.Teleporter;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -190,4 +192,8 @@ public abstract class MixinSpongeImplHooks {
         return state.getLightOpacity(world, pos);
     }
 
+    @Overwrite
+    public static MapStorage getWorldMapStorage(World world) {
+        return world.getPerWorldStorage();
+    }
 }
