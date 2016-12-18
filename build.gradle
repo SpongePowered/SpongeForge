@@ -38,10 +38,6 @@ minecraft {
 
 sponge.plugin.meta {
     dependencies {
-        minecraft {
-            optional = true // TODO: Remove when https://github.com/MinecraftForge/MinecraftForge/pull/3414 is merged
-        }
-
         forge {
             version = project.minecraft.forgeVersion
         }

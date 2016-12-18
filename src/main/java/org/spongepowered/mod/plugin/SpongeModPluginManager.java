@@ -26,13 +26,12 @@ package org.spongepowered.mod.plugin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.common.SpongeImpl;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,34 +40,25 @@ import java.util.Optional;
 @NonnullByDefault
 public class SpongeModPluginManager implements PluginManager {
 
-    private static final PluginContainer MINECRAFT_CONTAINER = (PluginContainer) Loader.instance().getMinecraftModContainer();
-
     @Override
     public Optional<PluginContainer> getPlugin(String id) {
         checkNotNull(id, "id");
-        if (id.equals(SpongeImpl.GAME_ID)) {
-            return Optional.of(MINECRAFT_CONTAINER);
-        } else {
-            ModContainer container = Loader.instance().getIndexedModList().get(id);
-            if (container == null) {
-                for (ModContainer mod : Loader.instance().getModList()) {
-                    if (mod.getModId().equalsIgnoreCase(id)) {
-                        container = mod;
-                        break;
-                    }
+        ModContainer container = Loader.instance().getIndexedModList().get(id);
+        if (container == null) {
+            for (ModContainer mod : Loader.instance().getModList()) {
+                if (mod.getModId().equalsIgnoreCase(id)) {
+                    container = mod;
+                    break;
                 }
             }
-            return Optional.ofNullable((PluginContainer) container);
         }
+        return Optional.ofNullable((PluginContainer) container);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Collection<PluginContainer> getPlugins() {
-        return ImmutableSet.<PluginContainer>builder()
-                .add((PluginContainer) Loader.instance().getMinecraftModContainer())
-                .addAll((List) Loader.instance().getActiveModList())
-                .build();
+        return ImmutableList.copyOf((List) Loader.instance().getActiveModList());
     }
 
     @Override
@@ -83,7 +73,7 @@ public class SpongeModPluginManager implements PluginManager {
     @Override
     public boolean isLoaded(String id) {
         checkNotNull(id, "id");
-        return id.equals(SpongeImpl.GAME_ID) || Loader.isModLoaded(id);
+        return Loader.isModLoaded(id);
     }
 
 }
