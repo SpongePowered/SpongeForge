@@ -164,7 +164,7 @@ public final class StaticMixinForgeHelper {
     }
 
     private static ISpecialArmor.ArmorProperties getProperties(EntityLivingBase base, ItemStack armorStack, DamageSource damageSource, double damage, int index) {
-        if (armorStack == null) {
+        if (armorStack.isEmpty()) {
             return null;
         }
         ISpecialArmor.ArmorProperties prop = null;

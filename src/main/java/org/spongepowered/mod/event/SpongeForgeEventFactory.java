@@ -952,7 +952,7 @@ public class SpongeForgeEventFactory {
             if (entity.getClass().equals(EntityItem.class)) {
                 ItemStack stack = ((EntityItem) entity).getEntityItem();
 
-                if (stack == null) {
+                if (stack.isEmpty()) {
                     //entity.setDead();
                     //event.setCanceled(true);
                     continue; // Sponge - continue instead of return
