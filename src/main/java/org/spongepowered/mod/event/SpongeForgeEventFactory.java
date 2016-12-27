@@ -208,7 +208,7 @@ public class SpongeForgeEventFactory {
         if (UnloadWorldEvent.class.isAssignableFrom(clazz)) {
             return WorldEvent.Unload.class;
         }
-        if (SaveWorldEvent.class.isAssignableFrom(clazz)) {
+        if (SaveWorldEvent.Post.class.isAssignableFrom(clazz)) {
             return WorldEvent.Save.class;
         }
         return null;
@@ -258,6 +258,10 @@ public class SpongeForgeEventFactory {
 
     public static ChangeBlockEvent.Pre createChangeBlockEventPre(BlockEvent.BreakEvent forgeEvent) {
         final net.minecraft.world.World world = forgeEvent.getWorld();
+        if (world.isRemote) {
+            return null;
+        }
+
         final BlockPos pos = forgeEvent.getPos();
         final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
         final PhaseData data = causeTracker.getCurrentPhaseData();
@@ -296,13 +300,17 @@ public class SpongeForgeEventFactory {
     public static ChangeBlockEvent.Break createChangeBlockEventBreak(BlockEvent.BreakEvent forgeEvent) {
         final BlockPos pos = forgeEvent.getPos();
         final net.minecraft.world.World world = forgeEvent.getWorld();
+        if (world.isRemote) {
+            return null;
+        }
+
         final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
         final PhaseData data = causeTracker.getCurrentPhaseData();
         BlockSnapshot originalSnapshot = ((World) forgeEvent.getWorld()).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         BlockSnapshot finalSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
         ImmutableList<Transaction<BlockSnapshot>> blockSnapshots = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
                 new Transaction<>(originalSnapshot, finalSnapshot)).build();
-        
+
         Cause.Builder builder = null;
         User owner = data.context.getOwner().orElse(null);
         User notifier = data.context.getNotifier().orElse(null);
@@ -336,6 +344,10 @@ public class SpongeForgeEventFactory {
     public static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.PlaceEvent forgeEvent) {
         final BlockPos pos = forgeEvent.getPos();
         final net.minecraft.world.World world = forgeEvent.getWorld();
+        if (world.isRemote) {
+            return null;
+        }
+
         final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
         final PhaseData data = causeTracker.getCurrentPhaseData();
         BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) forgeEvent.getBlockSnapshot()).createSpongeBlockSnapshot();
@@ -375,6 +387,10 @@ public class SpongeForgeEventFactory {
 
     public static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.MultiPlaceEvent forgeEvent) {
         final net.minecraft.world.World world = forgeEvent.getWorld();
+        if (world.isRemote) {
+            return null;
+        }
+
         ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<Transaction<BlockSnapshot>>();
         for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : forgeEvent.getReplacedBlockSnapshots()) {
             final BlockPos snapshotPos = blockSnapshot.getPos();
@@ -410,6 +426,10 @@ public class SpongeForgeEventFactory {
 
     public static SleepingEvent.Pre createSleepingEventPre(PlayerSleepInBedEvent forgeEvent) {
         final net.minecraft.world.World world = forgeEvent.getEntity().getEntityWorld();
+        if (world.isRemote) {
+            return null;
+        }
+
         final BlockPos pos = forgeEvent.getPos();
         BlockSnapshot bedSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         SleepingEvent.Pre spongeEvent = SpongeEventFactory.createSleepingEventPre(Cause.source(forgeEvent.getEntity()).build(), bedSnapshot, (org.spongepowered.api.entity.Entity) forgeEvent.getEntity());
