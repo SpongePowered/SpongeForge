@@ -208,7 +208,7 @@ public class SpongeForgeEventFactory {
         if (UnloadWorldEvent.class.isAssignableFrom(clazz)) {
             return WorldEvent.Unload.class;
         }
-        if (SaveWorldEvent.class.isAssignableFrom(clazz)) {
+        if (SaveWorldEvent.Post.class.isAssignableFrom(clazz)) {
             return WorldEvent.Save.class;
         }
         return null;
@@ -258,6 +258,10 @@ public class SpongeForgeEventFactory {
 
     public static ChangeBlockEvent.Pre createChangeBlockEventPre(BlockEvent.BreakEvent forgeEvent) {
         final net.minecraft.world.World world = forgeEvent.getWorld();
+        if (world.isRemote) {
+            return null;
+        }
+
         final BlockPos pos = forgeEvent.getPos();
         final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
         final PhaseData data = causeTracker.getCurrentPhaseData();
@@ -296,6 +300,10 @@ public class SpongeForgeEventFactory {
     public static ChangeBlockEvent.Break createChangeBlockEventBreak(BlockEvent.BreakEvent forgeEvent) {
         final BlockPos pos = forgeEvent.getPos();
         final net.minecraft.world.World world = forgeEvent.getWorld();
+        if (world.isRemote) {
+            return null;
+        }
+
         final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
         final PhaseData data = causeTracker.getCurrentPhaseData();
         BlockSnapshot originalSnapshot = ((World) forgeEvent.getWorld()).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
@@ -336,6 +344,10 @@ public class SpongeForgeEventFactory {
     public static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.PlaceEvent forgeEvent) {
         final BlockPos pos = forgeEvent.getPos();
         final net.minecraft.world.World world = forgeEvent.getWorld();
+        if (world.isRemote) {
+            return null;
+        }
+
         final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
         final PhaseData data = causeTracker.getCurrentPhaseData();
         BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) forgeEvent.getBlockSnapshot()).createSpongeBlockSnapshot();
@@ -375,6 +387,10 @@ public class SpongeForgeEventFactory {
 
     public static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.MultiPlaceEvent forgeEvent) {
         final net.minecraft.world.World world = forgeEvent.getWorld();
+        if (world.isRemote) {
+            return null;
+        }
+
         ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<Transaction<BlockSnapshot>>();
         for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : forgeEvent.getReplacedBlockSnapshots()) {
             final BlockPos snapshotPos = blockSnapshot.getPos();
