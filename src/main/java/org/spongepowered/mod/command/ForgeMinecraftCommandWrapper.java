@@ -31,6 +31,7 @@ import net.minecraftforge.event.CommandEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.command.InvocationCommandException;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 
 /**
@@ -52,5 +53,11 @@ public class ForgeMinecraftCommandWrapper extends MinecraftCommandWrapper {
             return false;
         }
         return super.throwEvent(sender, args);
+    }
+
+    @Override
+    public boolean suppressDuplicateAlias(String alias) {
+        SpongeImpl.getLogger().warn("The mod {} has registered multiple commands for the alias '{}'. This is probably indicative of a bug.", this.getOwner().getId(), alias);
+        return true;
     }
 }
