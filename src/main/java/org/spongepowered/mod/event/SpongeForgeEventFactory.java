@@ -125,6 +125,7 @@ import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Chunk;
+import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
@@ -445,6 +446,7 @@ public class SpongeForgeEventFactory {
     }
     // ====================================  FORGE TO SPONGE END ==================================== \\
 
+    // ====================================  SPONGE TO FORGE START ==================================== \\
     // Used for firing Forge events after a Sponge event has been triggered
     public static Event callForgeEvent(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
         if (EntityItemPickupEvent.class.isAssignableFrom(clazz)) {
@@ -481,7 +483,6 @@ public class SpongeForgeEventFactory {
         return spongeEvent;
     }
 
-    // ====================================  SPONGE TO FORGE START ==================================== \\
     private static LivingDropsEvent createLivingDropItemEvent(Event event) {
         DropItemEvent.Destruct spongeEvent = (DropItemEvent.Destruct) event;
         Optional<EntityLivingBase> spawnCause = spongeEvent.getCause().first(EntityLivingBase.class);
@@ -1019,23 +1020,19 @@ public class SpongeForgeEventFactory {
 
     public static NotifyNeighborBlockEvent callNeighborNotifyEvent(Event event) {
         NotifyNeighborBlockEvent spongeEvent = (NotifyNeighborBlockEvent) event;
-        Optional<BlockSnapshot> blockSnapshot = spongeEvent.getCause().first(BlockSnapshot.class);
-        Optional<TileEntity> tileEntitySource = spongeEvent.getCause().first(TileEntity.class);
+        LocatableBlock locatableBlock = spongeEvent.getCause().first(LocatableBlock.class).orElse(null);
+        TileEntity tileEntitySource = spongeEvent.getCause().first(TileEntity.class).orElse(null);
         Location<World> sourceLocation = null;
         IBlockState state = null;
-        if (blockSnapshot.isPresent()) {
-            Location<World> location = blockSnapshot.get().getLocation().orElse(null);
-            if (location == null) {
-                return null;
-            }
-
+        if (locatableBlock != null) {
+            Location<World> location = locatableBlock.getLocation();
             sourceLocation = location;
-            state = (IBlockState) blockSnapshot.get().getState();
-        } else if (tileEntitySource.isPresent()) {
-            sourceLocation = tileEntitySource.get().getLocation();
+            state = (IBlockState) locatableBlock.getBlockState();
+        } else if (tileEntitySource != null) {
+            sourceLocation = tileEntitySource.getLocation();
             state = (IBlockState) sourceLocation.getBlock();
-        } else {
-            return null;
+        } else { // should never happen but just in case it does
+            return spongeEvent;
         }
 
         EnumSet<EnumFacing> facings = EnumSet.noneOf(EnumFacing.class);
@@ -1043,6 +1040,10 @@ public class SpongeForgeEventFactory {
             if (mapEntry.getKey() != Direction.NONE) {
                 facings.add(DirectionFacingProvider.getInstance().get(mapEntry.getKey()).get());
             }
+        }
+
+        if (facings.isEmpty()) {
+            return spongeEvent;
         }
 
         BlockPos pos = ((IMixinLocation) (Object) sourceLocation).getBlockPos();
@@ -1075,13 +1076,15 @@ public class SpongeForgeEventFactory {
                 IBlockState state = (IBlockState) spongeEvent.getTransactions().get(0).getOriginal().getState();
                 net.minecraftforge.common.util.BlockSnapshot blockSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
                 IBlockState placedAgainst = Blocks.AIR.getDefaultState();
+                EnumHand hand = EnumHand.MAIN_HAND;
                 if (contextPacket instanceof CPacketPlayerTryUseItemOnBlock) {
                     CPacketPlayerTryUseItemOnBlock packet = (CPacketPlayerTryUseItemOnBlock) contextPacket;
                     EnumFacing facing = packet.getDirection();
                     placedAgainst = blockSnapshot.getWorld().getBlockState(blockSnapshot.getPos().offset(facing.getOpposite()));
+                    hand = packet.getHand();
                 }
 
-                BlockEvent.PlaceEvent forgeEvent = new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player);
+                BlockEvent.PlaceEvent forgeEvent = new BlockEvent.PlaceEvent(blockSnapshot, placedAgainst, player, hand);
                 ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
                     spongeEvent.setCancelled(true);
@@ -1100,13 +1103,15 @@ public class SpongeForgeEventFactory {
                 }
 
                 IBlockState placedAgainst = Blocks.AIR.getDefaultState();
+                EnumHand hand = EnumHand.MAIN_HAND;
                 if (contextPacket instanceof CPacketPlayerTryUseItemOnBlock) {
                     CPacketPlayerTryUseItemOnBlock packet = (CPacketPlayerTryUseItemOnBlock) contextPacket;
                     EnumFacing facing = packet.getDirection();
                     placedAgainst = blockSnapshots.get(0).getWorld().getBlockState(blockSnapshots.get(0).getPos().offset(facing.getOpposite()));
+                    hand = packet.getHand();
                 }
 
-                BlockEvent.MultiPlaceEvent forgeEvent = new BlockEvent.MultiPlaceEvent(blockSnapshots, placedAgainst, player);
+                BlockEvent.MultiPlaceEvent forgeEvent = new BlockEvent.MultiPlaceEvent(blockSnapshots, placedAgainst, player, hand);
                 ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
                 if (forgeEvent.isCanceled()) {
                     spongeEvent.setCancelled(true);
