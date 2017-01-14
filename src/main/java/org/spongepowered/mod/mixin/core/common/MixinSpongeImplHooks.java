@@ -43,20 +43,24 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapStorage;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -210,5 +214,18 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static MapStorage getWorldMapStorage(World world) {
         return world.getPerWorldStorage();
+    }
+
+    // Crafting
+
+    @Overwrite
+    public static Optional<ItemStack> getContainerItem(ItemStack itemStack) {
+        net.minecraft.item.ItemStack nmsStack = ItemStackUtil.toNative(itemStack);
+        net.minecraft.item.ItemStack nmsContainerStack = ForgeHooks.getContainerItem(nmsStack);
+
+        if(nmsContainerStack.isEmpty())
+            return Optional.empty();
+        else
+            return Optional.of(ItemStackUtil.fromNative(nmsContainerStack));
     }
 }
