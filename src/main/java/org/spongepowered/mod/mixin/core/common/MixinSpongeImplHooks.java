@@ -34,6 +34,7 @@ import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -49,23 +50,29 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.common.ForgeModContainer;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
 import org.apache.logging.log4j.Level;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.interfaces.IMixinBlock;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -285,5 +292,24 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void blockExploded(Block block, World world, BlockPos blockpos, Explosion explosion) {
         block.onBlockExploded(world, blockpos, explosion);
+    }
+
+    // Crafting
+
+    @Overwrite
+    public static Optional<ItemStack> getContainerItem(ItemStack itemStack) {
+        net.minecraft.item.ItemStack nmsStack = ItemStackUtil.toNative(itemStack);
+        net.minecraft.item.ItemStack nmsContainerStack = ForgeHooks.getContainerItem(nmsStack);
+
+        if(nmsContainerStack.isEmpty())
+            return Optional.empty();
+        else
+            return Optional.of(ItemStackUtil.fromNative(nmsContainerStack));
+    }
+
+    @Overwrite
+    public static void onCraftingRecipeRegister(CraftingRecipe recipe) {
+        ((IRecipe) recipe).setRegistryName(new ResourceLocation(recipe.getId()));
+        GameRegistry.register((IRecipe) recipe);
     }
 }
