@@ -48,9 +48,18 @@ public abstract class MixinPlayerList implements IMixinPlayerList {
 
     /**
      * @author Simon816
+     * @author dualspiral
      *
-     * Remove call to firePlayerLoggedOut because SpongeCommon's
-     * MixinNetHandlerPlayServer.onDisconnectPlayer fires the event already.
+     * Remove call to firePlayerLoggedOut under ordinary circumstances because
+     * SpongeCommon's MixinNetHandlerPlayServer.onDisconnectHandler fires the
+     * event already.
+     *
+     * There is a special case where this event is reinstated - if Sponge's
+     * ClientConnectionEvent#Login event is cancelled - which we can detect
+     * because the EntityPlayerMP's NetHandlerPlayServer has not been
+     * reinstated at this stage. In that scenario, we fire Forge's event as a
+     * matter of compatibility with mods that might have started their setup
+     * with players.
      *
      * NOTE: ANY call to playerLoggedOut will need to fire the
      * PlayerLoggedOutEvent manually!
@@ -59,7 +68,9 @@ public abstract class MixinPlayerList implements IMixinPlayerList {
             target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;firePlayerLoggedOut(Lnet/minecraft/entity/player/EntityPlayer;)V",
             remap = false))
     public void onFirePlayerLoggedOutCall(FMLCommonHandler thisCtx, EntityPlayer playerIn) {
-        // net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerLoggedOut(playerIn);
+        if (playerIn instanceof EntityPlayerMP && ((EntityPlayerMP) playerIn).connection == null) {
+            net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerLoggedOut(playerIn);
+        }
     }
 
 }
