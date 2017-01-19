@@ -60,11 +60,13 @@ public final class SpongeModPlatform extends SpongePlatform {
 
         // Most common
         if (threadName.equals("Server thread")
+                || threadName.startsWith("Netty Epoll Server IO #")
                 || threadName.startsWith("Netty Server IO #")
                 || threadName.startsWith("User Authenticator #")) {
             return Type.SERVER;
         } else if (threadName.equals("Client thread")
                 || threadName.startsWith("Netty Client IO #")
+                || threadName.startsWith("Netty Epoll Client IO #")
                 || threadName.startsWith("Netty Local Client IO ")
                 || threadName.startsWith("Netty Local Server IO #")) {
             return Type.CLIENT;
@@ -86,6 +88,8 @@ public final class SpongeModPlatform extends SpongePlatform {
                 || threadName.equals("Sound Library Loader")) {
             return Type.CLIENT;
         } else {
+            // "Downloader "
+            // "File IO Thread"
             return Type.UNKNOWN;
         }
     }
