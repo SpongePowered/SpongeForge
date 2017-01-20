@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.mixin.plugin.entityactivation.ActivationRange;
+import org.spongepowered.common.mixin.plugin.entityactivation.EntityActivationRange;
 import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.IModData_Activation;
 
 @NonnullByDefault
@@ -55,7 +55,7 @@ public abstract class MixinWorld_Activation implements IMixinWorld {
         //boolean isForced = getPersistentChunks().containsKey(new net.minecraft.util.math.ChunkPos(i >> 4, j >> 4));
         //int k = isForced ? 0 : 32;
         //boolean canUpdate = !forceUpdate || this.isAreaLoaded(i - k, 0, j - k, i + k, 0, j + k, true);
-        boolean canUpdate = ActivationRange.checkIfActive(entityIn);
+        boolean canUpdate = EntityActivationRange.checkIfActive(entityIn);
         // Allow forge mods to force an update
         if (!canUpdate) canUpdate = net.minecraftforge.event.ForgeEventFactory.canEntityUpdate(entityIn);
 
