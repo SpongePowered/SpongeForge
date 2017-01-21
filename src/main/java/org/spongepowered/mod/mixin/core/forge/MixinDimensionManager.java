@@ -42,7 +42,6 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.world.WorldManager;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
@@ -64,7 +63,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static int[] getDimensions(DimensionType type) {
-        return (int[]) (Object) WorldManager.getRegisteredDimensionIdsFor(type);
+        return WorldManager.getRegisteredDimensionIdsFor(type);
     }
 
     @Overwrite
