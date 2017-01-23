@@ -807,29 +807,30 @@ public class SpongeForgeEventFactory {
                 spongeEvent.setCancelled(true);
             }
         } else if (spongeEvent instanceof InteractBlockEvent.Secondary) {
-            PlayerInteractEvent.RightClickBlock forgeEvent = null;
-            if (spongeEvent instanceof InteractBlockEvent.Secondary.MainHand) {
-                final ItemStack heldItem = entityPlayerMP.getHeldItem(EnumHand.MAIN_HAND);
-                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.MAIN_HAND, heldItem, pos, face.orElse(null), hitVec);
-                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-                if (forgeEvent.isCanceled()) {
-                    spongeEvent.setCancelled(true);
-                }
-            } else if (spongeEvent instanceof InteractBlockEvent.Secondary.OffHand) {
-                final ItemStack heldItem = entityPlayerMP.getHeldItem(EnumHand.OFF_HAND);
-                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.OFF_HAND, heldItem, pos, face.orElse(null), hitVec);
-                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-                if (forgeEvent.isCanceled()) {
-                    spongeEvent.setCancelled(true);
-                }
+            PlayerInteractEvent forgeEvent = null;
+            EnumHand hand = spongeEvent instanceof InteractBlockEvent.Secondary.MainHand ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
+            final ItemStack heldItem = entityPlayerMP.getHeldItem(hand);
+
+            if (face.isPresent()) {
+                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, hand, heldItem, pos, face.get(), hitVec);
+
+            } else {
+                forgeEvent = new PlayerInteractEvent.RightClickItem(entityPlayerMP, hand, heldItem);
             }
+
+            ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+            if (forgeEvent.isCanceled()) {
+                spongeEvent.setCancelled(true);
+            }
+
             // Mods have higher priority
-            if (forgeEvent != null) {
-                if (forgeEvent.getUseItem() != Result.DEFAULT) {
-                    ((InteractBlockEvent.Secondary) spongeEvent).setUseItemResult(getTristateFromResult(forgeEvent.getUseItem()));
+            if (forgeEvent instanceof PlayerInteractEvent.RightClickBlock) {
+                PlayerInteractEvent.RightClickBlock clickEvent = (PlayerInteractEvent.RightClickBlock) forgeEvent;
+                if (clickEvent.getUseItem() != Result.DEFAULT) {
+                    ((InteractBlockEvent.Secondary) spongeEvent).setUseItemResult(getTristateFromResult(clickEvent.getUseItem()));
                 }
-                if (forgeEvent.getUseBlock() != Result.DEFAULT) {
-                    ((InteractBlockEvent.Secondary) spongeEvent).setUseBlockResult(getTristateFromResult(forgeEvent.getUseBlock()));
+                if (clickEvent.getUseBlock() != Result.DEFAULT) {
+                    ((InteractBlockEvent.Secondary) spongeEvent).setUseBlockResult(getTristateFromResult(clickEvent.getUseBlock()));
                 }
             }
         }
