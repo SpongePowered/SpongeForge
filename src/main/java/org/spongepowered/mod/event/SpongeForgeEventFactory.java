@@ -937,6 +937,8 @@ public class SpongeForgeEventFactory {
     public static SpawnEntityEvent callEntityJoinWorldEvent(Event event) {
         SpawnEntityEvent spongeEvent = (SpawnEntityEvent) event;
         ListIterator<org.spongepowered.api.entity.Entity> iterator = spongeEvent.getEntities().listIterator();
+        // used to avoid player item restores when set to dead
+        boolean canCancelEvent = true;
 
         while (iterator.hasNext()) {
             org.spongepowered.api.entity.Entity entity = iterator.next();
@@ -947,12 +949,17 @@ public class SpongeForgeEventFactory {
             StaticMixinForgeHelper.preventInternalForgeEntityListener = true;
             ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
             StaticMixinForgeHelper.preventInternalForgeEntityListener = prev;
-
+            net.minecraft.entity.Entity mcEntity = (net.minecraft.entity.Entity) entity;
+            if (mcEntity.isDead) {
+                // Don't restore packet item if a mod wants it dead
+                // Mods such as Flux-Networks kills the entity item to spawn a custom one
+                canCancelEvent = false;
+            }
             if (forgeEvent.isCanceled()) {
                 iterator.remove();
             }
         }
-        if (spongeEvent.getEntities().size() == 0) {
+        if (spongeEvent.getEntities().size() == 0 && canCancelEvent) {
             spongeEvent.setCancelled(true);
         }
         return spongeEvent;
