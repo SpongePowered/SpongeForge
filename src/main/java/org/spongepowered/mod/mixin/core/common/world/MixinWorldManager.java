@@ -38,6 +38,7 @@ import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
 import net.minecraftforge.fml.common.network.FMLOutboundHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import org.spongepowered.api.GameState;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -54,7 +55,7 @@ import java.util.Optional;
 public abstract class MixinWorldManager {
 
     @Shadow @Final private static Int2ObjectMap<Path> dimensionPathByDimensionId;
- 
+
     /**
      * @author Zidane - May 11th, 2016
      * @reason Rewrites our save directory finding to use FML for client and server.
@@ -72,7 +73,7 @@ public abstract class MixinWorldManager {
         if (Sponge.getPlatform().getType().isClient()) {
             return Optional.ofNullable(FMLCommonHandler.instance().getSavesDirectory().toPath());
         }
-        if (SpongeImpl.getServer() != null) {
+        if (SpongeImpl.getGame().getState().ordinal() >= GameState.SERVER_ABOUT_TO_START.ordinal()) {
             SaveHandler saveHandler = (SaveHandler) SpongeImpl.getServer().getActiveAnvilConverter().getSaveLoader(SpongeImpl.getServer().getFolderName(), false);
             return Optional.of(saveHandler.getWorldDirectory().toPath());
         }
