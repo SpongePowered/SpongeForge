@@ -32,4 +32,7 @@ public interface IMixinVillagerCareer {
 
     int getId();
 
+    boolean isDelayed();
+
+    void performDelayedInit();
 }

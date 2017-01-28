@@ -24,10 +24,16 @@
  */
 package org.spongepowered.mod.interfaces;
 
+import net.minecraftforge.fml.common.registry.VillagerRegistry;
+
+import java.util.List;
+
 public interface IMixinVillagerProfession {
 
     String getId();
 
     String getProfessionName();
+
+    List<VillagerRegistry.VillagerCareer> getCareers();
 
 }

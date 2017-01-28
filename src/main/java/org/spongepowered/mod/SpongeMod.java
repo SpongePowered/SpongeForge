@@ -48,6 +48,7 @@ import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -149,6 +150,10 @@ public class SpongeMod extends MetaModContainer {
             final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
             final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(obj, spongeProfession);
             ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
+
+            for (VillagerRegistry.VillagerCareer career: mixinProfession.getCareers()) {
+                SpongeForgeVillagerRegistry.registerForgeCareer(career);
+            }
         }));
         SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, ((obj, id, location) -> {
             SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) obj);
