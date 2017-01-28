@@ -27,10 +27,16 @@ package org.spongepowered.mod.mixin.core.fml.common.registry;
 import com.google.common.collect.Lists;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import org.spongepowered.api.data.type.Career;
+import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.api.item.merchant.TradeOfferListMutator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeCareer;
 import org.spongepowered.common.registry.SpongeVillagerRegistry;
 import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
@@ -47,6 +53,13 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
     @Shadow private List<List<EntityVillager.ITradeList>> trades;
     @Shadow private String name;
 
+    private boolean delayed;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onInit(CallbackInfo ci) {
+        this.delayed = !SpongeForgeVillagerRegistry.fromNative((VillagerRegistry.VillagerCareer) (Object) this).isPresent();
+    }
+
     @Override
     public VillagerRegistry.VillagerProfession getProfession() {
         return this.profession;
@@ -55,6 +68,16 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
     @Override
     public int getId() {
         return this.id;
+    }
+
+    @Override
+    public boolean isDelayed() {
+        return this.delayed;
+    }
+
+    @Override
+    public void performDelayedInit() {
+        this.registerTrades();
     }
 
     /**
@@ -74,7 +97,7 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
         // Sponge start
         final Optional<SpongeCareer> spongeCareer = SpongeForgeVillagerRegistry.fromNative((VillagerRegistry.VillagerCareer) (Object) this);
         if (!spongeCareer.isPresent()) {
-            System.err.printf("Sponge has no registration for this career: %s!%n", this.name);
+            SpongeImpl.getLogger().debug("Delaying trade registration for career {}", this.name);
         } else {
             for (EntityVillager.ITradeList trade : trades) {
                 SpongeVillagerRegistry.getInstance().addMutator(spongeCareer.get(), level, (TradeOfferListMutator) trade);
@@ -98,5 +121,16 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
             levelTrades.add(t);
         }
         return (VillagerRegistry.VillagerCareer) (Object) this;
+    }
+
+    private void registerTrades() {
+        Career career = SpongeForgeVillagerRegistry.fromNative((VillagerRegistry.VillagerCareer) (Object) this).get();
+        for (int i = 0; i < this.trades.size(); i++) {
+            int level = i + 1;
+            List<EntityVillager.ITradeList> trades = this.trades.get(i);
+            for (EntityVillager.ITradeList trade: trades) {
+                SpongeVillagerRegistry.getInstance().addMutator(career, level, (TradeOfferListMutator) trade);
+            }
+        }
     }
 }

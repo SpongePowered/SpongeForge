@@ -29,6 +29,7 @@ import com.google.common.collect.HashBiMap;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.spongepowered.api.data.type.Career;
 import org.spongepowered.api.data.type.Profession;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeCareer;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.registry.type.entity.CareerRegistryModule;
@@ -70,6 +71,9 @@ public class SpongeForgeVillagerRegistry {
             careerMap.put(villagerCareer, spongeCareer);
         } else {
             careerMap.put(villagerCareer, career);
+            if (((IMixinVillagerCareer) villagerCareer).isDelayed()) {
+                ((IMixinVillagerCareer) villagerCareer).performDelayedInit();
+            }
         }
         return  spongeCareer == null ? (SpongeCareer) career : (SpongeCareer) spongeCareer;
     }
@@ -101,7 +105,7 @@ public class SpongeForgeVillagerRegistry {
             CareerRegistryModule.getInstance().registerCareer(registeredCareer);
         });
         if (!spongeProfession.isPresent()) {
-            System.err.printf("VillagerProfession has not been registered: %s%n", villagerProfession);
+            SpongeImpl.getLogger().debug("Delaying registration of career {} until its profession {} is registered with Forge.", career.getName(), villagerProfession.getRegistryName());
         }
     }
 }
