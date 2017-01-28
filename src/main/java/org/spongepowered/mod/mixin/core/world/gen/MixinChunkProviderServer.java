@@ -52,6 +52,7 @@ public abstract class MixinChunkProviderServer implements IMixinChunkProviderSer
         }
     }
 
+    // Not an overwrite since the method isn't obfuscated
     /**
      * @author Aaron1011 - January 28, 2017
      * @reason In SpongeVanilla, it's safe to run this method instead of loadChunk,
@@ -62,7 +63,6 @@ public abstract class MixinChunkProviderServer implements IMixinChunkProviderSer
      * handles a concurrent asychronous load of the same chunk).
      *
      */
-    @Overwrite
     private Chunk loadChunkForce(int x, int z) {
         return this.loadChunk(x, z);
     }
