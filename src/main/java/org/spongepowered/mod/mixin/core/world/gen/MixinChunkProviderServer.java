@@ -30,6 +30,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,6 +42,7 @@ public abstract class MixinChunkProviderServer implements IMixinChunkProviderSer
 
     @Shadow @Final public WorldServer worldObj;
     @Shadow @Final public Long2ObjectMap<Chunk> id2ChunkMap;
+    @Shadow public abstract Chunk loadChunk(int x, int z);
 
     @Inject(method = "unloadQueuedChunks", at = @At("RETURN"))
     public void onUnloadQueuedChunksReturn(CallbackInfoReturnable<Boolean> cir) {
@@ -48,5 +50,20 @@ public abstract class MixinChunkProviderServer implements IMixinChunkProviderSer
         if (id2ChunkMap.size() == 0 && !this.worldObj.provider.getDimensionType().shouldLoadSpawn()){
             net.minecraftforge.common.DimensionManager.unloadWorld(this.worldObj.provider.getDimension());
         }
+    }
+
+    /**
+     * @author Aaron1011 - January 28, 2017
+     * @reason In SpongeVanilla, it's safe to run this method instead of loadChunk,
+     * since the only modification made is the removal of a check we've already done.
+     *
+     * However, loadChunk is completely different in Forge. therefore, we need to delegate to
+     * the original method to ensure that async loadig gets handled properly (Forge's code properly
+     * handles a concurrent asychronous load of the same chunk).
+     *
+     */
+    @Overwrite
+    private Chunk loadChunkForce(int x, int z) {
+        return this.loadChunk(x, z);
     }
 }
