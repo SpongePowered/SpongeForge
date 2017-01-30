@@ -108,7 +108,7 @@ public abstract class MixinLoader {
                     if (majorInstalled != null
                             && (!majorExpected.equals(majorInstalled) || installedVersion.compareTo(range.getRecommendedVersion()) < 0)) {
                         SpongeImpl.getLogger().warn("The mod {} was designed for {} {} but version {} is in use. It may not work properly.",
-                                this.mod.getModId(), expected.getLabel(), versionString, rangeString);
+                                this.mod.getModId(), expected.getLabel(), rangeString, versionString);
                     }
                 }
             }
