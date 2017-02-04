@@ -35,9 +35,11 @@ import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.asset.AssetManager;
+import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.TeleportHelper;
@@ -54,8 +56,8 @@ public final class SpongeModGame extends SpongeGame {
     @Inject
     public SpongeModGame(Platform platform, PluginManager pluginManager, EventManager eventManager,
             AssetManager assetManager, ServiceManager serviceManager, TeleportHelper teleportHelper, ChannelRegistrar channelRegistrar,
-            Logger logger, SpongeGameRegistry gameRegistry) {
-        super(platform, pluginManager, eventManager, assetManager, serviceManager, teleportHelper, channelRegistrar, logger, gameRegistry);
+            SpongeGameRegistry gameRegistry, Scheduler scheduler, CommandManager commandManager) {
+        super(platform, pluginManager, eventManager, assetManager, serviceManager, teleportHelper, channelRegistrar, gameRegistry, scheduler, commandManager);
     }
 
     @Override

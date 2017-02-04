@@ -32,6 +32,7 @@ import static io.netty.buffer.Unpooled.wrappedBuffer;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.inject.Singleton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -60,6 +61,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+@Singleton
 public class SpongeModNetworkManager extends SpongeNetworkManager {
 
     private final Map<String, SpongeModChannelBinding> channelMap = Maps.newHashMap();

@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.inject.Singleton;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -70,6 +71,7 @@ import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
@@ -110,6 +112,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+@Singleton
 public class SpongeModEventManager extends SpongeEventManager {
 
     @SuppressWarnings("unused") private final ImmutableBiMap<EventPriority, Order> priorityMappings =
@@ -220,8 +223,8 @@ public class SpongeModEventManager extends SpongeEventManager {
 
 
     @Inject
-    public SpongeModEventManager(PluginManager pluginManager) {
-        super(pluginManager);
+    public SpongeModEventManager(Logger logger, PluginManager pluginManager) {
+        super(logger, pluginManager);
     }
 
     // Uses Forge mixins
@@ -251,7 +254,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                         listener.invoke(forgeEvent);
                     }
                 } catch (Throwable throwable) {
-                    SpongeImpl.getLogger().catching(throwable);
+                    this.logger.error("Encountered an exception while processing a Forge event listener", throwable);
                 }
             }
         }
@@ -296,7 +299,7 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     @SuppressWarnings("unchecked")
-    protected static boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced) {
+    protected boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced) {
         ModContainer oldContainer = ((IMixinLoadController) SpongeMod.instance.getController()).getActiveModContainer();
         for (@SuppressWarnings("rawtypes")
         RegisteredListener listener : listeners) {
@@ -309,7 +312,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     listener.getTimingsHandler().stopTimingIfSync();
                 }
             } catch (Throwable e) {
-                SpongeImpl.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
+                this.logger.error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
             }
         }
         ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(oldContainer);

@@ -32,6 +32,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ILanguageAdapter;
@@ -51,7 +52,7 @@ import net.minecraftforge.fml.common.versioning.VersionRange;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.guice.SpongePluginGuiceModule;
+import org.spongepowered.common.inject.plugin.PluginModule;
 import org.spongepowered.common.plugin.PluginContainerExtension;
 
 import java.io.File;
@@ -68,6 +69,8 @@ import java.util.Set;
 // PluginContainer is implemented indirectly through the mixin to ModContainer
 public class SpongeModPluginContainer implements ModContainer, PluginContainerExtension {
 
+    // This is the implementation (SpongeForge) injector.
+    @Inject private static Injector spongeInjector;
     private final String id;
 
     private final String className;
@@ -276,7 +279,7 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
 
             Class<?> pluginClazz = Class.forName(this.className, true, modClassLoader);
 
-            Injector injector = SpongeImpl.getInjector().createChildInjector(new SpongePluginGuiceModule((PluginContainer) this, pluginClazz));
+            Injector injector = spongeInjector.getParent().createChildInjector(new PluginModule((PluginContainer) this, pluginClazz));
             this.injector = injector;
             this.instance = injector.getInstance(pluginClazz);
 

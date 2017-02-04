@@ -25,10 +25,12 @@
 package org.spongepowered.mod;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Stage;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
@@ -51,7 +53,6 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.effect.potion.PotionEffectType;
@@ -73,9 +74,10 @@ import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
+import org.spongepowered.common.inject.SpongeGuice;
+import org.spongepowered.common.inject.SpongeModule;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
-import org.spongepowered.common.registry.RegistryHelper;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
 import org.spongepowered.common.registry.type.effect.PotionEffectTypeRegistryModule;
@@ -91,7 +93,7 @@ import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.event.SpongeModEventManager;
-import org.spongepowered.mod.guice.SpongeModGuiceModule;
+import org.spongepowered.mod.inject.SpongeForgeModule;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
 import org.spongepowered.mod.plugin.MetaModContainer;
@@ -106,6 +108,7 @@ import java.io.IOException;
 
 public class SpongeMod extends MetaModContainer {
 
+    @Inject private static SpongeScheduler scheduler;
     public static SpongeMod instance;
     private final SpongeGame game;
     private LoadController controller;
@@ -123,10 +126,11 @@ public class SpongeMod extends MetaModContainer {
         this.modFile = SpongeJava6Bridge.modFile;
 
         // Initialize Sponge
-        Guice.createInjector(new SpongeModGuiceModule()).getInstance(SpongeImpl.class);
+        final Stage stage = SpongeGuice.getInjectorStage((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment") ? Stage.DEVELOPMENT : Stage.PRODUCTION);
+        this.getLogger().info("Creating injector in stage '{}'", stage);
+        Guice.createInjector(stage, new SpongeModule(), new SpongeForgeModule());
 
         this.game = SpongeImpl.getGame();
-        RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
 
         this.game.getRegistry().preRegistryInit();
         SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (obj, id, location) -> {
@@ -240,7 +244,7 @@ public class SpongeMod extends MetaModContainer {
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            SpongeScheduler.getInstance().tickSyncScheduler();
+            scheduler.tickSyncScheduler();
         }
     }
 
