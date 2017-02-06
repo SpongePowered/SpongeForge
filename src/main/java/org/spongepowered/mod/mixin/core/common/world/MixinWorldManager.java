@@ -26,7 +26,9 @@ package org.spongepowered.mod.mixin.core.common.world;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.BiMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
@@ -40,6 +42,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.GameState;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -49,12 +52,23 @@ import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 import org.spongepowered.common.world.WorldManager;
 
 import java.nio.file.Path;
+import java.util.BitSet;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Mixin(value = WorldManager.class, priority = 999, remap = false)
 public abstract class MixinWorldManager {
 
+    @Shadow @Final private static Int2ObjectMap<DimensionType> dimensionTypeByTypeId;
+    @Shadow @Final private static Int2ObjectMap<DimensionType> dimensionTypeByDimensionId;
     @Shadow @Final private static Int2ObjectMap<Path> dimensionPathByDimensionId;
+    @Shadow @Final private static Int2ObjectOpenHashMap<WorldServer> worldByDimensionId;
+    @Shadow @Final private static Map<String, WorldProperties> worldPropertiesByFolderName;
+    @Shadow @Final private static Map<UUID, WorldProperties> worldPropertiesByWorldUuid;
+    @Shadow @Final private static Map<Integer, String> worldFolderByDimensionId;
+    @Shadow @Final private static BiMap<String, UUID> worldUuidByFolderName;
+    @Shadow @Final private static BitSet dimensionBits;
 
     /**
      * @author Zidane - May 11th, 2016
@@ -98,25 +112,27 @@ public abstract class MixinWorldManager {
      * @return The path if available
      */
     @Overwrite
-    public static Optional<Path> getWorldFolder(DimensionType dimensionType, int dimensionId) {
-        if (dimensionType == null) {
-            return Optional.empty();
-        }
-
+    public static Path getWorldFolder(DimensionType dimensionType, int dimensionId) {
         Path path = dimensionPathByDimensionId.get(dimensionId);
-        if (path == null) {
-            try {
-                WorldProvider provider = dimensionType.createDimension();
-                provider.setDimension(dimensionId);
-                String worldFolder = provider.getSaveFolder();
-                path = SpongeImpl.getGame().getSavesDirectory().resolve(SpongeImpl.getServer().getFolderName()).resolve(worldFolder);
-                WorldManager.registerDimensionPath(dimensionId, path);
-            } catch (Throwable t) {
-                return Optional.empty();
-            }
+        if (path != null) {
+            return path;
         }
 
-        return Optional.ofNullable(path);
+        if (dimensionType == null) {
+            return null;
+        }
+
+        try {
+            WorldProvider provider = dimensionType.createDimension();
+            provider.setDimension(dimensionId);
+            String worldFolder = provider.getSaveFolder();
+            path = SpongeImpl.getGame().getSavesDirectory().resolve(SpongeImpl.getServer().getFolderName()).resolve(worldFolder);
+            WorldManager.registerDimensionPath(dimensionId, path);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return path;
     }
 
     /**
@@ -129,5 +145,53 @@ public abstract class MixinWorldManager {
     public static boolean registerDimensionType(DimensionType type) {
         checkNotNull(type);
         return WorldManager.registerDimensionType(type.getId(), type);
+    }
+
+    /**
+     * @author blood - February 5th, 2017
+     * @reason Registers dimension id with passed ID and type to not break mods.
+     *
+     * @return true if successful
+     */
+    @Overwrite
+    public static boolean registerDimension(int dimensionId, DimensionType type) {
+        checkNotNull(type);
+
+        if (dimensionTypeByDimensionId.containsKey(dimensionId)) {
+            return false;
+        }
+        dimensionTypeByDimensionId.put(dimensionId, type);
+        dimensionTypeByTypeId.put(dimensionId, type);
+        if (dimensionId >= 0) {
+            dimensionBits.set(dimensionId);
+        }
+        return true;
+    }
+
+    @Overwrite
+    public static void unregisterDimension(int dimensionId) {
+        if (!dimensionTypeByDimensionId.containsKey(dimensionId))
+        {
+            throw new IllegalArgumentException("Failed to unregister dimension [" + dimensionId + "] as it is not registered!");
+        }
+        dimensionTypeByDimensionId.remove(dimensionId);
+        dimensionTypeByTypeId.remove(dimensionId);
+        dimensionPathByDimensionId.remove(dimensionId);
+        if (dimensionId >= 0) {
+            dimensionBits.clear(dimensionId);
+        }
+        String worldFolder = worldFolderByDimensionId.get(dimensionId);
+        UUID worldUniqueId = null;
+        if (worldFolder != null) {
+            worldPropertiesByFolderName.remove(worldFolder);
+            worldUniqueId = worldUuidByFolderName.get(worldFolder);
+            if (worldUniqueId != null) {
+                worldPropertiesByWorldUuid.remove(worldUniqueId);
+            }
+            worldUuidByFolderName.remove(worldFolder);
+            worldPropertiesByFolderName.remove(worldFolder);
+        }
+        worldByDimensionId.remove(dimensionId);
+        worldFolderByDimensionId.remove(dimensionId);
     }
 }

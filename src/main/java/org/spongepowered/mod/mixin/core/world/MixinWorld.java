@@ -29,16 +29,31 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldProvider;
 import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.storage.MapStorage;
+import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.common.DimensionManager;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 // Use lower priority so it is applied before the changes in SpongeCommon
 @Mixin(value = World.class, priority = 999)
-public abstract class MixinWorld {
+public abstract class MixinWorld implements IMixinWorld {
+
+
+    private boolean callingWorldEvent = false;
+    @Shadow @Final public WorldProvider provider;
+    @Shadow @Final public boolean isRemote;
+    @Shadow protected MapStorage mapStorage;
 
     @Shadow public abstract IChunkProvider getChunkProvider();
     @Shadow public abstract boolean canSeeSky(BlockPos pos);
@@ -96,4 +111,24 @@ public abstract class MixinWorld {
         }
     }
 
+    @Inject(method = "getWorldInfo", at = @At("HEAD"), cancellable = true)
+    public void onGetWorldInfo(CallbackInfoReturnable<WorldInfo> cir) {
+        if (this.provider.getDimension() != 0 && this.callingWorldEvent) {
+            cir.setReturnValue(DimensionManager.getWorld(0).getWorldInfo());
+        }
+    }
+
+    @Inject(method = "getMapStorage", at = @At("HEAD"), cancellable = true)
+    public void onGetMapStorage(CallbackInfoReturnable<MapStorage> cir)
+    {
+        // Forge only uses a single save handler so we need to always pass overworld's mapstorage here
+        if (!this.isRemote && (this.mapStorage == null || this.provider.getDimension() != 0)) {
+            cir.setReturnValue(DimensionManager.getWorld(0).getMapStorage());
+        }
+    }
+
+    @Override
+    public void setCallingWorldEvent(boolean flag) {
+        this.callingWorldEvent = flag;
+    }
 }

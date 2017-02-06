@@ -33,6 +33,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLLog;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.WorldArchetype;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,6 +42,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.interfaces.world.IMixinWorldSettings;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
@@ -73,7 +75,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static void registerDimension(int id, DimensionType type) {
-        WorldManager.registerDimension(id, type, false);
+        WorldManager.registerDimension(id, type);
     }
 
     @Overwrite
@@ -189,13 +191,20 @@ public abstract class MixinDimensionManager {
         String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(provider.getSaveFolder());
         WorldProperties properties = WorldManager.getWorldProperties(worldFolder).orElse(null);
         if (properties == null) {
-            final WorldArchetype.Builder builder = WorldArchetype.builder()
-                    .dimension((org.spongepowered.api.world.DimensionType)(Object) dimensionType)
-                    .keepsSpawnLoaded(dimensionType.shouldLoadSpawn());
             String modId = StaticMixinForgeHelper.getModIdFromClass(provider.getClass());
-            final WorldArchetype archetype = builder.build(modId + ":" + dimensionType.getName().toLowerCase(), dimensionType.getName());
-            properties = WorldManager.createWorldProperties(worldFolder, archetype);
+            WorldArchetype archetype = Sponge.getRegistry().getType(WorldArchetype.class, modId + ":" + dimensionType.getName().toLowerCase()).orElse(null);
+            if (archetype == null) {
+                final WorldArchetype.Builder builder = WorldArchetype.builder()
+                        .dimension((org.spongepowered.api.world.DimensionType)(Object) dimensionType)
+                        .keepsSpawnLoaded(dimensionType.shouldLoadSpawn());
+                archetype = builder.build(modId + ":" + dimensionType.getName().toLowerCase(), dimensionType.getName());
+            }
+            IMixinWorldSettings worldSettings = (IMixinWorldSettings) archetype;
+            worldSettings.setDimensionType((org.spongepowered.api.world.DimensionType)(Object) dimensionType);
+            worldSettings.setLoadOnStartup(false);
+            properties = WorldManager.createWorldProperties(worldFolder, archetype, dim);
             ((IMixinWorldInfo) properties).setDimensionId(dim);
+            ((IMixinWorldInfo) properties).setIsMod(true);
         }
         if (!properties.isEnabled()) {
             SpongeImpl.getLogger().warn("World [{}] (DIM{}) is disabled. World will not be loaded...", worldFolder,
