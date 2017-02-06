@@ -85,7 +85,8 @@
         "server.MixinIntegratedServerAnonInner3"
     ],
     "server": [
-        "network.packet.MixinC00Handshake"
+        "network.packet.MixinC00Handshake",
+        "world.MixinWorld"
     ],
     "injectors": {
         "defaultRequire": 1

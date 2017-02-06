@@ -138,6 +138,7 @@ import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
@@ -1194,15 +1195,21 @@ public class SpongeForgeEventFactory {
 
     private static SaveWorldEvent callWorldSaveEvent(Event event) {
         SaveWorldEvent spongeEvent = (SaveWorldEvent) event;
+        // Since Forge only uses a single save handler, we need to make sure to pass the overworld's handler.
+        // This makes sure that mods dont attempt to save/read their data from the wrong location.
+        ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(true);
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new WorldEvent.Save((net.minecraft.world.World) spongeEvent.getTargetWorld()), true);
-
+        ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(false);
         return spongeEvent;
     }
 
     private static LoadWorldEvent callWorldLoadEvent(Event event) {
         LoadWorldEvent spongeEvent = (LoadWorldEvent) event;
+        // Since Forge only uses a single save handler, we need to make sure to pass the overworld's handler.
+        // This makes sure that mods dont attempt to save/read their data from the wrong location.
+        ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(true);
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new WorldEvent.Load((net.minecraft.world.World) spongeEvent.getTargetWorld()), true);
-
+        ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(false);
         return spongeEvent;
     }
 

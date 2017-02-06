@@ -25,15 +25,17 @@
 package org.spongepowered.mod.mixin.core.world.gen;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 
@@ -43,11 +45,18 @@ public abstract class MixinChunkProviderServer implements IMixinChunkProviderSer
     @Shadow @Final public WorldServer worldObj;
     @Shadow @Final public Long2ObjectMap<Chunk> id2ChunkMap;
     @Shadow public abstract Chunk loadChunk(int x, int z);
+    @Shadow public abstract void saveChunkExtraData(Chunk chunkIn);
 
-    @Inject(method = "unloadQueuedChunks", at = @At("RETURN"))
+    @Redirect(method = "unloadQueuedChunks", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;saveChunkExtraData(Lnet/minecraft/world/chunk/Chunk;)V"))
+    public void onSaveExtraChunkData(ChunkProviderServer chunkProviderServer, Chunk chunkIn) {
+        this.saveChunkExtraData(chunkIn);
+        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.chunkXZ2Int(chunkIn.xPosition, chunkIn.zPosition), chunkIn);
+    }
+
+    @Inject(method = "unloadQueuedChunks", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = Shift.AFTER))
     public void onUnloadQueuedChunksReturn(CallbackInfoReturnable<Boolean> cir) {
         // Remove forge's persistent chunk check since we cache it in the chunk
-        if (id2ChunkMap.size() == 0 && !this.worldObj.provider.getDimensionType().shouldLoadSpawn()){
+        if (this.id2ChunkMap.size() == 0 && !this.worldObj.provider.getDimensionType().shouldLoadSpawn()){
             net.minecraftforge.common.DimensionManager.unloadWorld(this.worldObj.provider.getDimension());
         }
     }
