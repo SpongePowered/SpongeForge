@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -36,6 +37,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -45,10 +47,12 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapStorage;
+import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.FMLLog;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -239,5 +243,28 @@ public abstract class MixinSpongeImplHooks {
         }
 
         return false;
+    }
+
+    // Copied from Forge's World patches
+
+    @Overwrite
+    public static void onEntityError(Entity entity, CrashReport crashReport) {
+        if (ForgeModContainer.removeErroringEntities) {
+            FMLLog.severe(crashReport.getCompleteReport());
+            entity.getEntityWorld().removeEntity(entity);
+        } else {
+            throw new ReportedException(crashReport);
+        }
+    }
+
+    @Overwrite
+    public static void onTileEntityError(TileEntity tileEntity, CrashReport crashReport) {
+        if (ForgeModContainer.removeErroringTileEntities) {
+            FMLLog.severe(crashReport.getCompleteReport());
+            tileEntity.invalidate();
+            tileEntity.getWorld().removeTileEntity(tileEntity.getPos());
+        } else {
+            throw new ReportedException(crashReport);
+        }
     }
 }
