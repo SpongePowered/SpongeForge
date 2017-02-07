@@ -70,6 +70,7 @@
         "world.MixinWorld",
         "world.MixinWorldServer",
         "world.MixinWorldProvider",
+        "world.MixinWorld",
         "world.biome.MixinBiomeDecorator",
         "world.biome.MixinBiomeGenBaseForge",
         "world.gen.MixinChunkProviderEnd",
@@ -86,8 +87,7 @@
         "server.MixinIntegratedServerAnonInner3"
     ],
     "server": [
-        "network.packet.MixinC00Handshake",
-        "world.MixinWorld"
+        "network.packet.MixinC00Handshake"
     ],
     "injectors": {
         "defaultRequire": 1
