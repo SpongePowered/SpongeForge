@@ -34,13 +34,16 @@ import com.google.common.collect.ListMultimap;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.mod.mixin.core.forge.common.MixinForgeChunkManager$Ticket;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -175,6 +178,20 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
         @Override
         public int getMaxNumChunks() {
             return this.forgeTicket.getMaxChunkListDepth();
+        }
+
+        @Override
+        public DataContainer getCompanionData() {
+            return NbtTranslator.getInstance()
+                    .translate(this.forgeTicket.getModData());
+        }
+
+        @SuppressWarnings("MixinClassReference")
+        @Override
+        public void setCompanionData(DataContainer container) {
+            ((MixinForgeChunkManager$Ticket) this.forgeTicket)
+                    .setModData(NbtTranslator.getInstance()
+                            .translate(container));
         }
 
         @Override
