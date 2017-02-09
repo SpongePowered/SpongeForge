@@ -101,7 +101,7 @@ public abstract class MixinWorldManager {
             FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
             serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
             serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
-            serverChannel.writeOutbound(new ForgeMessage.DimensionRegisterMessage(provider.getDimension(), provider.getDimensionType().name()));
+            serverChannel.writeAndFlush(new ForgeMessage.DimensionRegisterMessage(provider.getDimension(), provider.getDimensionType().name()));
         }
     }
 
