@@ -53,7 +53,7 @@ public abstract class MixinChunkProviderServer implements IMixinChunkProviderSer
         net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(chunkIn.xPosition, chunkIn.zPosition), chunkIn);
     }
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = Shift.AFTER))
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = Shift.AFTER, remap = false))
     public void onUnloadQueuedChunksReturn(CallbackInfoReturnable<Boolean> cir) {
         // Remove forge's persistent chunk check since we cache it in the chunk
         if (this.id2ChunkMap.size() == 0 && !this.world.provider.getDimensionType().shouldLoadSpawn()){

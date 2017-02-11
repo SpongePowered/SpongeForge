@@ -69,7 +69,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
         Cause.Builder builder = Cause.builder();
         if (event.getHandler() instanceof NetHandlerPlayServer) {
-            builder.named(NamedCause.source(((NetHandlerPlayServer) event.getHandler()).playerEntity));
+            builder.named(NamedCause.source(((NetHandlerPlayServer) event.getHandler()).player));
         }
         Cause cause = builder.named(NamedCause.of("NetHandler", event.getHandler())).build();
 

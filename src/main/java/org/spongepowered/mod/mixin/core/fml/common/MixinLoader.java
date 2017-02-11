@@ -57,7 +57,8 @@ public abstract class MixinLoader {
 
     @Redirect(method = "identifyMods", at = @At(
         value = "INVOKE",
-        target = "Lnet/minecraftforge/fml/common/discovery/ModDiscoverer;findModDirMods(Ljava/io/File;[Ljava/io/File;)V"
+        target = "Lnet/minecraftforge/fml/common/discovery/ModDiscoverer;findModDirMods(Ljava/io/File;[Ljava/io/File;)V",
+        remap = false
     ))
     private void discoverMods(ModDiscoverer modDiscoverer, File modsDir, File[] additionalMods) {
         modDiscoverer.findModDirMods(modsDir, additionalMods);
@@ -80,14 +81,14 @@ public abstract class MixinLoader {
     }
 
     @Redirect(method = "sortModList", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/ModContainer;getDependencies"
-            + "()Ljava/util/List;"))
+            + "()Ljava/util/List;", remap = false))
     private List<ArtifactVersion> onGetDependencies(ModContainer mod) {
         this.mod = mod;
         return mod.getDependencies();
     }
 
     @Redirect(method = "sortModList", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/versioning/ArtifactVersion;containsVersion"
-            + "(Lnet/minecraftforge/fml/common/versioning/ArtifactVersion;)Z"))
+            + "(Lnet/minecraftforge/fml/common/versioning/ArtifactVersion;)Z", remap = false))
     private boolean onCheckContainsVersion(ArtifactVersion expected, ArtifactVersion installed) {
         String installedVersion = installed.getVersionString();
 

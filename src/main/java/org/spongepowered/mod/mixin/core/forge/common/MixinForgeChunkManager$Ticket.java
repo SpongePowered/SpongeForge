@@ -29,7 +29,7 @@ import net.minecraftforge.common.ForgeChunkManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(ForgeChunkManager.Ticket.class)
+@Mixin(value = ForgeChunkManager.Ticket.class, remap = false)
 public interface MixinForgeChunkManager$Ticket {
 
     /**

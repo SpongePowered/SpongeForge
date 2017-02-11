@@ -57,7 +57,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
     @Shadow @Final private static Logger LOGGER;
     @Shadow @Final public NetworkManager netManager;
     @Shadow @Final private MinecraftServer serverController;
-    @Shadow public EntityPlayerMP playerEntity;
+    @Shadow public EntityPlayerMP player;
     @Shadow private int chatSpamThresholdCount;
 
     private final Set<String> registeredChannels = Sets.newHashSet();
@@ -70,17 +70,17 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
             + "Lnet/minecraft/util/text/ITextComponent;", remap = false),
             cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     public void injectChatEvent(CPacketChatMessage packetIn, CallbackInfo ci, String s, ITextComponent component) {
-        final ServerChatEvent event = new ServerChatEvent(this.playerEntity, s, component);
+        final ServerChatEvent event = new ServerChatEvent(this.player, s, component);
         MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) ((IMixinEventBus) MinecraftForge.EVENT_BUS).postForgeAndCreateSpongeEvent(event);
         if (!spongeEvent.isCancelled()) {
             Text message = spongeEvent.getMessage();
             if (!spongeEvent.isMessageCancelled()) {
-                spongeEvent.getChannel().ifPresent(channel -> channel.send(this.playerEntity, message, ChatTypes.CHAT));
+                spongeEvent.getChannel().ifPresent(channel -> channel.send(this.player, message, ChatTypes.CHAT));
             }
 
             // Chat spam suppression from MC
             this.chatSpamThresholdCount += 20;
-            if (this.chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(this.playerEntity.getGameProfile())) {
+            if (this.chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(this.player.getGameProfile())) {
                 this.disconnect("disconnect.spam");
             }
         }

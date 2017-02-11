@@ -51,7 +51,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     @Shadow @Final private net.minecraft.world.World world;
     @Shadow @Final public int xPosition;
     @Shadow @Final public int zPosition;
-    @Shadow public boolean unloaded;
+    @Shadow public boolean unloadQueued;
 
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract IBlockState getBlockState(int x, int y, int z);
@@ -88,7 +88,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
                 return false;
             }
         }
-        ((WorldServer) this.world).getChunkProvider().unload((net.minecraft.world.chunk.Chunk) (Object) this);
+        ((WorldServer) this.world).getChunkProvider().queueUnload((net.minecraft.world.chunk.Chunk) (Object) this);
         return true;
     }
 
@@ -194,7 +194,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         // Sponge Start - Rewrite to use SpongeImplHooks because, again, unecessary block state retrieval.
         // return this.getBlockState(x, y, z).getLightOpacity(); // Vanilla
         // return this.unloaded ? state.getLightOpacity() : state.getLightOpacity(this.worldObj, new BlockPos(x, y, z)); // Forge
-        return this.unloaded ? state.getLightOpacity() : getChunkBlockLightOpacity(state, this.world, x, y, z);
+        return this.unloadQueued ? state.getLightOpacity() : getChunkBlockLightOpacity(state, this.world, x, y, z);
         // Sponge End
     }
 
