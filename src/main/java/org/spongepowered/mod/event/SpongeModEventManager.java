@@ -237,6 +237,12 @@ public class SpongeModEventManager extends SpongeEventManager {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
 
+        if (spongeEvent instanceof Cancellable) {
+            if (((Cancellable) spongeEvent).isCancelled() && forgeEvent.isCancelable()) {
+                forgeEvent.setCanceled(true);
+            }
+        }
+
         // If there are no forge listeners for event, skip sync
         if (listeners.length > 0) {
             for (IEventListener listener : listeners) {
@@ -255,17 +261,16 @@ public class SpongeModEventManager extends SpongeEventManager {
             }
         }
 
+        if (forgeEvent.isCancelable() && forgeEvent.isCanceled()) {
+            ((Cancellable) spongeEvent).setCancelled(true);
+        }
+
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), false, false);
         }
 
-        if (spongeEvent instanceof Cancellable && spongeEvent != forgeEvent) {
-            if (forgeEvent.isCancelable() && ((Cancellable) spongeEvent).isCancelled()) {
-                forgeEvent.setCanceled(true);
-            }
-        }
-        return forgeEvent.isCancelable() && forgeEvent.isCanceled();
+        return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
     }
 
     // Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
