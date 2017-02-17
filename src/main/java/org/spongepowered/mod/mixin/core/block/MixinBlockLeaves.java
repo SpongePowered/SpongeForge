@@ -73,7 +73,7 @@ public abstract class MixinBlockLeaves extends MixinBlock {
             }
             block.beginLeavesDecay(state, worldIn, pos);
             if (isBlockAlready && !isWorldGen) {
-                causeTracker.completePhase();
+                causeTracker.completePhase(BlockPhase.State.BLOCK_DECAY);
             }
         } else {
             block.beginLeavesDecay(state, worldIn, pos);
