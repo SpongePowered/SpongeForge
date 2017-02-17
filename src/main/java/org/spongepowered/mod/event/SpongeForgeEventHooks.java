@@ -139,23 +139,23 @@ public final class SpongeForgeEventHooks {
             }
             if (worldTickEvent.phase == TickEvent.Phase.START) {
                 final CauseTracker causeTracker = ((IMixinWorldServer) worldTickEvent.world).getCauseTracker();
-                causeTracker.completePhase();
+                causeTracker.completePhase(PluginPhase.Listener.PRE_WORLD_TICK_LISTENER);
                 // Need to complete all worlds
                 for (WorldServer worldServer : WorldManager.getWorlds()) {
                     if (worldServer == worldTickEvent.world) {
                         continue;
                     }
-                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase();
+                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase(PluginPhase.Listener.PRE_WORLD_TICK_LISTENER);
                 }
             } else if (worldTickEvent.phase == TickEvent.Phase.END) {
                 final CauseTracker causeTracker = ((IMixinWorldServer) worldTickEvent.world).getCauseTracker();
-                causeTracker.completePhase();
+                causeTracker.completePhase(PluginPhase.Listener.POST_WORLD_TICK_LISTENER);
                 // Need to complete all worlds
                 for (WorldServer worldServer : WorldManager.getWorlds()) {
                     if (worldServer == worldTickEvent.world) {
                         continue;
                     }
-                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase();
+                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase(PluginPhase.Listener.POST_WORLD_TICK_LISTENER);
                 }
             }
         }
@@ -165,11 +165,11 @@ public final class SpongeForgeEventHooks {
             if (serverTickEvent.phase == TickEvent.Phase.START) {
 
                 for (WorldServer worldServer : WorldManager.getWorlds()) {
-                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase();
+                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase(PluginPhase.Listener.PRE_SERVER_TICK_LISTENER);
                 }
             } else if (serverTickEvent.phase == TickEvent.Phase.END) {
                 for (WorldServer worldServer : WorldManager.getWorlds()) {
-                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase();
+                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase(PluginPhase.Listener.POST_SERVER_TICK_LISTENER);
                 }
             }
         }

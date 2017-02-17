@@ -222,7 +222,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 populator.populate(spongeWorld, volume, this.rand, biomeBuffer);
             }
             if (CauseTracker.ENABLED) {
-                causeTracker.completePhase();
+                causeTracker.completePhase(GenerationPhase.State.POPULATOR_RUNNING);
             }
             if (Timings.isTimingsEnabled()) {
                 timing.stopTimingIfSync();
