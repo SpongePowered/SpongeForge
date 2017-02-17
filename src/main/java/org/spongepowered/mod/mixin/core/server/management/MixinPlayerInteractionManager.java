@@ -241,4 +241,11 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         // Due to this, we will simply return a dummy event
         return new PlayerInteractEvent.LeftClickBlock(player, pos, side, hitVec);
     }
+
+    @Redirect(method = "processRightClick", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onItemRightClick(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/EnumHand;Lnet/minecraft/item/ItemStack;)Z", remap = false))
+    public boolean onForgeCallRightClickItem(EntityPlayer player, EnumHand hand, ItemStack stack) {
+        // We fire Forge's RightClickItem event when InteractBlockEvent.Secondary is invoked which occurs before this method.
+        // Due to this, we will simply return false to bypass it
+        return false;
+    }
 }
