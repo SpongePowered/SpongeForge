@@ -788,50 +788,39 @@ public class SpongeForgeEventFactory {
     // Bulk Event Handling
     private static InteractBlockEvent createPlayerInteractEvent(Event event) {
         InteractBlockEvent spongeEvent = (InteractBlockEvent) event;
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        Player player = spongeEvent.getCause().first(Player.class).orElse(null);
         // Forge doesn't support left-click AIR
-        if (!player.isPresent() || (spongeEvent instanceof InteractBlockEvent.Primary && spongeEvent.getTargetBlock() == BlockSnapshot.NONE)) {
+        if (player == null || (spongeEvent instanceof InteractBlockEvent.Primary && spongeEvent.getTargetBlock() == BlockSnapshot.NONE)) {
             return spongeEvent;
         }
 
         BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetBlock().getPosition());
-        Optional<EnumFacing> face = DirectionFacingProvider.getInstance().get(spongeEvent.getTargetSide());
+        EnumFacing face = DirectionFacingProvider.getInstance().get(spongeEvent.getTargetSide()).orElse(null);
         Vec3d hitVec = null;
-        final EntityPlayerMP entityPlayerMP = EntityUtil.toNative(player.get());
+        final EntityPlayerMP entityPlayerMP = EntityUtil.toNative(player);
         if (spongeEvent.getInteractionPoint().isPresent()) {
             hitVec = VecHelper.toVec3d(spongeEvent.getInteractionPoint().get());
         }
         if (spongeEvent instanceof InteractBlockEvent.Primary) {
-            PlayerInteractEvent.LeftClickBlock forgeEvent = new PlayerInteractEvent.LeftClickBlock(entityPlayerMP, pos, face.orElse(null), hitVec);
+            PlayerInteractEvent.LeftClickBlock forgeEvent = new PlayerInteractEvent.LeftClickBlock(entityPlayerMP, pos, face, hitVec);
             ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
             if (forgeEvent.isCanceled()) {
                 spongeEvent.setCancelled(true);
             }
-        } else if (spongeEvent instanceof InteractBlockEvent.Secondary) {
-            PlayerInteractEvent.RightClickBlock forgeEvent = null;
-            if (spongeEvent instanceof InteractBlockEvent.Secondary.MainHand) {
-                final ItemStack heldItem = entityPlayerMP.getHeldItem(EnumHand.MAIN_HAND);
-                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.MAIN_HAND, pos, face.orElse(null), hitVec);
-                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-                if (forgeEvent.isCanceled()) {
-                    spongeEvent.setCancelled(true);
-                }
-            } else if (spongeEvent instanceof InteractBlockEvent.Secondary.OffHand) {
-                final ItemStack heldItem = entityPlayerMP.getHeldItem(EnumHand.OFF_HAND);
-                forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, EnumHand.OFF_HAND, pos, face.orElse(null), hitVec);
-                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-                if (forgeEvent.isCanceled()) {
-                    spongeEvent.setCancelled(true);
-                }
+        } else if (face != null && spongeEvent instanceof InteractBlockEvent.Secondary) {
+            EnumHand hand = spongeEvent instanceof InteractBlockEvent.Secondary.MainHand ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
+            PlayerInteractEvent.RightClickBlock forgeEvent = new PlayerInteractEvent.RightClickBlock(entityPlayerMP, hand, pos, face, hitVec);
+            ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+            if (forgeEvent.isCanceled()) {
+                spongeEvent.setCancelled(true);
             }
+
             // Mods have higher priority
-            if (forgeEvent != null) {
-                if (forgeEvent.getUseItem() != Result.DEFAULT) {
-                    ((InteractBlockEvent.Secondary) spongeEvent).setUseItemResult(getTristateFromResult(forgeEvent.getUseItem()));
-                }
-                if (forgeEvent.getUseBlock() != Result.DEFAULT) {
-                    ((InteractBlockEvent.Secondary) spongeEvent).setUseBlockResult(getTristateFromResult(forgeEvent.getUseBlock()));
-                }
+            if (forgeEvent.getUseItem() != Result.DEFAULT) {
+                ((InteractBlockEvent.Secondary) spongeEvent).setUseItemResult(getTristateFromResult(forgeEvent.getUseItem()));
+            }
+            if (forgeEvent.getUseBlock() != Result.DEFAULT) {
+                ((InteractBlockEvent.Secondary) spongeEvent).setUseBlockResult(getTristateFromResult(forgeEvent.getUseBlock()));
             }
         }
 
