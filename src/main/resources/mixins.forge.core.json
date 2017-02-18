@@ -49,6 +49,7 @@
         "forge.MixinDimensionManager",
         "forge.MixinForgeInternalHandler",
         "forge.common.MixinForgeChunkManager$Ticket",
+        "forge.common.MixinForgeHooks",
         "forge.event.MixinForgeEventFactory",
         "forge.fluids.MixinFluid",
         "forge.fluids.MixinFluidRegistry",
