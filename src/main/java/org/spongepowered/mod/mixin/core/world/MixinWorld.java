@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldInfo;
@@ -123,7 +124,10 @@ public abstract class MixinWorld implements IMixinWorld {
     {
         // Forge only uses a single save handler so we need to always pass overworld's mapstorage here
         if (!this.isRemote && (this.mapStorage == null || this.provider.getDimension() != 0)) {
-            cir.setReturnValue(DimensionManager.getWorld(0).getMapStorage());
+            WorldServer overworld = DimensionManager.getWorld(0);
+            if (overworld != null) {
+                cir.setReturnValue(overworld.getMapStorage());
+            }
         }
     }
 
