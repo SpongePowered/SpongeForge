@@ -28,7 +28,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
@@ -210,5 +212,32 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static MapStorage getWorldMapStorage(World world) {
         return world.getPerWorldStorage();
+    }
+
+    @Overwrite
+    public static int countEntities(WorldServer worldServer, net.minecraft.entity.EnumCreatureType type, boolean forSpawnCount) {
+        return worldServer.countEntities(type, forSpawnCount);
+    }
+
+    @Overwrite
+    public static int getMaxSpawnPackSize(EntityLiving entityLiving) {
+        return net.minecraftforge.event.ForgeEventFactory.getMaxSpawnPackSize(entityLiving);
+    }
+
+    @Overwrite
+    public static boolean canEntitySpawnHere(EntityLiving entityLiving, IEntityLivingData entityLivingData, boolean entityNotColliding) {
+        final World world = entityLiving.world;
+        final float x = (float) entityLiving.posX;
+        final float y = (float) entityLiving.posY;
+        final float z = (float) entityLiving.posZ;
+        net.minecraftforge.fml.common.eventhandler.Event.Result canSpawn = net.minecraftforge.event.ForgeEventFactory.canEntitySpawn(entityLiving, world, x, y, z);
+        if (canSpawn == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW || (canSpawn == net.minecraftforge.fml.common.eventhandler.Event.Result.DEFAULT && (entityLiving.getCanSpawnHere()) && entityNotColliding)) {
+            if (!net.minecraftforge.event.ForgeEventFactory.doSpecialSpawn(entityLiving, world, x, y, z)) {
+                entityLivingData = entityLiving.onInitialSpawn(entityLiving.world.getDifficultyForLocation(new BlockPos(entityLiving)), entityLivingData);
+            }
+            return true;
+        }
+
+        return false;
     }
 }
