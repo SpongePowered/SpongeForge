@@ -279,7 +279,13 @@ public class SpongeModEventManager extends SpongeEventManager {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
 
-        spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
+        boolean cancelled = false;
+        if (spongeEvent instanceof Cancellable) {
+            cancelled = ((Cancellable) spongeEvent).isCancelled();
+        }
+        if (!cancelled) {
+            spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
+        }
 
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
