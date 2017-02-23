@@ -244,7 +244,8 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
 
         // If there are no forge listeners for event, skip sync
-        if (listeners.length > 0) {
+        // If plugin cancelled event before modifications, ignore mods
+        if (listeners.length > 0 && !forgeEvent.isCanceled()) {
             for (IEventListener listener : listeners) {
                 try {
                     if (listener instanceof IMixinASMEventHandler) {
