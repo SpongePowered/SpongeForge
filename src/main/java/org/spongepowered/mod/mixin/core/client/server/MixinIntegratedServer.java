@@ -59,7 +59,7 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
      */
     @Override
     @Overwrite
-    protected void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
+    public void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
         super.loadAllWorlds(overworldFolder, unused, seed, type, generator);
     }
 
