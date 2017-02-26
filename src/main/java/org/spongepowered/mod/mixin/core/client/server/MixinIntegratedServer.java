@@ -32,15 +32,21 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.IMixinIntegratedServer;
 import org.spongepowered.common.mixin.core.server.MixinMinecraftServer;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
+
+import java.util.concurrent.FutureTask;
 
 @NonnullByDefault
 @Mixin(IntegratedServer.class)
@@ -59,7 +65,7 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
      */
     @Override
     @Overwrite
-    protected void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
+    public void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
         super.loadAllWorlds(overworldFolder, unused, seed, type, generator);
     }
 
@@ -78,6 +84,11 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
             this.mc.loadWorld((WorldClient)null);
             this.mc.displayGuiScreen(new GuiMainMenu());
         });
+    }
+
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Util;runTask(Ljava/util/concurrent/FutureTask;Lorg/apache/logging/log4j/Logger;)Ljava/lang/Object;"))
+    private Object onRun(FutureTask task, Logger logger) {
+        return SpongeImplHooks.onUtilRunTask(task, logger);
     }
 
     @Override
