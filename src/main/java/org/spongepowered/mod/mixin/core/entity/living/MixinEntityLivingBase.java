@@ -46,29 +46,27 @@ import java.util.function.Function;
 @Mixin(value = EntityLivingBase.class, priority = 1001)
 public abstract class MixinEntityLivingBase extends MixinEntity implements Living, IMixinEntityLivingBase {
 
-    private EntityLivingBase nmsEntityLiving = (EntityLivingBase) (Object) this;
-
     @Override
     public Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> provideArmorModifiers(EntityLivingBase entityLivingBase,
          DamageSource source, double damage) {
-        return StaticMixinForgeHelper.createArmorModifiers(this.nmsEntityLiving, source, damage);
+        return StaticMixinForgeHelper.createArmorModifiers((EntityLivingBase) (Object) this, source, damage);
     }
 
     @Override
     public float applyModDamage(EntityLivingBase entityLivingBase, DamageSource source, float damage) {
-        return ForgeHooks.onLivingHurt(this.nmsEntityLiving, source, damage);
+        return ForgeHooks.onLivingHurt((EntityLivingBase) (Object) this, source, damage);
     }
 
     @Override
     public void applyArmorDamage(EntityLivingBase entityLivingBase, DamageSource source, DamageEntityEvent entityEvent, DamageModifier modifier) {
         Optional<ArmorProperties> optional = modifier.getCause().first(ArmorProperties.class);
         if (optional.isPresent()) {
-            StaticMixinForgeHelper.acceptArmorModifier(this.nmsEntityLiving, source, modifier, entityEvent.getDamage(modifier));
+            StaticMixinForgeHelper.acceptArmorModifier((EntityLivingBase) (Object) this, source, modifier, entityEvent.getDamage(modifier));
         }
     }
 
     @Override
     public boolean hookModAttack(EntityLivingBase entityLivingBase, DamageSource source, float amount) {
-        return net.minecraftforge.common.ForgeHooks.onLivingAttack(this.nmsEntityLiving, source, amount);
+        return net.minecraftforge.common.ForgeHooks.onLivingAttack((EntityLivingBase) (Object) this, source, amount);
     }
 }

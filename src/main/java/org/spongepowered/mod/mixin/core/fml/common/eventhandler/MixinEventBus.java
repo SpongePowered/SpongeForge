@@ -63,8 +63,6 @@ import java.util.Map;
 @Mixin(value = EventBus.class, remap = false)
 public abstract class MixinEventBus implements IMixinEventBus {
 
-    private EventBus eventBus = (EventBus) (Object) this;
-
     // Because Forge can't be bothered to keep track of this information itself
     private Map<IEventListener, Class<? extends Event>> forgeListenerRegistry = new HashMap<>();
 
@@ -145,7 +143,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 if (modListener != null) {
                     modListener.getTimingsHandler().stopTimingIfSync();
                 }
-                this.exceptionHandler.handleException(this.eventBus, event, listeners, index, throwable);
+                this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
                 Throwables.propagate(throwable);
             }
             return (event.isCancelable() ? event.isCanceled() : false);

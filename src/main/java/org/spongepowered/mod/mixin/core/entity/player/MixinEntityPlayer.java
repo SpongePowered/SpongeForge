@@ -28,6 +28,7 @@ import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -62,8 +63,6 @@ import java.util.UUID;
 @Mixin(value = EntityPlayer.class, priority = 1001)
 public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements ISpongeUser {
 
-    private EntityPlayer nmsPlayer = (EntityPlayer)(Object) this;
-
     @Shadow public InventoryPlayer inventory;
     @Shadow public BlockPos bedLocation;
     @Shadow protected boolean sleeping;
@@ -94,16 +93,16 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     private void onSleepEvent(BlockPos bedLocation, CallbackInfoReturnable<EntityPlayer.SleepResult> cir) {
         if (cir.getReturnValue() == EntityPlayer.SleepResult.OK) {
             // A cut-down version of trySleep handling for OK status
-            if (this.nmsPlayer.isRiding()) {
-                this.nmsPlayer.dismountRidingEntity();
+            if (((EntityPlayer) (Object) this).isRiding()) {
+                ((EntityPlayer) (Object) this).dismountRidingEntity();
             }
             this.setSize(0.2F, 0.2F);
-            this.nmsPlayer.setPosition((double) ((float) bedLocation.getX() + 0.5F), (double) ((float) bedLocation.getY() + 0.6875F),
+            ((EntityPlayer) (Object) this).setPosition((double) ((float) bedLocation.getX() + 0.5F), (double) ((float) bedLocation.getY() + 0.6875F),
                     (double) ((float) bedLocation.getZ() + 0.5F));
             this.sleeping = true;
             this.sleepTimer = 0;
             this.bedLocation = bedLocation;
-            this.nmsPlayer.motionX = this.nmsPlayer.motionZ = this.nmsPlayer.motionY = 0.0D;
+            ((EntityPlayer) (Object) this).motionX = ((EntityPlayer) (Object) this).motionZ = ((EntityPlayer) (Object) this).motionY = 0.0D;
             if (!this.world.isRemote) {
                 this.world.updateAllPlayersSleepingFlag();
             }
@@ -120,22 +119,22 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
      */
     @Overwrite
     public void wakeUpPlayer(boolean immediately, boolean updateWorldFlag, boolean setSpawn) {
-        IBlockState iblockstate = this.nmsPlayer.world.getBlockState(this.bedLocation);
+        IBlockState iblockstate = this.world.getBlockState(this.bedLocation);
 
         Transform<World> newLocation = null;
-        if (this.bedLocation != null && iblockstate.getBlock().isBed(iblockstate, this.nmsPlayer.world, this.bedLocation, this.nmsPlayer)) {
-            iblockstate.getBlock().setBedOccupied(this.nmsPlayer.world, this.bedLocation, this.nmsPlayer, false);
-            BlockPos blockpos = iblockstate.getBlock().getBedSpawnPosition(iblockstate, this.nmsPlayer.world, this.bedLocation, this.nmsPlayer);
+        if (this.bedLocation != null && iblockstate.getBlock().isBed(iblockstate, this.world, this.bedLocation, (Entity) (Object) this)) {
+            iblockstate.getBlock().setBedOccupied(this.world, this.bedLocation, ((EntityPlayer) (Object) this), false);
+            BlockPos blockpos = iblockstate.getBlock().getBedSpawnPosition(iblockstate, this.world, this.bedLocation, ((EntityPlayer) (Object) this));
 
             if (blockpos == null) {
-                blockpos = this.nmsPlayer.bedLocation.up();
+                blockpos = ((EntityPlayer) (Object) this).bedLocation.up();
             }
 
             newLocation = this.getTransform().setPosition(new Vector3d(blockpos.getX() + 0.5F, blockpos.getY() + 0.1F, blockpos.getZ() + 0.5F));
         }
 
         SleepingEvent.Post post = null;
-        if (!this.nmsPlayer.world.isRemote) {
+        if (!this.world.isRemote) {
             post = SpongeEventFactory.createSleepingEventPost(Cause.of(NamedCause.source(this)),
                 this.getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), Optional.ofNullable(newLocation), this, setSpawn);
             Sponge.getEventManager().post(post);
@@ -143,20 +142,20 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
                 return;
             }
 
-            ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);
+            ForgeEventFactory.onPlayerWakeup(((EntityPlayer) (Object) this), immediately, updateWorldFlag, setSpawn);
             this.setSize(0.6F, 1.8F);
             if (post.getSpawnTransform().isPresent()) {
                 this.setLocationAndAngles(post.getSpawnTransform().get());
             }
         } else {
-            ForgeEventFactory.onPlayerWakeup(this.nmsPlayer, immediately, updateWorldFlag, setSpawn);
+            ForgeEventFactory.onPlayerWakeup(((EntityPlayer) (Object) this), immediately, updateWorldFlag, setSpawn);
             this.setSize(0.6F, 1.8F);
         }
 
         this.sleeping = false;
 
-        if (!this.nmsPlayer.world.isRemote && updateWorldFlag) {
-            this.nmsPlayer.world.updateAllPlayersSleepingFlag();
+        if (!this.world.isRemote && updateWorldFlag) {
+            this.world.updateAllPlayersSleepingFlag();
         }
 
         this.sleepTimer = immediately ? 0 : 100;

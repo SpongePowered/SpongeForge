@@ -73,7 +73,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     @Inject(method = "onChunkUnload", at = @At("RETURN"))
     public void onChunkUnloadInject(CallbackInfo ci) {
         // Moved from ChunkProviderServer
-        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(this.xPosition, this.zPosition), (net.minecraft.world.chunk.Chunk)(Object) this);
+        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(this.xPosition, this.zPosition), (net.minecraft.world.chunk.Chunk) (Object) this);
     }
 
     @Override

@@ -195,12 +195,12 @@ public abstract class MixinDimensionManager {
             WorldArchetype archetype = Sponge.getRegistry().getType(WorldArchetype.class, modId + ":" + dimensionType.getName().toLowerCase()).orElse(null);
             if (archetype == null) {
                 final WorldArchetype.Builder builder = WorldArchetype.builder()
-                        .dimension((org.spongepowered.api.world.DimensionType)(Object) dimensionType)
+                        .dimension((org.spongepowered.api.world.DimensionType) (Object) dimensionType)
                         .keepsSpawnLoaded(dimensionType.shouldLoadSpawn());
                 archetype = builder.build(modId + ":" + dimensionType.getName().toLowerCase(), dimensionType.getName());
             }
             IMixinWorldSettings worldSettings = (IMixinWorldSettings) archetype;
-            worldSettings.setDimensionType((org.spongepowered.api.world.DimensionType)(Object) dimensionType);
+            worldSettings.setDimensionType((org.spongepowered.api.world.DimensionType) (Object) dimensionType);
             worldSettings.setLoadOnStartup(false);
             properties = WorldManager.createWorldProperties(worldFolder, archetype, dim);
             ((IMixinWorldInfo) properties).setDimensionId(dim);
