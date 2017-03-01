@@ -143,6 +143,14 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
     public void populate(int chunkX, int chunkZ) {
         IMixinWorldServer worldServer = (IMixinWorldServer) this.world;
         final CauseTracker causeTracker = worldServer.getCauseTracker();
+
+        boolean enterTerrainPhase = CauseTracker.ENABLED && !(causeTracker.getCurrentState() == GenerationPhase.State.TERRAIN_GENERATION);
+        if (enterTerrainPhase) {
+            causeTracker.switchToPhase(GenerationPhase.State.TERRAIN_GENERATION, PhaseContext.start()
+                    .addCaptures()
+                    .complete());
+        }
+
         this.chunkGeneratorTiming.startTimingIfSync();
         Cause populateCause = Cause.of(NamedCause.source(this));
         this.rand.setSeed(this.world.getSeed());
@@ -254,6 +262,11 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         SpongeImpl.postEvent(event);
 
         BlockFalling.fallInstantly = false;
+
+        if (enterTerrainPhase) {
+            causeTracker.completePhase(GenerationPhase.State.TERRAIN_GENERATION);
+        }
+
         this.chunkGeneratorTiming.stopTimingIfSync();
         ((IMixinWorldServer) spongeWorld).getTimingsHandler().chunkPopulate.stopTimingIfSync();
     }
