@@ -50,6 +50,8 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
+import org.apache.logging.log4j.Level;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -208,7 +210,8 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void onEntityError(Entity entity, CrashReport crashReport) {
         if (ForgeModContainer.removeErroringEntities) {
-            FMLLog.severe(crashReport.getCompleteReport());
+            // Sponge - fix https://github.com/MinecraftForge/MinecraftForge/issues/3713
+            FMLRelaunchLog.log.getLogger().log(Level.ERROR, crashReport.getCompleteReport());
             entity.getEntityWorld().removeEntity(entity);
         } else {
             throw new ReportedException(crashReport);
@@ -218,7 +221,8 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void onTileEntityError(TileEntity tileEntity, CrashReport crashReport) {
         if (ForgeModContainer.removeErroringTileEntities) {
-            FMLLog.severe(crashReport.getCompleteReport());
+            // Sponge - fix https://github.com/MinecraftForge/MinecraftForge/issues/3713
+            FMLRelaunchLog.log.getLogger().log(Level.ERROR, crashReport.getCompleteReport());
             tileEntity.invalidate();
             tileEntity.getWorld().removeTileEntity(tileEntity.getPos());
         } else {
