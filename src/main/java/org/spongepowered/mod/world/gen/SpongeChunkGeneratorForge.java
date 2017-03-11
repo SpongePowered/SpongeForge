@@ -73,6 +73,7 @@ import org.spongepowered.api.world.gen.populator.DeadBush;
 import org.spongepowered.api.world.gen.populator.Dungeon;
 import org.spongepowered.api.world.gen.populator.Flower;
 import org.spongepowered.api.world.gen.populator.Forest;
+import org.spongepowered.api.world.gen.populator.Fossil;
 import org.spongepowered.api.world.gen.populator.Glowstone;
 import org.spongepowered.api.world.gen.populator.Lake;
 import org.spongepowered.api.world.gen.populator.Mushroom;
@@ -415,6 +416,9 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             } else {
                 return null;
             }
+        }
+        if(populator instanceof Fossil) {
+            return Decorate.EventType.FOSSIL;
         }
         return null;
     }
