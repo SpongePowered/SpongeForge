@@ -42,6 +42,7 @@
         "fml.common.gameevent.MixinWorldTickEvent",
         "fml.common.registry.MixinEntityRegistry",
         "fml.common.registry.MixinBlockDummyAir",
+        "fml.common.registry.MixinNetworkRegistry",
         "fml.common.registry.MixinVillagerCareer",
         "fml.common.registry.MixinVillagerProfession",
         "fml.common.registry.MixinVillagerRegistry",
