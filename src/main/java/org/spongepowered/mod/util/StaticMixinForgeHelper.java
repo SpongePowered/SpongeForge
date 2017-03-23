@@ -261,8 +261,9 @@ public final class StaticMixinForgeHelper {
 
     @SuppressWarnings("rawtypes")
     public static String getModIdFromClass(Class clazz) {
-        String modId = clazz.getName().contains("net.minecraft.") ? "minecraft" : "unknown";
-        String modPackage = clazz.getName().replace("." + clazz.getSimpleName(), "");
+        final String className = clazz.getName();
+        String modId = className.contains("net.minecraft.") ? "minecraft" : className.contains("org.spongepowered.") ? "sponge" : "unknown";
+        String modPackage = className.replace("." + clazz.getSimpleName(), "");
         for (ModContainer mc : Loader.instance().getActiveModList()) {
             if (mc.getOwnedPackages().contains(modPackage)) {
                 modId = mc.getModId();
