@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.common;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 import org.spongepowered.asm.mixin.Final;
@@ -36,7 +37,7 @@ import org.spongepowered.common.world.SpongeProxyBlockAccess;
 @Mixin(value = SpongeProxyBlockAccess.class, remap = false)
 public abstract class MixinSpongeProxyBlockAccess implements IBlockAccess {
 
-    @Shadow @Final IBlockAccess original;
+    @Shadow private WorldServer processingWorld;
 
     // These methods are @SideOnly(Side.CLIENT)
     // We only mix them in in SpongeForge, so that mod blocks
@@ -45,16 +46,16 @@ public abstract class MixinSpongeProxyBlockAccess implements IBlockAccess {
 
     @Override
     public int getCombinedLight(BlockPos pos, int lightValue) {
-        return this.original.getCombinedLight(pos, lightValue);
+        return this.processingWorld.getCombinedLight(pos, lightValue);
     }
 
     @Override
     public Biome getBiome(BlockPos pos) {
-        return this.original.getBiome(pos);
+        return this.processingWorld.getBiome(pos);
     }
 
     @Override
     public WorldType getWorldType() {
-        return this.original.getWorldType();
+        return this.processingWorld.getWorldType();
     }
 }

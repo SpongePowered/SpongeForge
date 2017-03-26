@@ -33,10 +33,12 @@ import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.World;
@@ -255,5 +257,10 @@ public abstract class MixinSpongeImplHooks {
         }
 
         return false;
+    }
+
+    @Overwrite
+    public static void blockExploded(Block block, World world, BlockPos blockpos, Explosion explosion) {
+        block.onBlockExploded(world, blockpos, explosion);
     }
 }

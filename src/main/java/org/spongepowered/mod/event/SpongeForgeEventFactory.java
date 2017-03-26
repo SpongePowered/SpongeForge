@@ -265,7 +265,7 @@ public class SpongeForgeEventFactory {
         }
 
         final BlockPos pos = forgeEvent.getPos();
-        final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+        final CauseTracker causeTracker = CauseTracker.getInstance();
         final PhaseData data = causeTracker.getCurrentPhaseData();
 
         Cause.Builder builder = null;
@@ -306,7 +306,7 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+        final CauseTracker causeTracker = CauseTracker.getInstance();
         final PhaseData data = causeTracker.getCurrentPhaseData();
         BlockSnapshot originalSnapshot = ((World) forgeEvent.getWorld()).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         BlockSnapshot finalSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
@@ -350,7 +350,7 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+        final CauseTracker causeTracker = CauseTracker.getInstance();
         final PhaseData data = causeTracker.getCurrentPhaseData();
         BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) forgeEvent.getBlockSnapshot()).createSpongeBlockSnapshot();
         BlockSnapshot finalSnapshot = ((BlockState) forgeEvent.getPlacedBlock()).snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
@@ -1060,8 +1060,8 @@ public class SpongeForgeEventFactory {
 
         if (spongeEvent.getCause().root() instanceof Player) {
             EntityPlayer player = (EntityPlayer) spongeEvent.getCause().first(Player.class).get();
-            net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getTargetWorld();
-            final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+            net.minecraft.world.World world = player.worldObj;
+            final CauseTracker causeTracker = CauseTracker.getInstance();
             PhaseContext context = causeTracker.getCurrentContext();
             Packet<?> contextPacket = context.firstNamed(InternalNamedCauses.Packet.CAPTURED_PACKET, Packet.class).orElse(null);
             if (contextPacket == null) {
