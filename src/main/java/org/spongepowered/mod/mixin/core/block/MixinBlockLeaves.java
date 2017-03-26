@@ -57,7 +57,7 @@ public abstract class MixinBlockLeaves extends MixinBlock {
                 return;
             }
             IMixinWorldServer spongeWorld = (IMixinWorldServer) worldIn;
-            final CauseTracker causeTracker = spongeWorld.getCauseTracker();
+            final CauseTracker causeTracker = CauseTracker.getInstance();
             final IPhaseState currentState = causeTracker.getCurrentState();
             final boolean isBlockAlready = currentState.getPhase() != TrackingPhases.BLOCK;
             final boolean isWorldGen = currentState.getPhase().isWorldGeneration(currentState);

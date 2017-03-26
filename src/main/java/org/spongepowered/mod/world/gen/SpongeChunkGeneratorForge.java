@@ -142,8 +142,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
     @Override
     public void populate(int chunkX, int chunkZ) {
-        IMixinWorldServer worldServer = (IMixinWorldServer) this.world;
-        final CauseTracker causeTracker = worldServer.getCauseTracker();
+        final CauseTracker causeTracker = CauseTracker.getInstance();
         this.chunkGeneratorTiming.startTimingIfSync();
         Cause populateCause = Cause.of(NamedCause.source(this));
         this.rand.setSeed(this.world.getSeed());
@@ -204,6 +203,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             }
             if (CauseTracker.ENABLED) {
                 causeTracker.switchToPhase(GenerationPhase.State.POPULATOR_RUNNING, PhaseContext.start()
+                        .add(NamedCause.of(InternalNamedCauses.WorldGeneration.WORLD, this.world))
                         .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
                         .addEntityCaptures()
                         .complete());

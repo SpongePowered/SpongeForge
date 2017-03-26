@@ -265,7 +265,7 @@ public class SpongeForgeEventFactory {
         }
 
         final BlockPos pos = forgeEvent.getPos();
-        final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+        final CauseTracker causeTracker = CauseTracker.getInstance();
         final PhaseData data = causeTracker.getCurrentPhaseData();
 
         Cause.Builder builder = null;
@@ -295,7 +295,7 @@ public class SpongeForgeEventFactory {
         }
         builder.named(NamedCause.PLAYER_BREAK, world);
 
-        ChangeBlockEvent.Pre spongeEvent = SpongeEventFactory.createChangeBlockEventPre(builder.build(), ImmutableList.of(new Location<>((World) world, pos.getX(), pos.getY(), pos.getZ())), (World) world);
+        ChangeBlockEvent.Pre spongeEvent = SpongeEventFactory.createChangeBlockEventPre(builder.build(), ImmutableList.of(new Location<>((World) world, pos.getX(), pos.getY(), pos.getZ())));
         return spongeEvent;
     }
 
@@ -306,7 +306,7 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+        final CauseTracker causeTracker = CauseTracker.getInstance();
         final PhaseData data = causeTracker.getCurrentPhaseData();
         BlockSnapshot originalSnapshot = ((World) forgeEvent.getWorld()).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         BlockSnapshot finalSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
@@ -339,7 +339,7 @@ public class SpongeForgeEventFactory {
             builder.notifier(notifier);
         }
         builder.named(NamedCause.PLAYER_BREAK, world);
-        ChangeBlockEvent.Break spongeEvent = SpongeEventFactory.createChangeBlockEventBreak(builder.build(), (World) world, blockSnapshots);
+        ChangeBlockEvent.Break spongeEvent = SpongeEventFactory.createChangeBlockEventBreak(builder.build(), blockSnapshots);
         return spongeEvent;
     }
 
@@ -350,7 +350,7 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+        final CauseTracker causeTracker = CauseTracker.getInstance();
         final PhaseData data = causeTracker.getCurrentPhaseData();
         BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) forgeEvent.getBlockSnapshot()).createSpongeBlockSnapshot();
         BlockSnapshot finalSnapshot = ((BlockState) forgeEvent.getPlacedBlock()).snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
@@ -383,7 +383,7 @@ public class SpongeForgeEventFactory {
             builder.notifier(notifier);
         }
         builder.named(NamedCause.PLAYER_PLACE, world);
-        ChangeBlockEvent.Place spongeEvent = SpongeEventFactory.createChangeBlockEventPlace(builder.build(), (World) world, blockSnapshots);
+        ChangeBlockEvent.Place spongeEvent = SpongeEventFactory.createChangeBlockEventPlace(builder.build(), blockSnapshots);
         return spongeEvent;
     }
 
@@ -401,7 +401,7 @@ public class SpongeForgeEventFactory {
             builder.add(new Transaction<>(originalSnapshot, finalSnapshot));
         }
 
-        ChangeBlockEvent.Place spongeEvent = SpongeEventFactory.createChangeBlockEventPlace(Cause.source(forgeEvent.getPlayer()).build(), (World) world, builder.build());
+        ChangeBlockEvent.Place spongeEvent = SpongeEventFactory.createChangeBlockEventPlace(Cause.source(forgeEvent.getPlayer()).build(), builder.build());
         return spongeEvent;
     }
 
@@ -1060,8 +1060,8 @@ public class SpongeForgeEventFactory {
 
         if (spongeEvent.getCause().root() instanceof Player) {
             EntityPlayer player = (EntityPlayer) spongeEvent.getCause().first(Player.class).get();
-            net.minecraft.world.World world = (net.minecraft.world.World) spongeEvent.getTargetWorld();
-            final CauseTracker causeTracker = ((IMixinWorldServer) world).getCauseTracker();
+            net.minecraft.world.World world = player.world;
+            final CauseTracker causeTracker = CauseTracker.getInstance();
             PhaseContext context = causeTracker.getCurrentContext();
             Packet<?> contextPacket = context.firstNamed(InternalNamedCauses.Packet.CAPTURED_PACKET, Packet.class).orElse(null);
             if (contextPacket == null) {
