@@ -44,7 +44,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 // Use lower priority so it is applied before the changes in SpongeCommon
 @Mixin(value = World.class, priority = 999)
@@ -76,7 +75,7 @@ public abstract class MixinWorld implements IMixinWorld {
         } else {
             // Sponge Start - Optimize block light checks
             IBlockState blockState = this.getBlockState(pos);
-            int blockLight = StaticMixinForgeHelper.getChunkPosLight(blockState, (net.minecraft.world.World) (Object) this, pos);
+            int blockLight = SpongeImplHooks.getChunkPosLight(blockState, (net.minecraft.world.World) (Object) this, pos);
             int i = lightType == EnumSkyBlock.SKY ? 0 : blockLight; // Changed by forge to use the local variable
             int j = SpongeImplHooks.getBlockLightOpacity(blockState, (net.minecraft.world.World) (Object) this, pos);
             // Sponge End

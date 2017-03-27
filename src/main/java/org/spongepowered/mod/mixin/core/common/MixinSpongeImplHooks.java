@@ -34,7 +34,6 @@ import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -54,7 +53,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
 import org.apache.logging.log4j.Level;
 import org.spongepowered.api.world.PortalAgent;
@@ -63,6 +61,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
+import org.spongepowered.mod.interfaces.IMixinBlock;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
@@ -149,6 +148,15 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static int getBlockLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
         return state.getLightOpacity(world, pos);
+    }
+
+    @Overwrite
+    @SuppressWarnings("deprecation")
+    public static int getChunkPosLight(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
+        if (((IMixinBlock) blockState.getBlock()).requiresLocationCheckForLightValue()) {
+            return blockState.getLightValue(worldObj, pos);
+        }
+        return blockState.getLightValue();
     }
 
     // Tile entity

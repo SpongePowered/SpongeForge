@@ -41,8 +41,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.IMixinChunk;
-import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 @NonnullByDefault
 @Mixin(net.minecraft.world.chunk.Chunk.class)
@@ -145,7 +145,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
             // Sponge Start - Use SpongeImplHooks for forge optimization
             // if (this.getBlockState(blockpos$mutableblockpos).getLightValue() > 0) // Vanilla
             // if (this.getBlockState(blockpos$mutableblockpos).getLightValue(this.worldObj, blockpos$mutableblockpos) > 0) // Forge
-            if (StaticMixinForgeHelper.getChunkPosLight(this.getBlockState(blockpos$mutableblockpos), this.world, blockpos$mutableblockpos) > 0) {
+            if (SpongeImplHooks.getChunkPosLight(this.getBlockState(blockpos$mutableblockpos), this.world, blockpos$mutableblockpos) > 0) {
                 // Sponge End
                 this.world.checkLight(blockpos$mutableblockpos);
             }
