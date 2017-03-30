@@ -146,6 +146,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         boolean enterTerrainPhase = CauseTracker.ENABLED && !(causeTracker.getCurrentState() == GenerationPhase.State.TERRAIN_GENERATION);
         if (enterTerrainPhase) {
             causeTracker.switchToPhase(GenerationPhase.State.TERRAIN_GENERATION, PhaseContext.start()
+                    .add(NamedCause.of(InternalNamedCauses.WorldGeneration.WORLD, this.world))
                     .addCaptures()
                     .complete());
         }
