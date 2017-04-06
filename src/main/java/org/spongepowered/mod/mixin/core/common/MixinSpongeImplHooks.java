@@ -52,22 +52,29 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
+import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
 import org.apache.logging.log4j.Level;
+import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
+import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
+import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Iterator;
 
 import javax.annotation.Nullable;
 
+@SuppressWarnings("OverwriteAuthorRequired")
 @Mixin(value = SpongeImplHooks.class, remap = false)
 public abstract class MixinSpongeImplHooks {
 
@@ -126,8 +133,8 @@ public abstract class MixinSpongeImplHooks {
     }
 
     // Tile entity
-
     @Overwrite
+    @Nullable
     public static TileEntity createTileEntity(Block block, net.minecraft.world.World world, IBlockState state) {
         return block.createTileEntity(world, state);
     }
@@ -262,5 +269,19 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void blockExploded(Block block, World world, BlockPos blockpos, Explosion explosion) {
         block.onBlockExploded(world, blockpos, explosion);
+    }
+
+    @Overwrite
+    public static Profession retrieveVillagerProfession(int professionId) {
+        final FMLControlledNamespacedRegistry<VillagerRegistry.VillagerProfession> registry =
+                (FMLControlledNamespacedRegistry<VillagerRegistry.VillagerProfession>) VillagerRegistry.instance().getRegistry();
+        VillagerRegistry.VillagerProfession profession = registry.getObjectById(professionId);
+        if (profession == null || registry.getId(profession) != professionId) {
+            throw new RuntimeException("Attempted to set villager profession to unregistered profession: " + professionId + " " + profession);
+        }
+
+        final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) profession;
+        final SpongeProfession spongeProfession = new SpongeProfession(professionId, mixinProfession.getId(), mixinProfession.getProfessionName());
+        return SpongeForgeVillagerRegistry.validateProfession(profession, spongeProfession);
     }
 }
