@@ -36,7 +36,9 @@ import org.spongepowered.common.registry.type.entity.CareerRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.text.translation.SpongeTranslation;
 import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
+import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 
+import java.util.List;
 import java.util.Optional;
 
 public class SpongeForgeVillagerRegistry {
@@ -62,6 +64,12 @@ public class SpongeForgeVillagerRegistry {
         } else {
             professionMap.put(villagerProfession, profession);
         }
+        // AT this point, let's validate that the profession's careers actually exist
+        final List<VillagerRegistry.VillagerCareer> careers = ((IMixinVillagerProfession) villagerProfession).getCareers();
+        for (VillagerRegistry.VillagerCareer career : careers) {
+            registerForgeCareer(career);
+        }
+
         return spongeProfession != null ? spongeProfession : profession;
     }
 
