@@ -33,6 +33,7 @@ import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.data.manipulator.immutable.extra.ImmutableSpongeFluidTankData;
 import org.spongepowered.common.data.manipulator.mutable.extra.SpongeFluidTankData;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
+import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.registry.type.world.gen.PopulatorTypeRegistryModule;
 import org.spongepowered.common.world.gen.SpongePopulatorType;
 import org.spongepowered.mod.data.ForgeFluidTankDataProcessor;
@@ -52,9 +53,8 @@ public class SpongeForgeModuleRegistry {
         registry.register(SolidCubeProperty.class, new ForgeSolidCubePropertyStore());
 
         // Data registration
-        SpongeDataManager dataRegistry = SpongeDataManager.getInstance();
 
-        dataRegistry.registerDualProcessor(FluidTankData.class, SpongeFluidTankData.class, ImmutableFluidTankData.class,
+        DataUtil.registerDualProcessor(FluidTankData.class, SpongeFluidTankData.class, ImmutableFluidTankData.class,
                 ImmutableSpongeFluidTankData.class, new ForgeFluidTankDataProcessor());
 
         // Value registration

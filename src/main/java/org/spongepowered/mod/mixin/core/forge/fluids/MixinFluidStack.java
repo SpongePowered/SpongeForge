@@ -55,6 +55,7 @@ import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.data.ValueProcessor;
 import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.data.util.DataQueries;
+import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.extra.fluid.SpongeFluidStackSnapshotBuilder;
 import org.spongepowered.common.interfaces.data.IMixinCustomDataHolder;
 
@@ -75,7 +76,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
     @SuppressWarnings("unchecked")
     @Override
     public <T extends DataManipulator<?, ?>> Optional<T> get(Class<T> containerClass) {
-        final Optional<DataProcessor<?, ?>> optional = SpongeDataManager.getInstance().getWildProcessor(containerClass);
+        final Optional<DataProcessor<?, ?>> optional = DataUtil.getWildProcessor(containerClass);
         if (optional.isPresent()) {
             return (Optional<T>) optional.get().from(this);
         }
@@ -86,7 +87,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
     @SuppressWarnings("unchecked")
     @Override
     public <T extends DataManipulator<?, ?>> Optional<T> getOrCreate(Class<T> containerClass) {
-        final Optional<DataProcessor<?, ?>> optional = SpongeDataManager.getInstance().getWildProcessor(containerClass);
+        final Optional<DataProcessor<?, ?>> optional = DataUtil.getWildProcessor(containerClass);
         if (optional.isPresent()) {
             return (Optional<T>) optional.get().createFrom(this);
         } else if (this instanceof IMixinCustomDataHolder) {
@@ -97,13 +98,13 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
 
     @Override
     public boolean supports(Class<? extends DataManipulator<?, ?>> holderClass) {
-        final Optional<DataProcessor<?, ?>> optional = SpongeDataManager.getInstance().getWildProcessor(holderClass);
+        final Optional<DataProcessor<?, ?>> optional = DataUtil.getWildProcessor(holderClass);
         return optional.isPresent() && optional.get().supports(this);
     }
 
     @Override
     public <E> DataTransactionResult offer(Key<? extends BaseValue<E>> key, E value) {
-        final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = SpongeDataManager.getInstance().getBaseValueProcessor(key);
+        final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = DataUtil.getBaseValueProcessor(key);
         if (optional.isPresent()) {
             return optional.get().offerToStore(this, value);
         } else if (this instanceof IMixinCustomDataHolder) {
@@ -114,7 +115,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
 
     @Override
     public <E> DataTransactionResult offer(Key<? extends BaseValue<E>> key, E value, Cause cause) {
-        final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = SpongeDataManager.getInstance().getBaseValueProcessor(key);
+        final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = DataUtil.getBaseValueProcessor(key);
         if (optional.isPresent()) {
             return optional.get().offerToStore(this, value);
         } else if (this instanceof IMixinCustomDataHolder) {
@@ -125,7 +126,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public DataTransactionResult offer(DataManipulator<?, ?> valueContainer, MergeFunction function) {
-        final Optional<DataProcessor> optional = SpongeDataManager.getInstance().getWildDataProcessor(valueContainer.getClass());
+        final Optional<DataProcessor> optional = DataUtil.getWildDataProcessor(valueContainer.getClass());
         if (optional.isPresent()) {
             return optional.get().set(this, valueContainer, checkNotNull(function));
         } else if (this instanceof IMixinCustomDataHolder) {
@@ -137,7 +138,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
     public DataTransactionResult offer(DataManipulator<?, ?> valueContainer, MergeFunction function, Cause cause) {
-        final Optional<DataProcessor> optional = SpongeDataManager.getInstance().getWildDataProcessor(valueContainer.getClass());
+        final Optional<DataProcessor> optional = DataUtil.getWildDataProcessor(valueContainer.getClass());
         if (optional.isPresent()) {
             return optional.get().set(this, valueContainer, checkNotNull(function));
         } else if (this instanceof IMixinCustomDataHolder) {
@@ -176,7 +177,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
 
     @Override
     public DataTransactionResult remove(Class<? extends DataManipulator<?, ?>> containerClass) {
-        final Optional<DataProcessor<?, ?>> optional = SpongeDataManager.getInstance().getWildProcessor(containerClass);
+        final Optional<DataProcessor<?, ?>> optional = DataUtil.getWildProcessor(containerClass);
         if (optional.isPresent()) {
             return optional.get().remove(this);
         } else if (this instanceof IMixinCustomDataHolder) {
@@ -187,7 +188,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
 
     @Override
     public DataTransactionResult remove(Key<?> key) {
-        final Optional<ValueProcessor<?, ?>> optional = SpongeDataManager.getInstance().getWildValueProcessor(checkNotNull(key));
+        final Optional<ValueProcessor<?, ?>> optional = DataUtil.getWildValueProcessor(checkNotNull(key));
         if (optional.isPresent()) {
             return optional.get().removeFrom(this);
         } else if (this instanceof IMixinCustomDataHolder) {
@@ -223,7 +224,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
 
     @Override
     public <E> Optional<E> get(Key<? extends BaseValue<E>> key) {
-        final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = SpongeDataManager.getInstance().getBaseValueProcessor(checkNotNull(key));
+        final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = DataUtil.getBaseValueProcessor(checkNotNull(key));
         if (optional.isPresent()) {
             return optional.get().getValueFromContainer(this);
         }
@@ -232,7 +233,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
 
     @Override
     public <E, V extends BaseValue<E>> Optional<V> getValue(Key<V> key) {
-        final Optional<ValueProcessor<E, V>> optional = SpongeDataManager.getInstance().getValueProcessor(checkNotNull(key));
+        final Optional<ValueProcessor<E, V>> optional = DataUtil.getValueProcessor(checkNotNull(key));
         if (optional.isPresent()) {
             return optional.get().getApiValueFromContainer(this);
         }
@@ -241,7 +242,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
 
     @Override
     public boolean supports(Key<?> key) {
-        final Optional<ValueProcessor<?, ?>> optional = SpongeDataManager.getInstance().getWildValueProcessor(checkNotNull(key));
+        final Optional<ValueProcessor<?, ?>> optional = DataUtil.getWildValueProcessor(checkNotNull(key));
         return optional.isPresent() && optional.get().supports(this);
     }
 
