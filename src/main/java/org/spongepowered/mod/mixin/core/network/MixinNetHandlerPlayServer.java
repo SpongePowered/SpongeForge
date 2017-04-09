@@ -35,6 +35,8 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import org.apache.logging.log4j.Logger;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.conversation.Conversant;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatTypes;
@@ -72,6 +74,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
     public void injectChatEvent(CPacketChatMessage packetIn, CallbackInfo ci, String s, ITextComponent component) {
         final ServerChatEvent event = new ServerChatEvent(this.player, s, component);
         MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) ((IMixinEventBus) MinecraftForge.EVENT_BUS).postForgeAndCreateSpongeEvent(event);
+        spongeEvent.setMessageCancelled(Sponge.getConversationManager().process((Conversant) this.player, s));
         if (!spongeEvent.isCancelled()) {
             Text message = spongeEvent.getMessage();
             if (!spongeEvent.isMessageCancelled()) {
