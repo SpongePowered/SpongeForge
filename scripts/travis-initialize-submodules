@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+: ${TRAVIS?"This script should be only used for building on Travis."}
+
+if [ -z "$PR_USER" ]; then
+    # Attempt to checkout submodules normally
+    # If it fails, we can only continue if we're building a pull request
+    git submodule update --init --recursive || [ -n "$TRAVIS_PULL_REQUEST_SLUG" ] || exit
+    export PR_USER=${TRAVIS_PULL_REQUEST_SLUG%/*}
+fi
+
+git submodule status | while read line; do
+    state=($line)
+    repo=${state[1]}
+
+    pushd "$repo" > /dev/null
+
+    if [[ "$line" == +* ]]; then
+        # Submodule is not checked out correctly
+        user_repo="https://github.com/$PR_USER/$repo.git"
+        echo "Attempting to fetch from $user_repo"
+        git remote add "$PR_USER" "$user_repo"
+        git fetch "$PR_USER" || exit
+        popd > /dev/null
+
+        git submodule update "$repo" || exit
+
+        pushd "$repo" > /dev/null
+        git submodule update --init --recursive
+    fi
+
+    [ -x $0 ] && { $0 || exit; }
+    popd > /dev/null
+done
