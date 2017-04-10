@@ -1,4 +1,4 @@
 [submodule "SpongeCommon"]
 	path = SpongeCommon
-	url = https://github.com/SpongePowered/SpongeCommon.git
+	url = https://github.com/Meronat/SpongeCommon.git
 	branch = bleeding
