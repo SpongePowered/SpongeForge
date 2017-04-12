@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.network.packet;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -43,7 +43,7 @@ public class MixinCPacketPlayerTryUseItemOnBlock {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("position", this.position)
                 .add("placedBlockDirection", this.placedBlockDirection)
                 .add("hand", this.hand)

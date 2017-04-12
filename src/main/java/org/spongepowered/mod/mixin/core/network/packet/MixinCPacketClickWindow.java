@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.network.packet;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketClickWindow;
@@ -44,7 +44,7 @@ public class MixinCPacketClickWindow {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("windowId", this.windowId)
                 .add("slotId", this.slotId)
                 .add("usedButton", this.packedClickData)

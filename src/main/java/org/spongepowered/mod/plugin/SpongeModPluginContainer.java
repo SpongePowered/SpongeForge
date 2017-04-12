@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.spongepowered.api.plugin.Plugin.ID_PATTERN;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -401,7 +401,7 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
 
     @Override
     public final String toString() {
-        return Objects.toStringHelper("Plugin")
+        return MoreObjects.toStringHelper("Plugin")
                 .omitNullValues()
                 .add("id", this.pluginContainer.getId())
                 .add("name", this.pluginContainer.getName())

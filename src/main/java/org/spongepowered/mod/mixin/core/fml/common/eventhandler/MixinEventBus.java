@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
@@ -144,7 +143,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
                     modListener.getTimingsHandler().stopTimingIfSync();
                 }
                 this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
-                Throwables.propagate(throwable);
+                throw new RuntimeException(throwable);
             }
             return (event.isCancelable() ? event.isCanceled() : false);
         }
