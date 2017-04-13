@@ -108,9 +108,12 @@ import java.io.IOException;
 
 public class SpongeMod extends MetaModContainer {
 
-    @Inject private static SpongeScheduler scheduler;
     public static SpongeMod instance;
-    private final SpongeGame game;
+
+    @Inject private SpongeGame game;
+    @Inject private SpongeScheduler scheduler;
+    @Inject private Logger logger;
+
     private LoadController controller;
     private File modFile;
 
@@ -127,12 +130,11 @@ public class SpongeMod extends MetaModContainer {
 
         // Initialize Sponge
         final Stage stage = SpongeGuice.getInjectorStage((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment") ? Stage.DEVELOPMENT : Stage.PRODUCTION);
-        this.getLogger().info("Creating injector in stage '{}'", stage);
+        // Do not replace `SpongeImpl.getLogger()` with `this.getLogger()`. You've been warned.
+        SpongeImpl.getLogger().info("Creating injector in stage '{}'", stage);
         Guice.createInjector(stage, new SpongeModule(), new SpongeForgeModule());
 
-        this.game = SpongeImpl.getGame();
-
-        this.game.getRegistry().preRegistryInit();
+        SpongeImpl.getRegistry().preRegistryInit();
         SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (obj, id, location) -> {
             final ResourceLocation key = ForgeRegistries.BLOCKS.getKey(obj);
             if (key == null || ((IMixinBlock) obj).isDummy()) {
@@ -244,7 +246,7 @@ public class SpongeMod extends MetaModContainer {
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            scheduler.tickSyncScheduler();
+            this.scheduler.tickSyncScheduler();
         }
     }
 
@@ -322,7 +324,7 @@ public class SpongeMod extends MetaModContainer {
     // This overrides the method in PluginContainer
     // (PluginContainer is implemented indirectly through the ModContainer mixin)
     public Logger getLogger() {
-        return SpongeImpl.getSlf4jLogger();
+        return this.logger;
     }
 
 }

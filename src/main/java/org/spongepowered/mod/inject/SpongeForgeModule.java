@@ -51,7 +51,7 @@ public class SpongeForgeModule extends SpongeImplementationModule {
         this.bind(EventManager.class).to(SpongeModEventManager.class);
         this.bind(ChannelRegistrar.class).to(SpongeModNetworkManager.class);
 
-        this.requestStaticInjection(SpongeMod.class);
+        this.requestInjection(SpongeMod.instance);
         this.requestStaticInjection(SpongeModPluginContainer.class);
     }
 }

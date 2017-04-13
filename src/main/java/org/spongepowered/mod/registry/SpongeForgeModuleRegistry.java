@@ -29,6 +29,7 @@ import org.spongepowered.api.data.property.block.MatterProperty;
 import org.spongepowered.api.data.property.block.SolidCubeProperty;
 import org.spongepowered.api.extra.fluid.data.manipulator.immutable.ImmutableFluidTankData;
 import org.spongepowered.api.extra.fluid.data.manipulator.mutable.FluidTankData;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.data.manipulator.immutable.extra.ImmutableSpongeFluidTankData;
 import org.spongepowered.common.data.manipulator.mutable.extra.SpongeFluidTankData;
@@ -44,12 +45,12 @@ import org.spongepowered.mod.util.StaticMixinForgeHelper;
 public class SpongeForgeModuleRegistry {
 
     public static void registerForgeData() {
+        SpongePropertyRegistry propertyRegistry = SpongeImpl.getPropertyRegistry();
 
         // Property registration
-        final SpongePropertyRegistry registry = SpongePropertyRegistry.getInstance();
-        registry.register(LightEmissionProperty.class, new ForgeLightEmissionPropertyStore());
-        registry.register(MatterProperty.class, new ForgeMatterPropertyStore());
-        registry.register(SolidCubeProperty.class, new ForgeSolidCubePropertyStore());
+        propertyRegistry.register(LightEmissionProperty.class, new ForgeLightEmissionPropertyStore());
+        propertyRegistry.register(MatterProperty.class, new ForgeMatterPropertyStore());
+        propertyRegistry.register(SolidCubeProperty.class, new ForgeSolidCubePropertyStore());
 
         // Data registration
         SpongeDataManager dataRegistry = SpongeDataManager.getInstance();
