@@ -101,8 +101,7 @@ public abstract class MixinMinecraft implements Client, IMixinMinecraft {
         this.isNewSave = true;
     }
 
-    @Redirect(method = "launchIntegratedServer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
-            target = "Lnet/minecraft/client/Minecraft;theIntegratedServer:Lnet/minecraft/server/integrated/IntegratedServer;", ordinal = 0))
+    @Redirect(method = "launchIntegratedServer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/Minecraft;theIntegratedServer:Lnet/minecraft/server/integrated/IntegratedServer;", ordinal = 0))
     public void onSetIntegratedServerField(Minecraft minecraft, IntegratedServer server) {
         this.theIntegratedServer = server;
         if (this.isNewSave) {
@@ -131,7 +130,6 @@ public abstract class MixinMinecraft implements Client, IMixinMinecraft {
         this.kickMessage = text;
     }
 
-    @SuppressWarnings("UnresolvedMixinReference")
     @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = FORGE_TRANSFORMER_EXIT_VISITOR, remap = false))
     public void onShutdownDelegate(CallbackInfo ci) {
         SpongeImpl.postShutdownEvents();
@@ -167,7 +165,7 @@ public abstract class MixinMinecraft implements Client, IMixinMinecraft {
     }
 
     @SuppressWarnings("deprecation")
-    @Redirect(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/"
+    @Redirect(method="loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value="INVOKE", target="Lnet/minecraft/"
             + "client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V", ordinal = 0))
     public void onLoadWorld(LoadingScreenRenderer loadingScreen, String message) {
         // TODO Minecrell should review this...
