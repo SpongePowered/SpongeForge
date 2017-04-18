@@ -103,6 +103,7 @@ import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
+import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 import org.spongepowered.mod.interfaces.IMixinEvent;
@@ -308,11 +309,15 @@ public class SpongeModEventManager extends SpongeEventManager {
                 if (forced || (!listener.isBeforeModifications() && !beforeModifications)
                         || (listener.isBeforeModifications() && beforeModifications)) {
                     listener.getTimingsHandler().startTimingIfSync();
+                    CauseTracker.getInstance().getCurrentContext().activeContainer(listener.getPlugin());
+
                     listener.handle(event);
-                    listener.getTimingsHandler().stopTimingIfSync();
                 }
             } catch (Throwable e) {
                 this.logger.error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
+            } finally {
+                listener.getTimingsHandler().stopTimingIfSync();
+                CauseTracker.getInstance().getCurrentContext().activeContainer(null);
             }
         }
         ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(oldContainer);
