@@ -30,8 +30,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.world.GameType;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
+import org.spongepowered.api.LocalServer;
+import org.spongepowered.api.entity.living.player.gamemode.GameMode;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
@@ -40,13 +43,18 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.IMixinIntegratedServer;
 import org.spongepowered.common.mixin.core.server.MixinMinecraftServer;
+import org.spongepowered.common.registry.type.entity.GameModeRegistryModule;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 
 @NonnullByDefault
 @Mixin(IntegratedServer.class)
-public abstract class MixinIntegratedServer extends MixinMinecraftServer implements IMixinIntegratedServer {
+public abstract class MixinIntegratedServer extends MixinMinecraftServer implements IMixinIntegratedServer, LocalServer {
     @Shadow @Final private WorldSettings theWorldSettings;
     @Shadow @Final private Minecraft mc;
+    @Shadow private boolean isPublic;
+
+    @Shadow public abstract String shareToLAN(GameType type, boolean allowCheats);
+
     private boolean isNewSave;
 
     /**
@@ -100,5 +108,20 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
     @Override
     public boolean isNewSave() {
         return this.isNewSave;
+    }
+
+    @Override
+    public boolean isPublished() {
+        return this.isPublic;
+    }
+
+    @Override
+    public void publish(GameMode mode, boolean withCheats) {
+        this.shareToLAN(GameModeRegistryModule.toGameType(mode), withCheats);
+    }
+
+    @Override
+    public void publish() {
+        this.shareToLAN(mc.playerController.getCurrentGameType(), false);
     }
 }

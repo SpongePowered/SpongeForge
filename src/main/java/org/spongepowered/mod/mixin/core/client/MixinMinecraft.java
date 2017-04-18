@@ -26,17 +26,27 @@ package org.spongepowered.mod.mixin.core.client;
 
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiOverlayDebug;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.world.WorldSettings;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import org.spongepowered.api.Client;
+import org.spongepowered.api.LocalServer;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.ClientPlayer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.lib.Opcodes;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -48,13 +58,18 @@ import org.spongepowered.common.interfaces.IMixinIntegratedServer;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 
+import java.io.File;
+import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 @Mixin(Minecraft.class)
-public abstract class MixinMinecraft implements IMixinMinecraft {
+public abstract class MixinMinecraft implements Client, IMixinMinecraft {
 
     private static final String LOAD_WORLD = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V";
     private static final String ENTITY_PLAYER_PREPARE_TO_SPAWN = "Lnet/minecraft/client/entity/EntityPlayerSP;preparePlayerToSpawn()V";
@@ -66,6 +81,17 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     @Shadow private LanguageManager mcLanguageManager;
     @Shadow private IntegratedServer theIntegratedServer;
 
+    @Shadow public WorldClient world;
+    @Shadow public EntityPlayerSP player;
+
+    @Shadow @Final private File fileAssets;
+    @Shadow @Final private File fileResourcepacks;
+    @Shadow @Nullable public GuiScreen currentScreen;
+
+    @Shadow public abstract void launchIntegratedServer(String folderName, String worldName, @Nullable WorldSettings worldSettingsIn);
+
+    @Shadow public abstract boolean isCallingFromMinecraftThread();
+
     private GuiOverlayDebug debugGui;
     private Text kickMessage;
     private boolean isNewSave;
@@ -75,7 +101,8 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         this.isNewSave = true;
     }
 
-    @Redirect(method = "launchIntegratedServer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/Minecraft;theIntegratedServer:Lnet/minecraft/server/integrated/IntegratedServer;", ordinal = 0))
+    @Redirect(method = "launchIntegratedServer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
+            target = "Lnet/minecraft/client/Minecraft;theIntegratedServer:Lnet/minecraft/server/integrated/IntegratedServer;", ordinal = 0))
     public void onSetIntegratedServerField(Minecraft minecraft, IntegratedServer server) {
         this.theIntegratedServer = server;
         if (this.isNewSave) {
@@ -104,6 +131,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         this.kickMessage = text;
     }
 
+    @SuppressWarnings("UnresolvedMixinReference")
     @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = FORGE_TRANSFORMER_EXIT_VISITOR, remap = false))
     public void onShutdownDelegate(CallbackInfo ci) {
         SpongeImpl.postShutdownEvents();
@@ -139,8 +167,9 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     }
 
     @SuppressWarnings("deprecation")
-    @Redirect(method="loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value="INVOKE", target="Lnet/minecraft/"
-            + "client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V", ordinal = 0))
+    @Redirect(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/"
+                    + "client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V", ordinal = 0))
     public void onLoadWorld(LoadingScreenRenderer loadingScreen, String message) {
         // TODO Minecrell should review this...
         if (this.kickMessage == null) {
@@ -148,13 +177,70 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         } else {
             String loadingString;
             if (this.kickMessage instanceof TranslatableText) {
-                loadingString = ((TranslatableText) this.kickMessage).getTranslation().get(Locale.forLanguageTag(this.mcLanguageManager.getCurrentLanguage()
-                        .getLanguageCode()));
+                loadingString =
+                        ((TranslatableText) this.kickMessage).getTranslation().get(Locale.forLanguageTag(this.mcLanguageManager.getCurrentLanguage()
+                                .getLanguageCode()));
             } else {
                 loadingString = TextSerializers.LEGACY_FORMATTING_CODE.serialize(this.kickMessage);
             }
             loadingScreen.displayLoadingString(loadingString);
             this.kickMessage = null;
         }
+    }
+
+    @Override
+    public Optional<World> getLoadedWorld() {
+        return Optional.ofNullable((World) world);
+    }
+
+    @Override
+    public Optional<ClientPlayer> getClientPlayer() {
+        return Optional.ofNullable((ClientPlayer) player);
+    }
+
+    @Override
+    public Optional<LocalServer> getLocalServer() {
+        return Optional.ofNullable((LocalServer) theIntegratedServer);
+    }
+
+    @Override
+    public void loadWorldSave(Path saveLocation) {
+        try {
+            Path saveDir = saveLocation.relativize(Sponge.getGame().getSavesDirectory());
+
+            String save = saveDir.toString();
+            String name = saveDir.getFileName().toString();
+
+            launchIntegratedServer(save, name, null);
+
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Save location is not in the saves folder: " + saveLocation, e);
+        }
+    }
+
+    @Override
+    public void joinServer(InetSocketAddress server) {
+        String host = server.getHostString();
+        int port = server.getPort();
+        ServerData serverData = new ServerData("Sponge API Call", host + ":" + port, false);
+
+        // connect to the server
+        FMLClientHandler.instance().connectToServer(currentScreen, serverData);
+
+    }
+
+    @Override
+    public Path getResourcePacksDirectory() {
+        return fileResourcepacks.toPath();
+    }
+
+    @Override
+    public Path getAssetsDirectory() {
+        return fileAssets.toPath();
+    }
+
+    @Override
+    public boolean isMainThread() {
+        return isCallingFromMinecraftThread();
     }
 }

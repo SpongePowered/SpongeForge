@@ -27,8 +27,11 @@ package org.spongepowered.mod;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.inject.Singleton;
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.spongepowered.api.Client;
 import org.spongepowered.api.GameDictionary;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -56,6 +59,21 @@ public final class SpongeModGame extends SpongeGame {
         final MinecraftServer server = FMLCommonHandler.instance().getSidedDelegate().getServer();
         checkState(server != null, "Server has not been initialized yet!");
         return (Server) server;
+    }
+
+    @Override
+    public boolean isClientAvailable() {
+        return this.getPlatform().getType().isClient() && FMLClientHandler.instance().getClient() != null;
+    }
+
+    @SuppressWarnings("LocalVariableDeclarationSideOnly")
+    @Override
+    public Client getClient() {
+        checkState(this.getPlatform().getType().isClient(), "Client is not available on this platform.");
+        final Minecraft mc = FMLClientHandler.instance().getClient();
+        checkState(mc != null, "Client has not been initialized yet!");
+        return (Client) mc;
+
     }
 
     @Override
