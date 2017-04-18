@@ -82,9 +82,11 @@
     ],
     "client": [
         "client.MixinMinecraft",
+        "client.entity.MixinAbstractClientPlayer",
         "client.gui.MixinGuiOverlayDebug",
         "client.multiplayer.MixinChunkProviderClient",
         "client.network.MixinNetHandlerPlayClient",
+        "client.network.MixinNetworkPlayerInfo",
         "client.server.MixinIntegratedServer",
         "server.MixinIntegratedServerAnonInner3"
     ],
