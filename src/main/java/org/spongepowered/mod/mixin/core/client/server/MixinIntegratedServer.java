@@ -122,6 +122,6 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
 
     @Override
     public void publish() {
-        this.shareToLAN(mc.playerController.getCurrentGameType(), false);
+        this.shareToLAN(this.mc.playerController.getCurrentGameType(), false);
     }
 }

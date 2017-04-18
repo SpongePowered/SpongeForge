@@ -167,9 +167,8 @@ public abstract class MixinMinecraft implements Client, IMixinMinecraft {
     }
 
     @SuppressWarnings("deprecation")
-    @Redirect(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/"
-                    + "client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V", ordinal = 0))
+    @Redirect(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/"
+            + "client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V", ordinal = 0))
     public void onLoadWorld(LoadingScreenRenderer loadingScreen, String message) {
         // TODO Minecrell should review this...
         if (this.kickMessage == null) {
@@ -177,9 +176,8 @@ public abstract class MixinMinecraft implements Client, IMixinMinecraft {
         } else {
             String loadingString;
             if (this.kickMessage instanceof TranslatableText) {
-                loadingString =
-                        ((TranslatableText) this.kickMessage).getTranslation().get(Locale.forLanguageTag(this.mcLanguageManager.getCurrentLanguage()
-                                .getLanguageCode()));
+                loadingString = ((TranslatableText) this.kickMessage).getTranslation().get(Locale.forLanguageTag(this.mcLanguageManager.getCurrentLanguage()
+                        .getLanguageCode()));
             } else {
                 loadingString = TextSerializers.LEGACY_FORMATTING_CODE.serialize(this.kickMessage);
             }
@@ -190,17 +188,17 @@ public abstract class MixinMinecraft implements Client, IMixinMinecraft {
 
     @Override
     public Optional<World> getLoadedWorld() {
-        return Optional.ofNullable((World) world);
+        return Optional.ofNullable((World) this.world);
     }
 
     @Override
     public Optional<ClientPlayer> getClientPlayer() {
-        return Optional.ofNullable((ClientPlayer) player);
+        return Optional.ofNullable((ClientPlayer) this.player);
     }
 
     @Override
     public Optional<LocalServer> getLocalServer() {
-        return Optional.ofNullable((LocalServer) theIntegratedServer);
+        return Optional.ofNullable((LocalServer) this.theIntegratedServer);
     }
 
     @Override
@@ -225,18 +223,18 @@ public abstract class MixinMinecraft implements Client, IMixinMinecraft {
         ServerData serverData = new ServerData("Sponge API Call", host + ":" + port, false);
 
         // connect to the server
-        FMLClientHandler.instance().connectToServer(currentScreen, serverData);
+        FMLClientHandler.instance().connectToServer(this.currentScreen, serverData);
 
     }
 
     @Override
     public Path getResourcePacksDirectory() {
-        return fileResourcepacks.toPath();
+        return this.fileResourcepacks.toPath();
     }
 
     @Override
     public Path getAssetsDirectory() {
-        return fileAssets.toPath();
+        return this.fileAssets.toPath();
     }
 
     @Override
