@@ -41,6 +41,7 @@ import org.spongepowered.api.Client;
 import org.spongepowered.api.LocalServer;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.ClientPlayer;
+import org.spongepowered.api.network.ServerConnection;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.serializer.TextSerializers;
@@ -197,6 +198,14 @@ public abstract class MixinMinecraft implements Client, IMixinMinecraft {
     @Override
     public Optional<LocalServer> getLocalServer() {
         return Optional.ofNullable((LocalServer) this.theIntegratedServer);
+    }
+
+    @Override
+    public Optional<ServerConnection> getServerConnection() {
+        if (this.player != null) {
+            return Optional.of((ServerConnection) this.player.connection);
+        }
+        return Optional.empty();
     }
 
     @Override
