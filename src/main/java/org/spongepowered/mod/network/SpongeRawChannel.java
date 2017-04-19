@@ -34,7 +34,7 @@ import io.netty.channel.ChannelHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import org.spongepowered.api.Platform;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.ServerPlayer;
 import org.spongepowered.api.network.ChannelBinding;
 import org.spongepowered.api.network.ChannelBuf;
 import org.spongepowered.api.network.ChannelRegistrar;
@@ -99,7 +99,7 @@ public class SpongeRawChannel extends SpongeModChannelBinding implements Channel
     }
 
     @Override
-    public void sendTo(Player player, Consumer<ChannelBuf> payload) {
+    public void sendTo(ServerPlayer player, Consumer<ChannelBuf> payload) {
         super.sendTo(player, createPacket(payload));
     }
 

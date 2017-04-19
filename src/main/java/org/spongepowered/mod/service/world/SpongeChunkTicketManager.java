@@ -36,7 +36,7 @@ import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.ServerPlayer;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.api.world.World;
@@ -82,7 +82,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     @Override
     public Optional<PlayerLoadingTicket> createPlayerTicket(Object plugin, World world, UUID player) {
-        Optional<Player> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
+        Optional<ServerPlayer> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
         if (!spongePlayer.isPresent()) {
             return Optional.empty();
         }
@@ -99,7 +99,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     @Override
     public Optional<PlayerEntityLoadingTicket> createPlayerEntityTicket(Object plugin, World world, UUID player) {
-        Optional<Player> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
+        Optional<ServerPlayer> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
         if (!spongePlayer.isPresent()) {
             return Optional.empty();
         }
@@ -126,7 +126,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     @Override
     public int getAvailableTickets(UUID player) {
-        Optional<Player> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
+        Optional<ServerPlayer> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
         if (!spongePlayer.isPresent()) {
             return 0;
         }
@@ -345,7 +345,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
         public ListMultimap<String, Ticket> playerTicketsLoaded(ListMultimap<String, Ticket> tickets, net.minecraft.world.World world) {
             ListMultimap<UUID, LoadingTicket> spongeLoadingTickets = ArrayListMultimap.create();
             for (Map.Entry<String, Ticket> mapEntry : tickets.entries()) {
-                Optional<Player> player = SpongeImpl.getGame().getServer().getPlayer(mapEntry.getKey());
+                Optional<ServerPlayer> player = SpongeImpl.getGame().getServer().getPlayer(mapEntry.getKey());
                 if (player.isPresent()) {
                     spongeLoadingTickets.put(player.get().getUniqueId(), new SpongePlayerLoadingTicket(mapEntry.getValue()));
                 }
@@ -357,7 +357,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
             ListMultimap<String, Ticket> forgeTickets = ArrayListMultimap.create();
 
             for (Map.Entry<UUID, LoadingTicket> mapEntry : spongeKeptTickets.entries()) {
-                Optional<Player> player = SpongeImpl.getGame().getServer().getPlayer(mapEntry.getKey());
+                Optional<ServerPlayer> player = SpongeImpl.getGame().getServer().getPlayer(mapEntry.getKey());
                 if (player.isPresent()) {
                     forgeTickets.put(player.get().getName(), ((SpongeLoadingTicket) mapEntry.getValue()).forgeTicket);
                 }

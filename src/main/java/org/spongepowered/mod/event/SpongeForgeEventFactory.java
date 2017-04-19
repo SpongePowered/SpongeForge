@@ -84,6 +84,7 @@ import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.ServerPlayer;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.SpongeEventFactory;
@@ -139,7 +140,6 @@ import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -421,7 +421,7 @@ public class SpongeForgeEventFactory {
         formatter.getBody().add(new DefaultBodyApplier(chat[1]));
 
         Text rawSpongeMessage = Text.of(forgeEvent.getMessage());
-        MessageChannel originalChannel = channel = ((Player) forgeEvent.getPlayer()).getMessageChannel();
+        MessageChannel originalChannel = channel = ((ServerPlayer) forgeEvent.getPlayer()).getMessageChannel();
         MessageChannelEvent.Chat spongeEvent = SpongeEventFactory.createMessageChannelEventChat(Cause.source(forgeEvent.getPlayer()).build(), originalChannel, Optional.ofNullable(channel), formatter, rawSpongeMessage, false);
         return spongeEvent;
     }
@@ -788,7 +788,7 @@ public class SpongeForgeEventFactory {
     // Bulk Event Handling
     private static InteractBlockEvent createPlayerInteractEvent(Event event) {
         InteractBlockEvent spongeEvent = (InteractBlockEvent) event;
-        Player player = spongeEvent.getCause().first(Player.class).orElse(null);
+        ServerPlayer player = spongeEvent.getCause().first(ServerPlayer.class).orElse(null);
         // Forge doesn't support left-click AIR
         if (player == null || (spongeEvent instanceof InteractBlockEvent.Primary && spongeEvent.getTargetBlock() == BlockSnapshot.NONE)) {
             return spongeEvent;
@@ -1120,7 +1120,7 @@ public class SpongeForgeEventFactory {
 
     private static InteractEntityEvent.Secondary callEntityInteractEvent(Event event) {
         InteractEntityEvent.Secondary spongeEvent = (InteractEntityEvent.Secondary) event;
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
+        Optional<ServerPlayer> player = spongeEvent.getCause().first(ServerPlayer.class);
         if (!player.isPresent()) {
             return null;
         }

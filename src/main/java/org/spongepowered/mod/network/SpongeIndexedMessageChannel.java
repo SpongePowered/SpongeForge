@@ -32,7 +32,7 @@ import io.netty.channel.ChannelHandler;
 import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.Platform;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.ServerPlayer;
 import org.spongepowered.api.network.ChannelBinding;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.network.Message;
@@ -108,7 +108,7 @@ class SpongeIndexedMessageChannel extends SpongeModChannelBinding implements Cha
     }
 
     @Override
-    public void sendTo(Player player, Message message) {
+    public void sendTo(ServerPlayer player, Message message) {
         super.sendTo(player, checkMessage(message));
     }
 

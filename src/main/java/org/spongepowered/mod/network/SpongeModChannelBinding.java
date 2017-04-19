@@ -34,7 +34,7 @@ import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
 import net.minecraftforge.fml.common.network.FMLOutboundHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.ServerPlayer;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.network.SpongeNetworkManager.AbstractChannelBinding;
@@ -59,7 +59,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
         checkState(this.valid, "Channel bindng in invalid state (was it unbound?)");
     }
 
-    protected void sendTo(Player player, Object data) {
+    protected void sendTo(ServerPlayer player, Object data) {
         checkValidState();
         if (!((IMixinNetPlayHandler) ((EntityPlayerMP) player).connection).getRegisteredChannels().contains(getName())) {
             return; // Player doesn't accept this channel

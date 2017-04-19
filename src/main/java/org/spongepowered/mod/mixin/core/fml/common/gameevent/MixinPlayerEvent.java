@@ -28,7 +28,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.spongepowered.api.entity.Transform;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.ServerPlayer;
 import org.spongepowered.api.event.entity.living.humanoid.player.TargetPlayerEvent;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Final;
@@ -50,14 +50,14 @@ public abstract class MixinPlayerEvent extends MixinEvent implements TargetPlaye
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(EntityPlayer player, CallbackInfo ci) {
         if (player instanceof EntityPlayerMP) {
-            this.fromTransform = ((Player) player).getTransform();
-            this.toTransform = ((Player) player).getTransform();
+            this.fromTransform = ((ServerPlayer) player).getTransform();
+            this.toTransform = ((ServerPlayer) player).getTransform();
         }
     }
 
     @Override
-    public Player getTargetEntity() {
-        return (Player) this.player;
+    public ServerPlayer getTargetEntity() {
+        return (ServerPlayer) this.player;
     }
 
 }

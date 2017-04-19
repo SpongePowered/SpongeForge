@@ -27,7 +27,7 @@ package org.spongepowered.mod.mixin.core.server;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.ServerPlayer;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
@@ -55,7 +55,7 @@ public class MixinIntegratedServerAnonInner3 {
     @ModifyArg(method = "run()V", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/management/PlayerList;playerLoggedOut(Lnet/minecraft/entity/player/EntityPlayerMP;)V"))
     public EntityPlayerMP beforeFirePlayerLoggedOut(EntityPlayerMP playerIn) {
-        Player player = (Player) playerIn;
+        ServerPlayer player = (ServerPlayer) playerIn;
         MessageChannel originalChannel = player.getMessageChannel();
         ClientConnectionEvent.Disconnect event = SpongeEventFactory.createClientConnectionEventDisconnect(
                 Cause.of(NamedCause.source(player)), originalChannel, Optional.of(originalChannel), new MessageEvent.MessageFormatter(), player, true
