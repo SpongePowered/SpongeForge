@@ -38,6 +38,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.interfaces.IMixinNetworkManager;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.mod.client.ClientTabList;
@@ -58,7 +59,6 @@ public abstract class MixinNetHandlerPlayClient implements ServerConnection, IMi
     @Shadow public abstract Collection<NetworkPlayerInfo> getPlayerInfoMap();
 
     @Shadow public abstract NetworkPlayerInfo getPlayerInfo(UUID uniqueId);
-
 
     private final Set<String> registeredChannels = Sets.newHashSet();
     private final ClientTabList tabList = new ClientTabList((NetHandlerPlayClient) (Object) this);
@@ -99,16 +99,19 @@ public abstract class MixinNetHandlerPlayClient implements ServerConnection, IMi
     /**
      * Sets the parent tab list for the tab list entries when they are created.
      *
-     * @param packetIn The packet
-     * @param ci The callback
      * @author killjoy1221
      */
-    @Inject(method = "handlePlayerListItem", at = @At(value = "RETURN"))
-    public void onEntryAdded(SPacketPlayerListItem packetIn, CallbackInfo ci) {
-        // go through all the player info and set the tab list
-        // just in case one was added
-        for (NetworkPlayerInfo npi : this.getPlayerInfoMap()) {
-            ((IMixinNetworkPlayerInfo) npi).setTabList(this.tabList);
-        }
+    @Inject(method = "handlePlayerListItem",
+            locals = LocalCapture.CAPTURE_FAILHARD,
+            at = @At(
+                    value = "FIELD",
+                    // this call is Map.put
+                    target = "Lnet/minecraft/client/network/NetHandlerPlayClient;playerInfoMap:Ljava/util/Map;",
+                    ordinal = 2))
+    public void onEntryAdded(SPacketPlayerListItem packetIn, CallbackInfo ci, Iterable iter, SPacketPlayerListItem.AddPlayerData
+            addPlayerData, NetworkPlayerInfo npi) {
+        // set the tab list on the newly created object
+        ((IMixinNetworkPlayerInfo) npi).setTabList(this.tabList);
+
     }
 }
