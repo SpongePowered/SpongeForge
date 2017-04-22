@@ -153,11 +153,13 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
         private PluginContainer plugin;
         private String pluginId;
         private ImmutableSet<Vector3i> chunkList;
+        private World world;
 
         private SpongeLoadingTicket(Ticket ticket) {
             this.forgeTicket = ticket;
             this.plugin = SpongeImpl.getGame().getPluginManager().getPlugin(ticket.getModId()).get();
             this.pluginId = this.plugin.getId();
+            this.world = (World) ticket.world;
         }
 
         @Override
@@ -178,6 +180,11 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
         @Override
         public int getMaxNumChunks() {
             return this.forgeTicket.getMaxChunkListDepth();
+        }
+
+        @Override
+        public World getWorld() {
+            return this.world;
         }
 
         @Override
