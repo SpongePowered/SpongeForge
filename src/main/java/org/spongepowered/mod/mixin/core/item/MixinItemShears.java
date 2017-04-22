@@ -111,7 +111,7 @@ public abstract class MixinItemShears extends Item {
 
                     if (!drop.isEmpty()) {
                         // FIRST we want to throw the DropItemEvent.PRE
-                        final ItemStackSnapshot snapshot = ItemStackUtil.createSnapshot(drop);
+                        final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
                         final List<ItemStackSnapshot> original = new ArrayList<>();
                         original.add(snapshot);
                         final DropItemEvent.Pre dropEvent = SpongeEventFactory.createDropItemEventPre(Cause.of(NamedCause.source(entity)),
