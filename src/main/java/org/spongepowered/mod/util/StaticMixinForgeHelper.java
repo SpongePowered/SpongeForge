@@ -37,6 +37,7 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.entity.damage.DamageFunction;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifierTypes;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
@@ -48,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -65,7 +67,7 @@ public final class StaticMixinForgeHelper {
         return damageSource;
     }
 
-    public static Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> createArmorModifiers(
+    public static Optional<List<DamageFunction>> createArmorModifiers(
         EntityLivingBase entityLivingBase, DamageSource damageSource, double damage) {
         Iterable<ItemStack> inventory = entityLivingBase.getArmorInventoryList();
         final List<ItemStack> itemStacks = Lists.newArrayList(inventory);
@@ -102,9 +104,9 @@ public final class StaticMixinForgeHelper {
 
     private static double damageToHandle;
 
-    private static Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> createArmorModifiers(List<ISpecialArmor.ArmorProperties> dmgVals, List<ItemStack> inventory, double damage) {
+    private static Optional<List<DamageFunction>> createArmorModifiers(List<ISpecialArmor.ArmorProperties> dmgVals, List<ItemStack> inventory, double damage) {
         if (dmgVals.size() > 0) {
-            final List<Tuple<DamageModifier, Function<? super Double, Double>>> list = new ArrayList<>();
+            final List<DamageFunction> list = new ArrayList<>();
             ISpecialArmor.ArmorProperties[] props = dmgVals.toArray(new ISpecialArmor.ArmorProperties[dmgVals.size()]);
             sortProperties(props, damage);
             boolean first = true;
@@ -120,7 +122,7 @@ public final class StaticMixinForgeHelper {
                     object.previousDamage = damage;
                     object.augment = true;
                 }
-                Function<? super Double, Double> function = incomingDamage -> {
+                DoubleUnaryOperator function = incomingDamage -> {
                     incomingDamage *= 25;
                     if (object.augment) {
                         damageToHandle = incomingDamage;
@@ -153,7 +155,7 @@ public final class StaticMixinForgeHelper {
                                     NamedCause.of("0xDEADBEEF", object)))
                     .type(DamageModifierTypes.ARMOR)
                     .build();
-                list.add(new Tuple<>(modifier, function));
+                list.add(DamageFunction.of(modifier, function));
                 first = false;
             }
             return Optional.of(list);

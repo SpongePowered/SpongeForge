@@ -29,6 +29,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ISpecialArmor.ArmorProperties;
 import org.spongepowered.api.entity.living.Living;
+import org.spongepowered.api.event.cause.entity.damage.DamageFunction;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.util.Tuple;
@@ -47,7 +48,7 @@ import java.util.function.Function;
 public abstract class MixinEntityLivingBase extends MixinEntity implements Living, IMixinEntityLivingBase {
 
     @Override
-    public Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> provideArmorModifiers(EntityLivingBase entityLivingBase,
+    public Optional<List<DamageFunction>> provideArmorModifiers(EntityLivingBase entityLivingBase,
          DamageSource source, double damage) {
         return StaticMixinForgeHelper.createArmorModifiers((EntityLivingBase) (Object) this, source, damage);
     }
