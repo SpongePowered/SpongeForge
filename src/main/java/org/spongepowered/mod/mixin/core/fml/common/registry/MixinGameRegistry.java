@@ -68,7 +68,7 @@ public class MixinGameRegistry {
 
     private static Map<Class<?>, Timing> worldGeneratorTimings = Maps.newHashMap();
 
-    @Redirect(method = "generateWorld", at = @At(value = "INVOKE", target = WORLD_GENERATOR_GENERATE))
+    @Redirect(method = "generateWorld", at = @At(value = "INVOKE", target = WORLD_GENERATOR_GENERATE, remap = false))
     private static void onGenerateWorld(IWorldGenerator worldGenerator, Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider) {
         Timing timing = null;
         if (Timings.isTimingsEnabled()) {

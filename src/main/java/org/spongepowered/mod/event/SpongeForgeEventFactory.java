@@ -1055,6 +1055,7 @@ public class SpongeForgeEventFactory {
         return spongeEvent;
     }
 
+    @SuppressWarnings("deprecation")
     public static ChangeBlockEvent.Place callBlockPlaceEvent(Event event) {
         ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) event;
 

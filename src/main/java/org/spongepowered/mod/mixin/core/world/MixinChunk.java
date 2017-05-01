@@ -154,10 +154,12 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     private static int getChunkBlockLightOpacity(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
         return blockState.getLightOpacity();
     }
 
+    @SuppressWarnings("deprecation")
     private static int getChunkBlockLightOpacity(IBlockState state, net.minecraft.world.World worldObj, int x, int y, int z) {
         return state.getLightOpacity();
     }
@@ -188,6 +190,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
      * @param z The z position
      * @return whatever vanilla said
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     private int getBlockLightOpacity(int x, int y, int z) {
         IBlockState state = this.getBlockState(x, y, z); //Forge: Can sometimes be called before we are added to the global world list. So use the less accurate one during that. It'll be recalculated later

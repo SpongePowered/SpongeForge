@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.DungeonHooks;
 import org.spongepowered.api.entity.EntityArchetype;
 import org.spongepowered.api.entity.EntityType;
@@ -41,9 +42,9 @@ import java.util.Optional;
 @Mixin(DungeonHooks.class)
 public class MixinDungeonHooks {
 
-    @Inject(method = "addDungeonMob(Ljava/lang/String;I)F", at = @At("RETURN"), remap = false)
-    protected void onAddDungeonMob(CallbackInfoReturnable<Float> ci, String name, int rarity) {
-        Optional<EntityType> type = EntityUtil.fromNameToType(name);
+    @Inject(method = "addDungeonMob(Lnet/minecraft/util/ResourceLocation;I)F", at = @At("RETURN"), remap = false)
+    protected static void onAddDungeonMob(CallbackInfoReturnable<Float> ci, ResourceLocation name, int rarity) {
+        Optional<EntityType> type = EntityUtil.fromLocationToType(name);
         if (!type.isPresent()) {
             SpongeImpl.getLogger().error("Mod tried to add a DungeonMob for a non existant mob " + name +" !");
             return;
@@ -53,9 +54,9 @@ public class MixinDungeonHooks {
         DungeonMobRegistryModule.getInstance().put(type.get(), ret.intValue());
     }
 
-    @Inject(method = "removeDungeonMob(Ljava/lang/String;)I", at = @At("HEAD"), remap = false)
-    protected void onRemoveDungeonMob(CallbackInfoReturnable<Integer> ci, String name) {
-        Optional<EntityType> type = EntityUtil.fromNameToType(name);
+    @Inject(method = "removeDungeonMob(Lnet/minecraft/util/ResourceLocation;)I", at = @At("HEAD"), remap = false)
+    protected static void onRemoveDungeonMob(CallbackInfoReturnable<Integer> ci, ResourceLocation name) {
+        Optional<EntityType> type = EntityUtil.fromLocationToType(name);
         if (!type.isPresent()) {
             SpongeImpl.getLogger().error("Mod tried to remove a DungeonMob for a non existant mob " + name +" !");
             return;
