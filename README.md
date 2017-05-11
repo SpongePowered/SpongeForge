@@ -23,17 +23,19 @@ The following steps will ensure your project is cloned properly.
 3. `cp scripts/pre-commit .git/hooks`
 
 ## Setup
-__Note:__ If you do not have [Gradle] installed then use `./gradlew` for Unix systems or Git Bash and `gradlew.bat` for Windows systems in place of any `gradle` command.
+**Note**: SpongeForge uses [Gradle] as its build system. The repo includes the Gradle wrapper that will automatically download the correct Gradle 
+version. Local installations of Gradle may work but are untested. To execute the Gradle wrapper, run the `./gradlew` script on Unix systems or only
+`gradlew` on Windows systems.
 
 Before you are able to build SpongeForge, you must first prepare the environment:
 
-  - Run `gradle setupDecompWorkspace --refresh-dependencies`
+  - Run `./gradlew setupDecompWorkspace --refresh-dependencies`
 
 **Note**: You may substitute `setupDecompWorkspace` for `setupCIWorkspace` when building on a CI such as [Jenkins].
 
 ### IDE Setup
 __For [Eclipse]__
-  1. Run `gradle eclipse`
+  1. Run `./gradlew eclipse`
   2. Import Sponge as an existing project (File > Import > General)
   3. Select the root folder for SpongeForge and make sure `Search for nested projects` is enabled
   4. Check Sponge when it finishes building and click **Finish**
@@ -41,34 +43,32 @@ __For [Eclipse]__
 __For [IntelliJ]__
   1. Make sure you have the Gradle plugin enabled (File > Settings > Plugins).  
   2. Click File > New > Project from Existing Sources > Gradle and select the root folder for SpongeForge.
-  3. Select _Use customizable gradle wrapper_ if you do not have Gradle installed.
+  3. Make sure _Use default gradle wrapper_ is selected. Older/newer Gradle versions may work but we only test using the wrapper.
 
 ## Running
 __Note:__ The following is aimed to help you setup run configurations for Eclipse and IntelliJ, if you do not want to be able to run SpongeForge directly from your IDE then you can skip this.
 
 __For [Eclipse]__ 
-  1. Running `gradle eclipse` should have generated the run configurations automatically.
+  1. Running `./gradlew eclipse` should have generated the run configurations automatically.
   2. When launching the server for the first time, it will shutdown by itself. You will need to modify eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
 
 __For [IntelliJ]__
-  1. Run `gradle genIntelliJRuns`
+  1. Run `./gradlew genIntelliJRuns`
   2. Restart IntelliJ IDEA or reload the project, the run configuration should now be generated.
   3. When launching the server for the first time, it will shutdown by itself. You will need to modify eula.txt to set eula=true (this means you agree to the Mojang EULA, if you do not wish to do this then you cannot run the server).
 
 ## Building
-__Note:__ If you do not have [Gradle] installed then use ./gradlew for Unix systems or Git Bash and gradlew.bat for Windows systems in place of any 'gradle' command.
-
 __Note:__ You must [Setup the environment](#setup) before you can build SpongeForge.
 
-In order to build SpongeForge you simply need to run the `gradle` command. You can find the compiled JAR files in `./build/libs` but in most cases
-you'll only need 'spongeforge-x.x.x-x-x.x-x.jar'.
+In order to build SpongeForge you simply need to run the `gradlew` command. On Windows systems you should run `gradlew` instead of `./gradlew` to
+invoke the Gradle wrapper. You can find the compiled JAR files in `./build/libs` but in most cases you'll only need 'spongeforge-x.x.x-x-x.x-x.jar'.
 
 ## Updating your Clone
 The following steps will update your clone with the official repo.
 
 1. `git pull`
 2. `git submodule update --recursive`
-3. `gradle setupDecompWorkspace --refresh-dependencies`
+3. `./gradlew setupDecompWorkspace --refresh-dependencies`
 
 ## FAQ
 __A dependency was added, but my IDE is missing it! How do I add it?__
