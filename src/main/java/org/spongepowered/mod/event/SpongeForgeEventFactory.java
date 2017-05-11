@@ -872,6 +872,8 @@ public class SpongeForgeEventFactory {
         Object source = spongeEvent.getCause().root();
         Optional<DamageSource> damageSource = spongeEvent.getCause().first(DamageSource.class);
         if (!(source instanceof EntitySpawnCause) || !damageSource.isPresent()) {
+            // Mods expect EntityJoinWorldEvent to trigger
+            callEntityJoinWorldEvent(spongeEvent);
             return spongeEvent;
         }
 
@@ -894,6 +896,8 @@ public class SpongeForgeEventFactory {
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);
+        } else {
+            callEntityJoinWorldEvent(spongeEvent);
         }
 
         return spongeEvent;
@@ -903,6 +907,8 @@ public class SpongeForgeEventFactory {
         DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
         Object source = spongeEvent.getCause().root();
         if (!(source instanceof EntitySpawnCause) || spongeEvent.getEntities().size() <= 0) {
+            // Mods expect EntityJoinWorldEvent to trigger
+            callEntityJoinWorldEvent(spongeEvent);
             return spongeEvent;
         }
 
