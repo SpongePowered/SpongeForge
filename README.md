@@ -31,8 +31,6 @@ Before you are able to build SpongeForge, you must first prepare the environment
 
   - Run `./gradlew setupDecompWorkspace --refresh-dependencies`
 
-**Note**: You may substitute `setupDecompWorkspace` for `setupCIWorkspace` when building on a CI such as [Jenkins].
-
 ### IDE Setup
 __For [Eclipse]__
   1. Run `./gradlew eclipse`
