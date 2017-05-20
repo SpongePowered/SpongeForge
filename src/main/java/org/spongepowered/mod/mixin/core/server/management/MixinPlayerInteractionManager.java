@@ -55,7 +55,6 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;

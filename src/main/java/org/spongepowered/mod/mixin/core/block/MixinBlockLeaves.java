@@ -29,7 +29,6 @@ import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
@@ -66,7 +65,7 @@ public abstract class MixinBlockLeaves extends MixinBlock {
                         .state((BlockState) state)
                         .build();
                 causeTracker.switchToPhase(BlockPhase.State.BLOCK_DECAY, PhaseContext.start()
-                        .add(NamedCause.source(locatable))
+                        .source(locatable)
                         .addCaptures()
                         .complete());
             }
