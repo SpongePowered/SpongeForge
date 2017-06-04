@@ -32,7 +32,9 @@ import org.spongepowered.api.event.Event;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.StateRegistry;
@@ -41,6 +43,8 @@ import org.spongepowered.mod.interfaces.IMixinLoadController;
 @Mixin(value = LoadController.class, remap = false)
 public abstract class MixinLoadController implements IMixinLoadController {
     @Shadow private ModContainer activeContainer;
+
+    @Shadow protected abstract ModContainer findActiveContainerFromStack();
 
     @Redirect(method = "distributeStateMessage", at = @At(value = "INVOKE", target = "Lcom/google/common/eventbus/EventBus;post(Ljava/lang/Object;)V", ordinal = 0))
     public void onPost(EventBus eventBus, Object event, LoaderState state, Object[] eventData) {
@@ -63,5 +67,22 @@ public abstract class MixinLoadController implements IMixinLoadController {
     @Override
     public void setActiveModContainer(ModContainer container) {
         this.activeContainer = container;
+    }
+
+    /**
+     * @author dualspiral - 4th June 2017
+     *
+     * Sponge can post events from threads that are not on the server thread,
+     * and this can cause confusion for the majority of events that are
+     * firing on the server thread. In these cases, we just get the
+     * mod from the stack.
+     *
+     * @param cir
+     */
+    @Inject(method = "activeContainer", at = @At("HEAD"), cancellable = true)
+    private void onActiveContainerHead(CallbackInfoReturnable<ModContainer> cir) {
+        if (!SpongeImpl.getServer().isCallingFromMinecraftThread()) {
+            cir.setReturnValue(findActiveContainerFromStack());
+        }
     }
 }
