@@ -301,10 +301,16 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @SuppressWarnings("unchecked")
     protected boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced) {
+        boolean isServerThread = SpongeImpl.getServer().isCallingFromMinecraftThread();
+
         ModContainer oldContainer = ((IMixinLoadController) SpongeMod.instance.getController()).getActiveModContainer();
         for (@SuppressWarnings("rawtypes")
         RegisteredListener listener : listeners) {
-            ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer((ModContainer) listener.getPlugin());
+            // If events are firing off the main thread, don't set this, as an event on the
+            // server thread might fire.
+            if (isServerThread) {
+                ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer((ModContainer) listener.getPlugin());
+            }
             try {
                 if (forced || (!listener.isBeforeModifications() && !beforeModifications)
                         || (listener.isBeforeModifications() && beforeModifications)) {
@@ -320,7 +326,9 @@ public class SpongeModEventManager extends SpongeEventManager {
                 CauseTracker.getInstance().getCurrentContext().activeContainer(null);
             }
         }
-        ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(oldContainer);
+        if (isServerThread) {
+            ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(oldContainer);
+        }
         return event instanceof Cancellable && ((Cancellable) event).isCancelled();
     }
 
