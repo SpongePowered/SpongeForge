@@ -301,7 +301,7 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @SuppressWarnings("unchecked")
     protected boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced) {
-        boolean isServerThread = SpongeImpl.getServer().isCallingFromMinecraftThread();
+        boolean isServerThread = Sponge.isServerAvailable() && SpongeImpl.getServer().isCallingFromMinecraftThread();
 
         ModContainer oldContainer = ((IMixinLoadController) SpongeMod.instance.getController()).getActiveModContainer();
         for (@SuppressWarnings("rawtypes")
