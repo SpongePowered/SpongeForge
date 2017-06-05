@@ -905,7 +905,11 @@ public class SpongeForgeEventFactory {
     public static DropItemEvent.Dispense callItemTossEvent(Event event) {
         DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
         Object source = spongeEvent.getCause().root();
-        if (!(source instanceof EntitySpawnCause) || spongeEvent.getEntities().size() <= 0) {
+        if (spongeEvent.getEntities().size() <= 0) {
+            return spongeEvent;
+        }
+
+        if (!(source instanceof EntitySpawnCause)) {
             // Mods expect EntityJoinWorldEvent to trigger
             callEntityJoinWorldEvent(spongeEvent);
             return spongeEvent;
@@ -933,6 +937,10 @@ public class SpongeForgeEventFactory {
     public static SpawnEntityEvent callEntityJoinWorldEvent(Event event) {
         SpawnEntityEvent spongeEvent = (SpawnEntityEvent) event;
         ListIterator<org.spongepowered.api.entity.Entity> iterator = spongeEvent.getEntities().listIterator();
+        if (spongeEvent.getEntities().size() == 0) {
+            return spongeEvent;
+        }
+
         // used to avoid player item restores when set to dead
         boolean canCancelEvent = true;
 
