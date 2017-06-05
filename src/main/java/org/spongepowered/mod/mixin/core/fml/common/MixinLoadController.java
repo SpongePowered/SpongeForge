@@ -28,6 +28,7 @@ import com.google.common.eventbus.EventBus;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.LoaderState;
 import net.minecraftforge.fml.common.ModContainer;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -81,7 +82,7 @@ public abstract class MixinLoadController implements IMixinLoadController {
      */
     @Inject(method = "activeContainer", at = @At("HEAD"), cancellable = true)
     private void onActiveContainerHead(CallbackInfoReturnable<ModContainer> cir) {
-        if (!SpongeImpl.getServer().isCallingFromMinecraftThread()) {
+        if (Sponge.isServerAvailable() && !SpongeImpl.getServer().isCallingFromMinecraftThread()) {
             cir.setReturnValue(findActiveContainerFromStack());
         }
     }
