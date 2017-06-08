@@ -73,7 +73,7 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
      * @return The world server, if available, or else the overworld
      */
     @Overwrite
-    public WorldServer worldServerForDimension(int dimensionId) {
+    public WorldServer getWorld(int dimensionId) {
         WorldServer ret = WorldManager.getWorldByDimensionId(dimensionId).orElse(null);
         if (ret == null) {
             DimensionManager.initDimension(dimensionId);

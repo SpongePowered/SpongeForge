@@ -49,8 +49,8 @@ import org.spongepowered.common.interfaces.IMixinChunk;
 public abstract class MixinChunk implements Chunk, IMixinChunk {
 
     @Shadow @Final private net.minecraft.world.World world;
-    @Shadow @Final public int xPosition;
-    @Shadow @Final public int zPosition;
+    @Shadow @Final public int x;
+    @Shadow @Final public int z;
     @Shadow public boolean unloadQueued;
 
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
@@ -61,7 +61,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     public void onChunkLoadInject(CallbackInfo ci) {
         if (!this.world.isRemote) {
             for (ChunkPos forced : this.world.getPersistentChunks().keySet()) {
-                if (forced.chunkXPos == this.xPosition && forced.chunkZPos == this.zPosition) {
+                if (forced.x == this.x && forced.z == this.z) {
                     this.setPersistedChunk(true);
                     return;
                 }
@@ -73,7 +73,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     @Inject(method = "onChunkUnload", at = @At("RETURN"))
     public void onChunkUnloadInject(CallbackInfo ci) {
         // Moved from ChunkProviderServer
-        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(this.xPosition, this.zPosition), (net.minecraft.world.chunk.Chunk) (Object) this);
+        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(this.x, this.z), (net.minecraft.world.chunk.Chunk) (Object) this);
     }
 
     @Override
@@ -84,7 +84,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
 
         // TODO 1.9 Update - Zidane's thing
         if (this.world.provider.canRespawnHere()) {//&& DimensionManager.shouldLoadSpawn(this.world.provider.getDimension())) {
-            if (this.world.isSpawnChunk(this.xPosition, this.zPosition)) {
+            if (this.world.isSpawnChunk(this.x, this.z)) {
                 return false;
             }
         }
@@ -122,7 +122,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         int i = this.getTopFilledSegment();
         boolean flag = false;
         boolean flag1 = false;
-        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos((this.xPosition << 4) + x, 0, (this.zPosition << 4) + z);
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos((this.x << 4) + x, 0, (this.z << 4) + z);
 
         for (int j = i + 16 - 1; j > this.world.getSeaLevel() || j > 0 && !flag1; --j) {
             blockpos$mutableblockpos.setPos(blockpos$mutableblockpos.getX(), j, blockpos$mutableblockpos.getZ());

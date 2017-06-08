@@ -54,7 +54,8 @@ public class SpongeEventHooks {
 
     @SubscribeEvent
     public void onForceChunk(ForceChunkEvent event) {
-        final net.minecraft.world.chunk.Chunk chunk = ((IMixinChunkProviderServer) event.getTicket().world.getChunkProvider()).getLoadedChunkWithoutMarkingActive(event.getLocation().chunkXPos,  event.getLocation().chunkZPos);
+        final net.minecraft.world.chunk.Chunk chunk = ((IMixinChunkProviderServer) event.getTicket().world.getChunkProvider())
+                .getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
             ((IMixinChunk) chunk).setPersistedChunk(true);
         }
@@ -62,7 +63,8 @@ public class SpongeEventHooks {
 
     @SubscribeEvent
     public void onUnforceChunk(UnforceChunkEvent event) {
-        final net.minecraft.world.chunk.Chunk chunk = ((IMixinChunkProviderServer) event.getTicket().world.getChunkProvider()).getLoadedChunkWithoutMarkingActive(event.getLocation().chunkXPos,  event.getLocation().chunkZPos);
+        final net.minecraft.world.chunk.Chunk chunk = ((IMixinChunkProviderServer) event.getTicket().world.getChunkProvider())
+                .getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
             ((IMixinChunk) chunk).setPersistedChunk(false);
         }
