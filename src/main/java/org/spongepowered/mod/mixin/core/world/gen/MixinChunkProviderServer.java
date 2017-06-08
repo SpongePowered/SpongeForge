@@ -50,7 +50,7 @@ public abstract class MixinChunkProviderServer implements IMixinChunkProviderSer
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;saveChunkExtraData(Lnet/minecraft/world/chunk/Chunk;)V"))
     public void onSaveExtraChunkData(ChunkProviderServer chunkProviderServer, Chunk chunkIn) {
         this.saveChunkExtraData(chunkIn);
-        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(chunkIn.xPosition, chunkIn.zPosition), chunkIn);
+        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(chunkIn.x, chunkIn.z), chunkIn);
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = Shift.AFTER, remap = false))

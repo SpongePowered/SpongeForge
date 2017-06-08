@@ -140,7 +140,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
                 ForgeChunkManager.getPersistentChunksFor((net.minecraft.world.World) world);
         ImmutableSetMultimap.Builder<Vector3i, LoadingTicket> spongeForcedChunks = ImmutableSetMultimap.builder();
         for (Map.Entry<ChunkPos, Ticket> ticketPair : forgeForcedChunks.entries()) {
-            spongeForcedChunks.put(new Vector3i(ticketPair.getKey().chunkXPos, 0, ticketPair.getKey().chunkZPos),
+            spongeForcedChunks.put(new Vector3i(ticketPair.getKey().x, 0, ticketPair.getKey().z),
                     new SpongeLoadingTicket(ticketPair.getValue()));
         }
 
@@ -214,7 +214,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
             Set<Vector3i> forgeChunkList = new HashSet<>();
             for (ChunkPos chunkCoord : this.forgeTicket.getChunkList()) {
-                forgeChunkList.add(new Vector3i(chunkCoord.chunkXPos, 0, chunkCoord.chunkZPos));
+                forgeChunkList.add(new Vector3i(chunkCoord.x, 0, chunkCoord.z));
             }
 
             this.chunkList = new ImmutableSet.Builder<Vector3i>().addAll(forgeChunkList).build();
