@@ -778,7 +778,7 @@ public class SpongeForgeEventFactory {
         if (forgeEvent instanceof net.minecraftforge.event.world.ExplosionEvent.Detonate) {
             net.minecraftforge.event.world.ExplosionEvent.Detonate explosionEvent =
                     (net.minecraftforge.event.world.ExplosionEvent.Detonate) forgeEvent;
-            if (!explosionEvent.getExplosion().isSmoking) { // shouldBreakBlocks
+            if (!explosionEvent.getExplosion().damagesTerrain) {
                 List<BlockPos> affectedBlocks = explosionEvent.getExplosion().getAffectedBlockPositions();
                 affectedBlocks.clear();
             }
@@ -914,7 +914,7 @@ public class SpongeForgeEventFactory {
         EntitySpawnCause spawnCause = (EntitySpawnCause) source;
         Entity entity = EntityUtil.toNative(spawnCause.getEntity());
         EntityItem item = (EntityItem) spongeEvent.getEntities().get(0);
-        if (entity == null || item == null || item.getEntityItem() == null || !(entity instanceof Player)) {
+        if (entity == null || item == null || item.getItem() == null || !(entity instanceof Player)) {
             return spongeEvent;
         }
 
@@ -974,7 +974,7 @@ public class SpongeForgeEventFactory {
         while (it.hasNext()) {
             Entity entity = (Entity) it.next(); //Sponge - use entity from event
             if (entity.getClass().equals(EntityItem.class)) {
-                ItemStack stack = ((EntityItem) entity).getEntityItem();
+                ItemStack stack = ((EntityItem) entity).getItem();
 
                 if (stack.isEmpty()) {
                     //entity.setDead();
