@@ -40,7 +40,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion("1.11.2")
+@IFMLLoadingPlugin.MCVersion("1.12")
 public class SpongeCoremod implements IFMLLoadingPlugin {
 
     public static final class TokenProvider implements IEnvironmentTokenProvider {
@@ -78,7 +78,8 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
             Runtime.getRuntime().exit(1);
         }
 
-        Launch.classLoader.addTransformerExclusion("org.spongepowered.common.launch.");
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.common.launch.");
+        Launch.classLoader.addClassLoaderExclusion("org.slf4j.");
 
         // Let's get this party started
         SpongeLaunch.initPaths((File) FMLInjectionData.data()[6]); // 6 = game dir

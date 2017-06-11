@@ -6,7 +6,7 @@
     "target": "@env(INIT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "fml.common.MixinLoadController"
+        
     ],
     "injectors": {
         "defaultRequire": 1

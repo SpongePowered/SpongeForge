@@ -7,6 +7,7 @@
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "forge.MixinUsernameCache",
+        "fml.common.MixinLoadController",
         "fml.common.MixinLoader",
         "fml.common.MixinModContainer",
         "fml.common.eventhandler.MixinASMEventHandler",

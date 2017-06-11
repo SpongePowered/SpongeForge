@@ -32,6 +32,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import org.apache.logging.log4j.Logger;
@@ -63,7 +64,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
     private final Set<String> registeredChannels = Sets.newHashSet();
 
     @Shadow public abstract void sendPacket(final Packet<?> packetIn);
-    @Shadow public abstract void disconnect(String message);
+    @Shadow public abstract void func_194028_b(ITextComponent message); // disconnect
 
     @Inject(method = "processChatMessage", at = @At(value = "INVOKE", target = "net.minecraftforge.common.ForgeHooks.onServerChatEvent"
             + "(Lnet/minecraft/network/NetHandlerPlayServer;Ljava/lang/String;Lnet/minecraft/util/text/ITextComponent;)"
@@ -81,7 +82,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
             // Chat spam suppression from MC
             this.chatSpamThresholdCount += 20;
             if (this.chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(this.player.getGameProfile())) {
-                this.disconnect("disconnect.spam");
+                this.func_194028_b(new TextComponentTranslation("disconnect.spam"));
             }
         }
 
