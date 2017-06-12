@@ -36,6 +36,7 @@ import org.spongepowered.common.SpongeGame;
 import org.spongepowered.mod.registry.SpongeForgeGameDictionary;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 @NonnullByDefault
 @Singleton
@@ -59,8 +60,8 @@ public final class SpongeModGame extends SpongeGame {
     }
 
     @Override
-    public GameDictionary getGameDictionary() {
-        return SpongeForgeGameDictionary.instance;
+    public Optional<GameDictionary> getGameDictionary() {
+        return Optional.of(SpongeForgeGameDictionary.instance);
     }
 
 }
