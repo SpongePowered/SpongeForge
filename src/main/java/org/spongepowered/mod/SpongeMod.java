@@ -74,6 +74,9 @@ import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
+import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.phase.general.GeneralPhase;
 import org.spongepowered.common.inject.SpongeGuice;
 import org.spongepowered.common.inject.SpongeModule;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
@@ -209,7 +212,9 @@ public class SpongeMod extends MetaModContainer {
         // We can't control Guava's event bus priority, so
         // we make sure to avoid double-firing here.
         if (!event.getClass().equals(FMLConstructionEvent.class)) {
+            CauseTracker.getInstance().switchToPhase(GeneralPhase.State.GAME_STATE_EVENTS, PhaseContext.start().complete());
             ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post((Event) event, true);
+            CauseTracker.getInstance().completePhase(GeneralPhase.State.GAME_STATE_EVENTS);
         }
     }
 
