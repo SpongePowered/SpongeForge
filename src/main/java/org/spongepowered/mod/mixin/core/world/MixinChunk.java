@@ -93,7 +93,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     }
 
     @SideOnly(Side.CLIENT)
-    @Inject(method = "setChunkLoaded", at = @At("RETURN"))
+    @Inject(method = "markLoaded", at = @At("RETURN"))
     public void onSetChunkLoaded(boolean loaded, CallbackInfo ci) {
         Direction[] directions = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
         for (Direction direction : directions) {
