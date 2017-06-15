@@ -42,7 +42,6 @@ import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifierTypes;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
-import org.spongepowered.api.util.Tuple;
 import org.spongepowered.common.event.damage.DamageEventHandler;
 
 import java.util.ArrayList;
@@ -50,7 +49,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -204,7 +202,7 @@ public final class StaticMixinForgeHelper {
                     for (int y = start; y <= x; y++) {
                         double newRatio = armor[y].AbsorbRatio / total;
                         if (newRatio * damage > armor[y].AbsorbMax) {
-                            armor[y].AbsorbRatio = (double) armor[y].AbsorbMax / damage;
+                            armor[y].AbsorbRatio = armor[y].AbsorbMax / damage;
                             total = 0;
                             for (int z = pStart; z <= y; z++) {
                                 total += armor[z].AbsorbRatio;
@@ -212,10 +210,9 @@ public final class StaticMixinForgeHelper {
                             start = y + 1;
                             x = y;
                             break;
-                        } else {
-                            armor[y].AbsorbRatio = newRatio;
-                            pFinished = true;
                         }
+                        armor[y].AbsorbRatio = newRatio;
+                        pFinished = true;
                     }
                     if (pChange && pFinished) {
                         damage -= (damage * total);
@@ -236,7 +233,7 @@ public final class StaticMixinForgeHelper {
                     for (int y = start; y <= x; y++) {
                         total -= armor[y].AbsorbRatio;
                         if (damage * armor[y].AbsorbRatio > armor[y].AbsorbMax) {
-                            armor[y].AbsorbRatio = (double) armor[y].AbsorbMax / damage;
+                            armor[y].AbsorbRatio = armor[y].AbsorbMax / damage;
                         }
                         total += armor[y].AbsorbRatio;
                     }

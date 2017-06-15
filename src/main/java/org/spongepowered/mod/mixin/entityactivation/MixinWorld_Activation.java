@@ -63,91 +63,90 @@ public abstract class MixinWorld_Activation implements IMixinWorld {
             entityIn.ticksExisted++;
             ((IModData_Activation) entityIn).inactiveTick();
             return;
-        } else {
+        }
         // Sponge end
-            entityIn.lastTickPosX = entityIn.posX;
-            entityIn.lastTickPosY = entityIn.posY;
-            entityIn.lastTickPosZ = entityIn.posZ;
-            entityIn.prevRotationYaw = entityIn.rotationYaw;
-            entityIn.prevRotationPitch = entityIn.rotationPitch;
+        entityIn.lastTickPosX = entityIn.posX;
+        entityIn.lastTickPosY = entityIn.posY;
+        entityIn.lastTickPosZ = entityIn.posZ;
+        entityIn.prevRotationYaw = entityIn.rotationYaw;
+        entityIn.prevRotationPitch = entityIn.rotationPitch;
 
-            if (forceUpdate && entityIn.addedToChunk)
+        if (forceUpdate && entityIn.addedToChunk)
+        {
+            ++entityIn.ticksExisted;
+            ++co.aikar.timings.TimingHistory.activatedEntityTicks; // Sponge
+
+            if (entityIn.isRiding())
             {
-                ++entityIn.ticksExisted;
-                ++co.aikar.timings.TimingHistory.activatedEntityTicks; // Sponge
+                entityIn.updateRidden();
+            }
+            else
+            {
+                entityIn.onUpdate();
+            }
+        }
 
-                if (entityIn.isRiding())
+        //this.theProfiler.startSection("chunkCheck");
+
+        if (Double.isNaN(entityIn.posX) || Double.isInfinite(entityIn.posX))
+        {
+            entityIn.posX = entityIn.lastTickPosX;
+        }
+
+        if (Double.isNaN(entityIn.posY) || Double.isInfinite(entityIn.posY))
+        {
+            entityIn.posY = entityIn.lastTickPosY;
+        }
+
+        if (Double.isNaN(entityIn.posZ) || Double.isInfinite(entityIn.posZ))
+        {
+            entityIn.posZ = entityIn.lastTickPosZ;
+        }
+
+        if (Double.isNaN(entityIn.rotationPitch) || Double.isInfinite(entityIn.rotationPitch))
+        {
+            entityIn.rotationPitch = entityIn.prevRotationPitch;
+        }
+
+        if (Double.isNaN(entityIn.rotationYaw) || Double.isInfinite(entityIn.rotationYaw))
+        {
+            entityIn.rotationYaw = entityIn.prevRotationYaw;
+        }
+
+        int l = MathHelper.floor(entityIn.posX / 16.0D);
+        int i1 = MathHelper.floor(entityIn.posY / 16.0D);
+        int j1 = MathHelper.floor(entityIn.posZ / 16.0D);
+
+        if (!entityIn.addedToChunk || entityIn.chunkCoordX != l || entityIn.chunkCoordY != i1 || entityIn.chunkCoordZ != j1)
+        {
+            if (entityIn.addedToChunk && this.isChunkLoaded(entityIn.chunkCoordX, entityIn.chunkCoordZ, true))
+            {
+                this.getChunkFromChunkCoords(entityIn.chunkCoordX, entityIn.chunkCoordZ).removeEntityAtIndex(entityIn, entityIn.chunkCoordY);
+            }
+
+            if (!entityIn.setPositionNonDirty() && !this.isChunkLoaded(l, j1, true))
+            {
+                entityIn.addedToChunk = false;
+            }
+            else
+            {
+                this.getChunkFromChunkCoords(l, j1).addEntity(entityIn);
+            }
+        }
+
+        //this.theProfiler.endSection();
+
+        if (forceUpdate && entityIn.addedToChunk)
+        {
+            for (Entity entity : entityIn.getPassengers())
+            {
+                if (!entity.isDead && entity.getRidingEntity() == entityIn)
                 {
-                    entityIn.updateRidden();
+                    this.updateEntity(entity);
                 }
                 else
                 {
-                    entityIn.onUpdate();
-                }
-            }
-
-            //this.theProfiler.startSection("chunkCheck");
-
-            if (Double.isNaN(entityIn.posX) || Double.isInfinite(entityIn.posX))
-            {
-                entityIn.posX = entityIn.lastTickPosX;
-            }
-
-            if (Double.isNaN(entityIn.posY) || Double.isInfinite(entityIn.posY))
-            {
-                entityIn.posY = entityIn.lastTickPosY;
-            }
-
-            if (Double.isNaN(entityIn.posZ) || Double.isInfinite(entityIn.posZ))
-            {
-                entityIn.posZ = entityIn.lastTickPosZ;
-            }
-
-            if (Double.isNaN((double)entityIn.rotationPitch) || Double.isInfinite((double)entityIn.rotationPitch))
-            {
-                entityIn.rotationPitch = entityIn.prevRotationPitch;
-            }
-
-            if (Double.isNaN((double)entityIn.rotationYaw) || Double.isInfinite((double)entityIn.rotationYaw))
-            {
-                entityIn.rotationYaw = entityIn.prevRotationYaw;
-            }
-
-            int l = MathHelper.floor(entityIn.posX / 16.0D);
-            int i1 = MathHelper.floor(entityIn.posY / 16.0D);
-            int j1 = MathHelper.floor(entityIn.posZ / 16.0D);
-
-            if (!entityIn.addedToChunk || entityIn.chunkCoordX != l || entityIn.chunkCoordY != i1 || entityIn.chunkCoordZ != j1)
-            {
-                if (entityIn.addedToChunk && this.isChunkLoaded(entityIn.chunkCoordX, entityIn.chunkCoordZ, true))
-                {
-                    this.getChunkFromChunkCoords(entityIn.chunkCoordX, entityIn.chunkCoordZ).removeEntityAtIndex(entityIn, entityIn.chunkCoordY);
-                }
-
-                if (!entityIn.setPositionNonDirty() && !this.isChunkLoaded(l, j1, true))
-                {
-                    entityIn.addedToChunk = false;
-                }
-                else
-                {
-                    this.getChunkFromChunkCoords(l, j1).addEntity(entityIn);
-                }
-            }
-
-            //this.theProfiler.endSection();
-
-            if (forceUpdate && entityIn.addedToChunk)
-            {
-                for (Entity entity : entityIn.getPassengers())
-                {
-                    if (!entity.isDead && entity.getRidingEntity() == entityIn)
-                    {
-                        this.updateEntity(entity);
-                    }
-                    else
-                    {
-                        entity.dismountRidingEntity();
-                    }
+                    entity.dismountRidingEntity();
                 }
             }
         }

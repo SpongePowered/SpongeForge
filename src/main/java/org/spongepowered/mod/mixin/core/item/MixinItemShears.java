@@ -57,11 +57,10 @@ import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
+import org.spongepowered.common.event.tracking.ItemDropData;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
-import org.spongepowered.common.event.tracking.ItemDropData;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 
 import java.util.ArrayList;
@@ -143,14 +142,13 @@ public abstract class MixinItemShears extends Item {
                                         .position(new Vector3d(posX, posY, posZ))
                                         .build());
                                 continue;
-                            } else {
-                                final List<ItemDropData> itemStacks = phaseContext.getCapturedItemStackSupplier().get();
-                                SpongeImplHooks.addItemStackToListForSpawning(itemStacks, ItemDropData.item(item)
-                                        .position(new Vector3d(posX, posY, posZ))
-                                        .motion(new Vector3d((random.nextFloat() - random.nextFloat()) * 0.1F, random.nextFloat() * 0.05F, (random.nextFloat() - random.nextFloat()) * 0.1F))
-                                        .build());
-                                continue;
                             }
+                            final List<ItemDropData> itemStacks = phaseContext.getCapturedItemStackSupplier().get();
+                            SpongeImplHooks.addItemStackToListForSpawning(itemStacks, ItemDropData.item(item)
+                                    .position(new Vector3d(posX, posY, posZ))
+                                    .motion(new Vector3d((random.nextFloat() - random.nextFloat()) * 0.1F, random.nextFloat() * 0.05F, (random.nextFloat() - random.nextFloat()) * 0.1F))
+                                    .build());
+                            continue;
                         }
                         EntityItem entityitem = new EntityItem(entity.world, posX, posY, posZ, item);
                         entityitem.setDefaultPickupDelay();

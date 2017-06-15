@@ -97,8 +97,8 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
                 ((EntityPlayer) (Object) this).dismountRidingEntity();
             }
             this.setSize(0.2F, 0.2F);
-            ((EntityPlayer) (Object) this).setPosition((double) ((float) bedLocation.getX() + 0.5F), (double) ((float) bedLocation.getY() + 0.6875F),
-                    (double) ((float) bedLocation.getZ() + 0.5F));
+            ((EntityPlayer) (Object) this).setPosition(bedLocation.getX() + 0.5F, bedLocation.getY() + 0.6875F,
+                    bedLocation.getZ() + 0.5F);
             this.sleeping = true;
             this.sleepTimer = 0;
             this.bedLocation = bedLocation;
@@ -185,7 +185,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         setSpawnChunk(null, false, 0);
         // Add replacement values
         for (Entry<UUID, RespawnLocation> entry : locations.entrySet()) {
-
+            // TODO ???
         }
         return true;
     }

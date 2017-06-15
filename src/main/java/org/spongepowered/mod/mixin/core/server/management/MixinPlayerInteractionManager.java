@@ -112,127 +112,123 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             }
 
             return EnumActionResult.PASS;
-        } else {
-            // Sponge start - refactor rest of method
+        }
+        // Store reference of current player's itemstack in case it changes
+        ItemStack oldStack = stack.copy();
 
-            // Store reference of current player's itemstack in case it changes
-            ItemStack oldStack = stack.copy();
+        BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
+        InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(Cause.of(NamedCause.source(player)),
+                Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
+                DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
+        if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
+            SpongeCommonEventFactory.playerInteractItemChanged = true;
+        }
 
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
+        if (event.isCancelled()) {
+            final IBlockState state = worldIn.getBlockState(pos);
 
-            BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-            InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(Cause.of(NamedCause.source(player)),
-                    Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
-                    DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
-            if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
-                SpongeCommonEventFactory.playerInteractItemChanged = true;
-            }
+            if (state.getBlock() == Blocks.COMMAND_BLOCK) {
+                // CommandBlock GUI opens solely on the client, we need to force it close on cancellation
+                this.player.connection.sendPacket(new SPacketCloseWindow(0));
 
-            TileEntity tileEntity = worldIn.getTileEntity(pos);
-            if (event.isCancelled()) {
-                final IBlockState state = worldIn.getBlockState(pos);
-
-                if (state.getBlock() == Blocks.COMMAND_BLOCK) {
-                    // CommandBlock GUI opens solely on the client, we need to force it close on cancellation
-                    this.player.connection.sendPacket(new SPacketCloseWindow(0));
-
-                } else if (state.getProperties().containsKey(BlockDoor.HALF)) {
-                    // Stopping a door from opening while interacting the top part will allow the door to open, we need to update the
-                    // client to resolve this
-                    if (state.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) {
-                        this.player.connection.sendPacket(new SPacketBlockChange(worldIn, pos.up()));
-                    } else {
-                        this.player.connection.sendPacket(new SPacketBlockChange(worldIn, pos.down()));
-                    }
-
-                } else if (!stack.isEmpty()) {
-                    // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-side of the block. We need to remove it
-                    if (stack.getItem() instanceof ItemDoor || (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock()
-                            .equals(Blocks.DOUBLE_PLANT))) {
-                        this.player.connection.sendPacket(new SPacketBlockChange(worldIn, pos.up(2)));
-                    }
-                }
-
-                // Some mods such as OpenComputers open a GUI on client-side
-                // To workaround this, we will always send a SPacketCloseWindow to client if interacting with a TE
-                if (tileEntity != null) {
-                    this.player.closeScreen();
-                }
-                SpongeCommonEventFactory.interactBlockEventCancelled = true;
-                return EnumActionResult.FAIL;
-            }
-
-            net.minecraft.item.Item item = stack.isEmpty() ? null : stack.getItem();
-            EnumActionResult ret = item == null
-                    ? EnumActionResult.PASS
-                    : item.onItemUseFirst(player, worldIn, pos, facing, hitX, hitY, hitZ, hand);
-            if (ret != EnumActionResult.PASS) {
-                return ret;
-            }
-
-            boolean bypass = true;
-            final ItemStack[] itemStacks = {player.getHeldItemMainhand(), player.getHeldItemOffhand()};
-            for (ItemStack s : itemStacks) {
-                bypass = bypass && (s.isEmpty() || s.getItem().doesSneakBypassUse(s, worldIn, pos, player));
-            }
-
-            EnumActionResult result = EnumActionResult.PASS;
-
-            if (!player.isSneaking() || bypass || event.getUseBlockResult() == Tristate.TRUE) {
-                // Check event useBlockResult, and revert the client if it's FALSE.
-                // also, store the result instead of returning immediately
-                if (event.getUseBlockResult() != Tristate.FALSE) {
-                    IBlockState iblockstate = worldIn.getBlockState(pos);
-                    Container lastOpenContainer = player.openContainer;
-
-                    result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, facing, hitX, hitY, hitZ)
-                            ? EnumActionResult.SUCCESS
-                            : EnumActionResult.FAIL;
-                    // Mods such as StorageDrawers alter the stack on block activation
-                    // if itemstack changed, avoid restore
-                    if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
-                        SpongeCommonEventFactory.playerInteractItemChanged = true;
-                    }
-
-                    result = this.handleOpenEvent(lastOpenContainer, this.player, result);
+            } else if (state.getProperties().containsKey(BlockDoor.HALF)) {
+                // Stopping a door from opening while interacting the top part will allow the door to open, we need to update the
+                // client to resolve this
+                if (state.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) {
+                    this.player.connection.sendPacket(new SPacketBlockChange(worldIn, pos.up()));
                 } else {
-                    this.player.connection.sendPacket(new SPacketBlockChange(this.world, pos));
-                    result = TristateUtil.toActionResult(event.getUseItemResult());
+                    this.player.connection.sendPacket(new SPacketBlockChange(worldIn, pos.down()));
+                }
+
+            } else if (!stack.isEmpty()) {
+                // Stopping the placement of a door or double plant causes artifacts (ghosts) on the top-side of the block. We need to remove it
+                if (stack.getItem() instanceof ItemDoor || (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock()
+                        .equals(Blocks.DOUBLE_PLANT))) {
+                    this.player.connection.sendPacket(new SPacketBlockChange(worldIn, pos.up(2)));
                 }
             }
 
-            // Same issue as above with OpenComputers
-            // This handles the event not cancelled and block not activated
-            if (result != EnumActionResult.SUCCESS && tileEntity != null && hand == EnumHand.MAIN_HAND) {
+            // Some mods such as OpenComputers open a GUI on client-side
+            // To workaround this, we will always send a SPacketCloseWindow to client if interacting with a TE
+            if (tileEntity != null) {
                 this.player.closeScreen();
             }
+            SpongeCommonEventFactory.interactBlockEventCancelled = true;
+            return EnumActionResult.FAIL;
+        }
 
-            // store result instead of returning
-            if (stack.isEmpty()) {
-                result = EnumActionResult.PASS;
-            } else if (player.getCooldownTracker().hasCooldown(stack.getItem())) {
-                result = EnumActionResult.PASS;
-            } else if (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock() instanceof BlockCommandBlock && !player.canUseCommand(2, "")) {
-                result = EnumActionResult.FAIL;
+        net.minecraft.item.Item item = stack.isEmpty() ? null : stack.getItem();
+        EnumActionResult ret = item == null
+                ? EnumActionResult.PASS
+                : item.onItemUseFirst(player, worldIn, pos, facing, hitX, hitY, hitZ, hand);
+        if (ret != EnumActionResult.PASS) {
+            return ret;
+        }
+
+        boolean bypass = true;
+        final ItemStack[] itemStacks = {player.getHeldItemMainhand(), player.getHeldItemOffhand()};
+        for (ItemStack s : itemStacks) {
+            bypass = bypass && (s.isEmpty() || s.getItem().doesSneakBypassUse(s, worldIn, pos, player));
+        }
+
+        EnumActionResult result = EnumActionResult.PASS;
+
+        if (!player.isSneaking() || bypass || event.getUseBlockResult() == Tristate.TRUE) {
+            // Check event useBlockResult, and revert the client if it's FALSE.
+            // also, store the result instead of returning immediately
+            if (event.getUseBlockResult() != Tristate.FALSE) {
+                IBlockState iblockstate = worldIn.getBlockState(pos);
+                Container lastOpenContainer = player.openContainer;
+
+                result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, facing, hitX, hitY, hitZ)
+                        ? EnumActionResult.SUCCESS
+                        : EnumActionResult.FAIL;
+                // Mods such as StorageDrawers alter the stack on block activation
+                // if itemstack changed, avoid restore
+                if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
+                    SpongeCommonEventFactory.playerInteractItemChanged = true;
+                }
+
+                result = this.handleOpenEvent(lastOpenContainer, this.player, result);
             } else {
-                if ((result != EnumActionResult.SUCCESS && event.getUseItemResult() != Tristate.FALSE
-                      || result == EnumActionResult.SUCCESS && event.getUseItemResult() == Tristate.TRUE)) {
-                    int meta = stack.getMetadata();
-                    int size = stack.getCount();
-                    result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
-                    // nest isCreative check instead of calling the method twice.
-                    if (this.isCreative()) {
-                        stack.setItemDamage(meta);
-                        stack.setCount(size);
-                    }
+                this.player.connection.sendPacket(new SPacketBlockChange(this.world, pos));
+                result = TristateUtil.toActionResult(event.getUseItemResult());
+            }
+        }
+
+        // Same issue as above with OpenComputers
+        // This handles the event not cancelled and block not activated
+        if (result != EnumActionResult.SUCCESS && tileEntity != null && hand == EnumHand.MAIN_HAND) {
+            this.player.closeScreen();
+        }
+
+        // store result instead of returning
+        if (stack.isEmpty()) {
+            result = EnumActionResult.PASS;
+        } else if (player.getCooldownTracker().hasCooldown(stack.getItem())) {
+            result = EnumActionResult.PASS;
+        } else if (stack.getItem() instanceof ItemBlock && ((ItemBlock) stack.getItem()).getBlock() instanceof BlockCommandBlock && !player.canUseCommand(2, "")) {
+            result = EnumActionResult.FAIL;
+        } else {
+            if ((result != EnumActionResult.SUCCESS && event.getUseItemResult() != Tristate.FALSE
+                  || result == EnumActionResult.SUCCESS && event.getUseItemResult() == Tristate.TRUE)) {
+                int meta = stack.getMetadata();
+                int size = stack.getCount();
+                result = stack.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
+                // nest isCreative check instead of calling the method twice.
+                if (this.isCreative()) {
+                    stack.setItemDamage(meta);
+                    stack.setCount(size);
                 }
             }
-
-            if (!ItemStack.areItemStacksEqual(player.getHeldItem(hand), oldStack) || result != EnumActionResult.SUCCESS) {
-                player.openContainer.detectAndSendChanges();
-            }
-            return result;
-            // Sponge end
         }
+
+        if (!ItemStack.areItemStacksEqual(player.getHeldItem(hand), oldStack) || result != EnumActionResult.SUCCESS) {
+            player.openContainer.detectAndSendChanges();
+        }
+        return result;
+        // Sponge end
     }
 
     @Redirect(method = "onBlockClicked", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onLeftClickBlock(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;Lnet/minecraft/util/math/Vec3d;)Lnet/minecraftforge/event/entity/player/PlayerInteractEvent$LeftClickBlock;", remap = false))

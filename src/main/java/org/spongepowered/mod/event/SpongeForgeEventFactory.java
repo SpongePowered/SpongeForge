@@ -139,7 +139,6 @@ import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -530,6 +529,7 @@ public class SpongeForgeEventFactory {
         return forgeEvent;
     }
 
+    @SuppressWarnings("deprecation")
     public static BlockEvent.PlaceEvent createBlockPlaceEvent(Event event) {
         ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) event;
         Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
@@ -1061,7 +1061,6 @@ public class SpongeForgeEventFactory {
         return spongeEvent;
     }
 
-    @SuppressWarnings("deprecation")
     public static ChangeBlockEvent.Place callBlockPlaceEvent(Event event) {
         ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) event;
 
@@ -1132,7 +1131,6 @@ public class SpongeForgeEventFactory {
             return null;
         }
         final EntityPlayerMP entityPlayerMP = EntityUtil.toNative(player.get());
-        final ItemStack handStack = entityPlayerMP.getActiveItemStack();
         final EnumHand hand = entityPlayerMP.getActiveHand();
 
         final EntityPlayer entityPlayer = (EntityPlayer) player.get();

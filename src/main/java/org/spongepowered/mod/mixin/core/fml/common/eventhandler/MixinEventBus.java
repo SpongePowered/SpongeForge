@@ -120,33 +120,32 @@ public abstract class MixinEventBus implements IMixinEventBus {
             }
 
             return cancelled;
-        } else {
-            listeners = event.getListenerList().getListeners(this.busID);
-            int index = 0;
-            IMixinASMEventHandler modListener = null;
-            try {
-                for (; index < listeners.length; index++) {
-                    final IEventListener listener = listeners[index];
-                    if (listener instanceof IMixinASMEventHandler ) {
-                        modListener = (IMixinASMEventHandler) listener;
-                        modListener.getTimingsHandler().startTimingIfSync();
-                        SpongeForgeEventHooks.preEventPhaseCheck(listener, event);
-                        listener.invoke(event);
-                        SpongeForgeEventHooks.postEventPhaseCheck(listener, event);
-                        modListener.getTimingsHandler().stopTimingIfSync();
-                    } else {
-                        listener.invoke(event);
-                    }
-                }
-            } catch (Throwable throwable) {
-                if (modListener != null) {
-                    modListener.getTimingsHandler().stopTimingIfSync();
-                }
-                this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
-                throw new RuntimeException(throwable);
-            }
-            return (event.isCancelable() ? event.isCanceled() : false);
         }
+        listeners = event.getListenerList().getListeners(this.busID);
+        int index = 0;
+        IMixinASMEventHandler modListener = null;
+        try {
+            for (; index < listeners.length; index++) {
+                final IEventListener listener = listeners[index];
+                if (listener instanceof IMixinASMEventHandler ) {
+                    modListener = (IMixinASMEventHandler) listener;
+                    modListener.getTimingsHandler().startTimingIfSync();
+                    SpongeForgeEventHooks.preEventPhaseCheck(listener, event);
+                    listener.invoke(event);
+                    SpongeForgeEventHooks.postEventPhaseCheck(listener, event);
+                    modListener.getTimingsHandler().stopTimingIfSync();
+                } else {
+                    listener.invoke(event);
+                }
+            }
+        } catch (Throwable throwable) {
+            if (modListener != null) {
+                modListener.getTimingsHandler().stopTimingIfSync();
+            }
+            this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
+            throw new RuntimeException(throwable);
+        }
+        return (event.isCancelable() ? event.isCanceled() : false);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

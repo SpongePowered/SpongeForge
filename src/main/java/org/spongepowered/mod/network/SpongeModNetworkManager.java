@@ -170,9 +170,8 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         checkArgument(checkNotNull(side, "side").isKnown(), "Invalid side given");
         if (side == Platform.Type.SERVER) {
             return ImmutableSet.copyOf(NetworkRegistry.INSTANCE.channelNamesFor(Side.SERVER));
-        } else {
-            return ImmutableSet.copyOf(NetworkRegistry.INSTANCE.channelNamesFor(Side.CLIENT));
         }
+        return ImmutableSet.copyOf(NetworkRegistry.INSTANCE.channelNamesFor(Side.CLIENT));
     }
 
     @Override

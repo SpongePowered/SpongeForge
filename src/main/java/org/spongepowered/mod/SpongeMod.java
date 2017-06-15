@@ -199,9 +199,8 @@ public class SpongeMod extends MetaModContainer {
     public Class<?> getCustomResourcePackClass() {
         if (getSource().isDirectory()) {
             return FMLFolderResourcePack.class;
-        } else {
-            return FMLFileResourcePack.class;
         }
+        return FMLFileResourcePack.class;
     }
 
     @Subscribe

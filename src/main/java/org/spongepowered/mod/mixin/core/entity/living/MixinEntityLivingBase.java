@@ -32,7 +32,6 @@ import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.event.cause.entity.damage.DamageFunction;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
-import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
@@ -41,7 +40,6 @@ import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 @NonnullByDefault
 @Mixin(value = EntityLivingBase.class, priority = 1001)

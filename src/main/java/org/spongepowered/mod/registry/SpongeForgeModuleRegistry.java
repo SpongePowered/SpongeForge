@@ -30,7 +30,6 @@ import org.spongepowered.api.data.property.block.SolidCubeProperty;
 import org.spongepowered.api.extra.fluid.data.manipulator.immutable.ImmutableFluidTankData;
 import org.spongepowered.api.extra.fluid.data.manipulator.mutable.FluidTankData;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.data.manipulator.immutable.extra.ImmutableSpongeFluidTankData;
 import org.spongepowered.common.data.manipulator.mutable.extra.SpongeFluidTankData;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;

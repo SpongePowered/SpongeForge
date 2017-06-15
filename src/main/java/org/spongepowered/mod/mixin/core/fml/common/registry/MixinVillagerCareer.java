@@ -28,7 +28,6 @@ import com.google.common.collect.Lists;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.spongepowered.api.data.type.Career;
-import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.api.item.merchant.TradeOfferListMutator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;

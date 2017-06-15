@@ -155,7 +155,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
         private ImmutableSet<Vector3i> chunkList;
         private World world;
 
-        private SpongeLoadingTicket(Ticket ticket) {
+        SpongeLoadingTicket(Ticket ticket) {
             this.forgeTicket = ticket;
             this.plugin = SpongeImpl.getGame().getPluginManager().getPlugin(ticket.getModId()).get();
             this.pluginId = this.plugin.getId();
@@ -245,7 +245,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     private class SpongeEntityLoadingTicket extends SpongeLoadingTicket implements EntityLoadingTicket {
 
-        private SpongeEntityLoadingTicket(Ticket ticket) {
+        SpongeEntityLoadingTicket(Ticket ticket) {
             super(ticket);
         }
 
@@ -263,7 +263,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     private class SpongePlayerLoadingTicket extends SpongeLoadingTicket implements PlayerLoadingTicket {
 
-        private SpongePlayerLoadingTicket(Ticket ticket) {
+        SpongePlayerLoadingTicket(Ticket ticket) {
             super(ticket);
         }
 
@@ -276,7 +276,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     private class SpongePlayerEntityLoadingTicket extends SpongePlayerLoadingTicket implements PlayerEntityLoadingTicket {
 
-        private SpongePlayerEntityLoadingTicket(Ticket ticket) {
+        SpongePlayerEntityLoadingTicket(Ticket ticket) {
             super(ticket);
         }
 

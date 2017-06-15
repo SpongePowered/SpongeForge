@@ -26,9 +26,7 @@ package org.spongepowered.mod.mixin.core.forge;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.DungeonHooks;
-import org.spongepowered.api.entity.EntityArchetype;
 import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.util.weighted.WeightedObject;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

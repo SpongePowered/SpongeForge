@@ -98,10 +98,9 @@ public abstract class MixinDimensionManager {
         final Optional<WorldServer> optWorldServer = WorldManager.getWorldByDimensionId(dim);
         if (optWorldServer.isPresent()) {
             return optWorldServer.get().provider;
-        } else {
-            SpongeImpl.getLogger().error("Attempt made to get a provider for dimension id [{}] but it has no provider!");
-            throw new RuntimeException();
         }
+        SpongeImpl.getLogger().error("Attempt made to get a provider for dimension id [{}] but it has no provider!");
+        throw new RuntimeException();
     }
 
     /**

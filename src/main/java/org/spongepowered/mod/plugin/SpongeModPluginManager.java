@@ -58,7 +58,7 @@ public class SpongeModPluginManager implements PluginManager {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Collection<PluginContainer> getPlugins() {
         return ImmutableList.copyOf((List) Loader.instance().getActiveModList());
     }

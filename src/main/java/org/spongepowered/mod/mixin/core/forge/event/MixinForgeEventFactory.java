@@ -24,20 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.forge.event;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import org.spongepowered.api.event.Event;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.mod.event.SpongeModEventManager;
-import org.spongepowered.mod.interfaces.IMixinEvent;
-import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 @Mixin(value = ForgeEventFactory.class, remap = false)
 public abstract class MixinForgeEventFactory {
