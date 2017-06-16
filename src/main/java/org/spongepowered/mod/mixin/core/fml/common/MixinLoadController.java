@@ -28,22 +28,26 @@ import com.google.common.eventbus.EventBus;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.LoaderState;
 import net.minecraftforge.fml.common.ModContainer;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Event;
+import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.StateRegistry;
 import org.spongepowered.mod.interfaces.IMixinLoadController;
 
+import javax.annotation.Nullable;
+
 @Mixin(value = LoadController.class, remap = false)
 public abstract class MixinLoadController implements IMixinLoadController {
+
     @Shadow private ModContainer activeContainer;
+    private ThreadLocal<ModContainer> threadLocalActiveContainer = ThreadLocal.withInitial(() -> null);
 
     @Shadow protected abstract ModContainer findActiveContainerFromStack();
 
@@ -62,28 +66,71 @@ public abstract class MixinLoadController implements IMixinLoadController {
 
     @Override
     public ModContainer getActiveModContainer() {
-        return this.activeContainer;
+        return this.threadLocalActiveContainer.get();
     }
 
     @Override
     public void setActiveModContainer(ModContainer container) {
-        this.activeContainer = container;
+        if (container == null) {
+            this.threadLocalActiveContainer.remove();
+        } else {
+            this.threadLocalActiveContainer.set(container);
+        }
     }
 
     /**
-     * @author dualspiral - 4th June 2017
+     * @author dualspiral - 16th June 2017
+     *
+     * This overwites {@link LoadController#activeContainer()}
      *
      * Sponge can post events from threads that are not on the server thread,
      * and this can cause confusion for the majority of events that are
-     * firing on the server thread. In these cases, we just get the
-     * mod from the stack.
-     *
-     * @param cir
+     * firing on the server thread. As a result, we redirect calls to get
+     * the active container to a thread local version, so this confusion
+     * does not occur.
      */
-    @Inject(method = "activeContainer", at = @At("HEAD"), cancellable = true)
-    private void onActiveContainerHead(CallbackInfoReturnable<ModContainer> cir) {
-        if (Sponge.isServerAvailable() && !SpongeImpl.getServer().isCallingFromMinecraftThread()) {
-            cir.setReturnValue(findActiveContainerFromStack());
+    @Nullable
+    public ModContainer activeContainer() {
+        ModContainer modContainer = this.threadLocalActiveContainer.get();
+        if (modContainer == null) {
+            return findActiveContainerFromStack();
+        }
+
+        return modContainer;
+    }
+
+    /**
+     * @author dualspiral - 16th June 2017
+     *
+     * See above for rationale. This sets the active container in the thread
+     * local variable.
+     *
+     * @param container The container
+     */
+    @Inject(method = "forceActiveContainer", at = @At("RETURN"))
+    private void onForceActiveContainerReturn(@Nullable ModContainer container, CallbackInfo ci) {
+        if (container == null) {
+            this.threadLocalActiveContainer.remove();
+        } else {
+            this.threadLocalActiveContainer.set(container);
         }
     }
+
+    /**
+     * @author dualspiral - 16th June 2017
+     *
+     * Called during state changes, we mirror what is in the active container variable.
+     *
+     * @param ci callbackinfo
+     */
+    @Inject(method = "sendEventToModContainer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER,
+            target = "Lnet/minecraftforge/fml/common/LoadController;activeContainer:Lnet/minecraftforge/fml/common/ModContainer;"))
+    private void onSetApplyModContainer(CallbackInfo ci) {
+        if (this.activeContainer != null) {
+            this.threadLocalActiveContainer.set(this.activeContainer);
+        } else {
+            this.threadLocalActiveContainer.remove();
+        }
+    }
+
 }
