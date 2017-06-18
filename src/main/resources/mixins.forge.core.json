@@ -59,6 +59,7 @@
         "item.MixinItemShears",
         "item.MixinItemStack",
         "item.MixinItemLilyPad",
+        "item.recipe.MixinSpongeRecipe",
         "nbt.MixinNBTTagCompound",
         "network.packet.MixinCPacketClickWindow",
         "network.packet.MixinCPacketPlayerTryUseItemOnBlock",
