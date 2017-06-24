@@ -53,10 +53,10 @@ public abstract class MixinBlockLeaves extends MixinBlock {
     @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", remap = false))
     public void onBreakBlock(Block block, IBlockState state, net.minecraft.world.World worldIn, BlockPos pos) {
         if (CauseTracker.ENABLED && !worldIn.isRemote) {
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) worldIn, pos, NamedCause.of("LeavesDecay", worldIn)).isCancelled()) {
+            if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) worldIn, pos, NamedCause.of(NamedCause.DECAY, worldIn)).isCancelled()) {
                 return;
             }
-            IMixinWorldServer spongeWorld = (IMixinWorldServer) worldIn;
+
             final CauseTracker causeTracker = CauseTracker.getInstance();
             final IPhaseState currentState = causeTracker.getCurrentState();
             final boolean isBlockAlready = currentState.getPhase() != TrackingPhases.BLOCK;
