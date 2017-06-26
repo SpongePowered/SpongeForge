@@ -55,7 +55,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
 import org.apache.logging.log4j.Level;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -310,6 +310,6 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void onCraftingRecipeRegister(CraftingRecipe recipe) {
         ((IRecipe) recipe).setRegistryName(new ResourceLocation(recipe.getId()));
-        GameRegistry.register((IRecipe) recipe);
+        ForgeRegistries.RECIPES.register((IRecipe) recipe);
     }
 }
