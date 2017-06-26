@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.common;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.crash.CrashReport;
@@ -34,6 +36,7 @@ import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
@@ -56,21 +59,29 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+<<<<<<< HEAD
+=======
+import net.minecraftforge.fml.common.registry.GameRegistry;
+>>>>>>> Update for Forge registry changes.
 import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
 import org.apache.logging.log4j.Level;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.crafting.CraftingGridInventory;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
+import org.spongepowered.api.item.recipe.crafting.ShapelessCraftingRecipe;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.interfaces.IMixinBlock;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -81,11 +92,19 @@ public abstract class MixinSpongeImplHooks {
 
     private static Boolean deobfuscatedEnvironment;
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean isVanilla() {
         return false;
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean isDeobfuscatedEnvironment() {
         if (deobfuscatedEnvironment != null) {
@@ -96,6 +115,10 @@ public abstract class MixinSpongeImplHooks {
         return deobfuscatedEnvironment;
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static String getModIdFromClass(Class<?> clazz) {
         return StaticMixinForgeHelper.getModIdFromClass(clazz);
@@ -103,31 +126,55 @@ public abstract class MixinSpongeImplHooks {
 
     // Entity
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean isCreatureOfType(Entity entity, EnumCreatureType type) {
         return entity.isCreatureType(type, false);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean isFakePlayer(Entity entity) {
         return entity instanceof FakePlayer;
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static void firePlayerJoinSpawnEvent(EntityPlayerMP playerMP) {
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new EntityJoinWorldEvent(playerMP, playerMP.getEntityWorld()), true);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static void handlePostChangeDimensionEvent(EntityPlayerMP playerIn, WorldServer fromWorld, WorldServer toWorld) {
         FMLCommonHandler.instance().firePlayerChangedDimensionEvent(playerIn, fromWorld.provider.getDimension(), toWorld.provider.getDimension());
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean checkAttackEntity(EntityPlayer entityPlayer, Entity targetEntity) {
         return net.minecraftforge.common.ForgeHooks.onPlayerAttackTarget(entityPlayer, targetEntity);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static double getBlockReachDistance(EntityPlayerMP player) {
         return player.interactionManager.getBlockReachDistance();
@@ -135,11 +182,20 @@ public abstract class MixinSpongeImplHooks {
 
     // Entity registry
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
+    @Nullable
     @Overwrite
     public static Class<? extends Entity> getEntityClass(ResourceLocation name) {
         return EntityList.getClass(name);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static int getEntityId(Class<? extends Entity> entityClass) {
         return EntityList.getID(entityClass);
@@ -147,16 +203,28 @@ public abstract class MixinSpongeImplHooks {
 
     // Block
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean isBlockFlammable(Block block, IBlockAccess world, BlockPos pos, EnumFacing face) {
         return block.isFlammable(world, pos, face);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static int getBlockLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
         return state.getLightOpacity(world, pos);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     @SuppressWarnings("deprecation")
     public static int getChunkPosLight(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
@@ -168,21 +236,38 @@ public abstract class MixinSpongeImplHooks {
 
     // Tile entity
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
+    @Nullable
     @Overwrite
     public static TileEntity createTileEntity(Block block, net.minecraft.world.World world, IBlockState state) {
         return block.createTileEntity(world, state);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean hasBlockTileEntity(Block block, IBlockState state) {
         return block.hasTileEntity(state);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean shouldRefresh(TileEntity tile, net.minecraft.world.World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
         return tile.shouldRefresh(world, pos, oldState, newState);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static void onTileChunkUnload(TileEntity te) {
         te.onChunkUnload();
@@ -190,11 +275,19 @@ public abstract class MixinSpongeImplHooks {
 
     // World
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static Iterator<Chunk> getChunkIterator(WorldServer world) {
         return world.getPersistentChunkIterable(world.getPlayerChunkMap().getChunkIterator());
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static void registerPortalAgentType(@Nullable Teleporter teleporter) {
         if (teleporter == null) {
@@ -212,41 +305,73 @@ public abstract class MixinSpongeImplHooks {
 
     // World provider
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean canDoLightning(WorldProvider provider, Chunk chunk) {
         return provider.canDoLightning(chunk);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean canDoRainSnowIce(WorldProvider provider, Chunk chunk) {
         return provider.canDoRainSnowIce(chunk);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static int getRespawnDimension(WorldProvider targetDimension, EntityPlayerMP player) {
         return targetDimension.getRespawnDimension(player);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static BlockPos getRandomizedSpawnPoint(WorldServer world) {
         return world.provider.getRandomizedSpawnPoint();
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static MapStorage getWorldMapStorage(World world) {
         return world.getPerWorldStorage();
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static int countEntities(WorldServer worldServer, net.minecraft.entity.EnumCreatureType type, boolean forSpawnCount) {
         return worldServer.countEntities(type, forSpawnCount);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static int getMaxSpawnPackSize(EntityLiving entityLiving) {
         return net.minecraftforge.event.ForgeEventFactory.getMaxSpawnPackSize(entityLiving);
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static boolean canEntitySpawnHere(EntityLiving entityLiving, IEntityLivingData entityLivingData, boolean entityNotColliding) {
         final World world = entityLiving.world;
@@ -266,6 +391,10 @@ public abstract class MixinSpongeImplHooks {
 
     // Copied from Forge's World patches
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static void onEntityError(Entity entity, CrashReport crashReport) {
         if (ForgeModContainer.removeErroringEntities) {
@@ -277,6 +406,10 @@ public abstract class MixinSpongeImplHooks {
         }
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static void onTileEntityError(TileEntity tileEntity, CrashReport crashReport) {
         if (ForgeModContainer.removeErroringTileEntities) {
@@ -289,6 +422,10 @@ public abstract class MixinSpongeImplHooks {
         }
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static void blockExploded(Block block, World world, BlockPos blockpos, Explosion explosion) {
         block.onBlockExploded(world, blockpos, explosion);
@@ -296,6 +433,10 @@ public abstract class MixinSpongeImplHooks {
 
     // Crafting
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static Optional<ItemStack> getContainerItem(ItemStack itemStack) {
         net.minecraft.item.ItemStack nmsStack = ItemStackUtil.toNative(itemStack);
@@ -307,9 +448,44 @@ public abstract class MixinSpongeImplHooks {
             return Optional.of(ItemStackUtil.fromNative(nmsContainerStack));
     }
 
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
     @Overwrite
     public static void onCraftingRecipeRegister(CraftingRecipe recipe) {
-        ((IRecipe) recipe).setRegistryName(new ResourceLocation(recipe.getId()));
-        ForgeRegistries.RECIPES.register((IRecipe) recipe);
+        // Emptied out as this is performed during the Registry.Register event.
+    }
+
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
+    @Overwrite
+    public static Optional<CraftingRecipe> findMatchingRecipe(CraftingGridInventory inventory, org.spongepowered.api.world.World world) {
+        IRecipe recipe = CraftingManager.findMatchingRecipe(InventoryUtil.toNativeInventory(inventory), ((net.minecraft.world.World) world));
+        return Optional.ofNullable(((CraftingRecipe) recipe));
+    }
+
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
+    @Overwrite
+    public static Collection<CraftingRecipe> getCraftingRecipes() {
+        return Streams.stream(ForgeRegistries.RECIPES.getValues()).map(CraftingRecipe.class::cast).collect(ImmutableList.toImmutableList());
+    }
+
+    /**
+     * @author
+     * @reason Forge compatibility
+     */
+    @Overwrite
+    public static Optional<CraftingRecipe> getRecipeById(String id) {
+        IRecipe recipe = ForgeRegistries.RECIPES.getValue(new ResourceLocation(id));
+        if (recipe == null) {
+            return Optional.empty();
+        }
+        return Optional.of(((CraftingRecipe) recipe));
     }
 }

@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.interfaces;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 
 import java.util.List;
@@ -36,4 +37,5 @@ public interface IMixinVillagerProfession {
 
     List<VillagerRegistry.VillagerCareer> getCareers();
 
+    ResourceLocation getName();
 }

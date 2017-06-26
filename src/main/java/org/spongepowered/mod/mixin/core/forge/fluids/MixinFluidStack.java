@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.common.registry.RegistryDelegate;
+import net.minecraftforge.registries.IRegistryDelegate;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataTransactionResult;
@@ -69,7 +69,7 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
 
     @Shadow public int amount;
     @Shadow @Nullable public NBTTagCompound tag;
-    @Shadow private RegistryDelegate<Fluid> fluidDelegate;
+    @Shadow private IRegistryDelegate<Fluid> fluidDelegate;
 
     @SuppressWarnings("unchecked")
     @Override

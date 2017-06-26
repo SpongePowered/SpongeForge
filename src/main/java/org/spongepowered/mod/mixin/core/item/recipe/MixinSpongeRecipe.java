@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.item.recipe;
 
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.item.recipe.crafting.DelegateSpongeCraftingRecipe;
 

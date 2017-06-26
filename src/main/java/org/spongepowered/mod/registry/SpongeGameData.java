@@ -24,9 +24,9 @@
  */
 package org.spongepowered.mod.registry;
 
-import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
-import net.minecraftforge.fml.common.registry.IForgeRegistry;
-import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
+import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.lang.reflect.Field;
 
@@ -39,20 +39,20 @@ public final class SpongeGameData {
 
     @SuppressWarnings("unchecked")
     public static <I extends IForgeRegistryEntry<I>> void addRegistryCallback(IForgeRegistry<I> registry,
-            final FMLControlledNamespacedRegistry.AddCallback<I> callback) throws ReflectiveOperationException {
+            final ForgeRegistry.AddCallback<I> callback) throws ReflectiveOperationException {
         if (callbackField == null) {
-            callbackField = FMLControlledNamespacedRegistry.class.getDeclaredField("addCallback");
+            callbackField = ForgeRegistry.class.getDeclaredField("add");
             callbackField.setAccessible(true);
         }
 
-        FMLControlledNamespacedRegistry.AddCallback<I> newCallback = callback;
+        ForgeRegistry.AddCallback<I> newCallback = callback;
 
-        final FMLControlledNamespacedRegistry.AddCallback<I> currentCallback =
-                (FMLControlledNamespacedRegistry.AddCallback<I>) callbackField.get(registry);
+        final ForgeRegistry.AddCallback<I> currentCallback =
+                (ForgeRegistry.AddCallback<I>) callbackField.get(registry);
         if (currentCallback != null) {
-            newCallback = (obj, id, location) -> {
-                currentCallback.onAdd(obj, id, location);
-                callback.onAdd(obj, id, location);
+            newCallback = (owner, stage, id, obj) -> {
+                currentCallback.onAdd(owner, stage, id, obj);
+                callback.onAdd(owner, stage, id, obj);
             };
         }
 

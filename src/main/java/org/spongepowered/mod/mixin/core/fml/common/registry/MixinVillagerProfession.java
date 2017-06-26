@@ -25,8 +25,8 @@
 package org.spongepowered.mod.mixin.core.fml.common.registry;
 
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -52,6 +52,11 @@ public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<V
     @Override
     public List<VillagerRegistry.VillagerCareer> getCareers() {
         return this.careers;
+    }
+
+    @Override
+    public ResourceLocation getName() {
+        return this.name;
     }
 
     @Override

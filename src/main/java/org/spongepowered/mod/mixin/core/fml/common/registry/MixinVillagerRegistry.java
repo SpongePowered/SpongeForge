@@ -25,9 +25,11 @@
 package org.spongepowered.mod.mixin.core.fml.common.registry;
 
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
-import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
+import net.minecraft.util.registry.RegistryNamespaced;
+import net.minecraft.util.registry.RegistryNamespacedDefaultedByKey;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -44,13 +46,13 @@ public class MixinVillagerRegistry {
             REGISTRY_REGISTER =
             "Lnet/minecraftforge/fml/common/registry/FMLControlledNamespacedRegistry;register(ILnet/minecraft/util/ResourceLocation;Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;)V";
 
-    @SuppressWarnings("deprecation")
-    @Redirect(method = REGISTER_PROFESSION_ID, at = @At(value = "INVOKE", target = REGISTRY_REGISTER, remap = false), remap = false)
-    private void registerForgeVillager(FMLControlledNamespacedRegistry<VillagerRegistry.VillagerProfession> registry, int id, ResourceLocation name,
-            IForgeRegistryEntry<VillagerRegistry.VillagerProfession> thing) {
-        final VillagerRegistry.VillagerProfession villagerProfession = (VillagerRegistry.VillagerProfession) thing;
-        registry.register(id, name, villagerProfession);
-        final int professionId = registry.getId(villagerProfession);
+    @SuppressWarnings({"deprecation", "unchecked"})
+    @Redirect(method = REGISTER_PROFESSION_ID, at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/RegistryNamespaced;register(ILjava/lang/Object;Ljava/lang/Object;)V", remap = false), remap = false)
+    private void registerForgeVillager(RegistryNamespaced registry, int id, Object key, Object value) {
+        final VillagerRegistry.VillagerProfession villagerProfession = (VillagerRegistry.VillagerProfession) value;
+        final RegistryNamespaced<ResourceLocation, VillagerRegistry.VillagerProfession> villagerRegistry = (RegistryNamespaced<ResourceLocation, VillagerRegistry.VillagerProfession>) registry;
+        villagerRegistry.register(id, ((IMixinVillagerProfession) villagerProfession).getName(), villagerProfession);
+        final int professionId = villagerRegistry.getIDForObject(villagerProfession);
         final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) villagerProfession;
         final SpongeProfession spongeProfession = new SpongeProfession(professionId, mixinProfession.getId(), mixinProfession.getProfessionName());
         final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(villagerProfession, spongeProfession);
