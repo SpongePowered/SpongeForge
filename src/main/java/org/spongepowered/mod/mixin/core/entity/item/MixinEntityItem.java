@@ -35,10 +35,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class MixinEntityItem {
 
     private static final String ON_ITEM_PICKUP =
-            "Lnet/minecraftforge/event/ForgeEventFactory;onItemPickup(Lnet/minecraft/entity/item/EntityItem;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/item/ItemStack;)I";
+            "Lnet/minecraftforge/event/ForgeEventFactory;onItemPickup(Lnet/minecraft/entity/item/EntityItem;Lnet/minecraft/entity/player/EntityPlayer;)I";
 
     @Redirect(method = "onCollideWithPlayer", at = @At(value = "INVOKE", target= ON_ITEM_PICKUP, remap = false))
-    public int onEntityCollideWithPlayer(EntityItem entityItem, EntityPlayer entityIn, ItemStack itemstack) {
+    public int onEntityCollideWithPlayer(EntityItem entityItem, EntityPlayer entityIn) {
         return 0; // ignore Forge event as we fire it for them
     }
 }

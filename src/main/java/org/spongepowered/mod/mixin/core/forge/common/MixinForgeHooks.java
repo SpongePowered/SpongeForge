@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.forge.common;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
@@ -44,9 +45,11 @@ public abstract class MixinForgeHooks {
      * @param hand The hand used
      */
     @Overwrite
-    public static boolean onItemRightClick(EntityPlayer player, EnumHand hand) {
+    public static EnumActionResult onItemRightClick(EntityPlayer player, EnumHand hand) {
         // Force Forge's RightClickItem onto event bus to bypass our event handling.
         // We handle InteractItemEvent.Secondary in PacketUtil which occurs before this event.
-        return ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new PlayerInteractEvent.RightClickItem(player, hand), true);
+        PlayerInteractEvent.RightClickItem evt = new PlayerInteractEvent.RightClickItem(player, hand);
+        final boolean post = ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(evt, true);
+        return post ? evt.getCancellationResult() : null;
     }
 }

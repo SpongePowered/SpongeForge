@@ -50,9 +50,9 @@ public final class SpongeGameData {
         final ForgeRegistry.AddCallback<I> currentCallback =
                 (ForgeRegistry.AddCallback<I>) callbackField.get(registry);
         if (currentCallback != null) {
-            newCallback = (owner, stage, id, obj) -> {
-                currentCallback.onAdd(owner, stage, id, obj);
-                callback.onAdd(owner, stage, id, obj);
+            newCallback = (owner, stage, id, obj, oldObj) -> {
+                currentCallback.onAdd(owner, stage, id, obj, oldObj);
+                callback.onAdd(owner, stage, id, obj, oldObj);
             };
         }
 

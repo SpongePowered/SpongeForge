@@ -545,7 +545,7 @@ public class SpongeForgeEventFactory {
         net.minecraftforge.common.util.BlockSnapshot forgeSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
         BlockEvent.PlaceEvent forgeEvent =
                 new BlockEvent.PlaceEvent(forgeSnapshot, world.getBlockState(pos),
-                        (EntityPlayer) player.get());
+                        (EntityPlayer) player.get(), ((EntityPlayer) player.get()).getActiveHand());
         return forgeEvent;
     }
 

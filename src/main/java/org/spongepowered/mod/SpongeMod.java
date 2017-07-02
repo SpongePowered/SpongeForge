@@ -139,7 +139,7 @@ public class SpongeMod extends MetaModContainer {
         Guice.createInjector(stage, new SpongeModule(), new SpongeForgeModule());
 
         SpongeImpl.getRegistry().preRegistryInit();
-        SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (owner, manager, id, obj) -> {
+        SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (owner, manager, id, obj, oldObj) -> {
             final ResourceLocation key = ForgeRegistries.BLOCKS.getKey(obj);
             if (key == null || ((IMixinBlock) obj).isDummy()) {
                 return;
@@ -147,15 +147,15 @@ public class SpongeMod extends MetaModContainer {
             BlockTypeRegistryModule.getInstance().registerFromGameData(key.toString(), (BlockType) obj);
 
         });
-        SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (owner, manager, id, obj) ->
+        SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (owner, manager, id, obj, oldObj) ->
                 ItemTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ITEMS.getKey(obj).toString(),
                         (ItemType) obj));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.ENCHANTMENTS, (owner, manager, id, obj) ->
+        SpongeGameData.addRegistryCallback(ForgeRegistries.ENCHANTMENTS, (owner, manager, id, obj, oldObj) ->
                 EnchantmentRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ENCHANTMENTS.getKey(obj).toString(), (Enchantment) obj));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (owner, manager, id, obj) ->
+        SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (owner, manager, id, obj, oldObj) ->
                 PotionEffectTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.POTIONS.getKey(obj).toString(),
                         (PotionEffectType) obj));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj) -> {
+        SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj, oldObj) -> {
             final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) obj;
             final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
             final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(obj, spongeProfession);
@@ -165,7 +165,7 @@ public class SpongeMod extends MetaModContainer {
                 SpongeForgeVillagerRegistry.registerForgeCareer(career);
             }
         }));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, (owner, manager, id, obj) ->
+        SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, (owner, manager, id, obj, oldObj) ->
                 SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) obj)
         );
         SpongeForgeModuleRegistry.registerForgeData();
