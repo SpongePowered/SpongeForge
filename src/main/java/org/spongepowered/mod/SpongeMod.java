@@ -253,7 +253,7 @@ public class SpongeMod extends MetaModContainer {
         }
     }
 
-    @Subscribe
+    @SubscribeEvent
     public void onRegistry(RegistryEvent.Register<IRecipe> event) {
         for (CraftingRecipe craftingRecipe : SpongeCraftingRecipeRegistry.getInstance().getCustomRecipes()) {
             ((IRecipe) craftingRecipe).setRegistryName(new ResourceLocation(craftingRecipe.getId()));
