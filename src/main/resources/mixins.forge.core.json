@@ -60,6 +60,7 @@
         "item.MixinItemStack",
         "item.MixinItemLilyPad",
         "item.recipe.MixinSpongeRecipe",
+        "item.recipe.MixiSpongeCraftingRecipeRegistry",
         "nbt.MixinNBTTagCompound",
         "network.packet.MixinCPacketClickWindow",
         "network.packet.MixinCPacketPlayerTryUseItemOnBlock",
