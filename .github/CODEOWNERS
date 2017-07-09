@@ -6,6 +6,7 @@ src/main/java/org/spongepowered/mod/data/** @gabizou
 src/main/java/org/spongepowered/mod/inject/** @kashike
 src/main/java/org/spongepowered/mod/mixin/bungee/** @kashike
 src/main/java/org/spongepowered/mod/mixin/core/common/** @gabizou
+src/main/java/org/spongepowered/mod/mixin/core/item/recipe/** @Faithcaio
 src/main/java/org/spongepowered/mod/mixin/core/forge/event/** @gabizou
 src/main/java/org/spongepowered/mod/registry/** @gabizou
 src/main/java/org/spongepowered/mod/util/** @gabizou
