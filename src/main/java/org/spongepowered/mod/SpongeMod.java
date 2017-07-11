@@ -51,6 +51,8 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
@@ -86,6 +88,7 @@ import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
 import org.spongepowered.common.registry.type.effect.PotionEffectTypeRegistryModule;
 import org.spongepowered.common.registry.type.effect.SoundRegistryModule;
+import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.item.EnchantmentRegistryModule;
 import org.spongepowered.common.scheduler.SpongeScheduler;
@@ -254,11 +257,19 @@ public class SpongeMod extends MetaModContainer {
     }
 
     @SubscribeEvent
-    public void onRegistry(RegistryEvent.Register<IRecipe> event) {
+    public void onRecipeRegister(RegistryEvent.Register<IRecipe> event) {
         for (CraftingRecipe craftingRecipe : SpongeCraftingRecipeRegistry.getInstance().getCustomRecipes()) {
             event.getRegistry().register((IRecipe) craftingRecipe);
         }
         SpongeCraftingRecipeRegistry.getInstance().disableRegistrations();
+    }
+
+    @SubscribeEvent
+    public void onEntityRegister(RegistryEvent.Register<EntityEntry> event) {
+        for (EntityTypeRegistryModule.FutureRegistration registration : EntityTypeRegistryModule.getInstance().getCustomEntities()) {
+            EntityRegistry.registerModEntity(registration.name, registration.type, registration.name.getResourcePath(), registration.id,
+                    registration.name.getResourceDomain(), 0, 0, false);
+        }
     }
 
     @Subscribe
