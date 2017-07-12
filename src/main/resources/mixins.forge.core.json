@@ -40,6 +40,7 @@
         "fml.common.eventhandler.MixinEventBus",
         "fml.common.gameevent.MixinPlayerEvent",
         "fml.common.gameevent.MixinWorldTickEvent",
+        "fml.common.network.handshake.MixinFMLHandshakeMessageRegistryData",
         "fml.common.registry.MixinEntityRegistry",
         "fml.common.registry.MixinBlockDummyAir",
         "fml.common.registry.MixinVillagerCareer",
