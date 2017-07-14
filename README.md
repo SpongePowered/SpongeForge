@@ -39,14 +39,22 @@ __For [Eclipse]__
   4. Check Sponge when it finishes building and click **Finish**
 
 __For [IntelliJ]__
-  1. Make sure you have the Gradle plugin enabled (File > Settings > Plugins).  
-  2. Click File > New > Project from Existing Sources > Gradle and select the root folder for SpongeForge, import from external model: gradle. do **not** choose Create from existing sources.
-    [Select Root Project](docs/rootProject.png)
-    [Gradle](docs/selectGradle.png)
-  3. Make sure _Use default gradle wrapper_ is selected. Older/newer Gradle versions may work but we only test using the wrapper.
-    [Import Project](docs/importProject.png)
-  4. Disable annotations processing. File > Settings > Build, execution. deployment > Compiler > Annotation Processors > Default > Enable Annotation Processing
-    [Disable Annotation Processing](docs/disableAnnotations.png)
+1. Make sure you have the Gradle plugin enabled (File > Settings > Plugins).  
+  
+2. Click File > New > Project from Existing Sources > Gradle and select the root folder for SpongeForge, import from external model: gradle. do **not** choose Create from existing sources.
+  
+  ![Select Root Project](docs/rootProject.png)
+    
+  ![Gradle](docs/selectGradle.png)
+    
+3. Make sure _Use default gradle wrapper_ is selected. Older/newer Gradle versions may work but we only test using the wrapper.
+  
+  ![Import Project](docs/importProject.png)
+    
+4. Disable annotations processing. File > Settings > Build, execution. deployment > Compiler > Annotation Processors > Default > Enable Annotation Processing
+  
+  ![Disable Annotation Processing](docs/disableAnnotations.png)
+    
 ## Running
 __Note:__ The following is aimed to help you setup run configurations for Eclipse and IntelliJ, if you do not want to be able to run SpongeForge directly from your IDE then you can skip this.
 
