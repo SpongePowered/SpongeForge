@@ -49,6 +49,8 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.SpongeEventFactory;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.network.ChannelBinding;
 import org.spongepowered.api.network.ChannelBinding.IndexedMessageChannel;
@@ -89,21 +91,30 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
     public void onCustomPacketRegistration(CustomPacketRegistrationEvent<?> event) {
         Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
         ;
-        try (final CauseStackManager.CauseStackFrame causeStackFrame = Sponge.getCauseStackManager().pushCauseFrame()) {
-            if (event.getHandler() instanceof NetHandlerPlayServer) {
-                Sponge.getCauseStackManager().pushCause(((NetHandlerPlayServer) event.getHandler()).player);
+        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
+        try (final CauseStackManager.CauseStackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
+            if (isMainThread) {
+                if (event.getHandler() instanceof NetHandlerPlayServer) {
+                    Sponge.getCauseStackManager().pushCause(((NetHandlerPlayServer) event.getHandler()).player);
+                }
+                Sponge.getCauseStackManager().addContext(NET_HANDLER, event.getHandler());
             }
-            Sponge.getCauseStackManager().addContext(NET_HANDLER, event.getHandler());
 
             if (event.getOperation().equals("REGISTER")) {
                 channels.addAll(event.getRegistrations());
                 for (String channel : event.getRegistrations()) {
-                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Sponge.getCauseStackManager().getCurrentCause(), channel));
+                    final Cause
+                        currentCause =
+                        isMainThread ? Sponge.getCauseStackManager().getCurrentCause() : Cause.of(EventContext.empty(), Sponge.getGame());
+                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(currentCause, channel));
                 }
             } else if (event.getOperation().equals("UNREGISTER")) {
                 channels.removeAll(event.getRegistrations());
                 for (String channel : event.getRegistrations()) {
-                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(Sponge.getCauseStackManager().getCurrentCause(), channel));
+                    final Cause
+                        currentCause =
+                        isMainThread ? Sponge.getCauseStackManager().getCurrentCause() : Cause.of(EventContext.empty(), Sponge.getGame());
+                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(currentCause, channel));
                 }
             }
         }

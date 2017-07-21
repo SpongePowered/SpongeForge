@@ -29,8 +29,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.reflect.TypeToken;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -103,12 +105,22 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
         return spongeEvent;
     }
+    private static boolean isSpongeSetUp = false;
 
     @Override
     public boolean post(Event event, boolean forced) {
         org.spongepowered.api.event.Event spongeEvent = null;
+        if (!isSpongeSetUp) {
+            try {
+                Sponge.getCauseStackManager();
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        isSpongeSetUp = true;
         // TODO verify the frame is necessary here or if it can be placed elsewhere
-        try (final CauseStackManager.CauseStackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
+        try (final CauseStackManager.CauseStackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
             if (!forced) {
                 if (!isEventAllowed(event)) {
                     return false;
@@ -150,8 +162,8 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
                 throw new RuntimeException(throwable);
             }
+            return (event.isCancelable() ? event.isCanceled() : false);
         }
-        return (event.isCancelable() ? event.isCanceled() : false);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

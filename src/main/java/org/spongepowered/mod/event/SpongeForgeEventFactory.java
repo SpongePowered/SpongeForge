@@ -94,6 +94,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
@@ -425,13 +426,21 @@ public class SpongeForgeEventFactory {
     }
 
     public static LoadChunkEvent createLoadChunkEvent(ChunkEvent.Load forgeEvent) {
-        Sponge.getCauseStackManager().pushCause(forgeEvent.getWorld());
-        return SpongeEventFactory.createLoadChunkEvent(Sponge.getCauseStackManager().getCurrentCause(), (Chunk) forgeEvent.getChunk());
+        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
+        if (isMainThread) {
+            Sponge.getCauseStackManager().pushCause(forgeEvent.getWorld());
+        }
+        final Cause cause = isMainThread ? Sponge.getCauseStackManager().getCurrentCause() : Cause.of(EventContext.empty(), forgeEvent.getWorld());
+        return SpongeEventFactory.createLoadChunkEvent(cause, (Chunk) forgeEvent.getChunk());
     }
 
     public static UnloadChunkEvent createUnloadChunkEvent(ChunkEvent.Unload forgeEvent) {
-        Sponge.getCauseStackManager().pushCause(forgeEvent.getWorld());
-        return SpongeEventFactory.createUnloadChunkEvent(Sponge.getCauseStackManager().getCurrentCause(), (Chunk) forgeEvent.getChunk());
+        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
+        if (isMainThread) {
+            Sponge.getCauseStackManager().pushCause(forgeEvent.getWorld());
+        }
+        final Cause cause = isMainThread ? Sponge.getCauseStackManager().getCurrentCause() : Cause.of(EventContext.empty(), forgeEvent.getWorld());
+        return SpongeEventFactory.createUnloadChunkEvent(cause, (Chunk) forgeEvent.getChunk());
     }
     // ====================================  FORGE TO SPONGE END ==================================== \\
 
