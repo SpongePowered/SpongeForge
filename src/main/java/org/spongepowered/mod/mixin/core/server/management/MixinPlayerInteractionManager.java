@@ -52,7 +52,9 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.Tristate;
@@ -114,14 +116,20 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         }
         // Store reference of current player's itemstack in case it changes
         ItemStack oldStack = stack.copy();
+        InteractBlockEvent.Secondary event;
+        try (CauseStackManager.CauseStackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
 
-        BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-        InteractBlockEvent.Secondary event = SpongeCommonEventFactory.callInteractBlockEventSecondary(Cause.of(NamedCause.source(player)),
+            BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
+            Sponge.getCauseStackManager().pushCause(player);
+
+            event = SpongeCommonEventFactory.callInteractBlockEventSecondary(
                 Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
                 DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
-        if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
-            SpongeCommonEventFactory.playerInteractItemChanged = true;
+            if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
+                SpongeCommonEventFactory.playerInteractItemChanged = true;
+            }
         }
+
 
         TileEntity tileEntity = worldIn.getTileEntity(pos);
         if (event.isCancelled()) {

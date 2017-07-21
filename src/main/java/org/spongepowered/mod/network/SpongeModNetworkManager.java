@@ -35,6 +35,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Singleton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
@@ -45,9 +46,10 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketRegistr
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.network.ChannelBinding;
 import org.spongepowered.api.network.ChannelBinding.IndexedMessageChannel;
 import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
@@ -64,26 +66,45 @@ import java.util.Set;
 @Singleton
 public class SpongeModNetworkManager extends SpongeNetworkManager {
 
+    public static final EventContextKey<INetHandler> NET_HANDLER = new EventContextKey<INetHandler>() {
+        @Override
+        public Class<INetHandler> getAllowedType() {
+            return INetHandler.class;
+        }
+
+        @Override
+        public String getId() {
+            return "sponge:nethandler";
+        }
+
+        @Override
+        public String getName() {
+            return "NetHandler";
+        }
+    };
+
     private final Map<String, SpongeModChannelBinding> channelMap = Maps.newHashMap();
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onCustomPacketRegistration(CustomPacketRegistrationEvent<?> event) {
         Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
-        Cause.Builder builder = Cause.builder();
-        if (event.getHandler() instanceof NetHandlerPlayServer) {
-            builder.named(NamedCause.source(((NetHandlerPlayServer) event.getHandler()).player));
-        }
-        Cause cause = builder.named(NamedCause.of("NetHandler", event.getHandler())).build();
-
-        if (event.getOperation().equals("REGISTER")) {
-            channels.addAll(event.getRegistrations());
-            for (String channel : event.getRegistrations()) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(cause, channel));
+        ;
+        try (final CauseStackManager.CauseStackFrame causeStackFrame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            if (event.getHandler() instanceof NetHandlerPlayServer) {
+                Sponge.getCauseStackManager().pushCause(((NetHandlerPlayServer) event.getHandler()).player);
             }
-        } else if (event.getOperation().equals("UNREGISTER")) {
-            channels.removeAll(event.getRegistrations());
-            for (String channel : event.getRegistrations()) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(cause, channel));
+            Sponge.getCauseStackManager().addContext(NET_HANDLER, event.getHandler());
+
+            if (event.getOperation().equals("REGISTER")) {
+                channels.addAll(event.getRegistrations());
+                for (String channel : event.getRegistrations()) {
+                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(Sponge.getCauseStackManager().getCurrentCause(), channel));
+                }
+            } else if (event.getOperation().equals("UNREGISTER")) {
+                channels.removeAll(event.getRegistrations());
+                for (String channel : event.getRegistrations()) {
+                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(Sponge.getCauseStackManager().getCurrentCause(), channel));
+                }
             }
         }
     }

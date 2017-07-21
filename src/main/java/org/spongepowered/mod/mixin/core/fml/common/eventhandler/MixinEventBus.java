@@ -38,6 +38,7 @@ import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.eventhandler.ListenerList;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -89,11 +90,15 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     @Override
     public org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent) {
-        org.spongepowered.api.event.Event spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent);
-        IEventListener[] listeners = forgeEvent.getListenerList().getListeners(this.busID);
-        boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners);
-        if (!cancelled) {
-            SpongeForgeEventFactory.onForgePost(forgeEvent);
+        org.spongepowered.api.event.Event spongeEvent;
+        // Create a frame for the common event factory to push causes and contexts...
+        try (final CauseStackManager.CauseStackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent);
+            IEventListener[] listeners = forgeEvent.getListenerList().getListeners(this.busID);
+            boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners);
+            if (!cancelled) {
+                SpongeForgeEventFactory.onForgePost(forgeEvent);
+            }
         }
 
         return spongeEvent;
@@ -102,45 +107,49 @@ public abstract class MixinEventBus implements IMixinEventBus {
     @Override
     public boolean post(Event event, boolean forced) {
         org.spongepowered.api.event.Event spongeEvent = null;
-        if (!forced) {
-            if (!isEventAllowed(event)) {
-                return false;
-            }
-            spongeEvent = SpongeForgeEventFactory.createSpongeEvent(event);
-        }
-
-        IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
-        if (!forced && (event instanceof org.spongepowered.api.event.Event || spongeEvent != null) && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
-            boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, event, listeners);
-            if (!cancelled) {
-                SpongeForgeEventFactory.onForgePost(event);
-            }
-
-            return cancelled;
-        }
-        listeners = event.getListenerList().getListeners(this.busID);
-        int index = 0;
-        IMixinASMEventHandler modListener = null;
-        try {
-            for (; index < listeners.length; index++) {
-                final IEventListener listener = listeners[index];
-                if (listener instanceof IMixinASMEventHandler ) {
-                    modListener = (IMixinASMEventHandler) listener;
-                    modListener.getTimingsHandler().startTimingIfSync();
-                    SpongeForgeEventHooks.preEventPhaseCheck(listener, event);
-                    listener.invoke(event);
-                    SpongeForgeEventHooks.postEventPhaseCheck(listener, event);
-                    modListener.getTimingsHandler().stopTimingIfSync();
-                } else {
-                    listener.invoke(event);
+        // TODO verify the frame is necessary here or if it can be placed elsewhere
+        try (final CauseStackManager.CauseStackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            if (!forced) {
+                if (!isEventAllowed(event)) {
+                    return false;
                 }
+                spongeEvent = SpongeForgeEventFactory.createSpongeEvent(event);
             }
-        } catch (Throwable throwable) {
-            if (modListener != null) {
-                modListener.getTimingsHandler().stopTimingIfSync();
+
+            IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
+            if (!forced && (event instanceof org.spongepowered.api.event.Event || spongeEvent != null) && !Sponge.getGame().getPlatform()
+                .getExecutionType().isClient()) {
+                boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, event, listeners);
+                if (!cancelled) {
+                    SpongeForgeEventFactory.onForgePost(event);
+                }
+
+                return cancelled;
             }
-            this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
-            throw new RuntimeException(throwable);
+            listeners = event.getListenerList().getListeners(this.busID);
+            int index = 0;
+            IMixinASMEventHandler modListener = null;
+            try {
+                for (; index < listeners.length; index++) {
+                    final IEventListener listener = listeners[index];
+                    if (listener instanceof IMixinASMEventHandler) {
+                        modListener = (IMixinASMEventHandler) listener;
+                        modListener.getTimingsHandler().startTimingIfSync();
+                        SpongeForgeEventHooks.preEventPhaseCheck(listener, event);
+                        listener.invoke(event);
+                        SpongeForgeEventHooks.postEventPhaseCheck(listener, event);
+                        modListener.getTimingsHandler().stopTimingIfSync();
+                    } else {
+                        listener.invoke(event);
+                    }
+                }
+            } catch (Throwable throwable) {
+                if (modListener != null) {
+                    modListener.getTimingsHandler().stopTimingIfSync();
+                }
+                this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
+                throw new RuntimeException(throwable);
+            }
         }
         return (event.isCancelable() ? event.isCanceled() : false);
     }

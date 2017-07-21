@@ -56,7 +56,6 @@ import org.spongepowered.api.data.type.StoneType;
 import org.spongepowered.api.data.type.StoneTypes;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.api.world.biome.BiomeGenerationSettings;
@@ -144,7 +143,6 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
     public void populate(int chunkX, int chunkZ) {
         final CauseTracker causeTracker = CauseTracker.getInstance();
         this.chunkGeneratorTiming.startTimingIfSync();
-        Cause populateCause = Cause.of(NamedCause.source(this));
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -181,7 +179,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             populators.add(snowPopulator);
         }
 
-        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(populateCause, populators, chunk));
+        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(Sponge.getCauseStackManager().getCurrentCause(), populators, chunk));
 
         MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Pre(this, this.world, this.rand, chunkX, chunkZ, false));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(this.world, this.rand, blockpos));
@@ -198,15 +196,15 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             if (type == null) {
                 System.err.printf("Found a populator with a null type: %s populator%n", populator);
             }
-            if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(populateCause, populator, chunk))) {
+            if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(Sponge.getCauseStackManager().getCurrentCause(), populator, chunk))) {
                 continue;
             }
             if (CauseTracker.ENABLED) {
                 causeTracker.switchToPhase(GenerationPhase.State.POPULATOR_RUNNING, PhaseContext.start()
-                        .add(NamedCause.of(InternalNamedCauses.WorldGeneration.WORLD, this.world))
-                        .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
-                        .addEntityCaptures()
-                        .complete());
+                    .addExtra(InternalNamedCauses.WorldGeneration.WORLD, world)
+                    .addExtra(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type)
+                    .addEntityCaptures()
+                    .complete());
             }
             Timing timing = null;
             if (Timings.isTimingsEnabled()) {
@@ -251,7 +249,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         }
 
         org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
-                SpongeEventFactory.createPopulateChunkEventPost(populateCause, ImmutableList.copyOf(populators), chunk);
+                SpongeEventFactory.createPopulateChunkEventPost(Sponge.getCauseStackManager().getCurrentCause(), ImmutableList.copyOf(populators), chunk);
         SpongeImpl.postEvent(event);
 
         BlockFalling.fallInstantly = false;

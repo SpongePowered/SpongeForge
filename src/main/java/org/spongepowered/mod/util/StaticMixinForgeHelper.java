@@ -36,23 +36,62 @@ import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.event.cause.entity.damage.DamageFunction;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifierTypes;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
 import org.spongepowered.common.event.damage.DamageEventHandler;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.DoubleUnaryOperator;
 
 import javax.annotation.Nullable;
 
 public final class StaticMixinForgeHelper {
+
+    static final Map<String, EventContextKey<ItemStackSnapshot>> ARMOR_KEYS = new ConcurrentHashMap<>();
+    public static final EventContextKey<ISpecialArmor.ArmorProperties> ARMOR_PROPERTY = new EventContextKey<ISpecialArmor.ArmorProperties>() {
+        @Override
+        public Class<ISpecialArmor.ArmorProperties> getAllowedType() {
+            return ISpecialArmor.ArmorProperties.class;
+        }
+
+        @Override
+        public String getId() {
+            return "forge:ArmorProperty";
+        }
+
+        @Override
+        public String getName() {
+            return "ArmorProperty";
+        }
+    };
+    private static final EventContextKey<DamageEventObject> DAMAGE_MODIFIER_OBJECT = new EventContextKey<DamageEventObject>() {
+        @Override
+        public Class<DamageEventObject> getAllowedType() {
+            return DamageEventObject.class;
+        }
+
+        @Override
+        public String getId() {
+            return "sponge:damage_event_object";
+        }
+
+        @Override
+        public String getName() {
+            return "0xDEADBEEF";
+        }
+    };
 
     @Nullable
     public static IBlockState breakEventExtendedState = null;
@@ -146,11 +185,37 @@ public final class StaticMixinForgeHelper {
                 }
                 ratio += prop.AbsorbRatio;
 
+                EventContextKey<ItemStackSnapshot> contextKey = ARMOR_KEYS.get("armor:" + type.getId());
+                if (contextKey == null) {
+                    contextKey = new EventContextKey<ItemStackSnapshot>() {
+                        @Override
+                        public Class<ItemStackSnapshot> getAllowedType() {
+                            return ItemStackSnapshot.class;
+                        }
+
+                        @Override
+                        public String getId() {
+                            return "armor:" + type.getId();
+                        }
+
+                        @Override
+                        public String getName() {
+                            return type.getName();
+                        }
+                    };
+                    ARMOR_KEYS.put("armor: " + type.getId(), contextKey);
+                }
+
+                final ItemStack itemStack = inventory.get(prop.Slot);
                 DamageModifier modifier = DamageModifier.builder()
-                    .cause(Cause.of(NamedCause.of(DamageEntityEvent.GENERAL_ARMOR + ":" + type.getId(),
-                                                  ((org.spongepowered.api.item.inventory.ItemStack) (Object) inventory.get(prop.Slot)).createSnapshot()),
-                                    NamedCause.of("ArmorProperty", prop),
-                                    NamedCause.of("0xDEADBEEF", object)))
+                    .cause(Cause.of(
+                        EventContext.builder()
+                            .add(contextKey, ItemStackUtil.snapshotOf(itemStack))
+                            .add(ARMOR_PROPERTY, prop)
+                            .add(DAMAGE_MODIFIER_OBJECT, object)
+                        .build(),
+                        itemStack
+                    ))
                     .type(DamageModifierTypes.ARMOR)
                     .build();
                 list.add(DamageFunction.of(modifier, function));

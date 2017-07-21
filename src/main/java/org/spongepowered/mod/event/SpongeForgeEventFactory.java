@@ -78,6 +78,7 @@ import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
@@ -93,9 +94,10 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.EventContextKey;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
-import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
+import org.spongepowered.api.event.cause.entity.spawn.SpawnType;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
@@ -275,35 +277,26 @@ public class SpongeForgeEventFactory {
         final CauseTracker causeTracker = CauseTracker.getInstance();
         final PhaseData data = causeTracker.getCurrentPhaseData();
 
-        Cause.Builder builder = null;
         User owner = data.context.getOwner().orElse(null);
         User notifier = data.context.getNotifier().orElse(null);
         EntityPlayer player = forgeEvent.getPlayer();
+
         if (SpongeImplHooks.isFakePlayer(player)) {
-            if (owner != null) {
-                builder = Cause.source(owner);
-                builder.named(NamedCause.FAKE_PLAYER, player);
-            } else if (notifier != null) {
-                builder = Cause.source(notifier);
-                builder.named(NamedCause.FAKE_PLAYER, player);
-            } else {
-                builder = Cause.builder().named(NamedCause.FAKE_PLAYER, player);
-            }
+            Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
         }
-        if (builder == null) {
-            builder = Cause.source(player);
-        }
+        Sponge.getCauseStackManager().pushCause(player);
 
         if (owner != null) {
-            builder.owner(owner);
+            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
         }
         if (notifier != null) {
-            builder.notifier(notifier);
+            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
         }
-        builder.named(NamedCause.PLAYER_BREAK, world);
 
-        ChangeBlockEvent.Pre spongeEvent = SpongeEventFactory.createChangeBlockEventPre(builder.build(), ImmutableList.of(new Location<>((World) world, pos.getX(), pos.getY(), pos.getZ())));
-        return spongeEvent;
+        Sponge.getCauseStackManager().addContext(EventContextKeys.PLAYER_BREAK, (World) world);
+
+        return SpongeEventFactory.createChangeBlockEventPre(Sponge.getCauseStackManager().getCurrentCause(),
+            ImmutableList.of(new Location<>((World) world, pos.getX(), pos.getY(), pos.getZ())));
     }
 
     public static ChangeBlockEvent.Break createChangeBlockEventBreak(BlockEvent.BreakEvent forgeEvent) {
@@ -324,30 +317,22 @@ public class SpongeForgeEventFactory {
         User owner = data.context.getOwner().orElse(null);
         User notifier = data.context.getNotifier().orElse(null);
         EntityPlayer player = forgeEvent.getPlayer();
+
         if (SpongeImplHooks.isFakePlayer(player)) {
-            if (owner != null) {
-                builder = Cause.source(owner);
-                builder.named(NamedCause.FAKE_PLAYER, player);
-            } else if (notifier != null) {
-                builder = Cause.source(notifier);
-                builder.named(NamedCause.FAKE_PLAYER, player);
-            } else {
-                builder = Cause.builder().named(NamedCause.FAKE_PLAYER, player);
-            }
+            Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
         }
-        if (builder == null) {
-            builder = Cause.source(player);
-        }
+        Sponge.getCauseStackManager().pushCause(player);
 
         if (owner != null) {
-            builder.owner(owner);
+            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
         }
         if (notifier != null) {
-            builder.notifier(notifier);
+            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
         }
-        builder.named(NamedCause.PLAYER_BREAK, world);
-        ChangeBlockEvent.Break spongeEvent = SpongeEventFactory.createChangeBlockEventBreak(builder.build(), blockSnapshots);
-        return spongeEvent;
+
+        Sponge.getCauseStackManager().addContext(EventContextKeys.PLAYER_BREAK, (World) world);
+
+        return SpongeEventFactory.createChangeBlockEventBreak(Sponge.getCauseStackManager().getCurrentCause(), blockSnapshots);
     }
 
     public static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.PlaceEvent forgeEvent) {
@@ -368,30 +353,22 @@ public class SpongeForgeEventFactory {
         User owner = data.context.getOwner().orElse(null);
         User notifier = data.context.getNotifier().orElse(null);
         EntityPlayer player = forgeEvent.getPlayer();
+
         if (SpongeImplHooks.isFakePlayer(player)) {
-            if (owner != null) {
-                builder = Cause.source(owner);
-                builder.named(NamedCause.FAKE_PLAYER, player);
-            } else if (notifier != null) {
-                builder = Cause.source(notifier);
-                builder.named(NamedCause.FAKE_PLAYER, player);
-            } else {
-                builder = Cause.builder().named(NamedCause.FAKE_PLAYER, player);
-            }
+            Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
         }
-        if (builder == null) {
-            builder = Cause.source(player);
-        }
+        Sponge.getCauseStackManager().pushCause(player);
 
         if (owner != null) {
-            builder.owner(owner);
+            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
         }
         if (notifier != null) {
-            builder.notifier(notifier);
+            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
         }
-        builder.named(NamedCause.PLAYER_PLACE, world);
-        ChangeBlockEvent.Place spongeEvent = SpongeEventFactory.createChangeBlockEventPlace(builder.build(), blockSnapshots);
-        return spongeEvent;
+
+        Sponge.getCauseStackManager().addContext(EventContextKeys.PLAYER_PLACE, (World) world);
+
+        return SpongeEventFactory.createChangeBlockEventPlace(Sponge.getCauseStackManager().getCurrentCause(), blockSnapshots);
     }
 
     public static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.MultiPlaceEvent forgeEvent) {
@@ -408,8 +385,8 @@ public class SpongeForgeEventFactory {
             builder.add(new Transaction<>(originalSnapshot, finalSnapshot));
         }
 
-        ChangeBlockEvent.Place spongeEvent = SpongeEventFactory.createChangeBlockEventPlace(Cause.source(forgeEvent.getPlayer()).build(), builder.build());
-        return spongeEvent;
+        Sponge.getCauseStackManager().pushCause(forgeEvent.getPlayer());
+        return SpongeEventFactory.createChangeBlockEventPlace(Sponge.getCauseStackManager().getCurrentCause(), builder.build());
     }
 
     public static MessageChannelEvent.Chat createMessageChannelEventChat(ServerChatEvent forgeEvent) {
@@ -429,8 +406,10 @@ public class SpongeForgeEventFactory {
 
         Text rawSpongeMessage = Text.of(forgeEvent.getMessage());
         MessageChannel originalChannel = channel = ((Player) forgeEvent.getPlayer()).getMessageChannel();
-        MessageChannelEvent.Chat spongeEvent = SpongeEventFactory.createMessageChannelEventChat(Cause.source(forgeEvent.getPlayer()).build(), originalChannel, Optional.ofNullable(channel), formatter, rawSpongeMessage, false);
-        return spongeEvent;
+        Sponge.getCauseStackManager().pushCause(forgeEvent.getPlayer());
+
+        return SpongeEventFactory.createMessageChannelEventChat(Sponge.getCauseStackManager().getCurrentCause(),
+            originalChannel, Optional.ofNullable(channel), formatter, rawSpongeMessage, false);
     }
 
     public static SleepingEvent.Pre createSleepingEventPre(PlayerSleepInBedEvent forgeEvent) {
@@ -441,16 +420,18 @@ public class SpongeForgeEventFactory {
 
         final BlockPos pos = forgeEvent.getPos();
         BlockSnapshot bedSnapshot = ((World) world).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-        SleepingEvent.Pre spongeEvent = SpongeEventFactory.createSleepingEventPre(Cause.source(forgeEvent.getEntity()).build(), bedSnapshot, (org.spongepowered.api.entity.Entity) forgeEvent.getEntity());
-        return spongeEvent;
+        Sponge.getCauseStackManager().pushCause(forgeEvent.getEntity());
+        return SpongeEventFactory.createSleepingEventPre(Sponge.getCauseStackManager().getCurrentCause(), bedSnapshot, (org.spongepowered.api.entity.Entity) forgeEvent.getEntity());
     }
 
     public static LoadChunkEvent createLoadChunkEvent(ChunkEvent.Load forgeEvent) {
-        return SpongeEventFactory.createLoadChunkEvent(Cause.of(NamedCause.source(forgeEvent.getWorld())), (Chunk) forgeEvent.getChunk());
+        Sponge.getCauseStackManager().pushCause(forgeEvent.getWorld());
+        return SpongeEventFactory.createLoadChunkEvent(Sponge.getCauseStackManager().getCurrentCause(), (Chunk) forgeEvent.getChunk());
     }
 
     public static UnloadChunkEvent createUnloadChunkEvent(ChunkEvent.Unload forgeEvent) {
-        return SpongeEventFactory.createUnloadChunkEvent(Cause.of(NamedCause.source(forgeEvent.getWorld())), (Chunk) forgeEvent.getChunk());
+        Sponge.getCauseStackManager().pushCause(forgeEvent.getWorld());
+        return SpongeEventFactory.createUnloadChunkEvent(Sponge.getCauseStackManager().getCurrentCause(), (Chunk) forgeEvent.getChunk());
     }
     // ====================================  FORGE TO SPONGE END ==================================== \\
 
@@ -878,16 +859,17 @@ public class SpongeForgeEventFactory {
     @SuppressWarnings("unchecked")
     public static DropItemEvent.Destruct callLivingDropsEvent(Event event) {
         DropItemEvent.Destruct spongeEvent = (DropItemEvent.Destruct) event;
-        Object source = spongeEvent.getCause().root();
-        Optional<DamageSource> damageSource = spongeEvent.getCause().first(DamageSource.class);
-        if (!(source instanceof EntitySpawnCause) || !damageSource.isPresent()) {
+        final Cause cause = spongeEvent.getCause();
+        Object source = cause.root();
+        Optional<DamageSource> damageSource = cause.first(DamageSource.class);
+        final Optional<Entity> spawnEntity = cause.first(Entity.class);
+        final Optional<SpawnType> spawnType = cause.getContext().get(EventContextKeys.SPAWN_TYPE);
+        if (!spawnType.isPresent() || !damageSource.isPresent() || !spawnEntity.isPresent()) {
             // Mods expect EntityJoinWorldEvent to trigger
             callEntityJoinWorldEvent(spongeEvent);
             return spongeEvent;
         }
-
-        EntitySpawnCause spawnCause = (EntitySpawnCause) source;
-        Entity entity = EntityUtil.toNative(spawnCause.getEntity());
+        Entity entity = spawnEntity.get();
         if (entity == null || !(entity instanceof EntityLivingBase)) {
             return spongeEvent;
         }
@@ -914,19 +896,20 @@ public class SpongeForgeEventFactory {
 
     public static DropItemEvent.Dispense callItemTossEvent(Event event) {
         DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
-        Object source = spongeEvent.getCause().root();
         if (spongeEvent.getEntities().size() <= 0) {
             return spongeEvent;
         }
-
-        if (!(source instanceof EntitySpawnCause)) {
+        final Cause cause = spongeEvent.getCause();
+        Object source = cause.root();
+        Optional<DamageSource> damageSource = cause.first(DamageSource.class);
+        final Optional<Entity> spawnEntity = cause.first(Entity.class);
+        final Optional<SpawnType> spawnType = cause.getContext().get(EventContextKeys.SPAWN_TYPE);
+        if (!spawnType.isPresent() || !damageSource.isPresent() || !spawnEntity.isPresent()) {
             // Mods expect EntityJoinWorldEvent to trigger
             callEntityJoinWorldEvent(spongeEvent);
             return spongeEvent;
         }
-
-        EntitySpawnCause spawnCause = (EntitySpawnCause) source;
-        Entity entity = EntityUtil.toNative(spawnCause.getEntity());
+        Entity entity = spawnEntity.get();
         EntityItem item = (EntityItem) spongeEvent.getEntities().get(0);
         if (entity == null || item == null || item.getItem() == null || !(entity instanceof Player)) {
             return spongeEvent;
@@ -1092,7 +1075,7 @@ public class SpongeForgeEventFactory {
             net.minecraft.world.World world = player.world;
             final CauseTracker causeTracker = CauseTracker.getInstance();
             PhaseContext context = causeTracker.getCurrentContext();
-            Packet<?> contextPacket = context.firstNamed(InternalNamedCauses.Packet.CAPTURED_PACKET, Packet.class).orElse(null);
+            Packet<?> contextPacket = context.getExtra(InternalNamedCauses.Packet.CAPTURED_PACKET, Packet.class);
             if (contextPacket == null) {
                 return spongeEvent;
             }
