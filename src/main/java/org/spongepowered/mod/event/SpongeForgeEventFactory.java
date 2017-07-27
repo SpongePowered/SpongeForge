@@ -921,6 +921,11 @@ public class SpongeForgeEventFactory {
         ItemTossEvent forgeEvent = new ItemTossEvent(item, (EntityPlayerMP) entity);
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         if (forgeEvent.isCanceled()) {
+            if (item.isDead) {
+                // Don't restore packet item if a mod wants it dead
+                // Mods such as Flux-Networks kills the entity item to spawn a custom one
+                return spongeEvent;
+            }
             spongeEvent.setCancelled(true);
         } else {
             // Forge treats EntityJoinWorldEvent separately from Toss so we need to call it here
