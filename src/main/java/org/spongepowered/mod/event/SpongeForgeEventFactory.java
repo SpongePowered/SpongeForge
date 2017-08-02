@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.event;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -139,7 +140,6 @@ import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -158,7 +158,8 @@ import java.util.Optional;
 public class SpongeForgeEventFactory {
 
     // Order matters
-    public static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Class<? extends Event> clazz) {
+    public static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Event spongeEvent) {
+        final Class<? extends Event> clazz = spongeEvent.getClass();
         if (ChangeInventoryEvent.Pickup.class.isAssignableFrom(clazz)) {
             return EntityItemPickupEvent.class;
         }
@@ -175,7 +176,12 @@ public class SpongeForgeEventFactory {
             return PlayerInteractEvent.class;
         }
         if (InteractEntityEvent.Secondary.class.isAssignableFrom(clazz)) {
-            return PlayerInteractEvent.EntityInteract.class;
+            InteractEntityEvent event = (InteractEntityEvent) spongeEvent;
+            if (event.getInteractionPoint().isPresent()) {
+                return PlayerInteractEvent.EntityInteractSpecific.class;
+            } else {
+                return PlayerInteractEvent.EntityInteract.class;
+            }
         }
         if (NotifyNeighborBlockEvent.class.isAssignableFrom(clazz)) {
             return BlockEvent.NeighborNotifyEvent.class;
@@ -452,6 +458,8 @@ public class SpongeForgeEventFactory {
     public static Event callForgeEvent(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
         if (EntityItemPickupEvent.class.isAssignableFrom(clazz)) {
             return callEntityItemPickupEvent(spongeEvent);
+        } else if (PlayerInteractEvent.EntityInteractSpecific.class.isAssignableFrom(clazz)) {
+            return callEntityInteractEvent(spongeEvent);
         } else if (PlayerInteractEvent.EntityInteract.class.isAssignableFrom(clazz)) {
             return callEntityInteractEvent(spongeEvent);
         } else if (BlockEvent.NeighborNotifyEvent.class.isAssignableFrom(clazz)) {
@@ -1149,8 +1157,14 @@ public class SpongeForgeEventFactory {
 
         final EntityPlayer entityPlayer = (EntityPlayer) player.get();
         final Entity entity = (Entity) spongeEvent.getTargetEntity();
+        final Vector3d hitVec = spongeEvent.getInteractionPoint().orElse(null);
 
-        PlayerInteractEvent.EntityInteract forgeEvent = new PlayerInteractEvent.EntityInteract(entityPlayer, hand, handStack, entity);
+        PlayerInteractEvent forgeEvent = null;
+        if (hitVec != null) {
+            forgeEvent = new PlayerInteractEvent.EntityInteractSpecific(entityPlayer, hand, handStack, entity, VecHelper.toVec3d(hitVec));
+        } else {
+            forgeEvent = new PlayerInteractEvent.EntityInteract(entityPlayer, hand, handStack, entity);
+        }
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         if (forgeEvent.isCanceled()) {
             spongeEvent.setCancelled(true);

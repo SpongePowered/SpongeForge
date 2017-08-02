@@ -333,7 +333,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
 
         if (spongeEvent.getClass().getInterfaces().length > 0) {
-            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent.getClass());
+            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent);
             if (clazz != null) {
                 return post(spongeEvent, clazz);
             }
