@@ -150,14 +150,29 @@ public class SpongeMod extends MetaModContainer {
             BlockTypeRegistryModule.getInstance().registerFromGameData(key.toString(), (BlockType) obj);
 
         });
-        SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (owner, manager, id, obj, oldObj) ->
-                ItemTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ITEMS.getKey(obj).toString(),
-                        (ItemType) obj));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.ENCHANTMENTS, (owner, manager, id, obj, oldObj) ->
-                EnchantmentRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ENCHANTMENTS.getKey(obj).toString(), (Enchantment) obj));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (owner, manager, id, obj, oldObj) ->
-                PotionEffectTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.POTIONS.getKey(obj).toString(),
-                        (PotionEffectType) obj));
+        SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (owner, manager, id, obj, oldObj) -> {
+            final ResourceLocation key = ForgeRegistries.ITEMS.getKey(obj);
+            if (key == null) {
+                return;
+            }
+            ItemTypeRegistryModule.getInstance().registerFromGameData(key.toString(),
+                    (ItemType) obj);
+        });
+        SpongeGameData.addRegistryCallback(ForgeRegistries.ENCHANTMENTS, (owner, manager, id, obj, oldObj) -> {
+            final ResourceLocation key = ForgeRegistries.ENCHANTMENTS.getKey(obj);
+            if (key == null) {
+                return;
+            }
+            EnchantmentRegistryModule.getInstance().registerFromGameData(key.toString(), (Enchantment) obj);
+        });
+        SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (owner, manager, id, obj, oldObj) -> {
+            final ResourceLocation key = ForgeRegistries.POTIONS.getKey(obj);
+            if (key == null) {
+                return;
+            }
+            PotionEffectTypeRegistryModule.getInstance().registerFromGameData(key.toString(),
+                    (PotionEffectType) obj);
+        });
         SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj, oldObj) -> {
             final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) obj;
             final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
