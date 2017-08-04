@@ -30,12 +30,21 @@ import net.minecraft.world.storage.SaveFormatOld;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.IMixinSaveHandler;
+import org.spongepowered.common.plugin.PluginContainerExtension;
+import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.interfaces.IMixinLoadController;
 
 import java.io.File;
 
@@ -67,4 +76,14 @@ public abstract class MixinSaveHandler {
         return worldInfo;
     }
 
+    @Inject(method = "getWorldDirectory", at = @At("HEAD"), cancellable = true)
+    public void onGetWorldDirectory(CallbackInfoReturnable<File> cir) {
+        final ModContainer activeContainer = Loader.instance().activeModContainer();
+        // Since Forge uses a single save handler mods will expect this method to return overworld's world directory
+        // Fixes mods such as ComputerCraft and FuturePack
+        if ((activeContainer != null && activeContainer != SpongeMod.instance && !(activeContainer instanceof PluginContainerExtension))) {
+            final File directory = new File(".", Sponge.getServer().getDefaultWorldName());
+            cir.setReturnValue(directory);
+        }
+    }
 }
