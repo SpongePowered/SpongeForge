@@ -43,6 +43,8 @@ import java.util.Map;
 @IFMLLoadingPlugin.MCVersion("1.12")
 public class SpongeCoremod implements IFMLLoadingPlugin {
 
+    static File modFile;
+
     public static final class TokenProvider implements IEnvironmentTokenProvider {
 
         @Override
@@ -71,6 +73,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.spongepowered.launch.JavaVersionCheckUtils");
 
         try {
+            // Note: This is still needed because it checks if at least Java 8u40 is installed
             JavaVersionCheckUtils.ensureJava8();
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,9 +161,9 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         // Register SpongeAPI mod container
         FMLInjectionData.containers.add("org.spongepowered.mod.SpongeApiModContainer");
 
-        SpongeJava6Bridge.modFile = (File) data.get("coremodLocation");
-        if (SpongeJava6Bridge.modFile == null) {
-            SpongeJava6Bridge.modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        modFile = (File) data.get("coremodLocation");
+        if (modFile == null) {
+            modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
         }
     }
 

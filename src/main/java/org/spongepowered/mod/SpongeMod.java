@@ -133,7 +133,7 @@ public class SpongeMod extends MetaModContainer {
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
 
         SpongeMod.instance = this;
-        this.modFile = SpongeJava6Bridge.modFile;
+        this.modFile = SpongeCoremod.modFile;
 
         // Initialize Sponge
         final Stage stage = SpongeGuice.getInjectorStage((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment") ? Stage.DEVELOPMENT : Stage.PRODUCTION);
