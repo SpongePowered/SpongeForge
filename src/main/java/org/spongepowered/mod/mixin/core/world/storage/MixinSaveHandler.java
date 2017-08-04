@@ -51,6 +51,7 @@ public abstract class MixinSaveHandler {
 
     @Shadow @Final protected DataFixer dataFixer;
     @Shadow @Final private File worldDirectory;
+    private File modWorldDirectory = null; 
 
     @Redirect(method = "saveWorldInfoWithPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;handleWorldDataSave"
             + "(Lnet/minecraft/world/storage/SaveHandler;Lnet/minecraft/world/storage/WorldInfo;Lnet/minecraft/nbt/NBTTagCompound;)V", remap = false))
@@ -80,8 +81,12 @@ public abstract class MixinSaveHandler {
         // Since Forge uses a single save handler mods will expect this method to return overworld's world directory
         // Fixes mods such as ComputerCraft and FuturePack
         if ((activeContainer != null && activeContainer != SpongeMod.instance && !(activeContainer instanceof PluginContainerExtension))) {
-            final File directory = new File(".", Sponge.getServer().getDefaultWorldName());
-            cir.setReturnValue(directory);
+            if (this.modWorldDirectory != null) {
+                cir.setReturnValue(this.modWorldDirectory);
+            } else {
+                this.modWorldDirectory = new File(".", Sponge.getServer().getDefaultWorldName());
+                cir.setReturnValue(this.modWorldDirectory);
+            }
         }
     }
 }
