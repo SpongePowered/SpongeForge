@@ -30,7 +30,6 @@ import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
@@ -71,9 +70,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     // Events that should not be posted on the event bus
     private boolean isEventAllowed(Event event) {
-        if (event instanceof PlayerInteractEvent.EntityInteract) {
-            return false;
-        } else if (event instanceof LivingDropsEvent) {
+        if (event instanceof LivingDropsEvent) {
             return false;
         } else if (event instanceof WorldEvent.Save) {
             return false;

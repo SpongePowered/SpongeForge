@@ -175,8 +175,8 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .putAll(net.minecraftforge.event.entity.player.PlayerEvent.HarvestCheck.class, ChangeBlockEvent.Modify.class, ChangeBlockEvent.Post.class)
                     .put(PlayerFlyableFallEvent.class, MoveEntityEvent.class)
 
-
-                    .putAll(PlayerInteractEvent.EntityInteract.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class)
+                    // This event is ignored as we handle it differently on plugin side. See MixinNetHandlerPlayServer for more info.
+                    //.putAll(PlayerInteractEvent.EntityInteract.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class)
                     .putAll(PlayerInteractEvent.EntityInteractSpecific.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class)
                     .putAll(PlayerInteractEvent.RightClickBlock.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class)
                     .putAll(PlayerInteractEvent.RightClickItem.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class)
