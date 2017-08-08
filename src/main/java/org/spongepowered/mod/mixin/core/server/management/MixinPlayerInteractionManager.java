@@ -196,7 +196,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                         SpongeCommonEventFactory.playerInteractItemChanged = true;
                     }
 
-                    result = this.handleOpenEvent(lastOpenContainer, this.thisPlayerMP, result);
+                    result = this.handleOpenEvent(lastOpenContainer, this.thisPlayerMP, currentSnapshot, result);
                 } else {
                     this.thisPlayerMP.connection.sendPacket(new SPacketBlockChange(this.theWorld, pos));
                     result = TristateUtil.toActionResult(event.getUseItemResult());
