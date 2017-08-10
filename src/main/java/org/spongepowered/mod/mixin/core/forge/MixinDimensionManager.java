@@ -149,10 +149,12 @@ public abstract class MixinDimensionManager {
     public static void setWorld(int id, WorldServer world, MinecraftServer server) {
         if (world != null) {
             WorldManager.forceAddWorld(id, world);
+            server.worldTickTimes.put(id, new long[100]);
             FMLLog.info("Loading dimension %d (%s) (%s)", id, world.getWorldInfo().getWorldName(), world.getMinecraftServer());
         } else {
             WorldManager.unloadWorld(WorldManager.getWorldByDimensionId(id).orElseThrow(() -> new RuntimeException("Attempt made to unload a "
                     + "world with dimension id [" + id + "].")), false);
+            server.worldTickTimes.remove(id);
         }
 
         WorldManager.reorderWorldsVanillaFirst();
@@ -211,8 +213,6 @@ public abstract class MixinDimensionManager {
             ((IMixinWorldInfo) properties).setIsMod(true);
         }
         if (!properties.isEnabled()) {
-            SpongeImpl.getLogger().warn("World [{}] (DIM{}) is disabled. World will not be loaded...", worldFolder,
-                    dim);
             return;
         }
 
