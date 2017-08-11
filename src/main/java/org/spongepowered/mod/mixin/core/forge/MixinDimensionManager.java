@@ -47,6 +47,7 @@ import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -189,7 +190,11 @@ public abstract class MixinDimensionManager {
         provider.setDimension(dim);
         String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(provider.getSaveFolder());
         WorldProperties properties = WorldManager.getWorldProperties(worldFolder).orElse(null);
-        if (properties == null) {
+        final Path worldPath = WorldManager.getCurrentSavesDirectory().get().resolve(worldFolder);
+        if (properties == null || !Files.isDirectory(worldPath)) {
+            if (properties != null) {
+                WorldManager.unregisterWorldProperties(properties, false);
+            }
             String modId = StaticMixinForgeHelper.getModIdFromClass(provider.getClass());
             WorldArchetype archetype = Sponge.getRegistry().getType(WorldArchetype.class, modId + ":" + dimensionType.getName().toLowerCase()).orElse(null);
             if (archetype == null) {
