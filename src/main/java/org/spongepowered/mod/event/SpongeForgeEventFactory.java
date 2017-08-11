@@ -140,7 +140,7 @@ import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -1223,9 +1223,12 @@ public class SpongeForgeEventFactory {
         LoadWorldEvent spongeEvent = (LoadWorldEvent) event;
         // Since Forge only uses a single save handler, we need to make sure to pass the overworld's handler.
         // This makes sure that mods dont attempt to save/read their data from the wrong location.
+        final net.minecraft.world.World minecraftWorld = (net.minecraft.world.World) spongeEvent.getTargetWorld();
         ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(true);
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new WorldEvent.Load((net.minecraft.world.World) spongeEvent.getTargetWorld()), true);
-        ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(false);
+        ((IMixinChunkProviderServer) minecraftWorld.getChunkProvider()).setForceChunkRequests(true);
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new WorldEvent.Load(minecraftWorld), true);
+        ((IMixinChunkProviderServer) minecraftWorld.getChunkProvider()).setForceChunkRequests(false);
+        ((IMixinWorld) minecraftWorld).setCallingWorldEvent(false);
         return spongeEvent;
     }
 
