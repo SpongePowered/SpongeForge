@@ -47,6 +47,7 @@ import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
