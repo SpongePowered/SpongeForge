@@ -192,7 +192,11 @@ public abstract class MixinDimensionManager {
         provider.setDimension(dim);
         String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(provider.getSaveFolder());
         WorldProperties properties = WorldManager.getWorldProperties(worldFolder).orElse(null);
-        if (properties == null) {
+        final Path worldPath = WorldManager.getCurrentSavesDirectory().get().resolve(worldFolder);
+        if (properties == null || !Files.isDirectory(worldPath)) {
+            if (properties != null) {
+                WorldManager.unregisterWorldProperties(properties, false);
+            }
             String modId = StaticMixinForgeHelper.getModIdFromClass(provider.getClass());
             WorldArchetype archetype = Sponge.getRegistry().getType(WorldArchetype.class, modId + ":" + dimensionType.getName().toLowerCase()).orElse(null);
             if (archetype == null) {
