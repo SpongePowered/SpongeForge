@@ -41,7 +41,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.IMixinChunk;
 
 @NonnullByDefault
-@Mixin(net.minecraft.world.chunk.Chunk.class)
+@Mixin(value = net.minecraft.world.chunk.Chunk.class, priority = 1001)
 public abstract class MixinChunk implements Chunk, IMixinChunk {
 
     @Shadow @Final private net.minecraft.world.World worldObj;
