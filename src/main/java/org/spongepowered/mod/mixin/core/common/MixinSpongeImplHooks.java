@@ -60,6 +60,8 @@ import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.mod.interfaces.IMixinBlock;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
@@ -285,5 +287,19 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void blockExploded(Block block, World world, BlockPos blockpos, Explosion explosion) {
         block.onBlockExploded(world, blockpos, explosion);
+    }
+
+    @Overwrite
+    public static boolean isRestoringBlocks(World world) {
+        if (world.restoringBlockSnapshots || CauseTracker.getInstance().getCurrentState() == BlockPhase.State.RESTORING_BLOCKS) {
+                return true;
+        }
+
+        return false;
+    }
+
+    @Overwrite
+    public static void onTileEntityChunkUnload(net.minecraft.tileentity.TileEntity tileEntity) {
+        tileEntity.onChunkUnload();
     }
 }
