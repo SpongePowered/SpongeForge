@@ -108,8 +108,6 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Mixins.addConfiguration("mixins.forge.init.json");
         MixinEnvironment.getEnvironment(Phase.INIT).registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.Cause");
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.NamedCause");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Cancellable");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.eventgencore.annotation.PropertySettings");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.ResettableBuilder");
