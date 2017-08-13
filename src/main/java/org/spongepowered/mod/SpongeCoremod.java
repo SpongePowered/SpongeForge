@@ -82,6 +82,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         }
 
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.common.launch.");
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.launch.");
         Launch.classLoader.addClassLoaderExclusion("org.slf4j.");
 
         // Let's get this party started
@@ -120,6 +121,10 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
 
         SpongeLaunch.setupSuperClassTransformer();
+
+        // IItemHandler method tracking
+        Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.itemhandler.");
+        Launch.classLoader.registerTransformer("org.spongepowered.launch.transformer.itemhandler.ItemHandlerTrackerClassTransformer");
     }
 
     private boolean isProductionEnvironment() {
