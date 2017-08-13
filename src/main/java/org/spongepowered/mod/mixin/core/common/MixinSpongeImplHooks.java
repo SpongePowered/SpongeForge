@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.common;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -61,26 +62,37 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
 import org.apache.logging.log4j.Level;
+import org.spongepowered.api.command.args.ChildCommandElementExecutor;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.crafting.CraftingGridInventory;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.command.SpongeCommand;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
+import org.spongepowered.mod.command.SpongeForgeCommand;
 import org.spongepowered.mod.interfaces.IMixinBlock;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
+import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -498,5 +510,30 @@ public abstract class MixinSpongeImplHooks {
             return Optional.empty();
         }
         return Optional.of(((CraftingRecipe) recipe));
+    }
+
+    /**
+     * @author Grinch
+     */
+    @Overwrite
+    public static Text getAdditionalCommandDescriptions() {
+        return Text.of(SpongeCommand.INDENT, SpongeCommand.title("mods"), SpongeCommand.LONG_INDENT, "List currently installed mods");
+    }
+
+    /**
+     * @author Grinch
+     */
+    @Overwrite
+    public static void registerAdditionalCommands(ChildCommandElementExecutor flagChildren, ChildCommandElementExecutor nonFlagChildren) {
+        nonFlagChildren.register(SpongeForgeCommand.getModsCommand(), "mods");
+    }
+
+    /**
+     * @author Grinch
+     * @reason Filters out mods from the plugin listsp
+     */
+    @Overwrite
+    public static Predicate<PluginContainer> getPluginFilterPredicate() {
+        return plugin -> !SpongeCommand.CONTAINER_LIST_STATICS.contains(plugin.getId()) && plugin instanceof SpongeModPluginContainer;
     }
 }
