@@ -187,12 +187,13 @@ public class ItemHandlerTrackerClassTransformer implements IClassTransformer {
                 if (index != -1) {
                     simpleOwner = simpleOwner.substring(index + 1);
                 }
-                final String methodName = simpleOwner + '$' + methodInsnNode.name + '$' + Integer.toHexString(methodInsnNode.desc.hashCode());
+                final String methodName = "redirect" + simpleOwner + '$' + methodInsnNode.name;
+                final String methodId = methodName + ';' + methodInsnNode.desc;
                 final String desc = "(L" + methodInsnNode.owner + ';' + methodInsnNode.desc.substring(1);
-                if (!addedMethods.contains(methodName)) {
+                if (!addedMethods.contains(methodId)) {
                     // Generate a static method that checks the instance
                     final MethodNode m = (MethodNode) classNode.visitMethod(ACC_PRIVATE | ACC_STATIC, methodName, desc, null, null);
-                    addedMethods.add(methodName);
+                    addedMethods.add(methodId);
                     m.visitCode();
                     // Check instance of the possible IItemHandler
                     m.visitVarInsn(ALOAD, 0);
