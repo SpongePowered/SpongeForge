@@ -28,30 +28,31 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.launch.transformer.tracker.TrackedMethod;
 
 import javax.annotation.Nonnull;
 
 /**
  * All method calls to {@link IItemHandler} or {@link IItemHandlerModifiable}
- * will be delegated through this {@link ItemHandlerHelper}.
+ * will be delegated through this {@link ItemHandlerTracker}.
  */
-public final class ItemHandlerHelper {
+public final class ItemHandlerTracker {
 
     // DO NOT MODIFY THE SIGNATURES OF THE FOLLOWING METHODS!
     ///////////////////////// START /////////////////////////
 
-    @ItemHandlerMethod
+    @TrackedMethod
     public static int getSlots(IItemHandler itemHandler) {
-        SpongeImpl.getLogger().info("BEFORE: getSlots");
+        // SpongeImpl.getLogger().info("BEFORE: getSlots");
         // Do things
         try {
             return itemHandler.getSlots();
         } finally {
-            SpongeImpl.getLogger().info("AFTER: getSlots");
+            // SpongeImpl.getLogger().info("AFTER: getSlots");
         }
     }
 
-    @ItemHandlerMethod
+    @TrackedMethod
     public static ItemStack getStackInSlot(IItemHandler itemHandler, int slot) {
         SpongeImpl.getLogger().info("BEFORE: getStackInSlot");
         // Do things
@@ -62,7 +63,7 @@ public final class ItemHandlerHelper {
         }
     }
 
-    @ItemHandlerMethod
+    @TrackedMethod
     public static ItemStack insertItem(IItemHandler itemHandler, int slot, @Nonnull ItemStack stack, boolean simulate) {
         SpongeImpl.getLogger().info("BEFORE: insertItem");
         // Do things
@@ -73,7 +74,7 @@ public final class ItemHandlerHelper {
         }
     }
 
-    @ItemHandlerMethod
+    @TrackedMethod
     public static ItemStack extractItem(IItemHandler itemHandler, int slot, int amount, boolean simulate) {
         SpongeImpl.getLogger().info("BEFORE: extractItem");
         // Do things
@@ -84,7 +85,7 @@ public final class ItemHandlerHelper {
         }
     }
 
-    @ItemHandlerMethod
+    @TrackedMethod
     public static int getSlotLimit(IItemHandler itemHandler, int slot) {
         SpongeImpl.getLogger().info("BEFORE: setStackInSlot");
         // Do things
@@ -95,7 +96,7 @@ public final class ItemHandlerHelper {
         }
     }
 
-    @ItemHandlerMethod
+    @TrackedMethod
     public static void setStackInSlot(IItemHandlerModifiable itemHandler, int slot, @Nonnull ItemStack stack) {
         SpongeImpl.getLogger().info("BEFORE: setStackInSlot");
         // Do things
@@ -106,6 +107,6 @@ public final class ItemHandlerHelper {
     ////////////////////////// END //////////////////////////
     // Put whatever you like under here.
 
-    private ItemHandlerHelper() {
+    private ItemHandlerTracker() {
     }
 }
