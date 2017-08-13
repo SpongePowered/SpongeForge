@@ -34,6 +34,7 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
 import org.spongepowered.asm.mixin.Mixins;
 import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
 import org.spongepowered.common.launch.SpongeLaunch;
+import org.spongepowered.common.launch.transformer.tracker.TrackerRegistry;
 import org.spongepowered.launch.JavaVersionCheckUtils;
 
 import java.io.File;
@@ -122,6 +123,13 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
 
         SpongeLaunch.setupSuperClassTransformer();
+
+        // Setup method tracking
+        TrackerRegistry.initialize();
+
+        // Setup IItemHandler and IItemHandlerModifiable method tracking
+        TrackerRegistry.registerTracker("org.spongepowered.mod.tracker.FluidTracker");
+        TrackerRegistry.registerTracker("org.spongepowered.mod.tracker.ItemHandlerTracker");
     }
 
     private boolean isProductionEnvironment() {
