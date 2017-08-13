@@ -293,4 +293,9 @@ public abstract class MixinSpongeImplHooks {
 
         return false;
     }
+
+    @Overwrite
+    public static void onTileEntityChunkUnload(net.minecraft.tileentity.TileEntity tileEntity) {
+        tileEntity.onChunkUnload();
+    }
 }

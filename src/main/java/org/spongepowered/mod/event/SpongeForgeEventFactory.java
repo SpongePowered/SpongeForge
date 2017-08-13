@@ -220,6 +220,12 @@ public class SpongeForgeEventFactory {
         if (SaveWorldEvent.Post.class.isAssignableFrom(clazz)) {
             return WorldEvent.Save.class;
         }
+        if (LoadChunkEvent.class.isAssignableFrom(clazz)) {
+            return ChunkEvent.Load.class;
+        }
+        if (UnloadChunkEvent.class.isAssignableFrom(clazz)) {
+            return ChunkEvent.Unload.class;
+        }
         return null;
     }
 
@@ -489,6 +495,10 @@ public class SpongeForgeEventFactory {
             return callWorldLoadEvent(spongeEvent);
         } else if (WorldEvent.Save.class.isAssignableFrom(clazz)) {
             return callWorldSaveEvent(spongeEvent);
+        } else if (ChunkEvent.Load.class.isAssignableFrom(clazz)) {
+            return callChunkLoadEvent(spongeEvent);
+        } else if (ChunkEvent.Unload.class.isAssignableFrom(clazz)) {
+            return callChunkUnloadEvent(spongeEvent);
         }
         return spongeEvent;
     }
@@ -1243,6 +1253,20 @@ public class SpongeForgeEventFactory {
         UnloadWorldEvent spongeEvent = (UnloadWorldEvent) event;
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new WorldEvent.Unload((net.minecraft.world.World) spongeEvent.getTargetWorld()), true);
 
+        return spongeEvent;
+    }
+
+    private static LoadChunkEvent callChunkLoadEvent(Event event) {
+        LoadChunkEvent spongeEvent = (LoadChunkEvent) event;
+        final net.minecraft.world.chunk.Chunk chunk = (net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk();
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ChunkEvent.Load(chunk), true);
+        return spongeEvent;
+    }
+
+    private static UnloadChunkEvent callChunkUnloadEvent(Event event) {
+        UnloadChunkEvent spongeEvent = (UnloadChunkEvent) event;
+        final net.minecraft.world.chunk.Chunk chunk = (net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk();
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ChunkEvent.Unload(chunk), true);
         return spongeEvent;
     }
 }
