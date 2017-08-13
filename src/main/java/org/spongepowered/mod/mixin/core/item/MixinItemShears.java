@@ -108,7 +108,7 @@ public abstract class MixinItemShears extends Item {
                     final ItemStack item;
 
                     if (!drop.isEmpty()) {
-                        final CauseStackManager.CauseStackFrame frame = Sponge.getCauseStackManager().pushCauseFrame();
+                        final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame();
                         // FIRST we want to throw the DropItemEvent.PRE
                         final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
                         final List<ItemStackSnapshot> original = new ArrayList<>();

@@ -56,7 +56,6 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -117,7 +116,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         // Store reference of current player's itemstack in case it changes
         ItemStack oldStack = stack.copy();
         InteractBlockEvent.Secondary event;
-        try (CauseStackManager.CauseStackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
 
             BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
             Sponge.getCauseStackManager().pushCause(player);

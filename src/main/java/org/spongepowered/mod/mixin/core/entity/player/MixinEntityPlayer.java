@@ -41,7 +41,6 @@ import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.action.SleepingEvent;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.RespawnLocation;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -135,22 +134,21 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
 
         SleepingEvent.Post post = null;
         if (!this.world.isRemote) {
-            final CauseStackManager.CauseStackFrame frame = Sponge.getCauseStackManager().pushCauseFrame();
-            Sponge.getCauseStackManager().pushCause(this);
-            post = SpongeEventFactory.createSleepingEventPost(Sponge.getCauseStackManager().getCurrentCause(),
-                this.getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), Optional.ofNullable(newLocation), this, setSpawn);
-            Sponge.getEventManager().post(post);
-            if (post.isCancelled()) {
-                Sponge.getCauseStackManager().popCauseFrame(frame);
-                return;
-            }
+            try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                Sponge.getCauseStackManager().pushCause(this);
+                post = SpongeEventFactory.createSleepingEventPost(Sponge.getCauseStackManager().getCurrentCause(),
+                    this.getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), Optional.ofNullable(newLocation), this, setSpawn);
+                Sponge.getEventManager().post(post);
+                if (post.isCancelled()) {
+                    return;
+                }
 
-            ForgeEventFactory.onPlayerWakeup(((EntityPlayer) (Object) this), immediately, updateWorldFlag, setSpawn);
-            this.setSize(0.6F, 1.8F);
-            if (post.getSpawnTransform().isPresent()) {
-                this.setLocationAndAngles(post.getSpawnTransform().get());
+                ForgeEventFactory.onPlayerWakeup(((EntityPlayer) (Object) this), immediately, updateWorldFlag, setSpawn);
+                this.setSize(0.6F, 1.8F);
+                if (post.getSpawnTransform().isPresent()) {
+                    this.setLocationAndAngles(post.getSpawnTransform().get());
+                }
             }
-            Sponge.getCauseStackManager().popCauseFrame(frame);
         } else {
             ForgeEventFactory.onPlayerWakeup(((EntityPlayer) (Object) this), immediately, updateWorldFlag, setSpawn);
             this.setSize(0.6F, 1.8F);

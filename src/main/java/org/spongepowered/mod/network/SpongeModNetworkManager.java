@@ -92,7 +92,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
         ;
         final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
-        try (final CauseStackManager.CauseStackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
+        try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
             if (isMainThread) {
                 if (event.getHandler() instanceof NetHandlerPlayServer) {
                     Sponge.getCauseStackManager().pushCause(((NetHandlerPlayServer) event.getHandler()).player);

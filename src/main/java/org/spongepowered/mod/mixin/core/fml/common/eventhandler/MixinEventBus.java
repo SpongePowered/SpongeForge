@@ -94,7 +94,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
     public org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent) {
         org.spongepowered.api.event.Event spongeEvent;
         // Create a frame for the common event factory to push causes and contexts...
-        try (final CauseStackManager.CauseStackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+        try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
             spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent);
             IEventListener[] listeners = forgeEvent.getListenerList().getListeners(this.busID);
             boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners);
@@ -120,7 +120,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         isSpongeSetUp = true;
         // TODO verify the frame is necessary here or if it can be placed elsewhere
         final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
-        try (final CauseStackManager.CauseStackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
+        try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
             if (!forced) {
                 if (!isEventAllowed(event)) {
                     return false;
