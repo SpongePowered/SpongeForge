@@ -22,13 +22,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.itemhandler;
+package org.spongepowered.mod.tracker;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.launch.transformer.tracker.TrackedMethod;
+import org.spongepowered.common.launch.transformer.tracker.TrackerMethod;
 
 import javax.annotation.Nonnull;
 
@@ -41,67 +40,40 @@ public final class ItemHandlerTracker {
     // DO NOT MODIFY THE SIGNATURES OF THE FOLLOWING METHODS!
     ///////////////////////// START /////////////////////////
 
-    @TrackedMethod
+    @TrackerMethod
     public static int getSlots(IItemHandler itemHandler) {
-        // SpongeImpl.getLogger().info("BEFORE: getSlots");
         // Do things
-        try {
-            return itemHandler.getSlots();
-        } finally {
-            // SpongeImpl.getLogger().info("AFTER: getSlots");
-        }
+        return itemHandler.getSlots();
     }
 
-    @TrackedMethod
+    @TrackerMethod
     public static ItemStack getStackInSlot(IItemHandler itemHandler, int slot) {
-        SpongeImpl.getLogger().info("BEFORE: getStackInSlot");
         // Do things
-        try {
-            return itemHandler.getStackInSlot(slot);
-        } finally {
-            SpongeImpl.getLogger().info("AFTER: getStackInSlot");
-        }
+        return itemHandler.getStackInSlot(slot);
     }
 
-    @TrackedMethod
+    @TrackerMethod
     public static ItemStack insertItem(IItemHandler itemHandler, int slot, @Nonnull ItemStack stack, boolean simulate) {
-        SpongeImpl.getLogger().info("BEFORE: insertItem");
         // Do things
-        try {
-            return itemHandler.insertItem(slot, stack, simulate);
-        } finally {
-            SpongeImpl.getLogger().info("AFTER: insertItem");
-        }
+        return itemHandler.insertItem(slot, stack, simulate);
     }
 
-    @TrackedMethod
+    @TrackerMethod
     public static ItemStack extractItem(IItemHandler itemHandler, int slot, int amount, boolean simulate) {
-        SpongeImpl.getLogger().info("BEFORE: extractItem");
         // Do things
-        try {
-            return itemHandler.extractItem(slot, amount, simulate);
-        } finally {
-            SpongeImpl.getLogger().info("AFTER: extractItem");
-        }
+        return itemHandler.extractItem(slot, amount, simulate);
     }
 
-    @TrackedMethod
+    @TrackerMethod
     public static int getSlotLimit(IItemHandler itemHandler, int slot) {
-        SpongeImpl.getLogger().info("BEFORE: setStackInSlot");
         // Do things
-        try {
-            return itemHandler.getSlotLimit(slot);
-        } finally {
-            SpongeImpl.getLogger().info("AFTER: setStackInSlot");
-        }
+        return itemHandler.getSlotLimit(slot);
     }
 
-    @TrackedMethod
+    @TrackerMethod
     public static void setStackInSlot(IItemHandlerModifiable itemHandler, int slot, @Nonnull ItemStack stack) {
-        SpongeImpl.getLogger().info("BEFORE: setStackInSlot");
         // Do things
         itemHandler.setStackInSlot(slot, stack);
-        SpongeImpl.getLogger().info("AFTER: setStackInSlot");
     }
 
     ////////////////////////// END //////////////////////////

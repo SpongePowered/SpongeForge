@@ -83,7 +83,6 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         }
 
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.common.launch.");
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.launch.");
         Launch.classLoader.addClassLoaderExclusion("org.slf4j.");
 
         // Let's get this party started
@@ -127,7 +126,8 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         TrackerRegistry.initialize();
 
         // Setup IItemHandler and IItemHandlerModifiable method tracking
-        TrackerRegistry.registerTracker("org.spongepowered.mod.itemhandler.ItemHandlerTracker");
+        TrackerRegistry.registerTracker("org.spongepowered.mod.tracker.FluidTracker");
+        TrackerRegistry.registerTracker("org.spongepowered.mod.tracker.ItemHandlerTracker");
     }
 
     private boolean isProductionEnvironment() {
