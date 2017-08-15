@@ -81,6 +81,8 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
             Runtime.getRuntime().exit(1);
         }
 
+        SpongeLaunch.addJreExtensionsToClassPath();
+
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.common.launch.");
         Launch.classLoader.addClassLoaderExclusion("org.slf4j.");
 
