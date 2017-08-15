@@ -37,7 +37,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.command.SpongeCommand;
+import org.spongepowered.common.command.SpongeCommands;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 
 import java.util.ArrayList;
@@ -45,10 +45,10 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-public class SpongeForgeCommand extends SpongeCommand {
+public class SpongeForgeCommand extends SpongeCommands {
     private static final List<String> MOD_LIST_STATICS = Lists.newArrayList("minecraft", "mcp", "FML", "forge", "spongeapi", "sponge");
 
-    public static CommandSpec getModsCommand() {
+    public static CommandSpec createSpongeModsCommand() {
         return CommandSpec.builder()
                 .description(Text.of("List currently installed mods"))
                 .permission("sponge.command.mods")
