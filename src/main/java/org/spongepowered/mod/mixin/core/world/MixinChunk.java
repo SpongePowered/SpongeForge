@@ -27,6 +27,8 @@ package org.spongepowered.mod.mixin.core.world;
 import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.util.Direction;
@@ -37,6 +39,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.IMixinChunk;
 
@@ -47,6 +50,18 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     @Shadow @Final private net.minecraft.world.World worldObj;
     @Shadow @Final public int xPosition;
     @Shadow @Final public int zPosition;
+
+    @Redirect(method = "onChunkLoad()V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z"), remap = false)
+    private boolean onLoadForgeEvent(EventBus eventBus, Event event) {
+        // Ignore this event as its handled in SpongeForgeEventFactory.
+        return false;
+    }
+
+    @Redirect(method = "onChunkUnload()V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z"), remap = false)
+    private boolean onUnloadForgeEvent(EventBus eventBus, Event event) {
+        // Ignore this event as its handled in SpongeForgeEventFactory.
+        return false;
+    }
 
     @Inject(method = "onChunkLoad", at = @At("RETURN"))
     public void onChunkLoadInject(CallbackInfo ci) {
