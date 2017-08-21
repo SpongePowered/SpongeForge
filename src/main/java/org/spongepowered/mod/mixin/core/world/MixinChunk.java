@@ -51,13 +51,13 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     @Shadow @Final public int xPosition;
     @Shadow @Final public int zPosition;
 
-    @Redirect(method = "onChunkLoad()V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z"), remap = false)
+    @Redirect(method = "onChunkLoad()V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
     private boolean onLoadForgeEvent(EventBus eventBus, Event event) {
         // Ignore this event as its handled in SpongeForgeEventFactory.
         return false;
     }
 
-    @Redirect(method = "onChunkUnload()V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z"), remap = false)
+    @Redirect(method = "onChunkUnload()V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
     private boolean onUnloadForgeEvent(EventBus eventBus, Event event) {
         // Ignore this event as its handled in SpongeForgeEventFactory.
         return false;
