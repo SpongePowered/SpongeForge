@@ -29,6 +29,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.util.Direction;
@@ -40,6 +42,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.IMixinChunk;
@@ -56,6 +59,18 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract IBlockState getBlockState(int x, int y, int z);
     @Shadow public abstract int getTopFilledSegment();
+
+    @Redirect(method = "onLoad()V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
+    private boolean onLoadForgeEvent(EventBus eventBus, Event event) {
+        // Ignore this event as its handled in SpongeForgeEventFactory.
+        return false;
+    }
+
+    @Redirect(method = "onUnload()V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
+    private boolean onUnloadForgeEvent(EventBus eventBus, Event event) {
+        // Ignore this event as its handled in SpongeForgeEventFactory.
+        return false;
+    }
 
     @Inject(method = "onLoad", at = @At("RETURN"))
     public void onLoadInject(CallbackInfo ci) {
