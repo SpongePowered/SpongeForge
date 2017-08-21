@@ -119,11 +119,11 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         SpongeLaunch.setupSuperClassTransformer();
 
         // Setup method tracking
-        TrackerRegistry.initialize();
+        //TrackerRegistry.initialize();
 
         // Setup IItemHandler and IItemHandlerModifiable method tracking
-        TrackerRegistry.registerTracker("org.spongepowered.mod.tracker.FluidTracker");
-        TrackerRegistry.registerTracker("org.spongepowered.mod.tracker.ItemHandlerTracker");
+        //TrackerRegistry.registerTracker("org.spongepowered.mod.tracker.FluidTracker");
+        //TrackerRegistry.registerTracker("org.spongepowered.mod.tracker.ItemHandlerTracker");
     }
 
     private boolean isProductionEnvironment() {
