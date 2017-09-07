@@ -35,7 +35,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.interfaces.inventory.IMixinContainer;
+import org.spongepowered.common.interfaces.IMixinContainer;
 
 @Mixin(value = NetworkRegistry.class, remap = false)
 public abstract class MixinNetworkRegistry {
