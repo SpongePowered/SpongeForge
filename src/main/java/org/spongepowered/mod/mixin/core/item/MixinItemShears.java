@@ -38,13 +38,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.IShearable;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
-import org.spongepowered.api.event.cause.entity.spawn.SpawnCause;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
@@ -109,23 +108,28 @@ public abstract class MixinItemShears extends Item {
                     final ItemStack item;
 
                     if (!drop.isEmpty()) {
-                        // FIRST we want to throw the DropItemEvent.PRE
-                        final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
-                        final List<ItemStackSnapshot> original = new ArrayList<>();
-                        original.add(snapshot);
-                        final DropItemEvent.Pre dropEvent = SpongeEventFactory.createDropItemEventPre(Cause.of(NamedCause.source(entity)),
-                                ImmutableList.of(snapshot), original);
-                        if (dropEvent.isCancelled()) {
-                            continue;
-                        }
+                        try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                            // FIRST we want to throw the DropItemEvent.PRE
+                            final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
+                            final List<ItemStackSnapshot> original = new ArrayList<>();
+                            original.add(snapshot);
+                            Sponge.getCauseStackManager().pushCause(entity);
+                            final DropItemEvent.Pre
+                                dropEvent =
+                                SpongeEventFactory.createDropItemEventPre(Sponge.getCauseStackManager().getCurrentCause(),
+                                    ImmutableList.of(snapshot), original);
+                            if (dropEvent.isCancelled()) {
+                                continue;
+                            }
 
-                        // SECOND throw the ConstructEntityEvent
-                        Transform<World> suggested = new Transform<>(mixinEntity.getWorld(), position);
-                        SpawnCause cause = EntitySpawnCause.builder().entity(mixinEntity).type(SpawnTypes.DROPPED_ITEM).build();
-                        ConstructEntityEvent.Pre event = SpongeEventFactory
-                                .createConstructEntityEventPre(Cause.of(NamedCause.source(cause)), EntityTypes.ITEM, suggested);
-                        SpongeImpl.postEvent(event);
-                        item = event.isCancelled() ? null : ItemStackUtil.fromSnapshotToNative(dropEvent.getDroppedItems().get(0));
+                            // SECOND throw the ConstructEntityEvent
+                            Transform<World> suggested = new Transform<>(mixinEntity.getWorld(), position);
+                            Sponge.getCauseStackManager().addContext(EventContextKeys.SPAWN_TYPE, SpawnTypes.DROPPED_ITEM);
+                            ConstructEntityEvent.Pre event = SpongeEventFactory
+                                .createConstructEntityEventPre(Sponge.getCauseStackManager().getCurrentCause(), EntityTypes.ITEM, suggested);
+                            SpongeImpl.postEvent(event);
+                            item = event.isCancelled() ? null : ItemStackUtil.fromSnapshotToNative(dropEvent.getDroppedItems().get(0));
+                        }
                     } else {
                         continue;
                     }

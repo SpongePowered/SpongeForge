@@ -111,31 +111,9 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
         return DataTransactionResult.failNoData();
     }
 
-    @Override
-    public <E> DataTransactionResult offer(Key<? extends BaseValue<E>> key, E value, Cause cause) {
-        final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = DataUtil.getBaseValueProcessor(key);
-        if (optional.isPresent()) {
-            return optional.get().offerToStore(this, value);
-        } else if (this instanceof IMixinCustomDataHolder) {
-            return ((IMixinCustomDataHolder) this).offerCustom(key, value);
-        }
-        return DataTransactionResult.failNoData();    }
-
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public DataTransactionResult offer(DataManipulator<?, ?> valueContainer, MergeFunction function) {
-        final Optional<DataProcessor> optional = DataUtil.getWildDataProcessor(valueContainer.getClass());
-        if (optional.isPresent()) {
-            return optional.get().set(this, valueContainer, checkNotNull(function));
-        } else if (this instanceof IMixinCustomDataHolder) {
-            return ((IMixinCustomDataHolder) this).offerCustom(valueContainer, function);
-        }
-        return DataTransactionResult.failResult(valueContainer.getValues());
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-    public DataTransactionResult offer(DataManipulator<?, ?> valueContainer, MergeFunction function, Cause cause) {
         final Optional<DataProcessor> optional = DataUtil.getWildDataProcessor(valueContainer.getClass());
         if (optional.isPresent()) {
             return optional.get().set(this, valueContainer, checkNotNull(function));
