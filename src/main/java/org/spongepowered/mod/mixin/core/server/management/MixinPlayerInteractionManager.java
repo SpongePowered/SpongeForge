@@ -56,6 +56,8 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -64,6 +66,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
 
@@ -115,11 +118,13 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         }
         // Store reference of current player's itemstack in case it changes
         ItemStack oldStack = stack.copy();
+        final ItemStackSnapshot oldSnapshot = ItemStackUtil.snapshotOf(oldStack);
         InteractBlockEvent.Secondary event;
         try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
 
             BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
             Sponge.getCauseStackManager().pushCause(player);
+            Sponge.getCauseStackManager().addContext(EventContextKeys.USED_ITEM, oldSnapshot);
 
             event = SpongeCommonEventFactory.callInteractBlockEventSecondary(
                 Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
