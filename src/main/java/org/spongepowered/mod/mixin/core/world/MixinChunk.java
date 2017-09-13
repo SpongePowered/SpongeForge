@@ -40,6 +40,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.IMixinChunk;
@@ -56,6 +57,18 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract IBlockState getBlockState(int x, int y, int z);
     @Shadow public abstract int getTopFilledSegment();
+
+    @Redirect(method = "onLoad", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
+    public boolean onLoadForgeEvent(net.minecraftforge.fml.common.eventhandler.EventBus eventBus, net.minecraftforge.fml.common.eventhandler.Event event) {
+        // This event is handled in SpongeForgeEventFactory
+        return false;
+    }
+
+    @Redirect(method = "onUnload", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
+    public boolean onUnloadForgeEvent(net.minecraftforge.fml.common.eventhandler.EventBus eventBus, net.minecraftforge.fml.common.eventhandler.Event event) {
+        // This event is handled in SpongeForgeEventFactory
+        return false;
+    }
 
     @Inject(method = "onLoad", at = @At("RETURN"))
     public void onLoadInject(CallbackInfo ci) {
