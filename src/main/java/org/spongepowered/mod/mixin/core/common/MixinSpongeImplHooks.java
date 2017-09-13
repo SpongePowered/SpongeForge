@@ -35,6 +35,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
@@ -297,5 +298,10 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void onTileEntityChunkUnload(net.minecraft.tileentity.TileEntity tileEntity) {
         tileEntity.onChunkUnload();
+    }
+
+    @Overwrite
+    public static boolean canConnectRedstone(Block block, IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side) {
+        return block.canConnectRedstone(state, world, pos, side);
     }
 }
