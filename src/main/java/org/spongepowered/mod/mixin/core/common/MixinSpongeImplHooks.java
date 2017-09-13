@@ -302,4 +302,9 @@ public abstract class MixinSpongeImplHooks {
     public static void onTileEntityChunkUnload(net.minecraft.tileentity.TileEntity tileEntity) {
         tileEntity.onChunkUnload();
     }
+
+    @Overwrite
+    public static boolean canConnectRedstone(Block block, IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side) {
+        return block.canConnectRedstone(state, world, pos, side);
+    }
 }
