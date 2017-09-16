@@ -135,8 +135,8 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         SleepingEvent.Post post = null;
         if (!this.world.isRemote) {
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-                Sponge.getCauseStackManager().pushCause(this);
-                post = SpongeEventFactory.createSleepingEventPost(Sponge.getCauseStackManager().getCurrentCause(),
+                frame.pushCause(this);
+                post = SpongeEventFactory.createSleepingEventPost(frame.getCurrentCause(),
                     this.getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), Optional.ofNullable(newLocation), this, setSpawn);
                 Sponge.getEventManager().post(post);
                 if (post.isCancelled()) {
