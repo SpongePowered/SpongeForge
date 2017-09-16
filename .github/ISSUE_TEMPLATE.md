@@ -19,4 +19,6 @@
 **What is the current result?**
 
 <!-- Please provide a *full* server log, either by uploading it to this
-         issue, or to a site like https://gist.github.com/ -->
+         issue, or to a site like https://gist.github.com/
+     Please avoid using hastebin, as anything uploaded there may expire
+         before we have a chance to review your log. -->
