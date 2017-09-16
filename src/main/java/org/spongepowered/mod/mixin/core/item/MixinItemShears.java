@@ -113,10 +113,10 @@ public abstract class MixinItemShears extends Item {
                             final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
                             final List<ItemStackSnapshot> original = new ArrayList<>();
                             original.add(snapshot);
-                            Sponge.getCauseStackManager().pushCause(entity);
+                            frame.pushCause(entity);
                             final DropItemEvent.Pre
                                 dropEvent =
-                                SpongeEventFactory.createDropItemEventPre(Sponge.getCauseStackManager().getCurrentCause(),
+                                SpongeEventFactory.createDropItemEventPre(frame.getCurrentCause(),
                                     ImmutableList.of(snapshot), original);
                             if (dropEvent.isCancelled()) {
                                 continue;
@@ -124,9 +124,9 @@ public abstract class MixinItemShears extends Item {
 
                             // SECOND throw the ConstructEntityEvent
                             Transform<World> suggested = new Transform<>(mixinEntity.getWorld(), position);
-                            Sponge.getCauseStackManager().addContext(EventContextKeys.SPAWN_TYPE, SpawnTypes.DROPPED_ITEM);
+                            frame.addContext(EventContextKeys.SPAWN_TYPE, SpawnTypes.DROPPED_ITEM);
                             ConstructEntityEvent.Pre event = SpongeEventFactory
-                                .createConstructEntityEventPre(Sponge.getCauseStackManager().getCurrentCause(), EntityTypes.ITEM, suggested);
+                                .createConstructEntityEventPre(frame.getCurrentCause(), EntityTypes.ITEM, suggested);
                             SpongeImpl.postEvent(event);
                             item = event.isCancelled() ? null : ItemStackUtil.fromSnapshotToNative(dropEvent.getDroppedItems().get(0));
                         }
