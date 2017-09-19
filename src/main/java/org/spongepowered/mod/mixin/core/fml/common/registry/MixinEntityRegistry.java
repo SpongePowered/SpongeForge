@@ -27,16 +27,13 @@ package org.spongepowered.mod.mixin.core.fml.common.registry;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.entity.SpongeEntityType;
-import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
-import org.spongepowered.mod.SpongeMod;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 @NonnullByDefault
 @Mixin(value = EntityRegistry.class, remap = false)
@@ -45,32 +42,6 @@ public abstract class MixinEntityRegistry {
     @Inject(method = "doModEntityRegistration", at = @At(value = "RETURN", ordinal = 1))
     private void onModEntityRegistration(ResourceLocation registryName, Class<? extends Entity> entityClass, String entityName,
             int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, CallbackInfo ci) {
-        registerCustomEntity(entityClass, entityName, id, FMLCommonHandler.instance().findContainerFor(mod));
+        StaticMixinForgeHelper.registerCustomEntity(entityClass, entityName, id, FMLCommonHandler.instance().findContainerFor(mod));
     }
-
-    private static void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, ModContainer modContainer) {
-        // fix bad entity name registrations from mods
-        if (entityName.contains(".")) {
-            if ((entityName.indexOf(".") + 1) < entityName.length()) {
-                entityName = entityName.substring(entityName.indexOf(".") + 1, entityName.length());
-            }
-        }
-
-        entityName = entityName.replace("entity", "");
-        if (entityName.startsWith("ent")) {
-            entityName = entityName.replace("ent", "");
-        }
-
-        entityName = entityName.replaceAll("[^A-Za-z0-9]", "");
-        String modId = "unknown";
-        if (modContainer != null) {
-            modId = modContainer.getModId();
-        }
-
-        if (!modContainer.equals(SpongeMod.instance)) {
-            SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass, null);
-            EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
-        }
-    }
-
 }

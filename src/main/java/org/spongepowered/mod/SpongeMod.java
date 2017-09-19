@@ -109,6 +109,7 @@ import org.spongepowered.mod.registry.SpongeForgeModuleRegistry;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 import org.spongepowered.mod.registry.SpongeGameData;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -315,6 +316,9 @@ public class SpongeMod extends MetaModContainer {
     @Subscribe
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         SpongeImpl.getRegistry().registerAdditionals();
+        for (EntityEntry entry : ForgeRegistries.ENTITIES) {
+            StaticMixinForgeHelper.registerCustomEntity(entry);
+        }
     }
 
     @Subscribe

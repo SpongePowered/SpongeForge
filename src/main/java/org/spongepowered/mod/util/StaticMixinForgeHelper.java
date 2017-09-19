@@ -26,6 +26,8 @@ package org.spongepowered.mod.util;
 
 import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemArmor;
@@ -35,17 +37,20 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.event.cause.entity.damage.DamageFunction;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifierTypes;
-import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
+import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.event.damage.DamageEventHandler;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
+import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
+import org.spongepowered.mod.SpongeMod;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -336,4 +341,55 @@ public final class StaticMixinForgeHelper {
         return modId;
     }
 
+    @SuppressWarnings("rawtypes")
+    @Nullable
+    public static ModContainer getModContainerFromClass(Class clazz) {
+        final String className = clazz.getName();
+        String modPackage = className.replace("." + clazz.getSimpleName(), "");
+        for (ModContainer mc : Loader.instance().getActiveModList()) {
+            if (mc.getOwnedPackages().contains(modPackage)) {
+                return mc;
+            }
+        }
+
+        return null;
+    }
+
+    public static void registerCustomEntity(EntityEntry entityEntry) {
+        if (EntityTypeRegistryModule.getInstance().entityClassToTypeMappings.get(entityEntry.getEntityClass()) != null) {
+            return;
+        }
+
+        final ModContainer modContainer = getModContainerFromClass(entityEntry.getEntityClass());
+        if (modContainer == null) {
+            return;
+        }
+
+        registerCustomEntity(entityEntry.getEntityClass(), entityEntry.getName(), EntityList.getID(entityEntry.getEntityClass()), modContainer);
+    }
+
+    public static void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, ModContainer modContainer) {
+        // fix bad entity name registrations from mods
+        if (entityName.contains(".")) {
+            if ((entityName.indexOf(".") + 1) < entityName.length()) {
+                entityName = entityName.substring(entityName.indexOf(".") + 1, entityName.length());
+            }
+        }
+
+        entityName = entityName.replace("entity", "");
+        if (entityName.startsWith("ent")) {
+            entityName = entityName.replace("ent", "");
+        }
+
+        entityName = entityName.replaceAll("[^A-Za-z0-9]", "");
+        String modId = "unknown";
+        if (modContainer != null) {
+            modId = modContainer.getModId();
+        }
+
+        if (!modContainer.equals(SpongeMod.instance)) {
+            SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass, null);
+            EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
+        }
+    }
 }
