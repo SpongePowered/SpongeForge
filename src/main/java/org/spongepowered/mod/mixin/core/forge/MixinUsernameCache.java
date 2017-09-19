@@ -32,6 +32,8 @@ import org.spongepowered.common.util.SpongeUsernameCache;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 @Mixin(value = UsernameCache.class, remap = false)
 public class MixinUsernameCache {
 
@@ -46,6 +48,7 @@ public class MixinUsernameCache {
     }
 
     @Overwrite
+    @Nullable
     public static String getLastKnownUsername(UUID uuid) {
         return SpongeUsernameCache.getLastKnownUsername(uuid);
     }

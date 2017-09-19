@@ -40,7 +40,6 @@ import java.util.List;
 @Mixin(value = VillagerRegistry.VillagerProfession.class, remap = false)
 public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<VillagerRegistry.VillagerProfession> implements IMixinVillagerProfession {
 
-    private static final String REGISTER = "Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerProfession;register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerCareer;)V";
     @Shadow private ResourceLocation name;
     @Shadow private List<VillagerRegistry.VillagerCareer> careers;
 
@@ -64,7 +63,8 @@ public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<V
         return this.name.getResourcePath();
     }
 
-    @Inject(method = REGISTER, at = @At(value = "RETURN"), remap = false)
+    @Inject(method = "register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerCareer;)V",
+            at = @At(value = "RETURN"), remap = false)
     private void registerForgeCareer(VillagerRegistry.VillagerCareer career, CallbackInfo callbackInfo) {
         SpongeForgeVillagerRegistry.registerForgeCareer(career);
     }

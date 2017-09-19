@@ -27,19 +27,14 @@ package org.spongepowered.mod.mixin.core.network;
 import com.google.common.collect.Sets;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketChatMessage;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
-import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatTypes;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -55,16 +50,12 @@ import java.util.Set;
 @Mixin(value = NetHandlerPlayServer.class, priority = 1001)
 public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler {
 
-    @Shadow @Final private static Logger LOGGER;
-    @Shadow @Final public NetworkManager netManager;
-    @Shadow @Final private MinecraftServer serverController;
     @Shadow public EntityPlayerMP player;
     @Shadow private int chatSpamThresholdCount;
 
     private final Set<String> registeredChannels = Sets.newHashSet();
 
-    @Shadow public abstract void sendPacket(final Packet<?> packetIn);
-    @Shadow public abstract void func_194028_b(ITextComponent message); // disconnect
+    @Shadow public abstract void disconnect(ITextComponent message); // disconnect
 
     @Inject(method = "processChatMessage", at = @At(value = "INVOKE", target = "net.minecraftforge.common.ForgeHooks.onServerChatEvent"
             + "(Lnet/minecraft/network/NetHandlerPlayServer;Ljava/lang/String;Lnet/minecraft/util/text/ITextComponent;)"
@@ -82,7 +73,7 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
             // Chat spam suppression from MC
             this.chatSpamThresholdCount += 20;
             if (this.chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(this.player.getGameProfile())) {
-                this.func_194028_b(new TextComponentTranslation("disconnect.spam"));
+                this.disconnect(new TextComponentTranslation("disconnect.spam"));
             }
         }
 

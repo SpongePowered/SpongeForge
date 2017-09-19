@@ -56,6 +56,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 /**
  * This mixin redirects all logic in Forge to our WorldManager.
  */
@@ -282,6 +284,7 @@ public abstract class MixinDimensionManager {
     }
 
     @Overwrite
+    @Nullable
     public static File getCurrentSaveRootDirectory() {
         final Optional<Path> optCurrentSavesDir = WorldManager.getCurrentSavesDirectory();
         return optCurrentSavesDir.isPresent() ? optCurrentSavesDir.get().toFile() : null;
