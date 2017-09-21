@@ -45,11 +45,13 @@ public abstract class MixinSpongeRecipe implements IForgeRegistryEntry<IRecipe> 
         return ((IRecipe) this);
     }
 
+    @Override
     @Nullable
     public ResourceLocation getRegistryName() {
         return this.registryName;
     }
 
+    @Override
     public Class<IRecipe> getRegistryType() {
         return IRecipe.class;
     }
