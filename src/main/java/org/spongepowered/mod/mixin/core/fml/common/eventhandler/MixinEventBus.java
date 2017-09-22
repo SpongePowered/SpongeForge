@@ -49,6 +49,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.event.SpongeForgeEventHooks;
 import org.spongepowered.mod.event.SpongeModEventManager;
@@ -147,9 +148,9 @@ public abstract class MixinEventBus implements IMixinEventBus {
                     if (listener instanceof IMixinASMEventHandler) {
                         modListener = (IMixinASMEventHandler) listener;
                         modListener.getTimingsHandler().startTimingIfSync();
-                        SpongeForgeEventHooks.preEventPhaseCheck(listener, event);
-                        listener.invoke(event);
-                        SpongeForgeEventHooks.postEventPhaseCheck(listener, event);
+                        try (PhaseContext<?> context = SpongeForgeEventHooks.preEventPhaseCheck(listener, event)) {
+                            listener.invoke(event);
+                        }
                         modListener.getTimingsHandler().stopTimingIfSync();
                     } else {
                         listener.invoke(event);

@@ -139,6 +139,8 @@ import org.spongepowered.common.event.InternalNamedCauses;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
+import org.spongepowered.common.event.tracking.UnwindingPhaseContext;
+import org.spongepowered.common.event.tracking.phase.packet.PacketContext;
 import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
@@ -1093,8 +1095,12 @@ public class SpongeForgeEventFactory {
             EntityPlayer player = (EntityPlayer) spongeEvent.getCause().first(Player.class).get();
             net.minecraft.world.World world = player.world;
             final CauseTracker causeTracker = CauseTracker.getInstance();
-            PhaseContext context = causeTracker.getCurrentContext();
-            Packet<?> contextPacket = context.getExtra(InternalNamedCauses.Packet.CAPTURED_PACKET, Packet.class);
+            final PhaseContext<?> currentContext = causeTracker.getCurrentContext();
+            PacketContext<?> context = currentContext instanceof UnwindingPhaseContext ?
+                                       currentContext.getRequiredExtra(InternalNamedCauses.Tracker.UNWINDING_CONTEXT, PacketContext.class)
+                                        : currentContext instanceof PacketContext<?>
+                                            ? (PacketContext<?>) currentContext : null;
+            Packet<?> contextPacket = context != null ? context.getPacket(): null;
             if (contextPacket == null) {
                 return spongeEvent;
             }

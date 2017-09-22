@@ -39,7 +39,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
-import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
@@ -51,7 +50,7 @@ public abstract class MixinBlockLog extends MixinBlock {
 
     @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", remap = false))
     public void onBreakBlock(Block block, IBlockState state, net.minecraft.world.World worldIn, BlockPos pos) {
-        if (CauseTracker.ENABLED && !worldIn.isRemote) {
+        if (!worldIn.isRemote) {
             if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) worldIn, pos).isCancelled()) {
                 return;
             }
@@ -64,10 +63,9 @@ public abstract class MixinBlockLog extends MixinBlock {
                         .location(new Location<World>((World) worldIn, pos.getX(), pos.getY(), pos.getZ()))
                         .state((BlockState) state)
                         .build();
-                causeTracker.switchToPhase(BlockPhase.State.BLOCK_DECAY, PhaseContext.start()
+                BlockPhase.State.BLOCK_DECAY.createPhaseContext()
                     .source(locatable)
-                        .addCaptures()
-                        .complete());
+                    .buildAndSwitch();
             }
             block.beginLeavesDecay(state, worldIn, pos);
             if (isBlockAlready && !isWorldGen) {
