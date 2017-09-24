@@ -1097,7 +1097,7 @@ public class SpongeForgeEventFactory {
             final CauseTracker causeTracker = CauseTracker.getInstance();
             final PhaseContext<?> currentContext = causeTracker.getCurrentContext();
             PacketContext<?> context = currentContext instanceof UnwindingPhaseContext ?
-                                       currentContext.getRequiredExtra(InternalNamedCauses.Tracker.UNWINDING_CONTEXT, PacketContext.class)
+                                       currentContext.getExtra(InternalNamedCauses.Tracker.UNWINDING_CONTEXT, PacketContext.class)
                                         : currentContext instanceof PacketContext<?>
                                             ? (PacketContext<?>) currentContext : null;
             Packet<?> contextPacket = context != null ? context.getPacket(): null;
