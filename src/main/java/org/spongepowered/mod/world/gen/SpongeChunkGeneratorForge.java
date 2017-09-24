@@ -88,6 +88,7 @@ import org.spongepowered.common.event.InternalNamedCauses;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
+import org.spongepowered.common.event.tracking.phase.generation.PopulatorPhaseContext;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.interfaces.world.gen.IGenerationPopulator;
@@ -199,32 +200,27 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(Sponge.getCauseStackManager().getCurrentCause(), populator, chunk))) {
                 continue;
             }
-            if (CauseTracker.ENABLED) {
-                causeTracker.switchToPhase(GenerationPhase.State.POPULATOR_RUNNING, PhaseContext.start()
-                    .addExtra(InternalNamedCauses.WorldGeneration.WORLD, world)
-                    .addExtra(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type)
-                    .addEntityCaptures()
-                    .complete());
-            }
-            Timing timing = null;
-            if (Timings.isTimingsEnabled()) {
-                timing = this.populatorTimings.get(populator.getType().getId());
-                if (timing == null) {
-                    timing = SpongeTimingsFactory.ofSafe(populator.getType().getId());
-                    this.populatorTimings.put(populator.getType().getId(), timing);
+            try (PopulatorPhaseContext context = GenerationPhase.State.POPULATOR_RUNNING.createPhaseContext()
+                    .world(this.world)
+                    .populator(type)
+                    .buildAndSwitch()) {
+                Timing timing = null;
+                if (Timings.isTimingsEnabled()) {
+                    timing = this.populatorTimings.get(populator.getType().getId());
+                    if (timing == null) {
+                        timing = SpongeTimingsFactory.ofSafe(populator.getType().getId());
+                        this.populatorTimings.put(populator.getType().getId(), timing);
+                    }
+                    timing.startTimingIfSync();
                 }
-                timing.startTimingIfSync();
-            }
-            if (populator instanceof IFlaggedPopulator) {
-                ((IFlaggedPopulator) populator).populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
-            } else {
-                populator.populate(spongeWorld, volume, this.rand, biomeBuffer);
-            }
-            if (CauseTracker.ENABLED) {
-                causeTracker.completePhase(GenerationPhase.State.POPULATOR_RUNNING);
-            }
-            if (Timings.isTimingsEnabled()) {
-                timing.stopTimingIfSync();
+                if (populator instanceof IFlaggedPopulator) {
+                    ((IFlaggedPopulator) populator).populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
+                } else {
+                    populator.populate(spongeWorld, volume, this.rand, biomeBuffer);
+                }
+                if (Timings.isTimingsEnabled()) {
+                    timing.stopTimingIfSync();
+                }
             }
         }
 
