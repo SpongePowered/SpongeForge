@@ -95,7 +95,6 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.spawn.SpawnType;
@@ -135,7 +134,6 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.EntityUtil;
-import org.spongepowered.common.event.InternalNamedCauses;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
@@ -1097,7 +1095,7 @@ public class SpongeForgeEventFactory {
             final CauseTracker causeTracker = CauseTracker.getInstance();
             final PhaseContext<?> currentContext = causeTracker.getCurrentContext();
             PacketContext<?> context = currentContext instanceof UnwindingPhaseContext ?
-                                       currentContext.getExtra(InternalNamedCauses.Tracker.UNWINDING_CONTEXT, PacketContext.class)
+                                       (PacketContext<?>) ((UnwindingPhaseContext) currentContext).getUnwindingContext()
                                         : currentContext instanceof PacketContext<?>
                                             ? (PacketContext<?>) currentContext : null;
             Packet<?> contextPacket = context != null ? context.getPacket(): null;
