@@ -370,6 +370,10 @@ public final class StaticMixinForgeHelper {
 
     public static void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, ModContainer modContainer) {
         // fix bad entity name registrations from mods
+        final String[] parts = entityName.split(":");
+        if (parts.length > 1) {
+            entityName = parts[1];
+        }
         if (entityName.contains(".")) {
             if ((entityName.indexOf(".") + 1) < entityName.length()) {
                 entityName = entityName.substring(entityName.indexOf(".") + 1, entityName.length());
