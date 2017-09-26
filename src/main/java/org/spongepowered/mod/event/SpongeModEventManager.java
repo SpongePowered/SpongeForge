@@ -309,7 +309,6 @@ public class SpongeModEventManager extends SpongeEventManager {
                 if (forced || (!listener.isBeforeModifications() && !beforeModifications)
                         || (listener.isBeforeModifications() && beforeModifications)) {
                     listener.getTimingsHandler().startTimingIfSync();
-                    CauseTracker.getInstance().getCurrentContext().activeContainer(listener.getPlugin());
 
                     listener.handle(event);
                 }
@@ -317,7 +316,6 @@ public class SpongeModEventManager extends SpongeEventManager {
                 this.logger.error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
             } finally {
                 listener.getTimingsHandler().stopTimingIfSync();
-                CauseTracker.getInstance().getCurrentContext().activeContainer(null);
             }
         }
         ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(oldContainer);
