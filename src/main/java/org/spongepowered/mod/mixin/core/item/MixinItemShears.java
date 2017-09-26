@@ -161,7 +161,7 @@ public abstract class MixinItemShears extends Item {
                         entityitem.motionZ += (random.nextFloat() - random.nextFloat()) * 0.1F;
 
                         // FIFTH - Capture the entity maybe?
-                        if (currentState.getPhase().doesCaptureEntityDrops(currentState)) {
+                        if (currentState.doesCaptureEntityDrops()) {
                             if (currentState.tracksEntitySpecificDrops()) {
                                 // We are capturing per entity drop
                                 phaseContext.getCapturedEntityItemDropSupplier().get().put(entity.getUniqueID(), entityitem);
