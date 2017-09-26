@@ -1094,10 +1094,11 @@ public class SpongeForgeEventFactory {
             net.minecraft.world.World world = player.world;
             final CauseTracker causeTracker = CauseTracker.getInstance();
             final PhaseContext<?> currentContext = causeTracker.getCurrentContext();
-            PacketContext<?> context = currentContext instanceof UnwindingPhaseContext ?
-                                       ((UnwindingPhaseContext) currentContext).getUnwindingContext()
-                                        : currentContext instanceof PacketContext<?>
-                                            ? (PacketContext<?>) currentContext : null;
+            PhaseContext<?> target = currentContext;
+            if (currentContext instanceof UnwindingPhaseContext) {
+                target = ((UnwindingPhaseContext) currentContext).getUnwindingContext();
+            }
+            PacketContext<?> context = target instanceof PacketContext<?> ? (PacketContext<?>) target : null;
             Packet<?> contextPacket = context != null ? context.getPacket(): null;
             if (contextPacket == null) {
                 return spongeEvent;
