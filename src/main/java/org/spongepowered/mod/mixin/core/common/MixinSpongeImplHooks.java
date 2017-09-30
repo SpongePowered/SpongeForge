@@ -33,7 +33,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.crafting.CraftingManager;
@@ -78,6 +77,7 @@ import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
+import org.spongepowered.common.util.SpawnerSpawnType;
 import org.spongepowered.mod.command.SpongeForgeCommand;
 import org.spongepowered.mod.interfaces.IMixinBlock;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
@@ -377,7 +377,7 @@ public abstract class MixinSpongeImplHooks {
      * @reason Forge compatibility
      */
     @Overwrite
-    public static boolean canEntitySpawnHere(EntityLiving entityLiving, IEntityLivingData entityLivingData, boolean entityNotColliding) {
+    public static SpawnerSpawnType canEntitySpawnHere(EntityLiving entityLiving, boolean entityNotColliding) {
         final World world = entityLiving.world;
         final float x = (float) entityLiving.posX;
         final float y = (float) entityLiving.posY;
@@ -385,12 +385,12 @@ public abstract class MixinSpongeImplHooks {
         net.minecraftforge.fml.common.eventhandler.Event.Result canSpawn = net.minecraftforge.event.ForgeEventFactory.canEntitySpawn(entityLiving, world, x, y, z);
         if (canSpawn == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW || (canSpawn == net.minecraftforge.fml.common.eventhandler.Event.Result.DEFAULT && (entityLiving.getCanSpawnHere()) && entityNotColliding)) {
             if (!net.minecraftforge.event.ForgeEventFactory.doSpecialSpawn(entityLiving, world, x, y, z)) {
-                entityLivingData = entityLiving.onInitialSpawn(entityLiving.world.getDifficultyForLocation(new BlockPos(entityLiving)), entityLivingData);
+                return SpawnerSpawnType.NORMAL;
             }
-            return true;
+            return SpawnerSpawnType.SPECIAL;
         }
 
-        return false;
+        return SpawnerSpawnType.NONE;
     }
 
     // Copied from Forge's World patches
