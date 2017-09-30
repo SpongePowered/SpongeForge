@@ -91,6 +91,7 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.RideEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.impl.AbstractEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
@@ -310,6 +311,10 @@ public class SpongeModEventManager extends SpongeEventManager {
                         || (listener.isBeforeModifications() && beforeModifications)) {
                     listener.getTimingsHandler().startTimingIfSync();
 
+                    if (event instanceof AbstractEvent) {
+                        ((AbstractEvent) event).currentOrder = listener.getOrder();
+                    }
+
                     listener.handle(event);
                 }
             } catch (Throwable e) {
@@ -317,6 +322,9 @@ public class SpongeModEventManager extends SpongeEventManager {
             } finally {
                 listener.getTimingsHandler().stopTimingIfSync();
             }
+        }
+        if (event instanceof AbstractEvent) {
+            ((AbstractEvent) event).currentOrder = null;
         }
         ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(oldContainer);
         return event instanceof Cancellable && ((Cancellable) event).isCancelled();
