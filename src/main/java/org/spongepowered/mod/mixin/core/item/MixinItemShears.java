@@ -54,7 +54,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.EntityUtil;
-import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.ItemDropData;
 import org.spongepowered.common.event.tracking.PhaseContext;
@@ -76,7 +76,7 @@ public abstract class MixinItemShears extends Item {
      * @author gabizou - June 21st, 2016
      * @reason Rewrites the forge handling of this to properly handle
      * when sheared drops are captured by whatever current phase the
-     * {@link CauseTracker} is in.
+     * {@link PhaseTracker} is in.
      *
      * Returns true if the item can be used on the given entity, e.g. shears on sheep.
      */
@@ -93,8 +93,8 @@ public abstract class MixinItemShears extends Item {
             if (target.isShearable(itemstack, entity.world, pos)) {
                 List<ItemStack> drops = target.onSheared(itemstack, entity.world, pos, EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, itemstack));
                 // Sponge Start - Handle drops according to the current phase
-                final CauseTracker causeTracker = CauseTracker.getInstance();
-                final PhaseData currentData = causeTracker.getCurrentPhaseData();
+                final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+                final PhaseData currentData = phaseTracker.getCurrentPhaseData();
                 final IPhaseState<?> currentState = currentData.state;
                 final PhaseContext<?> phaseContext = currentData.context;
                 final Random random = EntityUtil.fromNative(entity).getRandom();

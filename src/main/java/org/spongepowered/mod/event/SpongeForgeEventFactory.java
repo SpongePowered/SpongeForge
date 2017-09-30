@@ -134,7 +134,7 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.EntityUtil;
-import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.event.tracking.UnwindingPhaseContext;
@@ -281,8 +281,8 @@ public class SpongeForgeEventFactory {
         }
 
         final BlockPos pos = forgeEvent.getPos();
-        final CauseTracker causeTracker = CauseTracker.getInstance();
-        final PhaseData data = causeTracker.getCurrentPhaseData();
+        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+        final PhaseData data = phaseTracker.getCurrentPhaseData();
 
         User owner = data.context.getOwner().orElse(null);
         User notifier = data.context.getNotifier().orElse(null);
@@ -313,8 +313,8 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        final CauseTracker causeTracker = CauseTracker.getInstance();
-        final PhaseData data = causeTracker.getCurrentPhaseData();
+        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+        final PhaseData data = phaseTracker.getCurrentPhaseData();
         BlockSnapshot originalSnapshot = ((World) forgeEvent.getWorld()).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         BlockSnapshot finalSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
         ImmutableList<Transaction<BlockSnapshot>> blockSnapshots = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
@@ -349,8 +349,8 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        final CauseTracker causeTracker = CauseTracker.getInstance();
-        final PhaseData data = causeTracker.getCurrentPhaseData();
+        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+        final PhaseData data = phaseTracker.getCurrentPhaseData();
         BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) forgeEvent.getBlockSnapshot()).createSpongeBlockSnapshot();
         BlockSnapshot finalSnapshot = ((BlockState) forgeEvent.getPlacedBlock()).snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
         ImmutableList<Transaction<BlockSnapshot>> blockSnapshots = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
@@ -1092,8 +1092,8 @@ public class SpongeForgeEventFactory {
         if (spongeEvent.getCause().root() instanceof Player) {
             EntityPlayer player = (EntityPlayer) spongeEvent.getCause().first(Player.class).get();
             net.minecraft.world.World world = player.world;
-            final CauseTracker causeTracker = CauseTracker.getInstance();
-            final PhaseContext<?> currentContext = causeTracker.getCurrentContext();
+            final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+            final PhaseContext<?> currentContext = phaseTracker.getCurrentContext();
             PhaseContext<?> target = currentContext;
             if (currentContext instanceof UnwindingPhaseContext) {
                 target = ((UnwindingPhaseContext) currentContext).getUnwindingContext();

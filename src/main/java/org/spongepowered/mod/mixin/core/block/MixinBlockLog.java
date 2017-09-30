@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
-import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
@@ -54,8 +54,8 @@ public abstract class MixinBlockLog extends MixinBlock {
             if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) worldIn, pos).isCancelled()) {
                 return;
             }
-            final CauseTracker causeTracker = CauseTracker.getInstance();
-            final IPhaseState currentState = causeTracker.getCurrentState();
+            final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+            final IPhaseState currentState = phaseTracker.getCurrentState();
             final boolean isBlockAlready = currentState.getPhase() != TrackingPhases.BLOCK;
             final boolean isWorldGen = currentState.getPhase().isWorldGeneration(currentState);
             if (isBlockAlready && !isWorldGen) {
@@ -69,7 +69,7 @@ public abstract class MixinBlockLog extends MixinBlock {
             }
             block.beginLeavesDecay(state, worldIn, pos);
             if (isBlockAlready && !isWorldGen) {
-                causeTracker.completePhase(BlockPhase.State.BLOCK_DECAY);
+                phaseTracker.completePhase(BlockPhase.State.BLOCK_DECAY);
             }
         } else {
             block.beginLeavesDecay(state, worldIn, pos);

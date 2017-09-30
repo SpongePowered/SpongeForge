@@ -74,7 +74,7 @@ import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.command.SpongeCommands;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
-import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.common.util.SpawnerSpawnType;
@@ -437,7 +437,7 @@ public abstract class MixinSpongeImplHooks {
 
     @Overwrite
     public static boolean isRestoringBlocks(World world) {
-        if (world.restoringBlockSnapshots || CauseTracker.getInstance().getCurrentState() == BlockPhase.State.RESTORING_BLOCKS) {
+        if (world.restoringBlockSnapshots || PhaseTracker.getInstance().getCurrentState() == BlockPhase.State.RESTORING_BLOCKS) {
                 return true;
         }
 

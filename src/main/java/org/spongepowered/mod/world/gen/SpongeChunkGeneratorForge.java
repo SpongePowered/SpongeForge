@@ -83,7 +83,7 @@ import org.spongepowered.api.world.gen.populator.SeaFloor;
 import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.event.tracking.CauseTracker;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
 import org.spongepowered.common.event.tracking.phase.generation.PopulatorPhaseContext;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
@@ -139,7 +139,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
     @Override
     public void populate(int chunkX, int chunkZ) {
-        final CauseTracker causeTracker = CauseTracker.getInstance();
+        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
         this.chunkGeneratorTiming.startTimingIfSync();
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
