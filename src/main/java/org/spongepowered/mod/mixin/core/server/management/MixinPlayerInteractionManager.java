@@ -64,6 +64,7 @@ import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
+import org.spongepowered.common.util.VecHelper;
 
 import java.util.Optional;
 
@@ -115,9 +116,10 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         ItemStack oldStack = stack.copy();
         InteractBlockEvent.Secondary event;
         BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-        event = SpongeCommonEventFactory.callInteractBlockEventSecondary(player, oldStack,
-            Optional.of(new Vector3d(hitX, hitY, hitZ)), currentSnapshot,
-            DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
+
+
+        event = SpongeCommonEventFactory.callInteractBlockEventSecondary(player, oldStack, VecHelper.toVector3d(pos.add(hitX, hitY, hitZ))
+                , currentSnapshot, DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
         if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
             SpongeCommonEventFactory.playerInteractItemChanged = true;
         }
