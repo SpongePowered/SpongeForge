@@ -250,11 +250,11 @@ public class SpongeForgeEventFactory {
 
     // ====================================  FORGE TO SPONGE START ==================================== \\
     public static Event createSpongeEvent(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
-        if (forgeEvent instanceof BlockEvent.PlaceEvent) {
-            return createChangeBlockEventPlace((BlockEvent.PlaceEvent) forgeEvent);
-        }
         if (forgeEvent instanceof BlockEvent.MultiPlaceEvent) {
             return createChangeBlockEventPlace((BlockEvent.MultiPlaceEvent) forgeEvent);
+        }
+        if (forgeEvent instanceof BlockEvent.PlaceEvent) {
+            return createChangeBlockEventPlace((BlockEvent.PlaceEvent) forgeEvent);
         }
         if (forgeEvent instanceof BlockEvent.BreakEvent) {
             return createChangeBlockEventPre((BlockEvent.BreakEvent) forgeEvent);
