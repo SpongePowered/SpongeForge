@@ -34,6 +34,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ILanguageAdapter;
 import net.minecraftforge.fml.common.LoadController;
@@ -52,10 +53,13 @@ import net.minecraftforge.fml.common.versioning.VersionRange;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.inject.SpongeGuice;
+import org.spongepowered.common.inject.plugin.ModularPluginModule;
 import org.spongepowered.common.inject.plugin.PluginModule;
 import org.spongepowered.common.plugin.PluginContainerExtension;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
@@ -279,9 +283,13 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
 
             Class<?> pluginClazz = Class.forName(this.className, true, modClassLoader);
 
-            Injector injector = spongeInjector.getParent().createChildInjector(new PluginModule((PluginContainer) this, pluginClazz));
-            this.injector = injector;
-            this.instance = injector.getInstance(pluginClazz);
+            if (SpongeGuice.isModular(pluginClazz)) {
+                this.instance = pluginClazz.newInstance();
+                this.injector = spongeInjector.getParent().createChildInjector(new ModularPluginModule((PluginContainer) this, this.instance));
+            } else {
+                this.injector = spongeInjector.getParent().createChildInjector(new PluginModule((PluginContainer) this, pluginClazz));
+                this.instance = this.injector.getInstance(pluginClazz);
+            }
 
             // TODO: Detect Scala or use meta to know if we're scala and use proper adapter here...
             ProxyInjector.inject(this, event.getASMHarvestedData(), FMLCommonHandler.instance().getSide(), new ILanguageAdapter.JavaAdapter());
