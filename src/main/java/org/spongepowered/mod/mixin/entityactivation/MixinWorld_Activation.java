@@ -32,7 +32,10 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.IMixinChunk;
+import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 import org.spongepowered.common.mixin.plugin.entityactivation.EntityActivationRange;
 import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.IModData_Activation;
 
@@ -119,18 +122,22 @@ public abstract class MixinWorld_Activation implements IMixinWorld {
 
         if (!entityIn.addedToChunk || entityIn.chunkCoordX != l || entityIn.chunkCoordY != i1 || entityIn.chunkCoordZ != j1)
         {
-            if (entityIn.addedToChunk && this.isChunkLoaded(entityIn.chunkCoordX, entityIn.chunkCoordZ, true))
+            // Sponge start - use cached chunk
+            final Chunk activeChunk = (Chunk) ((IMixinEntity) entityIn).getActiveChunk();
+            if (activeChunk != null)
             {
-                this.getChunkFromChunkCoords(entityIn.chunkCoordX, entityIn.chunkCoordZ).removeEntityAtIndex(entityIn, entityIn.chunkCoordY);
+                activeChunk.removeEntityAtIndex(entityIn, entityIn.chunkCoordY);
             }
+            // Sponge end
 
-            if (!entityIn.setPositionNonDirty() && !this.isChunkLoaded(l, j1, true))
+            final IMixinChunk newChunk = (IMixinChunk) ((IMixinChunkProviderServer) entityIn.world.getChunkProvider()).getLoadedChunkWithoutMarkingActive(l, j1);
+            if (!entityIn.setPositionNonDirty() && (newChunk == null || (newChunk.isQueuedForUnload() && !newChunk.isPersistedChunk())))
             {
                 entityIn.addedToChunk = false;
             }
             else
             {
-                this.getChunkFromChunkCoords(l, j1).addEntity(entityIn);
+                ((net.minecraft.world.chunk.Chunk) newChunk).addEntity(entityIn);
             }
         }
 
