@@ -76,6 +76,7 @@ import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
+import org.spongepowered.common.interfaces.world.IMixinDimensionType;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.common.util.SpawnerSpawnType;
 import org.spongepowered.mod.command.SpongeForgeCommand;
@@ -452,6 +453,16 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static boolean canConnectRedstone(Block block, IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side) {
         return block.canConnectRedstone(state, world, pos, side);
+    }
+
+    @Overwrite
+    public static boolean shouldLoadSpawn(net.minecraft.world.DimensionType dimensionType, int dimensionId) {
+        return dimensionType.shouldLoadSpawn();
+    }
+
+    @Overwrite
+    public static void setShouldLoadSpawn(net.minecraft.world.DimensionType dimensionType, boolean keepSpawnLoaded) {
+        ((IMixinDimensionType)(Object) dimensionType).setShouldLoadSpawn(keepSpawnLoaded);
     }
     // Crafting
 
