@@ -290,11 +290,20 @@ public class SpongeForgeEventFactory {
 
         if (SpongeImplHooks.isFakePlayer(player)) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
+        } else {
+            Sponge.getCauseStackManager().pushCause(player);
         }
-        Sponge.getCauseStackManager().pushCause(player);
 
         if (owner != null) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
+            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+                Sponge.getCauseStackManager().pushCause(owner);
+            }
+        } else {
+            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
+            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+                Sponge.getCauseStackManager().pushCause(player);
+            }
         }
         if (notifier != null) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
@@ -320,18 +329,26 @@ public class SpongeForgeEventFactory {
         ImmutableList<Transaction<BlockSnapshot>> blockSnapshots = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
                 new Transaction<>(originalSnapshot, finalSnapshot)).build();
 
-        Cause.Builder builder = null;
         User owner = data.context.getOwner().orElse(null);
         User notifier = data.context.getNotifier().orElse(null);
         EntityPlayer player = forgeEvent.getPlayer();
 
         if (SpongeImplHooks.isFakePlayer(player)) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
+        } else if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+            Sponge.getCauseStackManager().pushCause(player);
         }
-        Sponge.getCauseStackManager().pushCause(player);
 
         if (owner != null) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
+            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+                Sponge.getCauseStackManager().pushCause(owner);
+            }
+        } else {
+            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
+            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+                Sponge.getCauseStackManager().pushCause(player);
+            }
         }
         if (notifier != null) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
@@ -356,18 +373,26 @@ public class SpongeForgeEventFactory {
         ImmutableList<Transaction<BlockSnapshot>> blockSnapshots = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
                 new Transaction<>(originalSnapshot, finalSnapshot)).build();
 
-        Cause.Builder builder = null;
         User owner = data.context.getOwner().orElse(null);
         User notifier = data.context.getNotifier().orElse(null);
         EntityPlayer player = forgeEvent.getPlayer();
 
         if (SpongeImplHooks.isFakePlayer(player)) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
+        } else if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+            Sponge.getCauseStackManager().pushCause(player);
         }
-        Sponge.getCauseStackManager().pushCause(player);
 
         if (owner != null) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
+            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+                Sponge.getCauseStackManager().pushCause(owner);
+            }
+        } else {
+            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
+            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+                Sponge.getCauseStackManager().pushCause(player);
+            }
         }
         if (notifier != null) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
@@ -392,7 +417,33 @@ public class SpongeForgeEventFactory {
             builder.add(new Transaction<>(originalSnapshot, finalSnapshot));
         }
 
-        Sponge.getCauseStackManager().pushCause(forgeEvent.getPlayer());
+        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+        final PhaseData data = phaseTracker.getCurrentPhaseData();
+        User owner = data.context.getOwner().orElse(null);
+        User notifier = data.context.getNotifier().orElse(null);
+        EntityPlayer player = forgeEvent.getPlayer();
+
+        if (SpongeImplHooks.isFakePlayer(player)) {
+            Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
+        } else if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+            Sponge.getCauseStackManager().pushCause(player);
+        }
+
+        if (owner != null) {
+            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
+            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+                Sponge.getCauseStackManager().pushCause(owner);
+            }
+        } else {
+            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
+            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+                Sponge.getCauseStackManager().pushCause(player);
+            }
+        }
+        if (notifier != null) {
+            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
+        }
+
         return SpongeEventFactory.createChangeBlockEventPlace(Sponge.getCauseStackManager().getCurrentCause(), builder.build());
     }
 
