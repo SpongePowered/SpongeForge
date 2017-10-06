@@ -382,7 +382,7 @@ public abstract class MixinSpongeImplHooks {
         final float x = (float) entityLiving.posX;
         final float y = (float) entityLiving.posY;
         final float z = (float) entityLiving.posZ;
-        net.minecraftforge.fml.common.eventhandler.Event.Result canSpawn = net.minecraftforge.event.ForgeEventFactory.canEntitySpawn(entityLiving, world, x, y, z);
+        net.minecraftforge.fml.common.eventhandler.Event.Result canSpawn = net.minecraftforge.event.ForgeEventFactory.canEntitySpawn(entityLiving, world, x, y, z, false);
         if (canSpawn == net.minecraftforge.fml.common.eventhandler.Event.Result.ALLOW || (canSpawn == net.minecraftforge.fml.common.eventhandler.Event.Result.DEFAULT && (entityLiving.getCanSpawnHere()) && entityNotColliding)) {
             if (!net.minecraftforge.event.ForgeEventFactory.doSpecialSpawn(entityLiving, world, x, y, z)) {
                 return SpawnerSpawnType.NORMAL;
