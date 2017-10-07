@@ -66,7 +66,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     @Shadow public BlockPos bedLocation;
     @Shadow protected boolean sleeping;
     @Shadow private int sleepTimer;
-    @Shadow private BlockPos spawnChunk;
+    @Shadow private BlockPos spawnPos;
     @Shadow private boolean spawnForced;
     @Shadow(remap = false) private HashMap<Integer, BlockPos> spawnChunkMap;
     @Shadow(remap = false) private HashMap<Integer, Boolean> spawnForcedMap;
