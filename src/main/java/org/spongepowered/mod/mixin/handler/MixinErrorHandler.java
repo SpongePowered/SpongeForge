@@ -32,9 +32,9 @@ import org.spongepowered.asm.mixin.extensibility.IMixinConfig;
 import org.spongepowered.asm.mixin.extensibility.IMixinErrorHandler;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.mixin.transformer.throwables.MixinTargetAlreadyLoadedException;
+import org.spongepowered.asm.service.mojang.LaunchClassLoaderUtil;
 import org.spongepowered.asm.util.ConstraintParser.Constraint;
 import org.spongepowered.asm.util.PrettyPrinter;
-import org.spongepowered.asm.util.launchwrapper.LaunchClassLoaderUtil;
 import org.spongepowered.asm.util.throwables.ConstraintViolationException;
 import org.spongepowered.launch.Main;
 
