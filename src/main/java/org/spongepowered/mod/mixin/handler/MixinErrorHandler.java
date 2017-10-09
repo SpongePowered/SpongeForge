@@ -32,7 +32,6 @@ import org.spongepowered.asm.mixin.extensibility.IMixinConfig;
 import org.spongepowered.asm.mixin.extensibility.IMixinErrorHandler;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.mixin.transformer.throwables.MixinTargetAlreadyLoadedException;
-import org.spongepowered.asm.service.mojang.LaunchClassLoaderUtil;
 import org.spongepowered.asm.util.ConstraintParser.Constraint;
 import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.asm.util.throwables.ConstraintViolationException;
@@ -102,12 +101,13 @@ public class MixinErrorHandler implements IMixinErrorHandler {
             .kv("Class Name", ex.getTarget())
             .add();
 
-        if (ex.getTarget().startsWith("net.minecraftforge")) {
+        // TODO: fix
+        /*if (ex.getTarget().startsWith("net.minecraftforge")) {
             pp.hr('-').add().add("Loaded forge classes: ").add();
             for (String loadedClass : LaunchClassLoaderUtil.forClassLoader(Launch.classLoader).getLoadedClasses("net.minecraftforge")) {
                 pp.add("    %s", loadedClass);
             }
-        }
+        }*/
 
         return pp;
     }
