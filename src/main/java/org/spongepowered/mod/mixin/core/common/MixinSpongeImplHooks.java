@@ -71,7 +71,7 @@ import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.command.SpongeCommands;
+import org.spongepowered.common.command.SpongeCommandFactory;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.event.tracking.PhaseTracker;
@@ -516,7 +516,7 @@ public abstract class MixinSpongeImplHooks {
      */
     @Overwrite
     public static Text getAdditionalCommandDescriptions() {
-        return Text.of(SpongeCommands.INDENT, SpongeCommands.title("mods"), SpongeCommands.LONG_INDENT, "List currently installed mods");
+        return Text.of(SpongeCommandFactory.INDENT, SpongeCommandFactory.title("mods"), SpongeCommandFactory.LONG_INDENT, "List currently installed mods");
     }
 
     /**
@@ -533,6 +533,6 @@ public abstract class MixinSpongeImplHooks {
      */
     @Overwrite
     public static Predicate<PluginContainer> getPluginFilterPredicate() {
-        return plugin -> !SpongeCommands.CONTAINER_LIST_STATICS.contains(plugin.getId()) && plugin instanceof SpongeModPluginContainer;
+        return plugin -> !SpongeCommandFactory.CONTAINER_LIST_STATICS.contains(plugin.getId()) && plugin instanceof SpongeModPluginContainer;
     }
 }
