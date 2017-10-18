@@ -51,6 +51,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapStorage;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
@@ -456,14 +457,10 @@ public abstract class MixinSpongeImplHooks {
     }
 
     @Overwrite
-    public static boolean shouldLoadSpawn(net.minecraft.world.DimensionType dimensionType, int dimensionId) {
-        return dimensionType.shouldLoadSpawn();
-    }
-
-    @Overwrite
     public static void setShouldLoadSpawn(net.minecraft.world.DimensionType dimensionType, boolean keepSpawnLoaded) {
         ((IMixinDimensionType)(Object) dimensionType).setShouldLoadSpawn(keepSpawnLoaded);
     }
+
     // Crafting
 
     /**

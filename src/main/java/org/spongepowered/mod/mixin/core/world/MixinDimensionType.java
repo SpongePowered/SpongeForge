@@ -43,4 +43,9 @@ public abstract class MixinDimensionType implements org.spongepowered.api.world.
     public boolean shouldGenerateSpawnOnLoad() {
         return this.shouldLoadSpawn;
     }
+
+    @Override
+    public boolean shouldLoadSpawn() {
+        return this.shouldLoadSpawn;
+    }
 }
