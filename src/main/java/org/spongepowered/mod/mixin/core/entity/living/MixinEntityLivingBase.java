@@ -58,7 +58,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
 
     @Override
     public void applyArmorDamage(EntityLivingBase entityLivingBase, DamageSource source, DamageEntityEvent entityEvent, DamageModifier modifier) {
-        Optional<ArmorProperties> optional = modifier.getCause().first(ArmorProperties.class);
+        Optional<ArmorProperties> optional = modifier.getCause().getContext().get(StaticMixinForgeHelper.ARMOR_PROPERTY);
         if (optional.isPresent()) {
             StaticMixinForgeHelper.acceptArmorModifier((EntityLivingBase) (Object) this, source, modifier, entityEvent.getDamage(modifier));
         }
