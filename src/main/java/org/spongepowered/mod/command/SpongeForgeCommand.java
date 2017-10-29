@@ -24,12 +24,10 @@
  */
 package org.spongepowered.mod.command;
 
-import static org.spongepowered.api.command.args.GenericArguments.optional;
-import static org.spongepowered.api.command.args.GenericArguments.plugin;
-
 import com.google.common.collect.Lists;
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.pagination.PaginationList;
@@ -46,16 +44,17 @@ import java.util.Comparator;
 import java.util.List;
 
 public class SpongeForgeCommand extends SpongeCommandFactory {
+    private static final String MOD_KEY = "mod";
     private static final List<String> MOD_LIST_STATICS = Lists.newArrayList("minecraft", "mcp", "FML", "forge", "spongeapi", "sponge");
 
-    public static CommandSpec createSpongeModsCommand() {
-        return CommandSpec.builder()
-                .description(Text.of("List currently installed mods"))
-                .permission("sponge.command.mods")
-                .arguments(optional(plugin(Text.of("mod"))))
-                .executor((src, args) -> {
-                    if (args.hasAny("mod")) {
-                        sendContainerMeta(src, args,  "mod");
+    public static Command createSpongeModsCommand() {
+        return Command.builder()
+                .setShortDescription(Text.of("List currently installed mods"))
+                .setPermission("sponge.command.mods")
+                .parameters(Parameter.plugin().optional().setKey(MOD_KEY).build())
+                .setExecutor((cause, src, args) -> {
+                    if (args.hasAny(MOD_KEY)) {
+                        sendContainerMeta(src, args,  MOD_KEY);
                     } else {
                         final Collection<PluginContainer> containers = SpongeImpl.getGame().getPluginManager().getPlugins();
                         final List<PluginContainer> sortedContainers = new ArrayList<>();

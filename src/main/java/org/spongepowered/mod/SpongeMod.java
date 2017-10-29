@@ -369,7 +369,7 @@ public class SpongeMod extends MetaModContainer {
     public void onServerStopped(FMLServerStoppedEvent event) throws IOException {
         try {
             CommandManager service = this.game.getCommandManager();
-            service.getCommands().stream().filter(mapping -> mapping.getCallable() instanceof MinecraftCommandWrapper)
+            service.getCommands().stream().filter(mapping -> mapping.getCommand() instanceof MinecraftCommandWrapper)
                     .forEach(service::removeMapping);
             ((SqlServiceImpl) this.game.getServiceManager().provideUnchecked(SqlService.class)).close();
         } catch (Throwable t) {
