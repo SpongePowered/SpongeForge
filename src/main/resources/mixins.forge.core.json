@@ -12,6 +12,7 @@
         "block.MixinBlockFire",
         "block.MixinBlockLeaves",
         "block.MixinBlockLog",
+        "block.MixinBlockNote",
         "block.MixinBlockOldLeaf",
         "block.MixinBlockRailBase",
         "common.MixinSpongeCommonEventFactory",
