@@ -52,7 +52,7 @@ import org.spongepowered.common.item.inventory.util.InventoryUtil;
 
 import javax.annotation.Nullable;
 
-@Mixin(VanillaInventoryCodeHooks.class)
+@Mixin(value = VanillaInventoryCodeHooks.class, remap = false)
 public abstract class MixinVanillaInventoryCodeHooks {
 
     @Shadow private static ItemStack insertStack(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot) {
