@@ -150,6 +150,9 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         SpongeModChannelBinding boundChannel = this.channelMap.remove(channel.getName());
         checkState(boundChannel != null, "Channel is already unbound");
         boundChannel.invalidate();
+        // Remove channel from forge's registry
+        NetworkRegistry.INSTANCE.channelNamesFor(Side.SERVER).remove(channel.getName());
+        NetworkRegistry.INSTANCE.channelNamesFor(Side.CLIENT).remove(channel.getName());
 
         if (SpongeImpl.getGame().isServerAvailable()) {
             final PlayerList playerList = SpongeImpl.getServer().getPlayerList();
