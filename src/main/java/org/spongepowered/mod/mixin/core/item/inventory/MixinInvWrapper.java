@@ -68,7 +68,6 @@ public abstract class MixinInvWrapper implements MinecraftInventoryAdapter, IMix
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstructed(CallbackInfo ci) {
-        System.out.println("Constructed InvWrapper");
         this.fabric = new InvWrapperFabric(((InvWrapper)(Object) this));
         this.slots = new SlotCollection.Builder().add(this.fabric.getSize()).build();
         this.lens = new OrderedInventoryLensImpl(0, this.fabric.getSize(), 1, slots);
