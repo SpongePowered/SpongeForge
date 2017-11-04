@@ -50,6 +50,7 @@
         "forge.MixinBlockSnapshot",
         "forge.MixinDimensionManager",
         "forge.MixinForgeInternalHandler",
+        "forge.MixinVanillaInventoryCodeHooks",
         "forge.common.MixinForgeChunkManager$Ticket",
         "forge.common.MixinForgeHooks",
         "forge.event.MixinForgeEventFactory",
