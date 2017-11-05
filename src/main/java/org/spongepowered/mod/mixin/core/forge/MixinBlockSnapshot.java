@@ -42,21 +42,20 @@ import org.spongepowered.common.interfaces.data.IMixinCustomDataHolder;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
 
+import java.lang.ref.WeakReference;
+
+import javax.annotation.Nullable;
+
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.common.util.BlockSnapshot.class, remap = false)
 public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
 
-    @Shadow @Final public BlockPos pos;
+    @Shadow @Final private BlockPos pos;
     @Shadow @Final private NBTTagCompound nbt;
-    @Shadow public transient IBlockState replacedBlock;
-    @Shadow public transient net.minecraft.world.World world;
-    @Shadow public int flag;
+    @Shadow @Nullable private  IBlockState replacedBlock;
+    @Shadow private WeakReference<net.minecraft.world.World> world;
 
-    @Shadow
-    public abstract void writeToNBT(NBTTagCompound compound);
-
-    @Shadow
-    public abstract TileEntity getTileEntity();
+    @Shadow public abstract TileEntity getTileEntity();
 
     @Override
     public BlockSnapshot createSpongeBlockSnapshot() {
@@ -71,7 +70,10 @@ public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
         TileEntity te = getTileEntity();
         if (te != null) {
             if (!te.hasWorld()) {
-                te.setWorld(this.world);
+                final net.minecraft.world.World worldIn = this.world.get();
+                if (worldIn != null) {
+                    te.setWorld(worldIn);
+                }
             }
             for (DataManipulator<?, ?> manipulator : ((IMixinCustomDataHolder) te).getCustomManipulators()) {
                 builder.add(manipulator);
