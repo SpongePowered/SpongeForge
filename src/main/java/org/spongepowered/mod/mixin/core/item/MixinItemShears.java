@@ -137,7 +137,7 @@ public abstract class MixinItemShears extends Item {
                         continue;
                     }
                     if (!item.isEmpty()) {
-                        if (!currentState.getPhase().ignoresItemPreMerging(currentState) && SpongeImpl.getGlobalConfig().getConfig().getOptimizations().doDropsPreMergeItemDrops()) {
+                        if (!currentState.ignoresItemPreMerging() && SpongeImpl.getGlobalConfig().getConfig().getOptimizations().doDropsPreMergeItemDrops()) {
                             if (currentState.tracksEntitySpecificDrops()) {
                                 final Multimap<UUID, ItemDropData> multimap = phaseContext.getCapturedEntityDropSupplier().get();
                                 final Collection<ItemDropData> itemStacks = multimap.get(entity.getUniqueID());
