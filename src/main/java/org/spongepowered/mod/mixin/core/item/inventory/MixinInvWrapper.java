@@ -65,12 +65,15 @@ public abstract class MixinInvWrapper implements MinecraftInventoryAdapter, IMix
     protected Lens<IInventory, ItemStack> lens = null;
 
     private List<SlotTransaction> capturedTransactions = new ArrayList<>();
+    private boolean initalized = false;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void onConstructed(CallbackInfo ci) {
-        this.fabric = new InvWrapperFabric(((InvWrapper)(Object) this));
-        this.slots = new SlotCollection.Builder().add(this.fabric.getSize()).build();
-        this.lens = new OrderedInventoryLensImpl(0, this.fabric.getSize(), 1, slots);
+    private void init() {
+        if (!initalized) {
+            initalized = true;
+            this.fabric = new InvWrapperFabric(((InvWrapper)(Object) this));
+            this.slots = new SlotCollection.Builder().add(this.fabric.getSize()).build();
+            this.lens = new OrderedInventoryLensImpl(0, this.fabric.getSize(), 1, slots);
+        }
     }
 
     @Override
@@ -99,6 +102,7 @@ public abstract class MixinInvWrapper implements MinecraftInventoryAdapter, IMix
 
     @Override
     public SlotProvider<IInventory, ItemStack> getSlotProvider() {
+        this.init();
         return this.slots;
     }
 
@@ -123,6 +127,7 @@ public abstract class MixinInvWrapper implements MinecraftInventoryAdapter, IMix
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Inventory> Iterable<T> slots() {
+        this.init();
         if (this.slotIterator == null) {
             this.slotIterator = this.slots.getIterator(this);
         }
@@ -135,10 +140,12 @@ public abstract class MixinInvWrapper implements MinecraftInventoryAdapter, IMix
     }
 
     public Lens<IInventory, ItemStack> getRootLens() {
+        this.init();
         return this.lens;
     }
 
     public Fabric<IInventory> getInventory() {
+        this.init();
         return ((Fabric) this.fabric);
     }
 
