@@ -27,28 +27,28 @@ package org.spongepowered.mod.item.inventory.fabric;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
 import org.spongepowered.api.text.translation.FixedTranslation;
 import org.spongepowered.api.text.translation.Translation;
+import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
 import org.spongepowered.common.item.inventory.lens.Fabric;
+import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 
 import java.util.Collection;
 
-public class InvWrapperFabric implements Fabric<InvWrapper> {
-    private final InvWrapper inventory;
+public class IItemHandlerFabric implements Fabric<IItemHandler> {
+    private final IItemHandler inventory;
 
-    public InvWrapperFabric(InvWrapper inventory) {
+    public IItemHandlerFabric(IItemHandler inventory) {
         this.inventory = inventory;
     }
 
     @Override
-    public Collection<InvWrapper> allInventories() {
+    public Collection<IItemHandler> allInventories() {
         return ImmutableSet.of(this.inventory);
     }
 
     @Override
-    public InvWrapper get(int index) {
+    public IItemHandler get(int index) {
         return this.inventory;
     }
 
@@ -59,7 +59,7 @@ public class InvWrapperFabric implements Fabric<InvWrapper> {
 
     @Override
     public void setStack(int index, ItemStack stack) {
-        ItemStackHandlerFabric.setIItemHandlerStack(this.inventory, index, stack);
+        setIItemHandlerStack(this.inventory, index, stack);
     }
 
     @Override
@@ -84,4 +84,30 @@ public class InvWrapperFabric implements Fabric<InvWrapper> {
     @Override
     public void markDirty() {
     }
+
+    protected static void setIItemHandlerStack(IItemHandler handler, int index, ItemStack stack) {
+        ItemStack prev = handler.getStackInSlot(index);
+        if (prev != null) {
+            int cnt = prev.getCount();
+            // Extract all items
+            while (cnt > 0) {
+                ItemStack extracted = handler.extractItem(index, cnt, false);
+                cnt -= extracted.getCount();
+                if (extracted.getCount() == 0) {
+                    break; // Do not keep looping if nothing was removed
+                }
+            }
+        }
+
+        prev = stack;
+        // Insert all items
+        while (!stack.isEmpty()) {
+            stack = handler.insertItem(index, stack, false);
+            if (prev == stack || prev.getCount() == stack.getCount()) {
+                break; // Do not keep looping if nothing was inserted
+            }
+            prev = stack;
+        }
+    }
+
 }
