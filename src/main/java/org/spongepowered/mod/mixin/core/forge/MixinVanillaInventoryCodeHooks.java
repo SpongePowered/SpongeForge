@@ -66,38 +66,14 @@ public abstract class MixinVanillaInventoryCodeHooks {
         throw new AbstractMethodError("Shadow");
     }
 
-    @Inject(method = "insertHook", locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true,
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/tileentity/TileEntityHopper;setInventorySlotContents(ILnet/minecraft/item/ItemStack;)V"))
-    private static void afterPutStackInSlots(TileEntityHopper hopper, CallbackInfoReturnable<Boolean> cir,
-            EnumFacing hopperFacing, Pair<IItemHandler, Object> destinationResult, IItemHandler itemHandler,
-            Object destination, int i, ItemStack originalSlotContents,
-            ItemStack insertStack, ItemStack remainder) {
-        // after putStackInInventoryAllSlots
-        IMixinInventory capture = forCapture(hopper);
-        if (capture == null) {
-            return;
-        }
-        Inventory sInv = toInventory(hopper, null);
-        Inventory dInv = toInventory(destination, itemHandler);
-        SpongeCommonEventFactory.captureTransaction(capture, sInv, i, originalSlotContents);
-        if (SpongeCommonEventFactory.callTransferPost(capture, sInv, dInv)) {
-            if (originalSlotContents.isEmpty()) {
-                cir.setReturnValue(true);
-            }
-        }
+    @Shadow protected static boolean isFull(IItemHandler itemHandler) {
+        throw new AbstractMethodError("Shadow");
     }
 
-    @Redirect(remap = false, method = "putStackInInventoryAllSlots", at = @At(value = "INVOKE",
-            target = "Lnet/minecraftforge/items/VanillaInventoryCodeHooks;insertStack(Lnet/minecraft/tileentity/TileEntity;Ljava/lang/Object;"
-                    + "Lnet/minecraftforge/items/IItemHandler;Lnet/minecraft/item/ItemStack;I)Lnet/minecraft/item/ItemStack;"))
-    private static ItemStack onInsertStack(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot) {
-        return SpongeCommonEventFactory.captureTransaction(forCapture(source), toInventory(destination, destInventory), slot,
-                () -> insertStack(source, destination, destInventory, stack, slot));
-    }
+    // Call Pre Events
 
-    @Inject(remap = false, method = "insertHook", cancellable = true, locals = LocalCapture.CAPTURE_FAILEXCEPTION, at = @At(value = "INVOKE",
-            target = "Lnet/minecraftforge/items/VanillaInventoryCodeHooks;isFull(Lnet/minecraftforge/items/IItemHandler;)Z"))
+    @Inject(method = "insertHook", cancellable = true, locals = LocalCapture.CAPTURE_FAILEXCEPTION, at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/tileentity/TileEntityHopper;getSizeInventory()I"))
     private static void onTransferItemsOut(TileEntityHopper hopper, CallbackInfoReturnable<Boolean> cir, EnumFacing hopperFacing,
             Pair<IItemHandler, Object> destinationResult, IItemHandler itemHandler, Object destination) {
         if (SpongeCommonEventFactory.callTransferPre(toInventory(hopper), toInventory(destination, itemHandler)).isCancelled()) {
@@ -114,6 +90,26 @@ public abstract class MixinVanillaInventoryCodeHooks {
                 cir.setReturnValue(false);
             }
         }
+    }
+
+    @Inject(method = "dropperInsertHook", cancellable = true, locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;", ordinal = 0))
+    private static void onDispense(World world, BlockPos pos, TileEntityDispenser dropper, int slot, ItemStack stack,
+            CallbackInfoReturnable<Boolean> cir, EnumFacing enumFacing, BlockPos blockPos, Pair<IItemHandler, Object> destinationResult,
+            IItemHandler itemHandler, Object destination) {
+        if (SpongeCommonEventFactory.callTransferPre(toInventory(dropper), toInventory(destination, itemHandler)).isCancelled()) {
+            cir.setReturnValue(false);
+        }
+    }
+
+    // Capture Transactions
+
+    @Redirect(remap = false, method = "putStackInInventoryAllSlots", at = @At(value = "INVOKE",
+            target = "Lnet/minecraftforge/items/VanillaInventoryCodeHooks;insertStack(Lnet/minecraft/tileentity/TileEntity;Ljava/lang/Object;"
+                    + "Lnet/minecraftforge/items/IItemHandler;Lnet/minecraft/item/ItemStack;I)Lnet/minecraft/item/ItemStack;"))
+    private static ItemStack onInsertStack(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot) {
+        return SpongeCommonEventFactory.captureTransaction(forCapture(source), toInventory(destination, destInventory), slot,
+                () -> insertStack(source, destination, destInventory, stack, slot));
     }
 
     @Redirect(remap = false, method = "extractHook",
@@ -135,21 +131,37 @@ public abstract class MixinVanillaInventoryCodeHooks {
         SpongeCommonEventFactory.captureTransaction(forCapture(dest), toInventory(dest), index, destStack);
     }
 
+    // Post Captured Transactions
+
+    @Inject(method = "insertHook", locals = LocalCapture.CAPTURE_FAILEXCEPTION, cancellable = true,
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/item/ItemStack;isEmpty()Z", ordinal = 1))
+    private static void afterPutStackInSlots(TileEntityHopper hopper, CallbackInfoReturnable<Boolean> cir,
+            EnumFacing hopperFacing, Pair<IItemHandler, Object> destinationResult, IItemHandler itemHandler,
+            Object destination, int i, ItemStack originalSlotContents,
+            ItemStack insertStack, ItemStack remainder) {
+        // after putStackInInventoryAllSlots
+        if (remainder.isEmpty()) {
+            IMixinInventory capture = forCapture(hopper);
+            if (capture == null) {
+                return;
+            }
+            Inventory sInv = toInventory(hopper, null);
+            Inventory dInv = toInventory(destination, itemHandler);
+            SpongeCommonEventFactory.captureTransaction(capture, sInv, i, originalSlotContents);
+            if (SpongeCommonEventFactory.callTransferPost(capture, sInv, dInv)) {
+                if (originalSlotContents.isEmpty()) {
+                    cir.setReturnValue(true);
+                }
+            }
+        }
+    }
+
     @Inject(method = "extractHook", locals = LocalCapture.CAPTURE_FAILEXCEPTION,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/tileentity/IHopper;markDirty()V"))
     private static void onPullItemsDone(IHopper dest, CallbackInfoReturnable<Boolean> cir, Pair<IItemHandler, Object> itemHandlerResult,
             IItemHandler handler, int i, ItemStack extractItem, int j, ItemStack destStack) {
         SpongeCommonEventFactory.callTransferPost(forCapture(dest), toInventory(itemHandlerResult.getValue(), handler), toInventory(dest));
-    }
-
-    @Inject(method = "dropperInsertHook", cancellable = true, locals = LocalCapture.CAPTURE_FAILEXCEPTION,
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;", ordinal = 0))
-    private static void onDispense(World world, BlockPos pos, TileEntityDispenser dropper, int slot, ItemStack stack,
-            CallbackInfoReturnable<Boolean> cir, EnumFacing enumFacing, BlockPos blockPos, Pair<IItemHandler, Object> destinationResult,
-            IItemHandler itemHandler, Object destination) {
-        if (SpongeCommonEventFactory.callTransferPre(toInventory(dropper), toInventory(destination, itemHandler)).isCancelled()) {
-            cir.setReturnValue(false);
-        }
     }
 
     @Inject(remap = false, method = "dropperInsertHook", locals = LocalCapture.CAPTURE_FAILEXCEPTION, at = @At(value = "RETURN", ordinal = 1))
