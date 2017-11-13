@@ -42,8 +42,6 @@ import org.spongepowered.common.interfaces.data.IMixinCustomDataHolder;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
 
-import java.lang.ref.WeakReference;
-
 import javax.annotation.Nullable;
 
 @NonnullByDefault
@@ -53,13 +51,14 @@ public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
     @Shadow @Final private BlockPos pos;
     @Shadow @Final private NBTTagCompound nbt;
     @Shadow @Nullable private  IBlockState replacedBlock;
-    @Shadow private WeakReference<net.minecraft.world.World> world;
 
     @Shadow public abstract TileEntity getTileEntity();
 
+    @Shadow public abstract net.minecraft.world.World getWorld();
+
     @Override
     public BlockSnapshot createSpongeBlockSnapshot() {
-        Location<World> location = new Location<>((World) this.world, VecHelper.toVector3i(this.pos));
+        Location<World> location = new Location<>((World) this.getWorld(), VecHelper.toVector3i(this.pos));
         SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
         builder.blockState((BlockState) this.replacedBlock)
                 .worldId(location.getExtent().getUniqueId())
@@ -70,10 +69,7 @@ public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
         TileEntity te = getTileEntity();
         if (te != null) {
             if (!te.hasWorld()) {
-                final net.minecraft.world.World worldIn = this.world.get();
-                if (worldIn != null) {
-                    te.setWorld(worldIn);
-                }
+                te.setWorld(this.getWorld());
             }
             for (DataManipulator<?, ?> manipulator : ((IMixinCustomDataHolder) te).getCustomManipulators()) {
                 builder.add(manipulator);
