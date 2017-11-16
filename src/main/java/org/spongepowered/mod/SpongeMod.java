@@ -62,7 +62,7 @@ import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.effect.potion.PotionEffectType;
 import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.event.Event;
-import org.spongepowered.api.item.Enchantment;
+import org.spongepowered.api.item.enchantment.EnchantmentType;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.plugin.Plugin;
@@ -164,7 +164,7 @@ public class SpongeMod extends MetaModContainer {
             if (key == null) {
                 return;
             }
-            EnchantmentRegistryModule.getInstance().registerFromGameData(key.toString(), (Enchantment) obj);
+            EnchantmentRegistryModule.getInstance().registerFromGameData(key.toString(), (EnchantmentType) obj);
         });
         SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (owner, manager, id, obj, oldObj) -> {
             final ResourceLocation key = ForgeRegistries.POTIONS.getKey(obj);
