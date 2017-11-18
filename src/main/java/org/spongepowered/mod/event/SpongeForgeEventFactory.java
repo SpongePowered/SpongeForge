@@ -164,7 +164,7 @@ public class SpongeForgeEventFactory {
     // Order matters
     public static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Event spongeEvent) {
         final Class<? extends Event> clazz = spongeEvent.getClass();
-        if (ChangeInventoryEvent.Pickup.class.isAssignableFrom(clazz)) {
+        if (ChangeInventoryEvent.Pickup.Pre.class.isAssignableFrom(clazz)) {
             return EntityItemPickupEvent.class;
         }
         if (DestructEntityEvent.Death.class.isAssignableFrom(clazz)) {
@@ -898,8 +898,8 @@ public class SpongeForgeEventFactory {
         return Tristate.UNDEFINED;
     }
 
-    public static ChangeInventoryEvent.Pickup callEntityItemPickupEvent(Event event) {
-        ChangeInventoryEvent.Pickup spongeEvent = (ChangeInventoryEvent.Pickup) event;
+    public static ChangeInventoryEvent.Pickup.Pre callEntityItemPickupEvent(Event event) {
+        ChangeInventoryEvent.Pickup.Pre spongeEvent = (ChangeInventoryEvent.Pickup.Pre) event;
         EntityItem entityItem = (EntityItem) spongeEvent.getTargetEntity();
         EntityItemPickupEvent forgeEvent =
                 new EntityItemPickupEvent((EntityPlayer) spongeEvent.getCause().first(Player.class).get(), entityItem);

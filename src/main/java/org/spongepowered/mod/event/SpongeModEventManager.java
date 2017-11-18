@@ -164,7 +164,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .putAll(BonemealEvent.class, this.interactBlock)
                     .putAll(BonemealEvent.class, this.useItemStack)
 
-                    .putAll(EntityItemPickupEvent.class, ChangeInventoryEvent.Pickup.class,  DestructEntityEvent.class)
+                    .putAll(EntityItemPickupEvent.class, ChangeInventoryEvent.Pickup.Pre.class,  DestructEntityEvent.class)
 
                     .putAll(FillBucketEvent.class, this.interactBlock)
                     .putAll(FillBucketEvent.class, this.useItemStack)
