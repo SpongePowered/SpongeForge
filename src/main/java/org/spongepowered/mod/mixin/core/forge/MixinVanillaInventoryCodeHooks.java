@@ -44,6 +44,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.IMixinInventory;
 import org.spongepowered.common.item.inventory.EmptyInventoryImpl;
@@ -76,18 +77,22 @@ public abstract class MixinVanillaInventoryCodeHooks {
             target = "Lnet/minecraft/tileentity/TileEntityHopper;getSizeInventory()I"))
     private static void onTransferItemsOut(TileEntityHopper hopper, CallbackInfoReturnable<Boolean> cir, EnumFacing hopperFacing,
             Pair<IItemHandler, Object> destinationResult, IItemHandler itemHandler, Object destination) {
-        if (SpongeCommonEventFactory.callTransferPre(toInventory(hopper), toInventory(destination, itemHandler)).isCancelled()) {
-            cir.setReturnValue(true);
+        if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_PRE) {
+            if (SpongeCommonEventFactory.callTransferPre(toInventory(hopper), toInventory(destination, itemHandler)).isCancelled()) {
+                cir.setReturnValue(true);
+            }
         }
     }
 
     @Inject(remap = false, method = "extractHook", cancellable = true, locals = LocalCapture.CAPTURE_FAILEXCEPTION,
             at = @At(value = "INVOKE", target = "Lorg/apache/commons/lang3/tuple/Pair;getKey()Ljava/lang/Object;"))
     private static void onExtractHook(IHopper hopper, CallbackInfoReturnable<Boolean> cir, Pair<IItemHandler, Object> itemHandlerResult) {
-        Inventory source = toInventory(itemHandlerResult.getValue(), itemHandlerResult.getKey());
-        if (source.totalItems() != 0) {
-            if (SpongeCommonEventFactory.callTransferPre(source, toInventory(hopper)).isCancelled()) {
-                cir.setReturnValue(false);
+        if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_PRE) {
+            Inventory source = toInventory(itemHandlerResult.getValue(), itemHandlerResult.getKey());
+            if (source.totalItems() != 0) {
+                if (SpongeCommonEventFactory.callTransferPre(source, toInventory(hopper)).isCancelled()) {
+                    cir.setReturnValue(false);
+                }
             }
         }
     }
@@ -97,8 +102,10 @@ public abstract class MixinVanillaInventoryCodeHooks {
     private static void onDispense(World world, BlockPos pos, TileEntityDispenser dropper, int slot, ItemStack stack,
             CallbackInfoReturnable<Boolean> cir, EnumFacing enumFacing, BlockPos blockPos, Pair<IItemHandler, Object> destinationResult,
             IItemHandler itemHandler, Object destination) {
-        if (SpongeCommonEventFactory.callTransferPre(toInventory(dropper), toInventory(destination, itemHandler)).isCancelled()) {
-            cir.setReturnValue(false);
+        if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_PRE) {
+            if (SpongeCommonEventFactory.callTransferPre(toInventory(dropper), toInventory(destination, itemHandler)).isCancelled()) {
+                cir.setReturnValue(false);
+            }
         }
     }
 
@@ -108,27 +115,37 @@ public abstract class MixinVanillaInventoryCodeHooks {
             target = "Lnet/minecraftforge/items/VanillaInventoryCodeHooks;insertStack(Lnet/minecraft/tileentity/TileEntity;Ljava/lang/Object;"
                     + "Lnet/minecraftforge/items/IItemHandler;Lnet/minecraft/item/ItemStack;I)Lnet/minecraft/item/ItemStack;"))
     private static ItemStack onInsertStack(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot) {
-        return SpongeCommonEventFactory.captureTransaction(forCapture(source), toInventory(destination, destInventory), slot,
-                () -> insertStack(source, destination, destInventory, stack, slot));
+        if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
+            return SpongeCommonEventFactory.captureTransaction(forCapture(source), toInventory(destination, destInventory), slot,
+                    () -> insertStack(source, destination, destInventory, stack, slot));
+        }
+        return insertStack(source, destination, destInventory, stack, slot);
     }
 
     @Redirect(remap = false, method = "extractHook",
             at = @At(value = "INVOKE", target = "Lnet/minecraftforge/items/IItemHandler;extractItem(IIZ)Lnet/minecraft/item/ItemStack;", ordinal = 1))
     private static ItemStack onPullItemOut(IItemHandler handler, int slot, int amount, boolean simulate, IHopper dest) {
-        Object inv = getItemHandler(dest, EnumFacing.UP).getValue();
-        ItemStack origin = handler.getStackInSlot(slot).copy(); // Capture Origin
-        ItemStack result = handler.extractItem(slot, amount, simulate);
-        SpongeCommonEventFactory.captureTransaction(forCapture(dest), toInventory(inv, handler), slot, origin);
-        return result;
+        if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
+            Object inv = getItemHandler(dest, EnumFacing.UP).getValue();
+            ItemStack origin = handler.getStackInSlot(slot).copy(); // Capture Origin
+            ItemStack result = handler.extractItem(slot, amount, simulate);
+            SpongeCommonEventFactory.captureTransaction(forCapture(dest), toInventory(inv, handler), slot, origin);
+            return result;
+        }
+        return handler.extractItem(slot, amount, simulate);
     }
 
     @Redirect(method = "extractHook",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/tileentity/IHopper;setInventorySlotContents(ILnet/minecraft/item/ItemStack;)V"))
     private static void onPullItemIn(IHopper dest, int index, ItemStack stack) {
-        ItemStack destStack = dest.getStackInSlot(index).copy(); // Capture Origin
-        destStack.shrink(1);
-        dest.setInventorySlotContents(index, stack);
-        SpongeCommonEventFactory.captureTransaction(forCapture(dest), toInventory(dest), index, destStack);
+        if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
+            ItemStack destStack = dest.getStackInSlot(index).copy(); // Capture Origin
+            destStack.shrink(1);
+            dest.setInventorySlotContents(index, stack);
+            SpongeCommonEventFactory.captureTransaction(forCapture(dest), toInventory(dest), index, destStack);
+        } else {
+            dest.setInventorySlotContents(index, stack);
+        }
     }
 
     // Post Captured Transactions
@@ -140,18 +157,20 @@ public abstract class MixinVanillaInventoryCodeHooks {
             EnumFacing hopperFacing, Pair<IItemHandler, Object> destinationResult, IItemHandler itemHandler,
             Object destination, int i, ItemStack originalSlotContents,
             ItemStack insertStack, ItemStack remainder) {
-        // after putStackInInventoryAllSlots
-        if (remainder.isEmpty()) {
-            IMixinInventory capture = forCapture(hopper);
-            if (capture == null) {
-                return;
-            }
-            Inventory sInv = toInventory(hopper, null);
-            Inventory dInv = toInventory(destination, itemHandler);
-            SpongeCommonEventFactory.captureTransaction(capture, sInv, i, originalSlotContents);
-            if (SpongeCommonEventFactory.callTransferPost(capture, sInv, dInv)) {
-                if (originalSlotContents.isEmpty()) {
-                    cir.setReturnValue(true);
+        if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
+            // after putStackInInventoryAllSlots
+            if (remainder.isEmpty()) {
+                IMixinInventory capture = forCapture(hopper);
+                if (capture == null) {
+                    return;
+                }
+                Inventory sInv = toInventory(hopper, null);
+                Inventory dInv = toInventory(destination, itemHandler);
+                SpongeCommonEventFactory.captureTransaction(capture, sInv, i, originalSlotContents);
+                if (SpongeCommonEventFactory.callTransferPost(capture, sInv, dInv)) {
+                    if (originalSlotContents.isEmpty()) {
+                        cir.setReturnValue(true);
+                    }
                 }
             }
         }
@@ -161,7 +180,9 @@ public abstract class MixinVanillaInventoryCodeHooks {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/tileentity/IHopper;markDirty()V"))
     private static void onPullItemsDone(IHopper dest, CallbackInfoReturnable<Boolean> cir, Pair<IItemHandler, Object> itemHandlerResult,
             IItemHandler handler, int i, ItemStack extractItem, int j, ItemStack destStack) {
-        SpongeCommonEventFactory.callTransferPost(forCapture(dest), toInventory(itemHandlerResult.getValue(), handler), toInventory(dest));
+        if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
+            SpongeCommonEventFactory.callTransferPost(forCapture(dest), toInventory(itemHandlerResult.getValue(), handler), toInventory(dest));
+        }
     }
 
     @Inject(remap = false, method = "dropperInsertHook", locals = LocalCapture.CAPTURE_FAILEXCEPTION, at = @At(value = "RETURN", ordinal = 1))
@@ -169,12 +190,14 @@ public abstract class MixinVanillaInventoryCodeHooks {
             CallbackInfoReturnable<Boolean> cir,
             EnumFacing enumFacing, BlockPos blockPos, Pair<IItemHandler, Object> destinationResult, IItemHandler itemHandler,
             Object destination, ItemStack dispensedStack, ItemStack remainder) {
-        // after setInventorySlotContents if return false
-        IMixinInventory capture = forCapture(dropper);
-        Inventory source = toInventory(dropper);
-        Inventory destInv = toInventory(destination, itemHandler);
-        SpongeCommonEventFactory.captureTransaction(capture, source, slot, stack);
-        SpongeCommonEventFactory.callTransferPost(capture, source, destInv);
+        if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
+            // after setInventorySlotContents if return false
+            IMixinInventory capture = forCapture(dropper);
+            Inventory source = toInventory(dropper);
+            Inventory destInv = toInventory(destination, itemHandler);
+            SpongeCommonEventFactory.captureTransaction(capture, source, slot, stack);
+            SpongeCommonEventFactory.callTransferPost(capture, source, destInv);
+        }
     }
 
     // Utility
