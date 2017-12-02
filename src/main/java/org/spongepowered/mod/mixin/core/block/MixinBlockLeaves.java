@@ -60,9 +60,8 @@ public abstract class MixinBlockLeaves extends MixinBlock {
             final PhaseTracker phaseTracker = PhaseTracker.getInstance();
             final IPhaseState currentState = phaseTracker.getCurrentState();
             final boolean isBlockAlready = currentState.getPhase() != TrackingPhases.BLOCK;
-            final boolean isWorldGen = currentState.getPhase().isWorldGeneration(currentState);
-
             @Nullable PhaseContext<?> blockDecay = null;
+            final boolean isWorldGen = currentState.isWorldGeneration();
             if (isBlockAlready && !isWorldGen) {
                 final LocatableBlock locatable = LocatableBlock.builder()
                     .location(new Location<World>((World) worldIn, pos.getX(), pos.getY(), pos.getZ()))
