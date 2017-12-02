@@ -73,6 +73,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.command.SpongeCommandFactory;
+import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.event.tracking.PhaseTracker;
@@ -276,7 +277,11 @@ public abstract class MixinSpongeImplHooks {
      */
     @Overwrite
     public static void onTileChunkUnload(TileEntity te) {
-        te.onChunkUnload();
+        try (final PhaseContext<?> o = BlockPhase.State.TILE_CHUNK_UNLOAD.createPhaseContext()
+                                .source(te)
+                                .buildAndSwitch()) {
+            te.onChunkUnload();
+        }
     }
 
     // World
