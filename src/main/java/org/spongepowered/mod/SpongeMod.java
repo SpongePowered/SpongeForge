@@ -68,9 +68,7 @@ import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.sql.SqlService;
-import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
@@ -294,9 +292,6 @@ public class SpongeMod extends MetaModContainer {
             SpongeImpl.getRegistry().init();
             if (!this.game.getServiceManager().provide(PermissionService.class).isPresent()) {
                 final SpongePermissionService service = new SpongePermissionService(this.game);
-                // Setup default permissions
-                service.getGroupForOpLevel(1).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.selector", Tristate.TRUE);
-                service.getGroupForOpLevel(2).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.commandblock", Tristate.TRUE);
                 this.game.getServiceManager().setProvider(this, PermissionService.class, service);
             }
         } catch (Throwable t) {
