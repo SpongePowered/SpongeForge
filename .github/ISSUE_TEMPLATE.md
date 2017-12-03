@@ -11,7 +11,7 @@
 
 <!-- Please include as much information as possible. For the description, assume we have no idea how 
         mods work, be as detailed as possible and include a step by step reproduction. It is recommended 
-        you try to reproduce the issue you are having yourself with as little mods as possible. -->
+        you try to reproduce the issue you are having yourself with as few mods as possible. -->
 **Issue Description**
 
 
