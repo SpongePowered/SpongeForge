@@ -234,6 +234,8 @@ public class SpongeModEventManager extends SpongeEventManager {
         if (spongeEvent == null) { // Fired by Forge
             spongeEvent = ((IMixinEvent) forgeEvent).createSpongeEvent();
         }
+
+        boolean isNotSameEvent = spongeEvent != forgeEvent;
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
@@ -243,6 +245,11 @@ public class SpongeModEventManager extends SpongeEventManager {
         // If there are no forge listeners for event, skip sync
         // If plugin cancelled event before modifications, ignore mods
         if (listeners.length > 0 && !forgeEvent.isCanceled()) {
+            if (isNotSameEvent) {
+                // Sync the forge event from Sponge
+                ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
+            }
+
             for (IEventListener listener : listeners) {
                 try {
                     if (listener instanceof IMixinASMEventHandler) {
@@ -256,6 +263,11 @@ public class SpongeModEventManager extends SpongeEventManager {
                 } catch (Throwable throwable) {
                     this.logger.error("Encountered an exception while processing a Forge event listener", throwable);
                 }
+            }
+
+            if (isNotSameEvent) {
+                // Sync the forge event back to Sponge
+                ((IMixinEvent) forgeEvent).syncDataToSponge(spongeEvent);
             }
         }
 
