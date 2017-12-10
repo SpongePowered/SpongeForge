@@ -34,14 +34,17 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
 import org.spongepowered.asm.mixin.Mixins;
 import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
 import org.spongepowered.common.launch.SpongeLaunch;
+import org.spongepowered.common.launch.transformer.tracker.TrackerRegistry;
 import org.spongepowered.launch.JavaVersionCheckUtils;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion("1.11.2")
+@IFMLLoadingPlugin.MCVersion("1.12.2")
 public class SpongeCoremod implements IFMLLoadingPlugin {
+
+    static File modFile;
 
     public static final class TokenProvider implements IEnvironmentTokenProvider {
 
@@ -71,6 +74,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.spongepowered.launch.JavaVersionCheckUtils");
 
         try {
+            // Note: This is still needed because it checks if at least Java 8u40 is installed
             JavaVersionCheckUtils.ensureJava8();
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,7 +82,10 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
             Runtime.getRuntime().exit(1);
         }
 
-        Launch.classLoader.addTransformerExclusion("org.spongepowered.common.launch.");
+        SpongeLaunch.addJreExtensionsToClassPath();
+
+        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.common.launch.");
+        Launch.classLoader.addClassLoaderExclusion("org.slf4j.");
 
         // Let's get this party started
         SpongeLaunch.initPaths((File) FMLInjectionData.data()[6]); // 6 = game dir
@@ -104,8 +111,6 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Mixins.addConfiguration("mixins.forge.init.json");
         MixinEnvironment.getEnvironment(Phase.INIT).registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.Cause");
-        Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.cause.NamedCause");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.event.Cancellable");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.eventgencore.annotation.PropertySettings");
         Launch.classLoader.addClassLoaderExclusion("org.spongepowered.api.util.ResettableBuilder");
@@ -116,6 +121,13 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
 
         SpongeLaunch.setupSuperClassTransformer();
+
+        // Setup method tracking
+        //TrackerRegistry.initialize();
+
+        // Setup IItemHandler and IItemHandlerModifiable method tracking
+        //TrackerRegistry.registerTracker("org.spongepowered.mod.tracker.FluidTracker");
+        //TrackerRegistry.registerTracker("org.spongepowered.mod.tracker.ItemHandlerTracker");
     }
 
     private boolean isProductionEnvironment() {
@@ -157,9 +169,9 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         // Register SpongeAPI mod container
         FMLInjectionData.containers.add("org.spongepowered.mod.SpongeApiModContainer");
 
-        SpongeJava6Bridge.modFile = (File) data.get("coremodLocation");
-        if (SpongeJava6Bridge.modFile == null) {
-            SpongeJava6Bridge.modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        modFile = (File) data.get("coremodLocation");
+        if (modFile == null) {
+            modFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
         }
     }
 

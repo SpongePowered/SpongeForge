@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.inject.Singleton;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -70,6 +71,7 @@ import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
@@ -89,6 +91,7 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.RideEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.impl.AbstractEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
@@ -98,7 +101,6 @@ import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
@@ -110,6 +112,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+@Singleton
 public class SpongeModEventManager extends SpongeEventManager {
 
     @SuppressWarnings("unused") private final ImmutableBiMap<EventPriority, Order> priorityMappings =
@@ -122,13 +125,13 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .build();
 
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	Class<? extends Event>[] useItemStack = new Class[] {UseItemStackEvent.Start.class, UseItemStackEvent.Tick.class, UseItemStackEvent.Stop.class, UseItemStackEvent.Finish.class, UseItemStackEvent.Replace.class, UseItemStackEvent.Reset.class};
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	Class<? extends Event>[] interactEntity = new Class[] {InteractEntityEvent.Primary.MainHand.class, InteractEntityEvent.Primary.OffHand.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class};
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	Class<? extends Event>[] interactBlock = new Class[] {InteractBlockEvent.Primary.MainHand.class, InteractBlockEvent.Primary.OffHand.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class};
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	Class<? extends Event>[] spawnEntityEvent = new Class[] {SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class};
 
     @SuppressWarnings("unchecked")
@@ -161,7 +164,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .putAll(BonemealEvent.class, this.interactBlock)
                     .putAll(BonemealEvent.class, this.useItemStack)
 
-                    .putAll(EntityItemPickupEvent.class, ChangeInventoryEvent.Pickup.class,  DestructEntityEvent.class)
+                    .putAll(EntityItemPickupEvent.class, ChangeInventoryEvent.Pickup.Pre.class,  DestructEntityEvent.class)
 
                     .putAll(FillBucketEvent.class, this.interactBlock)
                     .putAll(FillBucketEvent.class, this.useItemStack)
@@ -171,8 +174,8 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .putAll(net.minecraftforge.event.entity.player.PlayerEvent.HarvestCheck.class, ChangeBlockEvent.Modify.class, ChangeBlockEvent.Post.class)
                     .put(PlayerFlyableFallEvent.class, MoveEntityEvent.class)
 
-
-                    .putAll(PlayerInteractEvent.EntityInteract.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class)
+                    // This event is ignored as we handle it differently on plugin side. See MixinNetHandlerPlayServer for more info.
+                    //.putAll(PlayerInteractEvent.EntityInteract.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class)
                     .putAll(PlayerInteractEvent.EntityInteractSpecific.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class)
                     .putAll(PlayerInteractEvent.RightClickBlock.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class)
                     .putAll(PlayerInteractEvent.RightClickItem.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class)
@@ -220,8 +223,8 @@ public class SpongeModEventManager extends SpongeEventManager {
 
 
     @Inject
-    public SpongeModEventManager(PluginManager pluginManager) {
-        super(pluginManager);
+    public SpongeModEventManager(Logger logger, PluginManager pluginManager) {
+        super(logger, pluginManager);
     }
 
     // Uses Forge mixins
@@ -231,6 +234,8 @@ public class SpongeModEventManager extends SpongeEventManager {
         if (spongeEvent == null) { // Fired by Forge
             spongeEvent = ((IMixinEvent) forgeEvent).createSpongeEvent();
         }
+
+        boolean isNotSameEvent = spongeEvent != forgeEvent;
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
@@ -238,7 +243,13 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
 
         // If there are no forge listeners for event, skip sync
-        if (listeners.length > 0) {
+        // If plugin cancelled event before modifications, ignore mods
+        if (listeners.length > 0 && !forgeEvent.isCanceled()) {
+            if (isNotSameEvent) {
+                // Sync the forge event from Sponge
+                ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
+            }
+
             for (IEventListener listener : listeners) {
                 try {
                     if (listener instanceof IMixinASMEventHandler) {
@@ -250,8 +261,13 @@ public class SpongeModEventManager extends SpongeEventManager {
                         listener.invoke(forgeEvent);
                     }
                 } catch (Throwable throwable) {
-                    SpongeImpl.getLogger().catching(throwable);
+                    this.logger.error("Encountered an exception while processing a Forge event listener", throwable);
                 }
+            }
+
+            if (isNotSameEvent) {
+                // Sync the forge event back to Sponge
+                ((IMixinEvent) forgeEvent).syncDataToSponge(spongeEvent);
             }
         }
 
@@ -278,7 +294,13 @@ public class SpongeModEventManager extends SpongeEventManager {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
         }
 
-        spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
+        boolean cancelled = false;
+        if (spongeEvent instanceof Cancellable) {
+            cancelled = ((Cancellable) spongeEvent).isCancelled();
+        }
+        if (!cancelled) {
+            spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
+        }
 
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
@@ -289,7 +311,7 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     @SuppressWarnings("unchecked")
-    protected static boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced) {
+    protected boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced) {
         ModContainer oldContainer = ((IMixinLoadController) SpongeMod.instance.getController()).getActiveModContainer();
         for (@SuppressWarnings("rawtypes")
         RegisteredListener listener : listeners) {
@@ -298,12 +320,21 @@ public class SpongeModEventManager extends SpongeEventManager {
                 if (forced || (!listener.isBeforeModifications() && !beforeModifications)
                         || (listener.isBeforeModifications() && beforeModifications)) {
                     listener.getTimingsHandler().startTimingIfSync();
+
+                    if (event instanceof AbstractEvent) {
+                        ((AbstractEvent) event).currentOrder = listener.getOrder();
+                    }
+
                     listener.handle(event);
-                    listener.getTimingsHandler().stopTimingIfSync();
                 }
             } catch (Throwable e) {
-                SpongeImpl.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
+                this.logger.error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
+            } finally {
+                listener.getTimingsHandler().stopTimingIfSync();
             }
+        }
+        if (event instanceof AbstractEvent) {
+            ((AbstractEvent) event).currentOrder = null;
         }
         ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(oldContainer);
         return event instanceof Cancellable && ((Cancellable) event).isCancelled();
@@ -321,7 +352,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
 
         if (spongeEvent.getClass().getInterfaces().length > 0) {
-            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent.getClass());
+            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent);
             if (clazz != null) {
                 return post(spongeEvent, clazz);
             }

@@ -38,7 +38,7 @@ public class SpongeApiModContainer extends MetaModContainer {
 
     @Override
     public File getSource() {
-        return SpongeJava6Bridge.modFile;
+        return SpongeCoremod.modFile;
     }
 
 }

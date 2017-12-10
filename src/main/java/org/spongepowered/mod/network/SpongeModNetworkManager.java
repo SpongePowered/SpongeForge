@@ -32,8 +32,10 @@ import static io.netty.buffer.Unpooled.wrappedBuffer;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.inject.Singleton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
@@ -44,9 +46,12 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketRegistr
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.Platform;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.network.ChannelBinding;
 import org.spongepowered.api.network.ChannelBinding.IndexedMessageChannel;
 import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
@@ -60,28 +65,57 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+@Singleton
 public class SpongeModNetworkManager extends SpongeNetworkManager {
+
+    public static final EventContextKey<INetHandler> NET_HANDLER = new EventContextKey<INetHandler>() {
+        @Override
+        public Class<INetHandler> getAllowedType() {
+            return INetHandler.class;
+        }
+
+        @Override
+        public String getId() {
+            return "sponge:nethandler";
+        }
+
+        @Override
+        public String getName() {
+            return "NetHandler";
+        }
+    };
 
     private final Map<String, SpongeModChannelBinding> channelMap = Maps.newHashMap();
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onCustomPacketRegistration(CustomPacketRegistrationEvent<?> event) {
         Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
-        Cause.Builder builder = Cause.builder();
-        if (event.getHandler() instanceof NetHandlerPlayServer) {
-            builder.named(NamedCause.source(((NetHandlerPlayServer) event.getHandler()).playerEntity));
-        }
-        Cause cause = builder.named(NamedCause.of("NetHandler", event.getHandler())).build();
-
-        if (event.getOperation().equals("REGISTER")) {
-            channels.addAll(event.getRegistrations());
-            for (String channel : event.getRegistrations()) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(cause, channel));
+        ;
+        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
+        try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
+            if (isMainThread) {
+                if (event.getHandler() instanceof NetHandlerPlayServer) {
+                    Sponge.getCauseStackManager().pushCause(((NetHandlerPlayServer) event.getHandler()).player);
+                }
+                Sponge.getCauseStackManager().addContext(NET_HANDLER, event.getHandler());
             }
-        } else if (event.getOperation().equals("UNREGISTER")) {
-            channels.removeAll(event.getRegistrations());
-            for (String channel : event.getRegistrations()) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(cause, channel));
+
+            if (event.getOperation().equals("REGISTER")) {
+                channels.addAll(event.getRegistrations());
+                for (String channel : event.getRegistrations()) {
+                    final Cause
+                        currentCause =
+                        isMainThread ? Sponge.getCauseStackManager().getCurrentCause() : Cause.of(EventContext.empty(), Sponge.getGame());
+                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(currentCause, channel));
+                }
+            } else if (event.getOperation().equals("UNREGISTER")) {
+                channels.removeAll(event.getRegistrations());
+                for (String channel : event.getRegistrations()) {
+                    final Cause
+                        currentCause =
+                        isMainThread ? Sponge.getCauseStackManager().getCurrentCause() : Cause.of(EventContext.empty(), Sponge.getGame());
+                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(currentCause, channel));
+                }
             }
         }
     }
@@ -148,6 +182,9 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         SpongeModChannelBinding boundChannel = this.channelMap.remove(channel.getName());
         checkState(boundChannel != null, "Channel is already unbound");
         boundChannel.invalidate();
+        // Remove channel from forge's registry
+        NetworkRegistry.INSTANCE.channelNamesFor(Side.SERVER).remove(channel.getName());
+        NetworkRegistry.INSTANCE.channelNamesFor(Side.CLIENT).remove(channel.getName());
 
         if (SpongeImpl.getGame().isServerAvailable()) {
             final PlayerList playerList = SpongeImpl.getServer().getPlayerList();
@@ -168,9 +205,8 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         checkArgument(checkNotNull(side, "side").isKnown(), "Invalid side given");
         if (side == Platform.Type.SERVER) {
             return ImmutableSet.copyOf(NetworkRegistry.INSTANCE.channelNamesFor(Side.SERVER));
-        } else {
-            return ImmutableSet.copyOf(NetworkRegistry.INSTANCE.channelNamesFor(Side.CLIENT));
         }
+        return ImmutableSet.copyOf(NetworkRegistry.INSTANCE.channelNamesFor(Side.CLIENT));
     }
 
     @Override

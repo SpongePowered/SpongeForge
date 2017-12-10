@@ -26,7 +26,6 @@ package org.spongepowered.mod;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -34,34 +33,19 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.GameDictionary;
-import org.spongepowered.api.Platform;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.asset.AssetManager;
-import org.spongepowered.api.event.EventManager;
-import org.spongepowered.api.network.ChannelRegistrar;
-import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.TeleportHelper;
 import org.spongepowered.common.SpongeGame;
-import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.world.FakePlayer;
 import org.spongepowered.mod.registry.SpongeForgeGameDictionary;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 @NonnullByDefault
 @Singleton
 public final class SpongeModGame extends SpongeGame {
-
-    @Inject
-    public SpongeModGame(Platform platform, PluginManager pluginManager, EventManager eventManager,
-            AssetManager assetManager, ServiceManager serviceManager, TeleportHelper teleportHelper, ChannelRegistrar channelRegistrar,
-            Logger logger, SpongeGameRegistry gameRegistry) {
-        super(platform, pluginManager, eventManager, assetManager, serviceManager, teleportHelper, channelRegistrar, logger, gameRegistry);
-    }
 
     @Override
     public Path getSavesDirectory() {
@@ -81,8 +65,8 @@ public final class SpongeModGame extends SpongeGame {
     }
 
     @Override
-    public GameDictionary getGameDictionary() {
-        return SpongeForgeGameDictionary.instance;
+    public Optional<GameDictionary> getGameDictionary() {
+        return Optional.of(SpongeForgeGameDictionary.instance);
     }
 
     @Override

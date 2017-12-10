@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.core.world;
 
 import net.minecraft.world.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
 
@@ -42,6 +41,11 @@ public abstract class MixinDimensionType implements org.spongepowered.api.world.
      */
     @Override
     public boolean shouldGenerateSpawnOnLoad() {
+        return this.shouldLoadSpawn;
+    }
+
+    @Override
+    public boolean shouldLoadSpawn() {
         return this.shouldLoadSpawn;
     }
 }

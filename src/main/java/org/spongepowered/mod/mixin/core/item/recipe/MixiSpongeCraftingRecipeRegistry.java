@@ -22,17 +22,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod;
+package org.spongepowered.mod.mixin.core.item.recipe;
 
-import java.io.File;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.ResourceLocation;
+import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.item.recipe.crafting.SpongeCraftingRecipeRegistry;
 
-/**
- * This class holds anything that needs to be accessed from SpoongeCoremod.
- * The 'java6' sourceset containing the coremod must depend on the 'main'
- * sourceset, which means that anything in 'main' cannot reference classes
- * from 'java6'
- */
-public class SpongeJava6Bridge {
+@Mixin(value = SpongeCraftingRecipeRegistry.class, remap = false)
+public abstract class MixiSpongeCraftingRecipeRegistry {
 
-    public static File modFile;
+    @Inject(method = "registerAdditionalCatalog", at = @At(value = "RETURN"))
+    public void onRegisterAdditionalCatalog(CraftingRecipe recipe, CallbackInfo ci) {
+        ((IRecipe) recipe).setRegistryName(new ResourceLocation(recipe.getId()));
+    }
 }

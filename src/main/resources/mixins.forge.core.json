@@ -1,6 +1,6 @@
 {
     "required": true,
-    "minVersion": "0.5.7",
+    "minVersion": "0.7.2",
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "priority": 1111,
@@ -14,6 +14,7 @@
         "block.MixinBlockLog",
         "block.MixinBlockOldLeaf",
         "block.MixinBlockRailBase",
+        "command.MixinEntitySelector",
         "common.MixinSpongeCommonEventFactory",
         "common.MixinSpongeImplHooks",
         "common.MixinSpongeProxyBlockAccess",
@@ -40,8 +41,10 @@
         "fml.common.eventhandler.MixinEventBus",
         "fml.common.gameevent.MixinPlayerEvent",
         "fml.common.gameevent.MixinWorldTickEvent",
+        "fml.common.network.handshake.MixinFMLHandshakeMessageRegistryData",
         "fml.common.registry.MixinEntityRegistry",
         "fml.common.registry.MixinBlockDummyAir",
+        "fml.common.registry.MixinNetworkRegistry",
         "fml.common.registry.MixinVillagerCareer",
         "fml.common.registry.MixinVillagerProfession",
         "fml.common.registry.MixinVillagerRegistry",
@@ -49,7 +52,11 @@
         "forge.MixinDimensionManager",
         "forge.MixinFakePlayer",
         "forge.MixinForgeInternalHandler",
+        "forge.MixinVanillaInventoryCodeHooks",
+        "forge.common.MixinForgeChunkManager$Ticket",
+        "forge.common.MixinForgeHooks",
         "forge.event.MixinForgeEventFactory",
+        "forge.event.MixinServerChatEvent",
         "forge.fluids.MixinFluid",
         "forge.fluids.MixinFluidRegistry",
         "forge.fluids.MixinFluidStack",
@@ -58,6 +65,11 @@
         "item.MixinItemShears",
         "item.MixinItemStack",
         "item.MixinItemLilyPad",
+        "item.inventory.MixinInvWrapper",
+        "item.inventory.MixinItemStackHandler",
+        "item.inventory.MixinSlotItemHandler",
+        "item.recipe.MixinSpongeRecipe",
+        "item.recipe.MixiSpongeCraftingRecipeRegistry",
         "nbt.MixinNBTTagCompound",
         "network.packet.MixinCPacketClickWindow",
         "network.packet.MixinCPacketPlayerTryUseItemOnBlock",
@@ -68,6 +80,7 @@
         "server.management.MixinPlayerChunkMapEntry",
         "server.management.MixinPlayerInteractionManager",
         "world.MixinChunk",
+        "world.MixinDimensionType",
         "world.MixinWorld",
         "world.MixinWorldServer",
         "world.MixinWorldProvider",
@@ -91,5 +104,8 @@
     ],
     "injectors": {
         "defaultRequire": 1
+    },
+    "overwrites": {
+        "conformVisibility": true
     }
 }

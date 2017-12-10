@@ -25,13 +25,17 @@
 package org.spongepowered.mod;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Stage;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
 import net.minecraftforge.fml.client.FMLFolderResourcePack;
 import net.minecraftforge.fml.common.LoadController;
@@ -47,23 +51,24 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.effect.potion.PotionEffectType;
 import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.event.Event;
-import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.enchantment.EnchantmentType;
+import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.sql.SqlService;
-import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
@@ -72,13 +77,16 @@ import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
+import org.spongepowered.common.inject.SpongeGuice;
+import org.spongepowered.common.inject.SpongeModule;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
-import org.spongepowered.common.registry.RegistryHelper;
+import org.spongepowered.common.item.recipe.crafting.SpongeCraftingRecipeRegistry;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
 import org.spongepowered.common.registry.type.effect.PotionEffectTypeRegistryModule;
 import org.spongepowered.common.registry.type.effect.SoundRegistryModule;
+import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.item.EnchantmentRegistryModule;
 import org.spongepowered.common.scheduler.SpongeScheduler;
@@ -90,7 +98,7 @@ import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.event.SpongeModEventManager;
-import org.spongepowered.mod.guice.SpongeModGuiceModule;
+import org.spongepowered.mod.inject.SpongeForgeModule;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
 import org.spongepowered.mod.plugin.MetaModContainer;
@@ -99,6 +107,7 @@ import org.spongepowered.mod.registry.SpongeForgeModuleRegistry;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 import org.spongepowered.mod.registry.SpongeGameData;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
+import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,7 +115,11 @@ import java.io.IOException;
 public class SpongeMod extends MetaModContainer {
 
     public static SpongeMod instance;
-    private final SpongeGame game;
+
+    @Inject private SpongeGame game;
+    @Inject private SpongeScheduler scheduler;
+    @Inject private Logger logger;
+
     private LoadController controller;
     private File modFile;
 
@@ -119,16 +132,16 @@ public class SpongeMod extends MetaModContainer {
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
 
         SpongeMod.instance = this;
-        this.modFile = SpongeJava6Bridge.modFile;
+        this.modFile = SpongeCoremod.modFile;
 
         // Initialize Sponge
-        Guice.createInjector(new SpongeModGuiceModule()).getInstance(SpongeImpl.class);
+        final Stage stage = SpongeGuice.getInjectorStage((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment") ? Stage.DEVELOPMENT : Stage.PRODUCTION);
+        // Do not replace `SpongeImpl.getLogger()` with `this.getLogger()`. You've been warned.
+        SpongeImpl.getLogger().info("Creating injector in stage '{}'", stage);
+        Guice.createInjector(stage, new SpongeModule(), new SpongeForgeModule());
 
-        this.game = SpongeImpl.getGame();
-        RegistryHelper.setFinalStatic(Sponge.class, "game", this.game);
-
-        this.game.getRegistry().preRegistryInit();
-        SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (obj, id, location) -> {
+        SpongeImpl.getRegistry().preRegistryInit();
+        SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (owner, manager, id, obj, oldObj) -> {
             final ResourceLocation key = ForgeRegistries.BLOCKS.getKey(obj);
             if (key == null || ((IMixinBlock) obj).isDummy()) {
                 return;
@@ -136,23 +149,42 @@ public class SpongeMod extends MetaModContainer {
             BlockTypeRegistryModule.getInstance().registerFromGameData(key.toString(), (BlockType) obj);
 
         });
-        SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (obj, id, location) ->
-                ItemTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ITEMS.getKey(obj).toString(),
-                        (ItemType) obj));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.ENCHANTMENTS, (obj, id, location) ->
-                EnchantmentRegistryModule.getInstance().registerFromGameData(ForgeRegistries.ENCHANTMENTS.getKey(obj).toString(), (Enchantment) obj));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (obj, id, location) ->
-                PotionEffectTypeRegistryModule.getInstance().registerFromGameData(ForgeRegistries.POTIONS.getKey(obj).toString(),
-                        (PotionEffectType) obj));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((obj, id, slaveset) -> {
+        SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (owner, manager, id, obj, oldObj) -> {
+            final ResourceLocation key = ForgeRegistries.ITEMS.getKey(obj);
+            if (key == null) {
+                return;
+            }
+            ItemTypeRegistryModule.getInstance().registerFromGameData(key.toString(),
+                    (ItemType) obj);
+        });
+        SpongeGameData.addRegistryCallback(ForgeRegistries.ENCHANTMENTS, (owner, manager, id, obj, oldObj) -> {
+            final ResourceLocation key = ForgeRegistries.ENCHANTMENTS.getKey(obj);
+            if (key == null) {
+                return;
+            }
+            EnchantmentRegistryModule.getInstance().registerFromGameData(key.toString(), (EnchantmentType) obj);
+        });
+        SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (owner, manager, id, obj, oldObj) -> {
+            final ResourceLocation key = ForgeRegistries.POTIONS.getKey(obj);
+            if (key == null) {
+                return;
+            }
+            PotionEffectTypeRegistryModule.getInstance().registerFromGameData(key.toString(),
+                    (PotionEffectType) obj);
+        });
+        SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj, oldObj) -> {
             final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) obj;
             final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
             final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(obj, spongeProfession);
             ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
+
+            for (VillagerRegistry.VillagerCareer career: mixinProfession.getCareers()) {
+                SpongeForgeVillagerRegistry.registerForgeCareer(career);
+            }
         }));
-        SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, ((obj, id, location) -> {
-            SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) obj);
-        }));
+        SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, (owner, manager, id, obj, oldObj) ->
+                SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) obj)
+        );
         SpongeForgeModuleRegistry.registerForgeData();
 
         this.game.getEventManager().registerListeners(this, this);
@@ -188,9 +220,8 @@ public class SpongeMod extends MetaModContainer {
     public Class<?> getCustomResourcePackClass() {
         if (getSource().isDirectory()) {
             return FMLFolderResourcePack.class;
-        } else {
-            return FMLFileResourcePack.class;
         }
+        return FMLFileResourcePack.class;
     }
 
     @Subscribe
@@ -235,7 +266,23 @@ public class SpongeMod extends MetaModContainer {
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            SpongeScheduler.getInstance().tickSyncScheduler();
+            this.scheduler.tickSyncScheduler();
+        }
+    }
+
+    @SubscribeEvent
+    public void onRecipeRegister(RegistryEvent.Register<IRecipe> event) {
+        for (CraftingRecipe craftingRecipe : SpongeCraftingRecipeRegistry.getInstance().getCustomRecipes()) {
+            event.getRegistry().register((IRecipe) craftingRecipe);
+        }
+        SpongeCraftingRecipeRegistry.getInstance().disableRegistrations();
+    }
+
+    @SubscribeEvent
+    public void onEntityRegister(RegistryEvent.Register<EntityEntry> event) {
+        for (EntityTypeRegistryModule.FutureRegistration registration : EntityTypeRegistryModule.getInstance().getCustomEntities()) {
+            EntityRegistry.registerModEntity(registration.name, registration.type, registration.name.getResourcePath(), registration.id,
+                    registration.name.getResourceDomain(), 0, 0, false);
         }
     }
 
@@ -245,9 +292,6 @@ public class SpongeMod extends MetaModContainer {
             SpongeImpl.getRegistry().init();
             if (!this.game.getServiceManager().provide(PermissionService.class).isPresent()) {
                 final SpongePermissionService service = new SpongePermissionService(this.game);
-                // Setup default permissions
-                service.getGroupForOpLevel(1).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.selector", Tristate.TRUE);
-                service.getGroupForOpLevel(2).getSubjectData().setPermission(SubjectData.GLOBAL_CONTEXT, "minecraft.commandblock", Tristate.TRUE);
                 this.game.getServiceManager().setProvider(this, PermissionService.class, service);
             }
         } catch (Throwable t) {
@@ -267,6 +311,9 @@ public class SpongeMod extends MetaModContainer {
     @Subscribe
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         SpongeImpl.getRegistry().registerAdditionals();
+        for (EntityEntry entry : ForgeRegistries.ENTITIES) {
+            StaticMixinForgeHelper.registerCustomEntity(entry);
+        }
     }
 
     @Subscribe
@@ -313,7 +360,7 @@ public class SpongeMod extends MetaModContainer {
     // This overrides the method in PluginContainer
     // (PluginContainer is implemented indirectly through the ModContainer mixin)
     public Logger getLogger() {
-        return SpongeImpl.getSlf4jLogger();
+        return this.logger;
     }
 
 }

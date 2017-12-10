@@ -26,8 +26,8 @@ package org.spongepowered.mod.mixin.core.world.gen;
 
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.chunk.IChunkGenerator;
-import net.minecraft.world.gen.ChunkProviderEnd;
+import net.minecraft.world.gen.ChunkGeneratorEnd;
+import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
 import org.spongepowered.asm.mixin.Final;
@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ChunkProviderEnd.class)
+@Mixin(ChunkGeneratorEnd.class)
 public abstract class MixinChunkProviderEnd implements IChunkGenerator {
 
     @Shadow(remap = false) private int chunkX; // Forge added

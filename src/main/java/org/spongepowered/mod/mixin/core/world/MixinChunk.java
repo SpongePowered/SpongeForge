@@ -40,28 +40,41 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.IMixinChunk;
-import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 @NonnullByDefault
-@Mixin(net.minecraft.world.chunk.Chunk.class)
+@Mixin(value = net.minecraft.world.chunk.Chunk.class, priority = 1001)
 public abstract class MixinChunk implements Chunk, IMixinChunk {
 
     @Shadow @Final private net.minecraft.world.World world;
-    @Shadow @Final public int xPosition;
-    @Shadow @Final public int zPosition;
-    @Shadow public boolean unloaded;
+    @Shadow @Final public int x;
+    @Shadow @Final public int z;
+    @Shadow public boolean unloadQueued;
 
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract IBlockState getBlockState(int x, int y, int z);
     @Shadow public abstract int getTopFilledSegment();
 
-    @Inject(method = "onChunkLoad", at = @At("RETURN"))
-    public void onChunkLoadInject(CallbackInfo ci) {
+    @Redirect(method = "onLoad", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
+    public boolean onLoadForgeEvent(net.minecraftforge.fml.common.eventhandler.EventBus eventBus, net.minecraftforge.fml.common.eventhandler.Event event) {
+        // This event is handled in SpongeForgeEventFactory
+        return false;
+    }
+
+    @Redirect(method = "onUnload", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
+    public boolean onUnloadForgeEvent(net.minecraftforge.fml.common.eventhandler.EventBus eventBus, net.minecraftforge.fml.common.eventhandler.Event event) {
+        // This event is handled in SpongeForgeEventFactory
+        return false;
+    }
+
+    @Inject(method = "onLoad", at = @At("RETURN"))
+    public void onLoadInject(CallbackInfo ci) {
         if (!this.world.isRemote) {
             for (ChunkPos forced : this.world.getPersistentChunks().keySet()) {
-                if (forced.chunkXPos == this.xPosition && forced.chunkZPos == this.zPosition) {
+                if (forced.x == this.x && forced.z == this.z) {
                     this.setPersistedChunk(true);
                     return;
                 }
@@ -70,10 +83,10 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         }
     }
 
-    @Inject(method = "onChunkUnload", at = @At("RETURN"))
-    public void onChunkUnloadInject(CallbackInfo ci) {
+    @Inject(method = "onUnload", at = @At("RETURN"))
+    public void onUnloadInject(CallbackInfo ci) {
         // Moved from ChunkProviderServer
-        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(this.xPosition, this.zPosition), (net.minecraft.world.chunk.Chunk)(Object) this);
+        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(this.x, this.z), (net.minecraft.world.chunk.Chunk) (Object) this);
     }
 
     @Override
@@ -84,16 +97,16 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
 
         // TODO 1.9 Update - Zidane's thing
         if (this.world.provider.canRespawnHere()) {//&& DimensionManager.shouldLoadSpawn(this.world.provider.getDimension())) {
-            if (this.world.isSpawnChunk(this.xPosition, this.zPosition)) {
+            if (this.world.isSpawnChunk(this.x, this.z)) {
                 return false;
             }
         }
-        ((WorldServer) this.world).getChunkProvider().unload((net.minecraft.world.chunk.Chunk) (Object) this);
+        ((WorldServer) this.world).getChunkProvider().queueUnload((net.minecraft.world.chunk.Chunk) (Object) this);
         return true;
     }
 
     @SideOnly(Side.CLIENT)
-    @Inject(method = "setChunkLoaded", at = @At("RETURN"))
+    @Inject(method = "markLoaded", at = @At("RETURN"))
     public void onSetChunkLoaded(boolean loaded, CallbackInfo ci) {
         Direction[] directions = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
         for (Direction direction : directions) {
@@ -122,7 +135,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         int i = this.getTopFilledSegment();
         boolean flag = false;
         boolean flag1 = false;
-        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos((this.xPosition << 4) + x, 0, (this.zPosition << 4) + z);
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos((this.x << 4) + x, 0, (this.z << 4) + z);
 
         for (int j = i + 16 - 1; j > this.world.getSeaLevel() || j > 0 && !flag1; --j) {
             blockpos$mutableblockpos.setPos(blockpos$mutableblockpos.getX(), j, blockpos$mutableblockpos.getZ());
@@ -145,7 +158,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
             // Sponge Start - Use SpongeImplHooks for forge optimization
             // if (this.getBlockState(blockpos$mutableblockpos).getLightValue() > 0) // Vanilla
             // if (this.getBlockState(blockpos$mutableblockpos).getLightValue(this.worldObj, blockpos$mutableblockpos) > 0) // Forge
-            if (StaticMixinForgeHelper.getChunkPosLight(this.getBlockState(blockpos$mutableblockpos), this.world, blockpos$mutableblockpos) > 0) {
+            if (SpongeImplHooks.getChunkPosLight(this.getBlockState(blockpos$mutableblockpos), this.world, blockpos$mutableblockpos) > 0) {
                 // Sponge End
                 this.world.checkLight(blockpos$mutableblockpos);
             }
@@ -154,10 +167,12 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     private static int getChunkBlockLightOpacity(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
         return blockState.getLightOpacity();
     }
 
+    @SuppressWarnings("deprecation")
     private static int getChunkBlockLightOpacity(IBlockState state, net.minecraft.world.World worldObj, int x, int y, int z) {
         return state.getLightOpacity();
     }
@@ -188,13 +203,14 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
      * @param z The z position
      * @return whatever vanilla said
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     private int getBlockLightOpacity(int x, int y, int z) {
         IBlockState state = this.getBlockState(x, y, z); //Forge: Can sometimes be called before we are added to the global world list. So use the less accurate one during that. It'll be recalculated later
         // Sponge Start - Rewrite to use SpongeImplHooks because, again, unecessary block state retrieval.
         // return this.getBlockState(x, y, z).getLightOpacity(); // Vanilla
         // return this.unloaded ? state.getLightOpacity() : state.getLightOpacity(this.worldObj, new BlockPos(x, y, z)); // Forge
-        return this.unloaded ? state.getLightOpacity() : getChunkBlockLightOpacity(state, this.world, x, y, z);
+        return this.unloadQueued ? state.getLightOpacity() : getChunkBlockLightOpacity(state, this.world, x, y, z);
         // Sponge End
     }
 

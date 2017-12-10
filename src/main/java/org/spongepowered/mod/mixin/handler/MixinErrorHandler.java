@@ -24,8 +24,11 @@
  */
 package org.spongepowered.mod.mixin.handler;
 
+import com.google.common.collect.ImmutableSet;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.common.ForgeVersion;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfig;
@@ -34,9 +37,12 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.mixin.transformer.throwables.MixinTargetAlreadyLoadedException;
 import org.spongepowered.asm.util.ConstraintParser.Constraint;
 import org.spongepowered.asm.util.PrettyPrinter;
-import org.spongepowered.asm.util.launchwrapper.LaunchClassLoaderUtil;
 import org.spongepowered.asm.util.throwables.ConstraintViolationException;
 import org.spongepowered.launch.Main;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Error handler for Sponge mixins
@@ -72,7 +78,8 @@ public class MixinErrorHandler implements IMixinErrorHandler {
             .add()
             .add("   * Use a version of Sponge for built for your version of Forge")
             .add()
-            .addWrapped("  The patch which failed requires Forge a build of %s but you are running build %d", constraint.getRangeHumanReadable(), ForgeVersion.getBuildVersion());
+            .addWrapped("  The patch which failed requires Forge a build of %s but you are running build %d",
+                    constraint.getRangeHumanReadable(), ForgeVersion.getBuildVersion());
     }
 
     private PrettyPrinter patchConstraintFailed(Constraint constraint, ConstraintViolationException ex) {
@@ -104,7 +111,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
 
         if (ex.getTarget().startsWith("net.minecraftforge")) {
             pp.hr('-').add().add("Loaded forge classes: ").add();
-            for (String loadedClass : LaunchClassLoaderUtil.forClassLoader(Launch.classLoader).getLoadedClasses("net.minecraftforge")) {
+            for (String loadedClass : MixinErrorHandler.getLoadedClasses("net.minecraftforge")) {
                 pp.add("    %s", loadedClass);
             }
         }
@@ -116,23 +123,23 @@ public class MixinErrorHandler implements IMixinErrorHandler {
         String forgeVer = Main.getManifestAttribute("TargetForgeVersion", null);
         if (forgeVer != null && !forgeVer.equals(ForgeVersion.getVersion())) {
             return new PrettyPrinter()
-                    .add()
-                    .add("Oh dear. It seems like this version of Sponge is not compatible with the version")
-                    .add("of Forge you are running.")
-                    .add()
-                    .hr('-')
-                    .add()
-                    .add("A errpr was encountered whilst patching:")
-                    .add()
-                    .add("  One or more Sponge patches could not be applied whilst loading Sponge, this is")
-                    .add("  a permanent error and you must either:")
-                    .add()
-                    .add("   * Use the correct build of Forge for this version of Sponge (%s)", forgeVer)
-                    .add()
-                    .add("   * Use a version of Sponge for built for your version of Forge")
-                    .add()
-                    .addWrapped("  The patch which failed requires Forge build: %s", forgeVer)
-                    .addWrapped("  but you are running build:                   %s", ForgeVersion.getVersion());
+                .add()
+                .add("Oh dear. It seems like this version of Sponge is not compatible with the version")
+                .add("of Forge you are running.")
+                .add()
+                .hr('-')
+                .add()
+                .add("A error was encountered whilst patching:")
+                .add()
+                .add("  One or more Sponge patches could not be applied whilst loading Sponge, this is")
+                .add("  a permanent error and you must either:")
+                .add()
+                .add("   * Use the correct build of Forge for this version of Sponge (%s)", forgeVer)
+                .add()
+                .add("   * Use a version of Sponge for built for your version of Forge")
+                .add()
+                .addWrapped("  The patch which failed requires Forge build: %s", forgeVer)
+                .addWrapped("  but you are running build:                   %s", ForgeVersion.getVersion());
         }
         String forgeMessage = forgeVer == null ? "is usually specified in the sponge mod's jar filename" : "version is for " + forgeVer;
 
@@ -210,4 +217,30 @@ public class MixinErrorHandler implements IMixinErrorHandler {
         }
         return this.itsAllGoneHorriblyWrong();
     }
+
+    
+    /**
+     * Get the names of loaded classes from the cache, filter using the supplied
+     * filter string
+     * 
+     * @param filter filter string or null
+     * @return set of class names
+     */
+    private static Set<String> getLoadedClasses(String filter) {
+        Map<String, Class<?>> cachedClasses = ReflectionHelper.<Map<String, Class<?>>, LaunchClassLoader>getPrivateValue(LaunchClassLoader.class,
+                Launch.classLoader, "cachedClasses");
+        
+        if (cachedClasses == null) {
+            return ImmutableSet.<String>of("Unable to determine classloader state");
+        }
+        
+        Set<String> loadedClasses = new HashSet<String>();
+        for (String className : cachedClasses.keySet()) {
+            if (filter == null || className.startsWith(filter)) {
+                loadedClasses.add(className);
+            }
+        }
+        return loadedClasses;
+    }
+
 }

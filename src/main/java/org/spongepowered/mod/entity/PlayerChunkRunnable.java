@@ -43,7 +43,8 @@ public class PlayerChunkRunnable implements Runnable {
     @Override
     public void run() {
         IMixinPlayerChunkMapEntry spongePlayerChunkMapEntry = (IMixinPlayerChunkMapEntry) this.playerChunkMapEntry;
-        Chunk chunk = this.playerChunkMap.getWorldServer().getChunkProvider().getLoadedChunk(this.playerChunkMapEntry.pos.chunkXPos, this.playerChunkMapEntry.pos.chunkZPos);
+        Chunk chunk = this.playerChunkMap.getWorldServer().getChunkProvider().getLoadedChunk(this.playerChunkMapEntry.pos.x,
+                this.playerChunkMapEntry.pos.z);
         if (chunk != null) {
             spongePlayerChunkMapEntry.setChunk(chunk);
             return;

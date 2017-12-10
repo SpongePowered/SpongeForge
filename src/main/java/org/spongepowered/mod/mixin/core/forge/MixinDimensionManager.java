@@ -33,6 +33,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLLog;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.WorldArchetype;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,11 +42,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.interfaces.world.IMixinWorldSettings;
 import org.spongepowered.common.world.WorldManager;
-import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +55,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 /**
  * This mixin redirects all logic in Forge to our WorldManager.
@@ -64,7 +68,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static int[] getDimensions(DimensionType type) {
-        return (int[]) (Object) WorldManager.getRegisteredDimensionIdsFor(type);
+        return WorldManager.getRegisteredDimensionIdsFor(type);
     }
 
     @Overwrite
@@ -74,7 +78,7 @@ public abstract class MixinDimensionManager {
 
     @Overwrite
     public static void registerDimension(int id, DimensionType type) {
-        WorldManager.registerDimension(id, type, false);
+        WorldManager.registerDimension(id, type);
     }
 
     @Overwrite
@@ -97,10 +101,9 @@ public abstract class MixinDimensionManager {
         final Optional<WorldServer> optWorldServer = WorldManager.getWorldByDimensionId(dim);
         if (optWorldServer.isPresent()) {
             return optWorldServer.get().provider;
-        } else {
-            SpongeImpl.getLogger().error("Attempt made to get a provider for dimension id [{}] but it has no provider!");
-            throw new RuntimeException();
         }
+        SpongeImpl.getLogger().error("Attempt made to get a provider for dimension id [{}] but it has no provider!");
+        throw new RuntimeException();
     }
 
     /**
@@ -148,10 +151,12 @@ public abstract class MixinDimensionManager {
     public static void setWorld(int id, WorldServer world, MinecraftServer server) {
         if (world != null) {
             WorldManager.forceAddWorld(id, world);
+            server.worldTickTimes.put(id, new long[100]);
             FMLLog.info("Loading dimension %d (%s) (%s)", id, world.getWorldInfo().getWorldName(), world.getMinecraftServer());
         } else {
             WorldManager.unloadWorld(WorldManager.getWorldByDimensionId(id).orElseThrow(() -> new RuntimeException("Attempt made to unload a "
                     + "world with dimension id [" + id + "].")), false);
+            server.worldTickTimes.remove(id);
         }
 
         WorldManager.reorderWorldsVanillaFirst();
@@ -189,18 +194,27 @@ public abstract class MixinDimensionManager {
         provider.setDimension(dim);
         String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(provider.getSaveFolder());
         WorldProperties properties = WorldManager.getWorldProperties(worldFolder).orElse(null);
-        if (properties == null) {
-            final WorldArchetype.Builder builder = WorldArchetype.builder()
-                    .dimension((org.spongepowered.api.world.DimensionType)(Object) dimensionType)
-                    .keepsSpawnLoaded(dimensionType.shouldLoadSpawn());
+        final Path worldPath = WorldManager.getCurrentSavesDirectory().get().resolve(worldFolder);
+        if (properties == null || !Files.isDirectory(worldPath)) {
+            if (properties != null) {
+                WorldManager.unregisterWorldProperties(properties, false);
+            }
             String modId = StaticMixinForgeHelper.getModIdFromClass(provider.getClass());
-            final WorldArchetype archetype = builder.build(modId + ":" + dimensionType.getName().toLowerCase(), dimensionType.getName());
-            properties = WorldManager.createWorldProperties(worldFolder, archetype);
+            WorldArchetype archetype = Sponge.getRegistry().getType(WorldArchetype.class, modId + ":" + dimensionType.getName().toLowerCase()).orElse(null);
+            if (archetype == null) {
+                final WorldArchetype.Builder builder = WorldArchetype.builder()
+                        .dimension((org.spongepowered.api.world.DimensionType) (Object) dimensionType)
+                        .keepsSpawnLoaded(dimensionType.shouldLoadSpawn());
+                archetype = builder.build(modId + ":" + dimensionType.getName().toLowerCase(), dimensionType.getName());
+            }
+            IMixinWorldSettings worldSettings = (IMixinWorldSettings) archetype;
+            worldSettings.setDimensionType((org.spongepowered.api.world.DimensionType) (Object) dimensionType);
+            worldSettings.setLoadOnStartup(false);
+            properties = WorldManager.createWorldProperties(worldFolder, archetype, dim);
             ((IMixinWorldInfo) properties).setDimensionId(dim);
+            ((IMixinWorldInfo) properties).setIsMod(true);
         }
         if (!properties.isEnabled()) {
-            SpongeImpl.getLogger().warn("World [{}] (DIM{}) is disabled. World will not be loaded...", worldFolder,
-                    dim);
             return;
         }
 
@@ -270,6 +284,7 @@ public abstract class MixinDimensionManager {
     }
 
     @Overwrite
+    @Nullable
     public static File getCurrentSaveRootDirectory() {
         final Optional<Path> optCurrentSavesDir = WorldManager.getCurrentSavesDirectory();
         return optCurrentSavesDir.isPresent() ? optCurrentSavesDir.get().toFile() : null;

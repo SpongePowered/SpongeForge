@@ -29,9 +29,25 @@ import org.spongepowered.api.event.cause.Cause;
 
 public interface IMixinEvent {
 
-    void syncDataToForge(Event spongeEvent);
+    /**
+     * Syncs event data from the Sponge event to the Forge equivalent
+     *
+     * <p>The event argument should be the Forge event if this object is a
+     * Sponge event and vice versa</p>
+     *
+     * @param event The event to sync with
+     */
+    void syncDataToForge(Event event);
 
-    void syncDataToSponge(Event forgeEvent);
+    /**
+     * Syncs event data from the Forge event to the Sponge equivalent
+     *
+     * <p>The event argument should be the Forge event if this object is a
+     * Sponge event and vice versa</p>
+     *
+     * @param event The event to sync with
+     */
+    void syncDataToSponge(Event event);
 
     Event createSpongeEvent();
 

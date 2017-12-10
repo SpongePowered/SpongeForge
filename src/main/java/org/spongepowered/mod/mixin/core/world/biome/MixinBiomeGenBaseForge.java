@@ -39,12 +39,12 @@ import org.spongepowered.asm.mixin.Shadow;
 @Implements(value = @Interface(iface = BiomeType.class, prefix = "super$") )
 public abstract class MixinBiomeGenBaseForge implements BiomeType {
 
-    @Shadow public BiomeDecorator theBiomeDecorator;
+    @Shadow public BiomeDecorator decorator;
 
     @Intrinsic(displace = true)
     public BiomeGenerationSettings super$createDefaultGenerationSettings(org.spongepowered.api.world.World world) {
-        if (this.theBiomeDecorator instanceof DeferredBiomeDecorator) {
-            ((DeferredBiomeDecorator) this.theBiomeDecorator).fireCreateEventAndReplace((Biome) (Object) this);
+        if (this.decorator instanceof DeferredBiomeDecorator) {
+            ((DeferredBiomeDecorator) this.decorator).fireCreateEventAndReplace((Biome) (Object) this);
         }
         return createDefaultGenerationSettings(world);
     }

@@ -51,7 +51,7 @@ public final class SpongeModMetadata {
         }
 
         try {
-            String source = SpongeJava6Bridge.modFile.toURI().toString();
+            String source = SpongeCoremod.modFile.toURI().toString();
             boolean isJar = source.endsWith(".jar");
 
             Enumeration<URL> urls = SpongeModMetadata.class.getClassLoader().getResources(McModInfo.STANDARD_FILENAME);

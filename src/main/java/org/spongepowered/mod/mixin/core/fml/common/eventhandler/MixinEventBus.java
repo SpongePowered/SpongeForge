@@ -26,13 +26,13 @@ package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -40,6 +40,7 @@ import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.eventhandler.ListenerList;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,6 +49,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.event.SpongeForgeEventHooks;
 import org.spongepowered.mod.event.SpongeModEventManager;
@@ -63,8 +65,6 @@ import java.util.Map;
 @Mixin(value = EventBus.class, remap = false)
 public abstract class MixinEventBus implements IMixinEventBus {
 
-    private EventBus eventBus = (EventBus) (Object) this;
-
     // Because Forge can't be bothered to keep track of this information itself
     private Map<IEventListener, Class<? extends Event>> forgeListenerRegistry = new HashMap<>();
 
@@ -73,9 +73,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     // Events that should not be posted on the event bus
     private boolean isEventAllowed(Event event) {
-        if (event instanceof PlayerInteractEvent.EntityInteract) {
-            return false;
-        } else if (event instanceof LivingDropsEvent) {
+        if (event instanceof LivingDropsEvent) {
             return false;
         } else if (event instanceof WorldEvent.Save) {
             return false;
@@ -95,47 +93,64 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     @Override
     public org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent) {
-        org.spongepowered.api.event.Event spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent);
-        IEventListener[] listeners = forgeEvent.getListenerList().getListeners(this.busID);
-        boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners);
-        if (!cancelled) {
-            SpongeForgeEventFactory.onForgePost(forgeEvent);
+        org.spongepowered.api.event.Event spongeEvent;
+        // Create a frame for the common event factory to push causes and contexts...
+        try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent);
+            IEventListener[] listeners = forgeEvent.getListenerList().getListeners(this.busID);
+            boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners);
+            if (!cancelled) {
+                SpongeForgeEventFactory.onForgePost(forgeEvent);
+            }
         }
 
         return spongeEvent;
     }
+    private static boolean isSpongeSetUp = false;
 
     @Override
     public boolean post(Event event, boolean forced) {
         org.spongepowered.api.event.Event spongeEvent = null;
-        if (!forced) {
-            if (!isEventAllowed(event)) {
+        if (!isSpongeSetUp) {
+            try {
+                Sponge.getCauseStackManager();
+            } catch (Exception e) {
                 return false;
             }
-            spongeEvent = SpongeForgeEventFactory.createSpongeEvent(event);
         }
-
-        IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
-        if (!forced && (event instanceof org.spongepowered.api.event.Event || spongeEvent != null) && !Sponge.getGame().getPlatform().getExecutionType().isClient()) {
-            boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, event, listeners);
-            if (!cancelled) {
-                SpongeForgeEventFactory.onForgePost(event);
+        isSpongeSetUp = true;
+        // TODO verify the frame is necessary here or if it can be placed elsewhere
+        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
+        try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
+            if (!forced) {
+                if (!isEventAllowed(event)) {
+                    return false;
+                }
+                spongeEvent = SpongeForgeEventFactory.createSpongeEvent(event);
             }
 
-            return cancelled;
-        } else {
+            IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
+            if (!forced && (event instanceof org.spongepowered.api.event.Event || spongeEvent != null) && !Sponge.getGame().getPlatform()
+                .getExecutionType().isClient()) {
+                boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, event, listeners);
+                if (!cancelled) {
+                    SpongeForgeEventFactory.onForgePost(event);
+                }
+
+                return cancelled;
+            }
             listeners = event.getListenerList().getListeners(this.busID);
             int index = 0;
             IMixinASMEventHandler modListener = null;
             try {
                 for (; index < listeners.length; index++) {
                     final IEventListener listener = listeners[index];
-                    if (listener instanceof IMixinASMEventHandler ) {
+                    if (listener instanceof IMixinASMEventHandler) {
                         modListener = (IMixinASMEventHandler) listener;
                         modListener.getTimingsHandler().startTimingIfSync();
-                        SpongeForgeEventHooks.preEventPhaseCheck(listener, event);
-                        listener.invoke(event);
-                        SpongeForgeEventHooks.postEventPhaseCheck(listener, event);
+                        try (PhaseContext<?> context = SpongeForgeEventHooks.preEventPhaseCheck(listener, event)) {
+                            listener.invoke(event);
+                        }
                         modListener.getTimingsHandler().stopTimingIfSync();
                     } else {
                         listener.invoke(event);
@@ -145,15 +160,15 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 if (modListener != null) {
                     modListener.getTimingsHandler().stopTimingIfSync();
                 }
-                this.exceptionHandler.handleException(this.eventBus, event, listeners, index, throwable);
-                Throwables.propagate(throwable);
+                this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
+                throw new RuntimeException(throwable);
             }
             return (event.isCancelable() ? event.isCanceled() : false);
         }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Redirect(method = "register(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/reflect/Method;Lnet/minecraftforge/fml/common/ModContainer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;register(ILnet/minecraftforge/fml/common/eventhandler/EventPriority;Lnet/minecraftforge/fml/common/eventhandler/IEventListener;)V"))
+    @Redirect(method = "register(Ljava/lang/Class;Ljava/lang/Object;Ljava/lang/reflect/Method;Lnet/minecraftforge/fml/common/ModContainer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;register(ILnet/minecraftforge/fml/common/eventhandler/EventPriority;Lnet/minecraftforge/fml/common/eventhandler/IEventListener;)V", remap = false))
     public void onRegister(ListenerList list, int id, EventPriority priority, IEventListener listener, Class<? extends Event> eventType, Object target, Method method, ModContainer owner) {
         list.register(id, priority, listener);
 
@@ -172,7 +187,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Redirect(method = "unregister", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;unregisterAll(ILnet/minecraftforge/fml/common/eventhandler/IEventListener;)V"))
+	@Redirect(method = "unregister", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/ListenerList;unregisterAll(ILnet/minecraftforge/fml/common/eventhandler/IEventListener;)V", remap = false))
     public void onUnregisterListener(int id, IEventListener listener) {
         ListenerList.unregisterAll(id, listener);
 

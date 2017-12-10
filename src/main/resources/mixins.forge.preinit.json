@@ -1,12 +1,13 @@
 {
     "required": true,
-    "minVersion": "0.5.7",
+    "minVersion": "0.7.2",
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "target": "@env(PREINIT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "forge.MixinUsernameCache",
+        "fml.common.MixinLoadController",
         "fml.common.MixinLoader",
         "fml.common.MixinModContainer",
         "fml.common.eventhandler.MixinASMEventHandler",

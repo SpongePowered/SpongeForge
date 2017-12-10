@@ -64,7 +64,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
             "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V";
 
     @Shadow private LanguageManager mcLanguageManager;
-    @Shadow private IntegratedServer theIntegratedServer;
+    @Shadow private IntegratedServer integratedServer;
 
     private GuiOverlayDebug debugGui;
     private Text kickMessage;
@@ -75,11 +75,11 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         this.isNewSave = true;
     }
 
-    @Redirect(method = "launchIntegratedServer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/Minecraft;theIntegratedServer:Lnet/minecraft/server/integrated/IntegratedServer;", ordinal = 0))
+    @Redirect(method = "launchIntegratedServer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/Minecraft;integratedServer:Lnet/minecraft/server/integrated/IntegratedServer;", ordinal = 0))
     public void onSetIntegratedServerField(Minecraft minecraft, IntegratedServer server) {
-        this.theIntegratedServer = server;
+        this.integratedServer = server;
         if (this.isNewSave) {
-            ((IMixinIntegratedServer) this.theIntegratedServer).markNewSave();
+            ((IMixinIntegratedServer) this.integratedServer).markNewSave();
         }
         this.isNewSave = false;
     }

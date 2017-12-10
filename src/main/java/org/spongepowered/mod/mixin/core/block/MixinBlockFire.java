@@ -28,7 +28,8 @@ import net.minecraft.block.BlockFire;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -45,7 +46,9 @@ public abstract class MixinBlockFire extends MixinBlock {
     @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z"), cancellable = true)
     private void onCatchFirePreCheck(World world, BlockPos pos, int chance, Random random, int age, EnumFacing facing, CallbackInfo callbackInfo) {
         if (!world.isRemote) {
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos, NamedCause.of(NamedCause.FIRE_SPREAD, world)).isCancelled()) {
+            // SpongeForge uses the firespread context key, todo verify if we want to use FireSpread or what.
+            Sponge.getCauseStackManager().addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
+            if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos).isCancelled()) {
                 callbackInfo.cancel();
             }
         }
@@ -54,7 +57,9 @@ public abstract class MixinBlockFire extends MixinBlock {
     @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockToAir(Lnet/minecraft/util/math/BlockPos;)Z"), cancellable = true)
     private void onCatchFirePreCheckOther(World world, BlockPos pos, int chance, Random random, int age, EnumFacing facing, CallbackInfo callbackInfo) {
         if (!world.isRemote) {
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos, NamedCause.of(NamedCause.FIRE_SPREAD, world)).isCancelled()) {
+            // SpongeForge uses the firespread context key, todo verify if we want to use FireSpread or what.
+            Sponge.getCauseStackManager().addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
+            if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos).isCancelled()) {
                 callbackInfo.cancel();
             }
         }

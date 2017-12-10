@@ -28,7 +28,7 @@ import net.minecraft.block.BlockAir;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
 
-@Mixin(targets = "net/minecraftforge/fml/common/registry/PersistentRegistryManager$BlockDummyAir")
+@Mixin(targets = "net/minecraftforge/registries/GameData$BlockCallbacks$BlockDummyAir")
 public abstract class MixinBlockDummyAir extends BlockAir implements IMixinBlock {
 
     @Override

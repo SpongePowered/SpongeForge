@@ -27,6 +27,7 @@ package org.spongepowered.mod.plugin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Singleton;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Optional;
 
 @NonnullByDefault
+@Singleton
 public class SpongeModPluginManager implements PluginManager {
 
     @Override
@@ -56,7 +58,7 @@ public class SpongeModPluginManager implements PluginManager {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Collection<PluginContainer> getPlugins() {
         return ImmutableList.copyOf((List) Loader.instance().getActiveModList());
     }

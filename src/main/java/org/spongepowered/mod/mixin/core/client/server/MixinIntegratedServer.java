@@ -45,7 +45,7 @@ import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
 @NonnullByDefault
 @Mixin(IntegratedServer.class)
 public abstract class MixinIntegratedServer extends MixinMinecraftServer implements IMixinIntegratedServer {
-    @Shadow @Final private WorldSettings theWorldSettings;
+    @Shadow @Final private WorldSettings worldSettings;
     @Shadow @Final private Minecraft mc;
     private boolean isNewSave;
 
@@ -59,7 +59,7 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
      */
     @Override
     @Overwrite
-    protected void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
+    public void loadAllWorlds(String overworldFolder, String unused, long seed, WorldType type, String generator) {
         super.loadAllWorlds(overworldFolder, unused, seed, type, generator);
     }
 
@@ -89,7 +89,7 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
 
     @Override
     public WorldSettings getSettings() {
-        return this.theWorldSettings;
+        return this.worldSettings;
     }
 
     @Override

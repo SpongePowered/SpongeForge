@@ -26,35 +26,77 @@ package org.spongepowered.mod.util;
 
 import com.google.common.collect.Lists;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKey;
+import org.spongepowered.api.event.cause.entity.damage.DamageFunction;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifierTypes;
-import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
-import org.spongepowered.api.util.Tuple;
+import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.event.damage.DamageEventHandler;
-import org.spongepowered.mod.interfaces.IMixinBlock;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
+import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
+import org.spongepowered.mod.SpongeMod;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.DoubleUnaryOperator;
 
 import javax.annotation.Nullable;
 
 public final class StaticMixinForgeHelper {
+
+    static final Map<String, EventContextKey<ItemStackSnapshot>> ARMOR_KEYS = new ConcurrentHashMap<>();
+    public static final EventContextKey<ISpecialArmor.ArmorProperties> ARMOR_PROPERTY = new EventContextKey<ISpecialArmor.ArmorProperties>() {
+        @Override
+        public Class<ISpecialArmor.ArmorProperties> getAllowedType() {
+            return ISpecialArmor.ArmorProperties.class;
+        }
+
+        @Override
+        public String getId() {
+            return "forge:ArmorProperty";
+        }
+
+        @Override
+        public String getName() {
+            return "ArmorProperty";
+        }
+    };
+    private static final EventContextKey<DamageEventObject> DAMAGE_MODIFIER_OBJECT = new EventContextKey<DamageEventObject>() {
+        @Override
+        public Class<DamageEventObject> getAllowedType() {
+            return DamageEventObject.class;
+        }
+
+        @Override
+        public String getId() {
+            return "sponge:damage_event_object";
+        }
+
+        @Override
+        public String getName() {
+            return "0xDEADBEEF";
+        }
+    };
 
     @Nullable
     public static IBlockState breakEventExtendedState = null;
@@ -67,7 +109,7 @@ public final class StaticMixinForgeHelper {
         return damageSource;
     }
 
-    public static Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> createArmorModifiers(
+    public static Optional<List<DamageFunction>> createArmorModifiers(
         EntityLivingBase entityLivingBase, DamageSource damageSource, double damage) {
         Iterable<ItemStack> inventory = entityLivingBase.getArmorInventoryList();
         final List<ItemStack> itemStacks = Lists.newArrayList(inventory);
@@ -84,7 +126,7 @@ public final class StaticMixinForgeHelper {
     }
 
     public static void acceptArmorModifier(EntityLivingBase entity, DamageSource damageSource, DamageModifier modifier, double damage) {
-        Optional<ISpecialArmor.ArmorProperties> property = modifier.getCause().first(ISpecialArmor.ArmorProperties.class);
+        Optional<ISpecialArmor.ArmorProperties> property = modifier.getCause().getContext().get(ARMOR_PROPERTY);
         final NonNullList<ItemStack> inventory = entity instanceof EntityPlayer ? ((EntityPlayer) entity).inventory.armorInventory : entity.armorArray;
         if (property.isPresent()) {
             ItemStack stack = inventory.get(property.get().Slot);
@@ -104,9 +146,9 @@ public final class StaticMixinForgeHelper {
 
     private static double damageToHandle;
 
-    private static Optional<List<Tuple<DamageModifier, Function<? super Double, Double>>>> createArmorModifiers(List<ISpecialArmor.ArmorProperties> dmgVals, List<ItemStack> inventory, double damage) {
+    private static Optional<List<DamageFunction>> createArmorModifiers(List<ISpecialArmor.ArmorProperties> dmgVals, List<ItemStack> inventory, double damage) {
         if (dmgVals.size() > 0) {
-            final List<Tuple<DamageModifier, Function<? super Double, Double>>> list = new ArrayList<>();
+            final List<DamageFunction> list = new ArrayList<>();
             ISpecialArmor.ArmorProperties[] props = dmgVals.toArray(new ISpecialArmor.ArmorProperties[dmgVals.size()]);
             sortProperties(props, damage);
             boolean first = true;
@@ -122,7 +164,7 @@ public final class StaticMixinForgeHelper {
                     object.previousDamage = damage;
                     object.augment = true;
                 }
-                Function<? super Double, Double> function = incomingDamage -> {
+                DoubleUnaryOperator function = incomingDamage -> {
                     incomingDamage *= 25;
                     if (object.augment) {
                         damageToHandle = incomingDamage;
@@ -148,14 +190,40 @@ public final class StaticMixinForgeHelper {
                 }
                 ratio += prop.AbsorbRatio;
 
+                EventContextKey<ItemStackSnapshot> contextKey = ARMOR_KEYS.get("armor:" + type.getId());
+                if (contextKey == null) {
+                    contextKey = new EventContextKey<ItemStackSnapshot>() {
+                        @Override
+                        public Class<ItemStackSnapshot> getAllowedType() {
+                            return ItemStackSnapshot.class;
+                        }
+
+                        @Override
+                        public String getId() {
+                            return "armor:" + type.getId();
+                        }
+
+                        @Override
+                        public String getName() {
+                            return type.getName();
+                        }
+                    };
+                    ARMOR_KEYS.put("armor: " + type.getId(), contextKey);
+                }
+
+                final ItemStack itemStack = inventory.get(prop.Slot);
                 DamageModifier modifier = DamageModifier.builder()
-                    .cause(Cause.of(NamedCause.of(DamageEntityEvent.GENERAL_ARMOR + ":" + type.getId(),
-                                                  ((org.spongepowered.api.item.inventory.ItemStack) (Object) inventory.get(prop.Slot)).createSnapshot()),
-                                    NamedCause.of("ArmorProperty", prop),
-                                    NamedCause.of("0xDEADBEEF", object)))
+                    .cause(Cause.of(
+                        EventContext.builder()
+                            .add(contextKey, ItemStackUtil.snapshotOf(itemStack))
+                            .add(ARMOR_PROPERTY, prop)
+                            .add(DAMAGE_MODIFIER_OBJECT, object)
+                        .build(),
+                        itemStack
+                    ))
                     .type(DamageModifierTypes.ARMOR)
                     .build();
-                list.add(new Tuple<>(modifier, function));
+                list.add(DamageFunction.of(modifier, function));
                 first = false;
             }
             return Optional.of(list);
@@ -164,7 +232,7 @@ public final class StaticMixinForgeHelper {
     }
 
     private static ISpecialArmor.ArmorProperties getProperties(EntityLivingBase base, ItemStack armorStack, DamageSource damageSource, double damage, int index) {
-        if (armorStack == null) {
+        if (armorStack.isEmpty()) {
             return null;
         }
         ISpecialArmor.ArmorProperties prop = null;
@@ -204,7 +272,7 @@ public final class StaticMixinForgeHelper {
                     for (int y = start; y <= x; y++) {
                         double newRatio = armor[y].AbsorbRatio / total;
                         if (newRatio * damage > armor[y].AbsorbMax) {
-                            armor[y].AbsorbRatio = (double) armor[y].AbsorbMax / damage;
+                            armor[y].AbsorbRatio = armor[y].AbsorbMax / damage;
                             total = 0;
                             for (int z = pStart; z <= y; z++) {
                                 total += armor[z].AbsorbRatio;
@@ -212,10 +280,9 @@ public final class StaticMixinForgeHelper {
                             start = y + 1;
                             x = y;
                             break;
-                        } else {
-                            armor[y].AbsorbRatio = newRatio;
-                            pFinished = true;
                         }
+                        armor[y].AbsorbRatio = newRatio;
+                        pFinished = true;
                     }
                     if (pChange && pFinished) {
                         damage -= (damage * total);
@@ -236,7 +303,7 @@ public final class StaticMixinForgeHelper {
                     for (int y = start; y <= x; y++) {
                         total -= armor[y].AbsorbRatio;
                         if (damage * armor[y].AbsorbRatio > armor[y].AbsorbMax) {
-                            armor[y].AbsorbRatio = (double) armor[y].AbsorbMax / damage;
+                            armor[y].AbsorbRatio = armor[y].AbsorbMax / damage;
                         }
                         total += armor[y].AbsorbRatio;
                     }
@@ -261,8 +328,9 @@ public final class StaticMixinForgeHelper {
 
     @SuppressWarnings("rawtypes")
     public static String getModIdFromClass(Class clazz) {
-        String modId = clazz.getName().contains("net.minecraft.") ? "minecraft" : "unknown";
-        String modPackage = clazz.getName().replace("." + clazz.getSimpleName(), "");
+        final String className = clazz.getName();
+        String modId = className.contains("net.minecraft.") ? "minecraft" : className.contains("org.spongepowered.") ? "sponge" : "unknown";
+        String modPackage = className.replace("." + clazz.getSimpleName(), "");
         for (ModContainer mc : Loader.instance().getActiveModList()) {
             if (mc.getOwnedPackages().contains(modPackage)) {
                 modId = mc.getModId();
@@ -273,12 +341,59 @@ public final class StaticMixinForgeHelper {
         return modId;
     }
 
-    @SuppressWarnings("deprecation")
-    public static int getChunkPosLight(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
-        if (((IMixinBlock) blockState.getBlock()).requiresLocationCheckForLightValue()) {
-            return blockState.getLightValue(worldObj, pos);
+    @SuppressWarnings("rawtypes")
+    @Nullable
+    public static ModContainer getModContainerFromClass(Class clazz) {
+        final String className = clazz.getName();
+        String modPackage = className.replace("." + clazz.getSimpleName(), "");
+        for (ModContainer mc : Loader.instance().getActiveModList()) {
+            if (mc.getOwnedPackages().contains(modPackage)) {
+                return mc;
+            }
         }
-        return blockState.getLightValue();
+
+        return null;
     }
 
+    public static void registerCustomEntity(EntityEntry entityEntry) {
+        if (EntityTypeRegistryModule.getInstance().entityClassToTypeMappings.get(entityEntry.getEntityClass()) != null) {
+            return;
+        }
+
+        final ModContainer modContainer = getModContainerFromClass(entityEntry.getEntityClass());
+        if (modContainer == null) {
+            return;
+        }
+
+        registerCustomEntity(entityEntry.getEntityClass(), entityEntry.getName(), EntityList.getID(entityEntry.getEntityClass()), modContainer);
+    }
+
+    public static void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, ModContainer modContainer) {
+        // fix bad entity name registrations from mods
+        final String[] parts = entityName.split(":");
+        if (parts.length > 1) {
+            entityName = parts[1];
+        }
+        if (entityName.contains(".")) {
+            if ((entityName.indexOf(".") + 1) < entityName.length()) {
+                entityName = entityName.substring(entityName.indexOf(".") + 1, entityName.length());
+            }
+        }
+
+        entityName = entityName.replace("entity", "");
+        if (entityName.startsWith("ent")) {
+            entityName = entityName.replace("ent", "");
+        }
+
+        entityName = entityName.replaceAll("[^A-Za-z0-9]", "");
+        String modId = "unknown";
+        if (modContainer != null) {
+            modId = modContainer.getModId();
+        }
+
+        if (!modContainer.equals(SpongeMod.instance)) {
+            SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass, null);
+            EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
+        }
+    }
 }

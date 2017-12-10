@@ -24,38 +24,28 @@
  */
 package org.spongepowered.mod.mixin.core.world.biome;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeDecorator;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Random;
 
 @Mixin(BiomeDecorator.class)
 public class MixinBiomeDecorator {
 
-    @Inject(method = "decorate", at = @At("HEAD"))
-    protected void onBiomeDecorateHead(World worldIn, Random random, Biome biome, BlockPos pos, CallbackInfo ci) {
-        if (!worldIn.isRemote) {
-            WorldServer world = (WorldServer) worldIn;
-            // don't allow chunks to load while decorating
-            // TODO - gabizou - evaluate whether this is still needed and whether we should be preventing chunk loads
-            // world.getChunkProvider().chunkLoadOverride = false;
-        }
-    }
-
-    @Inject(method = "decorate", at = @At("RETURN"))
-    protected void onBiomeDecorateReturn(World worldIn, Random random, Biome biome, BlockPos pos, CallbackInfo ci) {
-        if (!worldIn.isRemote) {
-            WorldServer world = (WorldServer) worldIn;
-            // decorate is finished, allow chunks to load
-            // TODO - gabizou - evaluate whether this is still needed and whether we should be preventing chunk loads
-            // world.theChunkProviderServer.chunkLoadOverride = true;
-        }
-    }
+    // TODO - gabizou - evaluate whether this is still needed and whether we should be preventing chunk loads
+//    @Inject(method = "decorate", at = @At("HEAD"))
+//    protected void onBiomeDecorateHead(World worldIn, Random random, Biome biome, BlockPos pos, CallbackInfo ci) {
+//        if (!worldIn.isRemote) {
+//            WorldServer world = (WorldServer) worldIn;
+//            // don't allow chunks to load while decorating
+//            world.getChunkProvider().chunkLoadOverride = false;
+//        }
+//    }
+//
+//    @Inject(method = "decorate", at = @At("RETURN"))
+//    protected void onBiomeDecorateReturn(World worldIn, Random random, Biome biome, BlockPos pos, CallbackInfo ci) {
+//        if (!worldIn.isRemote) {
+//            WorldServer world = (WorldServer) worldIn;
+//            // decorate is finished, allow chunks to load
+//            world.theChunkProviderServer.chunkLoadOverride = true;
+//        }
+//    }
 }

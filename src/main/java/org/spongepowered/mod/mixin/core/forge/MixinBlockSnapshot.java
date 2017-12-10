@@ -38,28 +38,27 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.block.SpongeBlockSnapshotBuilder;
+import org.spongepowered.common.interfaces.data.IMixinCustomDataHolder;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
+
+import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.common.util.BlockSnapshot.class, remap = false)
 public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
 
-    @Shadow @Final public BlockPos pos;
+    @Shadow @Final private BlockPos pos;
     @Shadow @Final private NBTTagCompound nbt;
-    @Shadow public transient IBlockState replacedBlock;
-    @Shadow public transient net.minecraft.world.World world;
-    @Shadow public int flag;
+    @Shadow @Nullable private  IBlockState replacedBlock;
 
-    @Shadow
-    public abstract void writeToNBT(NBTTagCompound compound);
+    @Shadow public abstract TileEntity getTileEntity();
 
-    @Shadow
-    public abstract TileEntity getTileEntity();
+    @Shadow public abstract net.minecraft.world.World getWorld();
 
     @Override
     public BlockSnapshot createSpongeBlockSnapshot() {
-        Location<World> location = new Location<>((World) this.world, VecHelper.toVector3i(this.pos));
+        Location<World> location = new Location<>((World) this.getWorld(), VecHelper.toVector3i(this.pos));
         SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
         builder.blockState((BlockState) this.replacedBlock)
                 .worldId(location.getExtent().getUniqueId())
@@ -70,9 +69,9 @@ public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
         TileEntity te = getTileEntity();
         if (te != null) {
             if (!te.hasWorld()) {
-                te.setWorld(this.world);
+                te.setWorld(this.getWorld());
             }
-            for (DataManipulator<?, ?> manipulator : ((org.spongepowered.api.block.tileentity.TileEntity) te).getContainers()) {
+            for (DataManipulator<?, ?> manipulator : ((IMixinCustomDataHolder) te).getCustomManipulators()) {
                 builder.add(manipulator);
             }
         }

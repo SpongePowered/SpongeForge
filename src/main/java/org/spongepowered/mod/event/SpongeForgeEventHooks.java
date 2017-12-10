@@ -24,77 +24,36 @@
  */
 package org.spongepowered.mod.event;
 
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.common.event.InternalNamedCauses;
-import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.plugin.PluginPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
-import org.spongepowered.common.world.WorldManager;
+
+import javax.annotation.Nullable;
 
 public final class SpongeForgeEventHooks {
 
-
-    public static void preEventPhaseCheck(IEventListener listener, Event event) {
-        if (!CauseTracker.ENABLED) {
-            return;
-        }
+    @Nullable
+    public static PhaseContext<?> preEventPhaseCheck(IEventListener listener, Event event) {
         if (event instanceof TickEvent.WorldTickEvent) {
             final TickEvent.WorldTickEvent worldTickEvent = (TickEvent.WorldTickEvent) event;
             if (!(worldTickEvent.world instanceof IMixinWorldServer)) {
-                return;
+                return null;
             }
             if (worldTickEvent.phase == TickEvent.Phase.START) {
-                final CauseTracker causeTracker = ((IMixinWorldServer) worldTickEvent.world).getCauseTracker();
-                causeTracker.switchToPhase(PluginPhase.Listener.PRE_WORLD_TICK_LISTENER, PhaseContext.start()
-                        .add(NamedCause.source(listener))
-                        .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
-                        .addCaptures()
-                        .player()
-                        .complete()
-                    );
-                // Need to prepare all worlds
-                for (WorldServer worldServer : WorldManager.getWorlds()) {
-                    if (worldServer == worldTickEvent.world) {
-                        continue;
-                    }
-                    final CauseTracker otherCauseTracker = ((IMixinWorldServer) worldServer).getCauseTracker();
-                    otherCauseTracker.switchToPhase(PluginPhase.Listener.PRE_WORLD_TICK_LISTENER, PhaseContext.start()
-                            .add(NamedCause.source(listener))
-                            .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
-                            .addCaptures()
-                            .player()
-                            .complete()
-                    );
-
-                }
+                return PluginPhase.Listener.PRE_WORLD_TICK_LISTENER
+                    .createPhaseContext()
+                    .source(listener)
+                    .event(event)
+                    .buildAndSwitch();
             } else if (worldTickEvent.phase == TickEvent.Phase.END) {
-                final CauseTracker causeTracker = ((IMixinWorldServer) worldTickEvent.world).getCauseTracker();
-                causeTracker.switchToPhase(PluginPhase.Listener.POST_WORLD_TICK_LISTENER, PhaseContext.start()
-                        .add(NamedCause.source(listener))
-                        .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
-                        .addCaptures()
-                        .player()
-                        .complete()
-                );
-                // Need to prepare all worlds
-                for (WorldServer worldServer : WorldManager.getWorlds()) {
-                    if (worldServer == worldTickEvent.world) {
-                        continue;
-                    }
-                    final CauseTracker otherCauseTracker = ((IMixinWorldServer) worldServer).getCauseTracker();
-                    otherCauseTracker.switchToPhase(PluginPhase.Listener.POST_WORLD_TICK_LISTENER, PhaseContext.start()
-                            .add(NamedCause.source(listener))
-                            .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
-                            .addCaptures()
-                            .player()
-                            .complete()
-                    );
-                }
+                return PluginPhase.Listener.POST_WORLD_TICK_LISTENER
+                    .createPhaseContext()
+                    .source(listener)
+                    .event(event)
+                    .buildAndSwitch();
             }
         }
         // Basically some forge mods also listen to the server tick event and perform world changes as well...........
@@ -102,76 +61,20 @@ public final class SpongeForgeEventHooks {
             final TickEvent.ServerTickEvent serverTickEvent = (TickEvent.ServerTickEvent) event;
             if (serverTickEvent.phase == TickEvent.Phase.START) {
                 // Need to prepare all worlds many mods do this
-                for (WorldServer worldServer : WorldManager.getWorlds()) {
-                    final CauseTracker otherCauseTracker = ((IMixinWorldServer) worldServer).getCauseTracker();
-                    otherCauseTracker.switchToPhase(PluginPhase.Listener.PRE_SERVER_TICK_LISTENER, PhaseContext.start()
-                            .add(NamedCause.source(listener))
-                            .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
-                            .addCaptures()
-                            .player()
-                            .complete()
-                    );
-                }
+                return PluginPhase.Listener.PRE_SERVER_TICK_LISTENER.createPhaseContext()
+                        .source(listener)
+                        .event(event)
+                        .buildAndSwitch();
             } else if (serverTickEvent.phase == TickEvent.Phase.END) {
-                // Need to prepare all worlds many mods use this
-                for (WorldServer worldServer : WorldManager.getWorlds()) {
-                    final CauseTracker otherCauseTracker = ((IMixinWorldServer) worldServer).getCauseTracker();
-                    otherCauseTracker.switchToPhase(PluginPhase.Listener.POST_SERVER_TICK_LISTENER, PhaseContext.start()
-                            .add(NamedCause.source(listener))
-                            .add(NamedCause.of(InternalNamedCauses.Tracker.TICK_EVENT, event))
-                            .addCaptures()
-                            .player()
-                            .complete()
-                    );
-                }
+                // Need to prepare all worlds many mods do this
+                return PluginPhase.Listener.POST_SERVER_TICK_LISTENER.createPhaseContext()
+                    .source(listener)
+                    .event(event)
+                    .buildAndSwitch();
+
             }
         }
+        return null;
     }
 
-    public static void postEventPhaseCheck(IEventListener listener, Event event) {
-        if (!CauseTracker.ENABLED) {
-            return;
-        }
-        if (event instanceof TickEvent.WorldTickEvent) {
-            final TickEvent.WorldTickEvent worldTickEvent = (TickEvent.WorldTickEvent) event;
-            if (!(worldTickEvent.world instanceof IMixinWorldServer)) {
-                return;
-            }
-            if (worldTickEvent.phase == TickEvent.Phase.START) {
-                final CauseTracker causeTracker = ((IMixinWorldServer) worldTickEvent.world).getCauseTracker();
-                causeTracker.completePhase();
-                // Need to complete all worlds
-                for (WorldServer worldServer : WorldManager.getWorlds()) {
-                    if (worldServer == worldTickEvent.world) {
-                        continue;
-                    }
-                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase();
-                }
-            } else if (worldTickEvent.phase == TickEvent.Phase.END) {
-                final CauseTracker causeTracker = ((IMixinWorldServer) worldTickEvent.world).getCauseTracker();
-                causeTracker.completePhase();
-                // Need to complete all worlds
-                for (WorldServer worldServer : WorldManager.getWorlds()) {
-                    if (worldServer == worldTickEvent.world) {
-                        continue;
-                    }
-                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase();
-                }
-            }
-        }
-        // Basically some forge mods also listen to the server tick event and perform world changes as well...........
-        if (event instanceof TickEvent.ServerTickEvent) {
-            final TickEvent.ServerTickEvent serverTickEvent = (TickEvent.ServerTickEvent) event;
-            if (serverTickEvent.phase == TickEvent.Phase.START) {
-
-                for (WorldServer worldServer : WorldManager.getWorlds()) {
-                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase();
-                }
-            } else if (serverTickEvent.phase == TickEvent.Phase.END) {
-                for (WorldServer worldServer : WorldManager.getWorlds()) {
-                    ((IMixinWorldServer) worldServer).getCauseTracker().completePhase();
-                }
-            }
-        }
-    }
 }

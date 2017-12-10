@@ -45,7 +45,7 @@ import java.util.List;
 
 /**
  * MixinLoader adds support for a second, user-defined, mods search directory.
- * 
+ *
  * <p>As well as supporting fully-qualified paths, the configured value can also
  * contain some pre-defined values which are supplied in the form of ant-style
  * tokens.</p>
@@ -54,14 +54,15 @@ import java.util.List;
 public abstract class MixinLoader {
 
     private ModContainer mod;
-    
+
     @Redirect(method = "identifyMods", at = @At(
         value = "INVOKE",
-        target = "Lnet/minecraftforge/fml/common/discovery/ModDiscoverer;findModDirMods(Ljava/io/File;[Ljava/io/File;)V"
+        target = "Lnet/minecraftforge/fml/common/discovery/ModDiscoverer;findModDirMods(Ljava/io/File;[Ljava/io/File;)V",
+        remap = false
     ))
     private void discoverMods(ModDiscoverer modDiscoverer, File modsDir, File[] additionalMods) {
         modDiscoverer.findModDirMods(modsDir, additionalMods);
-        
+
         File pluginsDir = this.getPluginsDir();
         if (pluginsDir.isDirectory() && !pluginsDir.equals(modsDir)) {
             FMLLog.info("Searching %s for plugins", pluginsDir.getAbsolutePath());
@@ -73,21 +74,21 @@ public abstract class MixinLoader {
     private void discoverPlugins(ModDiscoverer modDiscoverer, File pluginsDir) {
         modDiscoverer.findModDirMods(pluginsDir, new File[0]);
     }
-    
+
     @Unique
     private File getPluginsDir() {
         return new File(PathTokens.replace(SpongeImpl.getGlobalConfig().getConfig().getGeneral().pluginsDir()));
     }
 
     @Redirect(method = "sortModList", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/ModContainer;getDependencies"
-            + "()Ljava/util/List;"))
+            + "()Ljava/util/List;", remap = false))
     private List<ArtifactVersion> onGetDependencies(ModContainer mod) {
         this.mod = mod;
         return mod.getDependencies();
     }
 
     @Redirect(method = "sortModList", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/versioning/ArtifactVersion;containsVersion"
-            + "(Lnet/minecraftforge/fml/common/versioning/ArtifactVersion;)Z"))
+            + "(Lnet/minecraftforge/fml/common/versioning/ArtifactVersion;)Z", remap = false))
     private boolean onCheckContainsVersion(ArtifactVersion expected, ArtifactVersion installed) {
         String installedVersion = installed.getVersionString();
 
@@ -106,8 +107,8 @@ public abstract class MixinLoader {
                     // or if the installed version is lower than the recommended version
                     if (majorInstalled != null
                             && (!majorExpected.equals(majorInstalled) || installed.compareTo(range.getRecommendedVersion()) < 0)) {
-                        SpongeImpl.getLogger().warn("The mod {} was designed for {} {}. It may not work properly.",
-                                this.mod.getModId(), expected.getLabel(), expected.getRangeString());
+                        SpongeImpl.getLogger().warn("The mod {} was designed for {} {} but version {} is in use. It may not work properly.",
+                                this.mod.getModId(), expected.getLabel(), expected.getRangeString(), installed.getVersionString());
                     }
                 }
             }

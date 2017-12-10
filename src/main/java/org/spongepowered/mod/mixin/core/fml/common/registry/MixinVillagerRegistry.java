@@ -25,12 +25,11 @@
 package org.spongepowered.mod.mixin.core.fml.common.registry;
 
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
-import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
+import net.minecraft.util.registry.RegistryNamespaced;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
@@ -39,21 +38,23 @@ import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 @Mixin(value = VillagerRegistry.class, remap = false)
 public class MixinVillagerRegistry {
 
-    private static final String REGISTER_PROFESSION_ID = "register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerProfession;I)V";
-    private static final String
-            REGISTRY_REGISTER =
-            "Lnet/minecraftforge/fml/common/registry/FMLControlledNamespacedRegistry;register(ILnet/minecraft/util/ResourceLocation;Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;)V";
+    @Shadow RegistryNamespaced<ResourceLocation, VillagerRegistry.VillagerProfession> REGISTRY;
 
-    @SuppressWarnings("deprecation")
-    @Redirect(method = REGISTER_PROFESSION_ID, at = @At(value = "INVOKE", target = REGISTRY_REGISTER, remap = false), remap = false)
-    private void registerForgeVillager(FMLControlledNamespacedRegistry<VillagerRegistry.VillagerProfession> registry, int id, ResourceLocation name,
-            IForgeRegistryEntry<VillagerRegistry.VillagerProfession> thing) {
-        final VillagerRegistry.VillagerProfession villagerProfession = (VillagerRegistry.VillagerProfession) thing;
-        registry.register(id, name, villagerProfession);
-        final int professionId = registry.getId(villagerProfession);
-        final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) villagerProfession;
+    /**
+     * @author gabizou - July 1st, 2017
+     * @reason Rewrite the register method to join Sponge's villager registrations with forge's.
+     * For some auspiciouos reason, when trying to write a redirect, the redirect will fail...
+     *
+     * @param prof The profession being registered
+     * @param id The id being registered
+     */
+    @Overwrite
+    private void register(VillagerRegistry.VillagerProfession prof, int id) {
+        this.REGISTRY.register(id, ((IMixinVillagerProfession) prof).getName(), prof);
+        final int professionId = this.REGISTRY.getIDForObject(prof);
+        final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) prof;
         final SpongeProfession spongeProfession = new SpongeProfession(professionId, mixinProfession.getId(), mixinProfession.getProfessionName());
-        final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(villagerProfession, spongeProfession);
+        final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(prof, spongeProfession);
         ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
     }
 

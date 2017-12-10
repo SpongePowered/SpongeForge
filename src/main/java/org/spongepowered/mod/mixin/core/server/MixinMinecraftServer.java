@@ -47,17 +47,17 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
 
     @Override
     public long[] getWorldTickTimes(int dimensionId) {
-        return worldTickTimes.get(dimensionId);
+        return this.worldTickTimes.get(dimensionId);
     }
 
     @Override
     public void putWorldTickTimes(int dimensionId, long[] tickTimes) {
-        worldTickTimes.put(dimensionId, tickTimes);
+        this.worldTickTimes.put(dimensionId, tickTimes);
     }
 
     @Override
     public void removeWorldTickTimes(int dimensionId) {
-        worldTickTimes.remove(dimensionId);
+        this.worldTickTimes.remove(dimensionId);
     }
 
     @Override
@@ -73,7 +73,7 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
      * @return The world server, if available, or else the overworld
      */
     @Overwrite
-    public WorldServer worldServerForDimension(int dimensionId) {
+    public WorldServer getWorld(int dimensionId) {
         WorldServer ret = WorldManager.getWorldByDimensionId(dimensionId).orElse(null);
         if (ret == null) {
             DimensionManager.initDimension(dimensionId);

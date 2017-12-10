@@ -90,9 +90,8 @@ public interface MixinModContainer extends ModContainer {
         File source = getSource();
         if (source != null) {
             return Optional.of(source.toPath());
-        } else {
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     default Optional<?> getInstance() {

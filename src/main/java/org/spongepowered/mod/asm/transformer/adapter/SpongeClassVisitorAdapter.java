@@ -53,7 +53,7 @@ public class SpongeClassVisitorAdapter extends ClassVisitor {
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         // if the method is the one we want to transform
         if (name.equals(this.methodName) && desc.equals(this.methodDesc) && findSuperClass(this.className)) {
-            MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
+            MethodVisitor mv = this.cv.visitMethod(access, name, desc, signature, exceptions);
             return this.adapter.createMethodAdviceAdapter(Opcodes.ASM5, this.className, access, name, desc, mv);
         }
         return super.visitMethod(access, name, desc, signature, exceptions);

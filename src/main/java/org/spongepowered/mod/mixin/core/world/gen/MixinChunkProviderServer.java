@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.world.gen;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
@@ -33,7 +34,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.interfaces.world.IMixinDimensionType;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 
 @Mixin(value = ChunkProviderServer.class, priority = 1001)
@@ -41,12 +47,37 @@ public abstract class MixinChunkProviderServer implements IMixinChunkProviderSer
 
     @Shadow @Final public WorldServer world;
     @Shadow @Final public Long2ObjectMap<Chunk> id2ChunkMap;
+    @Shadow public abstract Chunk loadChunk(int x, int z);
+    @Shadow public abstract void saveChunkExtraData(Chunk chunkIn);
 
-    @Inject(method = "tick", at = @At("RETURN"))
-    public void onTickReturn(CallbackInfoReturnable<Boolean> cir) {
-        // Remove forge's persistent chunk check since we cache it in the chunk
-        if (id2ChunkMap.size() == 0 && !this.world.provider.getDimensionType().shouldLoadSpawn()){
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;saveChunkExtraData(Lnet/minecraft/world/chunk/Chunk;)V"))
+    public void onSaveExtraChunkData(ChunkProviderServer chunkProviderServer, Chunk chunkIn) {
+        this.saveChunkExtraData(chunkIn);
+        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(chunkIn.x, chunkIn.z), chunkIn);
+    }
+
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = Shift.AFTER, remap = false))
+    public void onUnloadQueuedChunksReturn(CallbackInfoReturnable<Boolean> cir) {
+        // Remove forge's persistent chunk check since we cache it in the chunk. Only unload the world if we're not the overworld and we're told that
+        // we are not to keep spawn loaded (which is our flag to keep the world loaded)
+        // TODO Consider splitting this into two flags: keep-spawn-loaded and keep-world-loaded
+        if (this.id2ChunkMap.size() == 0 && ((IMixinWorldServer) this.world).getDimensionId() != 0 && !SpongeImplHooks.shouldKeepSpawnLoaded(this
+                .world.provider.getDimensionType(), ((IMixinWorldServer) this.world).getDimensionId())) {
             net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
         }
+    }
+
+    /**
+     * @author Aaron1011 - January 28, 2017
+     * @reason In SpongeVanilla, it's safe to run this method instead of loadChunk,
+     * since the only modification made is the removal of a check we've already done.
+     *
+     * However, loadChunk is completely different in Forge. therefore, we need to delegate to
+     * the original method to ensure that async loadig gets handled properly (Forge's code properly
+     * handles a concurrent asychronous load of the same chunk).
+     *
+     */
+    private Chunk loadChunkForce(int x, int z) {
+        return this.loadChunk(x, z);
     }
 }

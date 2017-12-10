@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.fml.common.registry;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,15 +35,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
-@Mixin(value = VillagerRegistry.VillagerProfession.class, remap = false)
-public abstract class MixinVillagerProfession implements IMixinVillagerProfession {
+import java.util.List;
 
-    private static final String REGISTER = "Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerProfession;register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerCareer;)V";
+@Mixin(value = VillagerRegistry.VillagerProfession.class, remap = false)
+public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<VillagerRegistry.VillagerProfession> implements IMixinVillagerProfession {
+
     @Shadow private ResourceLocation name;
+    @Shadow private List<VillagerRegistry.VillagerCareer> careers;
 
     @Override
     public String getId() {
-        return this.name.toString();
+        return this.getRegistryName().toString();
+    }
+
+    @Override
+    public List<VillagerRegistry.VillagerCareer> getCareers() {
+        return this.careers;
+    }
+
+    @Override
+    public ResourceLocation getName() {
+        return this.name;
     }
 
     @Override
@@ -50,7 +63,8 @@ public abstract class MixinVillagerProfession implements IMixinVillagerProfessio
         return this.name.getResourcePath();
     }
 
-    @Inject(method = REGISTER, at = @At(value = "RETURN"), remap = false)
+    @Inject(method = "register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerCareer;)V",
+            at = @At(value = "RETURN"), remap = false)
     private void registerForgeCareer(VillagerRegistry.VillagerCareer career, CallbackInfo callbackInfo) {
         SpongeForgeVillagerRegistry.registerForgeCareer(career);
     }

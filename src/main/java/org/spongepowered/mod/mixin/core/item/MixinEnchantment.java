@@ -24,14 +24,14 @@
  */
 package org.spongepowered.mod.mixin.core.item;
 
-import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.enchantment.EnchantmentType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(net.minecraft.enchantment.Enchantment.class)
-public abstract class MixinEnchantment implements Enchantment {
+public abstract class MixinEnchantment implements EnchantmentType {
 
     @Shadow public abstract boolean canApply(net.minecraft.item.ItemStack stack);
     @Shadow(remap = false)
@@ -39,7 +39,7 @@ public abstract class MixinEnchantment implements Enchantment {
 
     @Override
     public boolean canBeAppliedToStack(ItemStack stack) {
-        return (stack.getItem() == ItemTypes.BOOK) ? isAllowedOnBooks() : canApply((net.minecraft.item.ItemStack) (Object) stack);
+        return (stack.getType() == ItemTypes.BOOK) ? isAllowedOnBooks() : canApply((net.minecraft.item.ItemStack) (Object) stack);
     }
 
 }

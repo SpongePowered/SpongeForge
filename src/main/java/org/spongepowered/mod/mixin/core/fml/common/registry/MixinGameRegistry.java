@@ -28,24 +28,18 @@ import co.aikar.timings.SpongeTimingsFactory;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
 import com.google.common.collect.Maps;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraftforge.fml.common.IWorldGenerator;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
-import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
-import org.spongepowered.common.registry.type.effect.SoundRegistryModule;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Map;
@@ -57,18 +51,12 @@ public class MixinGameRegistry {
 
     private static final String WORLD_GENERATOR_GENERATE =
             "Lnet/minecraftforge/fml/common/IWorldGenerator;generate("
-            + "Ljava/util/Random;IILnet/minecraft/world/World;Lnet/minecraft/world/chunk/IChunkGenerator;"
+            + "Ljava/util/Random;IILnet/minecraft/world/World;Lnet/minecraft/world/gen/IChunkGenerator;"
             + "Lnet/minecraft/world/chunk/IChunkProvider;)V";
-
-    private static final String REGISTER = "register(Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;)"
-            + "Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;";
-
-    private static final String REGISTER_WITH_LOCATION = "register(Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;"
-            + "Lnet/minecraft/util/ResourceLocation;)Lnet/minecraftforge/fml/common/registry/IForgeRegistryEntry;";
-
+    
     private static Map<Class<?>, Timing> worldGeneratorTimings = Maps.newHashMap();
 
-    @Redirect(method = "generateWorld", at = @At(value = "INVOKE", target = WORLD_GENERATOR_GENERATE))
+    @Redirect(method = "generateWorld", at = @At(value = "INVOKE", target = WORLD_GENERATOR_GENERATE, remap = false))
     private static void onGenerateWorld(IWorldGenerator worldGenerator, Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider) {
         Timing timing = null;
         if (Timings.isTimingsEnabled()) {
