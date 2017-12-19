@@ -277,10 +277,12 @@ public abstract class MixinSpongeImplHooks {
      */
     @Overwrite
     public static void onTileChunkUnload(TileEntity te) {
-        try (final PhaseContext<?> o = BlockPhase.State.TILE_CHUNK_UNLOAD.createPhaseContext()
-                                .source(te)
-                                .buildAndSwitch()) {
-            te.onChunkUnload();
+        if (!te.getWorld().isRemote) {
+            try (final PhaseContext<?> o = BlockPhase.State.TILE_CHUNK_UNLOAD.createPhaseContext()
+                .source(te)
+                .buildAndSwitch()) {
+                te.onChunkUnload();
+            }
         }
     }
 
