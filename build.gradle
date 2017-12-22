@@ -115,4 +115,6 @@ reobf {
     }
 }
 
+sourceSets.java6.runtimeClasspath += sourceSets.main.runtimeClasspath
+
 apply from: 'changelog.gradle'
