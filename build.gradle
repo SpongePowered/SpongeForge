@@ -103,6 +103,8 @@ tasks.withType(ShadowJar) {
     }
 }
 
+sourceSets.java6.runtimeClasspath += sourceSets.main.runtimeClasspath
+
 reobf {
     jar {
         extraFiles 'extraSrg.srg'
