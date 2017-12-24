@@ -134,9 +134,9 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.EntityUtil;
-import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.general.UnwindingPhaseContext;
 import org.spongepowered.common.event.tracking.phase.packet.PacketContext;
 import org.spongepowered.common.interfaces.IMixinInitCause;
@@ -192,6 +192,12 @@ public class SpongeForgeEventFactory {
         }
         if (ChangeBlockEvent.Place.class.isAssignableFrom(clazz)) {
             return BlockEvent.PlaceEvent.class;
+        }
+        if (ExplosionEvent.Pre.class.isAssignableFrom(clazz)) {
+            return net.minecraftforge.event.world.ExplosionEvent.Start.class;
+        }
+        if (ExplosionEvent.Detonate.class.isAssignableFrom(clazz)) {
+            return net.minecraftforge.event.world.ExplosionEvent.Detonate.class;
         }
         if (DropItemEvent.Destruct.class.isAssignableFrom(clazz)) {
             return LivingDropsEvent.class;
@@ -540,6 +546,10 @@ public class SpongeForgeEventFactory {
             return callChunkLoadEvent(spongeEvent);
         } else if (ChunkEvent.Unload.class.isAssignableFrom(clazz)) {
             return callChunkUnloadEvent(spongeEvent);
+        } else if (net.minecraftforge.event.world.ExplosionEvent.Start.class.isAssignableFrom(clazz)) {
+            return callExplosionEventPre(spongeEvent);
+        } else if (net.minecraftforge.event.world.ExplosionEvent.Detonate.class.isAssignableFrom(clazz)) {
+            return callExplosionEventDetonate(spongeEvent);
         }
         return spongeEvent;
     }
@@ -632,7 +642,7 @@ public class SpongeForgeEventFactory {
             return null;
         }
 
-        AttackEntityEvent forgeEvent = new AttackEntityEvent((EntityPlayer) player.get(), (net.minecraft.entity.Entity) spongeEvent.getTargetEntity());
+        AttackEntityEvent forgeEvent = new AttackEntityEvent((EntityPlayer) player.get(), (Entity) spongeEvent.getTargetEntity());
         return forgeEvent;
     }
 
@@ -1014,14 +1024,14 @@ public class SpongeForgeEventFactory {
 
         while (iterator.hasNext()) {
             org.spongepowered.api.entity.Entity entity = iterator.next();
-            EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((net.minecraft.entity.Entity) entity,
+            EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((Entity) entity,
                     (net.minecraft.world.World) entity.getLocation().getExtent());
 
             boolean prev = StaticMixinForgeHelper.preventInternalForgeEntityListener;
             StaticMixinForgeHelper.preventInternalForgeEntityListener = true;
             ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
             StaticMixinForgeHelper.preventInternalForgeEntityListener = prev;
-            net.minecraft.entity.Entity mcEntity = (net.minecraft.entity.Entity) entity;
+            Entity mcEntity = (Entity) entity;
             if (mcEntity.isDead) {
                 // Don't restore packet item if a mod wants it dead
                 // Mods such as Flux-Networks kills the entity item to spawn a custom one
@@ -1201,6 +1211,43 @@ public class SpongeForgeEventFactory {
                     spongeEvent.setCancelled(true);
                 }
             }
+        }
+        return spongeEvent;
+    }
+
+    private static ExplosionEvent.Pre callExplosionEventPre(Event event) {
+        ExplosionEvent.Pre spongeEvent = (ExplosionEvent.Pre) event;
+
+        net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent = new net.minecraftforge.event.world.ExplosionEvent.Start(
+                ((net.minecraft.world.World) spongeEvent.getTargetWorld()), ((Explosion) ((ExplosionEvent.Pre) event).getExplosion()));
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+        if (forgeEvent.isCanceled()) {
+            spongeEvent.setCancelled(true);
+        }
+        return spongeEvent;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static ExplosionEvent.Detonate callExplosionEventDetonate(Event event) {
+        ExplosionEvent.Detonate spongeEvent = (ExplosionEvent.Detonate) event;
+
+        Explosion explosion = (Explosion) spongeEvent.getExplosion();
+        net.minecraftforge.event.world.ExplosionEvent.Detonate forgeEvent = new net.minecraftforge.event.world.ExplosionEvent.Detonate(
+                (net.minecraft.world.World) spongeEvent.getTargetWorld(), explosion,
+                (List<Entity>) (List<?>) spongeEvent.getEntities());
+        explosion.getAffectedBlockPositions().clear();
+        for (Location<World> x : spongeEvent.getAffectedLocations()) {
+            explosion.getAffectedBlockPositions().add(VecHelper.toBlockPos(x.getPosition()));
+        }
+
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+
+        if (forgeEvent.isCanceled()) {
+            spongeEvent.setCancelled(true);
+        }
+        ((ExplosionEvent.Detonate) event).getAffectedLocations().clear();
+        for (BlockPos pos : forgeEvent.getAffectedBlocks()) {
+            ((ExplosionEvent.Detonate) event).getAffectedLocations().add(new Location<>(spongeEvent.getTargetWorld(), VecHelper.toVector3i(pos)));
         }
         return spongeEvent;
     }
