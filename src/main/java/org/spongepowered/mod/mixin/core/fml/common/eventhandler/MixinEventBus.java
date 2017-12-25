@@ -120,7 +120,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         }
         isSpongeSetUp = true;
         // TODO verify the frame is necessary here or if it can be placed elsewhere
-        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
+        final boolean isMainThread = SpongeImpl.isMainThread();
         try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
             if (!forced) {
                 if (!isEventAllowed(event)) {
