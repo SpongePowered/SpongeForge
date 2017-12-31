@@ -74,6 +74,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.action.LightningEvent;
@@ -325,7 +326,16 @@ public class SpongeModEventManager extends SpongeEventManager {
                         ((AbstractEvent) event).currentOrder = listener.getOrder();
                     }
 
-                    listener.handle(event);
+                    final boolean mainThread = !Sponge.isServerAvailable() || Sponge.getServer().isMainThread();
+                    if (mainThread) {
+                        Sponge.getCauseStackManager().pushCause(listener.getPlugin());
+                        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                            listener.handle(event);
+                        }
+                        Sponge.getCauseStackManager().popCause();
+                    } else {
+                        listener.handle(event);
+                    }
                 }
             } catch (Throwable e) {
                 this.logger.error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
