@@ -102,6 +102,7 @@ import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
@@ -321,12 +322,11 @@ public class SpongeModEventManager extends SpongeEventManager {
                 if (forced || (!listener.isBeforeModifications() && !beforeModifications)
                         || (listener.isBeforeModifications() && beforeModifications)) {
                     listener.getTimingsHandler().startTimingIfSync();
-
                     if (event instanceof AbstractEvent) {
                         ((AbstractEvent) event).currentOrder = listener.getOrder();
                     }
 
-                    final boolean mainThread = !Sponge.isServerAvailable() || Sponge.getServer().isMainThread();
+                    final boolean mainThread = SpongeImpl.isMainThread();
                     if (mainThread) {
                         Sponge.getCauseStackManager().pushCause(listener.getPlugin());
                         try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
@@ -360,7 +360,6 @@ public class SpongeModEventManager extends SpongeEventManager {
         if (!allowClientThread & Sponge.getGame().getPlatform().getExecutionType().isClient()) {
             return false;
         }
-
         if (spongeEvent.getClass().getInterfaces().length > 0) {
             Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent);
             if (clazz != null) {
