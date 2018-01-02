@@ -102,7 +102,6 @@ import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
@@ -229,8 +228,15 @@ public class SpongeModEventManager extends SpongeEventManager {
         super(logger, pluginManager);
     }
 
+    public static boolean shouldUseCauseStackManager(boolean allowClientThread) {
+        final boolean client = Sponge.getGame().getPlatform().getExecutionType().isClient();
+        final boolean hasServer = Sponge.isServerAvailable();
+        return (allowClientThread && client && !hasServer) || (hasServer && Sponge.getServer().isMainThread());
+    }
+
     // Uses Forge mixins
-    public boolean post(Event spongeEvent, net.minecraftforge.fml.common.eventhandler.Event forgeEvent, IEventListener[] listeners) {
+    public boolean post(Event spongeEvent, net.minecraftforge.fml.common.eventhandler.Event forgeEvent, IEventListener[] listeners,
+            boolean useCauseStackManager) {
         checkNotNull(forgeEvent, "forgeEvent");
 
         if (spongeEvent == null) { // Fired by Forge
@@ -241,7 +247,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
-            post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
+            post(spongeEvent, listenerCache.getListenersByOrder(order), true, false, useCauseStackManager);
         }
 
         // If there are no forge listeners for event, skip sync
@@ -275,7 +281,7 @@ public class SpongeModEventManager extends SpongeEventManager {
 
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
-            post(spongeEvent, listenerCache.getListenersByOrder(order), false, false);
+            post(spongeEvent, listenerCache.getListenersByOrder(order), false, false, useCauseStackManager);
         }
 
         if (spongeEvent instanceof Cancellable && spongeEvent != forgeEvent) {
@@ -287,13 +293,13 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     // Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
-    public boolean post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
+    private boolean post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz, boolean useCauseStackManager) {
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         SpongeForgeEventFactory.handlePrefireLogic(spongeEvent);
 
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
-            post(spongeEvent, listenerCache.getListenersByOrder(order), true, false);
+            post(spongeEvent, listenerCache.getListenersByOrder(order), true, false, useCauseStackManager);
         }
 
         boolean cancelled = false;
@@ -306,14 +312,15 @@ public class SpongeModEventManager extends SpongeEventManager {
 
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
-            post(spongeEvent, listenerCache.getListenersByOrder(order), false, false);
+            post(spongeEvent, listenerCache.getListenersByOrder(order), false, false, useCauseStackManager);
         }
 
         return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
     }
 
     @SuppressWarnings("unchecked")
-    protected boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced) {
+    private boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced,
+            boolean useCauseStackManager) {
         ModContainer oldContainer = ((IMixinLoadController) SpongeMod.instance.getController()).getActiveModContainer();
         for (@SuppressWarnings("rawtypes")
         RegisteredListener listener : listeners) {
@@ -325,11 +332,9 @@ public class SpongeModEventManager extends SpongeEventManager {
                     if (event instanceof AbstractEvent) {
                         ((AbstractEvent) event).currentOrder = listener.getOrder();
                     }
-
-                    final boolean mainThread = SpongeImpl.isMainThread();
-                    if (mainThread) {
+                    if (useCauseStackManager) {
                         Sponge.getCauseStackManager().pushCause(listener.getPlugin());
-                        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                        try (CauseStackManager.StackFrame ignored = Sponge.getCauseStackManager().pushCauseFrame()) {
                             listener.handle(event);
                         }
                         Sponge.getCauseStackManager().popCause();
@@ -351,23 +356,18 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     @Override
-    public boolean post(Event event) {
-        return this.post(event, false);
-    }
-
-    @Override
     public boolean post(Event spongeEvent, boolean allowClientThread) {
         if (!allowClientThread & Sponge.getGame().getPlatform().getExecutionType().isClient()) {
             return false;
         }
+        final boolean useCauseStackManager = shouldUseCauseStackManager(allowClientThread);
         if (spongeEvent.getClass().getInterfaces().length > 0) {
             Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent);
             if (clazz != null) {
-                return post(spongeEvent, clazz);
+                return post(spongeEvent, clazz, useCauseStackManager);
             }
         }
         // no checking for modifications required
-        return post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true);
+        return post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true, useCauseStackManager);
     }
-
 }

@@ -57,6 +57,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.effect.potion.PotionEffectType;
@@ -97,7 +98,6 @@ import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.event.SpongeEventHooks;
-import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.inject.SpongeForgeModule;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
@@ -229,7 +229,7 @@ public class SpongeMod extends MetaModContainer {
         // We can't control Guava's event bus priority, so
         // we make sure to avoid double-firing here.
         if (!event.getClass().equals(FMLConstructionEvent.class)) {
-            ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post((Event) event, true);
+            SpongeImpl.postEvent((Event) event, true);
         }
     }
 
@@ -331,6 +331,9 @@ public class SpongeMod extends MetaModContainer {
 
     @Subscribe
     public void onServerStarted(FMLServerStartedEvent event) {
+        // Call this also here instead of the SpongeBootstrap, this
+        // is necessary in the client
+        Sponge.getServer().getConsole().getContainingCollection();
         // This is intentionally called multiple times on the client -
         // once for each time a new server is started (when a world is selected from the gui)
         SpongePlayerDataHandler.init();

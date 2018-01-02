@@ -37,7 +37,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.StateRegistry;
 import org.spongepowered.mod.interfaces.IMixinLoadController;
 
@@ -60,7 +59,7 @@ public abstract class MixinLoadController implements IMixinLoadController {
         SpongeImpl.getGame().setState(StateRegistry.getState(state));
         eventBus.post(event);
         if (state == LoaderState.CONSTRUCTING) {
-            ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post((Event) event, true);
+            SpongeImpl.postEvent((Event) event, true);
         }
     }
 
