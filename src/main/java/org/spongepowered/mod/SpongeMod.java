@@ -229,7 +229,7 @@ public class SpongeMod extends MetaModContainer {
         // We can't control Guava's event bus priority, so
         // we make sure to avoid double-firing here.
         if (!event.getClass().equals(FMLConstructionEvent.class)) {
-            ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post((Event) event, true);
+            SpongeImpl.getGame().getEventManager().post((Event) event);
         }
     }
 
