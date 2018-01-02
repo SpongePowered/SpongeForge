@@ -57,6 +57,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.effect.potion.PotionEffectType;
@@ -331,6 +332,9 @@ public class SpongeMod extends MetaModContainer {
 
     @Subscribe
     public void onServerStarted(FMLServerStartedEvent event) {
+        // Call this also here instead of the SpongeBootstrap, this
+        // is necessary in the client
+        Sponge.getServer().getConsole().getContainingCollection();
         // This is intentionally called multiple times on the client -
         // once for each time a new server is started (when a world is selected from the gui)
         SpongePlayerDataHandler.init();
