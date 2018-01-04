@@ -34,6 +34,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemDoor;
@@ -151,7 +152,9 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
 
             // Some mods such as OpenComputers open a GUI on client-side
             // To workaround this, we will always send a SPacketCloseWindow to client if interacting with a TE
-            if (tileEntity != null) {
+            // However, we skip closing it if an inventory has already been opened on the server (e.g. by a plugin),
+            // since we don't want to undo that
+            if (tileEntity != null && this.player.openContainer instanceof ContainerPlayer) {
                 this.player.closeScreen();
             }
             SpongeCommonEventFactory.interactBlockEventCancelled = true;
