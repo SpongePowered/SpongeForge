@@ -96,7 +96,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
             spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent);
             IEventListener[] listeners = forgeEvent.getListenerList().getListeners(this.busID);
-            boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners);
+            boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners, true);
             if (!cancelled) {
                 SpongeForgeEventFactory.onForgePost(forgeEvent);
             }
@@ -118,7 +118,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         }
         isSpongeSetUp = true;
         // TODO verify the frame is necessary here or if it can be placed elsewhere
-        final boolean isMainThread = SpongeImpl.isMainThread();
+        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
         try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
             if (!forced) {
                 if (!isEventAllowed(event)) {
@@ -130,7 +130,8 @@ public abstract class MixinEventBus implements IMixinEventBus {
             IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
             if (!forced && (event instanceof org.spongepowered.api.event.Event || spongeEvent != null) && !Sponge.getGame().getPlatform()
                 .getExecutionType().isClient()) {
-                boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, event, listeners);
+                boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(
+                        spongeEvent, event, listeners, SpongeModEventManager.shouldUseCauseStackManager(false));
                 if (!cancelled) {
                     SpongeForgeEventFactory.onForgePost(event);
                 }
