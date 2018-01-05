@@ -59,7 +59,7 @@ public abstract class MixinLoadController implements IMixinLoadController {
         SpongeImpl.getGame().setState(StateRegistry.getState(state));
         eventBus.post(event);
         if (state == LoaderState.CONSTRUCTING) {
-            SpongeImpl.getGame().getEventManager().post((Event) event);
+            SpongeImpl.postEvent((Event) event, true);
         }
     }
 
