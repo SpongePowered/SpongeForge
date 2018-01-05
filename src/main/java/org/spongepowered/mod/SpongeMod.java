@@ -98,7 +98,6 @@ import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.event.SpongeEventHooks;
-import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.inject.SpongeForgeModule;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
@@ -230,7 +229,7 @@ public class SpongeMod extends MetaModContainer {
         // We can't control Guava's event bus priority, so
         // we make sure to avoid double-firing here.
         if (!event.getClass().equals(FMLConstructionEvent.class)) {
-            SpongeImpl.getGame().getEventManager().post((Event) event);
+            SpongeImpl.postEvent((Event) event, true);
         }
     }
 
