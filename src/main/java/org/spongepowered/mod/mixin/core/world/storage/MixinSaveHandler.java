@@ -40,6 +40,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.IMixinSaveHandler;
 import org.spongepowered.common.plugin.PluginContainerExtension;
 import org.spongepowered.mod.SpongeMod;
@@ -84,7 +85,12 @@ public abstract class MixinSaveHandler {
             if (this.modWorldDirectory != null) {
                 cir.setReturnValue(this.modWorldDirectory);
             } else {
-                this.modWorldDirectory = new File(".", Sponge.getServer().getDefaultWorldName());
+                final String defaultWorldName = Sponge.getServer().getDefaultWorldName();
+                final String defaultWorldPath = Sponge.getPlatform().getType().isClient() ? "saves" + File.separator + defaultWorldName :
+                        defaultWorldName;
+
+                this.modWorldDirectory = SpongeImpl.getGameDir().resolve(defaultWorldPath).toFile();
+
                 cir.setReturnValue(this.modWorldDirectory);
             }
         }
