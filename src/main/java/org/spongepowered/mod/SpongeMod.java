@@ -230,7 +230,7 @@ public class SpongeMod extends MetaModContainer {
 
     @Override
     public Class<?> getCustomResourcePackClass() {
-        if (getSource().isDirectory()) {
+        if (this.getSource().isDirectory()) {
             return FMLFolderResourcePack.class;
         }
         return FMLFileResourcePack.class;
@@ -291,7 +291,7 @@ public class SpongeMod extends MetaModContainer {
     public void onPreInit(FMLPreInitializationEvent event) {
         try {
             SpongeImpl.getGame().getEventManager().registerListeners(SpongeImpl.getPlugin().getInstance().get(), SpongeInternalListeners.getInstance());
-            registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
+            this.registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.initializeCommands();
             SpongeImpl.getRegistry().preInit();

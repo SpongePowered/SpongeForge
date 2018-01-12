@@ -47,48 +47,35 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.Explosion;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
-import net.minecraftforge.event.terraingen.BiomeEvent;
-import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
-import net.minecraftforge.event.terraingen.InitMapGenEvent;
-import net.minecraftforge.event.terraingen.InitNoiseGensEvent;
-import net.minecraftforge.event.terraingen.OreGenEvent;
-import net.minecraftforge.event.terraingen.PopulateChunkEvent;
-import net.minecraftforge.event.terraingen.SaplingGrowTreeEvent;
-import net.minecraftforge.event.terraingen.WorldTypeEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
-import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.data.Transaction;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.action.FishingEvent;
@@ -102,14 +89,10 @@ import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.spawn.SpawnType;
 import org.spongepowered.api.event.entity.AffectEntityEvent;
-import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
-import org.spongepowered.api.event.entity.TargetEntityEvent;
-import org.spongepowered.api.event.entity.item.TargetItemEvent;
-import org.spongepowered.api.event.entity.living.TargetLivingEvent;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
@@ -122,10 +105,8 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.SaveWorldEvent;
-import org.spongepowered.api.event.world.TargetWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
-import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
@@ -144,7 +125,6 @@ import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.general.UnwindingPhaseContext;
 import org.spongepowered.common.event.tracking.phase.packet.PacketContext;
-import org.spongepowered.common.interfaces.IMixinInitCause;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
@@ -170,7 +150,7 @@ import java.util.stream.Collectors;
 public class SpongeForgeEventFactory {
 
     // Order matters
-    public static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Event spongeEvent) {
+    static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Event spongeEvent) {
         final Class<? extends Event> clazz = spongeEvent.getClass();
         if (ChangeInventoryEvent.Pickup.Pre.class.isAssignableFrom(clazz)) {
             if (spongeEvent.getCause().root() instanceof Player) {
@@ -251,23 +231,19 @@ public class SpongeForgeEventFactory {
         if (FishingEvent.Stop.class.isAssignableFrom(clazz)) {
             return ItemFishedEvent.class;
         }
-        return null;
-    }
-
-    public static EventBus getForgeEventBus(Class<?> clazz) {
-        if (OreGenEvent.class.isAssignableFrom(clazz)) {
-            return MinecraftForge.ORE_GEN_BUS;
-        } else if (WorldTypeEvent.class.isAssignableFrom(clazz)
-                || BiomeEvent.class.isAssignableFrom(clazz)
-                || DecorateBiomeEvent.class.isAssignableFrom(clazz)
-                || InitMapGenEvent.class.isAssignableFrom(clazz)
-                || InitNoiseGensEvent.class.isAssignableFrom(clazz)
-                || PopulateChunkEvent.class.isAssignableFrom(clazz)
-                || SaplingGrowTreeEvent.class.isAssignableFrom(clazz)) {
-            return MinecraftForge.TERRAIN_GEN_BUS;
+        if (UseItemStackEvent.Start.class.isAssignableFrom(clazz)) {
+            return LivingEntityUseItemEvent.Start.class;
         }
-
-        return MinecraftForge.EVENT_BUS;
+        if (UseItemStackEvent.Tick.class.isAssignableFrom(clazz)) {
+            return LivingEntityUseItemEvent.Tick.class;
+        }
+        if (UseItemStackEvent.Stop.class.isAssignableFrom(clazz)) {
+            return LivingEntityUseItemEvent.Stop.class;
+        }
+        if (UseItemStackEvent.Finish.class.isAssignableFrom(clazz)) {
+            return LivingEntityUseItemEvent.Finish.class;
+        }
+        return null;
     }
 
     // ====================================  FORGE TO SPONGE START ==================================== \\
@@ -293,10 +269,54 @@ public class SpongeForgeEventFactory {
         if (forgeEvent instanceof ChunkEvent.Unload) {
             return createUnloadChunkEvent((ChunkEvent.Unload) forgeEvent);
         }
+        if (forgeEvent instanceof LivingEntityUseItemEvent) {
+            return createUseItemStackEvent((LivingEntityUseItemEvent) forgeEvent);
+        }
         return null;
     }
 
-    public static ChangeBlockEvent.Pre createChangeBlockEventPre(BlockEvent.BreakEvent forgeEvent) {
+    private static Event createUseItemStackEvent(LivingEntityUseItemEvent forgeEvent) {
+
+        final Entity entity = forgeEvent.getEntity();
+
+        if (((IMixinWorld) entity.world).isFake()) {
+            return null;
+        }
+
+        final CauseStackManager manager = Sponge.getCauseStackManager();
+        final ItemStackSnapshot snapshot = ItemStackUtil.fromNative(forgeEvent.getItem()).createSnapshot();
+        manager.pushCause(entity);
+
+        final Cause cause = manager.getCurrentCause();
+
+        UseItemStackEvent event = null;
+
+        // TODO Forge doesn't support reset so that will need to be figured out
+        if (forgeEvent instanceof LivingEntityUseItemEvent.Start) {
+            event = SpongeEventFactory.createUseItemStackEventStart(cause, forgeEvent.getDuration(), forgeEvent.getDuration(),
+                    snapshot);
+        } else if (forgeEvent instanceof LivingEntityUseItemEvent.Tick) {
+            event = SpongeEventFactory.createUseItemStackEventTick(cause, forgeEvent.getDuration(), forgeEvent.getDuration(),
+                    snapshot);
+        } else if (forgeEvent instanceof LivingEntityUseItemEvent.Stop) {
+            event = SpongeEventFactory.createUseItemStackEventStop(cause, forgeEvent.getDuration(), forgeEvent.getDuration(),
+                    snapshot);
+        } else if (forgeEvent instanceof LivingEntityUseItemEvent.Finish) {
+            final ItemStackSnapshot resultSnapshot = ItemStackUtil.fromNative(((LivingEntityUseItemEvent.Finish) forgeEvent).getResultStack())
+                    .createSnapshot();
+            if (snapshot.equals(resultSnapshot)) {
+                event = SpongeEventFactory.createUseItemStackEventFinish(cause, forgeEvent.getDuration(), forgeEvent.getDuration(),
+                        snapshot);
+            } else {
+                event = SpongeEventFactory.createUseItemStackEventReplace(cause, forgeEvent.getDuration(), forgeEvent.getDuration(),
+                        snapshot, new Transaction<>(resultSnapshot, resultSnapshot));
+            }
+        }
+
+        return event;
+    }
+
+    private static ChangeBlockEvent.Pre createChangeBlockEventPre(BlockEvent.BreakEvent forgeEvent) {
         final net.minecraft.world.World world = forgeEvent.getWorld();
         if (world.isRemote) {
             return null;
@@ -318,12 +338,12 @@ public class SpongeForgeEventFactory {
 
         if (owner != null) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
-            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+            if (!Sponge.getCauseStackManager().getCurrentCause().contains(owner)) {
                 Sponge.getCauseStackManager().pushCause(owner);
             }
         } else {
             Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
-            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+            if (!Sponge.getCauseStackManager().getCurrentCause().contains(player)) {
                 Sponge.getCauseStackManager().pushCause(player);
             }
         }
@@ -337,51 +357,7 @@ public class SpongeForgeEventFactory {
             ImmutableList.of(new Location<>((World) world, pos.getX(), pos.getY(), pos.getZ())));
     }
 
-    public static ChangeBlockEvent.Break createChangeBlockEventBreak(BlockEvent.BreakEvent forgeEvent) {
-        final BlockPos pos = forgeEvent.getPos();
-        final net.minecraft.world.World world = forgeEvent.getWorld();
-        if (world.isRemote) {
-            return null;
-        }
-
-        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
-        final PhaseData data = phaseTracker.getCurrentPhaseData();
-        BlockSnapshot originalSnapshot = ((World) forgeEvent.getWorld()).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-        BlockSnapshot finalSnapshot = BlockTypes.AIR.getDefaultState().snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
-        ImmutableList<Transaction<BlockSnapshot>> blockSnapshots = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
-                new Transaction<>(originalSnapshot, finalSnapshot)).build();
-
-        User owner = data.context.getOwner().orElse(null);
-        User notifier = data.context.getNotifier().orElse(null);
-        EntityPlayer player = forgeEvent.getPlayer();
-
-        if (SpongeImplHooks.isFakePlayer(player)) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
-        } else if (Sponge.getCauseStackManager().getCurrentCause() == null) {
-            Sponge.getCauseStackManager().pushCause(player);
-        }
-
-        if (owner != null) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
-            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
-                Sponge.getCauseStackManager().pushCause(owner);
-            }
-        } else {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
-            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
-                Sponge.getCauseStackManager().pushCause(player);
-            }
-        }
-        if (notifier != null) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
-        }
-
-        Sponge.getCauseStackManager().addContext(EventContextKeys.PLAYER_BREAK, (World) world);
-
-        return SpongeEventFactory.createChangeBlockEventBreak(Sponge.getCauseStackManager().getCurrentCause(), blockSnapshots);
-    }
-
-    public static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.PlaceEvent forgeEvent) {
+    private static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.PlaceEvent forgeEvent) {
         final BlockPos pos = forgeEvent.getPos();
         final net.minecraft.world.World world = forgeEvent.getWorld();
         if (world.isRemote) {
@@ -401,18 +377,18 @@ public class SpongeForgeEventFactory {
 
         if (SpongeImplHooks.isFakePlayer(player)) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
-        } else if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+        } else if (!Sponge.getCauseStackManager().getCurrentCause().contains(player)) {
             Sponge.getCauseStackManager().pushCause(player);
         }
 
         if (owner != null) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
-            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+            if (!Sponge.getCauseStackManager().getCurrentCause().contains(owner)) {
                 Sponge.getCauseStackManager().pushCause(owner);
             }
         } else {
             Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
-            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+            if (!Sponge.getCauseStackManager().getCurrentCause().contains(player)) {
                 Sponge.getCauseStackManager().pushCause(player);
             }
         }
@@ -425,13 +401,13 @@ public class SpongeForgeEventFactory {
         return SpongeEventFactory.createChangeBlockEventPlace(Sponge.getCauseStackManager().getCurrentCause(), blockSnapshots);
     }
 
-    public static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.MultiPlaceEvent forgeEvent) {
+    private static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.MultiPlaceEvent forgeEvent) {
         final net.minecraft.world.World world = forgeEvent.getWorld();
         if (world.isRemote) {
             return null;
         }
 
-        ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<Transaction<BlockSnapshot>>();
+        ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<>();
         for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : forgeEvent.getReplacedBlockSnapshots()) {
             final BlockPos snapshotPos = blockSnapshot.getPos();
             BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
@@ -447,18 +423,18 @@ public class SpongeForgeEventFactory {
 
         if (SpongeImplHooks.isFakePlayer(player)) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
-        } else if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+        } else if (!Sponge.getCauseStackManager().getCurrentCause().contains(player)) {
             Sponge.getCauseStackManager().pushCause(player);
         }
 
         if (owner != null) {
             Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
-            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+            if (!Sponge.getCauseStackManager().getCurrentCause().contains(owner)) {
                 Sponge.getCauseStackManager().pushCause(owner);
             }
         } else {
             Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
-            if (Sponge.getCauseStackManager().getCurrentCause() == null) {
+            if (!Sponge.getCauseStackManager().getCurrentCause().contains(player)) {
                 Sponge.getCauseStackManager().pushCause(player);
             }
         }
@@ -469,7 +445,7 @@ public class SpongeForgeEventFactory {
         return SpongeEventFactory.createChangeBlockEventPlace(Sponge.getCauseStackManager().getCurrentCause(), builder.build());
     }
 
-    public static MessageChannelEvent.Chat createMessageChannelEventChat(ServerChatEvent forgeEvent) {
+    private static MessageChannelEvent.Chat createMessageChannelEventChat(ServerChatEvent forgeEvent) {
         final ITextComponent forgeComponent = forgeEvent.getComponent();
         final MessageFormatter formatter = new MessageFormatter();
         MessageChannel channel;
@@ -492,7 +468,7 @@ public class SpongeForgeEventFactory {
             originalChannel, Optional.ofNullable(channel), formatter, rawSpongeMessage, false);
     }
 
-    public static SleepingEvent.Pre createSleepingEventPre(PlayerSleepInBedEvent forgeEvent) {
+    private static SleepingEvent.Pre createSleepingEventPre(PlayerSleepInBedEvent forgeEvent) {
         final net.minecraft.world.World world = forgeEvent.getEntity().getEntityWorld();
         if (world.isRemote) {
             return null;
@@ -504,7 +480,7 @@ public class SpongeForgeEventFactory {
         return SpongeEventFactory.createSleepingEventPre(Sponge.getCauseStackManager().getCurrentCause(), bedSnapshot, (org.spongepowered.api.entity.Entity) forgeEvent.getEntity());
     }
 
-    public static LoadChunkEvent createLoadChunkEvent(ChunkEvent.Load forgeEvent) {
+    private static LoadChunkEvent createLoadChunkEvent(ChunkEvent.Load forgeEvent) {
         final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
         if (isMainThread) {
             Sponge.getCauseStackManager().pushCause(forgeEvent.getWorld());
@@ -513,7 +489,7 @@ public class SpongeForgeEventFactory {
         return SpongeEventFactory.createLoadChunkEvent(cause, (Chunk) forgeEvent.getChunk());
     }
 
-    public static UnloadChunkEvent createUnloadChunkEvent(ChunkEvent.Unload forgeEvent) {
+    private static UnloadChunkEvent createUnloadChunkEvent(ChunkEvent.Unload forgeEvent) {
         final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
         if (isMainThread) {
             Sponge.getCauseStackManager().pushCause(forgeEvent.getWorld());
@@ -525,7 +501,7 @@ public class SpongeForgeEventFactory {
 
     // ====================================  SPONGE TO FORGE START ==================================== \\
     // Used for firing Forge events after a Sponge event has been triggered
-    public static Event callForgeEvent(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
+    static Event callForgeEvent(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz) {
         if (EntityItemPickupEvent.class.isAssignableFrom(clazz)) {
             return callEntityItemPickupEvent(spongeEvent);
         } else if (PlayerInteractEvent.EntityInteractSpecific.class.isAssignableFrom(clazz)) {
@@ -539,9 +515,9 @@ public class SpongeForgeEventFactory {
         } else if (PlayerInteractEvent.class.isAssignableFrom(clazz)) {
             return createPlayerInteractEvent(spongeEvent);
         } else if (LivingDropsEvent.class.isAssignableFrom(clazz)) {
-            return callLivingDropsEvent(spongeEvent);
+            return callForgeItemDropEvent(spongeEvent);
         } else if (ItemTossEvent.class.isAssignableFrom(clazz)) {
-            return callForgeDropItemEvent(spongeEvent);
+            return callForgeItemDropEvent(spongeEvent);
         } else if (PlayerLoggedInEvent.class.isAssignableFrom(clazz)) {
             return callPlayerLoggedInEvent(spongeEvent);
         } else if (PlayerLoggedOutEvent.class.isAssignableFrom(clazz)) {
@@ -568,296 +544,47 @@ public class SpongeForgeEventFactory {
             return callExplosionEventDetonate(spongeEvent);
         } else if (ItemFishedEvent.class.isAssignableFrom(clazz)) {
             return callItemFishedEvent(spongeEvent);
+        } else if (LivingEntityUseItemEvent.class.isAssignableFrom(clazz)) {
+            return callLivingUseItemEvent((UseItemStackEvent) spongeEvent);
         }
         return spongeEvent;
     }
 
-    private static LivingDropsEvent createLivingDropItemEvent(Event event) {
-        DropItemEvent.Destruct spongeEvent = (DropItemEvent.Destruct) event;
-        Optional<EntityLivingBase> spawnCause = spongeEvent.getCause().first(EntityLivingBase.class);
-        if (!spawnCause.isPresent()) {
-            return null;
-        }
-        Optional<DamageSource> source = spongeEvent.getCause().first(DamageSource.class);
-        if (!source.isPresent()) {
+    private static Event callLivingUseItemEvent(UseItemStackEvent spongeEvent) {
+
+        final EntityLivingBase entity = spongeEvent.getCause().first(EntityLivingBase.class).orElse(null);
+        if (entity == null) {
             return null;
         }
 
-        List<EntityItem> items = new ArrayList<>();
-        for (org.spongepowered.api.entity.Entity entity : spongeEvent.getEntities()) {
-            if (entity instanceof EntityItem) {
-                items.add((EntityItem) entity);
-            }
-        }
-        LivingDropsEvent forgeEvent = new LivingDropsEvent(spawnCause.get(), (net.minecraft.util.DamageSource) source.get(), items, 0, false);
-        return forgeEvent;
-    }
+        final ItemStack stack = ItemStackUtil.toNative(spongeEvent.getItemStackInUse().createStack());
 
-    // Block events
-    public static BlockEvent createBlockEvent(Event event) {
-        ChangeBlockEvent spongeEvent = (ChangeBlockEvent) event;
-        Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
-        net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
-        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        BlockEvent forgeEvent = new BlockEvent(world, pos, world.getBlockState(pos));
-        return forgeEvent;
-    }
+        LivingEntityUseItemEvent event = null;
 
-    public static BlockEvent.BreakEvent createBlockBreakEvent(Event event) {
-        ChangeBlockEvent.Break spongeEvent = (ChangeBlockEvent.Break) event;
-        Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
-        net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
-        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        IBlockState state = (IBlockState) location.getBlock();
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
-        if (!player.isPresent()) {
-            return null;
+        if (spongeEvent instanceof UseItemStackEvent.Start) {
+            event = new LivingEntityUseItemEvent.Start(entity, stack, spongeEvent.getRemainingDuration());
+        } else if (spongeEvent instanceof UseItemStackEvent.Tick) {
+            event = new LivingEntityUseItemEvent.Tick(entity, stack, spongeEvent.getRemainingDuration());
+        } else if (spongeEvent instanceof UseItemStackEvent.Stop) {
+            event = new LivingEntityUseItemEvent.Stop(entity, stack, spongeEvent.getRemainingDuration());
+        } else if (spongeEvent instanceof UseItemStackEvent.Finish) {
+            event = new LivingEntityUseItemEvent.Finish(entity, stack, spongeEvent.getRemainingDuration(), stack);
+        } else if (spongeEvent instanceof UseItemStackEvent.Replace) {
+            event = new LivingEntityUseItemEvent.Finish(entity, stack, spongeEvent.getRemainingDuration(), ItemStackUtil.toNative((
+                    (UseItemStackEvent.Replace) spongeEvent).getItemStackResult().getFinal().createStack()));
         }
 
-        BlockEvent.BreakEvent forgeEvent = new BlockEvent.BreakEvent(world, pos, state, (EntityPlayer) player.get());
-        return forgeEvent;
-    }
-
-    @SuppressWarnings("deprecation")
-    public static BlockEvent.PlaceEvent createBlockPlaceEvent(Event event) {
-        ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) event;
-        Location<World> location = spongeEvent.getTransactions().get(0).getOriginal().getLocation().get();
-        net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
-        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        BlockSnapshot replacementBlock = spongeEvent.getTransactions().get(0).getFinal();
-        IBlockState state = (IBlockState) replacementBlock.getState();
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
-        if (!player.isPresent()) {
-            return null;
+        if (event == null) {
+            return spongeEvent;
         }
 
-        net.minecraftforge.common.util.BlockSnapshot forgeSnapshot = new net.minecraftforge.common.util.BlockSnapshot(world, pos, state);
-        BlockEvent.PlaceEvent forgeEvent =
-                new BlockEvent.PlaceEvent(forgeSnapshot, world.getBlockState(pos),
-                        (EntityPlayer) player.get(), ((EntityPlayer) player.get()).getActiveHand());
-        return forgeEvent;
-    }
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(event, true);
 
-    // Entity events
-    public static EntityEvent createEntityEvent(Event event) {
-        TargetEntityEvent spongeEvent = (TargetEntityEvent) event;
-        EntityEvent forgeEvent =
-                new EntityEvent((Entity) spongeEvent.getTargetEntity());
-        return forgeEvent;
-    }
-
-    public static EntityEvent.EntityConstructing createEntityConstructingEvent(Event event) {
-        ConstructEntityEvent.Post spongeEvent = (ConstructEntityEvent.Post) event;
-        EntityEvent.EntityConstructing forgeEvent =
-                new EntityEvent.EntityConstructing((Entity) spongeEvent.getTargetEntity());
-        return forgeEvent;
-    }
-
-    public static AttackEntityEvent createAttackEntityEvent(Event event) {
-        InteractEntityEvent.Primary spongeEvent = (InteractEntityEvent.Primary) event;
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
-        if (!player.isPresent()) {
-            return null;
+        if (event.isCanceled()) {
+            ((Cancellable) spongeEvent).setCancelled(true);
         }
 
-        AttackEntityEvent forgeEvent = new AttackEntityEvent((EntityPlayer) player.get(), (Entity) spongeEvent.getTargetEntity());
-        return forgeEvent;
-    }
-
-    // Living events
-    public static LivingEvent createLivingEvent(Event event) {
-        TargetLivingEvent spongeEvent = (TargetLivingEvent) event;
-        LivingEvent forgeEvent =
-                new LivingEvent((EntityLivingBase) spongeEvent.getTargetEntity());
-        return forgeEvent;
-    }
-
-    public static LivingDeathEvent createLivingDeathEvent(Event event) {
-        DestructEntityEvent.Death spongeEvent = (DestructEntityEvent.Death) event;
-        Optional<DamageSource> source = spongeEvent.getCause().first(DamageSource.class);
-        if (!source.isPresent()) {
-            return null;
-        }
-
-        LivingDeathEvent forgeEvent =
-                new LivingDeathEvent((EntityLivingBase) spongeEvent.getTargetEntity(), (net.minecraft.util.DamageSource) source.get());
-        return forgeEvent;
-    }
-
-    // Player events
-    public static PlayerSleepInBedEvent createPlayerSleepInBedEvent(Event event) {
-        SleepingEvent.Pre spongeEvent = (SleepingEvent.Pre) event;
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
-        if (!player.isPresent()) {
-            return null;
-        }
-        Location<World> location = spongeEvent.getBed().getLocation().get();
-        BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        return new PlayerSleepInBedEvent((EntityPlayer) player.get(), pos);
-    }
-
-    public static LivingEntityUseItemEvent.Start createPlayerUseItemStartEvent(Event event) {
-        UseItemStackEvent.Start spongeEvent = (UseItemStackEvent.Start) event;
-        Optional<Living> living = spongeEvent.getCause().first(Living.class);
-        if (!living.isPresent()) {
-            return null;
-        }
-
-        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) (Object) spongeEvent.getItemStackInUse().createStack();
-        LivingEntityUseItemEvent.Start forgeEvent =
-                new LivingEntityUseItemEvent.Start((EntityLivingBase) living.get(), itemstack, spongeEvent.getRemainingDuration());
-        return forgeEvent;
-    }
-
-    public static LivingEntityUseItemEvent.Tick createPlayerUseItemTickEvent(Event event) {
-        UseItemStackEvent.Tick spongeEvent = (UseItemStackEvent.Tick) event;
-        Optional<Living> living = spongeEvent.getCause().first(Living.class);
-        if (!living.isPresent()) {
-            return null;
-        }
-
-        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) (Object) spongeEvent.getItemStackInUse().createStack();
-        LivingEntityUseItemEvent.Tick forgeEvent = new LivingEntityUseItemEvent.Tick((EntityLivingBase) living.get(), itemstack, spongeEvent.getRemainingDuration());
-        return forgeEvent;
-    }
-
-    public static LivingEntityUseItemEvent.Stop createPlayerUseItemStopEvent(Event event) {
-        UseItemStackEvent.Stop spongeEvent = (UseItemStackEvent.Stop) event;
-        Optional<Living> living = spongeEvent.getCause().first(Living.class);
-        if (!living.isPresent()) {
-            return null;
-        }
-
-        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) (Object) spongeEvent.getItemStackInUse().createStack();
-        LivingEntityUseItemEvent.Stop forgeEvent = new LivingEntityUseItemEvent.Stop((EntityLivingBase) living.get(), itemstack, spongeEvent.getRemainingDuration());
-        return forgeEvent;
-    }
-
-    public static LivingEntityUseItemEvent.Finish createPlayerUseItemFinishEvent(Event event) {
-        UseItemStackEvent.Finish spongeEvent = (UseItemStackEvent.Finish) event;
-        Optional<Living> living = spongeEvent.getCause().first(Living.class);
-        if (!living.isPresent()) {
-            return null;
-        }
-
-        net.minecraft.item.ItemStack itemstack = (net.minecraft.item.ItemStack) (Object) spongeEvent.getItemStackInUse().createStack();
-        LivingEntityUseItemEvent.Finish forgeEvent =
-                new LivingEntityUseItemEvent.Finish((EntityLivingBase) living.get(), itemstack, spongeEvent.getRemainingDuration(), itemstack); // TODO Forge allows changing the itemstack mid tick...
-        return forgeEvent;
-    }
-
-    // Item events
-    public static ItemEvent createItemEvent(Event event) {
-        TargetItemEvent spongeEvent = (TargetItemEvent) event;
-        ItemEvent forgeEvent =
-                new ItemEvent((EntityItem) spongeEvent.getTargetEntity());
-        return forgeEvent;
-    }
-
-    public static ItemTossEvent createItemTossEvent(Event event) {
-        Optional<Player> player = event.getCause().first(Player.class);
-        if (player.isPresent()) {
-            DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
-            final List<org.spongepowered.api.entity.Entity> entities = spongeEvent.getEntities();
-            if (!entities.isEmpty()) {
-                ItemTossEvent forgeEvent = new ItemTossEvent((EntityItem) entities.get(0), (EntityPlayer) player.get());
-                return forgeEvent;
-            }
-        }
-        return null;
-    }
-
-    // World events
-    public static WorldEvent createWorldEvent(Event event) {
-        TargetWorldEvent spongeEvent = (TargetWorldEvent) event;
-        WorldEvent forgeEvent =
-                new WorldEvent((net.minecraft.world.World) spongeEvent.getTargetWorld());
-        return forgeEvent;
-    }
-
-    public static ChunkEvent createChunkEvent(Event event) {
-        TargetChunkEvent spongeEvent = (TargetChunkEvent) event;
-        ChunkEvent forgeEvent =
-                new ChunkEvent(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
-        return forgeEvent;
-    }
-
-    public static ChunkEvent.Load createChunkLoadEvent(Event event) {
-        LoadChunkEvent spongeEvent = (LoadChunkEvent) event;
-        ChunkEvent.Load forgeEvent =
-                new ChunkEvent.Load(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
-        return forgeEvent;
-    }
-
-    public static ChunkEvent.Unload createChunkUnloadEvent(Event event) {
-        UnloadChunkEvent spongeEvent = (UnloadChunkEvent) event;
-        ChunkEvent.Unload forgeEvent =
-                new ChunkEvent.Unload(((net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk()));
-        return forgeEvent;
-    }
-
-    // Explosion events
-    public static net.minecraftforge.event.world.ExplosionEvent createExplosionEvent(Event event) {
-        ExplosionEvent spongeEvent = (ExplosionEvent) event;
-        Optional<World> world = spongeEvent.getCause().first(World.class);
-        if (!world.isPresent()) {
-            return null;
-        }
-
-        net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
-        Explosion explosion = (Explosion) spongeEvent.getExplosion();
-        net.minecraftforge.event.world.ExplosionEvent forgeEvent = new net.minecraftforge.event.world.ExplosionEvent(forgeWorld, explosion);
-        return forgeEvent;
-    }
-
-    public static net.minecraftforge.event.world.ExplosionEvent.Start createExplosionStartEvent(Event event) {
-        ExplosionEvent.Pre spongeEvent = (ExplosionEvent.Pre) event;
-        Optional<World> world = spongeEvent.getCause().first(World.class);
-        if (!world.isPresent()) {
-            return null;
-        }
-
-        net.minecraft.world.World forgeWorld = (net.minecraft.world.World) world.get();
-        Explosion explosion = (Explosion) spongeEvent.getExplosion();
-        net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent =
-                new net.minecraftforge.event.world.ExplosionEvent.Start(forgeWorld, explosion);
-        return forgeEvent;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static net.minecraftforge.event.world.ExplosionEvent.Detonate createExplosionDetonateEvent(Event event) {
-        ExplosionEvent.Detonate spongeEvent = (ExplosionEvent.Detonate) event;
-
-        net.minecraft.world.World forgeWorld = (net.minecraft.world.World) spongeEvent.getTargetWorld();
-        Explosion explosion = (Explosion) spongeEvent.getExplosion();
-        net.minecraftforge.event.world.ExplosionEvent.Detonate forgeEvent =
-                new net.minecraftforge.event.world.ExplosionEvent.Detonate(forgeWorld, explosion,
-                        (List<Entity>) (Object) spongeEvent.getEntities());
-        return forgeEvent;
-    }
-
-    // Server events
-    private static ServerChatEvent createServerChatEvent(Event event) {
-        MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) event;
-        Optional<Player> player = spongeEvent.getCause().first(Player.class);
-        if (!player.isPresent()) {
-            return null;
-        }
-
-        Text spongeText = spongeEvent.getOriginalMessage();
-        ITextComponent component = SpongeTexts.toComponent(spongeText);
-        if (!(component instanceof TextComponentTranslation)) {
-            component = new TextComponentTranslation("%s", component);
-        }
-
-        // Using toPlain here is fine, since the raw message from the client
-        // can't have formatting.
-        ServerChatEvent forgeEvent =
-                new ServerChatEvent((EntityPlayerMP) player.get(), spongeEvent.getOriginalMessage().toPlain(),
-                        (TextComponentTranslation) component);
-        ((IMixinInitCause) forgeEvent).initCause(spongeEvent.getCause());
-
-        return forgeEvent;
+        return spongeEvent;
     }
 
     // ====================================  SPONGE TO FORGE END ==================================== \\
@@ -926,95 +653,96 @@ public class SpongeForgeEventFactory {
         return Tristate.UNDEFINED;
     }
 
-    public static ChangeInventoryEvent.Pickup.Pre callEntityItemPickupEvent(Event event) {
-        ChangeInventoryEvent.Pickup.Pre spongeEvent = (ChangeInventoryEvent.Pickup.Pre) event;
-        EntityItem entityItem = (EntityItem) spongeEvent.getTargetEntity();
-        EntityItemPickupEvent forgeEvent =
-                new EntityItemPickupEvent((EntityPlayer) spongeEvent.getCause().first(Player.class).get(), entityItem);
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-        if (forgeEvent.isCanceled()) {
-            spongeEvent.setCancelled(true);
+    private static ChangeInventoryEvent.Pickup.Pre callEntityItemPickupEvent(Event event) {
+        final ChangeInventoryEvent.Pickup.Pre spongeEvent = (ChangeInventoryEvent.Pickup.Pre) event;
+        if (spongeEvent.getTargetEntity() instanceof EntityItem) {
+            final EntityItem entityItem = (EntityItem) spongeEvent.getTargetEntity();
+            final Player player = spongeEvent.getCause().first(Player.class).orElse(null);
+            if (player != null) {
+                final EntityItemPickupEvent forgeEvent = new EntityItemPickupEvent((EntityPlayer) player, entityItem);
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                if (forgeEvent.isCanceled()) {
+                    spongeEvent.setCancelled(true);
+                }
+            }
         }
         return spongeEvent;
     }
 
-    // unused
-    public static DestructEntityEvent.Death callLivingDeathEvent(Event event) {
-        DestructEntityEvent.Death spongeEvent = (DestructEntityEvent.Death) event;
-        if (!spongeEvent.getCause().first(DamageSource.class).isPresent()) {
-            return spongeEvent;
-        }
-
-        EntityLivingBase entity = (net.minecraft.entity.EntityLivingBase) spongeEvent.getTargetEntity();
-        net.minecraft.util.DamageSource damageSource = (net.minecraft.util.DamageSource) spongeEvent.getCause().first(DamageSource.class).get();
-        LivingDeathEvent forgeEvent = new LivingDeathEvent(entity, damageSource);
-
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-
-        return spongeEvent;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static DropItemEvent.Destruct callLivingDropsEvent(Event event) {
-        DropItemEvent.Destruct spongeEvent = (DropItemEvent.Destruct) event;
-        final Cause cause = spongeEvent.getCause();
-        Object source = cause.root();
-        Optional<DamageSource> damageSource = cause.first(DamageSource.class);
-        final Optional<Entity> spawnEntity = cause.first(Entity.class);
-        final Optional<SpawnType> spawnType = cause.getContext().get(EventContextKeys.SPAWN_TYPE);
-        if (!spawnType.isPresent() || !damageSource.isPresent() || !spawnEntity.isPresent()) {
-            // Mods expect EntityJoinWorldEvent to trigger
-            callEntityJoinWorldEvent(spongeEvent);
-            return spongeEvent;
-        }
-        Entity entity = spawnEntity.get();
-        if (entity == null || !(entity instanceof EntityLivingBase)) {
-            return spongeEvent;
-        }
-
-        LivingDropsEvent forgeEvent = null;
-        if (entity instanceof EntityPlayer) {
-            EntityPlayer player = (EntityPlayer) entity;
-            forgeEvent = new PlayerDropsEvent(player, (net.minecraft.util.DamageSource) damageSource.get(), (List<EntityItem>)(List<?>)spongeEvent.getEntities(),
-                            ((IMixinEntityLivingBase) entity).getRecentlyHit() > 0);
-        } else {
-            forgeEvent = new LivingDropsEvent((EntityLivingBase) entity, (net.minecraft.util.DamageSource) damageSource.get(), (List<EntityItem>)(List<?>)spongeEvent.getEntities(), 0,
-                            ((IMixinEntityLivingBase) entity).getRecentlyHit() > 0);
-        }
-
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-        if (forgeEvent.isCanceled()) {
-            spongeEvent.setCancelled(true);
-        } else {
-            callEntityJoinWorldEvent(spongeEvent);
-        }
-
-        return spongeEvent;
-    }
-
-    public static DropItemEvent callForgeDropItemEvent(Event event) {
-        AffectEntityEvent spongeEvent = (AffectEntityEvent) event;
+    private static Event callForgeItemDropEvent(Event event) {
+        final AffectEntityEvent spongeEvent = (AffectEntityEvent) event;
         if (spongeEvent.getEntities().isEmpty()) {
-            return (DropItemEvent) event;
+            return event;
         }
-
-        // Mods always expect an EntityJoinWorld
-        callEntityJoinWorldEvent(spongeEvent);
 
         final Cause cause = event.getCause();
         final SpawnType spawnType = cause.getContext().get(EventContextKeys.SPAWN_TYPE).orElse(null);
 
         // Fire ItemToss for each item being tossed with a Player as the root cause and dropped item is the spawn type
-        if (cause.root() instanceof EntityPlayerMP && spawnType != null && spawnType == InternalSpawnTypes.DROPPED_ITEM) {
-            final EntityPlayerMP serverPlayer = (EntityPlayerMP) cause.root();
-            spongeEvent.filterEntities(e -> (e instanceof EntityItem) && !((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ItemTossEvent(
-              (EntityItem) e, serverPlayer), true));
+        if (cause.root() instanceof EntityLivingBase) {
+            final EntityLivingBase living = (EntityLivingBase) cause.root();
+
+            // ItemToss
+            if (spawnType != null && spawnType == InternalSpawnTypes.DROPPED_ITEM && living instanceof EntityPlayerMP) {
+                spongeEvent.filterEntities(e -> (e instanceof EntityItem) && !((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ItemTossEvent(
+                  (EntityItem) e, (EntityPlayerMP) living), true));
+
+                if (!spongeEvent.getEntities().isEmpty()) {
+                    callEntityJoinWorldEvent(spongeEvent);
+                }
+
+                return spongeEvent;
+            }
+
+            if (event instanceof DropItemEvent.Destruct) {
+                final DropItemEvent.Destruct destruct = (DropItemEvent.Destruct) spongeEvent;
+
+                final net.minecraft.util.DamageSource damageSource = (net.minecraft.util.DamageSource) cause.first(DamageSource.class).orElse(null);
+
+                if (damageSource != null) {
+
+                    final List<EntityItem> items = destruct.getEntities()
+                      .stream()
+                      .filter(e -> e instanceof EntityItem)
+                      .map(e -> (EntityItem) e)
+                      .collect(Collectors.toList());
+
+                    if (!items.isEmpty()) {
+                        final LivingDropsEvent forgeEvent;
+
+                        if (living instanceof EntityPlayerMP) {
+                            final EntityPlayerMP serverPlayer = (EntityPlayerMP) living;
+
+                            forgeEvent = new PlayerDropsEvent(serverPlayer, damageSource, new ArrayList<>(items), ((IMixinEntityLivingBase)
+                              serverPlayer).getRecentlyHit() > 0);
+                        } else {
+                            forgeEvent = new LivingDropsEvent(living, damageSource, new ArrayList<>(items), net.minecraftforge.common.ForgeHooks
+                              .getLootingLevel(living, damageSource.getTrueSource(), damageSource),
+                              ((IMixinEntityLivingBase) living).getRecentlyHit() > 0);
+                        }
+
+                        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+
+                        if (forgeEvent.isCanceled()) {
+                            spongeEvent.setCancelled(true);
+                        } else {
+                            // Re-sync entity list from forge to sponge
+                            spongeEvent.getEntities().removeAll(items);
+                            spongeEvent.getEntities().addAll(forgeEvent.getDrops().stream().map(EntityUtil::fromNative).collect(Collectors.toList()));
+
+                            if (!spongeEvent.getEntities().isEmpty()) {
+                                callEntityJoinWorldEvent(spongeEvent);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        return (DropItemEvent) spongeEvent;
+        return spongeEvent;
     }
 
-    public static SpawnEntityEvent callEntityJoinWorldEvent(Event event) {
+    private static SpawnEntityEvent callEntityJoinWorldEvent(Event event) {
         SpawnEntityEvent spongeEvent = (SpawnEntityEvent) event;
         ListIterator<org.spongepowered.api.entity.Entity> iterator = spongeEvent.getEntities().listIterator();
         if (spongeEvent.getEntities().isEmpty()) {
@@ -1043,13 +771,13 @@ public class SpongeForgeEventFactory {
                 iterator.remove();
             }
         }
-        if (spongeEvent.getEntities().size() == 0 && canCancelEvent) {
+        if (spongeEvent.getEntities().isEmpty() && canCancelEvent) {
             spongeEvent.setCancelled(true);
         }
         return spongeEvent;
     }
 
-    public static void handlePrefireLogic(Event event) {
+    static void handlePrefireLogic(Event event) {
         if (event instanceof SpawnEntityEvent) {
             handleCustomStack((SpawnEntityEvent) event);
         }
@@ -1061,37 +789,27 @@ public class SpongeForgeEventFactory {
         ListIterator<org.spongepowered.api.entity.Entity> it = event.getEntities().listIterator();
         while (it.hasNext()) {
             Entity entity = (Entity) it.next(); //Sponge - use entity from event
-            if (entity.getClass().equals(EntityItem.class)) {
-                ItemStack stack = ((EntityItem) entity).getItem();
+            if (entity instanceof EntityItem) {
+                final ItemStack stack = ((EntityItem) entity).getItem();
 
                 if (stack.isEmpty()) {
-                    //entity.setDead();
-                    //event.setCanceled(true);
-                    continue; // Sponge - continue instead of return
-                }
-
-                Item item = stack.getItem();
-                if (item == null) {
                     // Sponge - technically, this check is in the wrong place, as it normally runs in Forge's listener (i.e. after 'beforeModifications' listener)
                     // However, it's really only a sanity check for something that should never happen, so it's fine
                     FMLLog.warning("Attempted to add a EntityItem to the world with a invalid item at " +
                                     "(%2.2f,  %2.2f, %2.2f), this is most likely a config issue between you and the server. Please double check your configs",
                             entity.posX, entity.posY, entity.posZ);
                     entity.setDead();
-                    event.setCancelled(true); // Sponge - use our setCancelled method
                     continue; // Sponge - continue instead of return
                 }
 
+                final Item item = stack.getItem();
+
                 if (item.hasCustomEntity(stack)) {
-                    Entity newEntity = item.createEntity(entity.getEntityWorld(), entity, stack); // Sponge - use world from entity
+                    final Entity newEntity = item.createEntity(entity.getEntityWorld(), entity, stack); // Sponge - use world from entity
                     if (newEntity != null) {
                         entity.setDead();
-                        //event.setCanceled(true); Sponge - don't cancel the event
-                        // Sponge start - fire cancelled event, and return new event.
-                        // We don't need to set 'StaticMixinForgeHelper.preventInternalForgeEntityListener' to 'true',
-                        // since Forge's listener only handled uncancelled events
 
-                        EntityJoinWorldEvent cancelledEvent = new EntityJoinWorldEvent(entity, entity.getEntityWorld());
+                        final EntityJoinWorldEvent cancelledEvent = new EntityJoinWorldEvent(entity, entity.getEntityWorld());
                         cancelledEvent.setCanceled(true);
                         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(cancelledEvent, true);
 
@@ -1101,7 +819,6 @@ public class SpongeForgeEventFactory {
                         }
 
                         it.set((org.spongepowered.api.entity.Entity) newEntity);
-                        continue;
                         // Sponge end
                     }
                 }
@@ -1109,15 +826,14 @@ public class SpongeForgeEventFactory {
         }
     }
 
-    public static NotifyNeighborBlockEvent callNeighborNotifyEvent(Event event) {
+    private static NotifyNeighborBlockEvent callNeighborNotifyEvent(Event event) {
         NotifyNeighborBlockEvent spongeEvent = (NotifyNeighborBlockEvent) event;
         LocatableBlock locatableBlock = spongeEvent.getCause().first(LocatableBlock.class).orElse(null);
         TileEntity tileEntitySource = spongeEvent.getCause().first(TileEntity.class).orElse(null);
-        Location<World> sourceLocation = null;
-        IBlockState state = null;
+        Location<World> sourceLocation;
+        IBlockState state;
         if (locatableBlock != null) {
-            Location<World> location = locatableBlock.getLocation();
-            sourceLocation = location;
+            sourceLocation = locatableBlock.getLocation();
             state = (IBlockState) locatableBlock.getBlockState();
         } else if (tileEntitySource != null) {
             sourceLocation = tileEntitySource.getLocation();
@@ -1149,11 +865,11 @@ public class SpongeForgeEventFactory {
         return spongeEvent;
     }
 
-    public static ChangeBlockEvent.Place callBlockPlaceEvent(Event event) {
+    private static ChangeBlockEvent.Place callBlockPlaceEvent(Event event) {
         ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) event;
 
         if (spongeEvent.getCause().root() instanceof Player) {
-            EntityPlayer player = (EntityPlayer) spongeEvent.getCause().first(Player.class).get();
+            EntityPlayer player = (EntityPlayer) spongeEvent.getCause().root();
             net.minecraft.world.World world = player.world;
             final PhaseTracker phaseTracker = PhaseTracker.getInstance();
             final PhaseContext<?> currentContext = phaseTracker.getCurrentContext();
@@ -1267,7 +983,7 @@ public class SpongeForgeEventFactory {
         final Entity entity = (Entity) spongeEvent.getTargetEntity();
         final Vector3d hitVec = spongeEvent.getInteractionPoint().orElse(null);
 
-        PlayerInteractEvent forgeEvent = null;
+        PlayerInteractEvent forgeEvent;
         if (hitVec != null) {
             forgeEvent = new PlayerInteractEvent.EntityInteractSpecific(entityPlayer, hand, entity, VecHelper.toVec3d(hitVec));
         } else {
