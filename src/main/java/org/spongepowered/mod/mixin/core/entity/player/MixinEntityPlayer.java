@@ -50,6 +50,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.entity.player.ISpongeUser;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLivingBase;
 
@@ -133,7 +134,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         }
 
         SleepingEvent.Post post = null;
-        if (!this.world.isRemote) {
+        if (!((IMixinWorld) this.world).isFake()) {
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 Sponge.getCauseStackManager().pushCause(this);
                 post = SpongeEventFactory.createSleepingEventPost(Sponge.getCauseStackManager().getCurrentCause(),
