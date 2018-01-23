@@ -85,7 +85,7 @@ public class SpongeForgeCommand extends SpongeCommandFactory {
                                         .onClick(TextActions.runCommand("/sponge:sponge mods " + container.getId()))
                                         .onHover(TextActions.showText(Text.of(
                                                 TextColors.RESET,
-                                                "ID: ", container.getId(), Text.NEW_LINE,
+                                                "ID: ", container.getId(), Text.newLine(),
                                                 "Version: ", container.getVersion().orElse("Unknown"))));
 
                                 containerList.add(containerBuilder.build());
