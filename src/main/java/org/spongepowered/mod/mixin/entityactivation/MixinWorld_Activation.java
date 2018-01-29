@@ -131,7 +131,7 @@ public abstract class MixinWorld_Activation implements IMixinWorld {
             // Sponge end
 
             final IMixinChunk newChunk = (IMixinChunk) ((IMixinChunkProviderServer) entityIn.world.getChunkProvider()).getLoadedChunkWithoutMarkingActive(l, j1);
-            if (!entityIn.setPositionNonDirty() && (newChunk == null || (newChunk.isQueuedForUnload() && !newChunk.isPersistedChunk())))
+            if (newChunk == null || !entityIn.setPositionNonDirty() || (newChunk.isQueuedForUnload() && !newChunk.isPersistedChunk()))
             {
                 entityIn.addedToChunk = false;
             }
