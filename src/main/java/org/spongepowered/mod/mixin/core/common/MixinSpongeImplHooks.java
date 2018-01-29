@@ -469,12 +469,12 @@ public abstract class MixinSpongeImplHooks {
     }
 
     @Overwrite
-    public static BlockPos getBedLocation(EntityPlayerMP player, int dimension) {
+    public static BlockPos getBedLocation(EntityPlayer player, int dimension) {
         return player.getBedLocation(dimension);
     }
 
     @Overwrite
-    public static boolean isSpawnForced(EntityPlayerMP player, int dimension) {
+    public static boolean isSpawnForced(EntityPlayer player, int dimension) {
         return player.isSpawnForced(dimension);
     }
     // Crafting
