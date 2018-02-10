@@ -6,6 +6,7 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "server": [
+        "MixinEntityItem_Activation",
         "MixinWorld_Activation"
     ],
     "injectors": {
