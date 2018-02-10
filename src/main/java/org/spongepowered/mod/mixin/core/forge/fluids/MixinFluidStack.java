@@ -45,6 +45,7 @@ import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 import org.spongepowered.api.extra.fluid.FluidStackSnapshot;
 import org.spongepowered.api.extra.fluid.FluidType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -121,6 +122,11 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
             return ((IMixinCustomDataHolder) this).offerCustom(valueContainer, function);
         }
         return DataTransactionResult.failResult(valueContainer.getValues());
+    }
+
+    @Override
+    public <E> Optional<ChangeDataHolderEvent.ValueChange> offerWithEvent(Key<? extends BaseValue<E>> key, E value, Cause cause) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -208,12 +214,26 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
     }
 
     @Override
+    public <E> Optional<E> getDefault(Key<? extends BaseValue<E>> key) {
+        final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = DataUtil.getBaseValueProcessor(checkNotNull(key));
+        if (optional.isPresent()) {
+            return optional.get().getApiValueFromContainer(this).map(v -> v.getDefault());
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public <E, V extends BaseValue<E>> Optional<V> getValue(Key<V> key) {
         final Optional<ValueProcessor<E, V>> optional = DataUtil.getValueProcessor(checkNotNull(key));
         if (optional.isPresent()) {
             return optional.get().getApiValueFromContainer(this);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public <E, V extends BaseValue<E>> Optional<V> getDefaultValue(Key<V> key) {
+        throw new UnsupportedOperationException(); // TODO - can we construct a value here
     }
 
     @Override
