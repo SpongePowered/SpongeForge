@@ -55,6 +55,8 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -263,8 +265,17 @@ public class SpongeMod extends MetaModContainer {
         }
     }
 
+    @SideOnly(Side.SERVER)
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            this.scheduler.tickSyncScheduler();
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             this.scheduler.tickSyncScheduler();
         }
