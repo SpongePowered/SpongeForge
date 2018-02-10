@@ -276,8 +276,10 @@ public class SpongeMod extends MetaModContainer {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            this.scheduler.tickSyncScheduler();
+        if (!net.minecraft.client.Minecraft.getMinecraft().isIntegratedServerRunning()) {
+            if (event.phase == TickEvent.Phase.START) {
+                this.scheduler.tickSyncScheduler();
+            }
         }
     }
 
