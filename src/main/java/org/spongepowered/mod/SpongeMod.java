@@ -24,14 +24,19 @@
  */
 package org.spongepowered.mod;
 
+import com.flowpowered.noise.module.combiner.Min;
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Stage;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
@@ -55,6 +60,8 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -76,6 +83,7 @@ import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
+import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.inject.SpongeGuice;
@@ -263,10 +271,22 @@ public class SpongeMod extends MetaModContainer {
         }
     }
 
+    @SideOnly(Side.SERVER)
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             this.scheduler.tickSyncScheduler();
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onTick(TickEvent.ClientTickEvent event) {
+        // If we haven't launched the integrated server, allow the sync scheduler to still pulse tasks
+        if (!Minecraft.getMinecraft().isIntegratedServerRunning()) {
+            if (event.phase == TickEvent.Phase.START) {
+                this.scheduler.tickSyncScheduler();
+            }
         }
     }
 
