@@ -250,14 +250,13 @@ public class SpongeModEventManager extends SpongeEventManager {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false, useCauseStackManager);
         }
 
+        if (isNotSameEvent) {
+            syncToForge(forgeEvent, spongeEvent);
+        }
+
         // If there are no forge listeners for event, skip sync
         // If plugin cancelled event before modifications, ignore mods
         if (listeners.length > 0 && !forgeEvent.isCanceled()) {
-            if (isNotSameEvent) {
-                // Sync the forge event from Sponge
-                ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
-            }
-
             for (IEventListener listener : listeners) {
                 try {
                     if (listener instanceof IMixinASMEventHandler) {
@@ -274,8 +273,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             }
 
             if (isNotSameEvent) {
-                // Sync the forge event back to Sponge
-                ((IMixinEvent) forgeEvent).syncDataToSponge(spongeEvent);
+                syncToSponge(forgeEvent, spongeEvent);
             }
         }
 
@@ -284,11 +282,10 @@ public class SpongeModEventManager extends SpongeEventManager {
             post(spongeEvent, listenerCache.getListenersByOrder(order), false, false, useCauseStackManager);
         }
 
-        if (spongeEvent instanceof Cancellable && spongeEvent != forgeEvent) {
-            if (forgeEvent.isCancelable() && ((Cancellable) spongeEvent).isCancelled()) {
-                forgeEvent.setCanceled(true);
-            }
+        if (isNotSameEvent) {
+            syncToForge(forgeEvent, spongeEvent);
         }
+
         return forgeEvent.isCancelable() && forgeEvent.isCanceled();
     }
 
@@ -370,4 +367,25 @@ public class SpongeModEventManager extends SpongeEventManager {
         // no checking for modifications required
         return post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true, useCauseStackManager);
     }
+
+    private void syncToForge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, Event spongeEvent) {
+        // Sync the forge event from Sponge so everything gets the same data
+        ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
+
+        // Sponge event may be cancelled, cancel Forge event
+        if (forgeEvent.isCancelable() && spongeEvent instanceof Cancellable) {
+            forgeEvent.setCanceled(((Cancellable) spongeEvent).isCancelled());
+        }
+    }
+
+    private void syncToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, Event spongeEvent) {
+        // Sync the forge event back to Sponge
+        ((IMixinEvent) forgeEvent).syncDataToSponge(spongeEvent);
+
+        // Forge event may have been cancelled, cancel Sponge event if so.
+        if (forgeEvent.isCancelable() && spongeEvent instanceof Cancellable) {
+            ((Cancellable) spongeEvent).setCancelled(forgeEvent.isCanceled());
+        }
+    }
+
 }
