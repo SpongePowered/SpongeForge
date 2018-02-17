@@ -27,7 +27,6 @@ package org.spongepowered.mod.mixin.core.forge;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.IHopper;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntityDispenser;
 import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraft.util.EnumFacing;
@@ -47,9 +46,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.IMixinInventory;
-import org.spongepowered.common.item.inventory.EmptyInventoryImpl;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
-import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 
 import javax.annotation.Nullable;
 
@@ -79,7 +76,7 @@ public abstract class MixinVanillaInventoryCodeHooks {
     private static void onTransferItemsOut(TileEntityHopper hopper, CallbackInfoReturnable<Boolean> cir, EnumFacing hopperFacing,
             Pair<IItemHandler, Object> destinationResult, IItemHandler itemHandler, Object destination) {
         if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_PRE) {
-            if (SpongeCommonEventFactory.callTransferPre(toInventory(hopper), toInventory(destination, itemHandler)).isCancelled()) {
+            if (SpongeCommonEventFactory.callTransferPre(InventoryUtil.toInventory(hopper, null), InventoryUtil.toInventory(destination, itemHandler)).isCancelled()) {
                 cir.setReturnValue(true);
             }
         }
@@ -93,9 +90,9 @@ public abstract class MixinVanillaInventoryCodeHooks {
             for (int i = 0; i < itemHandler.getSlots(); i++) {
                 // Find first item that can be extracted
                 if (!itemHandler.extractItem(i, 1, true).isEmpty()) {
-                    Inventory source = toInventory(itemHandlerResult.getValue(), itemHandler);
+                    Inventory source = InventoryUtil.toInventory(itemHandlerResult.getValue(), itemHandler);
                     if (source.totalItems() != 0) {
-                        if (SpongeCommonEventFactory.callTransferPre(source, toInventory(hopper)).isCancelled()) {
+                        if (SpongeCommonEventFactory.callTransferPre(source, InventoryUtil.toInventory(hopper, null)).isCancelled()) {
                             cir.setReturnValue(false);
                         }
                     }
@@ -111,7 +108,7 @@ public abstract class MixinVanillaInventoryCodeHooks {
             CallbackInfoReturnable<Boolean> cir, EnumFacing enumFacing, BlockPos blockPos, Pair<IItemHandler, Object> destinationResult,
             IItemHandler itemHandler, Object destination) {
         if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_PRE) {
-            if (SpongeCommonEventFactory.callTransferPre(toInventory(dropper), toInventory(destination, itemHandler)).isCancelled()) {
+            if (SpongeCommonEventFactory.callTransferPre(InventoryUtil.toInventory(dropper, null), InventoryUtil.toInventory(destination, itemHandler)).isCancelled()) {
                 cir.setReturnValue(false);
             }
         }
@@ -124,7 +121,7 @@ public abstract class MixinVanillaInventoryCodeHooks {
                     + "Lnet/minecraftforge/items/IItemHandler;Lnet/minecraft/item/ItemStack;I)Lnet/minecraft/item/ItemStack;"))
     private static ItemStack onInsertStack(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot) {
         if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
-            return SpongeCommonEventFactory.captureTransaction(forCapture(source), toInventory(destination, destInventory), slot,
+            return SpongeCommonEventFactory.captureTransaction(InventoryUtil.forCapture(source), InventoryUtil.toInventory(destination, destInventory), slot,
                     () -> insertStack(source, destination, destInventory, stack, slot));
         }
         return insertStack(source, destination, destInventory, stack, slot);
@@ -137,7 +134,7 @@ public abstract class MixinVanillaInventoryCodeHooks {
             Object inv = getItemHandler(dest, EnumFacing.UP).getValue();
             ItemStack origin = handler.getStackInSlot(slot).copy(); // Capture Origin
             ItemStack result = handler.extractItem(slot, amount, simulate);
-            SpongeCommonEventFactory.captureTransaction(forCapture(dest), toInventory(inv, handler), slot, origin);
+            SpongeCommonEventFactory.captureTransaction(InventoryUtil.forCapture(dest), InventoryUtil.toInventory(inv, handler), slot, origin);
             return result;
         }
         return handler.extractItem(slot, amount, simulate);
@@ -150,7 +147,7 @@ public abstract class MixinVanillaInventoryCodeHooks {
             ItemStack destStack = dest.getStackInSlot(index).copy(); // Capture Origin
             destStack.shrink(1);
             dest.setInventorySlotContents(index, stack);
-            SpongeCommonEventFactory.captureTransaction(forCapture(dest), toInventory(dest), index, destStack);
+            SpongeCommonEventFactory.captureTransaction(InventoryUtil.forCapture(dest), InventoryUtil.toInventory(dest, null), index, destStack);
         } else {
             dest.setInventorySlotContents(index, stack);
         }
@@ -168,12 +165,12 @@ public abstract class MixinVanillaInventoryCodeHooks {
         if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
             // after putStackInInventoryAllSlots
             if (remainder.isEmpty()) {
-                IMixinInventory capture = forCapture(hopper);
+                IMixinInventory capture = InventoryUtil.forCapture(hopper);
                 if (capture == null) {
                     return;
                 }
-                Inventory sInv = toInventory(hopper, null);
-                Inventory dInv = toInventory(destination, itemHandler);
+                Inventory sInv = InventoryUtil.toInventory(hopper, null);
+                Inventory dInv = InventoryUtil.toInventory(destination, itemHandler);
                 SpongeCommonEventFactory.captureTransaction(capture, sInv, i, originalSlotContents);
                 if (SpongeCommonEventFactory.callTransferPost(capture, sInv, dInv)) {
                     if (originalSlotContents.isEmpty()) {
@@ -189,7 +186,7 @@ public abstract class MixinVanillaInventoryCodeHooks {
     private static void onPullItemsDone(IHopper dest, CallbackInfoReturnable<Boolean> cir, Pair<IItemHandler, Object> itemHandlerResult,
             IItemHandler handler, int i, ItemStack extractItem, int j, ItemStack destStack) {
         if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
-            SpongeCommonEventFactory.callTransferPost(forCapture(dest), toInventory(itemHandlerResult.getValue(), handler), toInventory(dest));
+            SpongeCommonEventFactory.callTransferPost(InventoryUtil.forCapture(dest), InventoryUtil.toInventory(itemHandlerResult.getValue(), handler), InventoryUtil.toInventory(dest, null));
         }
     }
 
@@ -200,37 +197,12 @@ public abstract class MixinVanillaInventoryCodeHooks {
             Object destination, ItemStack dispensedStack, ItemStack remainder) {
         if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
             // after setInventorySlotContents if return false
-            IMixinInventory capture = forCapture(dropper);
-            Inventory source = toInventory(dropper);
-            Inventory destInv = toInventory(destination, itemHandler);
+            IMixinInventory capture = InventoryUtil.forCapture(dropper);
+            Inventory source = InventoryUtil.toInventory(dropper, null);
+            Inventory destInv = InventoryUtil.toInventory(destination, itemHandler);
             SpongeCommonEventFactory.captureTransaction(capture, source, slot, stack);
             SpongeCommonEventFactory.callTransferPost(capture, source, destInv);
         }
-    }
-
-    // Utility
-    private static Inventory toInventory(Object te) {
-        return toInventory(te, null);
-    }
-
-    private static Inventory toInventory(Object te, IItemHandler itemHandler) {
-        if (te instanceof TileEntityChest) {
-            te = InventoryUtil.getDoubleChestInventory(((TileEntityChest) te)).orElse(((Inventory) te));
-        }
-        if (te instanceof Inventory) {
-            return ((Inventory) te);
-        }
-        if (itemHandler instanceof Inventory) {
-            return ((Inventory) itemHandler);
-        }
-        return new IItemHandlerAdapter(itemHandler);
-    }
-
-    private static IMixinInventory forCapture(Object toCapture) {
-        if (toCapture instanceof IMixinInventory) {
-            return ((IMixinInventory) toCapture);
-        }
-        return null;
     }
 
 }

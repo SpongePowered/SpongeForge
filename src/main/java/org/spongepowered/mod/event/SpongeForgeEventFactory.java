@@ -165,7 +165,9 @@ public class SpongeForgeEventFactory {
     public static Class<? extends net.minecraftforge.fml.common.eventhandler.Event> getForgeEventClass(Event spongeEvent) {
         final Class<? extends Event> clazz = spongeEvent.getClass();
         if (ChangeInventoryEvent.Pickup.Pre.class.isAssignableFrom(clazz)) {
-            return EntityItemPickupEvent.class;
+            if (spongeEvent.getCause().root() instanceof Player) {
+                return EntityItemPickupEvent.class;
+            }
         }
         if (DestructEntityEvent.Death.class.isAssignableFrom(clazz)) {
             return LivingDeathEvent.class;
