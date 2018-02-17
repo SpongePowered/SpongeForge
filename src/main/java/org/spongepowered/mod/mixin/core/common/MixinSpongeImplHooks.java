@@ -35,6 +35,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
@@ -51,7 +52,6 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.MapStorage;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
@@ -60,8 +60,11 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.logging.log4j.Level;
 import org.spongepowered.api.command.args.ChildCommandElementExecutor;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.crafting.CraftingGridInventory;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
@@ -71,19 +74,21 @@ import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.command.SpongeCommandFactory;
 import org.spongepowered.common.event.tracking.PhaseContext;
-import org.spongepowered.common.item.inventory.util.InventoryUtil;
-import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
+import org.spongepowered.common.item.inventory.util.InventoryUtil;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.common.util.SpawnerSpawnType;
 import org.spongepowered.mod.command.SpongeForgeCommand;
 import org.spongepowered.mod.interfaces.IMixinBlock;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
+import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
@@ -558,5 +563,22 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static Predicate<PluginContainer> getPluginFilterPredicate() {
         return plugin -> !SpongeCommandFactory.CONTAINER_LIST_STATICS.contains(plugin.getId()) && plugin instanceof SpongeModPluginContainer;
+    }
+
+    /**
+     * @author Faithcaio
+     * @reason Adds support for modded inventories
+     */
+    @Overwrite
+    public static Inventory toInventory(Object inventory, @Nullable Object fallback) {
+        if (inventory instanceof IInventory) {
+            return ((Inventory) new InvWrapper(((IInventory) inventory)));
+        }
+        if (fallback instanceof IItemHandler) {
+            return new IItemHandlerAdapter(((IItemHandler) fallback));
+        }
+        String fallbackName = fallback == null ? "no fallback" : fallback.getClass().getName();
+        SpongeImpl.getLogger().error("Unknown inventory " + inventory.getClass().getName() + " and " + fallbackName + " report this to Sponge");
+        return null;
     }
 }
