@@ -339,6 +339,12 @@ public class SpongeMod extends MetaModContainer {
     @Subscribe
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         try {
+            try {
+                ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
+            } catch (Throwable t) {
+                this.controller.errorOccurred(this, t);
+            }
+
             // Register vanilla-style commands (if necessary -- not necessary on client)
             ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerEarlyCommands(this.game);
         } catch (Throwable t) {
@@ -357,11 +363,7 @@ public class SpongeMod extends MetaModContainer {
         // This is intentionally called multiple times on the client -
         // once for each time a new server is started (when a world is selected from the gui)
         SpongePlayerDataHandler.init();
-        try {
-            ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
-        } catch (Throwable t) {
-            this.controller.errorOccurred(this, t);
-        }
+
 
     }
 
