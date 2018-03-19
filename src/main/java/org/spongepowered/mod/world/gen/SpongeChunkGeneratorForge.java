@@ -66,8 +66,10 @@ import org.spongepowered.api.world.gen.GenerationPopulator;
 import org.spongepowered.api.world.gen.Populator;
 import org.spongepowered.api.world.gen.PopulatorType;
 import org.spongepowered.api.world.gen.populator.BigMushroom;
+import org.spongepowered.api.world.gen.populator.BlockBlob;
 import org.spongepowered.api.world.gen.populator.Cactus;
 import org.spongepowered.api.world.gen.populator.DeadBush;
+import org.spongepowered.api.world.gen.populator.DesertWell;
 import org.spongepowered.api.world.gen.populator.Dungeon;
 import org.spongepowered.api.world.gen.populator.Flower;
 import org.spongepowered.api.world.gen.populator.Forest;
@@ -288,26 +290,20 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 otype = GenerateMinable.EventType.LAPIS;
             } else if (type.equals(BlockTypes.QUARTZ_ORE)) {
                 otype = GenerateMinable.EventType.QUARTZ;
-            } else if(type.equals(BlockTypes.EMERALD_ORE)) {
+            } else if (type.equals(BlockTypes.EMERALD_ORE)) {
                 otype = GenerateMinable.EventType.EMERALD;
-            } else if(type.equals(BlockTypes.MONSTER_EGG)) {
+            } else if (type.equals(BlockTypes.MONSTER_EGG)) {
                 otype = GenerateMinable.EventType.SILVERFISH;
             }
-            if (otype != null) {
-                return TerrainGen.generateOre((net.minecraft.world.World) chunk.getWorld(), this.rand, (WorldGenerator) populator,
-                        VecHelper.toBlockPos(chunk.getBlockMin()), otype);
-            }
-            return true;
+            return otype == null || TerrainGen
+                    .generateOre((World) chunk.getWorld(), this.rand, (WorldGenerator) populator, VecHelper.toBlockPos(chunk.getBlockMin()), otype);
         }
-        Populate.EventType etype = getForgeEventTypeForPopulator(populator, chunk);
+        Populate.EventType etype = this.getForgeEventTypeForPopulator(populator, chunk);
         if (etype != null) {
             return TerrainGen.populate(chunkProvider, (net.minecraft.world.World) chunk.getWorld(), this.rand, chunkX, chunkZ, village_flag, etype);
         }
-        Decorate.EventType detype = getForgeDecorateEventTypeForPopulator(populator, chunk);
-        if (detype != null) {
-            return TerrainGen.decorate((net.minecraft.world.World) chunk.getWorld(), this.rand, VecHelper.toBlockPos(chunk.getBlockMin()), detype);
-        }
-        return true;
+        Decorate.EventType detype = this.getForgeDecorateEventTypeForPopulator(populator, chunk);
+        return detype == null || TerrainGen.decorate((World) chunk.getWorld(), this.rand, VecHelper.toBlockPos(chunk.getBlockMin()), detype);
     }
 
     private Populate.EventType getForgeEventTypeForPopulator(Populator populator, Chunk chunk) {
@@ -395,23 +391,30 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         if (populator instanceof Cactus) {
             return Decorate.EventType.CACTUS;
         }
+        if (populator instanceof DesertWell) {
+            return Decorate.EventType.DESERT_WELL;
+        }
+        if (populator instanceof BlockBlob) {
+            final BlockType type = ((BlockBlob) populator).getBlock().getType();
+            if (type.equals(BlockTypes.MOSSY_COBBLESTONE)) {
+                return Decorate.EventType.ROCK;
+            }
+        }
         if (populator instanceof RandomBlock) {
-            BlockType type = ((RandomBlock) populator).getBlock().getType();
+            final BlockType type = ((RandomBlock) populator).getBlock().getType();
+            
             if (type.equals(BlockTypes.FLOWING_WATER) || type.equals(BlockTypes.WATER)) {
                 return Decorate.EventType.LAKE_WATER;
             } else if (type.equals(BlockTypes.FLOWING_LAVA) || type.equals(BlockTypes.LAVA)) {
-                if (chunk.getWorld().getProperties().getGeneratorType().equals(GeneratorTypes.NETHER)) {
-                    return null;
+                if (!chunk.getWorld().getProperties().getGeneratorType().equals(GeneratorTypes.NETHER)) {
+                    return Decorate.EventType.LAKE_LAVA;
                 }
-                return Decorate.EventType.LAKE_LAVA;
-            } else {
-                return null;
             }
         }
-        if(populator instanceof Fossil) {
+        if (populator instanceof Fossil) {
             return Decorate.EventType.FOSSIL;
         }
-        return null;
+        return Decorate.EventType.CUSTOM;
     }
 
     @Override
