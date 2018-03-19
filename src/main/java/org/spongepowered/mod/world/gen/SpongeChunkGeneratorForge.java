@@ -375,7 +375,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             return Decorate.EventType.FLOWERS;
         }
         if (populator instanceof Shrub) {
-            return Decorate.EventType.TREE;
+            return Decorate.EventType.GRASS;
         }
         if (populator instanceof DeadBush) {
             return Decorate.EventType.DEAD_BUSH;
