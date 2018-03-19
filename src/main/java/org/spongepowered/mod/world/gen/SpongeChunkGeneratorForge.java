@@ -189,7 +189,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         org.spongepowered.api.world.World spongeWorld = (org.spongepowered.api.world.World) this.world;
         Extent volume = new SoftBufferExtentViewDownsize(chunk.getWorld(), min, min.add(15, 255, 15), min.sub(8, 0, 8), min.add(23, 255, 23));
         for (Populator populator : populators) {
-            if (!checkForgeEvent(populator, this, chunkX, chunkZ, flags, chunk)) {
+            if (!this.checkForgeEvent(populator, this, chunkX, chunkZ, flags, chunk)) {
                 continue;
             }
             final PopulatorType type = populator.getType();
@@ -299,11 +299,15 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                     .generateOre((World) chunk.getWorld(), this.rand, (WorldGenerator) populator, VecHelper.toBlockPos(chunk.getBlockMin()), otype);
         }
         Populate.EventType etype = this.getForgeEventTypeForPopulator(populator, chunk);
-        if (etype != null) {
-            return TerrainGen.populate(chunkProvider, (net.minecraft.world.World) chunk.getWorld(), this.rand, chunkX, chunkZ, village_flag, etype);
-        }
+        boolean populate = TerrainGen.populate(chunkProvider, (net.minecraft.world.World) chunk.getWorld(), this.rand, chunkX, chunkZ, village_flag,
+                etype);
+
         Decorate.EventType detype = this.getForgeDecorateEventTypeForPopulator(populator, chunk);
-        return detype == null || TerrainGen.decorate((World) chunk.getWorld(), this.rand, VecHelper.toBlockPos(chunk.getBlockMin()), detype);
+
+        boolean decorate = TerrainGen.decorate((World) chunk.getWorld(), this.rand, VecHelper.toBlockPos(chunk.getBlockMin()), detype);
+
+        // TODO May need to separate this..
+        return populate && decorate;
     }
 
     private Populate.EventType getForgeEventTypeForPopulator(Populator populator, Chunk chunk) {
@@ -333,19 +337,16 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                     if (((RandomBlock) populator).getPlacementTarget().equals(WorldGenConstants.HELL_LAVA_ENCLOSED)) {
                         return Populate.EventType.NETHER_LAVA2;
                     }
+
                     return Populate.EventType.NETHER_LAVA;
                 }
-                return null;
             } else if (type.equals(BlockTypes.FIRE)) {
                 if (chunk.getWorld().getProperties().getGeneratorType().equals(GeneratorTypes.NETHER)) {
                     return Populate.EventType.FIRE;
                 }
-                return null;
-            } else {
-                return null;
             }
         }
-        return null;
+        return Populate.EventType.CUSTOM;
     }
 
     private Decorate.EventType getForgeDecorateEventTypeForPopulator(Populator populator, Chunk chunk) {
@@ -402,7 +403,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         }
         if (populator instanceof RandomBlock) {
             final BlockType type = ((RandomBlock) populator).getBlock().getType();
-            
+
             if (type.equals(BlockTypes.FLOWING_WATER) || type.equals(BlockTypes.WATER)) {
                 return Decorate.EventType.LAKE_WATER;
             } else if (type.equals(BlockTypes.FLOWING_LAVA) || type.equals(BlockTypes.LAVA)) {
