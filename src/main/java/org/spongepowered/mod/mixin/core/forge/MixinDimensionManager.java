@@ -147,6 +147,10 @@ public abstract class MixinDimensionManager {
         return forgeDimIds;
     }
 
+    /**
+     * @author Zidane - Chris Sanders
+     * @reason Redirect all logic to the WorldManager.
+     */
     @Overwrite
     public static void setWorld(int id, WorldServer world, MinecraftServer server) {
         if (world != null) {
@@ -154,9 +158,11 @@ public abstract class MixinDimensionManager {
             server.worldTickTimes.put(id, new long[100]);
             FMLLog.info("Loading dimension %d (%s) (%s)", id, world.getWorldInfo().getWorldName(), world.getMinecraftServer());
         } else {
-            WorldManager.unloadWorld(WorldManager.getWorldByDimensionId(id).orElseThrow(() -> new RuntimeException("Attempt made to unload a "
-                    + "world with dimension id [" + id + "].")), false);
-            server.worldTickTimes.remove(id);
+            final WorldServer worldServer = WorldManager.getWorldByDimensionId(id).orElse(null);
+            if (worldServer != null) {
+                WorldManager.unloadWorld(worldServer, false);
+                server.worldTickTimes.remove(id);
+            }
         }
 
         WorldManager.reorderWorldsVanillaFirst();
