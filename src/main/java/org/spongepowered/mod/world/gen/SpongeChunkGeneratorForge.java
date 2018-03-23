@@ -52,9 +52,13 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.type.DoublePlantType;
+import org.spongepowered.api.data.type.DoublePlantTypes;
 import org.spongepowered.api.data.type.StoneType;
 import org.spongepowered.api.data.type.StoneTypes;
 import org.spongepowered.api.event.SpongeEventFactory;
+import org.spongepowered.api.util.weighted.TableEntry;
+import org.spongepowered.api.util.weighted.WeightedObject;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.api.world.biome.BiomeGenerationSettings;
@@ -102,6 +106,7 @@ import org.spongepowered.common.world.gen.populators.PlainsGrassPopulator;
 import org.spongepowered.common.world.gen.populators.SnowPopulator;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
+import java.rmi.activation.ActivationGroup_Stub;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -391,10 +396,23 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         if (populator instanceof BigMushroom) {
             return Decorate.EventType.BIG_SHROOM;
         }
+        if (populator instanceof DoublePlant) {
+            for (final TableEntry<DoublePlantType> entry : ((DoublePlant) populator).getPossibleTypes()) {
+                if (entry instanceof WeightedObject) {
+                    if (((WeightedObject) entry).get() == DoublePlantTypes.GRASS) {
+                        return Decorate.EventType.GRASS;
+                    } else {
+                        if (((WeightedObject) entry).get() == DoublePlantTypes.SUNFLOWER) {
+                            return Decorate.EventType.FLOWERS;
+                        }
+                    }
+                }
+            }
+        }
         if (populator instanceof Flower) {
             return Decorate.EventType.FLOWERS;
         }
-        if (populator instanceof Shrub || populator instanceof DoublePlant) {
+        if (populator instanceof Shrub) {
             return Decorate.EventType.GRASS;
         }
         if (populator instanceof DeadBush) {
