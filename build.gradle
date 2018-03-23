@@ -86,7 +86,7 @@ artifacts {
 
 allprojects {
     // Re-obfuscate only after creating the shadowDevJar
-    tasks.findByName('reobfJar')?.mustRunAfter rootProject.tasks.shadowDevJar
+    tasks.findByName('reobfJar')?.mustRunAfter this.tasks.shadowDevJar
 }
 
 tasks.withType(ShadowJar) {
