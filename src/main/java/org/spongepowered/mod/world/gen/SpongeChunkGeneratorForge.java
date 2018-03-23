@@ -70,6 +70,7 @@ import org.spongepowered.api.world.gen.populator.BlockBlob;
 import org.spongepowered.api.world.gen.populator.Cactus;
 import org.spongepowered.api.world.gen.populator.DeadBush;
 import org.spongepowered.api.world.gen.populator.DesertWell;
+import org.spongepowered.api.world.gen.populator.DoublePlant;
 import org.spongepowered.api.world.gen.populator.Dungeon;
 import org.spongepowered.api.world.gen.populator.Flower;
 import org.spongepowered.api.world.gen.populator.Forest;
@@ -97,6 +98,7 @@ import org.spongepowered.common.world.gen.SpongeChunkGenerator;
 import org.spongepowered.common.world.gen.SpongeGenerationPopulator;
 import org.spongepowered.common.world.gen.WorldGenConstants;
 import org.spongepowered.common.world.gen.populators.AnimalPopulator;
+import org.spongepowered.common.world.gen.populators.PlainsGrassPopulator;
 import org.spongepowered.common.world.gen.populators.SnowPopulator;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
@@ -188,17 +190,38 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         Vector3i min = new Vector3i(chunkX * 16 + 8, 0, chunkZ * 16 + 8);
         org.spongepowered.api.world.World spongeWorld = (org.spongepowered.api.world.World) this.world;
         Extent volume = new SoftBufferExtentViewDownsize(chunk.getWorld(), min, min.add(15, 255, 15), min.sub(8, 0, 8), min.add(23, 255, 23));
+
         for (Populator populator : populators) {
-            if (!this.checkForgeEvent(populator, this, chunkX, chunkZ, flags, chunk)) {
-                continue;
+            if (!(populator instanceof PlainsGrassPopulator)) {
+                if (!this.checkForgeEvent(populator, this, chunkX, chunkZ, flags, chunk)) {
+                    continue;
+                }
+            } else {
+                final PlainsGrassPopulator grassPop = (PlainsGrassPopulator) populator;
+
+                if (!this.checkForgeEvent(grassPop.getFlowers(), this, chunkX, chunkZ, flags, chunk)) {
+                    grassPop.setPopulateFlowers(false);
+                }
+
+                if (!this.checkForgeEvent(grassPop.getGrass(), this, chunkX, chunkZ, flags, chunk)) {
+                    grassPop.setPopulateGrass(false);
+                }
+
+                if (!this.checkForgeEvent(grassPop.getPlant(), this, chunkX, chunkZ, flags, chunk)) {
+                    grassPop.setPopulateGrass(false);
+                }
+
+                if (!grassPop.isPopulateFlowers() && !grassPop.isPopulateGrass()) {
+                    continue;
+                }
             }
+
             final PopulatorType type = populator.getType();
-            if (type == null) {
-                System.err.printf("Found a populator with a null type: %s populator%n", populator);
-            }
+
             if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(Sponge.getCauseStackManager().getCurrentCause(), populator, chunk))) {
                 continue;
             }
+
             try (PopulatorPhaseContext context = GenerationPhase.State.POPULATOR_RUNNING.createPhaseContext()
                     .world(this.world)
                     .populator(type)
@@ -371,7 +394,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         if (populator instanceof Flower) {
             return Decorate.EventType.FLOWERS;
         }
-        if (populator instanceof Shrub) {
+        if (populator instanceof Shrub || populator instanceof DoublePlant) {
             return Decorate.EventType.GRASS;
         }
         if (populator instanceof DeadBush) {
