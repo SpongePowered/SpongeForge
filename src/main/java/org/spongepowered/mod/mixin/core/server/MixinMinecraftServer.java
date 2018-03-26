@@ -24,26 +24,38 @@
  */
 package org.spongepowered.mod.mixin.core.server;
 
+import net.minecraft.profiler.Snooper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.world.ChunkTicketManager;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.IMixinMinecraftServer;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
 import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
 
 @Mixin(value = MinecraftServer.class, priority = 1001)
 public abstract class MixinMinecraftServer implements Server, IMixinMinecraftServer {
 
+    @Shadow @Final private static Logger LOGGER;
+    @Shadow @Final private Snooper usageSnooper;
+
     public ChunkTicketManager chunkTicketManager = new SpongeChunkTicketManager();
 
     @Shadow(remap = false) public Hashtable<Integer, long[]> worldTickTimes;
+
+    @Shadow private boolean serverIsRunning;
 
     @Override
     public long[] getWorldTickTimes(int dimensionId) {
@@ -86,5 +98,76 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
         }
 
         return ret;
+    }
+
+    /**
+     * @author Zidane - Chris Sanders
+     * @reason Overwrite to take control of the stopping process and direct to WorldManager
+     */
+    @Overwrite
+    public void stopServer()
+    {
+        LOGGER.info("Stopping server");
+
+        // Sponge Start - Force player profile cache save
+        ((MinecraftServer) (Object) this).getPlayerProfileCache().save();
+
+        final MinecraftServer server = (MinecraftServer) (Object) this;
+        if (server.getNetworkSystem() != null)
+        {
+            server.getNetworkSystem().terminateEndpoints();
+        }
+
+        if (server.getPlayerList() != null)
+        {
+            LOGGER.info("Saving players");
+            server.getPlayerList().saveAllPlayerData();
+            server.getPlayerList().removeAllPlayers();
+        }
+
+        if (server.worlds != null)
+        {
+            LOGGER.info("Saving worlds");
+
+            for (WorldServer worldserver : server.worlds)
+            {
+                if (worldserver != null)
+                {
+                    worldserver.disableLevelSaving = false;
+                }
+            }
+
+            server.saveAllWorlds(false);
+
+            for (WorldServer worldserver1 : server.worlds)
+            {
+                if (worldserver1 != null)
+                {
+                    // Turn off Async Lighting
+                    if (SpongeImpl.getGlobalConfig().getConfig().getModules().useOptimizations() &&
+                        SpongeImpl.getGlobalConfig().getConfig().getOptimizations().useAsyncLighting()) {
+                        ((IMixinWorldServer) worldserver1).getLightingExecutor().shutdown();
+
+                        try {
+                            ((IMixinWorldServer) worldserver1).getLightingExecutor().awaitTermination(1, TimeUnit.SECONDS);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } finally {
+                            ((IMixinWorldServer) worldserver1).getLightingExecutor().shutdownNow();
+                        }
+                    }
+
+                    // Direct to WorldManager for unload
+                    WorldManager.unloadWorld(worldserver1, false);
+                    // Sponge End
+                    worldserver1.flush();
+                }
+            }
+        }
+
+        if (usageSnooper.isSnooperRunning())
+        {
+            this.usageSnooper.stopSnooper();
+        }
     }
 }
