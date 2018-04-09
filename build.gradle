@@ -48,6 +48,20 @@ compileJava {
     options.compilerArgs += [ "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild" ]
 }
 
+if (project.hasProperty('spongeKeyStore')) {
+    task signShadowJar(type: SignJar, dependsOn: reobfJar) {
+        keyStore = project.spongeKeyStore
+        alias = project.spongeKeyStoreAlias
+        storePass = project.spongeKeyStorePass
+        keyPass = project.spongeKeyStoreKeyPass
+        inputFile = shadowJar.archivePath
+        outputFile = shadowJar.archivePath
+    }
+
+    signShadowJar.dependsOn shadowJar
+    build.dependsOn signShadowJar
+}
+
 jar {
     exclude 'log4j2.xml' // log4j2 configuration is for the development workspace only
 
