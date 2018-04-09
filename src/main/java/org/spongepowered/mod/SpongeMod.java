@@ -26,6 +26,7 @@ package org.spongepowered.mod;
 
 import com.flowpowered.noise.module.combiner.Min;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
@@ -43,6 +44,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
 import net.minecraftforge.fml.client.FMLFolderResourcePack;
+import net.minecraftforge.fml.common.CertificateHelper;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
@@ -62,6 +64,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.Level;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -78,6 +81,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.api.world.ChunkTicketManager;
+import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
@@ -119,6 +123,8 @@ import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.cert.Certificate;
+import java.util.List;
 
 public class SpongeMod extends MetaModContainer {
 
@@ -130,6 +136,10 @@ public class SpongeMod extends MetaModContainer {
 
     private LoadController controller;
     private File modFile;
+
+    // treat this field as final
+    private static String EXPECTED_CERTIFICATE_FINGERPRINT = "@expected_certificate_fingerprint@";
+    private Certificate certificate;
 
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
@@ -239,6 +249,48 @@ public class SpongeMod extends MetaModContainer {
         if (!event.getClass().equals(FMLConstructionEvent.class)) {
             SpongeImpl.postEvent((Event) event, true);
         }
+    }
+
+    @Subscribe
+    public void construction(final FMLConstructionEvent event) {
+        this.checkFingerprint();
+    }
+
+    // CSI: Sponge
+    private void checkFingerprint() {
+        final Certificate[] certificates = this.getClass().getProtectionDomain().getCodeSource().getCertificates();
+        final List<String> fingerprints = CertificateHelper.getFingerprints(certificates);
+        if (Launch.blackboard.getOrDefault("fml.deobfuscatedEnvironment", "false").equals("true")) {
+            SpongeImpl.getLogger().debug("Skipping certificate fingerprint check - we're in a deobfuscated environment");
+            return;
+        }
+        if (!EXPECTED_CERTIFICATE_FINGERPRINT.isEmpty()) {
+            if (!fingerprints.contains(EXPECTED_CERTIFICATE_FINGERPRINT)) {
+                final PrettyPrinter pp = new PrettyPrinter(60).wrapTo(60);
+                pp.add("Uh oh! Something's fishy here.").centre().hr();
+                pp.addWrapped("It looks like we didn't find the certificate fingerprint we were expecting.");
+                pp.add();
+                pp.add("%s: %s", "Expected Fingerprint", EXPECTED_CERTIFICATE_FINGERPRINT);
+                if (fingerprints.size() > 1) {
+                    pp.add("Actual Fingerprints:");
+                    for (final String fingerprint : fingerprints) {
+                        pp.add(" - %s", fingerprint);
+                    }
+                } else {
+                    pp.add("%s: %s", "Actual Fingerprint", fingerprints.get(0));
+                }
+                pp.log(SpongeImpl.getLogger(), Level.ERROR);
+            } else {
+                this.certificate = certificates[fingerprints.indexOf(EXPECTED_CERTIFICATE_FINGERPRINT)];
+            }
+        } else {
+            SpongeImpl.getLogger().warn("There's no certificate fingerprint available");
+        }
+    }
+
+    @Override
+    public Certificate getSigningCertificate() {
+        return this.certificate;
     }
 
     @Subscribe
