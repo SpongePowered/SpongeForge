@@ -24,6 +24,7 @@
         "entity.ai.MixinEntityAIBase",
         "entity.item.MixinEntityItem",
         "entity.living.MixinEntityLivingBase",
+        "entity.passive.MixinEntityVillager",
         "entity.player.MixinEntityPlayer",
         "entity.player.MixinEntityPlayerMP",
         "entity.vehicle.MixinEntityMinecart",
