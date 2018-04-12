@@ -33,7 +33,7 @@ import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.mixin.entityactivation.MixinEntity_Activation;
 
 @NonnullByDefault
-@Mixin(EntityItem.class)
+@Mixin(value = EntityItem.class, priority = 1001)
 public abstract class MixinEntityItem_Activation extends MixinEntity_Activation {
 
     @Shadow public abstract ItemStack getItem();
