@@ -260,7 +260,7 @@ public class SpongeMod extends MetaModContainer {
     private void checkFingerprint() {
         final Certificate[] certificates = this.getClass().getProtectionDomain().getCodeSource().getCertificates();
         final List<String> fingerprints = CertificateHelper.getFingerprints(certificates);
-        if (Launch.blackboard.getOrDefault("fml.deobfuscatedEnvironment", "false").equals("true")) {
+        if (((Boolean) Launch.blackboard.getOrDefault("fml.deobfuscatedEnvironment", false))) {
             SpongeImpl.getLogger().debug("Skipping certificate fingerprint check - we're in a deobfuscated environment");
             return;
         }
