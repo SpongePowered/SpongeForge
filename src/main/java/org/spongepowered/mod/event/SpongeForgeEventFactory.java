@@ -496,7 +496,7 @@ public class SpongeForgeEventFactory {
     }
 
     private static LoadChunkEvent createLoadChunkEvent(ChunkEvent.Load forgeEvent) {
-        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
+        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().onMainThread();
         if (isMainThread) {
             Sponge.getCauseStackManager().pushCause(forgeEvent.getWorld());
         }
@@ -505,7 +505,7 @@ public class SpongeForgeEventFactory {
     }
 
     private static UnloadChunkEvent createUnloadChunkEvent(ChunkEvent.Unload forgeEvent) {
-        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
+        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().onMainThread();
         if (isMainThread) {
             Sponge.getCauseStackManager().pushCause(forgeEvent.getWorld());
         }

@@ -30,7 +30,6 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Stage;
-import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
@@ -52,13 +51,10 @@ import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLStateEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -96,7 +92,6 @@ import org.spongepowered.common.registry.type.effect.SoundRegistryModule;
 import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.item.EnchantmentRegistryModule;
-import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
 import org.spongepowered.common.service.sql.SqlServiceImpl;
@@ -112,6 +107,7 @@ import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.registry.SpongeForgeModuleRegistry;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 import org.spongepowered.mod.registry.SpongeGameData;
+import org.spongepowered.mod.scheduler.SchedulerListener;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
@@ -125,7 +121,6 @@ public class SpongeMod extends MetaModContainer {
     public static SpongeMod instance;
 
     @Inject private SpongeGame game;
-    @Inject private SpongeScheduler scheduler;
     @Inject private Logger logger;
 
     private LoadController controller;
@@ -201,6 +196,7 @@ public class SpongeMod extends MetaModContainer {
 
         this.game.getEventManager().registerListeners(this, this);
         SpongeImpl.getInternalPlugins().add((PluginContainer) ForgeModContainer.getInstance());
+        MinecraftForge.EVENT_BUS.register(new SchedulerListener());
     }
 
     @Override
@@ -314,24 +310,6 @@ public class SpongeMod extends MetaModContainer {
             }
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
-        }
-    }
-
-    @SubscribeEvent
-    public void onTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            this.scheduler.tickSyncScheduler();
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @SubscribeEvent
-    public void onTick(TickEvent.ClientTickEvent event) {
-        // If we haven't launched the integrated server, allow the sync scheduler to still pulse tasks
-        if (!Minecraft.getMinecraft().isIntegratedServerRunning()) {
-            if (event.phase == TickEvent.Phase.START) {
-                this.scheduler.tickSyncScheduler();
-            }
         }
     }
 

@@ -260,7 +260,7 @@ public class SpongeModEventManager extends SpongeEventManager {
     public static boolean shouldUseCauseStackManager(boolean allowClientThread) {
         final boolean client = Sponge.getGame().getPlatform().getExecutionType().isClient();
         final boolean hasServer = Sponge.isServerAvailable();
-        return (allowClientThread && client && !hasServer) || (hasServer && Sponge.getServer().isMainThread());
+        return (allowClientThread && client && !hasServer) || (hasServer && Sponge.getServer().onMainThread());
     }
 
     // Uses Forge mixins

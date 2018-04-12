@@ -33,10 +33,13 @@ import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.integrated.IntegratedServer;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.client.Client;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.asm.lib.Opcodes;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -44,6 +47,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.client.ClientInternal;
 import org.spongepowered.common.interfaces.IMixinIntegratedServer;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
@@ -54,7 +58,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Mixin(Minecraft.class)
-public abstract class MixinMinecraft implements IMixinMinecraft {
+public abstract class MixinMinecraft implements Client, IMixinMinecraft {
 
     private static final String LOAD_WORLD = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V";
     private static final String ENTITY_PLAYER_PREPARE_TO_SPAWN = "Lnet/minecraft/client/entity/EntityPlayerSP;preparePlayerToSpawn()V";
@@ -62,6 +66,8 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
             "Lnet/minecraft/world/storage/ISaveHandler;saveWorldInfo(Lnet/minecraft/world/storage/WorldInfo;)V";
     private static final String FORGE_TRANSFORMER_EXIT_VISITOR =
             "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V";
+
+    @Final @Shadow private Thread mcThread;
 
     @Shadow private LanguageManager mcLanguageManager;
     @Shadow private IntegratedServer integratedServer;
@@ -157,4 +163,15 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
             this.kickMessage = null;
         }
     }
+
+    @Override
+    public Scheduler getScheduler() {
+        return ClientInternal.SCHEDULER;
+    }
+
+    @Override
+    public boolean onMainThread() {
+        return Thread.currentThread() == this.mcThread;
+    }
+
 }

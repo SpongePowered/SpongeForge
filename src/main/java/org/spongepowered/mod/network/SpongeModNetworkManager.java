@@ -91,7 +91,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
     public void onCustomPacketRegistration(CustomPacketRegistrationEvent<?> event) {
         Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
         ;
-        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
+        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().onMainThread();
         try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
             if (isMainThread) {
                 if (event.getHandler() instanceof NetHandlerPlayServer) {
