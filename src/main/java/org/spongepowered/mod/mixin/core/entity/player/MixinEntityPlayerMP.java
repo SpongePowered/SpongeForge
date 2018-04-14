@@ -51,7 +51,7 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
      * @author gabizou - April 7th, 2018
      * @reason reroute teleportation logic to common
      */
-    @Overwrite
+    @Overwrite(remap = false)
     @Nullable
     public Entity changeDimension(int dimensionId, ITeleporter teleporter) {
         return EntityUtil.teleportPlayerToDimension((EntityPlayerMP) (Object) this, dimensionId, (IMixinTeleporter) (Object) teleporter);
