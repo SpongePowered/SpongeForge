@@ -24,18 +24,36 @@
  */
 package org.spongepowered.mod.mixin.core.entity.player;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.interfaces.world.IMixinTeleporter;
 import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
+
+import javax.annotation.Nullable;
 
 @Mixin(value = EntityPlayerMP.class, priority = 1001)
 public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
     @Shadow private NetHandlerPlayServer connection;
 
+    // TODO - investigate whether this is used anywhere.
     public boolean usesCustomClient() {
         return this.connection.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
+    }
+
+    /**
+     * @author gabizou - April 7th, 2018
+     * @reason reroute teleportation logic to common
+     */
+    @Overwrite
+    @Nullable
+    public Entity changeDimension(int dimensionId, ITeleporter teleporter) {
+        return EntityUtil.teleportPlayerToDimension((EntityPlayerMP) (Object) this, dimensionId, (IMixinTeleporter) (Object) teleporter);
     }
 }
