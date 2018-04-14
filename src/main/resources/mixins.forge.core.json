@@ -56,6 +56,7 @@
         "forge.MixinVanillaInventoryCodeHooks",
         "forge.common.MixinForgeChunkManager$Ticket",
         "forge.common.MixinForgeHooks",
+        "forge.common.util.MixinITeleporter",
         "forge.event.MixinForgeEventFactory",
         "forge.event.MixinServerChatEvent",
         "forge.fluids.MixinFluid",
