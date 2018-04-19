@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod;
 
-import com.flowpowered.noise.module.combiner.Min;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
@@ -35,9 +33,6 @@ import com.google.inject.Stage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
@@ -87,7 +82,6 @@ import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
-import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.inject.SpongeGuice;

@@ -145,6 +145,7 @@ import org.spongepowered.common.interfaces.world.IMixinLocation;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
+import org.spongepowered.common.registry.type.event.InternalSpawnTypes;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
@@ -158,6 +159,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class SpongeForgeEventFactory {
 
@@ -978,37 +980,21 @@ public class SpongeForgeEventFactory {
 
     public static DropItemEvent.Dispense callItemTossEvent(Event event) {
         DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
-        if (spongeEvent.getEntities().size() <= 0) {
-            return spongeEvent;
-        }
-        final Cause cause = spongeEvent.getCause();
-        Object source = cause.root();
-        Optional<DamageSource> damageSource = cause.first(DamageSource.class);
-        final Optional<Entity> spawnEntity = cause.first(Entity.class);
-        final Optional<SpawnType> spawnType = cause.getContext().get(EventContextKeys.SPAWN_TYPE);
-        if (!spawnType.isPresent() || !damageSource.isPresent() || !spawnEntity.isPresent()) {
-            // Mods expect EntityJoinWorldEvent to trigger
-            callEntityJoinWorldEvent(spongeEvent);
-            return spongeEvent;
-        }
-        Entity entity = spawnEntity.get();
-        EntityItem item = (EntityItem) spongeEvent.getEntities().get(0);
-        if (entity == null || item == null || item.getItem() == null || !(entity instanceof Player)) {
+        if (spongeEvent.getEntities().isEmpty()) {
             return spongeEvent;
         }
 
-        ItemTossEvent forgeEvent = new ItemTossEvent(item, (EntityPlayerMP) entity);
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-        if (forgeEvent.isCanceled()) {
-            if (item.isDead) {
-                // Don't restore packet item if a mod wants it dead
-                // Mods such as Flux-Networks kills the entity item to spawn a custom one
-                return spongeEvent;
-            }
-            spongeEvent.setCancelled(true);
-        } else {
-            // Forge treats EntityJoinWorldEvent separately from Toss so we need to call it here
-            callEntityJoinWorldEvent(spongeEvent);
+        // Mods always expect an EntityJoinWorld
+        callEntityJoinWorldEvent(spongeEvent);
+
+        final Cause cause = event.getCause();
+        final SpawnType spawnType = cause.getContext().get(EventContextKeys.SPAWN_TYPE).orElse(null);
+
+        // Fire ItemToss for each item being tossed with a Player as the root cause
+        if (cause.root() instanceof EntityPlayerMP && spawnType != null && spawnType == InternalSpawnTypes.DROPPED_ITEM) {
+            final EntityPlayerMP serverPlayer = (EntityPlayerMP) cause.root();
+            spongeEvent.filterEntities(e -> (e instanceof EntityItem) && ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ItemTossEvent(
+              (EntityItem) e, serverPlayer), true));
         }
 
         return spongeEvent;
@@ -1017,7 +1003,7 @@ public class SpongeForgeEventFactory {
     public static SpawnEntityEvent callEntityJoinWorldEvent(Event event) {
         SpawnEntityEvent spongeEvent = (SpawnEntityEvent) event;
         ListIterator<org.spongepowered.api.entity.Entity> iterator = spongeEvent.getEntities().listIterator();
-        if (spongeEvent.getEntities().size() == 0) {
+        if (spongeEvent.getEntities().isEmpty()) {
             return spongeEvent;
         }
 
