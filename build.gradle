@@ -34,6 +34,7 @@ version = "$minecraft.version-$forgeBuild-$apiSuffix-$buildNumber"
 
 minecraft {
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
+    replace '@expected_certificate_fingerprint@', project.hasProperty('spongeCertificateFingerprint') ? project.property('spongeCertificateFingerprint') : ''
 }
 
 sponge.plugin.meta {
@@ -46,6 +47,20 @@ sponge.plugin.meta {
 
 compileJava {
     options.compilerArgs += [ "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild" ]
+}
+
+if (project.hasProperty('spongeKeyStore')) {
+    task signShadowJar(type: SignJar, dependsOn: reobfJar) {
+        keyStore = project.spongeKeyStore
+        alias = project.spongeKeyStoreAlias
+        storePass = project.spongeKeyStorePass
+        keyPass = project.spongeKeyStoreKeyPass
+        inputFile = shadowJar.archivePath
+        outputFile = shadowJar.archivePath
+    }
+
+    signShadowJar.dependsOn shadowJar
+    build.dependsOn signShadowJar
 }
 
 jar {
@@ -86,7 +101,7 @@ artifacts {
 
 allprojects {
     // Re-obfuscate only after creating the shadowDevJar
-    tasks.findByName('reobfJar')?.mustRunAfter rootProject.tasks.shadowDevJar
+    tasks.findByName('reobfJar')?.mustRunAfter this.tasks.shadowDevJar
 }
 
 tasks.withType(ShadowJar) {

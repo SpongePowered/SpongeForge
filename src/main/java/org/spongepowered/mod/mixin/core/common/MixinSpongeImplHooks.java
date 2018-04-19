@@ -83,6 +83,7 @@ import org.spongepowered.common.command.SpongeCommandFactory;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
+import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
@@ -587,6 +588,19 @@ public abstract class MixinSpongeImplHooks {
         String fallbackName = fallback == null ? "no fallback" : fallback.getClass().getName();
         SpongeImpl.getLogger().error("Unknown inventory " + inventory.getClass().getName() + " and " + fallbackName + " report this to Sponge");
         return null;
+    }
+
+    /**
+     * @author Zidane
+     * @reason Switch to {@link TileEntityInvalidatingPhaseState} for mods who change the world but we don't want to capture.
+     */
+    @Overwrite
+    public static void onTileEntityInvalidate(TileEntity te) {
+        try (final PhaseContext<?> o = BlockPhase.State.TILE_ENTITY_INVALIDATING.createPhaseContext()
+            .source(te)
+            .buildAndSwitch()) {
+            te.invalidate();
+        }
     }
 
     /**

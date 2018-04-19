@@ -24,12 +24,15 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.ChunkProviderServer;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.mixin.core.world.MixinWorld;
 import org.spongepowered.common.world.gen.SpongeChunkGenerator;
@@ -48,6 +51,11 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
     @Override
     public Integer getDimensionId() {
         return this.provider.getDimension();
+    }
+
+    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/DimensionManager;setWorld(ILnet/minecraft/world/WorldServer;Lnet/minecraft/server/MinecraftServer;)V"))
+    private void redirectSetWorld(int id, WorldServer world, MinecraftServer server) {
+        // Handled by WorldManager
     }
 
     @Override

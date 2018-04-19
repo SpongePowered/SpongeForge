@@ -22,14 +22,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.state;
+package org.spongepowered.mod.mixin.entityactivation;
 
-import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
-import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.mixin.entityactivation.MixinEntity_Activation;
 
 @NonnullByDefault
-@Mixin(FMLServerStoppingEvent.class)
-public abstract class MixinEventServerStopping extends MixinEventState implements GameStoppingServerEvent {
+@Mixin(value = EntityItem.class, priority = 1001)
+public abstract class MixinEntityItem_Activation extends MixinEntity_Activation {
+
+    @Shadow public abstract ItemStack getItem();
+
+    @Shadow private int pickupDelay;
+    @Shadow private int age;
+    @Shadow public int lifespan;
+
+    @Override
+    public void inactiveTick() {
+        if (this.pickupDelay > 0 && this.pickupDelay != 32767) {
+            --this.pickupDelay;
+        }
+
+        if (!this.world.isRemote && this.lifespan == 6000) {
+            if (this.age >= ((IMixinWorldServer) this.world).getActiveConfig().getConfig().getEntity().getItemDespawnRate()) {
+                this.setDead();
+            }
+        } else if (!this.world.isRemote && this.age >= this.lifespan) {
+            this.setDead();
+        }
+    }
 }
