@@ -32,6 +32,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -57,6 +58,7 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
@@ -89,6 +91,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.SpongeEventFactory;
+import org.spongepowered.api.event.action.FishingEvent;
 import org.spongepowered.api.event.action.SleepingEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -124,6 +127,7 @@ import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.event.world.chunk.TargetChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.util.Direction;
@@ -145,6 +149,7 @@ import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.registry.type.event.InternalSpawnTypes;
 import org.spongepowered.common.text.SpongeTexts;
@@ -160,6 +165,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class SpongeForgeEventFactory {
 
@@ -241,6 +247,9 @@ public class SpongeForgeEventFactory {
         }
         if (UnloadChunkEvent.class.isAssignableFrom(clazz)) {
             return ChunkEvent.Unload.class;
+        }
+        if (FishingEvent.Stop.class.isAssignableFrom(clazz)) {
+            return ItemFishedEvent.class;
         }
         return null;
     }
@@ -557,6 +566,8 @@ public class SpongeForgeEventFactory {
             return callExplosionEventPre(spongeEvent);
         } else if (net.minecraftforge.event.world.ExplosionEvent.Detonate.class.isAssignableFrom(clazz)) {
             return callExplosionEventDetonate(spongeEvent);
+        } else if (ItemFishedEvent.class.isAssignableFrom(clazz)) {
+            return callItemFishedEvent(spongeEvent);
         }
         return spongeEvent;
     }
@@ -1354,5 +1365,33 @@ public class SpongeForgeEventFactory {
         final net.minecraft.world.chunk.Chunk chunk = (net.minecraft.world.chunk.Chunk) spongeEvent.getTargetChunk();
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ChunkEvent.Unload(chunk), true);
         return spongeEvent;
+    }
+
+    private static Event callItemFishedEvent(Event spongeEvent) {
+        final FishingEvent.Stop daFisher = (FishingEvent.Stop) spongeEvent;
+        final List<Transaction<ItemStackSnapshot>> potentialFishies = daFisher.getTransactions();
+        if (potentialFishies.isEmpty()) {
+            return daFisher;
+        }
+
+        final List<ItemStack> daFishies = daFisher.getTransactions()
+          .stream()
+          .filter(Transaction::isValid)
+          .map(daFish -> daFish.getFinal().createStack())
+          .map(ItemStackUtil::toNative)
+          .collect(Collectors.toList());
+
+        if (daFishies.isEmpty()) {
+            return daFisher;
+        }
+
+        final ItemFishedEvent riverTroll = new ItemFishedEvent(daFishies, 0, (EntityFishHook) daFisher.getFishHook());
+        if (((IMixinEventBus) MinecraftForge.EVENT_BUS).post(riverTroll, true)) {
+            // Fishies be mine! Leave Dem fishies!
+            daFisher.setCancelled(true);
+        }
+
+        // Smart fish
+        return daFisher;
     }
 }
