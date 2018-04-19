@@ -462,7 +462,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("World", this.world)
+                .add("world", this.world)
                 .toString();
     }
 }
