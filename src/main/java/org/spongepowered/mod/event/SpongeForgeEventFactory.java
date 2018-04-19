@@ -98,6 +98,7 @@ import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.spawn.SpawnType;
+import org.spongepowered.api.event.entity.AffectEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
@@ -159,7 +160,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class SpongeForgeEventFactory {
 
@@ -207,6 +207,9 @@ public class SpongeForgeEventFactory {
             return LivingDropsEvent.class;
         }
         if (DropItemEvent.Dispense.class.isAssignableFrom(clazz)) {
+            return ItemTossEvent.class;
+        }
+        if (DropItemEvent.Custom.class.isAssignableFrom(clazz)) {
             return ItemTossEvent.class;
         }
         if (ClientConnectionEvent.Join.class.isAssignableFrom(clazz)) {
@@ -529,7 +532,7 @@ public class SpongeForgeEventFactory {
         } else if (LivingDropsEvent.class.isAssignableFrom(clazz)) {
             return callLivingDropsEvent(spongeEvent);
         } else if (ItemTossEvent.class.isAssignableFrom(clazz)) {
-            return callItemTossEvent(spongeEvent);
+            return callForgeDropItemEvent(spongeEvent);
         } else if (PlayerLoggedInEvent.class.isAssignableFrom(clazz)) {
             return callPlayerLoggedInEvent(spongeEvent);
         } else if (PlayerLoggedOutEvent.class.isAssignableFrom(clazz)) {
@@ -978,10 +981,10 @@ public class SpongeForgeEventFactory {
         return spongeEvent;
     }
 
-    public static DropItemEvent.Dispense callItemTossEvent(Event event) {
-        DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) event;
+    public static DropItemEvent callForgeDropItemEvent(Event event) {
+        AffectEntityEvent spongeEvent = (AffectEntityEvent) event;
         if (spongeEvent.getEntities().isEmpty()) {
-            return spongeEvent;
+            return (DropItemEvent) event;
         }
 
         // Mods always expect an EntityJoinWorld
@@ -990,14 +993,14 @@ public class SpongeForgeEventFactory {
         final Cause cause = event.getCause();
         final SpawnType spawnType = cause.getContext().get(EventContextKeys.SPAWN_TYPE).orElse(null);
 
-        // Fire ItemToss for each item being tossed with a Player as the root cause
+        // Fire ItemToss for each item being tossed with a Player as the root cause and dropped item is the spawn type
         if (cause.root() instanceof EntityPlayerMP && spawnType != null && spawnType == InternalSpawnTypes.DROPPED_ITEM) {
             final EntityPlayerMP serverPlayer = (EntityPlayerMP) cause.root();
             spongeEvent.filterEntities(e -> (e instanceof EntityItem) && !((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ItemTossEvent(
               (EntityItem) e, serverPlayer), true));
         }
 
-        return spongeEvent;
+        return (DropItemEvent) spongeEvent;
     }
 
     public static SpawnEntityEvent callEntityJoinWorldEvent(Event event) {
