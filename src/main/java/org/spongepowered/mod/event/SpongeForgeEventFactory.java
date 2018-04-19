@@ -993,7 +993,7 @@ public class SpongeForgeEventFactory {
         // Fire ItemToss for each item being tossed with a Player as the root cause
         if (cause.root() instanceof EntityPlayerMP && spawnType != null && spawnType == InternalSpawnTypes.DROPPED_ITEM) {
             final EntityPlayerMP serverPlayer = (EntityPlayerMP) cause.root();
-            spongeEvent.filterEntities(e -> (e instanceof EntityItem) && ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ItemTossEvent(
+            spongeEvent.filterEntities(e -> (e instanceof EntityItem) && !((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ItemTossEvent(
               (EntityItem) e, serverPlayer), true));
         }
 
