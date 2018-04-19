@@ -707,7 +707,7 @@ public class SpongeForgeEventFactory {
                 }
 
                 spongeEvent.filterEntities(e -> (e instanceof EntityItem) && !((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ItemTossEvent(
-                  (EntityItem) e, serverPlayer), true));
+                    (EntityItem) e, serverPlayer), true));
 
                 callEntityJoinWorldEvent(spongeEvent);
                 handleCustomStack((SpawnEntityEvent) event);
@@ -726,10 +726,10 @@ public class SpongeForgeEventFactory {
             if (damageSource != null) {
 
                 final List<EntityItem> items = destruct.getEntities()
-                  .stream()
-                  .filter(e -> e instanceof EntityItem)
-                  .map(e -> (EntityItem) e)
-                  .collect(Collectors.toList());
+                    .stream()
+                    .filter(e -> e instanceof EntityItem)
+                    .map(e -> (EntityItem) e)
+                    .collect(Collectors.toList());
 
                 final LivingDropsEvent forgeEvent;
 
@@ -737,11 +737,11 @@ public class SpongeForgeEventFactory {
                     final EntityPlayerMP serverPlayer = (EntityPlayerMP) living;
 
                     forgeEvent = new PlayerDropsEvent(serverPlayer, damageSource, new ArrayList<>(items), ((IMixinEntityLivingBase)
-                      serverPlayer).getRecentlyHit() > 0);
+                                                                                                               serverPlayer).getRecentlyHit() > 0);
                 } else {
                     forgeEvent = new LivingDropsEvent(living, damageSource, new ArrayList<>(items), net.minecraftforge.common.ForgeHooks
-                      .getLootingLevel(living, damageSource.getTrueSource(), damageSource),
-                      ((IMixinEntityLivingBase) living).getRecentlyHit() > 0);
+                        .getLootingLevel(living, damageSource.getTrueSource(), damageSource),
+                        ((IMixinEntityLivingBase) living).getRecentlyHit() > 0);
                 }
 
                 ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
@@ -772,7 +772,7 @@ public class SpongeForgeEventFactory {
         while (iterator.hasNext()) {
             org.spongepowered.api.entity.Entity entity = iterator.next();
             EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((Entity) entity,
-                    (net.minecraft.world.World) entity.getLocation().getExtent());
+                (net.minecraft.world.World) entity.getLocation().getExtent());
 
             ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
             Entity mcEntity = (Entity) entity;
@@ -790,6 +790,7 @@ public class SpongeForgeEventFactory {
         }
         return spongeEvent;
     }
+
 
     static void handlePrefireLogic(Event event) {
         if (event instanceof SpawnEntityEvent) {
