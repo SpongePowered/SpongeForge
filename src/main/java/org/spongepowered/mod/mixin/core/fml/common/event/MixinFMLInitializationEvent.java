@@ -22,14 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.state;
+package org.spongepowered.mod.mixin.core.fml.common.event;
 
-import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
-import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
-@Mixin(FMLServerStoppingEvent.class)
-public abstract class MixinEventServerStopping extends MixinEventState implements GameStoppingServerEvent {
+@Mixin(value = FMLInitializationEvent.class, remap = false)
+public abstract class MixinFMLInitializationEvent extends MixinFMLEvent implements GameInitializationEvent {
 }
