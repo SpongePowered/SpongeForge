@@ -12,6 +12,7 @@
         "fml.common.MixinModContainer",
         "fml.common.eventhandler.MixinASMEventHandler",
         "fml.common.eventhandler.MixinEvent",
+        "fml.common.event.MixinFMLEvent",
         "fml.common.registry.MixinGameRegistry"
     ],
     "injectors": {

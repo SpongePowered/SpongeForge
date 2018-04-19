@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.state;
+package org.spongepowered.mod.mixin.core.fml.common.event;
 
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import org.spongepowered.api.event.game.state.GameLoadCompleteEvent;
@@ -30,6 +30,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 
 @NonnullByDefault
-@Mixin(FMLLoadCompleteEvent.class)
-public abstract class MixinEventLoadComplete extends MixinEventState implements GameLoadCompleteEvent {
+@Mixin(value = FMLLoadCompleteEvent.class, remap = false)
+public abstract class MixinFMLLoadCompleteEvent extends MixinFMLEvent implements GameLoadCompleteEvent {
 }
