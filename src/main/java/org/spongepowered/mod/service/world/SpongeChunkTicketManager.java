@@ -164,7 +164,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
         @Override
         public boolean setNumChunks(int numChunks) {
-            if (numChunks > getMaxTickets(this.plugin) || (numChunks <= 0 && getMaxTickets(this.plugin) > 0)) {
+            if (numChunks > getMaxNumChunks(this.plugin) || (numChunks <= 0 && getMaxNumChunks(this.plugin) > 0)) {
                 return false;
             }
 
