@@ -198,7 +198,7 @@ public abstract class MixinDimensionManager {
         final WorldProvider provider = dimensionType.createDimension();
         // make sure to set the dimension id to avoid getting a null save folder
         provider.setDimension(dim);
-        String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(provider.getSaveFolder());
+        final String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(provider.getSaveFolder());
         WorldProperties properties = WorldManager.getWorldProperties(worldFolder).orElse(null);
         final Path worldPath = WorldManager.getCurrentSavesDirectory().get().resolve(worldFolder);
         if (properties == null || !Files.isDirectory(worldPath)) {
@@ -238,7 +238,7 @@ public abstract class MixinDimensionManager {
     @Overwrite
     public static WorldServer[] getWorlds() {
         final Collection<WorldServer> worlds = WorldManager.getWorlds();
-        return worlds.toArray(new WorldServer[worlds.size()]);
+        return worlds.toArray(new WorldServer[0]);
     }
 
     @Overwrite

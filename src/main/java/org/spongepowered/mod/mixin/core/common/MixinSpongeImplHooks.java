@@ -82,6 +82,7 @@ import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
+import org.spongepowered.common.interfaces.world.IMixinITeleporter;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
@@ -308,7 +309,7 @@ public abstract class MixinSpongeImplHooks {
      * @reason Forge compatibility
      */
     @Overwrite
-    public static void registerPortalAgentType(@Nullable Teleporter teleporter) {
+    public static void registerPortalAgentType(@Nullable IMixinITeleporter teleporter) {
         if (teleporter == null) {
             return;
         }
