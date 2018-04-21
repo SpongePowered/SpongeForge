@@ -94,6 +94,7 @@
     ],
     "client": [
         "client.MixinMinecraft",
+        "client.gui.MixinGuiOptions",
         "client.gui.MixinGuiOverlayDebug",
         "client.multiplayer.MixinChunkProviderClient",
         "client.network.MixinNetHandlerPlayClient",
