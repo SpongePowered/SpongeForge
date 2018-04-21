@@ -27,6 +27,8 @@ package org.spongepowered.mod.mixin.core.nbt;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import org.apache.logging.log4j.Level;
 import org.spongepowered.api.util.PEBKACException;
 import org.spongepowered.asm.mixin.Mixin;
@@ -45,10 +47,16 @@ public class MixinNBTTagCompound {
     private void checkNullTag(String key, NBTBase value, CallbackInfo callbackInfo) {
         if (value == null) {
             final PrettyPrinter printer = new PrettyPrinter(60);
-            printer.add("Null being stored in NBT!!!").centre().hr();
-            printer.addWrapped("Sponge is forcing a shutdown of the game because someone is storing nulls in an NBTTagCompound. "
-                               + "Our implementation and Minecraft's strictly prevents this from happening, however, certain mods are"
-                               + "not null checking. Please provide this report in a report to the associated mod!");
+            printer.add("Null being stored in NBT!").centre().hr();
+            printer.addWrapped("Sponge is forcing a shutdown of the game because someone is storing nulls in an NBTTagCompound. Our implementation "
+              + "and Minecraft's strictly prevents this from happening, however, certain mods are not null checking. Please provide this report in "
+              + "a report to the associated mod!");
+            final ModContainer mod = Loader.instance().activeModContainer();
+            if (mod != null) {
+                printer.add("Potential Culprit: " + mod.getModId());
+            } else {
+                printer.add("Potential Culprit: Not known, analyze stacktrace for clues");
+            }
             printer.add("NBT Key: %s", key);
             printer.add("Exception!");
             final PEBKACException pebkacException = new PEBKACException("Someone is trying to store a null to an NBTTagCompound!");
