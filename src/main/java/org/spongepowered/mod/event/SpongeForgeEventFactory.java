@@ -248,6 +248,10 @@ public class SpongeForgeEventFactory {
 
     // ====================================  FORGE TO SPONGE START ==================================== \\
     public static Event createSpongeEvent(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
+        return propgateCancellation(createSpongeEventImpl(forgeEvent), forgeEvent);
+    }
+
+    private static Event createSpongeEventImpl(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
         if (forgeEvent instanceof BlockEvent.MultiPlaceEvent) {
             return createChangeBlockEventPlace((BlockEvent.MultiPlaceEvent) forgeEvent);
         }
@@ -273,6 +277,13 @@ public class SpongeForgeEventFactory {
             return createUseItemStackEvent((LivingEntityUseItemEvent) forgeEvent);
         }
         return null;
+    }
+
+    private static Event propgateCancellation(Event spongeEvent, net.minecraftforge.fml.common.eventhandler.Event forgeEvent) {
+        if (spongeEvent instanceof Cancellable && forgeEvent.isCancelable()) {
+            ((Cancellable) spongeEvent).setCancelled(forgeEvent.isCanceled());
+        }
+        return spongeEvent;
     }
 
     private static Event createUseItemStackEvent(LivingEntityUseItemEvent forgeEvent) {
