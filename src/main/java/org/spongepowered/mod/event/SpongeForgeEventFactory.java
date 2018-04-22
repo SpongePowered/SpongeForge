@@ -679,13 +679,12 @@ public class SpongeForgeEventFactory {
         final SpawnType spawnType = cause.getContext().get(EventContextKeys.SPAWN_TYPE).orElse(null);
 
         // Fire ItemToss for each item being tossed with a Player as the root cause and dropped item is the spawn type
-        if (cause.root() instanceof EntityLivingBase) {
-            final EntityLivingBase living = (EntityLivingBase) cause.root();
+        if (cause.root() instanceof EntityPlayerMP) {
+            final EntityPlayerMP serverPlayer = (EntityPlayerMP) cause.root();
 
-            // ItemToss
-            if (spawnType != null && spawnType == InternalSpawnTypes.DROPPED_ITEM && living instanceof EntityPlayerMP) {
+            if (spawnType != null && spawnType == InternalSpawnTypes.DROPPED_ITEM) {
                 spongeEvent.filterEntities(e -> (e instanceof EntityItem) && !((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ItemTossEvent(
-                  (EntityItem) e, (EntityPlayerMP) living), true));
+                  (EntityItem) e, serverPlayer), true));
 
                 if (!spongeEvent.getEntities().isEmpty()) {
                     callEntityJoinWorldEvent(spongeEvent);
@@ -693,53 +692,51 @@ public class SpongeForgeEventFactory {
 
                 return spongeEvent;
             }
+        }
 
-            if (event instanceof DropItemEvent.Destruct) {
-                final DropItemEvent.Destruct destruct = (DropItemEvent.Destruct) spongeEvent;
+        final EntityLivingBase living = cause.first(EntityLivingBase.class).orElse(null);
 
-                final net.minecraft.util.DamageSource damageSource = (net.minecraft.util.DamageSource) cause.first(DamageSource.class).orElse(null);
+        if (living != null && event instanceof DropItemEvent.Destruct) {
+            final DropItemEvent.Destruct destruct = (DropItemEvent.Destruct) spongeEvent;
 
-                if (damageSource != null) {
+            final net.minecraft.util.DamageSource damageSource = (net.minecraft.util.DamageSource) cause.first(DamageSource.class).orElse(null);
 
-                    final List<EntityItem> items = destruct.getEntities()
-                      .stream()
-                      .filter(e -> e instanceof EntityItem)
-                      .map(e -> (EntityItem) e)
-                      .collect(Collectors.toList());
+            if (damageSource != null) {
 
-                    if (!items.isEmpty()) {
-                        final LivingDropsEvent forgeEvent;
+                final List<EntityItem> items = destruct.getEntities()
+                  .stream()
+                  .filter(e -> e instanceof EntityItem)
+                  .map(e -> (EntityItem) e)
+                  .collect(Collectors.toList());
+                
+                if (!items.isEmpty()) {
+                    final LivingDropsEvent forgeEvent;
 
-                        if (living instanceof EntityPlayerMP) {
-                            final EntityPlayerMP serverPlayer = (EntityPlayerMP) living;
+                    if (living instanceof EntityPlayerMP) {
+                        final EntityPlayerMP serverPlayer = (EntityPlayerMP) living;
 
-                            forgeEvent = new PlayerDropsEvent(serverPlayer, damageSource, new ArrayList<>(items), ((IMixinEntityLivingBase)
-                              serverPlayer).getRecentlyHit() > 0);
-                        } else {
-                            forgeEvent = new LivingDropsEvent(living, damageSource, new ArrayList<>(items), net.minecraftforge.common.ForgeHooks
-                              .getLootingLevel(living, damageSource.getTrueSource(), damageSource),
-                              ((IMixinEntityLivingBase) living).getRecentlyHit() > 0);
-                        }
+                        forgeEvent = new PlayerDropsEvent(serverPlayer, damageSource, new ArrayList<>(items), ((IMixinEntityLivingBase)
+                          serverPlayer).getRecentlyHit() > 0);
+                    } else {
+                        forgeEvent = new LivingDropsEvent(living, damageSource, new ArrayList<>(items), net.minecraftforge.common.ForgeHooks
+                          .getLootingLevel(living, damageSource.getTrueSource(), damageSource),
+                          ((IMixinEntityLivingBase) living).getRecentlyHit() > 0);
+                    }
 
-                        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                    ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
 
-                        if (forgeEvent.isCanceled()) {
-                            spongeEvent.setCancelled(true);
-                        } else {
-                            // Re-sync entity list from forge to sponge
-                            spongeEvent.getEntities().removeAll(items);
-                            spongeEvent.getEntities().addAll(forgeEvent.getDrops().stream().map(EntityUtil::fromNative).collect(Collectors.toList()));
-
-                            if (!spongeEvent.getEntities().isEmpty()) {
-                                callEntityJoinWorldEvent(spongeEvent);
-                            }
-                        }
+                    if (forgeEvent.isCanceled()) {
+                        spongeEvent.setCancelled(true);
+                        return spongeEvent;
+                    } else {
+                        // Re-sync entity list from forge to sponge
+                        spongeEvent.getEntities().removeAll(items);
+                        spongeEvent.getEntities().addAll(forgeEvent.getDrops().stream().map(EntityUtil::fromNative).collect(Collectors.toList()));
                     }
                 }
             }
         }
-
-        return spongeEvent;
+        return callEntityJoinWorldEvent(spongeEvent);
     }
 
     private static SpawnEntityEvent callEntityJoinWorldEvent(Event event) {
