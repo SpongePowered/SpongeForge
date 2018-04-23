@@ -433,5 +433,4 @@ public class SpongeMod extends MetaModContainer {
     public Logger getLogger() {
         return this.logger;
     }
-
 }

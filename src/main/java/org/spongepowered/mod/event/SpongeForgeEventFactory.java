@@ -69,7 +69,6 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.advancement.Advancement;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.tileentity.TileEntity;
@@ -695,9 +694,6 @@ public class SpongeForgeEventFactory {
 
     private static Event callForgeItemDropEvent(Event event) {
         final AffectEntityEvent spongeEvent = (AffectEntityEvent) event;
-        if (spongeEvent.getEntities().isEmpty()) {
-            return event;
-        }
 
         final Cause cause = event.getCause();
         final SpawnType spawnType = cause.getContext().get(EventContextKeys.SPAWN_TYPE).orElse(null);
@@ -707,12 +703,14 @@ public class SpongeForgeEventFactory {
             final EntityPlayerMP serverPlayer = (EntityPlayerMP) cause.root();
 
             if (spawnType != null && spawnType == InternalSpawnTypes.DROPPED_ITEM) {
+                if (spongeEvent.getEntities().isEmpty()) {
+                    return event;
+                }
+
                 spongeEvent.filterEntities(e -> (e instanceof EntityItem) && !((IMixinEventBus) MinecraftForge.EVENT_BUS).post(new ItemTossEvent(
                   (EntityItem) e, serverPlayer), true));
 
-                if (!spongeEvent.getEntities().isEmpty()) {
-                    callEntityJoinWorldEvent(spongeEvent);
-                }
+                callEntityJoinWorldEvent(spongeEvent);
 
                 return spongeEvent;
             }
@@ -733,30 +731,28 @@ public class SpongeForgeEventFactory {
                   .map(e -> (EntityItem) e)
                   .collect(Collectors.toList());
 
-                if (!items.isEmpty()) {
-                    final LivingDropsEvent forgeEvent;
+                final LivingDropsEvent forgeEvent;
 
-                    if (living instanceof EntityPlayerMP) {
-                        final EntityPlayerMP serverPlayer = (EntityPlayerMP) living;
+                if (living instanceof EntityPlayerMP) {
+                    final EntityPlayerMP serverPlayer = (EntityPlayerMP) living;
 
-                        forgeEvent = new PlayerDropsEvent(serverPlayer, damageSource, new ArrayList<>(items), ((IMixinEntityLivingBase)
-                          serverPlayer).getRecentlyHit() > 0);
-                    } else {
-                        forgeEvent = new LivingDropsEvent(living, damageSource, new ArrayList<>(items), net.minecraftforge.common.ForgeHooks
-                          .getLootingLevel(living, damageSource.getTrueSource(), damageSource),
-                          ((IMixinEntityLivingBase) living).getRecentlyHit() > 0);
-                    }
+                    forgeEvent = new PlayerDropsEvent(serverPlayer, damageSource, new ArrayList<>(items), ((IMixinEntityLivingBase)
+                      serverPlayer).getRecentlyHit() > 0);
+                } else {
+                    forgeEvent = new LivingDropsEvent(living, damageSource, new ArrayList<>(items), net.minecraftforge.common.ForgeHooks
+                      .getLootingLevel(living, damageSource.getTrueSource(), damageSource),
+                      ((IMixinEntityLivingBase) living).getRecentlyHit() > 0);
+                }
 
-                    ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
 
-                    if (forgeEvent.isCanceled()) {
-                        spongeEvent.setCancelled(true);
-                        return spongeEvent;
-                    } else {
-                        // Re-sync entity list from forge to sponge
-                        spongeEvent.getEntities().removeAll(items);
-                        spongeEvent.getEntities().addAll(forgeEvent.getDrops().stream().map(EntityUtil::fromNative).collect(Collectors.toList()));
-                    }
+                if (forgeEvent.isCanceled()) {
+                    spongeEvent.setCancelled(true);
+                    return spongeEvent;
+                } else {
+                    // Re-sync entity list from forge to sponge
+                    spongeEvent.getEntities().removeAll(items);
+                    spongeEvent.getEntities().addAll(forgeEvent.getDrops().stream().map(EntityUtil::fromNative).collect(Collectors.toList()));
                 }
             }
         }
