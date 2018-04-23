@@ -53,6 +53,7 @@ import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.player.AdvancementEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
@@ -68,6 +69,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.advancement.Advancement;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.tileentity.TileEntity;
@@ -242,6 +244,9 @@ public class SpongeForgeEventFactory {
         }
         if (UseItemStackEvent.Finish.class.isAssignableFrom(clazz)) {
             return LivingEntityUseItemEvent.Finish.class;
+        }
+        if (org.spongepowered.api.event.advancement.AdvancementEvent.Grant.class.isAssignableFrom(clazz)) {
+            return AdvancementEvent.class;
         }
         return null;
     }
@@ -557,6 +562,8 @@ public class SpongeForgeEventFactory {
             return callItemFishedEvent(spongeEvent);
         } else if (LivingEntityUseItemEvent.class.isAssignableFrom(clazz)) {
             return callLivingUseItemEvent((UseItemStackEvent) spongeEvent);
+        } else if (AdvancementEvent.class.isAssignableFrom(clazz)) {
+            return callAdvancementGrantEvent((org.spongepowered.api.event.advancement.AdvancementEvent.Grant) spongeEvent);
         }
         return spongeEvent;
     }
@@ -595,6 +602,12 @@ public class SpongeForgeEventFactory {
             ((Cancellable) spongeEvent).setCancelled(true);
         }
 
+        return spongeEvent;
+    }
+
+    private static Event callAdvancementGrantEvent(org.spongepowered.api.event.advancement.AdvancementEvent.Grant spongeEvent) {
+        AdvancementEvent forgeEvent = new AdvancementEvent((EntityPlayer) spongeEvent.getTargetEntity(), (net.minecraft.advancements.Advancement) spongeEvent.getAdvancement());
+        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
         return spongeEvent;
     }
 
@@ -719,7 +732,7 @@ public class SpongeForgeEventFactory {
                   .filter(e -> e instanceof EntityItem)
                   .map(e -> (EntityItem) e)
                   .collect(Collectors.toList());
-                
+
                 if (!items.isEmpty()) {
                     final LivingDropsEvent forgeEvent;
 
