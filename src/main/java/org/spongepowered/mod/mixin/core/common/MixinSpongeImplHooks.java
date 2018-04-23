@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.common;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import net.minecraft.block.Block;
@@ -33,6 +34,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -80,6 +82,7 @@ import org.spongepowered.common.command.SpongeCommandFactory;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
+import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
@@ -92,9 +95,11 @@ import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
@@ -580,5 +585,42 @@ public abstract class MixinSpongeImplHooks {
         String fallbackName = fallback == null ? "no fallback" : fallback.getClass().getName();
         SpongeImpl.getLogger().error("Unknown inventory " + inventory.getClass().getName() + " and " + fallbackName + " report this to Sponge");
         return null;
+    }
+
+    /**
+     * @author Zidane
+     * @reason Switch to {@link TileEntityInvalidatingPhaseState} for mods who change the world but we don't want to capture.
+     */
+    @Overwrite
+    public static void onTileEntityInvalidate(TileEntity te) {
+        try (final PhaseContext<?> o = BlockPhase.State.TILE_ENTITY_INVALIDATING.createPhaseContext()
+            .source(te)
+            .buildAndSwitch()) {
+            te.invalidate();
+        }
+    }
+
+    /**
+     * @author gabizou
+     * @reason Supports using the captured drop list for entities from forge.
+     * @param phaseContext
+     * @param owner
+     * @param entityitem
+     */
+    @Overwrite
+    public static void capturePerEntityItemDrop(PhaseContext<?> phaseContext, Entity owner,
+        EntityItem entityitem) {
+        ArrayListMultimap<UUID, EntityItem> map = phaseContext.getPerEntityItemEntityDropSupplier().get();
+        ArrayList<EntityItem> entityItems = (ArrayList<EntityItem>) map.get(owner.getUniqueID());
+        // Re-assigns the list, to ensure that the list is being used.
+        ArrayList<EntityItem> capturedDrops = owner.capturedDrops;
+        if (capturedDrops != entityItems) {
+            owner.capturedDrops = entityItems;
+            // If the list was not empty, go ahead and populate sponge's since we had to re-assign the list.
+            if (!capturedDrops.isEmpty()) {
+                entityItems.addAll(capturedDrops);
+            }
+        }
+        entityItems.add(entityitem);
     }
 }
