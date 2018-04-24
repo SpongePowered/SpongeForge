@@ -98,16 +98,8 @@ public final class StaticMixinForgeHelper {
         }
     };
 
-    @Nullable
-    public static IBlockState breakEventExtendedState = null;
-
     // Whether to prevent ForgeInternalHandler#onEntityJoinWorld from handling custom Item entities (due to Sponge already handling it)
     public static boolean preventInternalForgeEntityListener = false;
-
-    public static DamageSource exchangeDamageSource(DamageSource damageSource) {
-
-        return damageSource;
-    }
 
     public static Optional<List<DamageFunction>> createArmorModifiers(
         EntityLivingBase entityLivingBase, DamageSource damageSource, double damage) {
