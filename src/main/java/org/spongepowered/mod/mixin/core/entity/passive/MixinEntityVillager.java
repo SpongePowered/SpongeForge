@@ -35,6 +35,7 @@ import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.entity.SpongeCareer;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.interfaces.entity.IMixinVillager;
 import org.spongepowered.common.mixin.core.entity.MixinEntityAgeable;
@@ -85,7 +86,7 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
         // Sponge Start - validate the found profession and career.
         final Profession profession = this.getProfession();
         // Set the profession back to the villager to re-sync sponge's career system
-        this.setProfession(SpongeForgeVillagerRegistry.validateProfession(professionForge, (SpongeProfession) profession));
+        this.setProfession(SpongeForgeVillagerRegistry.syncProfession(professionForge, (SpongeProfession) profession));
         final VillagerRegistry.VillagerCareer career = professionForge.getCareer(i);
         // Validate the profession's career is registered with sponge
         SpongeForgeVillagerRegistry.registerForgeCareer(career);
@@ -93,8 +94,8 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
         // Sponge  - use our own registry stuffs to get the careers now that we've verified they are registered
         final List<Career> careers = (List<Career>) profession.getCareers();
         // At this point the career should be validted and we can safely retrieve the career
-        final Career careerLevel = careers.get(this.careerId - 1);
-        SpongeForgeVillagerRegistry.validateCareer(career, careerLevel);
+        final SpongeCareer careerLevel = (SpongeCareer) careers.get(this.careerId - 1);
+        SpongeForgeVillagerRegistry.syncCareer(career, careerLevel);
 
         try {
             SpongeVillagerRegistry.getInstance()

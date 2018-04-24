@@ -187,7 +187,7 @@ public class SpongeMod extends MetaModContainer {
         SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj, oldObj) -> {
             final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) obj;
             final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
-            final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(obj, spongeProfession);
+            final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.syncProfession(obj, spongeProfession);
             ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
 
             for (VillagerRegistry.VillagerCareer career: mixinProfession.getCareers()) {
