@@ -319,20 +319,25 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     // Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
-    private boolean post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz, boolean useCauseStackManager) {
+    private CancellationData post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz, boolean useCauseStackManager) {
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         SpongeForgeEventFactory.handlePrefireLogic(spongeEvent);
+
+        CancellationData data = new CancellationData();
 
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false, useCauseStackManager);
         }
 
-        boolean cancelled = false;
         if (spongeEvent instanceof Cancellable) {
-            cancelled = ((Cancellable) spongeEvent).isCancelled();
-        }
-        if (!cancelled) {
+            data.spongeCancelled = ((Cancellable) spongeEvent).isCancelled();
+            if (!data.spongeCancelled) {
+                spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
+                // If the event is cancelled now, it must have been from calling the Forge event
+                data.forgeCancelled = ((Cancellable) spongeEvent).isCancelled();
+            }
+        } else {
             spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
         }
 
@@ -341,7 +346,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             post(spongeEvent, listenerCache.getListenersByOrder(order), false, false, useCauseStackManager);
         }
 
-        return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
+        return data;
     }
 
     @SuppressWarnings("unchecked")
@@ -383,8 +388,13 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @Override
     public boolean post(Event spongeEvent, boolean allowClientThread) {
+        this.extendedPost(spongeEvent, allowClientThread);
+        return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
+    }
+
+    public CancellationData extendedPost(Event spongeEvent, boolean allowClientThread) {
         if (!allowClientThread & Sponge.getGame().getPlatform().getExecutionType().isClient()) {
-            return false;
+            return new CancellationData(false, false);
         }
         final boolean useCauseStackManager = shouldUseCauseStackManager(allowClientThread);
         if (spongeEvent.getClass().getInterfaces().length > 0) {
@@ -394,7 +404,10 @@ public class SpongeModEventManager extends SpongeEventManager {
             }
         }
         // no checking for modifications required
-        return post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true, useCauseStackManager);
+        boolean spongeCancelled = post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true, useCauseStackManager);
+        // If we didn't fire a Forge event, forgeCancelled will always be false since there
+        // was no Forge event to cancel
+        return new CancellationData(spongeCancelled, false);
     }
 
     private void syncToForge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, Event spongeEvent) {
@@ -414,6 +427,25 @@ public class SpongeModEventManager extends SpongeEventManager {
         // Forge event may have been cancelled, cancel Sponge event if so.
         if (forgeEvent.isCancelable() && spongeEvent instanceof Cancellable) {
             ((Cancellable) spongeEvent).setCancelled(forgeEvent.isCanceled());
+        }
+    }
+
+    public class CancellationData {
+
+        /**
+         * Whether the event was cancelled by a Sponge plugin
+         */
+        public boolean spongeCancelled;
+        /**
+         * Whether the event was cancelled by a Forge plugin
+         */
+        public boolean forgeCancelled;
+
+        public CancellationData() {}
+
+        public CancellationData(boolean spongeCancelled, boolean forgeCancelled) {
+            this.spongeCancelled = spongeCancelled;
+            this.forgeCancelled = forgeCancelled;
         }
     }
 
