@@ -31,11 +31,11 @@ import java.util.stream.Stream;
  */
 public class WrappedArrayList extends ArrayList<EntityItem> {
 
-    private ArrayList<EntityItem> wrappedList;
+    private List<EntityItem> wrappedList;
     private final WeakReference<Entity> container;
     private boolean isCapturingWithSponge = false;
 
-    public WrappedArrayList(Entity entity, ArrayList<EntityItem> entityItems) {
+    public WrappedArrayList(Entity entity, List<EntityItem> entityItems) {
         this.container = new WeakReference<>(entity);
         this.wrappedList = entityItems;
         entity.capturedDrops = this;
@@ -66,16 +66,6 @@ public class WrappedArrayList extends ArrayList<EntityItem> {
 
     public boolean isValid() {
         return this.container.get() != null;
-    }
-
-    @Override
-    public void trimToSize() {
-        ifValid(entity -> this.wrappedList.trimToSize());
-    }
-
-    @Override
-    public void ensureCapacity(int minCapacity) {
-        ifValid(entity -> this.wrappedList.ensureCapacity(minCapacity));
     }
 
     @Override

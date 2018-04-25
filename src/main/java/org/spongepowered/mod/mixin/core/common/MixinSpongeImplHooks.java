@@ -99,6 +99,7 @@ import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
+import org.spongepowered.mod.util.WrappedArrayList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -616,7 +617,7 @@ public abstract class MixinSpongeImplHooks {
     public static void capturePerEntityItemDrop(PhaseContext<?> phaseContext, Entity owner,
         EntityItem entityitem) {
         ArrayListMultimap<UUID, EntityItem> map = phaseContext.getPerEntityItemEntityDropSupplier().get();
-        ArrayList<EntityItem> entityItems = (ArrayList<EntityItem>) map.get(owner.getUniqueID());
+        ArrayList<EntityItem> entityItems = new WrappedArrayList(owner, map.get(owner.getUniqueID()));
         // Re-assigns the list, to ensure that the list is being used.
         ArrayList<EntityItem> capturedDrops = owner.capturedDrops;
         if (capturedDrops != entityItems) {
