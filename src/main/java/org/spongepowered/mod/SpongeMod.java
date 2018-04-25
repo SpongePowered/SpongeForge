@@ -317,7 +317,6 @@ public class SpongeMod extends MetaModContainer {
         }
     }
 
-    @SideOnly(Side.SERVER)
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
