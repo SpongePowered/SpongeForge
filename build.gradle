@@ -46,6 +46,10 @@ sponge.plugin.meta {
     }
 }
 
+dependencies {
+    runtime testmods
+}
+
 compileJava {
     options.compilerArgs += [ "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild" ]
 }
