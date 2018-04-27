@@ -51,6 +51,7 @@ import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.living.ZombieEvent;
 import net.minecraftforge.event.entity.minecart.MinecartCollisionEvent;
 import net.minecraftforge.event.entity.minecart.MinecartInteractEvent;
+import net.minecraftforge.event.entity.player.AdvancementEvent;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
@@ -103,6 +104,7 @@ import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.event.RegisteredListener;
+import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
@@ -136,6 +138,32 @@ public class SpongeModEventManager extends SpongeEventManager {
 	Class<? extends Event>[] spawnEntityEvent = new Class[] {SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class};
 
     @SuppressWarnings("unchecked")
+    /**
+     * A mapping from Forge events to corresponding Sponge events.
+     *
+     * This mapping is used to keep the {@link ShouldFire} flags up-to-date.
+     * If a Forge mod registers an event listener for any of the Forge evnt
+     * classes in this map, the {@link ShouldFire} flags for the corresponding Sponge
+     * event will be enabled.
+     *
+     * For example, a mod listener for Forge's {@link ItemExpireEvent} will,
+     * for the purposes of {@link ShouldFire}, be treated as though a plugin
+     * has registered a listener for Sponge's {@link DestructEntityEvent.Death}.
+     * THis ensures that any Sponge code firing a {@link DestructEntityEvent.Death} and
+     * checking {@link ShouldFire} will continue to do so, even if only Forge listeners
+     * are registered.
+     *
+     * Forge events should be mapped to the most specific Sponge events that they correspond
+     * to. For example, {@link LivingEntityUseItemEvent} is mapped to all of the subinterfaces
+     * of Sponge's {@link UseItemStackEvent}, even though not all of them may actually cause a Forge
+     * event to be fired.
+     *
+     * Overall, the goal is to avoid any false negatives. False positives - mapping a Forge event
+     * to a Sponge event that doesn't actually cause it to be fired - will simply cause some
+     * {@link ShouldFire} flags to be unecessaryily <code>true</code>, making the server slightly less efficient
+     * than it could otherwise be. False negatives, on the other hand, mean that events won't be fired even
+     * though a mod is listening for them.
+     */
     public final ImmutableMultimap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, Class<? extends Event>>
             forgeToSpongeEventMapping =
             new ImmutableMultimap.Builder<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, Class<? extends Event>>()
@@ -218,6 +246,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .putAll(PlayerEvent.PlayerLoggedInEvent.class, ClientConnectionEvent.Auth.class, ClientConnectionEvent.Login.class, ClientConnectionEvent.Join.class)
                     .put(PlayerEvent.PlayerLoggedOutEvent.class, ClientConnectionEvent.Disconnect.class)
                     .put(PlayerEvent.PlayerChangedDimensionEvent.class, MoveEntityEvent.Teleport.Portal.class)
+                    .put(AdvancementEvent.class, org.spongepowered.api.event.advancement.AdvancementEvent.Grant.class)
 
                     .build();
 
@@ -290,20 +319,25 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     // Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
-    private boolean post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz, boolean useCauseStackManager) {
+    private CancellationData post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz, boolean useCauseStackManager) {
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
         SpongeForgeEventFactory.handlePrefireLogic(spongeEvent);
+
+        CancellationData data = new CancellationData();
 
         // Fire events to plugins before modifications
         for (Order order : Order.values()) {
             post(spongeEvent, listenerCache.getListenersByOrder(order), true, false, useCauseStackManager);
         }
 
-        boolean cancelled = false;
         if (spongeEvent instanceof Cancellable) {
-            cancelled = ((Cancellable) spongeEvent).isCancelled();
-        }
-        if (!cancelled) {
+            data.spongeCancelled = ((Cancellable) spongeEvent).isCancelled();
+            if (!data.spongeCancelled) {
+                spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
+                // If the event is cancelled now, it must have been from calling the Forge event
+                data.forgeCancelled = ((Cancellable) spongeEvent).isCancelled();
+            }
+        } else {
             spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
         }
 
@@ -312,7 +346,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             post(spongeEvent, listenerCache.getListenersByOrder(order), false, false, useCauseStackManager);
         }
 
-        return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
+        return data;
     }
 
     @SuppressWarnings("unchecked")
@@ -354,8 +388,13 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @Override
     public boolean post(Event spongeEvent, boolean allowClientThread) {
+        this.extendedPost(spongeEvent, allowClientThread);
+        return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
+    }
+
+    public CancellationData extendedPost(Event spongeEvent, boolean allowClientThread) {
         if (!allowClientThread & Sponge.getGame().getPlatform().getExecutionType().isClient()) {
-            return false;
+            return new CancellationData(false, false);
         }
         final boolean useCauseStackManager = shouldUseCauseStackManager(allowClientThread);
         if (spongeEvent.getClass().getInterfaces().length > 0) {
@@ -365,7 +404,10 @@ public class SpongeModEventManager extends SpongeEventManager {
             }
         }
         // no checking for modifications required
-        return post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true, useCauseStackManager);
+        boolean spongeCancelled = post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true, useCauseStackManager);
+        // If we didn't fire a Forge event, forgeCancelled will always be false since there
+        // was no Forge event to cancel
+        return new CancellationData(spongeCancelled, false);
     }
 
     private void syncToForge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, Event spongeEvent) {
@@ -385,6 +427,25 @@ public class SpongeModEventManager extends SpongeEventManager {
         // Forge event may have been cancelled, cancel Sponge event if so.
         if (forgeEvent.isCancelable() && spongeEvent instanceof Cancellable) {
             ((Cancellable) spongeEvent).setCancelled(forgeEvent.isCanceled());
+        }
+    }
+
+    public class CancellationData {
+
+        /**
+         * Whether the event was cancelled by a Sponge plugin
+         */
+        public boolean spongeCancelled;
+        /**
+         * Whether the event was cancelled by a Forge plugin
+         */
+        public boolean forgeCancelled;
+
+        public CancellationData() {}
+
+        public CancellationData(boolean spongeCancelled, boolean forgeCancelled) {
+            this.spongeCancelled = spongeCancelled;
+            this.forgeCancelled = forgeCancelled;
         }
     }
 

@@ -43,7 +43,7 @@ public class MixinVillagerRegistry {
     /**
      * @author gabizou - July 1st, 2017
      * @reason Rewrite the register method to join Sponge's villager registrations with forge's.
-     * For some auspiciouos reason, when trying to write a redirect, the redirect will fail...
+     * For some auspicious reason, when trying to write a redirect, the redirect will fail...
      *
      * @param prof The profession being registered
      * @param id The id being registered
@@ -54,7 +54,7 @@ public class MixinVillagerRegistry {
         final int professionId = this.REGISTRY.getIDForObject(prof);
         final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) prof;
         final SpongeProfession spongeProfession = new SpongeProfession(professionId, mixinProfession.getId(), mixinProfession.getProfessionName());
-        final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(prof, spongeProfession);
+        final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.syncProfession(prof, spongeProfession);
         ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
     }
 

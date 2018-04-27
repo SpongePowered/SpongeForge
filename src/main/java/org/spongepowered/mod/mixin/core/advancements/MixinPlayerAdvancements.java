@@ -22,26 +22,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.event.state;
+package org.spongepowered.mod.mixin.core.advancements;
 
-import net.minecraftforge.fml.common.event.FMLEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.GameState;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.PlayerAdvancements;
+import net.minecraft.entity.player.EntityPlayerMP;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
-@NonnullByDefault
-@Mixin(FMLStateEvent.class)
-public abstract class MixinEventState extends FMLEvent {
+@Mixin(value = PlayerAdvancements.class)
+public class MixinPlayerAdvancements {
 
-    public Game getGame() {
-        return SpongeImpl.getGame();
-    }
-
-    public GameState getState() {
-        return SpongeImpl.getGame().getState();
+    @Redirect(method = "grantCriterion", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onAdvancement(Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/advancements/Advancement;)V"))
+    private void onForgeHooks(EntityPlayerMP player, Advancement advancement) {
+        // Do nothing - we fire the event in SpongeForgeEventFactory
     }
 
 }

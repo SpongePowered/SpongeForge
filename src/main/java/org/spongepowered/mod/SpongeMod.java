@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod;
 
-import com.flowpowered.noise.module.combiner.Min;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
@@ -35,9 +33,6 @@ import com.google.inject.Stage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
@@ -87,7 +82,6 @@ import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
-import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.inject.SpongeGuice;
@@ -193,7 +187,7 @@ public class SpongeMod extends MetaModContainer {
         SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj, oldObj) -> {
             final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) obj;
             final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
-            final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(obj, spongeProfession);
+            final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.syncProfession(obj, spongeProfession);
             ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
 
             for (VillagerRegistry.VillagerCareer career: mixinProfession.getCareers()) {
@@ -236,7 +230,7 @@ public class SpongeMod extends MetaModContainer {
 
     @Override
     public Class<?> getCustomResourcePackClass() {
-        if (getSource().isDirectory()) {
+        if (this.getSource().isDirectory()) {
             return FMLFolderResourcePack.class;
         }
         return FMLFileResourcePack.class;
@@ -297,7 +291,7 @@ public class SpongeMod extends MetaModContainer {
     public void onPreInit(FMLPreInitializationEvent event) {
         try {
             SpongeImpl.getGame().getEventManager().registerListeners(SpongeImpl.getPlugin().getInstance().get(), SpongeInternalListeners.getInstance());
-            registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
+            this.registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.initializeCommands();
             SpongeImpl.getRegistry().preInit();
@@ -323,7 +317,6 @@ public class SpongeMod extends MetaModContainer {
         }
     }
 
-    @SideOnly(Side.SERVER)
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
@@ -437,5 +430,4 @@ public class SpongeMod extends MetaModContainer {
     public Logger getLogger() {
         return this.logger;
     }
-
 }
