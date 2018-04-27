@@ -24,18 +24,91 @@
  */
 package org.spongepowered.mod.test;
 
-import com.google.common.eventbus.Subscribe;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import org.spongepowered.api.plugin.Plugin;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.EntityChicken;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemEgg;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.filter.cause.Root;
+import org.spongepowered.api.event.filter.type.Exclude;
+import org.spongepowered.api.event.item.inventory.DropItemEvent;
+import org.spongepowered.api.item.ItemType;
 
-@Plugin(id = "customitemtest", name = "Custom Item Test", version = "0.0.1")
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+
+@Mod(modid = CustomItemDropTest.MOD_ID, name = "Custom Item Drop Test")
 public class CustomItemDropTest {
 
+    public static final String MOD_ID = "customitemdroptest";
+    public static final String ITEM_ID = "dropitem";
+    private ItemType EGG_TOSS;
 
-    @Subscribe
-    public void onEntityDrop(LivingDropsEvent event) {
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        MinecraftForge.EVENT_BUS.register(this);
+        Sponge.getEventManager().registerListeners(this, this);
+    }
 
-        System.err.println("Derp");
+    @SubscribeEvent
+    public void registerItems(RegistryEvent.Register<Item> event) {
+        EggItem item = new EggItem();
+        item.setCreativeTab(CreativeTabs.FOOD);
+        item.setRegistryName(new ResourceLocation(MOD_ID, ITEM_ID));
+        event.getRegistry().register(item);
+        final Optional<ItemType> type = Sponge.getRegistry().getType(ItemType.class, MOD_ID + ":" + ITEM_ID);
+        type.ifPresent(itemType -> this.EGG_TOSS = itemType);
+    }
+
+    @Listener(beforeModifications = false)
+    @Exclude(DropItemEvent.Pre.class)
+    public void onDropItem(DropItemEvent event) {
+        event.setCancelled(true);
+    }
+
+    @Listener(beforeModifications = true)
+    public void onDropItem(DropItemEvent.Dispense event, @Root Player player) {
+        final List<org.spongepowered.api.entity.Item> collections = event.getEntities()
+            .stream()
+            .filter(entity -> entity instanceof org.spongepowered.api.entity.Item)
+            .map(entity -> (org.spongepowered.api.entity.Item) entity)
+            .filter(itemEntity -> itemEntity.getItemType().equals(this.EGG_TOSS))
+            .collect(Collectors.toList());
+        if (!collections.isEmpty()) {
+            final org.spongepowered.api.entity.Entity entity = player.getWorld().createEntity(EntityTypes.CREEPER, player.getPosition());
+            event.getEntities().add(entity);
+        }
+    }
+
+    public static class EggItem extends ItemEgg {
+
+        @Override
+        @Nullable
+        public Entity createEntity(World world, Entity location, ItemStack itemstack) {
+            EntityChicken entity = new EntityChicken(world);
+            entity.copyLocationAndAnglesFrom(location);
+            return entity;
+        }
+
+        @Override
+        public boolean hasCustomEntity(ItemStack stack) {
+            return true;
+        }
     }
 
 }
