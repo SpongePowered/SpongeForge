@@ -24,7 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.server.management;
 
-import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockCommandBlock;
@@ -53,6 +52,7 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.util.Tristate;
@@ -66,8 +66,7 @@ import org.spongepowered.common.interfaces.server.management.IMixinPlayerInterac
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
 import org.spongepowered.common.util.VecHelper;
-
-import java.util.Optional;
+import org.spongepowered.mod.event.SpongeModEventManager;
 
 @Mixin(value = PlayerInteractionManager.class, priority = 1001)
 public abstract class MixinPlayerInteractionManager implements IMixinPlayerInteractionManager {
@@ -119,8 +118,10 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
 
 
-        event = SpongeCommonEventFactory.callInteractBlockEventSecondary(player, oldStack, VecHelper.toVector3d(pos.add(hitX, hitY, hitZ))
+        event = SpongeCommonEventFactory.createInteractBlockEventSecondary(player, oldStack, VecHelper.toVector3d(pos.add(hitX, hitY, hitZ))
                 , currentSnapshot, DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
+        SpongeModEventManager.CancellationData cancellationData = ((SpongeModEventManager) Sponge.getEventManager()).extendedPost(event, false);
+
         if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
             SpongeCommonEventFactory.playerInteractItemChanged = true;
         }
@@ -152,9 +153,27 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
 
             // Some mods such as OpenComputers open a GUI on client-side
             // To workaround this, we will always send a SPacketCloseWindow to client if interacting with a TE
-            // However, we skip closing it if an inventory has already been opened on the server (e.g. by a plugin),
+            // However, we skip closing under two circumstances:
+            //
+            // * If an inventory has already been opened on the server (e.g. by a plugin),
             // since we don't want to undo that
-            if (tileEntity != null && this.player.openContainer instanceof ContainerPlayer) {
+
+            // * If the event was cancelled by a Forge mod. In this case, we adhere to Forge's normal
+            // bheavior, which is to leave any GUIs open on the client. Some mods, like Quark, modify
+            // Vanilla blocks (such as noteblocks) by opening a custom GUI on the client interaction event,
+            // and then cancelling the interaction event on the server.
+            //
+            // In the second case, we have two conflicting goals. First, we want to ensure that Sponge protection
+            // plugins are ablee to fully prevent interactions with a block. This means sending a close
+            // window packet to the client when the event is cancelled, since we can't know what
+            // client-side only GUIs (no Container) a mod may have opened.
+            //
+            // However, we don't want to break mods that rely on the fact that cancelling
+            // a server-side interaction events leaves any client GUIs open.
+            //
+            // To resolve this issue, we only send a close window packet if the event was not cancelled
+            // by a Forge event listener.
+            if (tileEntity != null && this.player.openContainer instanceof ContainerPlayer && !cancellationData.forgeCancelled) {
                 this.player.closeScreen();
             }
             SpongeCommonEventFactory.interactBlockEventCancelled = true;

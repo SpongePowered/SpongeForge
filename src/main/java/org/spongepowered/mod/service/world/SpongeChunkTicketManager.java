@@ -53,11 +53,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     @Override
     public void registerCallback(Object plugin, Callback callback) {
-        ForgeChunkManager.setForcedChunkLoadingCallback(plugin, new SpongeLoadingCallback(plugin, callback));
+        ForgeChunkManager.setForcedChunkLoadingCallback(plugin, new SpongeLoadingCallback(callback));
     }
 
     @Override
@@ -67,7 +69,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
             return Optional.empty();
         }
 
-        return Optional.of((LoadingTicket) new SpongeLoadingTicket(forgeTicket));
+        return Optional.of(new SpongeLoadingTicket(forgeTicket));
     }
 
     @Override
@@ -77,7 +79,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
             return Optional.empty();
         }
 
-        return Optional.of((EntityLoadingTicket) new SpongeEntityLoadingTicket(forgeTicket));
+        return Optional.of(new SpongeEntityLoadingTicket(forgeTicket));
     }
 
     @Override
@@ -94,7 +96,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
             return Optional.empty();
         }
 
-        return Optional.of((PlayerLoadingTicket) new SpongePlayerLoadingTicket(forgeTicket));
+        return Optional.of(new SpongePlayerLoadingTicket(forgeTicket));
     }
 
     @Override
@@ -111,7 +113,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
             return Optional.empty();
         }
 
-        return Optional.of((PlayerEntityLoadingTicket) new SpongePlayerEntityLoadingTicket(forgeTicket));
+        return Optional.of(new SpongePlayerEntityLoadingTicket(forgeTicket));
     }
 
     @Override
@@ -127,11 +129,8 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
     @Override
     public int getAvailableTickets(UUID player) {
         Optional<Player> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
-        if (!spongePlayer.isPresent()) {
-            return 0;
-        }
+        return spongePlayer.map(player1 -> ForgeChunkManager.ticketCountAvailableFor(player1.getName())).orElse(0);
 
-        return ForgeChunkManager.ticketCountAvailableFor(spongePlayer.get().getName());
     }
 
     @Override
@@ -149,11 +148,11 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     private class SpongeLoadingTicket implements ChunkTicketManager.LoadingTicket {
 
-        protected ForgeChunkManager.Ticket forgeTicket;
-        private PluginContainer plugin;
-        private String pluginId;
-        private ImmutableSet<Vector3i> chunkList;
-        private World world;
+        ForgeChunkManager.Ticket forgeTicket;
+        private final PluginContainer plugin;
+        private final String pluginId;
+        @Nullable private ImmutableSet<Vector3i> chunkList;
+        private final World world;
 
         SpongeLoadingTicket(Ticket ticket) {
             this.forgeTicket = ticket;
@@ -164,7 +163,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
         @Override
         public boolean setNumChunks(int numChunks) {
-            if (numChunks > getMaxTickets(this.plugin) || (numChunks <= 0 && getMaxTickets(this.plugin) > 0)) {
+            if (numChunks > this.getMaxNumChunks() || (numChunks <= 0 && this.getMaxNumChunks() > 0)) {
                 return false;
             }
 
@@ -294,9 +293,9 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     private class SpongeLoadingCallback implements ForgeChunkManager.LoadingCallback {
 
-        protected Callback spongeLoadingCallback;
+        Callback spongeLoadingCallback;
 
-        public SpongeLoadingCallback(Object plugin, ChunkTicketManager.Callback callback) {
+        SpongeLoadingCallback(ChunkTicketManager.Callback callback) {
             this.spongeLoadingCallback = callback;
         }
 
@@ -318,7 +317,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
     private class SpongeOrderedCallback extends SpongeLoadingCallback implements ForgeChunkManager.OrderedLoadingCallback {
 
         public SpongeOrderedCallback(Object plugin, Callback callback) {
-            super(plugin, callback);
+            super(callback);
         }
 
         @Override
@@ -345,7 +344,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
     private class SpongePlayerOrderedCallback extends SpongeLoadingCallback implements ForgeChunkManager.PlayerOrderedLoadingCallback {
 
         public SpongePlayerOrderedCallback(Object plugin, Callback callback) {
-            super(plugin, callback);
+            super(callback);
         }
 
         @Override
@@ -353,9 +352,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
             ListMultimap<UUID, LoadingTicket> spongeLoadingTickets = ArrayListMultimap.create();
             for (Map.Entry<String, Ticket> mapEntry : tickets.entries()) {
                 Optional<Player> player = SpongeImpl.getGame().getServer().getPlayer(mapEntry.getKey());
-                if (player.isPresent()) {
-                    spongeLoadingTickets.put(player.get().getUniqueId(), new SpongePlayerLoadingTicket(mapEntry.getValue()));
-                }
+                player.ifPresent(player1 -> spongeLoadingTickets.put(player1.getUniqueId(), new SpongePlayerLoadingTicket(mapEntry.getValue())));
             }
 
             ListMultimap<UUID, LoadingTicket> spongeKeptTickets =
@@ -365,9 +362,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
             for (Map.Entry<UUID, LoadingTicket> mapEntry : spongeKeptTickets.entries()) {
                 Optional<Player> player = SpongeImpl.getGame().getServer().getPlayer(mapEntry.getKey());
-                if (player.isPresent()) {
-                    forgeTickets.put(player.get().getName(), ((SpongeLoadingTicket) mapEntry.getValue()).forgeTicket);
-                }
+                player.ifPresent(player1 -> forgeTickets.put(player1.getName(), ((SpongeLoadingTicket) mapEntry.getValue()).forgeTicket));
             }
 
             return forgeTickets;

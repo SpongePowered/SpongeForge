@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
-import org.spongepowered.common.interfaces.world.IMixinTeleporter;
+import org.spongepowered.common.interfaces.world.IMixinITeleporter;
 import org.spongepowered.mod.util.WrappedArrayList;
 
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public abstract class MixinEntity implements IMixinEntity {
     public net.minecraft.entity.Entity changeDimension(int toDimensionId, ITeleporter teleporter) {
         if (!this.world.isRemote && !this.isDead) {
             // Sponge Start - Handle teleportation solely in TrackingUtil where everything can be debugged.
-            return EntityUtil.transferEntityToDimension(this, toDimensionId, (IMixinTeleporter) teleporter);
+            return EntityUtil.transferEntityToDimension(this, toDimensionId, (IMixinITeleporter) teleporter);
             // Sponge End
         }
         return null;

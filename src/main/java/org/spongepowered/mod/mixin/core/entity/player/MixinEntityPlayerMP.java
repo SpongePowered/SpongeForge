@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.entity.EntityUtil;
-import org.spongepowered.common.interfaces.world.IMixinTeleporter;
+import org.spongepowered.common.interfaces.world.IMixinITeleporter;
 import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
 
 import javax.annotation.Nullable;
@@ -54,6 +54,6 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
     @Overwrite(remap = false)
     @Nullable
     public Entity changeDimension(int dimensionId, ITeleporter teleporter) {
-        return EntityUtil.teleportPlayerToDimension((EntityPlayerMP) (Object) this, dimensionId, (IMixinTeleporter) (Object) teleporter);
+        return EntityUtil.teleportPlayerToDimension((EntityPlayerMP) (Object) this, dimensionId, (IMixinITeleporter) (Object) teleporter);
     }
 }

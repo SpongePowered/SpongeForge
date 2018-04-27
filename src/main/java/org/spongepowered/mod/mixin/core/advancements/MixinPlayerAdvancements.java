@@ -22,34 +22,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.forge.common.util;
+package org.spongepowered.mod.mixin.core.advancements;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.Teleporter;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ITeleporter;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.PlayerAdvancements;
+import net.minecraft.entity.player.EntityPlayerMP;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.interfaces.world.IMixinITeleporter;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(value = ITeleporter.class, remap = false)
-@Implements(@Interface(iface = IMixinITeleporter.class, prefix = "sponge$"))
-public interface MixinITeleporter {
+@Mixin(value = PlayerAdvancements.class)
+public class MixinPlayerAdvancements {
 
-    @Shadow void placeEntity(World world, Entity entity, float yaw);
-
-    @Intrinsic
-    default void sponge$placeEntity(World world, Entity entity, float yaw) {
-        this.placeEntity(world, entity, yaw);
-    }
-
-    @Intrinsic
-    default boolean sponge$isVanilla()
-    {
-        return this.getClass().equals(Teleporter.class);
+    @Redirect(method = "grantCriterion", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onAdvancement(Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/advancements/Advancement;)V"))
+    private void onForgeHooks(EntityPlayerMP player, Advancement advancement) {
+        // Do nothing - we fire the event in SpongeForgeEventFactory
     }
 
 }

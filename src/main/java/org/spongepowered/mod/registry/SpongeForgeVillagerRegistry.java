@@ -39,7 +39,7 @@ import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
 
 import java.util.Optional;
 
-public class SpongeForgeVillagerRegistry {
+public final class SpongeForgeVillagerRegistry {
 
     private static final BiMap<VillagerRegistry.VillagerProfession, Profession> professionMap = HashBiMap.create();
     private static final BiMap<VillagerRegistry.VillagerCareer, Career> careerMap = HashBiMap.create();
@@ -55,22 +55,22 @@ public class SpongeForgeVillagerRegistry {
         forgeToSpongeCareerMap.put("weapon", CareerRegistryModule.getInstance().WEAPON_SMITH);
     }
 
-    public static SpongeProfession validateProfession(VillagerRegistry.VillagerProfession villagerProfession, SpongeProfession profession) {
+    public static SpongeProfession syncProfession(VillagerRegistry.VillagerProfession villagerProfession, SpongeProfession profession) {
         final SpongeProfession spongeProfession = (SpongeProfession) forgeToSpongeProfessionMap.get(villagerProfession.getRegistryName().toString());
         if (spongeProfession != null) {
-            professionMap.put(villagerProfession, spongeProfession);
+            professionMap.forcePut(villagerProfession, spongeProfession);
         } else {
-            professionMap.put(villagerProfession, profession);
+            professionMap.forcePut(villagerProfession, profession);
         }
         return spongeProfession != null ? spongeProfession : profession;
     }
 
-    public static SpongeCareer validateCareer(VillagerRegistry.VillagerCareer villagerCareer, Career career) {
+    public static SpongeCareer syncCareer(VillagerRegistry.VillagerCareer villagerCareer, Career career) {
         final Career spongeCareer = forgeToSpongeCareerMap.get(villagerCareer.getName());
         if (spongeCareer != null) {
-            careerMap.put(villagerCareer, spongeCareer);
+            careerMap.forcePut(villagerCareer, spongeCareer);
         } else {
-            careerMap.put(villagerCareer, career);
+            careerMap.forcePut(villagerCareer, career);
             if (((IMixinVillagerCareer) villagerCareer).isDelayed()) {
                 ((IMixinVillagerCareer) villagerCareer).performDelayedInit();
             }
@@ -79,7 +79,7 @@ public class SpongeForgeVillagerRegistry {
     }
 
 
-    public static Optional<Profession> getProfession(VillagerRegistry.VillagerProfession profession) {
+    private static Optional<Profession> getProfession(VillagerRegistry.VillagerProfession profession) {
         return Optional.ofNullable(professionMap.get(profession));
     }
 
@@ -99,9 +99,9 @@ public class SpongeForgeVillagerRegistry {
         final VillagerRegistry.VillagerProfession villagerProfession = ((IMixinVillagerCareer) career).getProfession();
         final Optional<Profession> spongeProfession = getProfession(villagerProfession);
         spongeProfession.ifPresent(profession -> {
-            Career
-                    suggestedCareer = new SpongeCareer(((IMixinVillagerCareer) career).getId(), career.getName(), profession, new SpongeTranslation("entity.Villager." + career.getName()));
-            SpongeCareer registeredCareer = validateCareer(career, suggestedCareer);
+            final SpongeCareer suggestedCareer = new SpongeCareer(((IMixinVillagerCareer) career).getId(), career.getName(), profession, new
+              SpongeTranslation("entity.Villager." + career.getName()));
+            final SpongeCareer registeredCareer = syncCareer(career, suggestedCareer);
             CareerRegistryModule.getInstance().registerCareer(registeredCareer);
         });
         if (!spongeProfession.isPresent()) {
