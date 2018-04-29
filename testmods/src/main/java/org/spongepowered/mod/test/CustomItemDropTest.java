@@ -38,9 +38,12 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.filter.type.Exclude;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
@@ -79,6 +82,13 @@ public class CustomItemDropTest {
     @Exclude(DropItemEvent.Pre.class)
     public void onDropItem(DropItemEvent event) {
         event.setCancelled(true);
+    }
+
+    @Listener
+    public void onDeath(DestructEntityEvent.Death entityEvent) {
+        entityEvent.setCancelled(true);
+        final Living targetEntity = entityEvent.getTargetEntity();
+        targetEntity.offer(Keys.HEALTH, targetEntity.require(Keys.MAX_HEALTH));
     }
 
     @Listener(beforeModifications = true)
