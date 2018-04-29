@@ -70,10 +70,13 @@ public abstract class MixinIntegratedServer extends MixinMinecraftServer impleme
         }
 
         this.mc.addScheduledTask(() -> {
-            // Need to null check in-case this is invoked very early in login
-            if (this.mc.world != null) {
+            // Vanilla calls this, but it's completely unecessary.
+            // It can also inherently racy, and can cause the client
+            // thread to hang in unusual circumstances. For more information,
+            // see github.com/Aaron1011/McTester
+            /*if (this.mc.world != null) {
                 this.mc.world.sendQuittingDisconnectingPacket();
-            }
+            }*/
 
             this.mc.loadWorld((WorldClient)null);
             this.mc.displayGuiScreen(new GuiMainMenu());

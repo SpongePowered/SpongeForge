@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+export MCTESTER_GAMEDIR=/tmp/mctester/game
+
+npm install -g mctester-uploader
+mctesterupload
