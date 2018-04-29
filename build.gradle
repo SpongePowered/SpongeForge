@@ -21,7 +21,12 @@ buildscript {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
         classpath 'gradle.plugin.org.spongepowered:spongegradle:0.8.1'
         classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+        classpath mcTesterDep
     }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.2.51'
 }
 
 // ForgeGradle tries to pull in typesafe config 1.2.1,
@@ -33,6 +38,7 @@ configurations.all {
     }
 }
 
+
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
 ext.minecraftVersion = forgeBuild
 ext.testmods = project.project('testmods')
@@ -42,6 +48,8 @@ ext.implementationId = "spongeforge"
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
 
 version = "$minecraft.version-$forgeBuild-$implementationVersion"
+apply plugin: 'org.spongepowered.mctester'
+
 minecraft {
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
     replace '@expected_certificate_fingerprint@', project.hasProperty('spongeCertificateFingerprint') ? project.property('spongeCertificateFingerprint') : ''
@@ -153,3 +161,26 @@ uploadArchives {
 }
 
 apply from: 'changelog.gradle'
+
+dependencies {
+    testCompile mcTesterDep
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.4"
+    testCompile "org.jetbrains.kotlin:kotlin-reflect:1.2.51"
+    testCompile "org.apache.logging.log4j:log4j-core:2.8.1"
+}
+
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+license.include '**/*.kt'
