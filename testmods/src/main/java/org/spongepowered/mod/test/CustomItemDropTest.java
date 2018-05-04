@@ -38,6 +38,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandCallable;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.args.CommandArgs;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.Living;
@@ -48,6 +52,8 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.filter.type.Exclude;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,11 +67,26 @@ public class CustomItemDropTest {
     public static final String MOD_ID = "customitemdroptest";
     public static final String ITEM_ID = "dropitem";
     private ItemType EGG_TOSS;
+    private boolean areListenersEnabled = false;
+    private static CustomItemDropTest INSTANCE;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        INSTANCE = this;
         MinecraftForge.EVENT_BUS.register(this);
         Sponge.getEventManager().registerListeners(this, this);
+        Sponge.getCommandManager().register(this, getCommand(), "customItemDropTest");
+    }
+
+
+    private static CommandCallable getCommand() {
+        return CommandSpec.builder()
+            .description(Text.of(TextColors.BLUE, "Toggles whether the event manipulations and entity deaths are enabled or not."))
+            .executor((src, args) -> {
+                INSTANCE.areListenersEnabled = !INSTANCE.areListenersEnabled;
+                return CommandResult.success();
+            })
+            .build();
     }
 
     @SubscribeEvent
@@ -81,27 +102,33 @@ public class CustomItemDropTest {
     @Listener(beforeModifications = false)
     @Exclude(DropItemEvent.Pre.class)
     public void onDropItem(DropItemEvent event) {
-        event.setCancelled(true);
+        if (this.areListenersEnabled) {
+            event.setCancelled(true);
+        }
     }
 
     @Listener
     public void onDeath(DestructEntityEvent.Death entityEvent) {
-        entityEvent.setCancelled(true);
-        final Living targetEntity = entityEvent.getTargetEntity();
-        targetEntity.offer(Keys.HEALTH, targetEntity.require(Keys.MAX_HEALTH));
+        if (this.areListenersEnabled) {
+            entityEvent.setCancelled(true);
+            final Living targetEntity = entityEvent.getTargetEntity();
+            targetEntity.offer(Keys.HEALTH, targetEntity.require(Keys.MAX_HEALTH));
+        }
     }
 
     @Listener(beforeModifications = true)
     public void onDropItem(DropItemEvent.Dispense event, @Root Player player) {
-        final List<org.spongepowered.api.entity.Item> collections = event.getEntities()
-            .stream()
-            .filter(entity -> entity instanceof org.spongepowered.api.entity.Item)
-            .map(entity -> (org.spongepowered.api.entity.Item) entity)
-            .filter(itemEntity -> itemEntity.getItemType().equals(this.EGG_TOSS))
-            .collect(Collectors.toList());
-        if (!collections.isEmpty()) {
-            final org.spongepowered.api.entity.Entity entity = player.getWorld().createEntity(EntityTypes.CREEPER, player.getPosition());
-            event.getEntities().add(entity);
+        if (this.areListenersEnabled) {
+            final List<org.spongepowered.api.entity.Item> collections = event.getEntities()
+                .stream()
+                .filter(entity -> entity instanceof org.spongepowered.api.entity.Item)
+                .map(entity -> (org.spongepowered.api.entity.Item) entity)
+                .filter(itemEntity -> itemEntity.getItemType().equals(this.EGG_TOSS))
+                .collect(Collectors.toList());
+            if (!collections.isEmpty()) {
+                final org.spongepowered.api.entity.Entity entity = player.getWorld().createEntity(EntityTypes.CREEPER, player.getPosition());
+                event.getEntities().add(entity);
+            }
         }
     }
 
