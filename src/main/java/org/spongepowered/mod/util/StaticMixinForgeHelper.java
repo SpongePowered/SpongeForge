@@ -98,9 +98,6 @@ public final class StaticMixinForgeHelper {
         }
     };
 
-    // Whether to prevent ForgeInternalHandler#onEntityJoinWorld from handling custom Item entities (due to Sponge already handling it)
-    public static boolean preventInternalForgeEntityListener = false;
-
     public static Optional<List<DamageFunction>> createArmorModifiers(
         EntityLivingBase entityLivingBase, DamageSource damageSource, double damage) {
         Iterable<ItemStack> inventory = entityLivingBase.getArmorInventoryList();

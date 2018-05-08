@@ -711,6 +711,7 @@ public class SpongeForgeEventFactory {
                   (EntityItem) e, serverPlayer), true));
 
                 callEntityJoinWorldEvent(spongeEvent);
+                handleCustomStack((SpawnEntityEvent) event);
 
                 return spongeEvent;
             }
@@ -774,10 +775,7 @@ public class SpongeForgeEventFactory {
             EntityJoinWorldEvent forgeEvent = new EntityJoinWorldEvent((Entity) entity,
                     (net.minecraft.world.World) entity.getLocation().getExtent());
 
-            boolean prev = StaticMixinForgeHelper.preventInternalForgeEntityListener;
-            StaticMixinForgeHelper.preventInternalForgeEntityListener = true;
             ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
-            StaticMixinForgeHelper.preventInternalForgeEntityListener = prev;
             Entity mcEntity = (Entity) entity;
             if (mcEntity.isDead) {
                 // Don't restore packet item if a mod wants it dead
@@ -801,6 +799,7 @@ public class SpongeForgeEventFactory {
     }
 
     // Copied from ForgeInternalHandler.onEntityJoinWorld, but with modifications
+    @SuppressWarnings("deprecation")
     private static void handleCustomStack(SpawnEntityEvent event) {
         // Sponge start - iterate over entities
         ListIterator<org.spongepowered.api.entity.Entity> it = event.getEntities().listIterator();

@@ -35,6 +35,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.spongepowered.api.Sponge;
@@ -74,6 +75,10 @@ public class CustomItemDropTest {
     public void preInit(FMLPreInitializationEvent event) {
         INSTANCE = this;
         MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event) {
         Sponge.getEventManager().registerListeners(this, this);
         Sponge.getCommandManager().register(this, getCommand(), "customItemDropTest");
     }
