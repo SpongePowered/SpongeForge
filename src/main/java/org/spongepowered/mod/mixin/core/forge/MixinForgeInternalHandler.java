@@ -24,27 +24,60 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeInternalHandler;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 @Mixin(ForgeInternalHandler.class)
 public abstract class MixinForgeInternalHandler {
 
-    @Redirect(method = "onEntityJoinWorld", at = @At(value = "INVOKE", target = "Ljava/lang/Object;equals(Ljava/lang/Object;)Z", ordinal = 0))
-    public boolean onHandleCustomItemEntity(Object clazz, Object otherClass, EntityJoinWorldEvent event) {
-        boolean equals = clazz.equals(otherClass);
-        // Prevent the if block from running if Sponge is handling it
-        if (equals && StaticMixinForgeHelper.preventInternalForgeEntityListener) {
-            // Handle possible re-entrant firing of spawn events. We only want to bypassthe normal logic for the first,
-            // Sponge-fired one - not any events fired by Forge mods.
-            StaticMixinForgeHelper.preventInternalForgeEntityListener = false;
-            return false;
+    /**
+     * @author gabizou - May 8th, 2018
+     * @reason Sponge handles this in {@link SpongeForgeEventFactory#handleCustomStack(SpawnEntityEvent)} for
+     * all related item drops. No need to actually listen to an event to have this handled correctly.
+     *
+     * @param event The event
+     */
+    @Overwrite
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onEntityJoinWorld(EntityJoinWorldEvent event) {
+        // Sponge Start
+        /* - This is already handled in SpongeForgeEventFactory.
+        if (!event.getWorld().isRemote)
+        {
+            ForgeChunkManager.loadEntity(event.getEntity());
         }
-        return equals;
-    }
 
+        Entity entity = event.getEntity();
+        if (entity.getClass().equals(EntityItem.class))
+        {
+            ItemStack stack = ((EntityItem)entity).getItem();
+            Item item = stack.getItem();
+            if (item.hasCustomEntity(stack))
+            {
+                Entity newEntity = item.createEntity(event.getWorld(), entity, stack);
+                if (newEntity != null)
+                {
+                    entity.setDead();
+                    event.setCanceled(true);
+                    event.getWorld().spawnEntity(newEntity);
+                }
+            }
+        }
+        */
+        // Sponge End
+    }
 }

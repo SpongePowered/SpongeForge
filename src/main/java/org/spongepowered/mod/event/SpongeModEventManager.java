@@ -321,7 +321,6 @@ public class SpongeModEventManager extends SpongeEventManager {
     // Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
     private CancellationData post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz, boolean useCauseStackManager) {
         RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
-        SpongeForgeEventFactory.handlePrefireLogic(spongeEvent);
 
         CancellationData data = new CancellationData();
 
@@ -340,6 +339,8 @@ public class SpongeModEventManager extends SpongeEventManager {
         } else {
             spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
         }
+        // Some special casing for the spawn events to process custom items.
+        SpongeForgeEventFactory.handlePrefireLogic(spongeEvent);
 
         // Fire events to plugins after modifications (default)
         for (Order order : Order.values()) {
