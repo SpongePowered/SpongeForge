@@ -51,7 +51,7 @@ public abstract class MixinForgeInternalHandler {
      *
      * @param event The event
      */
-    @Overwrite
+    @Overwrite(remap = false)
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
         // Sponge Start
