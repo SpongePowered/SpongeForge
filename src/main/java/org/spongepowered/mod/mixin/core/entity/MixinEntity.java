@@ -71,5 +71,14 @@ public abstract class MixinEntity implements IMixinEntity {
         return null;
     }
 
+    /**
+     * @author gabizou - May 8th, 2018
+     * @reason this re-assigns the capture list at the end of a tick if this entity was considered as "per-entity" captures.
+     * This avoids leaking the PhaseContext for the entity and the potentila leakage of world objects, etc.
+     */
+    @Override
+    public void clearWrappedCaptureList() {
+        this.capturedDrops = new ArrayList<>();
 
+    }
 }
