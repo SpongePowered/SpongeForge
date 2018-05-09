@@ -94,11 +94,6 @@ public class WrappedArrayList extends ArrayList<EntityItem> {
 
     @Override
     public int size() {
-        if (isValid()) {
-            if (getContainer().captureDrops) {
-
-            }
-        }
         return this.wrappedList.size();
     }
 
@@ -178,14 +173,6 @@ public class WrappedArrayList extends ArrayList<EntityItem> {
         // we are injecting in here to "detect" that it is being cleared for the first
         // time. There are other areas where we will deterministically close the wrapper
         // as necessary.
-        if (this.isValid()) {
-            Entity container = this.getContainer();
-            if (container.captureDrops && !((IMixinWorld) container.world).isFake() && !this.isCapturingWithSponge) {
-                // We need to now start the phase state
-                this.isCapturingWithSponge = true;
-                EntityPhase.State.ENTITY_DROP_ITEMS.createPhaseContext().source(container).buildAndSwitch();
-            }
-        }
         this.wrappedList.clear();
     }
 
