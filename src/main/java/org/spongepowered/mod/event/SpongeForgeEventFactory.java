@@ -89,6 +89,7 @@ import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.spawn.SpawnType;
+import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
 import org.spongepowered.api.event.entity.AffectEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
@@ -132,12 +133,10 @@ import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
-import org.spongepowered.common.registry.type.event.InternalSpawnTypes;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
-import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -702,7 +701,7 @@ public class SpongeForgeEventFactory {
         if (cause.root() instanceof EntityPlayerMP) {
             final EntityPlayerMP serverPlayer = (EntityPlayerMP) cause.root();
 
-            if (spawnType != null && spawnType == InternalSpawnTypes.DROPPED_ITEM) {
+            if (spawnType != null && spawnType == SpawnTypes.DROPPED_ITEM) {
                 if (spongeEvent.getEntities().isEmpty()) {
                     return event;
                 }
