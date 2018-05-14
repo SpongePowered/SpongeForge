@@ -25,6 +25,7 @@
 package org.spongepowered.mod.mixin.core.entity;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraftforge.common.util.ITeleporter;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -34,6 +35,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.interfaces.world.IMixinITeleporter;
+import org.spongepowered.mod.util.WrappedArrayList;
+
+import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
@@ -43,6 +47,7 @@ public abstract class MixinEntity implements IMixinEntity {
 
     @Shadow public net.minecraft.world.World world;
     @Shadow public boolean isDead;
+    @Shadow(remap = false) public ArrayList<EntityItem> capturedDrops = new WrappedArrayList((Entity) (Object) this, new ArrayList<>());
 
     @Shadow protected abstract void setSize(float width, float height);
 
@@ -64,5 +69,16 @@ public abstract class MixinEntity implements IMixinEntity {
             // Sponge End
         }
         return null;
+    }
+
+    /**
+     * @author gabizou - May 8th, 2018
+     * @reason this re-assigns the capture list at the end of a tick if this entity was considered as "per-entity" captures.
+     * This avoids leaking the PhaseContext for the entity and the potentila leakage of world objects, etc.
+     */
+    @Override
+    public void clearWrappedCaptureList() {
+        this.capturedDrops = new ArrayList<>();
+
     }
 }

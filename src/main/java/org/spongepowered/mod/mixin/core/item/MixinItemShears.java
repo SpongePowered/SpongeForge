@@ -80,10 +80,12 @@ public abstract class MixinItemShears extends Item {
      *
      * Returns true if the item can be used on the given entity, e.g. shears on sheep.
      */
+    @SuppressWarnings("unchecked")
     @Overwrite
     @Override
     public boolean itemInteractionForEntity(ItemStack itemstack, EntityPlayer player, EntityLivingBase entity,
             EnumHand hand) {
+
         if (entity.world.isRemote) {
             return false;
         }
@@ -93,89 +95,43 @@ public abstract class MixinItemShears extends Item {
             if (target.isShearable(itemstack, entity.world, pos)) {
                 List<ItemStack> drops = target.onSheared(itemstack, entity.world, pos, EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, itemstack));
                 // Sponge Start - Handle drops according to the current phase
-                final PhaseTracker phaseTracker = PhaseTracker.getInstance();
-                final PhaseData currentData = phaseTracker.getCurrentPhaseData();
+                final PhaseData currentData = PhaseTracker.getInstance().getCurrentPhaseData();
                 final IPhaseState<?> currentState = currentData.state;
                 final PhaseContext<?> phaseContext = currentData.context;
                 final Random random = EntityUtil.fromNative(entity).getRandom();
-                final IMixinEntity mixinEntity = EntityUtil.toMixin(entity);
                 final double posX = entity.posX;
                 final double posY = entity.posY + 1.0F;
                 final double posZ = entity.posZ;
-                final Vector3d position = new Vector3d(posX, posY, posZ);
                 // Now the real fun begins.
                 for (ItemStack drop : drops) {
                     final ItemStack item;
-
-                    if (!drop.isEmpty()) {
-                        try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-                            // FIRST we want to throw the DropItemEvent.PRE
-                            final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
-                            final List<ItemStackSnapshot> original = new ArrayList<>();
-                            original.add(snapshot);
-                            Sponge.getCauseStackManager().pushCause(entity);
-                            final DropItemEvent.Pre
-                                dropEvent =
-                                SpongeEventFactory.createDropItemEventPre(Sponge.getCauseStackManager().getCurrentCause(),
-                                    ImmutableList.of(snapshot), original);
-                            if (dropEvent.isCancelled()) {
-                                continue;
-                            }
-
-                            // SECOND throw the ConstructEntityEvent
-                            Transform<World> suggested = new Transform<>(mixinEntity.getWorld(), position);
-                            Sponge.getCauseStackManager().addContext(EventContextKeys.SPAWN_TYPE, SpawnTypes.DROPPED_ITEM);
-                            ConstructEntityEvent.Pre event = SpongeEventFactory
-                                .createConstructEntityEventPre(Sponge.getCauseStackManager().getCurrentCause(), EntityTypes.ITEM, suggested);
-                            SpongeImpl.postEvent(event);
-                            item = event.isCancelled() ? null : ItemStackUtil.fromSnapshotToNative(dropEvent.getDroppedItems().get(0));
-                        }
-                    } else {
+                    if (drop.isEmpty()) {
                         continue;
                     }
-                    if (item == null) {
+                    final List<ItemStackSnapshot> original = new ArrayList<>();
+                    final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
+                    item = EntityUtil.throwDropItemAndConstructEvent(EntityUtil.toMixin(entity), posX, posY, posZ, snapshot, original);
+
+                    if (item == null || item.isEmpty()) {
                         continue;
                     }
-                    if (!item.isEmpty()) {
-                        if (!currentState.ignoresItemPreMerging() && SpongeImpl.getGlobalConfig().getConfig().getOptimizations().doDropsPreMergeItemDrops()) {
-                            if (currentState.tracksEntitySpecificDrops()) {
-                                final Multimap<UUID, ItemDropData> multimap = phaseContext.getCapturedEntityDropSupplier().get();
-                                final Collection<ItemDropData> itemStacks = multimap.get(entity.getUniqueID());
-                                SpongeImplHooks.addItemStackToListForSpawning(itemStacks, ItemDropData.item(item)
-                                        .motion(new Vector3d((random.nextFloat() - random.nextFloat()) * 0.1F, random.nextFloat() * 0.05F, (random.nextFloat() - random.nextFloat()) * 0.1F))
-                                        .position(new Vector3d(posX, posY, posZ))
-                                        .build());
-                                continue;
-                            }
-                            final List<ItemDropData> itemStacks = phaseContext.getCapturedItemStackSupplier().get();
-                            SpongeImplHooks.addItemStackToListForSpawning(itemStacks, ItemDropData.item(item)
-                                    .position(new Vector3d(posX, posY, posZ))
-                                    .motion(new Vector3d((random.nextFloat() - random.nextFloat()) * 0.1F, random.nextFloat() * 0.05F, (random.nextFloat() - random.nextFloat()) * 0.1F))
-                                    .build());
-                            continue;
-                        }
-                        EntityItem entityitem = new EntityItem(entity.world, posX, posY, posZ, item);
-                        entityitem.setDefaultPickupDelay();
-                        entityitem.motionY += random.nextFloat() * 0.05F;
-                        entityitem.motionX += (random.nextFloat() - random.nextFloat()) * 0.1F;
-                        entityitem.motionZ += (random.nextFloat() - random.nextFloat()) * 0.1F;
+                    // Item pre-merging should go here. It is disabled for now due to development.
 
-                        // FIFTH - Capture the entity maybe?
-                        if (currentState.doesCaptureEntityDrops()) {
-                            if (currentState.tracksEntitySpecificDrops()) {
-                                // We are capturing per entity drop
-                                phaseContext.getCapturedEntityItemDropSupplier().get().put(entity.getUniqueID(), entityitem);
-                            } else {
-                                // We are adding to a general list - usually for EntityPhase.State.DEATH
-                                phaseContext.getCapturedItemsSupplier().get().add(entityitem);
-                            }
-                            // Return the item, even if it wasn't spawned in the world.
-                            continue;
-                        }
-                        // FINALLY - Spawn the entity in the world if all else didn't fail
-                        entity.world.spawnEntity(entityitem);
+                    // Continue with creating the entity item.
+                    EntityItem entityitem = new EntityItem(entity.world, posX, posY, posZ, item);
+                    entityitem.setDefaultPickupDelay();
+                    entityitem.motionY += random.nextFloat() * 0.05F;
+                    entityitem.motionX += (random.nextFloat() - random.nextFloat()) * 0.1F;
+                    entityitem.motionZ += (random.nextFloat() - random.nextFloat()) * 0.1F;
 
+                    // FIFTH - Capture the entity maybe?
+                    // this sould be passed into the state, instead of cluttering the code in this area.
+                    if (((IPhaseState) currentState).performOrCaptureItemDrop(phaseContext, entity, entityitem)) {
+                        continue;
                     }
+
+                    // FINALLY - Spawn the entity in the world if all else didn't fail
+                    entity.world.spawnEntity(entityitem);
                 }
 
                 // Sponge End

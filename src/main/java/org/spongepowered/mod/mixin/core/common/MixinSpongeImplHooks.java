@@ -24,15 +24,19 @@
  */
 package org.spongepowered.mod.mixin.core.common;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.crash.CrashReport;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -40,6 +44,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
@@ -77,10 +82,12 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.command.SpongeCommandFactory;
+import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
+import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
 import org.spongepowered.common.interfaces.world.IMixinITeleporter;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
@@ -93,10 +100,13 @@ import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
+import org.spongepowered.mod.util.WrappedArrayList;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
@@ -595,5 +605,39 @@ public abstract class MixinSpongeImplHooks {
             .buildAndSwitch()) {
             te.invalidate();
         }
+    }
+
+    /**
+     * @author gabizou
+     * @reason Supports using the captured drop list for entities from forge.
+     * @param phaseContext
+     * @param owner
+     * @param entityitem
+     */
+    @Overwrite
+    public static void capturePerEntityItemDrop(PhaseContext<?> phaseContext, Entity owner,
+        EntityItem entityitem) {
+        ArrayListMultimap<UUID, EntityItem> map = phaseContext.getPerEntityItemEntityDropSupplier().get();
+        ArrayList<EntityItem> entityItems = new WrappedArrayList(owner, map.get(owner.getUniqueID()));
+        // Re-assigns the list, to ensure that the list is being used.
+        ArrayList<EntityItem> capturedDrops = owner.capturedDrops;
+        if (capturedDrops != entityItems) {
+            owner.capturedDrops = entityItems;
+            // If the list was not empty, go ahead and populate sponge's since we had to re-assign the list.
+            if (!capturedDrops.isEmpty()) {
+                entityItems.addAll(capturedDrops);
+            }
+        }
+        entityItems.add(entityitem);
+    }
+
+    /**
+     * @author gabizou - April 21st, 2018
+     * @param entity The entity passed in
+     * @return The modifier based on forge hooks.
+     */
+    @Overwrite
+    public static int getLootingEnchantmentModifier(IMixinEntityLivingBase mixinEntityLivingBase, EntityLivingBase entity, DamageSource cause) {
+        return ForgeHooks.getLootingLevel(EntityUtil.toNative(mixinEntityLivingBase), entity, cause);
     }
 }

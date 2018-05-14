@@ -26,6 +26,7 @@ buildscript {
 
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
 ext.minecraftVersion = forgeBuild
+ext.testmods = project.project('testmods')
 
 // Apply shared implementation Gradle config
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
@@ -43,6 +44,10 @@ sponge.plugin.meta {
             version = project.minecraft.forgeVersion
         }
     }
+}
+
+dependencies {
+    runtime testmods
 }
 
 compileJava {

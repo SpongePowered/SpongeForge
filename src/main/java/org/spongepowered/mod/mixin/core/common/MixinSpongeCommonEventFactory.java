@@ -40,7 +40,7 @@ import org.spongepowered.common.event.SpongeCommonEventFactory;
 public abstract class MixinSpongeCommonEventFactory {
 
     @Inject(method = "callDestructEntityEventDeath", at = @At("HEAD"), cancellable = true)
-    private static void onCallDestructEntityEventDeath(EntityLivingBase entity, DamageSource source, CallbackInfoReturnable<DestructEntityEvent.Death> cir) {
+    private static void onCallDestructEntityEventDeath(EntityLivingBase entity, DamageSource source, boolean isMainThread, CallbackInfoReturnable<DestructEntityEvent.Death> cir) {
         if (net.minecraftforge.common.ForgeHooks.onLivingDeath(entity, source)) {
             cir.setReturnValue(null);
         }
