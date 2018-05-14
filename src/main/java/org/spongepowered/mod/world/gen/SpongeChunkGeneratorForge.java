@@ -326,13 +326,19 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             return otype == null || TerrainGen
                     .generateOre((World) chunk.getWorld(), this.rand, (WorldGenerator) populator, VecHelper.toBlockPos(chunk.getBlockMin()), otype);
         }
+        boolean populate = true;
+        boolean decorate = true;
+
         Populate.EventType etype = this.getForgeEventTypeForPopulator(populator, chunk);
-        boolean populate = TerrainGen.populate(chunkProvider, (net.minecraft.world.World) chunk.getWorld(), this.rand, chunkX, chunkZ, village_flag,
-                etype);
+        if (etype != null) {
+            populate = TerrainGen.populate(chunkProvider, (net.minecraft.world.World) chunk.getWorld(), this.rand, chunkX, chunkZ, village_flag,
+                    etype);
+        }
 
         Decorate.EventType detype = this.getForgeDecorateEventTypeForPopulator(populator, chunk);
-
-        boolean decorate = TerrainGen.decorate((World) chunk.getWorld(), this.rand, VecHelper.toBlockPos(chunk.getBlockMin()), detype);
+        if (detype != null) {
+            decorate = TerrainGen.decorate((World) chunk.getWorld(), this.rand, VecHelper.toBlockPos(chunk.getBlockMin()), detype);
+        }
 
         // TODO May need to separate this..
         return populate && decorate;
@@ -374,7 +380,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 }
             }
         }
-        return Populate.EventType.CUSTOM;
+        return null;
     }
 
     private Decorate.EventType getForgeDecorateEventTypeForPopulator(Populator populator, Chunk chunk) {
@@ -456,7 +462,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         if (populator instanceof Fossil) {
             return Decorate.EventType.FOSSIL;
         }
-        return Decorate.EventType.CUSTOM;
+        return null;
     }
 
     @Override
