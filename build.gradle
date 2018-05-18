@@ -116,6 +116,8 @@ tasks.withType(ShadowJar) {
     relocate('com.typesafe.config', 'configurate.typesafe.config')
 
     dependencies {
+        exclude project(testmods.path)
+
         include dependency('com.typesafe:config')
 
         // This is not available on the client so we need to shade it
