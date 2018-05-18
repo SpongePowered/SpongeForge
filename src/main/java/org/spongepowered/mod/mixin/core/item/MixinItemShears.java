@@ -110,6 +110,7 @@ public abstract class MixinItemShears extends Item {
                     }
                     final List<ItemStackSnapshot> original = new ArrayList<>();
                     final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
+                    original.add(snapshot);
                     item = EntityUtil.throwDropItemAndConstructEvent(EntityUtil.toMixin(entity), posX, posY, posZ, snapshot, original);
 
                     if (item == null || item.isEmpty()) {
