@@ -29,7 +29,7 @@ ext.minecraftVersion = forgeBuild
 ext.testmods = project.project('testmods')
 
 // Apply shared implementation Gradle config
-apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
+apply from: project('SpongeCommon').file('gradle/implementation.gradle')
 
 version = "$minecraft.version-$forgeBuild-$apiSuffix-$buildNumber"
 
