@@ -368,6 +368,7 @@ public class SpongeMod extends MetaModContainer {
     public void onPostInitialization(FMLPostInitializationEvent event) {
         try {
             SpongeImpl.getRegistry().postInit();
+            SpongeImpl.getConfigSaveManager().flush();
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
         }
@@ -379,6 +380,7 @@ public class SpongeMod extends MetaModContainer {
         for (EntityEntry entry : ForgeRegistries.ENTITIES) {
             StaticMixinForgeHelper.registerCustomEntity(entry);
         }
+
     }
 
     @Subscribe
@@ -402,6 +404,9 @@ public class SpongeMod extends MetaModContainer {
 
     @Subscribe
     public void onServerStarted(FMLServerStartedEvent event) {
+        // Flush what needs to be saved.
+        SpongeImpl.getConfigSaveManager().flush();
+
         // Call this also here instead of the SpongeBootstrap, this
         // is necessary in the client
         Sponge.getServer().getConsole().getContainingCollection();
@@ -422,6 +427,9 @@ public class SpongeMod extends MetaModContainer {
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
         }
+
+        // Save all data that is waiting to be saved
+        SpongeImpl.getConfigSaveManager().flush();
 
         // used by client
         WorldManager.unregisterAllWorldSettings();
