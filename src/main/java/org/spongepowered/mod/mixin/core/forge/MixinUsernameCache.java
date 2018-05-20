@@ -25,10 +25,12 @@
 package org.spongepowered.mod.mixin.core.forge;
 
 import net.minecraftforge.common.UsernameCache;
+import net.minecraftforge.fml.relauncher.FMLInjectionData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.util.SpongeUsernameCache;
 
+import java.io.File;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,6 +38,11 @@ import javax.annotation.Nullable;
 
 @Mixin(value = UsernameCache.class, remap = false)
 public class MixinUsernameCache {
+
+    static {
+        // Copied from Forge's UsernameCache
+        SpongeUsernameCache.setServerDir(/* The minecraft dir */ (File) FMLInjectionData.data()[6]);
+    }
 
     @Overwrite
     protected static void setUsername(UUID uuid, String username) {
