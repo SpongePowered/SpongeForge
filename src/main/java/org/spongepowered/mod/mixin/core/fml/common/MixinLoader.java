@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common;
 
+import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -31,7 +32,9 @@ import net.minecraftforge.fml.common.discovery.ModDiscoverer;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionRange;
+import net.minecraftforge.fml.relauncher.libraries.LibraryManager;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -40,8 +43,10 @@ import org.spongepowered.common.util.PathTokens;
 import org.spongepowered.plugin.meta.version.ComparableVersion;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * MixinLoader adds support for a second, user-defined, mods search directory.
@@ -52,27 +57,36 @@ import java.util.List;
  */
 @Mixin(value = Loader.class, remap = false)
 public abstract class MixinLoader {
-
+    private static final FilenameFilter MOD_FILENAME_FILTER  = (dir, name) -> name.endsWith(".jar") || name.endsWith(".zip");
+    @Shadow private static File minecraftDir;
     private ModContainer mod;
 
-    @Redirect(method = "identifyMods", at = @At(
-        value = "INVOKE",
-        target = "Lnet/minecraftforge/fml/common/discovery/ModDiscoverer;findModDirMods(Ljava/io/File;[Ljava/io/File;)V",
+    @Redirect(method = "identifyMods",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/fml/relauncher/libraries/LibraryManager;gatherLegacyCanidates(Ljava/io/File;)Ljava/util/List;",
+            remap = false
+        ),
         remap = false
-    ))
-    private void discoverMods(ModDiscoverer modDiscoverer, File modsDir, File[] additionalMods) {
-        modDiscoverer.findModDirMods(modsDir, additionalMods);
+    )
+    private List<File> discoverAndAddPluginsBeforeIterator(File mcDir) {
+        final List<File> files = LibraryManager.gatherLegacyCanidates(minecraftDir);
 
+        final File modsFolder = new File(minecraftDir, "mods");
         File pluginsDir = this.getPluginsDir();
-        if (pluginsDir.isDirectory() && !pluginsDir.equals(modsDir)) {
-            FMLLog.info("Searching %s for plugins", pluginsDir.getAbsolutePath());
-            this.discoverPlugins(modDiscoverer, pluginsDir);
+        if (pluginsDir.isDirectory() && !pluginsDir.equals(modsFolder)) {
+            FMLLog.log.info("Searching %s for plugins", pluginsDir.getAbsolutePath());
+            final File[] pluginFiles = pluginsDir.listFiles(MOD_FILENAME_FILTER);
+            if (pluginFiles != null) {
+                for (File pluginFile : pluginFiles) {
+                    if (!files.contains(pluginFile)) {
+                        FMLLog.log.debug("  Adding {} to the plugin list", pluginFile.getName());
+                        files.add(pluginFile);
+                    }
+                }
+            }
         }
-    }
-
-    @Unique
-    private void discoverPlugins(ModDiscoverer modDiscoverer, File pluginsDir) {
-        modDiscoverer.findModDirMods(pluginsDir, new File[0]);
+        return files;
     }
 
     @Unique
