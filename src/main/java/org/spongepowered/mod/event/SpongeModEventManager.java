@@ -29,6 +29,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Singleton;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -73,6 +74,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.apache.logging.log4j.Logger;
+import org.spongepowered.api.GameState;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.CauseStackManager;
@@ -103,6 +105,7 @@ import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeEventManager;
@@ -290,9 +293,13 @@ public class SpongeModEventManager extends SpongeEventManager {
                 try {
                     if (listener instanceof IMixinASMEventHandler) {
                         IMixinASMEventHandler modListener = (IMixinASMEventHandler) listener;
-                        modListener.getTimingsHandler().startTimingIfSync();
+                        if (areStartupTimingsEnabled()) {
+                            modListener.getTimingsHandler().startTimingIfSync();
+                        }
                         listener.invoke(forgeEvent);
-                        modListener.getTimingsHandler().stopTimingIfSync();
+                        if (areStartupTimingsEnabled()) {
+                            modListener.getTimingsHandler().stopTimingIfSync();
+                        }
                     } else {
                         listener.invoke(forgeEvent);
                     }
@@ -316,6 +323,10 @@ public class SpongeModEventManager extends SpongeEventManager {
         }
 
         return forgeEvent.isCancelable() && forgeEvent.isCanceled();
+    }
+
+    private boolean areStartupTimingsEnabled() {
+        return SpongeImpl.getGame().getState().ordinal() < GameState.SERVER_ABOUT_TO_START.ordinal();
     }
 
     // Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
