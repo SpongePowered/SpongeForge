@@ -168,10 +168,6 @@ public abstract class MixinWorldManager {
     
     @Overwrite
     public static void unregisterDimension(int dimensionId) {
-        if (!dimensionTypeByDimensionId.containsKey(dimensionId))
-        {
-            throw new IllegalArgumentException("Failed to unregister dimension [" + dimensionId + "] as it is not registered!");
-        }
         dimensionTypeByDimensionId.remove(dimensionId);
         dimensionTypeByTypeId.remove(dimensionId);
         dimensionPathByDimensionId.remove(dimensionId);

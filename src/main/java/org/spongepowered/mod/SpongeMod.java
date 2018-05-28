@@ -393,7 +393,9 @@ public class SpongeMod extends MetaModContainer {
         }
 
         // used for client
-        WorldManager.registerVanillaTypesAndDimensions();
+        if (this.game.getPlatform().getType().isClient()) {
+            WorldManager.registerVanillaTypesAndDimensions();
+        }
     }
 
     @Subscribe
@@ -430,7 +432,9 @@ public class SpongeMod extends MetaModContainer {
         SpongeImpl.getConfigSaveManager().flush();
 
         // used by client
-        WorldManager.unregisterAllWorldSettings();
+        if (this.game.getPlatform().getType().isClient()) {
+            WorldManager.unregisterAllWorldSettings();
+        }
     }
 
     // This overrides the method in PluginContainer
