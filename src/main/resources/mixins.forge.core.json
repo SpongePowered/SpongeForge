@@ -7,6 +7,7 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
+        "advancements.MixinClientAdvancementManager",
         "advancements.MixinPlayerAdvancements",
         "api.event.MixinAbstractEvent",
         "block.MixinBlock",
