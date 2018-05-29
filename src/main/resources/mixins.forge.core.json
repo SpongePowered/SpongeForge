@@ -7,7 +7,6 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "advancements.MixinClientAdvancementManager",
         "advancements.MixinPlayerAdvancements",
         "api.event.MixinAbstractEvent",
         "block.MixinBlock",
@@ -94,6 +93,7 @@
         "world.storage.MixinSaveHandler"
     ],
     "client": [
+        "advancements.MixinClientAdvancementManager",
         "client.MixinMinecraft",
         "client.gui.MixinGuiOptions",
         "client.gui.MixinGuiOverlayDebug",

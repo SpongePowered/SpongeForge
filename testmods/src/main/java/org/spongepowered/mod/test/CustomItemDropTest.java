@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-@Mod(modid = CustomItemDropTest.MOD_ID, name = "Custom Item Drop Test")
+@Mod(modid = CustomItemDropTest.MOD_ID, name = "Custom Item Drop Test", acceptableRemoteVersions = "*")
 public class CustomItemDropTest {
 
     public static final String MOD_ID = "customitemdroptest";
