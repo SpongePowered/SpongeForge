@@ -29,6 +29,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,9 +48,11 @@ public abstract class MixinBlockFire extends MixinBlock {
     private void onCatchFirePreCheck(World world, BlockPos pos, int chance, Random random, int age, EnumFacing facing, CallbackInfo callbackInfo) {
         if (!world.isRemote) {
             // SpongeForge uses the firespread context key, todo verify if we want to use FireSpread or what.
-            Sponge.getCauseStackManager().addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos).isCancelled()) {
-                callbackInfo.cancel();
+            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                frame.addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
+                if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos).isCancelled()) {
+                    callbackInfo.cancel();
+                }
             }
         }
     }
@@ -58,9 +61,11 @@ public abstract class MixinBlockFire extends MixinBlock {
     private void onCatchFirePreCheckOther(World world, BlockPos pos, int chance, Random random, int age, EnumFacing facing, CallbackInfo callbackInfo) {
         if (!world.isRemote) {
             // SpongeForge uses the firespread context key, todo verify if we want to use FireSpread or what.
-            Sponge.getCauseStackManager().addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos).isCancelled()) {
-                callbackInfo.cancel();
+            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                frame.addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
+                if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos).isCancelled()) {
+                    callbackInfo.cancel();
+                }
             }
         }
     }
