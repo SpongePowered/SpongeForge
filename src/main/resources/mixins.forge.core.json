@@ -93,7 +93,6 @@
         "world.storage.MixinSaveHandler"
     ],
     "client": [
-        "advancements.MixinClientAdvancementManager",
         "client.MixinMinecraft",
         "client.gui.MixinGuiOptions",
         "client.gui.MixinGuiOverlayDebug",
