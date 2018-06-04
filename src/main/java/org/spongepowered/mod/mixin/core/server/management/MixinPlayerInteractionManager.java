@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.server.management;
 
+import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockCommandBlock;
@@ -55,6 +56,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -63,6 +65,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
 import org.spongepowered.common.util.VecHelper;
@@ -116,12 +119,15 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         ItemStack oldStack = stack.copy();
         InteractBlockEvent.Secondary event;
         BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-
-
-        event = SpongeCommonEventFactory.createInteractBlockEventSecondary(player, oldStack, VecHelper.toVector3d(pos.add(hitX, hitY, hitZ))
+        final Vector3d hitVec = VecHelper.toVector3d(pos.add(hitX, hitY, hitZ));
+        Sponge.getCauseStackManager().addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(oldStack));
+        final boolean interactItemCancelled = SpongeCommonEventFactory.callInteractItemEventSecondary(player, oldStack, hand, hitVec, currentSnapshot).isCancelled();
+        event = SpongeCommonEventFactory.createInteractBlockEventSecondary(player, oldStack, hitVec
                 , currentSnapshot, DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
+        if (interactItemCancelled) {
+            event.setUseItemResult(Tristate.FALSE);
+        }
         SpongeModEventManager.CancellationData cancellationData = ((SpongeModEventManager) Sponge.getEventManager()).extendedPost(event, false);
-
         if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
             SpongeCommonEventFactory.playerInteractItemChanged = true;
         }
@@ -181,7 +187,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         }
 
         net.minecraft.item.Item item = stack.isEmpty() ? null : stack.getItem();
-        EnumActionResult ret = item == null
+        EnumActionResult ret = item == null || event.getUseItemResult() == Tristate.FALSE
                                ? EnumActionResult.PASS
                                : item.onItemUseFirst(player, worldIn, pos, facing, hitX, hitY, hitZ, hand);
         if (ret != EnumActionResult.PASS) {
