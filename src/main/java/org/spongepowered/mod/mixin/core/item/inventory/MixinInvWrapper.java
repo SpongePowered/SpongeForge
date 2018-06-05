@@ -137,11 +137,13 @@ public abstract class MixinInvWrapper implements MinecraftInventoryAdapter<IInve
         this.getFabric().clear();
     }
 
+    @Override
     public Lens<IInventory, ItemStack> getRootLens() {
         this.init();
         return this.lens;
     }
 
+    @Override
     public Fabric<IInventory> getFabric() {
         this.init();
         return ((Fabric) this.fabric);
