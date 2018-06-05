@@ -116,6 +116,7 @@ import org.spongepowered.mod.interfaces.IMixinLoadController;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 @Singleton
@@ -131,16 +132,16 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .build();
 
 
-	@SuppressWarnings({"unchecked"})
-	Class<? extends Event>[] useItemStack = new Class[] {UseItemStackEvent.Start.class, UseItemStackEvent.Tick.class, UseItemStackEvent.Stop.class, UseItemStackEvent.Finish.class, UseItemStackEvent.Replace.class, UseItemStackEvent.Reset.class};
-	@SuppressWarnings({"unchecked"})
-	Class<? extends Event>[] interactEntity = new Class[] {InteractEntityEvent.Primary.MainHand.class, InteractEntityEvent.Primary.OffHand.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class};
-	@SuppressWarnings({"unchecked"})
-	Class<? extends Event>[] interactBlock = new Class[] {InteractBlockEvent.Primary.MainHand.class, InteractBlockEvent.Primary.OffHand.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class};
-	@SuppressWarnings({"unchecked"})
-	Class<? extends Event>[] spawnEntityEvent = new Class[] {SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class};
+	@SuppressWarnings({"unchecked"}) private
+    Class<? extends Event>[] useItemStack = new Class[] {UseItemStackEvent.Start.class, UseItemStackEvent.Tick.class, UseItemStackEvent.Stop.class, UseItemStackEvent.Finish.class, UseItemStackEvent.Replace.class, UseItemStackEvent.Reset.class};
+	@SuppressWarnings({"unchecked"}) private
+    Class<? extends Event>[] interactEntity = new Class[] {InteractEntityEvent.Primary.MainHand.class, InteractEntityEvent.Primary.OffHand.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class};
+	@SuppressWarnings({"unchecked"}) private
+    Class<? extends Event>[] interactBlock = new Class[] {InteractBlockEvent.Primary.MainHand.class, InteractBlockEvent.Primary.OffHand.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class};
+	@SuppressWarnings({"unchecked", "deprecation"}) private
+    Class<? extends Event>[] spawnEntityEvent = new Class[] {SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class};
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     /**
      * A mapping from Forge events to corresponding Sponge events.
      *
@@ -399,7 +400,7 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     @Override
-    public boolean post(Event spongeEvent, boolean allowClientThread) {
+    public boolean post(@Nonnull Event spongeEvent, boolean allowClientThread) {
         this.extendedPost(spongeEvent, allowClientThread);
         return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
     }
@@ -447,15 +448,15 @@ public class SpongeModEventManager extends SpongeEventManager {
         /**
          * Whether the event was cancelled by a Sponge plugin
          */
-        public boolean spongeCancelled;
+        boolean spongeCancelled;
         /**
          * Whether the event was cancelled by a Forge plugin
          */
         public boolean forgeCancelled;
 
-        public CancellationData() {}
+        CancellationData() {}
 
-        public CancellationData(boolean spongeCancelled, boolean forgeCancelled) {
+        CancellationData(boolean spongeCancelled, boolean forgeCancelled) {
             this.spongeCancelled = spongeCancelled;
             this.forgeCancelled = forgeCancelled;
         }

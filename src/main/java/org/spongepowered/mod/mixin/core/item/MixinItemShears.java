@@ -80,7 +80,7 @@ public abstract class MixinItemShears extends Item {
      *
      * Returns true if the item can be used on the given entity, e.g. shears on sheep.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Overwrite
     @Override
     public boolean itemInteractionForEntity(ItemStack itemstack, EntityPlayer player, EntityLivingBase entity,
