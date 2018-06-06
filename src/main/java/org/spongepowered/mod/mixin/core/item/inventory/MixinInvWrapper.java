@@ -49,26 +49,30 @@ import org.spongepowered.mod.item.inventory.fabric.IItemHandlerFabric;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
+@SuppressWarnings("rawtypes")
 @Mixin(InvWrapper.class)
 @Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
 public abstract class MixinInvWrapper implements MinecraftInventoryAdapter<IInventory>, IMixinInventory {
 
-    protected EmptyInventory empty;
-    protected Inventory parent;
+    @Nullable protected EmptyInventory empty;
+    @Nullable protected Inventory parent;
     protected Inventory next;
     protected SlotCollection slots;
     protected List<Inventory> children = new ArrayList<Inventory>();
-    protected Iterable<Slot> slotIterator;
+    @Nullable protected Iterable<Slot> slotIterator;
     private Fabric<IItemHandler> fabric;
-    protected Lens<IInventory, ItemStack> lens = null;
+    @Nullable protected Lens<IInventory, ItemStack> lens = null;
 
     private List<SlotTransaction> capturedTransactions = new ArrayList<>();
     private boolean initalized = false;
 
+    @SuppressWarnings("unchecked")
     private void init() {
         if (!initalized) {
             initalized = true;
-            this.fabric = new IItemHandlerFabric(((InvWrapper)(Object) this));
+            this.fabric = new IItemHandlerFabric(((InvWrapper) (Object) this));
             this.slots = new SlotCollection.Builder().add(this.fabric.getSize()).build();
             this.lens = new OrderedInventoryLensImpl(0, this.fabric.getSize(), 1, slots);
         }
@@ -143,6 +147,7 @@ public abstract class MixinInvWrapper implements MinecraftInventoryAdapter<IInve
         return this.lens;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Fabric<IInventory> getFabric() {
         this.init();
