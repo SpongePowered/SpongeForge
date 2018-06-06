@@ -383,6 +383,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         return null;
     }
 
+    @SuppressWarnings("rawtypes")
     private Decorate.EventType getForgeDecorateEventTypeForPopulator(Populator populator, Chunk chunk) {
         if (populator instanceof SeaFloor) {
             BlockType type = ((SeaFloor) populator).getBlock().getType();
