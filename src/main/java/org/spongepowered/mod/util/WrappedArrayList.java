@@ -55,6 +55,7 @@ import java.util.stream.Stream;
  */
 public class WrappedArrayList extends ArrayList<EntityItem> {
 
+    private static final long serialVersionUID = 4322947916291867878L;
     private List<EntityItem> wrappedList;
     private final WeakReference<Entity> container;
     private boolean isCapturingWithSponge = false;

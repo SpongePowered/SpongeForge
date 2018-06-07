@@ -34,7 +34,14 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(value = PlayerAdvancements.class)
 public class MixinPlayerAdvancements {
 
-    @Redirect(method = "grantCriterion", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onAdvancement(Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/advancements/Advancement;)V"))
+    @Redirect(
+        method = "grantCriterion",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/common/ForgeHooks;onAdvancement(Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/advancements/Advancement;)V",
+            remap = false
+        )
+    )
     private void onForgeHooks(EntityPlayerMP player, Advancement advancement) {
         // Do nothing - we fire the event in SpongeForgeEventFactory
     }

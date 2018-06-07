@@ -53,10 +53,9 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
 
     @Shadow private int careerId;
     @Shadow private int careerLevel;
-
-    @Shadow public abstract VillagerRegistry.VillagerProfession getProfessionForge();
-
     @Shadow @Nullable public MerchantRecipeList buyingList;
+
+    @Shadow(remap = false) public abstract VillagerRegistry.VillagerProfession getProfessionForge();
 
     /**
      * @author gabizou - April 8th, 2018
@@ -66,6 +65,7 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
      * forge professions and sponge professions. This aims to have failsafes for handling
      * with Sponge's system.
      */
+    @SuppressWarnings("unchecked")
     @Overwrite
     public void populateBuyingList() {
         // Sponge - only get the profession once
@@ -125,7 +125,7 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
                 }
             }
             final List<MerchantRecipe> filtered = this.buyingList.stream()
-                .filter(trade -> temp.contains(trade))
+                .filter(temp::contains)
                 .collect(Collectors.toList());
             final List<MerchantRecipe> forgeFiltered = temp.stream()
                 .filter(filtered::contains)

@@ -119,6 +119,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
+@SuppressWarnings("rawtypes")
 @Singleton
 public class SpongeModEventManager extends SpongeEventManager {
 
@@ -377,11 +378,10 @@ public class SpongeModEventManager extends SpongeEventManager {
                         ((AbstractEvent) event).currentOrder = listener.getOrder();
                     }
                     if (useCauseStackManager) {
-                        Sponge.getCauseStackManager().pushCause(listener.getPlugin());
-                        try (CauseStackManager.StackFrame ignored = Sponge.getCauseStackManager().pushCauseFrame()) {
+                        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                            frame.pushCause(listener.getPlugin());
                             listener.handle(event);
                         }
-                        Sponge.getCauseStackManager().popCause();
                     } else {
                         listener.handle(event);
                     }

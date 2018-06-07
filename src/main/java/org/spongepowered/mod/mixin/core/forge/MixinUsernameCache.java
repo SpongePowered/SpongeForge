@@ -44,37 +44,65 @@ public class MixinUsernameCache {
         SpongeUsernameCache.setServerDir(/* The minecraft dir */ (File) FMLInjectionData.data()[6]);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     protected static void setUsername(UUID uuid, String username) {
         SpongeUsernameCache.setUsername(uuid, username);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     protected static boolean removeUsername(UUID uuid) {
         return SpongeUsernameCache.removeUsername(uuid);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     @Nullable
     public static String getLastKnownUsername(UUID uuid) {
         return SpongeUsernameCache.getLastKnownUsername(uuid);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static boolean containsUUID(UUID uuid) {
         return SpongeUsernameCache.containsUUID(uuid);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static Map<UUID, String> getMap() {
         return SpongeUsernameCache.getMap();
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     protected static void save() {
         // saves are only performed during world save
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     protected static void load() {
         SpongeUsernameCache.load();

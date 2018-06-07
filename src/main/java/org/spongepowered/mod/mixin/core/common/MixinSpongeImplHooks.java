@@ -64,7 +64,6 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.logging.log4j.Level;
@@ -117,7 +116,7 @@ public abstract class MixinSpongeImplHooks {
     private static Boolean deobfuscatedEnvironment;
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -126,7 +125,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -140,7 +139,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -151,7 +150,7 @@ public abstract class MixinSpongeImplHooks {
     // Entity
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -160,7 +159,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -169,7 +168,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -178,7 +177,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -187,7 +186,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -196,9 +195,10 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static double getBlockReachDistance(EntityPlayerMP player) {
         return player.interactionManager.getBlockReachDistance();
@@ -207,7 +207,7 @@ public abstract class MixinSpongeImplHooks {
     // Entity registry
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Nullable
@@ -217,7 +217,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -228,7 +228,7 @@ public abstract class MixinSpongeImplHooks {
     // Block
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -237,7 +237,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -246,7 +246,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -261,7 +261,7 @@ public abstract class MixinSpongeImplHooks {
     // Tile entity
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Nullable
@@ -271,7 +271,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -280,7 +280,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -289,15 +289,15 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
     public static void onTileChunkUnload(TileEntity te) {
         if (!te.getWorld().isRemote) {
             try (final PhaseContext<?> o = BlockPhase.State.TILE_CHUNK_UNLOAD.createPhaseContext()
-                .source(te)
-                .buildAndSwitch()) {
+                .source(te)) {
+                o.buildAndSwitch();
                 te.onChunkUnload();
             }
         }
@@ -306,7 +306,7 @@ public abstract class MixinSpongeImplHooks {
     // World
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -315,7 +315,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -336,7 +336,7 @@ public abstract class MixinSpongeImplHooks {
     // World provider
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -345,7 +345,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -354,7 +354,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -363,7 +363,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -372,7 +372,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -381,7 +381,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -390,7 +390,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -399,9 +399,10 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static SpawnerSpawnType canEntitySpawnHere(EntityLiving entityLiving, boolean entityNotColliding) {
         final World world = entityLiving.world;
@@ -422,14 +423,15 @@ public abstract class MixinSpongeImplHooks {
     // Copied from Forge's World patches
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static void onEntityError(Entity entity, CrashReport crashReport) {
         if (ForgeModContainer.removeErroringEntities) {
             // Sponge - fix https://github.com/MinecraftForge/MinecraftForge/issues/3713
-            FMLRelaunchLog.log.getLogger().log(Level.ERROR, crashReport.getCompleteReport());
+            net.minecraftforge.fml.relauncher.FMLRelaunchLog.log.getLogger().log(Level.ERROR, crashReport.getCompleteReport());
             entity.getEntityWorld().removeEntity(entity);
         } else {
             throw new ReportedException(crashReport);
@@ -437,14 +439,15 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static void onTileEntityError(TileEntity tileEntity, CrashReport crashReport) {
         if (ForgeModContainer.removeErroringTileEntities) {
             // Sponge - fix https://github.com/MinecraftForge/MinecraftForge/issues/3713
-            FMLRelaunchLog.log.getLogger().log(Level.ERROR, crashReport.getCompleteReport());
+            net.minecraftforge.fml.relauncher.FMLRelaunchLog.log.getLogger().log(Level.ERROR, crashReport.getCompleteReport());
             tileEntity.invalidate();
             tileEntity.getWorld().removeTileEntity(tileEntity.getPos());
         } else {
@@ -453,7 +456,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -461,35 +464,56 @@ public abstract class MixinSpongeImplHooks {
         block.onBlockExploded(world, blockpos, explosion);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static boolean isRestoringBlocks(World world) {
-        if (world.restoringBlockSnapshots || PhaseTracker.getInstance().getCurrentState() == BlockPhase.State.RESTORING_BLOCKS) {
-                return true;
-        }
+        return world.restoringBlockSnapshots || PhaseTracker.getInstance().getCurrentState() == BlockPhase.State.RESTORING_BLOCKS;
 
-        return false;
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static void onTileEntityChunkUnload(net.minecraft.tileentity.TileEntity tileEntity) {
         tileEntity.onChunkUnload();
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static boolean canConnectRedstone(Block block, IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side) {
         return block.canConnectRedstone(state, world, pos, side);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static void setShouldLoadSpawn(net.minecraft.world.DimensionType dimensionType, boolean keepSpawnLoaded) {
         ((IMixinDimensionType)(Object) dimensionType).setShouldLoadSpawn(keepSpawnLoaded);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static BlockPos getBedLocation(EntityPlayer player, int dimension) {
         return player.getBedLocation(dimension);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static boolean isSpawnForced(EntityPlayer player, int dimension) {
         return player.isSpawnForced(dimension);
@@ -497,7 +521,7 @@ public abstract class MixinSpongeImplHooks {
     // Crafting
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -512,7 +536,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -521,7 +545,7 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -531,16 +555,17 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static Collection<CraftingRecipe> getCraftingRecipes() {
         return Streams.stream(ForgeRegistries.RECIPES.getValues()).map(CraftingRecipe.class::cast).collect(ImmutableList.toImmutableList());
     }
 
     /**
-     * @author
+     * @author unknown
      * @reason Forge compatibility
      */
     @Overwrite
@@ -554,6 +579,7 @@ public abstract class MixinSpongeImplHooks {
 
     /**
      * @author Grinch
+     * @reason forge
      */
     @Overwrite
     public static Text getAdditionalCommandDescriptions() {
@@ -562,6 +588,7 @@ public abstract class MixinSpongeImplHooks {
 
     /**
      * @author Grinch
+     * @reason forge
      */
     @Overwrite
     public static void registerAdditionalCommands(ChildCommandElementExecutor flagChildren, ChildCommandElementExecutor nonFlagChildren) {
@@ -601,8 +628,8 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static void onTileEntityInvalidate(TileEntity te) {
         try (final PhaseContext<?> o = BlockPhase.State.TILE_ENTITY_INVALIDATING.createPhaseContext()
-            .source(te)
-            .buildAndSwitch()) {
+            .source(te)) {
+            o.buildAndSwitch();
             te.invalidate();
         }
     }
@@ -610,9 +637,9 @@ public abstract class MixinSpongeImplHooks {
     /**
      * @author gabizou
      * @reason Supports using the captured drop list for entities from forge.
-     * @param phaseContext
-     * @param owner
-     * @param entityitem
+     * @param phaseContext context
+     * @param owner owner
+     * @param entityitem item to drop
      */
     @Overwrite
     public static void capturePerEntityItemDrop(PhaseContext<?> phaseContext, Entity owner,
@@ -633,6 +660,8 @@ public abstract class MixinSpongeImplHooks {
 
     /**
      * @author gabizou - April 21st, 2018
+     * @reason Use ForgeHooks for looting level compatibility.
+     *
      * @param entity The entity passed in
      * @return The modifier based on forge hooks.
      */

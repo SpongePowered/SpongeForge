@@ -146,6 +146,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         super.replaceBiomeBlocks(world, rand, x, z, chunk, biomes);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void populate(int chunkX, int chunkZ) {
         final PhaseTracker phaseTracker = PhaseTracker.getInstance();
@@ -229,8 +230,8 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
             try (PopulatorPhaseContext context = GenerationPhase.State.POPULATOR_RUNNING.createPhaseContext()
                     .world(this.world)
-                    .populator(type)
-                    .buildAndSwitch()) {
+                    .populator(type)) {
+                context.buildAndSwitch();
                 Timing timing = null;
                 if (Timings.isTimingsEnabled()) {
                     timing = this.populatorTimings.get(populator.getType().getId());
@@ -245,7 +246,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 } else {
                     populator.populate(spongeWorld, volume, this.rand, biomeBuffer);
                 }
-                if (Timings.isTimingsEnabled()) {
+                if (timing != null) {
                     timing.stopTimingIfSync();
                 }
             }
@@ -280,6 +281,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         ((IMixinWorldServer) spongeWorld).getTimingsHandler().chunkPopulate.stopTimingIfSync();
     }
 
+    @SuppressWarnings("deprecation")
     private boolean checkForgeEvent(Populator populator, IChunkGenerator chunkProvider, int chunkX, int chunkZ, List<String> flags, Chunk chunk) {
         boolean village_flag = flags.contains(WorldGenConstants.VILLAGE_FLAG);
         if (populator instanceof Ore && populator instanceof WorldGenerator) {
