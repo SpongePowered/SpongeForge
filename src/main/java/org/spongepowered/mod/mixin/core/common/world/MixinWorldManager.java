@@ -96,6 +96,10 @@ public abstract class MixinWorldManager {
         return Optional.empty();
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static void sendDimensionRegistration(EntityPlayerMP player, WorldProvider provider) {
         // register dimension on client-side
@@ -115,7 +119,7 @@ public abstract class MixinWorldManager {
      */
     @Nullable
     @Overwrite
-    public static Path getWorldFolder(DimensionType dimensionType, int dimensionId) {
+    private static Path getWorldFolder(DimensionType dimensionType, int dimensionId) {
         Path path = dimensionPathByDimensionId.get(dimensionId);
         if (path != null) {
             return path;
@@ -165,7 +169,13 @@ public abstract class MixinWorldManager {
             dimensionBits.set(dimensionId);
         }
     }
-    
+
+    /**
+     * @author unknown
+     * @reason hell if I know... I believe it's to properly unregister dimensions from forge mods that may not have been
+     * loaded or registered before.
+     * @param dimensionId the dimension id.
+     */
     @Overwrite
     public static void unregisterDimension(int dimensionId) {
         dimensionTypeByDimensionId.remove(dimensionId);

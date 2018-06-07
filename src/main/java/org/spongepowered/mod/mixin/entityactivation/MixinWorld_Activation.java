@@ -45,10 +45,15 @@ public abstract class MixinWorld_Activation implements IMixinWorld {
 
     @Shadow @Final public boolean isRemote;
 
-    @Shadow protected abstract boolean isChunkLoaded(int x, int z, boolean allowEmpty);
-    @Shadow public abstract Chunk getChunkFromChunkCoords(int chunkX, int chunkZ);
     @Shadow public abstract void updateEntity(Entity ent);
 
+    /**
+     * @author blood
+     * @reason Activation range checks.
+     *
+     * @param entityIn
+     * @param forceUpdate
+     */
     @Overwrite
     public void updateEntityWithOptionalForce(Entity entityIn, boolean forceUpdate)
     {

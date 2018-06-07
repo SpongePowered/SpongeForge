@@ -52,6 +52,10 @@ public abstract class MixinSpongeFluidStackBuilder extends AbstractDataBuilder<F
         super(requiredClass, supportedVersion);
     }
 
+    /**
+     * @author gabizou
+     * @reason Use forge's fluid stack instaed of sponge's fluid stack.
+     */
     @Overwrite
     public FluidStack build() {
         checkNotNull(this.fluidType, "Fluidtype cannot be null!");

@@ -102,6 +102,7 @@ public abstract class MixinInvWrapper implements MinecraftInventoryAdapter<IInve
         return this.empty;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public SlotProvider<IInventory, ItemStack> getSlotProvider() {
         this.init();

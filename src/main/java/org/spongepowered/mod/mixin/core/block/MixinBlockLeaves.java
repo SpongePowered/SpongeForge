@@ -71,7 +71,10 @@ public abstract class MixinBlockLeaves extends MixinBlock {
                     .source(locatable);
             }
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame();
-                 PhaseContext<?> context = blockDecay != null ? blockDecay.buildAndSwitch() : null) {
+                 PhaseContext<?> context = blockDecay) {
+                if (context != null) {
+                    context.buildAndSwitch();
+                }
                 frame.addContext(EventContextKeys.LEAVES_DECAY, (World) worldIn);
                 if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) worldIn, pos).isCancelled()) {
                     return;

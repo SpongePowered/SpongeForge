@@ -85,6 +85,13 @@ public abstract class MixinEventBus implements IMixinEventBus {
         return true;
     }
 
+    /**
+     * @author unknown
+     * @reason Use added boolean flag to direct whether the event is forced or not, since we sync sponge to forge events quite often.
+     *
+     * @param event The event to post
+     * @return The boolean cancellable value
+     */
     @Overwrite
     public boolean post(Event event) {
         return post(event, false);
@@ -95,7 +102,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         org.spongepowered.api.event.Event spongeEvent;
         // Create a frame for the common event factory to push causes and contexts...
         try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-            spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent);
+            spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent, frame); // todo : consider using the frame
             IEventListener[] listeners = forgeEvent.getListenerList().getListeners(this.busID);
             boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners, true);
             if (!cancelled) {
@@ -125,7 +132,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 if (!isEventAllowed(event)) {
                     return false;
                 }
-                spongeEvent = SpongeForgeEventFactory.createSpongeEvent(event);
+                spongeEvent = SpongeForgeEventFactory.createSpongeEvent(event, frame); // todo : consider using the frame
             }
 
             IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
@@ -149,6 +156,9 @@ public abstract class MixinEventBus implements IMixinEventBus {
                         modListener = (IMixinASMEventHandler) listener;
                         modListener.getTimingsHandler().startTimingIfSync();
                         try (PhaseContext<?> context = SpongeForgeEventHooks.preEventPhaseCheck(listener, event)) {
+                            if (context != null) {
+                                context.buildAndSwitch();
+                            }
                             listener.invoke(event);
                         }
                         modListener.getTimingsHandler().stopTimingIfSync();
