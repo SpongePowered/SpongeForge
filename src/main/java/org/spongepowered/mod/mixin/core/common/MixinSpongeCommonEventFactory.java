@@ -36,13 +36,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 
+import java.util.Optional;
+
 @Mixin(value = SpongeCommonEventFactory.class, remap = false)
 public abstract class MixinSpongeCommonEventFactory {
 
     @Inject(method = "callDestructEntityEventDeath", at = @At("HEAD"), cancellable = true)
-    private static void onCallDestructEntityEventDeath(EntityLivingBase entity, DamageSource source, boolean isMainThread, CallbackInfoReturnable<DestructEntityEvent.Death> cir) {
+    private static void onCallDestructEntityEventDeath(EntityLivingBase entity, DamageSource source, boolean isMainThread, CallbackInfoReturnable<Optional<DestructEntityEvent.Death>> cir) {
         if (net.minecraftforge.common.ForgeHooks.onLivingDeath(entity, source)) {
-            cir.setReturnValue(null);
+            cir.setReturnValue(Optional.empty());
         }
     }
 
