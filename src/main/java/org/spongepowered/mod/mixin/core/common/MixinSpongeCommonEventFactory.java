@@ -25,12 +25,14 @@
 package org.spongepowered.mod.mixin.core.common;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -53,6 +55,16 @@ public abstract class MixinSpongeCommonEventFactory {
         if (!(inventory instanceof Inventory)) {
             cir.setReturnValue(((Inventory) new InvWrapper(inventory)));
         }
+    }
+
+    /**
+     * @author Aaron1011 - June 7th, 2018
+     * @reason This method is a stub in SpongeCommon, so there's no need to
+     * inject into it.
+     */
+    @Overwrite
+    public static void callPostPlayerRespawnEvent(EntityPlayerMP playerMP, boolean conqueredEnd) {
+        net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerRespawnEvent(playerMP, conqueredEnd);
     }
 
 }
