@@ -204,9 +204,6 @@ public class SpongeForgeEventFactory {
         if (ClientConnectionEvent.Disconnect.class.isAssignableFrom(clazz)) {
             return PlayerLoggedOutEvent.class;
         }
-        if (RespawnPlayerEvent.class.isAssignableFrom(clazz)) {
-            return PlayerRespawnEvent.class;
-        }
         if (MoveEntityEvent.Teleport.class.isAssignableFrom(clazz)) {
             return EntityTravelToDimensionEvent.class;
         }
@@ -545,8 +542,6 @@ public class SpongeForgeEventFactory {
             return callPlayerLoggedInEvent(spongeEvent);
         } else if (PlayerLoggedOutEvent.class.isAssignableFrom(clazz)) {
             return callPlayerLoggedOutEvent(spongeEvent);
-        } else if (PlayerRespawnEvent.class.isAssignableFrom(clazz)) {
-            return callPlayerRespawnEvent(spongeEvent);
         } else if (EntityTravelToDimensionEvent.class.isAssignableFrom(clazz)) {
             return callEntityTravelToDimensionEvent(spongeEvent);
         } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
@@ -1032,14 +1027,6 @@ public class SpongeForgeEventFactory {
     private static ClientConnectionEvent.Disconnect callPlayerLoggedOutEvent(Event event) {
         ClientConnectionEvent.Disconnect spongeEvent = (ClientConnectionEvent.Disconnect) event;
         PlayerLoggedOutEvent fmlEvent = new PlayerLoggedOutEvent((EntityPlayer) spongeEvent.getTargetEntity());
-        ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
-
-        return spongeEvent;
-    }
-
-    private static RespawnPlayerEvent callPlayerRespawnEvent(Event event) {
-        RespawnPlayerEvent spongeEvent = (RespawnPlayerEvent) event;
-        PlayerRespawnEvent fmlEvent = new PlayerRespawnEvent((EntityPlayer) spongeEvent.getTargetEntity(), !spongeEvent.isDeath());
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(fmlEvent, true);
 
         return spongeEvent;
