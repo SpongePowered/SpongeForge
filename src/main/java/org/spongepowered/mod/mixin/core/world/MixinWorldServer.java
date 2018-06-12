@@ -107,6 +107,7 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
      * @return True if the block is modifiable
      */
     @Overwrite
+    @Override
     public boolean isBlockModifiable(EntityPlayer player, BlockPos pos) {
         if (super.isBlockModifiable(player, pos)) {
             return true;
