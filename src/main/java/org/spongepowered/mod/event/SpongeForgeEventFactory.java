@@ -344,20 +344,12 @@ public class SpongeForgeEventFactory {
 
             if (SpongeImplHooks.isFakePlayer(player)) {
                 frame.addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
-            } else {
-                frame.pushCause(player);
             }
 
             if (owner != null) {
                 frame.addContext(EventContextKeys.OWNER, owner);
-                if (!frame.getCurrentCause().contains(owner)) {
-                    frame.pushCause(owner);
-                }
             } else {
                 frame.addContext(EventContextKeys.OWNER, (User) player);
-                if (!frame.getCurrentCause().contains(player)) {
-                    frame.pushCause(player);
-                }
             }
             if (notifier != null) {
                 frame.addContext(EventContextKeys.NOTIFIER, notifier);
@@ -393,20 +385,12 @@ public class SpongeForgeEventFactory {
 
             if (SpongeImplHooks.isFakePlayer(player)) {
                 frame.addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
-            } else if (!frame.getCurrentCause().contains(player)) {
-                frame.pushCause(player);
             }
 
             if (owner != null) {
                 frame.addContext(EventContextKeys.OWNER, owner);
-                if (!frame.getCurrentCause().contains(owner)) {
-                    frame.pushCause(owner);
-                }
             } else {
                 frame.addContext(EventContextKeys.OWNER, (User) player);
-                if (!frame.getCurrentCause().contains(player)) {
-                    frame.pushCause(player);
-                }
             }
             if (notifier != null) {
                 frame.addContext(EventContextKeys.NOTIFIER, notifier);
@@ -441,20 +425,12 @@ public class SpongeForgeEventFactory {
 
             if (SpongeImplHooks.isFakePlayer(player)) {
                 frame.addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
-            } else if (!frame.getCurrentCause().contains(player)) {
-                frame.pushCause(player);
             }
 
             if (owner != null) {
                 frame.addContext(EventContextKeys.OWNER, owner);
-                if (!frame.getCurrentCause().contains(owner)) {
-                    frame.pushCause(owner);
-                }
             } else {
                 frame.addContext(EventContextKeys.OWNER, (User) player);
-                if (!frame.getCurrentCause().contains(player)) {
-                    frame.pushCause(player);
-                }
             }
             if (notifier != null) {
                 frame.addContext(EventContextKeys.NOTIFIER, notifier);
