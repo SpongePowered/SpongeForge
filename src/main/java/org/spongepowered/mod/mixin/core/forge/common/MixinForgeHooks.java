@@ -86,6 +86,7 @@ public abstract class MixinForgeHooks {
      * @param pos
      * @return
      */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static boolean canHarvestBlock(@Nonnull Block block, @Nonnull EntityPlayer player, @Nonnull IBlockAccess world, @Nonnull BlockPos pos)
     {

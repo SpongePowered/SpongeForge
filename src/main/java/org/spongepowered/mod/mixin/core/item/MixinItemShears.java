@@ -24,9 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.item;
 
-import com.flowpowered.math.vector.Vector3d;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -39,34 +36,20 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.IShearable;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.event.CauseStackManager;
-import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
-import org.spongepowered.api.event.entity.ConstructEntityEvent;
-import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
-import org.spongepowered.common.event.tracking.context.ItemDropData;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
-import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 @Mixin(value = ItemShears.class, remap = false)
 public abstract class MixinItemShears extends Item {
@@ -80,7 +63,7 @@ public abstract class MixinItemShears extends Item {
      *
      * Returns true if the item can be used on the given entity, e.g. shears on sheep.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Overwrite
     @Override
     public boolean itemInteractionForEntity(ItemStack itemstack, EntityPlayer player, EntityLivingBase entity,
@@ -111,7 +94,9 @@ public abstract class MixinItemShears extends Item {
                     final List<ItemStackSnapshot> original = new ArrayList<>();
                     final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
                     original.add(snapshot);
-                    item = EntityUtil.throwDropItemAndConstructEvent(EntityUtil.toMixin(entity), posX, posY, posZ, snapshot, original);
+                    try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                        item = EntityUtil.throwDropItemAndConstructEvent(EntityUtil.toMixin(entity), posX, posY, posZ, snapshot, original, frame);
+                    }
 
                     if (item == null || item.isEmpty()) {
                         continue;

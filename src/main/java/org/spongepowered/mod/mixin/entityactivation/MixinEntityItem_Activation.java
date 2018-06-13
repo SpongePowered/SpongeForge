@@ -40,7 +40,7 @@ public abstract class MixinEntityItem_Activation extends MixinEntity_Activation 
 
     @Shadow private int pickupDelay;
     @Shadow private int age;
-    @Shadow public int lifespan;
+    @Shadow(remap = false) public int lifespan;
 
     @Override
     public void inactiveTick() {

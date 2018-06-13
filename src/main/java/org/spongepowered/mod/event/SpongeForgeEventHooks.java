@@ -46,14 +46,12 @@ public final class SpongeForgeEventHooks {
                 return PluginPhase.Listener.PRE_WORLD_TICK_LISTENER
                     .createPhaseContext()
                     .source(listener)
-                    .event(event)
-                    .buildAndSwitch();
+                    .event(event);
             } else if (worldTickEvent.phase == TickEvent.Phase.END) {
                 return PluginPhase.Listener.POST_WORLD_TICK_LISTENER
                     .createPhaseContext()
                     .source(listener)
-                    .event(event)
-                    .buildAndSwitch();
+                    .event(event);
             }
         }
         // Basically some forge mods also listen to the server tick event and perform world changes as well...........
@@ -63,14 +61,12 @@ public final class SpongeForgeEventHooks {
                 // Need to prepare all worlds many mods do this
                 return PluginPhase.Listener.PRE_SERVER_TICK_LISTENER.createPhaseContext()
                         .source(listener)
-                        .event(event)
-                        .buildAndSwitch();
+                        .event(event);
             } else if (serverTickEvent.phase == TickEvent.Phase.END) {
                 // Need to prepare all worlds many mods do this
                 return PluginPhase.Listener.POST_SERVER_TICK_LISTENER.createPhaseContext()
                     .source(listener)
-                    .event(event)
-                    .buildAndSwitch();
+                    .event(event);
 
             }
         }

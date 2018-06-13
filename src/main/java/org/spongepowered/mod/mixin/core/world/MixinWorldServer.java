@@ -62,7 +62,14 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
         return this.provider.getDimension();
     }
 
-    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/DimensionManager;setWorld(ILnet/minecraft/world/WorldServer;Lnet/minecraft/server/MinecraftServer;)V"))
+    @Redirect(
+        method = "<init>",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/common/DimensionManager;setWorld(ILnet/minecraft/world/WorldServer;Lnet/minecraft/server/MinecraftServer;)V",
+            remap = false
+        )
+    )
     private void redirectSetWorld(int id, WorldServer world, MinecraftServer server) {
         // Handled by WorldManager
     }

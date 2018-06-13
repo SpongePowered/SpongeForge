@@ -74,8 +74,8 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     @Shadow private int sleepTimer;
     @Shadow private BlockPos spawnPos;
     @Shadow private boolean spawnForced;
-    @Shadow(remap = false) private HashMap<Integer, BlockPos> spawnChunkMap;
-    @Shadow(remap = false) private HashMap<Integer, Boolean> spawnForcedMap;
+    @Shadow(remap = false) protected HashMap<Integer, BlockPos> spawnChunkMap;
+    @Shadow(remap = false) protected HashMap<Integer, Boolean> spawnForcedMap;
 
     @Shadow public abstract EntityItem dropItem(ItemStack droppedItem, boolean dropAround, boolean traceItem);
     @Shadow public abstract void setSpawnPoint(BlockPos pos, boolean force);
@@ -146,8 +146,8 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         SleepingEvent.Post post = null;
         if (!((IMixinWorld) this.world).isFake()) {
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-                Sponge.getCauseStackManager().pushCause(this);
-                post = SpongeEventFactory.createSleepingEventPost(Sponge.getCauseStackManager().getCurrentCause(),
+                frame.pushCause(this);
+                post = SpongeEventFactory.createSleepingEventPost(frame.getCurrentCause(),
                     this.getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), Optional.ofNullable(newLocation), this, setSpawn);
                 Sponge.getEventManager().post(post);
                 if (post.isCancelled()) {

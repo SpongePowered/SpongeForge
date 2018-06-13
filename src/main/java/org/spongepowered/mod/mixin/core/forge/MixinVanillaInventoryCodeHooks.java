@@ -53,19 +53,11 @@ import javax.annotation.Nullable;
 @Mixin(value = VanillaInventoryCodeHooks.class)
 public abstract class MixinVanillaInventoryCodeHooks {
 
-    @Shadow private static ItemStack insertStack(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot) {
+    @Shadow(remap = false) private static ItemStack insertStack(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot) {
         throw new AbstractMethodError("Shadow");
     }
 
-    @Shadow @Nullable public static Pair<IItemHandler, Object> getItemHandler(World worldIn, double x, double y, double z, EnumFacing side) {
-        throw new AbstractMethodError("Shadow");
-    }
-
-    @Shadow @Nullable private static Pair<IItemHandler, Object> getItemHandler(IHopper hopper, EnumFacing side) {
-        throw new AbstractMethodError("Shadow");
-    }
-
-    @Shadow protected static boolean isFull(IItemHandler itemHandler) {
+    @Shadow(remap = false) @Nullable private static Pair<IItemHandler, Object> getItemHandler(IHopper hopper, EnumFacing side) {
         throw new AbstractMethodError("Shadow");
     }
 
