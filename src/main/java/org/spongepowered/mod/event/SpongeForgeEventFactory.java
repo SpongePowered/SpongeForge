@@ -329,132 +329,140 @@ public class SpongeForgeEventFactory {
     }
 
     private static ChangeBlockEvent.Pre createChangeBlockEventPre(BlockEvent.BreakEvent forgeEvent) {
-        final net.minecraft.world.World world = forgeEvent.getWorld();
-        if (world.isRemote) {
-            return null;
-        }
-
-        final BlockPos pos = forgeEvent.getPos();
-        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
-        final PhaseData data = phaseTracker.getCurrentPhaseData();
-
-        User owner = data.context.getOwner().orElse(null);
-        User notifier = data.context.getNotifier().orElse(null);
-        EntityPlayer player = forgeEvent.getPlayer();
-
-        if (SpongeImplHooks.isFakePlayer(player)) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
-        } else {
-            Sponge.getCauseStackManager().pushCause(player);
-        }
-
-        if (owner != null) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
-            if (!Sponge.getCauseStackManager().getCurrentCause().contains(owner)) {
-                Sponge.getCauseStackManager().pushCause(owner);
+        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            final net.minecraft.world.World world = forgeEvent.getWorld();
+            if (world.isRemote) {
+                return null;
             }
-        } else {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
-            if (!Sponge.getCauseStackManager().getCurrentCause().contains(player)) {
-                Sponge.getCauseStackManager().pushCause(player);
+
+            final BlockPos pos = forgeEvent.getPos();
+            final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+            final PhaseData data = phaseTracker.getCurrentPhaseData();
+
+            User owner = data.context.getOwner().orElse(null);
+            User notifier = data.context.getNotifier().orElse(null);
+            EntityPlayer player = forgeEvent.getPlayer();
+
+            if (SpongeImplHooks.isFakePlayer(player)) {
+                frame.addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
+            } else {
+                frame.pushCause(player);
             }
-        }
-        if (notifier != null) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
-        }
 
-        Sponge.getCauseStackManager().addContext(EventContextKeys.PLAYER_BREAK, (World) world);
+            if (owner != null) {
+                frame.addContext(EventContextKeys.OWNER, owner);
+                if (!frame.getCurrentCause().contains(owner)) {
+                    frame.pushCause(owner);
+                }
+            } else {
+                frame.addContext(EventContextKeys.OWNER, (User) player);
+                if (!frame.getCurrentCause().contains(player)) {
+                    frame.pushCause(player);
+                }
+            }
+            if (notifier != null) {
+                frame.addContext(EventContextKeys.NOTIFIER, notifier);
+            }
 
-        return SpongeEventFactory.createChangeBlockEventPre(Sponge.getCauseStackManager().getCurrentCause(),
-            ImmutableList.of(new Location<>((World) world, pos.getX(), pos.getY(), pos.getZ())));
+            frame.addContext(EventContextKeys.PLAYER_BREAK, (World) world);
+
+            return SpongeEventFactory.createChangeBlockEventPre(frame.getCurrentCause(),
+                ImmutableList.of(new Location<>((World) world, pos.getX(), pos.getY(), pos.getZ())));
+        }
     }
 
     private static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.PlaceEvent forgeEvent) {
-        final BlockPos pos = forgeEvent.getPos();
-        final net.minecraft.world.World world = forgeEvent.getWorld();
-        if (world.isRemote) {
-            return null;
-        }
+        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            final BlockPos pos = forgeEvent.getPos();
+            final net.minecraft.world.World world = forgeEvent.getWorld();
+            if (world.isRemote) {
+                return null;
+            }
 
-        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
-        final PhaseData data = phaseTracker.getCurrentPhaseData();
-        BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) forgeEvent.getBlockSnapshot()).createSpongeBlockSnapshot();
-        BlockSnapshot finalSnapshot = ((BlockState) forgeEvent.getPlacedBlock()).snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
-        ImmutableList<Transaction<BlockSnapshot>> blockSnapshots = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
+            final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+            final PhaseData data = phaseTracker.getCurrentPhaseData();
+            BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) forgeEvent.getBlockSnapshot()).createSpongeBlockSnapshot();
+            BlockSnapshot
+                finalSnapshot =
+                ((BlockState) forgeEvent.getPlacedBlock()).snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
+            ImmutableList<Transaction<BlockSnapshot>> blockSnapshots = new ImmutableList.Builder<Transaction<BlockSnapshot>>().add(
                 new Transaction<>(originalSnapshot, finalSnapshot)).build();
 
-        User owner = data.context.getOwner().orElse(null);
-        User notifier = data.context.getNotifier().orElse(null);
-        EntityPlayer player = forgeEvent.getPlayer();
+            User owner = data.context.getOwner().orElse(null);
+            User notifier = data.context.getNotifier().orElse(null);
+            EntityPlayer player = forgeEvent.getPlayer();
 
-        if (SpongeImplHooks.isFakePlayer(player)) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
-        } else if (!Sponge.getCauseStackManager().getCurrentCause().contains(player)) {
-            Sponge.getCauseStackManager().pushCause(player);
-        }
-
-        if (owner != null) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
-            if (!Sponge.getCauseStackManager().getCurrentCause().contains(owner)) {
-                Sponge.getCauseStackManager().pushCause(owner);
+            if (SpongeImplHooks.isFakePlayer(player)) {
+                frame.addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
+            } else if (!frame.getCurrentCause().contains(player)) {
+                frame.pushCause(player);
             }
-        } else {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
-            if (!Sponge.getCauseStackManager().getCurrentCause().contains(player)) {
-                Sponge.getCauseStackManager().pushCause(player);
+
+            if (owner != null) {
+                frame.addContext(EventContextKeys.OWNER, owner);
+                if (!frame.getCurrentCause().contains(owner)) {
+                    frame.pushCause(owner);
+                }
+            } else {
+                frame.addContext(EventContextKeys.OWNER, (User) player);
+                if (!frame.getCurrentCause().contains(player)) {
+                    frame.pushCause(player);
+                }
             }
-        }
-        if (notifier != null) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
-        }
+            if (notifier != null) {
+                frame.addContext(EventContextKeys.NOTIFIER, notifier);
+            }
 
-        Sponge.getCauseStackManager().addContext(EventContextKeys.PLAYER_PLACE, (World) world);
+            frame.addContext(EventContextKeys.PLAYER_PLACE, (World) world);
 
-        return SpongeEventFactory.createChangeBlockEventPlace(Sponge.getCauseStackManager().getCurrentCause(), blockSnapshots);
+            return SpongeEventFactory.createChangeBlockEventPlace(frame.getCurrentCause(), blockSnapshots);
+        }
     }
 
     private static ChangeBlockEvent.Place createChangeBlockEventPlace(BlockEvent.MultiPlaceEvent forgeEvent) {
-        final net.minecraft.world.World world = forgeEvent.getWorld();
-        if (world.isRemote) {
-            return null;
-        }
-
-        ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<>();
-        for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : forgeEvent.getReplacedBlockSnapshots()) {
-            final BlockPos snapshotPos = blockSnapshot.getPos();
-            BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
-            BlockSnapshot finalSnapshot = ((World) world).createSnapshot(snapshotPos.getX(), snapshotPos.getY(), snapshotPos.getZ());
-            builder.add(new Transaction<>(originalSnapshot, finalSnapshot));
-        }
-
-        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
-        final PhaseData data = phaseTracker.getCurrentPhaseData();
-        User owner = data.context.getOwner().orElse(null);
-        User notifier = data.context.getNotifier().orElse(null);
-        EntityPlayer player = forgeEvent.getPlayer();
-
-        if (SpongeImplHooks.isFakePlayer(player)) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
-        } else if (!Sponge.getCauseStackManager().getCurrentCause().contains(player)) {
-            Sponge.getCauseStackManager().pushCause(player);
-        }
-
-        if (owner != null) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner);
-            if (!Sponge.getCauseStackManager().getCurrentCause().contains(owner)) {
-                Sponge.getCauseStackManager().pushCause(owner);
+        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            final net.minecraft.world.World world = forgeEvent.getWorld();
+            if (world.isRemote) {
+                return null;
             }
-        } else {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, (User) player);
-            if (!Sponge.getCauseStackManager().getCurrentCause().contains(player)) {
-                Sponge.getCauseStackManager().pushCause(player);
-            }
-        }
-        if (notifier != null) {
-            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier);
-        }
 
-        return SpongeEventFactory.createChangeBlockEventPlace(Sponge.getCauseStackManager().getCurrentCause(), builder.build());
+            ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<>();
+            for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : forgeEvent.getReplacedBlockSnapshots()) {
+                final BlockPos snapshotPos = blockSnapshot.getPos();
+                BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
+                BlockSnapshot finalSnapshot = ((World) world).createSnapshot(snapshotPos.getX(), snapshotPos.getY(), snapshotPos.getZ());
+                builder.add(new Transaction<>(originalSnapshot, finalSnapshot));
+            }
+
+            final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+            final PhaseData data = phaseTracker.getCurrentPhaseData();
+            User owner = data.context.getOwner().orElse(null);
+            User notifier = data.context.getNotifier().orElse(null);
+            EntityPlayer player = forgeEvent.getPlayer();
+
+            if (SpongeImplHooks.isFakePlayer(player)) {
+                frame.addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
+            } else if (!frame.getCurrentCause().contains(player)) {
+                frame.pushCause(player);
+            }
+
+            if (owner != null) {
+                frame.addContext(EventContextKeys.OWNER, owner);
+                if (!frame.getCurrentCause().contains(owner)) {
+                    frame.pushCause(owner);
+                }
+            } else {
+                frame.addContext(EventContextKeys.OWNER, (User) player);
+                if (!frame.getCurrentCause().contains(player)) {
+                    frame.pushCause(player);
+                }
+            }
+            if (notifier != null) {
+                frame.addContext(EventContextKeys.NOTIFIER, notifier);
+            }
+
+            return SpongeEventFactory.createChangeBlockEventPlace(frame.getCurrentCause(), builder.build());
+        }
     }
 
     private static MessageChannelEvent.Chat createMessageChannelEventChat(ServerChatEvent forgeEvent) {
@@ -786,7 +794,6 @@ public class SpongeForgeEventFactory {
         }
         return spongeEvent;
     }
-
 
     static void handlePrefireLogic(Event event) {
         if (event instanceof SpawnEntityEvent) {
