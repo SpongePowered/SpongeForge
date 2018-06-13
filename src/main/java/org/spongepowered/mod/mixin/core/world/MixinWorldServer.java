@@ -113,7 +113,6 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
      * @param pos
      * @return True if the block is modifiable
      */
-    @Override
     @Overwrite
     @Override
     public boolean isBlockModifiable(EntityPlayer player, BlockPos pos) {
