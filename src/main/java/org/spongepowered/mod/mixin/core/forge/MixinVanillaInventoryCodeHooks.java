@@ -126,7 +126,9 @@ public abstract class MixinVanillaInventoryCodeHooks {
             Object inv = getItemHandler(dest, EnumFacing.UP).getValue();
             ItemStack origin = handler.getStackInSlot(slot).copy(); // Capture Origin
             ItemStack result = handler.extractItem(slot, amount, simulate);
-            SpongeCommonEventFactory.captureTransaction(InventoryUtil.forCapture(dest), InventoryUtil.toInventory(inv, handler), slot, origin);
+            if (!result.isEmpty()) {
+                SpongeCommonEventFactory.captureTransaction(InventoryUtil.forCapture(dest), InventoryUtil.toInventory(inv, handler), slot, origin);
+            }
             return result;
         }
         return handler.extractItem(slot, amount, simulate);
