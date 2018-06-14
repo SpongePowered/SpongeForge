@@ -872,7 +872,7 @@ public class SpongeForgeEventFactory {
             return spongeEvent;
         }
 
-        BlockPos pos = ((IMixinLocation) (Object) sourceLocation).getBlockPos();
+        BlockPos pos = VecHelper.toBlockPos(sourceLocation);
         net.minecraft.world.World world = (net.minecraft.world.World) sourceLocation.getExtent();
         // TODO - the boolean forced redstone bit needs to be set properly
         final NeighborNotifyEvent forgeEvent = new NeighborNotifyEvent(world, pos, state, facings, false);
