@@ -40,6 +40,7 @@ import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.interfaces.entity.IMixinVillager;
 import org.spongepowered.common.mixin.core.entity.MixinEntityAgeable;
 import org.spongepowered.common.registry.SpongeVillagerRegistry;
+import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
 import java.util.Iterator;
@@ -89,7 +90,9 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
         this.setProfession(SpongeForgeVillagerRegistry.syncProfession(professionForge, (SpongeProfession) profession));
         final VillagerRegistry.VillagerCareer career = professionForge.getCareer(i);
         // Validate the profession's career is registered with sponge
-        SpongeForgeVillagerRegistry.registerForgeCareer(career);
+        // Ensures that the careers retrieved for the profession are synced with sponge, and
+        // should avoid any issues from sponge's side to get the careers.
+        SpongeForgeVillagerRegistry.registerForgeCareer((IMixinVillagerProfession) this.getProfessionForge(), career);
 
         // Sponge  - use our own registry stuffs to get the careers now that we've verified they are registered
         final List<Career> careers = (List<Career>) profession.getCareers();

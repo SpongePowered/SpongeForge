@@ -35,4 +35,6 @@ public interface IMixinVillagerCareer {
     boolean isDelayed();
 
     void performDelayedInit();
+
+    void forceProfession(VillagerRegistry.VillagerProfession villagerProfession);
 }

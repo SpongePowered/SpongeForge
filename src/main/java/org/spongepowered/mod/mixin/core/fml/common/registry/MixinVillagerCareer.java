@@ -39,6 +39,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeCareer;
 import org.spongepowered.common.registry.SpongeVillagerRegistry;
 import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
+import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
 import java.util.List;
@@ -57,6 +58,9 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onInit(CallbackInfo ci) {
         this.delayed = !SpongeForgeVillagerRegistry.fromNative((VillagerRegistry.VillagerCareer) (Object) this).isPresent();
+        // Still make sure that the forge profession and career profession are synchronized. This is kinda a last ditch effort to get
+        // them registered with sponge.
+        SpongeForgeVillagerRegistry.registerForgeCareer((IMixinVillagerProfession) this.profession, (VillagerRegistry.VillagerCareer) (Object) this);
     }
 
     @Override
@@ -77,6 +81,11 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
     @Override
     public void performDelayedInit() {
         this.registerTrades();
+    }
+
+    @Override
+    public void forceProfession(VillagerRegistry.VillagerProfession villagerProfession) {
+        this.profession = villagerProfession;
     }
 
     /**
