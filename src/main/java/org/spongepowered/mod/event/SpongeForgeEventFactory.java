@@ -809,18 +809,7 @@ public class SpongeForgeEventFactory {
         while (it.hasNext()) {
             Entity entity = (Entity) it.next(); //Sponge - use entity from event
             if (entity instanceof EntityItem) {
-                final ItemStack stack = ((EntityItem) entity).getItem();
-
-                if (stack.isEmpty()) {
-                    // Sponge - technically, this check is in the wrong place, as it normally runs in Forge's listener (i.e. after 'beforeModifications' listener)
-                    // However, it's really only a sanity check for something that should never happen, so it's fine
-                    FMLLog.warning("Attempted to add a EntityItem to the world with a invalid item at " +
-                                    "(%2.2f,  %2.2f, %2.2f), this is most likely a config issue between you and the server. Please double check your configs",
-                            entity.posX, entity.posY, entity.posZ);
-                    entity.setDead();
-                    continue; // Sponge - continue instead of return
-                }
-
+                final ItemStack stack =  EntityUtil.getItem(entity);
                 final Item item = stack.getItem();
 
                 if (item.hasCustomEntity(stack)) {
