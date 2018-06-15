@@ -28,22 +28,13 @@ import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
-import org.apache.logging.log4j.Level;
-import org.spongepowered.api.data.type.Career;
-import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.api.entity.living.Villager;
-import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.util.PrettyPrinter;
-import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.entity.SpongeCareer;
-import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.interfaces.entity.IMixinVillager;
 import org.spongepowered.common.mixin.core.entity.MixinEntityAgeable;
-import org.spongepowered.common.registry.SpongeVillagerRegistry;
-import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
+import org.spongepowered.mod.interfaces.IMixinEntityVillagerForge;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
 import java.util.Iterator;
@@ -53,7 +44,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 @Mixin(value = EntityVillager.class, priority = 1100)
-public abstract class MixinEntityVillager extends MixinEntityAgeable implements Villager, IMixinVillager {
+public abstract class MixinEntityVillager extends MixinEntityAgeable implements Villager, IMixinVillager, IMixinEntityVillagerForge {
 
     @Shadow private int careerId;
     @Shadow private int careerLevel;
@@ -87,65 +78,17 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
 
         int careerNumberId = this.careerId - 1;
         int careerLevel = this.careerLevel - 1;
-        // Sponge Start - validate the found profession and career.
-        final Profession profession = this.getProfession();
-        // Set the profession back to the villager to re-sync sponge's career system
-        this.setProfession(SpongeForgeVillagerRegistry.syncProfession(professionForge, (SpongeProfession) profession));
-        final VillagerRegistry.VillagerCareer career = professionForge.getCareer(careerNumberId);
+        SpongeForgeVillagerRegistry.spongePopupateList(this, professionForge, careerNumberId, careerLevel, this.rand);
 
-        // Sponge  - use our own registry stuffs to get the careers now that we've verified they are registered
-        final List<Career> careers = (List<Career>) profession.getCareers();
-        // At this point the career should be validted and we can safely retrieve the career
-        if (careers.size() <= careerNumberId) {
-            // Mismatch of lists somehow.
-
-            final List<Career> underlyingCareers = ((SpongeProfession) profession).getUnderlyingCareers();
-            underlyingCareers.clear();
-            // Try to re-add every career based on the profession's career
-            final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) professionForge;
-            for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
-                SpongeForgeVillagerRegistry.registerForgeCareer(mixinProfession, villagerCareer);
-            }
-            if (careers.size() <= careerNumberId) {
-                // at this point, there's something wrong and we need to print out once the issue:
-                final PrettyPrinter printer = new PrettyPrinter(60).add("Sponge Forge Career Mismatch!").centre().hr()
-                    .addWrapped(
-                        "Sponge is attemping to recover from a mismatch from a Forge mod provided VillagerCareer and Sponge's Career implementation.")
-                    .add()
-                    .addWrapped(
-                        "Due to the issue, Sponge is printing out all this information to assist sponge resolving the issue. Please open an issue on github for SpongeForge")
-                    .add();
-                printer.add("%s : %s", "Forge Profession", mixinProfession.getProfessionName());
-                int i = 0;
-                for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
-                    printer.add("  %s %n : %s", "Career", i++, villagerCareer.getName());
-                }
-                printer.add();
-                printer.add("%s : %s", "Sponge Profession", profession.getId());
-                i = 0;
-                for (Career spongeCareer : careers) {
-                    printer.add("  %s %n : %s", "Career", i++, spongeCareer.getId());
-                }
-                printer.add();
-                printer.add("Villager career id attempted: " + careerNumberId);
-                printer.log(SpongeImpl.getLogger(), Level.ERROR);
-
-                performMerchantFillFromForge(careerNumberId, career);
-                return;
-            }
-        }
-        final SpongeCareer spongeCareer = (SpongeCareer) careers.get(careerNumberId);
-        SpongeForgeVillagerRegistry.syncCareer(career, spongeCareer);
-
-        try {
-            SpongeVillagerRegistry.getInstance()
-                .populateOffers(this, (List<TradeOffer>) (List<?>) this.buyingList, spongeCareer, this.careerLevel, this.rand);
-        } catch (Exception e) {
-            performMerchantFillFromForge(careerLevel, career);
-        }
     }
 
-    private void performMerchantFillFromForge(int careerLevel, VillagerRegistry.VillagerCareer career) {
+    @Override
+    public MerchantRecipeList getForgeTrades() {
+        return this.buyingList;
+    }
+
+    @Override
+    public void performMerchantFillFromForge(int careerLevel, VillagerRegistry.VillagerCareer career) {
         // If all else fails, fall back to forge's careers and get the trades.
         List<EntityVillager.ITradeList> trades = career.getTrades(careerLevel);
         final MerchantRecipeList temp = new MerchantRecipeList();
