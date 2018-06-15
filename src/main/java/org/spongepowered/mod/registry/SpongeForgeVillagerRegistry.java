@@ -69,25 +69,14 @@ public final class SpongeForgeVillagerRegistry {
     }
 
     public static SpongeProfession syncProfession(VillagerRegistry.VillagerProfession villagerProfession, @Nullable SpongeProfession profession) {
-        final SpongeProfession spongeProfession = (SpongeProfession) forgeToSpongeProfessionMap.get(villagerProfession.getRegistryName().toString());
+        final SpongeProfession registeredProfession = getProfession(villagerProfession, profession);
         final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) villagerProfession;
-        if (spongeProfession != null) {
-            professionMap.forcePut(villagerProfession, spongeProfession);
-        } else {
-            if (profession == null) {
-                final int id = ((ForgeRegistry<VillagerRegistry.VillagerProfession>) ForgeRegistries.VILLAGER_PROFESSIONS).getID(villagerProfession);
-                final SpongeProfession newProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
-                professionMap.forcePut(villagerProfession, newProfession);
-            } else {
-                professionMap.forcePut(villagerProfession, profession);
-            }
-        }
         final List<VillagerRegistry.VillagerCareer> careers = mixinProfession.getCareers();
         for (VillagerRegistry.VillagerCareer career : careers) {
             registerForgeCareer(career); // This should not be recurisve since the profession is being set
         }
         // Should not be null anymore.
-        return (SpongeProfession) professionMap.get(villagerProfession);
+        return registeredProfession;
     }
 
     public static SpongeCareer syncCareer(VillagerRegistry.VillagerCareer villagerCareer, Career career) {
@@ -103,18 +92,25 @@ public final class SpongeForgeVillagerRegistry {
         return  spongeCareer == null ? (SpongeCareer) career : (SpongeCareer) spongeCareer;
     }
 
-
-    private static Optional<Profession> getProfession(VillagerRegistry.VillagerProfession profession) {
-        Profession forgeProfession = professionMap.get(profession);
-        if (forgeProfession == null) {
-            syncProfession(profession, null);
-            return getProfession(profession);
-        }
-        return Optional.of(forgeProfession);
+    public static SpongeProfession getProfession(VillagerRegistry.VillagerProfession profession) {
+        return getProfession(profession, null);
     }
 
-    public static Optional<VillagerRegistry.VillagerProfession> getProfession(Profession profession) {
-        return Optional.ofNullable(professionMap.inverse().get(profession));
+    private static SpongeProfession getProfession(VillagerRegistry.VillagerProfession profession, @Nullable SpongeProfession suggested) {
+        final SpongeProfession spongeProfession = (SpongeProfession) professionMap.get(profession);
+        final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) profession;
+        if (spongeProfession != null) {
+            professionMap.forcePut(profession, spongeProfession);
+        } else {
+            if (suggested == null) {
+                final int id = ((ForgeRegistry<VillagerRegistry.VillagerProfession>) ForgeRegistries.VILLAGER_PROFESSIONS).getID(profession);
+                final SpongeProfession newProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
+                professionMap.forcePut(profession, newProfession);
+            } else {
+                professionMap.forcePut(profession, suggested);
+            }
+        }
+        return (SpongeProfession) professionMap.get(profession);
     }
 
     public static Optional<SpongeCareer> fromNative(VillagerRegistry.VillagerCareer career) {
@@ -127,7 +123,7 @@ public final class SpongeForgeVillagerRegistry {
 
     public static void registerForgeCareer(VillagerRegistry.VillagerCareer career) {
         final VillagerRegistry.VillagerProfession villagerProfession = ((IMixinVillagerCareer) career).getProfession();
-        final SpongeProfession spongeProfession = syncProfession(villagerProfession, null);
+        final SpongeProfession spongeProfession = getProfession(villagerProfession);
 
         final SpongeCareer suggestedCareer = new SpongeCareer(((IMixinVillagerCareer) career).getId(), career.getName(), spongeProfession, new
             SpongeTranslation("entity.Villager." + career.getName()));
