@@ -28,6 +28,7 @@ import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import org.apache.logging.log4j.Level;
 import org.spongepowered.api.data.type.Career;
 import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.api.entity.living.Villager;
@@ -35,6 +36,8 @@ import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.util.PrettyPrinter;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeCareer;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.interfaces.entity.IMixinVillager;
@@ -82,61 +85,98 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
             this.buyingList = new MerchantRecipeList();
         }
 
-        int i = this.careerId - 1;
-        int j = this.careerLevel - 1;
+        int careerNumberId = this.careerId - 1;
+        int careerLevel = this.careerLevel - 1;
         // Sponge Start - validate the found profession and career.
         final Profession profession = this.getProfession();
         // Set the profession back to the villager to re-sync sponge's career system
         this.setProfession(SpongeForgeVillagerRegistry.syncProfession(professionForge, (SpongeProfession) profession));
-        final VillagerRegistry.VillagerCareer career = professionForge.getCareer(i);
-        // Validate the profession's career is registered with sponge
-        // Ensures that the careers retrieved for the profession are synced with sponge, and
-        // should avoid any issues from sponge's side to get the careers.
-        SpongeForgeVillagerRegistry.registerForgeCareer((IMixinVillagerProfession) this.getProfessionForge(), career);
+        final VillagerRegistry.VillagerCareer career = professionForge.getCareer(careerNumberId);
 
         // Sponge  - use our own registry stuffs to get the careers now that we've verified they are registered
         final List<Career> careers = (List<Career>) profession.getCareers();
         // At this point the career should be validted and we can safely retrieve the career
-        final SpongeCareer careerLevel = (SpongeCareer) careers.get(this.careerId - 1);
-        SpongeForgeVillagerRegistry.syncCareer(career, careerLevel);
+        if (careers.size() <= careerNumberId) {
+            // Mismatch of lists somehow.
+
+            final List<Career> underlyingCareers = ((SpongeProfession) profession).getUnderlyingCareers();
+            underlyingCareers.clear();
+            // Try to re-add every career based on the profession's career
+            final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) professionForge;
+            for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
+                SpongeForgeVillagerRegistry.registerForgeCareer(mixinProfession, villagerCareer);
+            }
+            if (careers.size() <= careerNumberId) {
+                // at this point, there's something wrong and we need to print out once the issue:
+                final PrettyPrinter printer = new PrettyPrinter(60).add("Sponge Forge Career Mismatch!").centre().hr()
+                    .addWrapped(
+                        "Sponge is attemping to recover from a mismatch from a Forge mod provided VillagerCareer and Sponge's Career implementation.")
+                    .add()
+                    .addWrapped(
+                        "Due to the issue, Sponge is printing out all this information to assist sponge resolving the issue. Please open an issue on github for SpongeForge")
+                    .add();
+                printer.add("%s : %s", "Forge Profession", mixinProfession.getProfessionName());
+                int i = 0;
+                for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
+                    printer.add("  %s %n : %s", "Career", i++, villagerCareer.getName());
+                }
+                printer.add();
+                printer.add("%s : %s", "Sponge Profession", profession.getId());
+                i = 0;
+                for (Career spongeCareer : careers) {
+                    printer.add("  %s %n : %s", "Career", i++, spongeCareer.getId());
+                }
+                printer.add();
+                printer.add("Villager career id attempted: " + careerNumberId);
+                printer.log(SpongeImpl.getLogger(), Level.ERROR);
+
+                performMerchantFillFromForge(careerNumberId, career);
+                return;
+            }
+        }
+        final SpongeCareer spongeCareer = (SpongeCareer) careers.get(careerNumberId);
+        SpongeForgeVillagerRegistry.syncCareer(career, spongeCareer);
 
         try {
             SpongeVillagerRegistry.getInstance()
-                .populateOffers(this, (List<TradeOffer>) (List<?>) this.buyingList, careerLevel, this.careerLevel, this.rand);
+                .populateOffers(this, (List<TradeOffer>) (List<?>) this.buyingList, spongeCareer, this.careerLevel, this.rand);
         } catch (Exception e) {
-            // If all else fails, fall back to forge's careers and get the trades.
-            List<EntityVillager.ITradeList> trades = career.getTrades(j);
-            final MerchantRecipeList temp = new MerchantRecipeList();
-
-            if (trades != null) {
-                for (EntityVillager.ITradeList tradeList : trades) {
-                    tradeList.addMerchantRecipe((EntityVillager) (Object) this, temp, this.rand);
-                }
-            }
-
-            // Then sync them back
-            for (final Iterator<MerchantRecipe> iterator = this.buyingList.iterator(); iterator.hasNext(); ) {
-                final MerchantRecipe merchantRecipe = iterator.next();
-                boolean exists = false;
-                for (MerchantRecipe recipe : temp) {
-                    if (merchantRecipe.equals(recipe)) {
-                        exists = true;
-                    }
-                }
-                if (!exists) {
-                    iterator.remove();
-                }
-            }
-            final List<MerchantRecipe> filtered = this.buyingList.stream()
-                .filter(temp::contains)
-                .collect(Collectors.toList());
-            final List<MerchantRecipe> forgeFiltered = temp.stream()
-                .filter(filtered::contains)
-                .collect(Collectors.toList());
-            this.buyingList = new MerchantRecipeList();
-            this.buyingList.addAll(filtered);
-            this.buyingList.addAll(forgeFiltered);
-
+            performMerchantFillFromForge(careerLevel, career);
         }
+    }
+
+    private void performMerchantFillFromForge(int careerLevel, VillagerRegistry.VillagerCareer career) {
+        // If all else fails, fall back to forge's careers and get the trades.
+        List<EntityVillager.ITradeList> trades = career.getTrades(careerLevel);
+        final MerchantRecipeList temp = new MerchantRecipeList();
+
+        if (trades != null) {
+            for (EntityVillager.ITradeList tradeList : trades) {
+                tradeList.addMerchantRecipe((EntityVillager) (Object) this, temp, this.rand);
+            }
+        }
+
+        // Then sync them back
+        for (final Iterator<MerchantRecipe> iterator = this.buyingList.iterator(); iterator.hasNext(); ) {
+            final MerchantRecipe merchantRecipe = iterator.next();
+            boolean exists = false;
+            for (MerchantRecipe recipe : temp) {
+                if (merchantRecipe.equals(recipe)) {
+                    exists = true;
+                }
+            }
+            if (!exists) {
+                iterator.remove();
+            }
+        }
+        final List<MerchantRecipe> filtered = this.buyingList.stream()
+            .filter(temp::contains)
+            .collect(Collectors.toList());
+        final List<MerchantRecipe> forgeFiltered = temp.stream()
+            .filter(filtered::contains)
+            .collect(Collectors.toList());
+        this.buyingList = new MerchantRecipeList();
+        this.buyingList.addAll(filtered);
+        this.buyingList.addAll(forgeFiltered);
     }
 }
