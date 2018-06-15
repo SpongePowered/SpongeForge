@@ -27,8 +27,10 @@ package org.spongepowered.mod.registry;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import org.apache.logging.log4j.Level;
 import org.spongepowered.api.data.type.Career;
 import org.spongepowered.api.data.type.Profession;
+import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeCareer;
 import org.spongepowered.common.entity.SpongeProfession;
@@ -36,7 +38,9 @@ import org.spongepowered.common.registry.type.entity.CareerRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.text.translation.SpongeTranslation;
 import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
+import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 
+import java.util.List;
 import java.util.Optional;
 
 public final class SpongeForgeVillagerRegistry {
@@ -62,6 +66,11 @@ public final class SpongeForgeVillagerRegistry {
         } else {
             professionMap.forcePut(villagerProfession, profession);
         }
+        final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) villagerProfession;
+        final List<VillagerRegistry.VillagerCareer> careers = mixinProfession.getCareers();
+        for (VillagerRegistry.VillagerCareer career : careers) {
+            registerForgeCareer(mixinProfession, career); // This should not be recurisve since the profession is being set
+        }
         return spongeProfession != null ? spongeProfession : profession;
     }
 
@@ -80,7 +89,11 @@ public final class SpongeForgeVillagerRegistry {
 
 
     private static Optional<Profession> getProfession(VillagerRegistry.VillagerProfession profession) {
-        return Optional.ofNullable(professionMap.get(profession));
+        Profession forgeProfession = professionMap.get(profession);
+        if (forgeProfession == null) {
+
+        }
+        return Optional.ofNullable(forgeProfession);
     }
 
     public static Optional<VillagerRegistry.VillagerProfession> getProfession(Profession profession) {
@@ -95,9 +108,26 @@ public final class SpongeForgeVillagerRegistry {
         return Optional.ofNullable((SpongeProfession) professionMap.get(profession));
     }
 
-    public static void registerForgeCareer(VillagerRegistry.VillagerCareer career) {
+    public static void registerForgeCareer(IMixinVillagerProfession mixinVillagerProfession,
+        VillagerRegistry.VillagerCareer career) {
         final VillagerRegistry.VillagerProfession villagerProfession = ((IMixinVillagerCareer) career).getProfession();
         final Optional<Profession> spongeProfession = getProfession(villagerProfession);
+        if (!spongeProfession.isPresent()) {
+            if (mixinVillagerProfession != villagerProfession) {
+                final PrettyPrinter printer = new PrettyPrinter(60);
+                printer.add("Incorrect Villager Profession retrieved for provided Career!").centre().hr()
+                    .add("Sponge is attempting to bridge compatibility with mod provided villager careers and professions, but occasionally a career is missed for some reason.")
+                    .add()
+                    .add("Retrieved profession:" + mixinVillagerProfession)
+                    .add("Career provided profession:" + villagerProfession)
+                    .add()
+                    .add("Sponge will attempt to proceed and correct this, but usually needs to have some sort of correction in mod related code")
+                    .log(SpongeImpl.getLogger(), Level.WARN);
+                ((IMixinVillagerCareer) career).forceProfession(villagerProfession);
+            }
+
+
+        }
         spongeProfession.ifPresent(profession -> {
             final SpongeCareer suggestedCareer = new SpongeCareer(((IMixinVillagerCareer) career).getId(), career.getName(), profession, new
               SpongeTranslation("entity.Villager." + career.getName()));

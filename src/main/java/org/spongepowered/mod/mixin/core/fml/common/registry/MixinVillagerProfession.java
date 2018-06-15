@@ -66,7 +66,7 @@ public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<V
     @Inject(method = "register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerCareer;)V",
             at = @At(value = "RETURN"), remap = false)
     private void registerForgeCareer(VillagerRegistry.VillagerCareer career, CallbackInfo callbackInfo) {
-        SpongeForgeVillagerRegistry.registerForgeCareer(career);
+        SpongeForgeVillagerRegistry.registerForgeCareer(this, career);
     }
 
 }
