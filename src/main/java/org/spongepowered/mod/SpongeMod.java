@@ -191,7 +191,7 @@ public class SpongeMod extends MetaModContainer {
             ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
 
             for (VillagerRegistry.VillagerCareer career: mixinProfession.getCareers()) {
-                SpongeForgeVillagerRegistry.registerForgeCareer(career);
+                SpongeForgeVillagerRegistry.validateCareer(career);
             }
         }));
         SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, (owner, manager, id, obj, oldObj) ->

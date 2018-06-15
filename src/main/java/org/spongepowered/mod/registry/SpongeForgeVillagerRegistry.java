@@ -57,11 +57,11 @@ public final class SpongeForgeVillagerRegistry {
     private static final BiMap<VillagerRegistry.VillagerProfession, Profession> professionMap = HashBiMap.create();
     private static final BiMap<VillagerRegistry.VillagerCareer, Career> careerMap = HashBiMap.create();
 
-    private static final BiMap<String, Profession> forgeToSpongeProfessionMap = HashBiMap.create();
+    private static final BiMap<String, Profession> ALIASED_PROFESSION_BIMAP = HashBiMap.create();
     private static final BiMap<String, Career> forgeToSpongeCareerMap = HashBiMap.create();
 
     static {
-        forgeToSpongeProfessionMap.put("minecraft:smith", ProfessionRegistryModule.BLACKSMITH);
+        ALIASED_PROFESSION_BIMAP.put("minecraft:smith", ProfessionRegistryModule.BLACKSMITH);
         forgeToSpongeCareerMap.put("leather", CareerRegistryModule.getInstance().LEATHERWORKER);
         forgeToSpongeCareerMap.put("armor", CareerRegistryModule.getInstance().ARMORER);
         forgeToSpongeCareerMap.put("tool", CareerRegistryModule.getInstance().TOOL_SMITH);
@@ -73,23 +73,24 @@ public final class SpongeForgeVillagerRegistry {
         final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) villagerProfession;
         final List<VillagerRegistry.VillagerCareer> careers = mixinProfession.getCareers();
         for (VillagerRegistry.VillagerCareer career : careers) {
-            registerForgeCareer(career); // This should not be recurisve since the profession is being set
+            registerForgeCareer(career); // needs to attempt a registration at this point, in case it isn't registered.
         }
         // Should not be null anymore.
         return registeredProfession;
     }
 
     public static SpongeCareer syncCareer(VillagerRegistry.VillagerCareer villagerCareer, Career career) {
-        final Career spongeCareer = forgeToSpongeCareerMap.get(villagerCareer.getName());
+        final Career aliasedCareer = forgeToSpongeCareerMap.get(villagerCareer.getName());
+        if (aliasedCareer != null) {
+            careerMap.forcePut(villagerCareer, aliasedCareer);
+        }
+        final Career spongeCareer = careerMap.get(villagerCareer);
         if (spongeCareer != null) {
-            careerMap.forcePut(villagerCareer, spongeCareer);
-        } else {
-            careerMap.forcePut(villagerCareer, career);
+            return (SpongeCareer) spongeCareer;
         }
-        if (((IMixinVillagerCareer) villagerCareer).isDelayed()) {
-            ((IMixinVillagerCareer) villagerCareer).performDelayedInit();
-        }
-        return  spongeCareer == null ? (SpongeCareer) career : (SpongeCareer) spongeCareer;
+        careerMap.forcePut(villagerCareer, career);
+
+        return (SpongeCareer) careerMap.get(villagerCareer);
     }
 
     public static SpongeProfession getProfession(VillagerRegistry.VillagerProfession profession) {
@@ -97,6 +98,10 @@ public final class SpongeForgeVillagerRegistry {
     }
 
     private static SpongeProfession getProfession(VillagerRegistry.VillagerProfession profession, @Nullable SpongeProfession suggested) {
+        final Profession aliasedProfession = ALIASED_PROFESSION_BIMAP.get(profession.getRegistryName().toString());
+        if (aliasedProfession != null) {
+            professionMap.forcePut(profession, aliasedProfession);
+        }
         final SpongeProfession spongeProfession = (SpongeProfession) professionMap.get(profession);
         final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) profession;
         if (spongeProfession != null) {
@@ -121,6 +126,16 @@ public final class SpongeForgeVillagerRegistry {
         return Optional.ofNullable((SpongeProfession) professionMap.get(profession));
     }
 
+    public static void validateCareer(VillagerRegistry.VillagerCareer career) {
+        if (fromNative(career).isPresent()) {
+            registerForgeCareer(career);
+
+        }
+        if (((IMixinVillagerCareer) career).isDelayed() && SpongeImpl.isMainThread()) {
+            ((IMixinVillagerCareer) career).performDelayedInit();
+        }
+    }
+
     public static void registerForgeCareer(VillagerRegistry.VillagerCareer career) {
         final VillagerRegistry.VillagerProfession villagerProfession = ((IMixinVillagerCareer) career).getProfession();
         final SpongeProfession spongeProfession = getProfession(villagerProfession);
@@ -128,7 +143,16 @@ public final class SpongeForgeVillagerRegistry {
         final SpongeCareer suggestedCareer = new SpongeCareer(((IMixinVillagerCareer) career).getId(), career.getName(), spongeProfession, new
             SpongeTranslation("entity.Villager." + career.getName()));
         final SpongeCareer registeredCareer = syncCareer(career, suggestedCareer);
+        final List<Career> underlyingCareers = spongeProfession.getUnderlyingCareers();
         CareerRegistryModule.getInstance().registerCareer(registeredCareer);
+        if (underlyingCareers.isEmpty() || !underlyingCareers.contains(registeredCareer)) {
+            final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) villagerProfession;
+            final List<VillagerRegistry.VillagerCareer> careers = mixinProfession.getCareers();
+            underlyingCareers.clear();
+            for (final VillagerRegistry.VillagerCareer villagerCareer : careers) {
+                underlyingCareers.add(fromNative(villagerCareer).get());
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -156,7 +180,7 @@ public final class SpongeForgeVillagerRegistry {
             // Try to re-add every career based on the profession's career
             final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) professionForge;
             for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
-                registerForgeCareer(villagerCareer);
+                validateCareer(villagerCareer);
             }
             if (careers.size() <= careerNumberId) {
                 // at this point, there's something wrong and we need to print out once the issue:
@@ -167,14 +191,26 @@ public final class SpongeForgeVillagerRegistry {
             }
         }
         final SpongeCareer spongeCareer = (SpongeCareer) careers.get(careerNumberId);
-        syncCareer(career, spongeCareer);
 
         try {
-            SpongeVillagerRegistry.getInstance()
-                .populateOffers((Merchant) mixinEntityVillager, (List<TradeOffer>) (List<?>) mixinEntityVillager.getForgeTrades(), spongeCareer, careerLevel + 1, rand);
+            SpongeForgeVillagerRegistry.populateOffers(mixinEntityVillager, career, spongeCareer, careerLevel + 1, rand);
         } catch (Exception e) {
             mixinEntityVillager.performMerchantFillFromForge(careerLevel, career);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void populateOffers(IMixinEntityVillagerForge mixinEntityVillager, VillagerRegistry.VillagerCareer career,
+        SpongeCareer spongeCareer, int careerLevel, Random rand) {
+        if (!career.getClass().equals(VillagerRegistry.VillagerCareer.class)) {
+            // Consider that it's not a forge provided or forge modified class and this comes from a mod. If it does, we need to use the mod provided
+            // stuff and sadly can't modify the villager career otherwise.
+            mixinEntityVillager.performMerchantFillFromForge(careerLevel - 1, career);
+            return;
+        }
+        SpongeVillagerRegistry.getInstance()
+            .populateOffers((Merchant) mixinEntityVillager, (List<TradeOffer>) (List<?>) mixinEntityVillager.getForgeTrades(), spongeCareer, careerLevel + 1, rand);
+
     }
 
     private static void printMismatch(int careerNumberId, Profession profession, List<Career> careers, IMixinVillagerProfession mixinProfession) {
