@@ -31,9 +31,11 @@ import org.spongepowered.api.entity.living.Villager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.entity.IMixinVillager;
 import org.spongepowered.common.mixin.core.entity.MixinEntityAgeable;
 import org.spongepowered.mod.interfaces.IMixinEntityVillagerForge;
+import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
 import javax.annotation.Nullable;
@@ -74,9 +76,13 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
         int careerLevel = this.careerLevel - 1;
         // Sponge - only get the profession once
         final VillagerRegistry.VillagerCareer career = professionForge.getCareer(careerNumberId);
-        if (!isVanilla() || !VillagerRegistry.VillagerCareer.class.equals(career.getClass())) {
+        final IMixinVillagerCareer mixinCareer = (IMixinVillagerCareer) career;
+        if (mixinCareer.isDelayed() && SpongeImpl.isMainThread()) {
+            mixinCareer.performDelayedInit();
+        }
+        if (false) {
             // we have to allow forge mods to do their own forge things.
-            SpongeForgeVillagerRegistry.populateOffers(this, career, null, careerLevel, rand);
+            SpongeForgeVillagerRegistry.populateOffers(this, career, careerLevel, rand);
             return;
         }
         // Otherwise, if we are able to control the offers, then go ahead and modify them.
