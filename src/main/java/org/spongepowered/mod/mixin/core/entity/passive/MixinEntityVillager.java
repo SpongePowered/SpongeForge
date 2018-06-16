@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.entity.passive;
 
 import net.minecraft.entity.passive.EntityVillager;
-import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.spongepowered.api.entity.living.Villager;
@@ -36,10 +35,6 @@ import org.spongepowered.common.interfaces.entity.IMixinVillager;
 import org.spongepowered.common.mixin.core.entity.MixinEntityAgeable;
 import org.spongepowered.mod.interfaces.IMixinEntityVillagerForge;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -63,7 +58,6 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
     @SuppressWarnings("unchecked")
     @Overwrite
     public void populateBuyingList() {
-        // Sponge - only get the profession once
         final VillagerRegistry.VillagerProfession professionForge = this.getProfessionForge();
         if (this.careerId != 0 && this.careerLevel != 0) {
             ++this.careerLevel;
@@ -78,6 +72,14 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
 
         int careerNumberId = this.careerId - 1;
         int careerLevel = this.careerLevel - 1;
+        // Sponge - only get the profession once
+        final VillagerRegistry.VillagerCareer career = professionForge.getCareer(careerNumberId);
+        if (!isVanilla() || !VillagerRegistry.VillagerCareer.class.equals(career.getClass())) {
+            // we have to allow forge mods to do their own forge things.
+            SpongeForgeVillagerRegistry.populateOffers(this, career, null, careerLevel, rand);
+            return;
+        }
+        // Otherwise, if we are able to control the offers, then go ahead and modify them.
         SpongeForgeVillagerRegistry.spongePopupateList(this, professionForge, careerNumberId, careerLevel, this.rand);
 
     }
@@ -87,39 +89,4 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
         return this.buyingList;
     }
 
-    @Override
-    public void performMerchantFillFromForge(int careerLevel, VillagerRegistry.VillagerCareer career) {
-        // If all else fails, fall back to forge's careers and get the trades.
-        List<EntityVillager.ITradeList> trades = career.getTrades(careerLevel);
-        final MerchantRecipeList temp = new MerchantRecipeList();
-
-        if (trades != null) {
-            for (EntityVillager.ITradeList tradeList : trades) {
-                tradeList.addMerchantRecipe((EntityVillager) (Object) this, temp, this.rand);
-            }
-        }
-
-        // Then sync them back
-        for (final Iterator<MerchantRecipe> iterator = this.buyingList.iterator(); iterator.hasNext(); ) {
-            final MerchantRecipe merchantRecipe = iterator.next();
-            boolean exists = false;
-            for (MerchantRecipe recipe : temp) {
-                if (merchantRecipe.equals(recipe)) {
-                    exists = true;
-                }
-            }
-            if (!exists) {
-                iterator.remove();
-            }
-        }
-        final List<MerchantRecipe> filtered = this.buyingList.stream()
-            .filter(temp::contains)
-            .collect(Collectors.toList());
-        final List<MerchantRecipe> forgeFiltered = temp.stream()
-            .filter(filtered::contains)
-            .collect(Collectors.toList());
-        this.buyingList = new MerchantRecipeList();
-        this.buyingList.addAll(filtered);
-        this.buyingList.addAll(forgeFiltered);
-    }
 }

@@ -30,8 +30,6 @@ import org.spongepowered.common.interfaces.entity.IMixinVillager;
 
 public interface IMixinEntityVillagerForge extends IMixinVillager {
 
-    void performMerchantFillFromForge(int careerLevel, VillagerRegistry.VillagerCareer career);
-
     MerchantRecipeList getForgeTrades();
 
 }

@@ -26,6 +26,9 @@ package org.spongepowered.mod.registry;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import net.minecraft.entity.passive.EntityVillager;
+import net.minecraft.village.MerchantRecipe;
+import net.minecraft.village.MerchantRecipeList;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.registries.ForgeRegistry;
@@ -49,6 +52,7 @@ import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -186,31 +190,70 @@ public final class SpongeForgeVillagerRegistry {
                 // at this point, there's something wrong and we need to print out once the issue:
                 printMismatch(careerNumberId, profession, careers, mixinProfession);
 
-                mixinEntityVillager.performMerchantFillFromForge(careerNumberId, career);
+                populateOffers(mixinEntityVillager, career, null, careerLevel, rand);
                 return;
             }
         }
         final SpongeCareer spongeCareer = (SpongeCareer) careers.get(careerNumberId);
 
-        try {
-            SpongeForgeVillagerRegistry.populateOffers(mixinEntityVillager, career, spongeCareer, careerLevel + 1, rand);
-        } catch (Exception e) {
-            mixinEntityVillager.performMerchantFillFromForge(careerLevel, career);
-        }
+        SpongeVillagerRegistry.getInstance().populateOffers((Merchant) mixinEntityVillager, (List<TradeOffer>) (List<?>) mixinEntityVillager.getForgeTrades(), spongeCareer, careerLevel, rand);
     }
 
     @SuppressWarnings("unchecked")
-    private static void populateOffers(IMixinEntityVillagerForge mixinEntityVillager, VillagerRegistry.VillagerCareer career,
-        SpongeCareer spongeCareer, int careerLevel, Random rand) {
-        if (!career.getClass().equals(VillagerRegistry.VillagerCareer.class)) {
-            // Consider that it's not a forge provided or forge modified class and this comes from a mod. If it does, we need to use the mod provided
-            // stuff and sadly can't modify the villager career otherwise.
-            mixinEntityVillager.performMerchantFillFromForge(careerLevel - 1, career);
-            return;
+    public static void populateOffers(IMixinEntityVillagerForge mixinEntityVillager, VillagerRegistry.VillagerCareer career,
+        @Nullable SpongeCareer spongeCareer, int careerLevel, Random rand) {
+        // Try sponge's career:
+        final MerchantRecipeList villagerTrades = mixinEntityVillager.getForgeTrades();
+        List<EntityVillager.ITradeList> trades = career.getTrades(careerLevel);
+        if (trades != null && !trades.isEmpty()) {
+            for (EntityVillager.ITradeList entityvillager$itradelist : trades) {
+                entityvillager$itradelist.addMerchantRecipe((EntityVillager) mixinEntityVillager, villagerTrades, rand);
+            }
         }
-        SpongeVillagerRegistry.getInstance()
-            .populateOffers((Merchant) mixinEntityVillager, (List<TradeOffer>) (List<?>) mixinEntityVillager.getForgeTrades(), spongeCareer, careerLevel + 1, rand);
+    }
 
+    private static void printDebuggingVillagerInfo(IMixinEntityVillagerForge mixinEntityVillager, MerchantRecipeList temporary) {
+        final PrettyPrinter printer = new PrettyPrinter(60).add("Printing Villager Information")
+            .centre().hr()
+            .add("Sponge is going to print out information on all the merchant recipes based on mods");
+        printer.add("Printing added recipes to add");
+        printer.add();
+        printer.add("Adding");
+        for (int i = 0; i < temporary.size(); i++) {
+            final MerchantRecipe recipe = temporary.get(i);
+            printer.add(" %d", i)
+                .add(" %s + %s = %s", recipe.getItemToBuy(), recipe.getSecondItemToBuy(), recipe.getItemToSell());
+        }
+
+        printer.add();
+
+        printer.add("Now printing existing:").add();
+
+        final MerchantRecipeList existing = mixinEntityVillager.getForgeTrades();
+        printer.add("Existing");
+        for (int i = 0; i < existing.size(); i++) {
+            final MerchantRecipe recipe = existing.get(i);
+            printer.add(" %d", i)
+                .add(" %s + %s = %s", recipe.getItemToBuy(), recipe.getSecondItemToBuy(), recipe.getItemToSell());
+        }
+
+        final List<MerchantRecipe> filtered = existing.stream()
+                    .filter(recipe -> !temporary.contains(recipe))
+                    .collect(Collectors.toList());
+        final List<MerchantRecipe> forgeFiltered = temporary.stream()
+                    .filter(recipe -> !filtered.contains(recipe))
+                    .collect(Collectors.toList());
+        existing.addAll(filtered);
+        existing.addAll(forgeFiltered);
+
+        printer.add().add("Finalized List");
+        for (int i = 0; i < existing.size(); i++) {
+            final MerchantRecipe recipe = existing.get(i);
+            printer.add(" %d", i)
+                .add(" %s + %s = %s", recipe.getItemToBuy(), recipe.getSecondItemToBuy(), recipe.getItemToSell());
+        }
+
+        printer.log(SpongeImpl.getLogger(), Level.ERROR);
     }
 
     private static void printMismatch(int careerNumberId, Profession profession, List<Career> careers, IMixinVillagerProfession mixinProfession) {
