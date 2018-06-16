@@ -186,13 +186,12 @@ public class SpongeMod extends MetaModContainer {
         });
         SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj, oldObj) -> {
             final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) obj;
-            final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
-            final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.syncProfession(obj, spongeProfession);
-            ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
-
-            for (VillagerRegistry.VillagerCareer career: mixinProfession.getCareers()) {
-                SpongeForgeVillagerRegistry.validateCareer(career);
+            if (mixinProfession.getSpongeProfession().isPresent()) {
+                return;
             }
+            final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
+            mixinProfession.setSpongeProfession(spongeProfession);
+            ProfessionRegistryModule.getInstance().registerAdditionalCatalog(spongeProfession);
         }));
         SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, (owner, manager, id, obj, oldObj) ->
                 SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) obj)

@@ -26,14 +26,22 @@ package org.spongepowered.mod.interfaces;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import org.spongepowered.common.entity.SpongeProfession;
 
 import java.util.List;
+import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 public interface IMixinVillagerProfession {
 
     String getId();
 
     String getProfessionName();
+
+    Optional<SpongeProfession> getSpongeProfession();
+
+    void setSpongeProfession(@Nullable SpongeProfession profession);
 
     List<VillagerRegistry.VillagerCareer> getCareers();
 

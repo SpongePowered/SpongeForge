@@ -54,8 +54,8 @@ public class MixinVillagerRegistry {
         final int professionId = this.REGISTRY.getIDForObject(prof);
         final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) prof;
         final SpongeProfession spongeProfession = new SpongeProfession(professionId, mixinProfession.getId(), mixinProfession.getProfessionName());
-        final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.syncProfession(prof, spongeProfession);
-        ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
+        ((IMixinVillagerProfession) prof).setSpongeProfession(spongeProfession);
+        ProfessionRegistryModule.getInstance().registerAdditionalCatalog(spongeProfession);
     }
 
 }
