@@ -237,7 +237,7 @@ public class SpongeForgeEventFactory {
         if (UseItemStackEvent.Stop.class.isAssignableFrom(clazz)) {
             return LivingEntityUseItemEvent.Stop.class;
         }
-        if (UseItemStackEvent.Finish.class.isAssignableFrom(clazz)) {
+        if (UseItemStackEvent.Replace.class.isAssignableFrom(clazz)) {
             return LivingEntityUseItemEvent.Finish.class;
         }
         if (org.spongepowered.api.event.advancement.AdvancementEvent.Grant.class.isAssignableFrom(clazz)) {
@@ -274,9 +274,9 @@ public class SpongeForgeEventFactory {
         if (forgeEvent instanceof ChunkEvent.Unload) {
             return createUnloadChunkEvent((ChunkEvent.Unload) forgeEvent);
         }
-        if (forgeEvent instanceof LivingEntityUseItemEvent) {
+        /*if (forgeEvent instanceof LivingEntityUseItemEvent) {
             return createUseItemStackEvent((LivingEntityUseItemEvent) forgeEvent);
-        }
+        }*/
         return null;
     }
 
@@ -285,47 +285,6 @@ public class SpongeForgeEventFactory {
             ((Cancellable) spongeEvent).setCancelled(forgeEvent.isCanceled());
         }
         return spongeEvent;
-    }
-
-    private static Event createUseItemStackEvent(LivingEntityUseItemEvent forgeEvent) {
-
-        final Entity entity = forgeEvent.getEntity();
-
-        if (((IMixinWorld) entity.world).isFake()) {
-            return null;
-        }
-
-        final CauseStackManager manager = Sponge.getCauseStackManager();
-        final ItemStackSnapshot snapshot = ItemStackUtil.fromNative(forgeEvent.getItem()).createSnapshot();
-        manager.pushCause(entity);
-
-        final Cause cause = manager.getCurrentCause();
-
-        UseItemStackEvent event = null;
-
-        // TODO Forge doesn't support reset so that will need to be figured out
-        if (forgeEvent instanceof LivingEntityUseItemEvent.Start) {
-            event = SpongeEventFactory.createUseItemStackEventStart(cause, forgeEvent.getDuration(), forgeEvent.getDuration(),
-                    snapshot);
-        } else if (forgeEvent instanceof LivingEntityUseItemEvent.Tick) {
-            event = SpongeEventFactory.createUseItemStackEventTick(cause, forgeEvent.getDuration(), forgeEvent.getDuration(),
-                    snapshot);
-        } else if (forgeEvent instanceof LivingEntityUseItemEvent.Stop) {
-            event = SpongeEventFactory.createUseItemStackEventStop(cause, forgeEvent.getDuration(), forgeEvent.getDuration(),
-                    snapshot);
-        } else if (forgeEvent instanceof LivingEntityUseItemEvent.Finish) {
-            final ItemStackSnapshot resultSnapshot = ItemStackUtil.fromNative(((LivingEntityUseItemEvent.Finish) forgeEvent).getResultStack())
-                    .createSnapshot();
-            if (snapshot.equals(resultSnapshot)) {
-                event = SpongeEventFactory.createUseItemStackEventFinish(cause, forgeEvent.getDuration(), forgeEvent.getDuration(),
-                        snapshot);
-            } else {
-                event = SpongeEventFactory.createUseItemStackEventReplace(cause, forgeEvent.getDuration(), forgeEvent.getDuration(),
-                        snapshot, new Transaction<>(resultSnapshot, resultSnapshot));
-            }
-        }
-
-        return event;
     }
 
     private static ChangeBlockEvent.Pre createChangeBlockEventPre(BlockEvent.BreakEvent forgeEvent) {
@@ -587,8 +546,6 @@ public class SpongeForgeEventFactory {
             event = new LivingEntityUseItemEvent.Tick(entity, stack, spongeEvent.getRemainingDuration());
         } else if (spongeEvent instanceof UseItemStackEvent.Stop) {
             event = new LivingEntityUseItemEvent.Stop(entity, stack, spongeEvent.getRemainingDuration());
-        } else if (spongeEvent instanceof UseItemStackEvent.Finish) {
-            event = new LivingEntityUseItemEvent.Finish(entity, stack, spongeEvent.getRemainingDuration(), stack);
         } else if (spongeEvent instanceof UseItemStackEvent.Replace) {
             event = new LivingEntityUseItemEvent.Finish(entity, stack, spongeEvent.getRemainingDuration(), ItemStackUtil.toNative((
                     (UseItemStackEvent.Replace) spongeEvent).getItemStackResult().getFinal().createStack()));
@@ -602,6 +559,12 @@ public class SpongeForgeEventFactory {
 
         if (event.isCanceled()) {
             ((Cancellable) spongeEvent).setCancelled(true);
+        }
+
+        spongeEvent.setRemainingDuration(event.getDuration());
+
+        if (event instanceof LivingEntityUseItemEvent.Finish) {
+            ((UseItemStackEvent.Replace) spongeEvent).getItemStackResult().setCustom(ItemStackUtil.snapshotOf(((LivingEntityUseItemEvent.Finish) event).getResultStack()));
         }
 
         return spongeEvent;
