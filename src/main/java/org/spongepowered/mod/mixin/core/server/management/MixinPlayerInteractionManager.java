@@ -131,7 +131,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
             SpongeCommonEventFactory.playerInteractItemChanged = true;
         }
-        SpongeCommonEventFactory.lastInteractItemOnBlockCancelled = !event.getUseItemResult().asBoolean();
+        SpongeCommonEventFactory.lastInteractItemOnBlockCancelled = event.getUseItemResult() == Tristate.UNDEFINED ? false : !event.getUseItemResult().asBoolean();
 
         TileEntity tileEntity = worldIn.getTileEntity(pos);
         if (event.isCancelled()) {
