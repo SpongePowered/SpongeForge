@@ -101,7 +101,7 @@ public final class SpongeForgeVillagerRegistry {
         // Sync up the profession with forge first before getting the sponge equivalent. Some mods
         // have custom villagers, so some of our injections don't end up getting called (Ice and Fire mod is an example)
         // so re-syncing the and setting the profession for sponge is the first thing we need to do
-        if (mixinEntityVillager.getProfession() == null) {
+        if (!mixinEntityVillager.getProfession().isPresent()) {
             mixinEntityVillager.setProfession(SpongeForgeVillagerRegistry.fromNative(professionForge));
         }
         // Then we can get the profession from the villager
@@ -132,7 +132,7 @@ public final class SpongeForgeVillagerRegistry {
         }
         final SpongeCareer spongeCareer = (SpongeCareer) careers.get(careerNumberId);
 
-        SpongeVillagerRegistry.getInstance().populateOffers((Merchant) mixinEntityVillager, (List<TradeOffer>) (List<?>) mixinEntityVillager.getForgeTrades(), spongeCareer, careerLevel, rand);
+        SpongeVillagerRegistry.getInstance().populateOffers((Merchant) mixinEntityVillager, (List<TradeOffer>) (List<?>) mixinEntityVillager.getForgeTrades(), spongeCareer, careerLevel + 1, rand);
     }
 
     @SuppressWarnings("unchecked")
