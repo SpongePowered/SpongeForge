@@ -80,7 +80,7 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
         if (mixinCareer.isDelayed() && SpongeImpl.isMainThread()) {
             mixinCareer.performDelayedInit();
         }
-        if (false) {
+        if (mixinCareer.isModded()) {
             // we have to allow forge mods to do their own forge things.
             SpongeForgeVillagerRegistry.populateOffers(this, career, careerLevel, rand);
             return;
