@@ -22,32 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world;
+package org.spongepowered.mod.mixin.core.common;
 
-import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import org.spongepowered.api.world.Dimension;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.world.SpongeDimension;
 
-@Mixin(value = WorldProvider.class)
-@Implements(@Interface(iface = Dimension.class, prefix = "dimension$"))
-public abstract class MixinWorldProvider implements Dimension {
-    @Shadow protected World world;
-    @Shadow(remap = false) public abstract int shadow$getHeight();
-    @Shadow(remap = false) public abstract int shadow$getActualHeight();
+@Mixin(SpongeDimension.class)
+public abstract class MixinSpongeDimension implements Dimension {
 
-    @Intrinsic
-    public int dimension$getHeight() {
-        return shadow$getActualHeight();
+    @Shadow private WorldProvider worldProvider;
+
+    @Override
+
+    public int getHeight() {
+        return this.worldProvider.getActualHeight();
     }
 
     @Override
     public int getBuildHeight() {
-        return shadow$getHeight();
+        return this.worldProvider.getHeight();
     }
 
 }
