@@ -1,6 +1,6 @@
 {
     "required": true,
-    "minVersion": "0.7.2",
+    "minVersion": "0.7.10",
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "target": "@env(PREINIT)",
