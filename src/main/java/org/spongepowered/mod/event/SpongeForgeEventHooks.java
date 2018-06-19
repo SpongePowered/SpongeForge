@@ -31,7 +31,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.plugin.PluginPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 
 import javax.annotation.Nullable;
 
@@ -42,7 +41,7 @@ public final class SpongeForgeEventHooks {
         if (event instanceof TickEvent.WorldTickEvent) {
             final TickEvent.WorldTickEvent worldTickEvent = (TickEvent.WorldTickEvent) event;
             final World world = worldTickEvent.world;
-            if (((IMixinWorld) world).isFake()) {
+            if (world == null || ((IMixinWorld) world).isFake()) {
                 return null;
             }
             if (worldTickEvent.phase == TickEvent.Phase.START) {
