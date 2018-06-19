@@ -192,6 +192,9 @@ public class SpongeMod extends MetaModContainer {
             final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
             mixinProfession.setSpongeProfession(spongeProfession);
             ProfessionRegistryModule.getInstance().registerAdditionalCatalog(spongeProfession);
+            for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
+                SpongeForgeVillagerRegistry.fromNative(villagerCareer);
+            }
         }));
         SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, (owner, manager, id, obj, oldObj) ->
                 SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) obj)
