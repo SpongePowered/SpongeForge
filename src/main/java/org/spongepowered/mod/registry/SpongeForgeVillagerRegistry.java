@@ -76,6 +76,7 @@ public final class SpongeForgeVillagerRegistry {
             final int id = ((ForgeRegistry<VillagerRegistry.VillagerProfession>) ForgeRegistries.VILLAGER_PROFESSIONS).getID(profession);
             final SpongeProfession newProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
             mixinProfession.setSpongeProfession(newProfession);
+            ProfessionRegistryModule.getInstance().registerAdditionalCatalog(newProfession);
             return newProfession;
         });
     }
@@ -89,6 +90,8 @@ public final class SpongeForgeVillagerRegistry {
             final int careerId = mixinCareer.getId();
             final SpongeCareer suggestedCareer = new SpongeCareer(careerId, career.getName(), fromNative(mixinCareer.getProfession()), new SpongeTranslation("entity.Villager." + career.getName()));
             mixinCareer.setSpongeCareer(suggestedCareer);
+            CareerRegistryModule.getInstance().registerCareer(suggestedCareer);
+            ProfessionRegistryModule.getInstance().registerCareerForProfession(suggestedCareer);
             return suggestedCareer;
         });
     }

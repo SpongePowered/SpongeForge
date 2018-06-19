@@ -54,6 +54,7 @@
         "forge.MixinDimensionManager",
         "forge.MixinForgeInternalHandler",
         "forge.MixinVanillaInventoryCodeHooks",
+        "forge.IMixinVillagerRegistry",
         "forge.common.MixinForgeChunkManager$Ticket",
         "forge.common.MixinForgeHooks",
         "forge.common.util.MixinITeleporter",

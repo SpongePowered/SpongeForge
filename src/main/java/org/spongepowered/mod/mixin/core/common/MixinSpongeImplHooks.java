@@ -64,10 +64,12 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.logging.log4j.Level;
 import org.spongepowered.api.command.args.ChildCommandElementExecutor;
+import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.crafting.CraftingGridInventory;
@@ -82,6 +84,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.command.SpongeCommandFactory;
 import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
@@ -91,12 +94,15 @@ import org.spongepowered.common.interfaces.world.IMixinDimensionType;
 import org.spongepowered.common.interfaces.world.IMixinITeleporter;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
+import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.common.util.SpawnerSpawnType;
 import org.spongepowered.mod.command.SpongeForgeCommand;
 import org.spongepowered.mod.interfaces.IMixinBlock;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
+import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
+import org.spongepowered.mod.mixin.core.forge.IMixinVillagerRegistry;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 import org.spongepowered.mod.util.WrappedArrayList;
@@ -104,6 +110,7 @@ import org.spongepowered.mod.util.WrappedArrayList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -668,5 +675,31 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static int getLootingEnchantmentModifier(IMixinEntityLivingBase mixinEntityLivingBase, EntityLivingBase entity, DamageSource cause) {
         return ForgeHooks.getLootingLevel(EntityUtil.toNative(mixinEntityLivingBase), entity, cause);
+    }
+
+    /**
+     * @author gabizou - June 19th, 2018
+     * @reason Fallback to verify the VillagerProfession is available from forge first, then try
+     * to get the sponge Profession from that.
+     *
+     * @param professionId
+     * @return
+     */
+    @Overwrite
+    public static Profession validateProfession(int professionId) {
+        final VillagerRegistry.VillagerProfession
+            profession =
+            ((IMixinVillagerRegistry) VillagerRegistry.instance()).getREGISTRY().getObjectById(professionId);
+        if (profession == null) {
+            throw new RuntimeException("Attempted to set villager profession to unregistered profession: " + professionId + " " + profession);
+        }
+        final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) profession;
+        return mixinProfession.getSpongeProfession().orElseGet(() -> {
+            final SpongeProfession newProfession = new SpongeProfession(professionId, mixinProfession.getId(), mixinProfession.getProfessionName());
+            mixinProfession.setSpongeProfession(newProfession);
+            ProfessionRegistryModule.getInstance().registerAdditionalCatalog(newProfession);
+            return newProfession;
+        });
+
     }
 }
