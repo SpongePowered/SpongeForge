@@ -133,4 +133,14 @@ reobf {
     }
 }
 
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.whenConfigured {
+                pom -> pom.dependencies.removeAll { it.groupId == 'org.spongepowered' && it.artifactId == 'testmods' }
+            }
+        }
+    }
+}
+
 apply from: 'changelog.gradle'
