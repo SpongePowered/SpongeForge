@@ -702,4 +702,16 @@ public abstract class MixinSpongeImplHooks {
         });
 
     }
+
+    /**
+     * @author Aaron1011 - June 20th, 2018
+     * @reason Forge adds 'onUsingTick' to Item. SpongeCommon delegates
+     * to this hook to ensure that modded items are properly ticked while in use.
+     */
+    @Overwrite
+    public static void onUseItemTick(EntityLivingBase entity, net.minecraft.item.ItemStack stack, int activeItemStackUseCount) {
+        if (!stack.isEmpty() && activeItemStackUseCount > 0) {
+            stack.getItem().onUsingTick(stack, entity, activeItemStackUseCount);
+        }
+    }
 }

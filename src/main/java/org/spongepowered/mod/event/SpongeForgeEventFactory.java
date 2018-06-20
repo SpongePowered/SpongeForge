@@ -533,11 +533,17 @@ public class SpongeForgeEventFactory {
 
         ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(event, true);
 
-        if (event.isCanceled()) {
-            ((Cancellable) spongeEvent).setCancelled(true);
-        }
-
         spongeEvent.setRemainingDuration(event.getDuration());
+
+        // Cancelling the Forge tick event stops all usage of the item, whereas
+        // cancelling the Sponge tick event merely skips the logic for the current tick.
+        if (event.isCanceled()) {
+            if (event instanceof LivingEntityUseItemEvent.Tick) {
+                spongeEvent.setRemainingDuration(-1);
+            } else {
+                ((Cancellable) spongeEvent).setCancelled(true);
+            }
+        }
 
         if (event instanceof LivingEntityUseItemEvent.Finish) {
             ((UseItemStackEvent.Replace) spongeEvent).getItemStackResult().setCustom(ItemStackUtil.snapshotOf(((LivingEntityUseItemEvent.Finish) event).getResultStack()));
