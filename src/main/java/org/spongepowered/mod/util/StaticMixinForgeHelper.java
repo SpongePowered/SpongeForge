@@ -370,10 +370,6 @@ public final class StaticMixinForgeHelper {
         }
 
         entityName = entityName.replace("entity", "");
-        if (entityName.startsWith("ent")) {
-            entityName = entityName.replace("ent", "");
-        }
-
         entityName = entityName.replaceAll("[^A-Za-z0-9]", "");
         String modId = "unknown";
         if (modContainer != null) {
