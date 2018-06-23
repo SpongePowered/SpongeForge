@@ -83,7 +83,9 @@ jar {
     }
 }
 
+
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.IncludeResourceTransformer
 
 task shadowDevJar(type: ShadowJar) {
     classifier = 'dev-shaded'
@@ -95,6 +97,39 @@ task shadowDevJar(type: ShadowJar) {
     configurations = [project.configurations.runtime]
     manifest.inheritFrom tasks.jar.manifest
     exclude 'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+}
+shadowJar {
+    // find jarinjar configurations in all projects
+    // there's only one jar right now (mixin), but this is future-proof
+    allprojects
+            .collect {it.configurations.findByName("jarinjar")}
+            .findAll {it != null}
+            .each {jarinjar ->
+
+        // no need to shade these. Exclude them
+        jarinjar.dependencies.each {dep ->
+            dependencies {
+                exclude dependency(dep)
+            }
+        }
+
+        afterEvaluate {
+            // need children dependencies to be evaluated
+            evaluationDependsOnChildren()
+            jarinjar.each {dep ->
+                // this will add the jars to the jar. We can't just use from because
+                // shadowJar will automatically unpack any jar that is included.
+                transform(IncludeResourceTransformer) {
+                    file = dep
+                    resource = "META-INF/libraries/$dep.name"
+                    // TODO: Add additional meta file with the jar (essentially a second manifest)
+                    // FIXME: deps aren't loaded with coremods MinecraftForge#4993
+                }
+            }
+            // Add names of jars
+            manifest.attributes 'ContainedDeps': jarinjar.collect {it.name}.join(' ')
+        }
+    }
 }
 
 shadowDevJar shadowConfiguration
