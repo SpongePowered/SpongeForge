@@ -104,7 +104,7 @@ shadowJar {
     allprojects
             .collect {it.configurations.findByName("jarinjar")}
             .findAll {it != null}
-            .each {jarinjar ->
+            .each { jarinjar ->
 
         // no need to shade these. Exclude them
         jarinjar.dependencies.each {dep ->
@@ -114,8 +114,6 @@ shadowJar {
         }
 
         afterEvaluate {
-            // need children dependencies to be evaluated
-            evaluationDependsOnChildren()
             jarinjar.each {dep ->
                 // this will add the jars to the jar. We can't just use from because
                 // shadowJar will automatically unpack any jar that is included.
