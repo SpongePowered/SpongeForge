@@ -83,7 +83,6 @@ jar {
     }
 }
 
-
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.transformers.IncludeResourceTransformer
 
@@ -104,7 +103,7 @@ shadowJar {
     allprojects
             .collect {it.configurations.findByName("jarinjar")}
             .findAll {it != null}
-            .each { jarinjar ->
+            .each {jarinjar ->
 
         // no need to shade these. Exclude them
         jarinjar.dependencies.each {dep ->
