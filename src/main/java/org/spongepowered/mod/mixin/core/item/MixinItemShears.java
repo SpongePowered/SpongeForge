@@ -112,7 +112,7 @@ public abstract class MixinItemShears extends Item {
 
                     // FIFTH - Capture the entity maybe?
                     // this sould be passed into the state, instead of cluttering the code in this area.
-                    if (((IPhaseState) currentState).performOrCaptureItemDrop(phaseContext, entity, entityitem)) {
+                    if (((IPhaseState) currentState).spawnItemOrCapture(phaseContext, entity, entityitem)) {
                         continue;
                     }
 
