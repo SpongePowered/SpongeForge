@@ -714,4 +714,42 @@ public abstract class MixinSpongeImplHooks {
             stack.getItem().onUsingTick(stack, entity, activeItemStackUseCount);
         }
     }
+
+    /**
+     * @author Aaron1011 - July 3rd, 2018
+     * @reason Call the Forge hook
+     */
+    @Overwrite
+    public static void onTETickStart(TileEntity tileentity) {
+        net.minecraftforge.server.timings.TimeTracker.TILE_ENTITY_UPDATE.trackStart(tileentity);
+    }
+
+    /**
+     * @author Aaron1011 - July 3rd, 2018
+     * @reason Call the Forge hook
+     */
+    @Overwrite
+    public static void onTETickEnd(TileEntity tileentity) {
+        net.minecraftforge.server.timings.TimeTracker.TILE_ENTITY_UPDATE.trackEnd(tileentity);
+    }
+
+    /**
+     * @author Aaron1011 - July 3rd, 2018
+     * @reason Call the Forge hook
+     */
+    @Overwrite
+    public static void onEntityTickStart(Entity entity) {
+        net.minecraftforge.server.timings.TimeTracker.ENTITY_UPDATE.trackStart(entity);
+    }
+
+    /**
+     * @author Aaron1011 - July 3rd, 2018
+     * @reason Call the Forge hook
+     */
+    @Overwrite
+    public static void onEntityTickEnd(Entity entity) {
+        net.minecraftforge.server.timings.TimeTracker.ENTITY_UPDATE.trackEnd(entity);
+    }
+
+
 }
