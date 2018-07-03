@@ -50,12 +50,6 @@ public abstract class MixinChunkProviderServer implements IMixinChunkProviderSer
     @Shadow public abstract Chunk loadChunk(int x, int z);
     @Shadow public abstract void saveChunkExtraData(Chunk chunkIn);
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;saveChunkExtraData(Lnet/minecraft/world/chunk/Chunk;)V"))
-    public void onSaveExtraChunkData(ChunkProviderServer chunkProviderServer, Chunk chunkIn) {
-        this.saveChunkExtraData(chunkIn);
-        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(chunkIn.x, chunkIn.z), chunkIn);
-    }
-
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = Shift.AFTER, remap = false))
     public void onUnloadQueuedChunksReturn(CallbackInfoReturnable<Boolean> cir) {
         // Remove forge's persistent chunk check since we cache it in the chunk. Only unload the world if we're not the overworld and we're told that
