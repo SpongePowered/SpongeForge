@@ -210,9 +210,9 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 IBlockState iblockstate = worldIn.getBlockState(pos);
                 Container lastOpenContainer = player.openContainer;
 
-                result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, facing, hitX, hitY, hitZ)
-                         ? EnumActionResult.SUCCESS
-                         : EnumActionResult.FAIL;
+                if (iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, facing, hitX, hitY, hitZ)) {
+                    result = EnumActionResult.SUCCESS;
+                }
                 // Mods such as StorageDrawers alter the stack on block activation
                 // if itemstack changed, avoid restore
                 if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
@@ -223,13 +223,15 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             } else {
                 this.player.connection.sendPacket(new SPacketBlockChange(this.world, pos));
                 result = TristateUtil.toActionResult(event.getUseItemResult());
-            }
-        }
 
-        // Same issue as above with OpenComputers
-        // This handles the event not cancelled and block not activated
-        if (result != EnumActionResult.SUCCESS && tileEntity != null && hand == EnumHand.MAIN_HAND) {
-            this.player.closeScreen();
+                // Same issue as above with OpenComputers
+                // This handles the event not cancelled and block not activated
+                // We only run this if the event was changed. If the event wasn't changed,
+                // we need to keep the GUI open on the client for Forge compatibility.
+                if (result != EnumActionResult.SUCCESS && tileEntity != null && hand == EnumHand.MAIN_HAND) {
+                    this.player.closeScreen();
+                }
+            }
         }
 
         // store result instead of returning
