@@ -24,8 +24,6 @@
  */
 package org.spongepowered.mod.event;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Singleton;
@@ -71,7 +69,6 @@ import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.GameState;
@@ -107,14 +104,14 @@ import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
-import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
-import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinLoadController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -255,11 +252,17 @@ public class SpongeModEventManager extends SpongeEventManager {
 
                     .build();
 
+    private static final DummyForgeEvent DUMMY_FORGE_EVENT = new DummyForgeEvent();
+    private final Map<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> spongeToForgeMap = new HashMap<>();
 
 
     @Inject
     public SpongeModEventManager(Logger logger, PluginManager pluginManager) {
         super(logger, pluginManager);
+    }
+
+    private boolean areStartupTimingsEnabled() {
+        return SpongeImpl.getGame().getState().ordinal() < GameState.SERVER_ABOUT_TO_START.ordinal();
     }
 
     public static boolean shouldUseCauseStackManager(boolean allowClientThread) {
@@ -268,103 +271,76 @@ public class SpongeModEventManager extends SpongeEventManager {
         return (allowClientThread && client && !hasServer) || (hasServer && Sponge.getServer().isMainThread());
     }
 
-    // Uses Forge mixins
-    public boolean post(Event spongeEvent, net.minecraftforge.fml.common.eventhandler.Event forgeEvent, IEventListener[] listeners,
-            boolean useCauseStackManager) {
-        checkNotNull(forgeEvent, "forgeEvent");
+    // Called when mods fire an event
+    public boolean post(ForgeEventData eventData) {
+        final boolean hasSpongeListeners = !eventData.getSpongeListenerCache().getListeners().isEmpty();
+        final boolean hasForgeListeners = eventData.getForgeListeners().length > 0;
 
-        if (spongeEvent == null) { // Fired by Forge
-            spongeEvent = ((IMixinEvent) forgeEvent).createSpongeEvent();
+        // If there are no forge listeners, no events need to be fired pre
+        if (hasForgeListeners) {
+            if (hasSpongeListeners) {
+                eventData.setBeforeModifications(true);
+                // Fire event to plugins before modifications
+                SpongeForgeEventFactory.createOrPostSpongeEvent(eventData);
+            }
+
+            // If plugin cancelled event before modifications, ignore mods
+            if (!eventData.getForgeEvent().isCanceled()) {
+                final SpongeEventData spongeEventData = new SpongeEventData(eventData);
+                SpongeForgeEventFactory.createAndPostForgeEvent(spongeEventData);
+            }
         }
 
-        boolean isNotSameEvent = spongeEvent != forgeEvent;
-        RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
-        // Fire events to plugins before modifications
-        for (Order order : Order.values()) {
-            post(spongeEvent, listenerCache.getListenersByOrder(order), true, false, useCauseStackManager);
+        // Fire event to plugins after modifications (default)
+        // Note: We need to always fire to plugins if beforeModifications wasn't triggered due to no forge listeners
+        if (hasSpongeListeners) {
+            eventData.setForced(!hasForgeListeners);
+            SpongeForgeEventFactory.createOrPostSpongeEvent(eventData);
         }
 
-        if (isNotSameEvent) {
-            syncToForge(forgeEvent, spongeEvent);
-        }
+        return eventData.getForgeEvent().isCancelable() && eventData.getForgeEvent().isCanceled();
+    }
 
-        // If there are no forge listeners for event, skip sync
-        // If plugin cancelled event before modifications, ignore mods
-        if (listeners.length > 0 && !forgeEvent.isCanceled()) {
-            for (IEventListener listener : listeners) {
-                try {
-                    if (listener instanceof IMixinASMEventHandler) {
-                        IMixinASMEventHandler modListener = (IMixinASMEventHandler) listener;
-                        if (areStartupTimingsEnabled()) {
-                            modListener.getTimingsHandler().startTimingIfSync();
-                        }
-                        listener.invoke(forgeEvent);
-                        if (areStartupTimingsEnabled()) {
-                            modListener.getTimingsHandler().stopTimingIfSync();
-                        }
-                    } else {
-                        listener.invoke(forgeEvent);
-                    }
-                } catch (Throwable throwable) {
-                    this.logger.error("Encountered an exception while processing a Forge event listener", throwable);
+    // Called when Sponge fires an event
+    // Note: Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
+    private SpongeEventData post(SpongeEventData eventData) {
+        final Event spongeEvent = eventData.getSpongeEvent();
+        final boolean hasSpongeListeners = !eventData.getSpongeListenerCache().getListeners().isEmpty();
+        final boolean hasForgeListeners = ((IMixinEventBus) MinecraftForge.EVENT_BUS).getEventListenerClassList().contains(eventData.getForgeClass());
+
+        if (hasForgeListeners) {
+            if (hasSpongeListeners) {
+                // Fire event to plugins before modifications
+                for (Order order : Order.values()) {
+                    post(spongeEvent, eventData.getSpongeListenerCache().getListenersByOrder(order), true, false, eventData.useCauseStackManager());
                 }
             }
 
-            if (isNotSameEvent) {
-                syncToSponge(forgeEvent, spongeEvent);
+             SpongeForgeEventFactory.createAndPostForgeEvent(eventData);
+        }
+
+        if (hasSpongeListeners) {
+            // Some special casing for the spawn events to process custom items.
+            SpongeForgeEventFactory.handlePrefireLogic(spongeEvent);
+            // Fire event to plugins after modifications (default)
+            // Note: We need to always fire to plugins if beforeModifications wasn't triggered due to no forge listeners
+            for (Order order : Order.values()) {
+                post(spongeEvent, eventData.getSpongeListenerCache().getListenersByOrder(order), false, !hasForgeListeners, eventData.useCauseStackManager());
             }
         }
 
-        // Fire events to plugins after modifications (default)
-        for (Order order : Order.values()) {
-            post(spongeEvent, listenerCache.getListenersByOrder(order), false, false, useCauseStackManager);
-        }
-
-        if (isNotSameEvent) {
-            syncToForge(forgeEvent, spongeEvent);
-        }
-
-        return forgeEvent.isCancelable() && forgeEvent.isCanceled();
+        return eventData;
     }
 
-    private boolean areStartupTimingsEnabled() {
-        return SpongeImpl.getGame().getState().ordinal() < GameState.SERVER_ABOUT_TO_START.ordinal();
+    public void postEvent(ForgeEventData eventData) {
+        for (Order order : Order.values()) {
+            post(eventData.getSpongeEvent(), eventData.getSpongeListenerCache().getListenersByOrder(order), eventData.isBeforeModifications(), eventData.isForced(), eventData.useCauseStackManager());
+        }
+        eventData.propagateCancelled();
     }
 
-    // Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
-    private CancellationData post(Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz, boolean useCauseStackManager) {
-        RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
-
-        CancellationData data = new CancellationData();
-
-        // Fire events to plugins before modifications
-        for (Order order : Order.values()) {
-            post(spongeEvent, listenerCache.getListenersByOrder(order), true, false, useCauseStackManager);
-        }
-
-        if (spongeEvent instanceof Cancellable) {
-            data.spongeCancelled = ((Cancellable) spongeEvent).isCancelled();
-            if (!data.spongeCancelled) {
-                spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
-                // If the event is cancelled now, it must have been from calling the Forge event
-                data.forgeCancelled = ((Cancellable) spongeEvent).isCancelled();
-            }
-        } else {
-            spongeEvent = SpongeForgeEventFactory.callForgeEvent(spongeEvent, clazz);
-        }
-        // Some special casing for the spawn events to process custom items.
-        SpongeForgeEventFactory.handlePrefireLogic(spongeEvent);
-
-        // Fire events to plugins after modifications (default)
-        for (Order order : Order.values()) {
-            post(spongeEvent, listenerCache.getListenersByOrder(order), false, false, useCauseStackManager);
-        }
-
-        return data;
-    }
-
-    @SuppressWarnings("unchecked")
-    private boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced,
+    @SuppressWarnings("unchecked") 
+    public boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced,
             boolean useCauseStackManager) {
         ModContainer oldContainer = ((IMixinLoadController) SpongeMod.instance.getController()).getActiveModContainer();
         for (@SuppressWarnings("rawtypes")
@@ -405,61 +381,28 @@ public class SpongeModEventManager extends SpongeEventManager {
         return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
     }
 
-    public CancellationData extendedPost(Event spongeEvent, boolean allowClientThread) {
+    public SpongeEventData extendedPost(Event spongeEvent, boolean allowClientThread) {
         if (!allowClientThread & Sponge.getGame().getPlatform().getExecutionType().isClient()) {
-            return new CancellationData(false, false);
+            return null;
         }
+
         final boolean useCauseStackManager = shouldUseCauseStackManager(allowClientThread);
-        if (spongeEvent.getClass().getInterfaces().length > 0) {
-            Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent);
-            if (clazz != null) {
-                return post(spongeEvent, clazz, useCauseStackManager);
+        final Class<? extends net.minecraftforge.fml.common.eventhandler.Event> forgeClass = this.spongeToForgeMap.get(spongeEvent.getClass());
+        if (forgeClass == null) {
+            if (spongeEvent.getClass().getInterfaces().length > 0) {
+                Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent);
+                if (clazz != null) {
+                    this.spongeToForgeMap.put(spongeEvent.getClass(), clazz);
+                    return post(new SpongeEventData(spongeEvent, clazz, useCauseStackManager));
+                }
             }
+            this.spongeToForgeMap.put(spongeEvent.getClass(), DUMMY_FORGE_EVENT.getClass());
+        } else if (forgeClass != DUMMY_FORGE_EVENT.getClass()) {
+            return post(new SpongeEventData(spongeEvent, forgeClass, useCauseStackManager));
         }
+
         // no checking for modifications required
-        boolean spongeCancelled = post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true, useCauseStackManager);
-        // If we didn't fire a Forge event, forgeCancelled will always be false since there
-        // was no Forge event to cancel
-        return new CancellationData(spongeCancelled, false);
+        post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true, useCauseStackManager);
+        return null;
     }
-
-    private void syncToForge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, Event spongeEvent) {
-        // Sync the forge event from Sponge so everything gets the same data
-        ((IMixinEvent) forgeEvent).syncDataToForge(spongeEvent);
-
-        // Sponge event may be cancelled, cancel Forge event
-        if (forgeEvent.isCancelable() && spongeEvent instanceof Cancellable) {
-            forgeEvent.setCanceled(((Cancellable) spongeEvent).isCancelled());
-        }
-    }
-
-    private void syncToSponge(net.minecraftforge.fml.common.eventhandler.Event forgeEvent, Event spongeEvent) {
-        // Sync the forge event back to Sponge
-        ((IMixinEvent) forgeEvent).syncDataToSponge(spongeEvent);
-
-        // Forge event may have been cancelled, cancel Sponge event if so.
-        if (forgeEvent.isCancelable() && spongeEvent instanceof Cancellable) {
-            ((Cancellable) spongeEvent).setCancelled(forgeEvent.isCanceled());
-        }
-    }
-
-    public class CancellationData {
-
-        /**
-         * Whether the event was cancelled by a Sponge plugin
-         */
-        boolean spongeCancelled;
-        /**
-         * Whether the event was cancelled by a Forge plugin
-         */
-        public boolean forgeCancelled;
-
-        CancellationData() {}
-
-        CancellationData(boolean spongeCancelled, boolean forgeCancelled) {
-            this.spongeCancelled = spongeCancelled;
-            this.forgeCancelled = forgeCancelled;
-        }
-    }
-
 }
