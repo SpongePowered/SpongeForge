@@ -22,22 +22,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.event;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
-import org.spongepowered.mod.event.SpongeEventData;
+public class DummyForgeEvent extends net.minecraftforge.fml.common.eventhandler.Event {
 
-import java.util.List;
-
-public interface IMixinEventBus {
-
-    int getBusID();
-
-    boolean post(SpongeEventData eventData);
-
-    boolean post(Event event, boolean forced);
-
-    org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent);
-
-    List<Class<? extends Event>> getEventListenerClassList();
+    public DummyForgeEvent() {
+        // Just used as a stub for map
+    }
 }

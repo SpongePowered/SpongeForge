@@ -39,7 +39,6 @@ import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.eventhandler.ListenerList;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,7 +47,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.mod.event.ForgeEventData;
+import org.spongepowered.mod.event.SpongeEventData;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
 import org.spongepowered.mod.event.SpongeForgeEventHooks;
 import org.spongepowered.mod.event.SpongeModEventManager;
@@ -56,8 +58,10 @@ import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @NonnullByDefault
@@ -65,7 +69,10 @@ import java.util.Map;
 public abstract class MixinEventBus implements IMixinEventBus {
 
     // Because Forge can't be bothered to keep track of this information itself
-    private Map<IEventListener, Class<? extends Event>> forgeListenerRegistry = new HashMap<>();
+    private static Map<IEventListener, Class<? extends Event>> forgeListenerRegistry = new HashMap<>();
+    private static List<Class<? extends Event>> forgeListenerEventClasses = new ArrayList<>();
+    private static boolean isSpongeSetUp = false;
+    private Boolean isClient;
 
     @Shadow @Final private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;
@@ -85,6 +92,17 @@ public abstract class MixinEventBus implements IMixinEventBus {
         return true;
     }
 
+    private boolean isClientPlatform() {
+        if (!isSpongeSetUp) {
+            return false;
+        }
+        if (this.isClient == null) {
+            this.isClient = Sponge.getGame().getPlatform().getExecutionType().isClient();
+        }
+
+        return this.isClient;
+    }
+
     /**
      * @author unknown
      * @reason Use added boolean flag to direct whether the event is forced or not, since we sync sponge to forge events quite often.
@@ -98,21 +116,11 @@ public abstract class MixinEventBus implements IMixinEventBus {
     }
 
     @Override
-    public org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent) {
-        org.spongepowered.api.event.Event spongeEvent;
-        // Create a frame for the common event factory to push causes and contexts...
-//        try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-            spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent); // todo : consider using the frame
-            IEventListener[] listeners = forgeEvent.getListenerList().getListeners(this.busID);
-            boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners, true);
-            if (!cancelled) {
-                SpongeForgeEventFactory.onForgePost(forgeEvent);
-            }
-//        }
-
-        return spongeEvent;
+    public boolean post(SpongeEventData eventData) {
+        final boolean result = post(eventData.getForgeEvent(), true);
+        eventData.propagateCancelled();
+        return result;
     }
-    private static boolean isSpongeSetUp = false;
 
     @Override
     public boolean post(Event event, boolean forced) {
@@ -125,57 +133,53 @@ public abstract class MixinEventBus implements IMixinEventBus {
             }
         }
         isSpongeSetUp = true;
-        // TODO verify the frame is necessary here or if it can be placed elsewhere
-        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
-//        try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
-            if (!forced) {
-                if (!isEventAllowed(event)) {
-                    return false;
-                }
-                spongeEvent = SpongeForgeEventFactory.createSpongeEvent(event); // todo : consider using the frame
+
+        final IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
+        ForgeEventData forgeEventData = null;
+        if (!forced) {
+            if (!isEventAllowed(event)) {
+                return false;
             }
 
-            IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
-            if (!forced && (event instanceof org.spongepowered.api.event.Event || spongeEvent != null) && !Sponge.getGame().getPlatform()
-                .getExecutionType().isClient()) {
-                boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(
-                        spongeEvent, event, listeners, SpongeModEventManager.shouldUseCauseStackManager(false));
-                if (!cancelled) {
-                    SpongeForgeEventFactory.onForgePost(event);
-                }
+            forgeEventData = new ForgeEventData(event, listeners, this.isClientPlatform());
+            spongeEvent = SpongeForgeEventFactory.createOrPostSpongeEvent(forgeEventData);
+        }
 
-                return cancelled;
-            }
-            listeners = event.getListenerList().getListeners(this.busID);
-            int index = 0;
-            IMixinASMEventHandler modListener = null;
-            try {
-                for (; index < listeners.length; index++) {
-                    final IEventListener listener = listeners[index];
-                    if (listener instanceof IMixinASMEventHandler) {
-                        modListener = (IMixinASMEventHandler) listener;
-                        modListener.getTimingsHandler().startTimingIfSync();
-                        try (PhaseContext<?> context = SpongeForgeEventHooks.preEventPhaseCheck(listener, event)) {
-                            if (context != null) {
-                                context.buildAndSwitch();
-                            }
-                            listener.invoke(event);
+        if (!forced && spongeEvent != null && !this.isClientPlatform()) {
+            final RegisteredListener.Cache listenerCache = ((SpongeModEventManager) Sponge.getEventManager()).getHandlerCache(spongeEvent);
+            forgeEventData.setSpongeEvent(spongeEvent);
+            forgeEventData.setSpongeListenerCache(listenerCache);
+            return ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(forgeEventData);
+        }
+
+        int index = 0;
+        IMixinASMEventHandler modListener = null;
+        try {
+            for (; index < listeners.length; index++) {
+                final IEventListener listener = listeners[index];
+                if (listener instanceof IMixinASMEventHandler) {
+                    modListener = (IMixinASMEventHandler) listener;
+                    modListener.getTimingsHandler().startTimingIfSync();
+                    try (PhaseContext<?> context = SpongeForgeEventHooks.preEventPhaseCheck(listener, event)) {
+                        if (context != null) {
+                            context.buildAndSwitch();
                         }
-                        modListener.getTimingsHandler().stopTimingIfSync();
-                    } else {
                         listener.invoke(event);
                     }
-                }
-            } catch (Throwable throwable) {
-                if (modListener != null) {
                     modListener.getTimingsHandler().stopTimingIfSync();
+                } else {
+                    listener.invoke(event);
                 }
-                this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
-                Throwables.throwIfUnchecked(throwable);
-                throw new RuntimeException(throwable);
             }
-            return (event.isCancelable() ? event.isCanceled() : false);
-//        }
+        } catch (Throwable throwable) {
+            if (modListener != null) {
+                modListener.getTimingsHandler().stopTimingIfSync();
+            }
+            this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
+            Throwables.throwIfUnchecked(throwable);
+            throw new RuntimeException(throwable);
+        }
+        return (event.isCancelable() ? event.isCanceled() : false);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -194,7 +198,8 @@ public abstract class MixinEventBus implements IMixinEventBus {
             }
         }
 
-        this.forgeListenerRegistry.put(listener, eventType);
+        forgeListenerRegistry.put(listener, eventType);
+        forgeListenerEventClasses.add(eventType);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -204,7 +209,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
         SpongeModEventManager manager = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager());
 
-        for (Class clazz: TypeToken.of(checkNotNull(this.forgeListenerRegistry.remove(listener))).getTypes().rawTypes()) {
+        for (Class clazz: TypeToken.of(checkNotNull(forgeListenerRegistry.remove(listener))).getTypes().rawTypes()) {
             Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(clazz);
             if (spongeEvents != null) {
                 for (Class<? extends org.spongepowered.api.event.Event> event : spongeEvents) {
@@ -212,6 +217,26 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 }
             }
         }
+
+        // update event class cache
+        List<Class<? extends Event>> tempArray = new ArrayList<>(forgeListenerEventClasses);
+        for (Class clazz : tempArray) {
+            boolean found = false;
+            for (Map.Entry<IEventListener, Class<? extends Event>> mapEntry : forgeListenerRegistry.entrySet()) {
+                if (clazz.equals(mapEntry.getValue())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                forgeListenerEventClasses.remove(clazz);
+            }
+        }
+    }
+
+    @Override
+    public List<Class<? extends Event>> getEventListenerClassList() {
+        return forgeListenerEventClasses;
     }
 
     @Override

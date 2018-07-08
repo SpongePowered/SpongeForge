@@ -69,6 +69,7 @@ import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.mod.event.SpongeEventData;
 import org.spongepowered.mod.event.SpongeModEventManager;
 
 @Mixin(value = PlayerInteractionManager.class, priority = 1001)
@@ -127,7 +128,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         if (interactItemCancelled) {
             event.setUseItemResult(Tristate.FALSE);
         }
-        SpongeModEventManager.CancellationData cancellationData = ((SpongeModEventManager) Sponge.getEventManager()).extendedPost(event, false);
+        SpongeEventData eventData = ((SpongeModEventManager) Sponge.getEventManager()).extendedPost(event, false);
         if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
             SpongeCommonEventFactory.playerInteractItemChanged = true;
         }
@@ -180,7 +181,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             //
             // To resolve this issue, we only send a close window packet if the event was not cancelled
             // by a Forge event listener.
-            if (tileEntity != null && this.player.openContainer instanceof ContainerPlayer && !cancellationData.forgeCancelled) {
+            if (tileEntity != null && this.player.openContainer instanceof ContainerPlayer && (eventData == null || !eventData.getForgeEvent().isCanceled())) {
                 this.player.closeScreen();
             }
             SpongeCommonEventFactory.interactBlockEventCancelled = true;
