@@ -25,6 +25,7 @@
 package org.spongepowered.mod;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
@@ -42,6 +43,7 @@ import net.minecraftforge.fml.client.FMLFolderResourcePack;
 import net.minecraftforge.fml.common.CertificateHelper;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModContainerFactory;
+import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
@@ -60,6 +62,8 @@ import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -117,12 +121,18 @@ import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.List;
 
 public class SpongeMod extends MetaModContainer {
 
     public static SpongeMod instance;
+
+    // USED ONLY TO KEEP TRACK OF THE THREAD. SINCE CLIENTS CAN HAVE MULTIPLE SERVERS
+    // WE NEED TO BE ABLE TO STORE A REFERENCE TO THE THREAD TO MAINTAIN SPEED OF ISMAINTHREAD CHECKS
+    @javax.annotation.Nullable public static Thread SERVVER_THREAD;
 
     @Inject private SpongeGame game;
     @Inject private SpongeScheduler scheduler;
@@ -135,10 +145,15 @@ public class SpongeMod extends MetaModContainer {
     private static String EXPECTED_CERTIFICATE_FINGERPRINT = "@expected_certificate_fingerprint@";
     private Certificate certificate;
 
+    // Updating
+    private @MonotonicNonNull URL updateJsonUrl;
+
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
     public SpongeMod() throws Exception {
         super(SpongeModMetadata.getSpongeForgeMetadata());
+
+        this.readMetadata();
 
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
@@ -203,6 +218,17 @@ public class SpongeMod extends MetaModContainer {
 
         this.game.getEventManager().registerListeners(this, this);
         SpongeImpl.getInternalPlugins().add((PluginContainer) ForgeModContainer.getInstance());
+    }
+
+    private void readMetadata() {
+        final ModMetadata metadata = this.getMetadata();
+        if (!Strings.isNullOrEmpty(metadata.updateJSON)) {
+            try {
+                this.updateJsonUrl = new URL(metadata.updateJSON);
+            } catch (final MalformedURLException e) {
+                this.getLogger().warn("Encountered an exception while constructing version check data URL", e);
+            }
+        }
     }
 
     @Override
@@ -388,6 +414,12 @@ public class SpongeMod extends MetaModContainer {
     @Subscribe
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         try {
+            try {
+                ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
+            } catch (Throwable t) {
+                this.controller.errorOccurred(this, t);
+            }
+
             // Register vanilla-style commands (if necessary -- not necessary on client)
             ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerEarlyCommands(this.game);
         } catch (Throwable t) {
@@ -443,5 +475,10 @@ public class SpongeMod extends MetaModContainer {
     // (PluginContainer is implemented indirectly through the ModContainer mixin)
     public Logger getLogger() {
         return this.logger;
+    }
+
+    @Override
+    public URL getUpdateUrl() {
+        return this.updateJsonUrl;
     }
 }
