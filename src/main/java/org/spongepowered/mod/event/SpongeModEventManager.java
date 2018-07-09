@@ -266,6 +266,9 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     public static boolean shouldUseCauseStackManager(boolean allowClientThread) {
+        if (!SpongeImpl.isInitialized()) {
+            return false;
+        }
         final boolean client = Sponge.getGame().getPlatform().getExecutionType().isClient();
         final boolean hasServer = Sponge.isServerAvailable();
         return (allowClientThread && client && !hasServer) || (hasServer && Sponge.getServer().isMainThread());
@@ -339,7 +342,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         eventData.propagateCancelled();
     }
 
-    @SuppressWarnings("unchecked") 
+    @SuppressWarnings("unchecked")
     public boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced,
             boolean useCauseStackManager) {
         ModContainer oldContainer = ((IMixinLoadController) SpongeMod.instance.getController()).getActiveModContainer();

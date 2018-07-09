@@ -49,6 +49,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.mod.SpongeModPlatform;
 import org.spongepowered.mod.event.ForgeEventData;
 import org.spongepowered.mod.event.SpongeEventData;
 import org.spongepowered.mod.event.SpongeForgeEventFactory;
@@ -64,6 +65,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 @NonnullByDefault
 @Mixin(value = EventBus.class, remap = false)
 public abstract class MixinEventBus implements IMixinEventBus {
@@ -71,8 +74,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
     // Because Forge can't be bothered to keep track of this information itself
     private static Map<IEventListener, Class<? extends Event>> forgeListenerRegistry = new HashMap<>();
     private static List<Class<? extends Event>> forgeListenerEventClasses = new ArrayList<>();
-    private static boolean isSpongeSetUp = false;
-    private Boolean isClient;
+    @Nullable private Boolean isClient;
 
     @Shadow @Final private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;
@@ -93,11 +95,9 @@ public abstract class MixinEventBus implements IMixinEventBus {
     }
 
     private boolean isClientPlatform() {
-        if (!isSpongeSetUp) {
-            return false;
-        }
         if (this.isClient == null) {
-            this.isClient = Sponge.getGame().getPlatform().getExecutionType().isClient();
+            // This can be called before Sponge is initialied, so use this hack
+            this.isClient = SpongeModPlatform.staticGetExecutionType().isClient();
         }
 
         return this.isClient;
@@ -125,14 +125,6 @@ public abstract class MixinEventBus implements IMixinEventBus {
     @Override
     public boolean post(Event event, boolean forced) {
         org.spongepowered.api.event.Event spongeEvent = null;
-        if (!isSpongeSetUp) {
-            try {
-                Sponge.getCauseStackManager();
-            } catch (Exception e) {
-                return false;
-            }
-        }
-        isSpongeSetUp = true;
 
         final IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
         ForgeEventData forgeEventData = null;
