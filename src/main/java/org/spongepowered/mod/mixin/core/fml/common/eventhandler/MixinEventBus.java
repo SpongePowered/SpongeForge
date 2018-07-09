@@ -62,8 +62,11 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -73,7 +76,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     // Because Forge can't be bothered to keep track of this information itself
     private static Map<IEventListener, Class<? extends Event>> forgeListenerRegistry = new HashMap<>();
-    private static List<Class<? extends Event>> forgeListenerEventClasses = new ArrayList<>();
+    private static Set<Class<? extends Event>> forgeListenerEventClasses = new HashSet<>();
     @Nullable private Boolean isClient;
 
     @Shadow @Final private int busID;
@@ -181,11 +184,13 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
         SpongeModEventManager manager = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager());
 
-        for (Class clazz: TypeToken.of(eventType).getTypes().rawTypes()) {
-            Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(clazz);
-            if (spongeEvents != null) {
-                for (Class<? extends org.spongepowered.api.event.Event> event : spongeEvents) {
-                    manager.checker.registerListenerFor(event);
+        if (!forgeListenerEventClasses.contains(eventType)) {
+            for (Class clazz : TypeToken.of(eventType).getTypes().rawTypes()) {
+                Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(clazz);
+                if (spongeEvents != null) {
+                    for (Class<? extends org.spongepowered.api.event.Event> event : spongeEvents) {
+                        manager.checker.registerListenerFor(event);
+                    }
                 }
             }
         }
@@ -211,8 +216,10 @@ public abstract class MixinEventBus implements IMixinEventBus {
         }
 
         // update event class cache
-        List<Class<? extends Event>> tempArray = new ArrayList<>(forgeListenerEventClasses);
-        for (Class clazz : tempArray) {
+        Iterator<Class<? extends Event>> it = forgeListenerEventClasses.iterator();
+        while (it.hasNext()) {
+            Class clazz = it.next();
+
             boolean found = false;
             for (Map.Entry<IEventListener, Class<? extends Event>> mapEntry : forgeListenerRegistry.entrySet()) {
                 if (clazz.equals(mapEntry.getValue())) {
@@ -221,13 +228,13 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 }
             }
             if (!found) {
-                forgeListenerEventClasses.remove(clazz);
+                it.remove();
             }
         }
     }
 
     @Override
-    public List<Class<? extends Event>> getEventListenerClassList() {
+    public Set<Class<? extends Event>> getEventListenerClassList() {
         return forgeListenerEventClasses;
     }
 
