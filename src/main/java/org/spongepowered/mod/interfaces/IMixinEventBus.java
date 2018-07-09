@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.mod.event.SpongeEventData;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IMixinEventBus {
 
@@ -39,5 +40,5 @@ public interface IMixinEventBus {
 
     org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent);
 
-    List<Class<? extends Event>> getEventListenerClassList();
+    Set<Class<? extends Event>> getEventListenerClassList();
 }
