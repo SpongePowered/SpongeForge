@@ -38,7 +38,5 @@ public interface IMixinEventBus {
 
     boolean post(Event event, boolean forced);
 
-    org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent);
-
     Set<Class<? extends Event>> getEventListenerClassList();
 }

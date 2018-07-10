@@ -301,6 +301,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             SpongeForgeEventFactory.createOrPostSpongeEvent(eventData);
         }
 
+        SpongeForgeEventFactory.onPostEnd(eventData);
         return eventData.getForgeEvent().isCancelable() && eventData.getForgeEvent().isCanceled();
     }
 

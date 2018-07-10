@@ -113,6 +113,7 @@ import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Chunk;
@@ -136,6 +137,7 @@ import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
+import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -586,6 +588,31 @@ public class SpongeForgeEventFactory {
 
         ((SpongeModEventManager) Sponge.getEventManager()).postEvent(eventData);
         return spongeEvent;
+    }
+
+    // Special handler to process any events after ALL events have been posted to both Forge and Sponge
+    public static void onPostEnd(ForgeEventData eventData) {
+        if (eventData.getForgeEvent() instanceof ServerChatEvent) {
+            final MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) eventData.getSpongeEvent();
+            final ServerChatEvent forgeEvent = (ServerChatEvent) eventData.getForgeEvent();
+            final EntityPlayerMP player = (EntityPlayerMP) forgeEvent.getPlayer();
+            if (!spongeEvent.isCancelled()) {
+                Text message = spongeEvent.getMessage();
+                if (!spongeEvent.isMessageCancelled()) {
+                    spongeEvent.getChannel().ifPresent(channel -> channel.send(forgeEvent.getPlayer(), message, ChatTypes.CHAT));
+                }
+            }
+
+            // Chat spam suppression from MC
+            int chatSpamThresholdCount = ((IMixinNetPlayHandler) player.connection).getChatSpamThresholdCount() + 20;
+            ((IMixinNetPlayHandler) player.connection).setChatSpamThresholdCount(chatSpamThresholdCount);
+            if (chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(player.getGameProfile())) {
+                player.connection.disconnect(new TextComponentTranslation("disconnect.spam"));
+            }
+            // We set the forge component to null here to exit NetHandlerPlayServer#processChatMessage before it sends a message
+            // This is done since we send our own message via the channel above
+            forgeEvent.setComponent(null);
+        }
     }
     // ====================================  FORGE TO SPONGE END ==================================== \\
 
@@ -1254,5 +1281,9 @@ public class SpongeForgeEventFactory {
         return true;
     }
 
+    // Special handler to process any events after ALL events have been posted to both Forge and Sponge
+    public static void onPostEnd(SpongeEventData eventData) {
+        
+    }
     // ====================================  SPONGE TO FORGE END ==================================== \\
 }

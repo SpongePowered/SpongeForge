@@ -27,22 +27,9 @@ package org.spongepowered.mod.mixin.core.network;
 import com.google.common.collect.Sets;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ServerChatEvent;
-import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
 import java.util.Set;
@@ -57,27 +44,14 @@ public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler 
 
     @Shadow public abstract void disconnect(ITextComponent message); // disconnect
 
-    @Inject(method = "processChatMessage", at = @At(value = "INVOKE", target = "net.minecraftforge.common.ForgeHooks.onServerChatEvent"
-            + "(Lnet/minecraft/network/NetHandlerPlayServer;Ljava/lang/String;Lnet/minecraft/util/text/ITextComponent;)"
-            + "Lnet/minecraft/util/text/ITextComponent;", remap = false),
-            cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void injectChatEvent(CPacketChatMessage packetIn, CallbackInfo ci, String s, ITextComponent component) {
-        final ServerChatEvent event = new ServerChatEvent(this.player, s, component);
-        MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) ((IMixinEventBus) MinecraftForge.EVENT_BUS).postForgeAndCreateSpongeEvent(event);
-        if (!spongeEvent.isCancelled()) {
-            Text message = spongeEvent.getMessage();
-            if (!spongeEvent.isMessageCancelled()) {
-                spongeEvent.getChannel().ifPresent(channel -> channel.send(this.player, message, ChatTypes.CHAT));
-            }
+    @Override
+    public int getChatSpamThresholdCount() {
+        return this.chatSpamThresholdCount;
+    }
 
-            // Chat spam suppression from MC
-            this.chatSpamThresholdCount += 20;
-            if (this.chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(this.player.getGameProfile())) {
-                this.disconnect(new TextComponentTranslation("disconnect.spam"));
-            }
-        }
-
-        ci.cancel();
+    @Override
+    public void setChatSpamThresholdCount(int count) {
+        this.chatSpamThresholdCount = count;
     }
 
     @Override
