@@ -8,7 +8,7 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "threadchecks.MixinSpongeImpl_ThreadChecks",
+        "threadchecks.MixinSpongeImplHooks_ThreadChecks",
         "threadchecks.MixinIntegratedServer_ThreadChecks",
         "threadchecks.MixinMinecraftServer_ThreadChecks"
     ],

@@ -32,7 +32,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -43,11 +42,11 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
-import org.spongepowered.common.util.ServerUtils;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 import javax.annotation.Nonnull;
@@ -105,7 +104,7 @@ public abstract class MixinForgeHooks {
         }
 
         // Sponge Start - Add the changeblockevent.pre check here before we bother with item stacks.
-        if (world instanceof IMixinWorldServer && !((IMixinWorld) world).isFake() && ServerUtils.isCallingFromMainThread()) {
+        if (world instanceof IMixinWorldServer && !((IMixinWorld) world).isFake() && SpongeImplHooks.isMainThread()) {
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 // Might as well provide the active item in use.
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));
