@@ -30,4 +30,8 @@ public interface IMixinNetPlayHandler {
 
     Set<String> getRegisteredChannels();
 
+    int getChatSpamThresholdCount();
+
+    void setChatSpamThresholdCount(int count);
+
 }

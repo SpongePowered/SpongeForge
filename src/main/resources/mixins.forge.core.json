@@ -59,7 +59,6 @@
         "forge.common.MixinForgeHooks",
         "forge.common.util.MixinITeleporter",
         "forge.event.MixinForgeEventFactory",
-        "forge.event.MixinServerChatEvent",
         "forge.fluids.MixinFluid",
         "forge.fluids.MixinFluidRegistry",
         "forge.fluids.MixinFluidStack",
