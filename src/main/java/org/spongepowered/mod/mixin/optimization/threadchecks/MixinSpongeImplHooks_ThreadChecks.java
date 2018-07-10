@@ -28,11 +28,11 @@ package org.spongepowered.mod.mixin.optimization.threadchecks;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.mod.SpongeMod;
 
-@Mixin(SpongeImpl.class)
-public class MixinSpongeImpl_ThreadChecks {
+@Mixin(value = SpongeImplHooks.class, remap = false)
+public class MixinSpongeImplHooks_ThreadChecks {
 
     /**
      * @author gabizou - July 8th, 2018

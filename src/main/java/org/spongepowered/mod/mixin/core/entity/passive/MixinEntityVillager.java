@@ -31,7 +31,7 @@ import org.spongepowered.api.entity.living.Villager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.entity.IMixinVillager;
 import org.spongepowered.common.mixin.core.entity.MixinEntityAgeable;
 import org.spongepowered.mod.interfaces.IMixinEntityVillagerForge;
@@ -77,7 +77,7 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
         // Sponge - only get the profession once
         final VillagerRegistry.VillagerCareer career = professionForge.getCareer(careerNumberId);
         final IMixinVillagerCareer mixinCareer = (IMixinVillagerCareer) career;
-        if (mixinCareer.isDelayed() && SpongeImpl.isMainThread()) {
+        if (mixinCareer.isDelayed() && SpongeImplHooks.isMainThread()) {
             mixinCareer.performDelayedInit();
         }
         if (mixinCareer.isModded()) {
