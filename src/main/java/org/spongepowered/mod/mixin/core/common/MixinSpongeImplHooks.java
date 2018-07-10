@@ -132,6 +132,18 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
+     * @author gabizou - July 9th, 2018
+     * @reason During client shutdown or the integrated server shut down, we have
+     * to be able to detect the integrated server is shutting down and we should not
+     * be bothering with the phase tracker or cause stack manager.
+     * @return
+     */
+    @Overwrite
+    public static boolean isClientAvailable() {
+        return FMLCommonHandler.instance().getSide().isClient();
+    }
+
+    /**
      * @author unknown
      * @reason Forge compatibility
      */
