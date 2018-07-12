@@ -47,10 +47,10 @@ public class EventData {
     }
 
     // Used when plugins initiate an event  (Sponge -> Forge)
-    public EventData(org.spongepowered.api.event.Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> forgeClass, boolean useCauseStackManager) {
+    public EventData(org.spongepowered.api.event.Event spongeEvent, Class<? extends net.minecraftforge.fml.common.eventhandler.Event> forgeClass, RegisteredListener.Cache cache, boolean useCauseStackManager) {
         this.spongeEvent = spongeEvent;
         this.forgeClass = forgeClass;
-        this.spongeListenerCache = ((SpongeModEventManager) Sponge.getEventManager()).getHandlerCache(spongeEvent);
+        this.spongeListenerCache = cache;
         this.useCauseStackManager = useCauseStackManager;
     }
 

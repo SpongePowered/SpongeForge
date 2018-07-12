@@ -29,7 +29,7 @@ import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.common.event.RegisteredListener;
 
-public class ForgeEventData {
+public class ForgeToSpongeEventData {
 
     private final Event forgeEvent;
     private final IEventListener[] forgeListeners;
@@ -40,7 +40,7 @@ public class ForgeEventData {
     private boolean beforeModifications = false;
     private boolean forced = false;
 
-    public ForgeEventData(Event forgeEvent, final IEventListener[] forgeListeners, boolean isClient) {
+    public ForgeToSpongeEventData(Event forgeEvent, final IEventListener[] forgeListeners, boolean isClient) {
         this.forgeEvent = forgeEvent;
         this.forgeListeners = forgeListeners;
         this.isClient = isClient;

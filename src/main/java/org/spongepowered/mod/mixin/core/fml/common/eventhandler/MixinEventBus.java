@@ -28,16 +28,22 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.eventhandler.ListenerList;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.oredict.OreDictionary;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
@@ -50,21 +56,19 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.mod.SpongeModPlatform;
-import org.spongepowered.mod.event.ForgeEventData;
-import org.spongepowered.mod.event.SpongeEventData;
-import org.spongepowered.mod.event.SpongeForgeEventFactory;
+import org.spongepowered.mod.event.ForgeToSpongeEventData;
+import org.spongepowered.mod.event.ForgeToSpongeEventFactory;
+import org.spongepowered.mod.event.SpongeToForgeEventData;
 import org.spongepowered.mod.event.SpongeForgeEventHooks;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -106,6 +110,28 @@ public abstract class MixinEventBus implements IMixinEventBus {
         return this.isClient;
     }
 
+    private boolean isIgnoredEvent(Event event) {
+        if (event instanceof TickEvent) {
+            return true;
+        }
+        if (event instanceof EntityEvent.CanUpdate) {
+            return true;
+        }
+        if (event instanceof GetCollisionBoxesEvent) {
+            return true;
+        }
+        if (event instanceof AttachCapabilitiesEvent) {
+            return true;
+        }
+        if (event instanceof OreDictionary.OreRegisterEvent) {
+            return true;
+        }
+        if (event instanceof FluidRegistry.FluidRegisterEvent) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * @author unknown
      * @reason Use added boolean flag to direct whether the event is forced or not, since we sync sponge to forge events quite often.
@@ -119,7 +145,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
     }
 
     @Override
-    public boolean post(SpongeEventData eventData) {
+    public boolean post(SpongeToForgeEventData eventData) {
         final boolean result = post(eventData.getForgeEvent(), true);
         eventData.propagateCancelled();
         return result;
@@ -127,24 +153,23 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     @Override
     public boolean post(Event event, boolean forced) {
-        org.spongepowered.api.event.Event spongeEvent = null;
+        Class<? extends org.spongepowered.api.event.Event> spongeEventClass = null;
 
         final IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
-        ForgeEventData forgeEventData = null;
-        if (!forced) {
+        if (!forced && !this.isClientPlatform() && SpongeImpl.isInitialized() && !isIgnoredEvent(event)) {
             if (!isEventAllowed(event)) {
                 return false;
             }
 
-            forgeEventData = new ForgeEventData(event, listeners, this.isClientPlatform());
-            spongeEvent = SpongeForgeEventFactory.createOrPostSpongeEvent(forgeEventData);
-        }
-
-        if (!forced && spongeEvent != null && !this.isClientPlatform()) {
-            final RegisteredListener.Cache listenerCache = ((SpongeModEventManager) Sponge.getEventManager()).getHandlerCache(spongeEvent);
-            forgeEventData.setSpongeEvent(spongeEvent);
-            forgeEventData.setSpongeListenerCache(listenerCache);
-            return ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(forgeEventData);
+            spongeEventClass = ForgeToSpongeEventFactory.getSpongeClass(event);
+            if (spongeEventClass != null) {
+                final RegisteredListener.Cache listenerCache = ((SpongeModEventManager) Sponge.getEventManager()).getHandlerCache(spongeEventClass);
+                if (!listenerCache.getListeners().isEmpty()) {
+                    final ForgeToSpongeEventData forgeEventData = new ForgeToSpongeEventData(event, listeners, this.isClientPlatform());
+                    forgeEventData.setSpongeListenerCache(listenerCache);
+                    return ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(forgeEventData);
+                }
+            }
         }
 
         int index = 0;
