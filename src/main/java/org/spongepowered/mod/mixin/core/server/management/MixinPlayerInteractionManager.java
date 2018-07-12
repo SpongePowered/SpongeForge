@@ -48,11 +48,9 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
 import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -61,15 +59,13 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.event.SpongeEventData;
+import org.spongepowered.mod.event.SpongeToForgeEventData;
 import org.spongepowered.mod.event.SpongeModEventManager;
 
 @Mixin(value = PlayerInteractionManager.class, priority = 1001)
@@ -128,7 +124,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         if (interactItemCancelled) {
             event.setUseItemResult(Tristate.FALSE);
         }
-        SpongeEventData eventData = ((SpongeModEventManager) Sponge.getEventManager()).extendedPost(event, false);
+        SpongeToForgeEventData eventData = ((SpongeModEventManager) Sponge.getEventManager()).extendedPost(event, false, false);
         if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
             SpongeCommonEventFactory.playerInteractItemChanged = true;
         }
@@ -260,12 +256,5 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         }
         return result;
         // Sponge end
-    }
-
-    @Redirect(method = "onBlockClicked", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onLeftClickBlock(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;Lnet/minecraft/util/math/Vec3d;)Lnet/minecraftforge/event/entity/player/PlayerInteractEvent$LeftClickBlock;", remap = false))
-    public PlayerInteractEvent.LeftClickBlock onForgeCallLeftClickBlock(EntityPlayer player, BlockPos pos, EnumFacing side, Vec3d hitVec) {
-        // We fire Forge's LeftClickBlock event when InteractBlockEvent.Primary is invoked which occurs before this method.
-        // Due to this, we will simply return a dummy event
-        return new PlayerInteractEvent.LeftClickBlock(player, pos, side, hitVec);
     }
 }

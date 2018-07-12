@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.mod.event.SpongeForgeEventFactory;
+import org.spongepowered.mod.event.SpongeToForgeEventFactory;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 @Mixin(ForgeInternalHandler.class)
@@ -46,7 +46,7 @@ public abstract class MixinForgeInternalHandler {
 
     /**
      * @author gabizou - May 8th, 2018
-     * @reason Sponge handles this in {@link SpongeForgeEventFactory#handleCustomStack(SpawnEntityEvent)} for
+     * @reason Sponge handles this in {@link SpongeToForgeEventFactory#handleCustomStack(SpawnEntityEvent)} for
      * all related item drops. No need to actually listen to an event to have this handled correctly.
      *
      * @param event The event

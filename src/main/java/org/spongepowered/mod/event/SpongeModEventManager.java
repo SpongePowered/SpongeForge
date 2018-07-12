@@ -77,11 +77,13 @@ import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.action.CollideEvent;
 import org.spongepowered.api.event.action.LightningEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.command.SendCommandEvent;
+import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 import org.spongepowered.api.event.entity.ChangeEntityExperienceEvent;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
@@ -98,20 +100,20 @@ import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.statistic.ChangeStatisticEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.event.EventType;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinLoadController;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -252,10 +254,6 @@ public class SpongeModEventManager extends SpongeEventManager {
 
                     .build();
 
-    private static final DummyForgeEvent DUMMY_FORGE_EVENT = new DummyForgeEvent();
-    private final Map<Class<? extends Event>, Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> spongeToForgeMap = new HashMap<>();
-
-
     @Inject
     public SpongeModEventManager(Logger logger, PluginManager pluginManager) {
         super(logger, pluginManager);
@@ -274,69 +272,90 @@ public class SpongeModEventManager extends SpongeEventManager {
         return (allowClientThread && client && !hasServer) || (hasServer && Sponge.getServer().isMainThread());
     }
 
-    // Called when mods fire an event
-    public boolean post(ForgeEventData eventData) {
-        final boolean hasSpongeListeners = !eventData.getSpongeListenerCache().getListeners().isEmpty();
+    /**
+     * Responsible for posting Forge events to Sponge.
+     * 
+     * @param eventData The event data from Forge
+     * @return true if cancelled, false if not
+     */
+    public boolean post(ForgeToSpongeEventData eventData) {
         final boolean hasForgeListeners = eventData.getForgeListeners().length > 0;
 
         // If there are no forge listeners, no events need to be fired pre
         if (hasForgeListeners) {
-            if (hasSpongeListeners) {
-                eventData.setBeforeModifications(true);
-                // Fire event to plugins before modifications
-                SpongeForgeEventFactory.createOrPostSpongeEvent(eventData);
+            // Fire event to plugins before modifications
+            eventData.setBeforeModifications(true);
+            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                ForgeToSpongeEventFactory.createAndPostSpongeEvent(eventData);
+            }
+            if (eventData.getSpongeEvent() == null) {
+                // If we were unable to create a valid sponge event, just fire to forge
+                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(eventData.getForgeEvent(), true);
+                return eventData.getForgeEvent().isCancelable() && eventData.getForgeEvent().isCanceled();
+            }
+            // If plugin cancelled event before modifications, ignore mods
+            if (eventData.getForgeEvent().isCancelable() && eventData.getForgeEvent().isCanceled()) {
+                return true;
             }
 
-            // If plugin cancelled event before modifications, ignore mods
-            if (!eventData.getForgeEvent().isCanceled()) {
-                final SpongeEventData spongeEventData = new SpongeEventData(eventData);
-                SpongeForgeEventFactory.createAndPostForgeEvent(spongeEventData);
+            final SpongeToForgeEventData spongeEventData = new SpongeToForgeEventData(eventData);
+            // Sync and fire event to mods
+            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                SpongeToForgeEventFactory.createAndPostForgeEvent(spongeEventData);
             }
         }
 
         // Fire event to plugins after modifications (default)
-        // Note: We need to always fire to plugins if beforeModifications wasn't triggered due to no forge listeners
-        if (hasSpongeListeners) {
-            eventData.setForced(!hasForgeListeners);
-            SpongeForgeEventFactory.createOrPostSpongeEvent(eventData);
+        // Note: We need to always fire to plugins if beforeModifications wasn't triggered
+        eventData.setBeforeModifications(false);
+        eventData.setForced(!hasForgeListeners);
+        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            ForgeToSpongeEventFactory.createAndPostSpongeEvent(eventData);
         }
-
-        SpongeForgeEventFactory.onPostEnd(eventData);
+        ForgeToSpongeEventFactory.onPostEnd(eventData);
         return eventData.getForgeEvent().isCancelable() && eventData.getForgeEvent().isCanceled();
     }
 
-    // Called when Sponge fires an event
-    // Note: Uses SpongeForgeEventFactory (required for any events shared in SpongeCommon)
-    private SpongeEventData post(SpongeEventData eventData) {
+    /**
+     * Responsible for posting Sponge events to Forge.
+     * 
+     * @param eventData The event data from Sponge
+     * @return true if cancelled, false if not
+     */
+    private SpongeToForgeEventData post(SpongeToForgeEventData eventData) {
         final Event spongeEvent = eventData.getSpongeEvent();
         final boolean hasSpongeListeners = !eventData.getSpongeListenerCache().getListeners().isEmpty();
-        final boolean hasForgeListeners = ((IMixinEventBus) MinecraftForge.EVENT_BUS).getEventListenerClassList().contains(eventData.getForgeClass());
 
-        if (hasForgeListeners) {
-            if (hasSpongeListeners) {
-                // Fire event to plugins before modifications
-                for (Order order : Order.values()) {
-                    post(spongeEvent, eventData.getSpongeListenerCache().getListenersByOrder(order), true, false, eventData.useCauseStackManager());
-                }
+        if (hasSpongeListeners) {
+            // Fire event to plugins before modifications
+            for (Order order : Order.values()) {
+                post(spongeEvent, eventData.getSpongeListenerCache().getListenersByOrder(order), true, false, eventData.useCauseStackManager());
             }
+        }
 
-             SpongeForgeEventFactory.createAndPostForgeEvent(eventData);
+        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            SpongeToForgeEventFactory.createAndPostForgeEvent(eventData);
         }
 
         if (hasSpongeListeners) {
             // Some special casing for the spawn events to process custom items.
-            SpongeForgeEventFactory.handlePrefireLogic(spongeEvent);
+            SpongeToForgeEventFactory.handlePrefireLogic(spongeEvent);
             // Fire event to plugins after modifications (default)
             // Note: We need to always fire to plugins if beforeModifications wasn't triggered due to no forge listeners
             for (Order order : Order.values()) {
-                post(spongeEvent, eventData.getSpongeListenerCache().getListenersByOrder(order), false, !hasForgeListeners, eventData.useCauseStackManager());
+                post(spongeEvent, eventData.getSpongeListenerCache().getListenersByOrder(order), false, false, eventData.useCauseStackManager());
             }
         }
 
         return eventData;
     }
 
-    public void postEvent(ForgeEventData eventData) {
+    /**
+     * Used by ForgeToSpongeEventFactory in order to post directly to Sponge's event bus.
+     * 
+     * @param eventData The event data
+     */
+    public void postEvent(ForgeToSpongeEventData eventData) {
         for (Order order : Order.values()) {
             post(eventData.getSpongeEvent(), eventData.getSpongeListenerCache().getListenersByOrder(order), eventData.isBeforeModifications(), eventData.isForced(), eventData.useCauseStackManager());
         }
@@ -381,32 +400,65 @@ public class SpongeModEventManager extends SpongeEventManager {
 
     @Override
     public boolean post(@Nonnull Event spongeEvent, boolean allowClientThread) {
-        this.extendedPost(spongeEvent, allowClientThread);
+        this.extendedPost(spongeEvent, false, allowClientThread);
         return spongeEvent instanceof Cancellable && ((Cancellable) spongeEvent).isCancelled();
     }
 
-    public SpongeEventData extendedPost(Event spongeEvent, boolean allowClientThread) {
+    /**
+     * Posts event and will return corresponding event data if required.
+     * 
+     * @param spongeEvent The sponge event to post
+     * @param requiresEventData Whether to return event data
+     * @param allowClientThread Whether client thread is allowed to post event
+     * @return event data if available
+     */
+    public SpongeToForgeEventData extendedPost(Event spongeEvent, boolean requiresEventData, boolean allowClientThread) {
         if (!allowClientThread & Sponge.getGame().getPlatform().getExecutionType().isClient()) {
             return null;
         }
 
         final boolean useCauseStackManager = shouldUseCauseStackManager(allowClientThread);
-        final Class<? extends net.minecraftforge.fml.common.eventhandler.Event> forgeClass = this.spongeToForgeMap.get(spongeEvent.getClass());
-        if (forgeClass == null) {
+        final RegisteredListener.Cache listenerCache = getHandlerCache(spongeEvent);
+        Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = null;
+        if (!isIgnoredEvent(spongeEvent)) {
             if (spongeEvent.getClass().getInterfaces().length > 0) {
-                Class<? extends net.minecraftforge.fml.common.eventhandler.Event> clazz = SpongeForgeEventFactory.getForgeEventClass(spongeEvent);
+                clazz = SpongeToForgeEventFactory.getForgeEventClass(spongeEvent);
                 if (clazz != null) {
-                    this.spongeToForgeMap.put(spongeEvent.getClass(), clazz);
-                    return post(new SpongeEventData(spongeEvent, clazz, useCauseStackManager));
+                    if (((IMixinEventBus) MinecraftForge.EVENT_BUS).getEventListenerClassList().contains(clazz)) {
+                        return post(new SpongeToForgeEventData(spongeEvent, clazz, listenerCache, useCauseStackManager));
+                    }
                 }
             }
-            this.spongeToForgeMap.put(spongeEvent.getClass(), DUMMY_FORGE_EVENT.getClass());
-        } else if (forgeClass != DUMMY_FORGE_EVENT.getClass()) {
-            return post(new SpongeEventData(spongeEvent, forgeClass, useCauseStackManager));
         }
 
         // no checking for modifications required
-        post(spongeEvent, getHandlerCache(spongeEvent).getListeners(), false, true, useCauseStackManager);
+        for (Order order : Order.values()) {
+            post(spongeEvent, listenerCache.getListenersByOrder(order), false, true, useCauseStackManager);
+        }
+        if (requiresEventData) {
+            return new SpongeToForgeEventData(spongeEvent, clazz, listenerCache, useCauseStackManager);
+        }
         return null;
+    }
+
+    public boolean isIgnoredEvent(Event event) {
+        if (event instanceof CollideEvent) {
+            return true;
+        }
+        if (event instanceof ChangeStatisticEvent) {
+            return true;
+        }
+        if (event instanceof ChangeDataHolderEvent) {
+            return true;
+        }
+        if (event instanceof MoveEntityEvent && !(event instanceof MoveEntityEvent.Teleport)) {
+            return true;
+        }
+        return false;
+    }
+
+    public RegisteredListener.Cache getHandlerCache(Class<? extends Event> eventClass) {
+        final EventType<? extends Event> eventType = new EventType(eventClass);
+        return this.handlersCache.get(eventType);
     }
 }

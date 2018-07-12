@@ -58,7 +58,6 @@
         "forge.common.MixinForgeChunkManager$Ticket",
         "forge.common.MixinForgeHooks",
         "forge.common.util.MixinITeleporter",
-        "forge.event.MixinForgeEventFactory",
         "forge.fluids.MixinFluid",
         "forge.fluids.MixinFluidRegistry",
         "forge.fluids.MixinFluidStack",
