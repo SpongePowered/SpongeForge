@@ -39,6 +39,7 @@ import org.spongepowered.api.item.merchant.Merchant;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.SpongeCareer;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.registry.SpongeVillagerRegistry;
@@ -83,7 +84,7 @@ public final class SpongeForgeVillagerRegistry {
 
     public static SpongeCareer fromNative(VillagerRegistry.VillagerCareer career) {
         final IMixinVillagerCareer mixinCareer = (IMixinVillagerCareer) career;
-        if (mixinCareer.isDelayed() && SpongeImpl.isMainThread()) {
+        if (mixinCareer.isDelayed() && SpongeImplHooks.isMainThread()) {
             mixinCareer.performDelayedInit();
         }
         return mixinCareer.getSpongeCareer().orElseGet(() -> {

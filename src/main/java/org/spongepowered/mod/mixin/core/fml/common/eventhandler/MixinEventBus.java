@@ -101,14 +101,14 @@ public abstract class MixinEventBus implements IMixinEventBus {
     public org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent) {
         org.spongepowered.api.event.Event spongeEvent;
         // Create a frame for the common event factory to push causes and contexts...
-        try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-            spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent, frame); // todo : consider using the frame
+//        try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            spongeEvent = SpongeForgeEventFactory.createSpongeEvent(forgeEvent); // todo : consider using the frame
             IEventListener[] listeners = forgeEvent.getListenerList().getListeners(this.busID);
             boolean cancelled = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(spongeEvent, forgeEvent, listeners, true);
             if (!cancelled) {
                 SpongeForgeEventFactory.onForgePost(forgeEvent);
             }
-        }
+//        }
 
         return spongeEvent;
     }
@@ -127,12 +127,12 @@ public abstract class MixinEventBus implements IMixinEventBus {
         isSpongeSetUp = true;
         // TODO verify the frame is necessary here or if it can be placed elsewhere
         final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
-        try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
+//        try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
             if (!forced) {
                 if (!isEventAllowed(event)) {
                     return false;
                 }
-                spongeEvent = SpongeForgeEventFactory.createSpongeEvent(event, frame); // todo : consider using the frame
+                spongeEvent = SpongeForgeEventFactory.createSpongeEvent(event); // todo : consider using the frame
             }
 
             IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
@@ -175,7 +175,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 throw new RuntimeException(throwable);
             }
             return (event.isCancelable() ? event.isCanceled() : false);
-        }
+//        }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

@@ -63,6 +63,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -128,6 +129,10 @@ import java.util.List;
 public class SpongeMod extends MetaModContainer {
 
     public static SpongeMod instance;
+
+    // USED ONLY TO KEEP TRACK OF THE THREAD. SINCE CLIENTS CAN HAVE MULTIPLE SERVERS
+    // WE NEED TO BE ABLE TO STORE A REFERENCE TO THE THREAD TO MAINTAIN SPEED OF ISMAINTHREAD CHECKS
+    @javax.annotation.Nullable public static Thread SERVVER_THREAD;
 
     @Inject private SpongeGame game;
     @Inject private SpongeScheduler scheduler;
