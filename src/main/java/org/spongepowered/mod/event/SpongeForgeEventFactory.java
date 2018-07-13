@@ -247,8 +247,7 @@ public class SpongeForgeEventFactory {
     }
 
     // ====================================  FORGE TO SPONGE START ==================================== \\
-    public static Event createSpongeEvent(net.minecraftforge.fml.common.eventhandler.Event forgeEvent,
-        CauseStackManager.StackFrame frame) { // TODO - maybe use the frame as a passed object, instead of having to create new frames.
+    public static Event createSpongeEvent(net.minecraftforge.fml.common.eventhandler.Event forgeEvent) { // TODO - maybe use the frame as a passed object, instead of having to create new frames.
         return propgateCancellation(createSpongeEventImpl(forgeEvent), forgeEvent);
     }
 
