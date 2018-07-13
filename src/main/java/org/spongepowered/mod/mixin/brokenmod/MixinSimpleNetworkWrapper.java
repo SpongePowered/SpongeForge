@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.mod.mixin.modfixer.BrokenModNetworkChannelWrapper;
 
-@Mixin(SimpleNetworkWrapper.class)
+@Mixin(value = SimpleNetworkWrapper.class, remap = false)
 public class MixinSimpleNetworkWrapper {
 
     @SuppressWarnings("unchecked")
