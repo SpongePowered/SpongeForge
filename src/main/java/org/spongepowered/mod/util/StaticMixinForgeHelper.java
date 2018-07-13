@@ -46,6 +46,7 @@ import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifierTypes;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.event.damage.DamageEventHandler;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
@@ -384,5 +385,12 @@ public final class StaticMixinForgeHelper {
             SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass, null);
             EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
         }
+    }
+
+    public static boolean shouldTakeOverModNetworking(ModContainer mod) {
+        if (mod == null) {
+            return false;
+        }
+        return SpongeImpl.getGlobalConfig().getConfig().getBrokenMods().getBrokenNetworkHandlerMods().contains(mod.getModId());
     }
 }

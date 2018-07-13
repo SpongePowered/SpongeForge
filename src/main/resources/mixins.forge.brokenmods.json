@@ -1,0 +1,15 @@
+{
+  "minVersion": "0.7.10",
+  "package": "org.spongepowered.mod.mixin.brokenmod",
+  "refmap": "mixins.forge.refmap.json",
+  "plugin": "org.spongepowered.mod.mixin.plugin.brokenmod.BrokenModPlugin",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinFMLEventChannel",
+    "MixinSimpleNetworkWrapper"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
