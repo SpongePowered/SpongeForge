@@ -24,9 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.item.inventory;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.spongepowered.api.item.inventory.EmptyInventory;
 import org.spongepowered.api.item.inventory.Inventory;
@@ -54,15 +51,15 @@ import javax.annotation.Nullable;
 @SuppressWarnings("rawtypes")
 @Mixin(ItemStackHandler.class)
 @Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
-public abstract class MixinItemStackHandler implements MinecraftInventoryAdapter<IInventory>, IMixinInventory {
+public abstract class MixinItemStackHandler implements MinecraftInventoryAdapter, IMixinInventory {
 
     @Nullable protected EmptyInventory empty;
     @Nullable protected Inventory parent;
     protected SlotCollection slots;
     protected List<Inventory> children = new ArrayList<Inventory>();
     @Nullable protected Iterable<Slot> slotIterator;
-    private Fabric<IItemHandler> fabric;
-    @Nullable protected Lens<IInventory, ItemStack> lens = null;
+    private Fabric fabric;
+    @Nullable protected Lens lens = null;
 
     private List<SlotTransaction> capturedTransactions = new ArrayList<>();
     private boolean initalized = false;
@@ -103,7 +100,7 @@ public abstract class MixinItemStackHandler implements MinecraftInventoryAdapter
 
     @SuppressWarnings("unchecked")
     @Override
-    public SlotProvider<IInventory, ItemStack> getSlotProvider() {
+    public SlotProvider getSlotProvider() {
         this.init();
         return this.slots;
     }
@@ -142,16 +139,16 @@ public abstract class MixinItemStackHandler implements MinecraftInventoryAdapter
     }
 
     @Override
-    public Lens<IInventory, ItemStack> getRootLens() {
+    public Lens getRootLens() {
         this.init();
         return this.lens;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Fabric<IInventory> getFabric() {
+    public Fabric getFabric() {
         this.init();
-        return ((Fabric) this.fabric);
+        return this.fabric;
     }
 
     @Override

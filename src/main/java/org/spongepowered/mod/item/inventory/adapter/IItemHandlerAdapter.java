@@ -31,7 +31,7 @@ import org.spongepowered.mod.item.inventory.fabric.IItemHandlerFabric;
 /**
  * Basic Wrapper Adapter for {@link IItemHandler}
  */
-public class IItemHandlerAdapter extends AbstractInventoryAdapter<IItemHandler> {
+public class IItemHandlerAdapter extends AbstractInventoryAdapter {
     public IItemHandlerAdapter(IItemHandler inventory) {
         super(new IItemHandlerFabric(inventory));
     }
