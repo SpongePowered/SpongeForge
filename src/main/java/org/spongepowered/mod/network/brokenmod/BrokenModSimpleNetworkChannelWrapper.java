@@ -22,51 +22,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.modfixer;
+package org.spongepowered.mod.network.brokenmod;
 
 import io.netty.channel.ChannelHandlerContext;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.IThreadListener;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleChannelHandlerWrapper;
 import net.minecraftforge.fml.relauncher.Side;
-import org.spongepowered.common.SpongeImpl;
 
-import java.util.function.Supplier;
+public class BrokenModSimpleNetworkChannelWrapper<REQ extends IMessage, REPLY extends IMessage> extends SimpleChannelHandlerWrapper<REQ, REPLY> {
 
-public class BrokenModNetworkChannelWrapper<REQ extends IMessage, REPLY extends IMessage> extends SimpleChannelHandlerWrapper<REQ, REPLY> {
+    private BrokenModData brokenModData;
 
-    private final Side sideFromSponge;
-    private Supplier<IThreadListener> scheduler;
-
-    public BrokenModNetworkChannelWrapper(Class<? extends IMessageHandler<? super REQ, ? extends REPLY>> handler, Side side, Class<REQ> requestType) {
+    public BrokenModSimpleNetworkChannelWrapper(Class<? extends IMessageHandler<? super REQ, ? extends REPLY>> handler, Side side, Class<REQ> requestType) {
         super(handler, side, requestType);
-        this.sideFromSponge = side;
-        this.onInit();
+        this.onInit(side);
     }
 
-    public BrokenModNetworkChannelWrapper(IMessageHandler<? super REQ, ? extends REPLY> handler, Side side, Class<REQ> requestType) {
+    public BrokenModSimpleNetworkChannelWrapper(IMessageHandler<? super REQ, ? extends REPLY> handler, Side side, Class<REQ> requestType) {
         super(handler, side, requestType);
-        this.sideFromSponge = side;
-        this.onInit();
+        this.onInit(side);
     }
 
-    private void onInit() {
-        if (this.sideFromSponge == Side.CLIENT) {
-            Minecraft minecraft = Minecraft.getMinecraft();
-            scheduler = () -> minecraft;
-        } else {
-            // The server is likely not yet running when mods register their network handlers
-            scheduler = SpongeImpl::getServer;
-        }
+    private void onInit(Side side) {
+        this.brokenModData = new BrokenModData(() -> side);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, REQ msg) throws Exception {
-        this.scheduler.get().addScheduledTask(() -> {
+        this.brokenModData.schedule(() -> {
             try {
                 super.channelRead0(ctx, msg);
             } catch (Exception e) {

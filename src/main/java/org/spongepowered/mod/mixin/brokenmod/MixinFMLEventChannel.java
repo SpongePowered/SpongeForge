@@ -24,29 +24,42 @@
  */
 package org.spongepowered.mod.mixin.brokenmod;
 
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleChannelHandlerWrapper;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
+import net.minecraftforge.fml.common.network.FMLEventChannel;
+import net.minecraftforge.fml.common.network.NetworkEventFiringHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.mod.network.brokenmod.BrokenModSimpleNetworkChannelWrapper;
+import org.spongepowered.mod.interfaces.IMixinFMLEventChannel;
+import org.spongepowered.mod.network.brokenmod.BrokenModSimpleChannelInboundHandlerWrapper;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
-@Mixin(value = SimpleNetworkWrapper.class, remap = false)
-public class MixinSimpleNetworkWrapper {
+import java.util.EnumMap;
 
-    @SuppressWarnings("unchecked")
-    @Redirect(method = "getHandlerWrapper", at = @At(value = "NEW", target = "net/minecraftforge/fml/common/network/simpleimpl/SimpleChannelHandlerWrapper"))
-    private SimpleChannelHandlerWrapper<?, ?> onCreateChannelHandler(IMessageHandler<?, ?> messageHandler, Side side, Class<?> requestType) {
-        if (StaticMixinForgeHelper.shouldTakeOverModNetworking(Loader.instance().activeModContainer())) {
-            return new BrokenModSimpleNetworkChannelWrapper(messageHandler, side, requestType);
-        }
-        return new SimpleChannelHandlerWrapper(messageHandler, side, requestType);
+@Mixin(value = FMLEventChannel.class, remap = false)
+public abstract class MixinFMLEventChannel implements IMixinFMLEventChannel {
+
+    @Shadow abstract void fireRead(FMLProxyPacket msg, ChannelHandlerContext ctx);
+
+    @Override
+    public void spongeFireRead(FMLProxyPacket msg, ChannelHandlerContext ctx) {
+        this.fireRead(msg, ctx);
     }
 
+    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/network/NetworkRegistry;newChannel(Ljava/lang/String;[Lio/netty/channel/ChannelHandler;)Ljava/util/EnumMap;"))
+    public EnumMap<Side,FMLEmbeddedChannel> onNewChannel(NetworkRegistry networkRegistry, String name, ChannelHandler... handlers) {
+
+        if (StaticMixinForgeHelper.shouldTakeOverModNetworking(Loader.instance().activeModContainer())) {
+            handlers[0] = new BrokenModSimpleChannelInboundHandlerWrapper((FMLEventChannel) (Object) this);
+        }
+        return networkRegistry.newChannel(name, handlers);
+    }
 }

@@ -22,31 +22,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.brokenmod;
+package org.spongepowered.mod.network.brokenmod;
 
-import net.minecraftforge.fml.common.Loader;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.IThreadListener;
 import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleChannelHandlerWrapper;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.mod.network.brokenmod.BrokenModSimpleNetworkChannelWrapper;
-import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
-@Mixin(value = SimpleNetworkWrapper.class, remap = false)
-public class MixinSimpleNetworkWrapper {
+import java.util.function.Supplier;
 
-    @SuppressWarnings("unchecked")
-    @Redirect(method = "getHandlerWrapper", at = @At(value = "NEW", target = "net/minecraftforge/fml/common/network/simpleimpl/SimpleChannelHandlerWrapper"))
-    private SimpleChannelHandlerWrapper<?, ?> onCreateChannelHandler(IMessageHandler<?, ?> messageHandler, Side side, Class<?> requestType) {
-        if (StaticMixinForgeHelper.shouldTakeOverModNetworking(Loader.instance().activeModContainer())) {
-            return new BrokenModSimpleNetworkChannelWrapper(messageHandler, side, requestType);
+public class BrokenModData {
+
+    private Supplier<Side> side;
+
+    public BrokenModData(Supplier<Side> side) {
+        this.side = side;
+    }
+
+    private IThreadListener getScheduler() {
+        if (this.side.get() == Side.CLIENT) {
+            return Minecraft.getMinecraft();
+        } else {
+            return SpongeImpl.getServer();
         }
-        return new SimpleChannelHandlerWrapper(messageHandler, side, requestType);
+    }
+
+
+
+    public void schedule(Runnable runnable) {
+        this.getScheduler().addScheduledTask(runnable);
     }
 
 }
