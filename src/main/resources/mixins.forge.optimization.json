@@ -9,12 +9,12 @@
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "threadchecks.MixinSpongeImplHooks_ThreadChecks",
-        "threadchecks.MixinIntegratedServer_ThreadChecks",
         "threadchecks.MixinMinecraftServer_ThreadChecks"
     ],
     "server": [
     ],
     "client": [
+        "threadchecks.MixinIntegratedServer_ThreadChecks"
     ],
     "injectors": {
         "defaultRequire": 1
