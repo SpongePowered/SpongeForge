@@ -59,11 +59,13 @@ import org.spongepowered.api.event.message.MessageEvent.MessageFormatter;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.chat.ChatTypes;
-import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
@@ -113,6 +115,19 @@ public abstract class MixinForgeHooks {
 
         MinecraftForge.EVENT_BUS.post(evt);
         return evt;
+    }
+
+    @Inject(method = "onItemRightClick", at = @At(value = "HEAD"), cancellable = true)
+    private static void onItemRightClickHead(EntityPlayer player, EnumHand hand, CallbackInfoReturnable<EnumActionResult> cir) {
+        if (!player.world.isRemote) {
+            SpongeCommonEventFactory.lastSecondaryPacketTick = SpongeImpl.getServer().getTickCounter();
+            long packetDiff = System.currentTimeMillis() - SpongeCommonEventFactory.lastTryBlockPacketTimeStamp;
+            // If the time between packets is small enough, use the last result.
+            if (packetDiff < 100) {
+                // Avoid firing a second event
+                cir.setReturnValue(null);
+            }
+        }
     }
 
     /**
