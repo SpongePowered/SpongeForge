@@ -76,7 +76,8 @@ public class SpongeToForgeEventData {
     }
 
     public void propagateCancelled() {
-        if (this.spongeEvent instanceof Cancellable && this.forgeEvent.isCancelable()) {
+        // Only propagate if Sponge Event wasn't cancelled already
+        if (this.spongeEvent instanceof Cancellable && this.forgeEvent.isCancelable() && !((Cancellable) this.spongeEvent).isCancelled()) {
             ((Cancellable) this.spongeEvent).setCancelled(this.forgeEvent.isCanceled());
         }
     }
