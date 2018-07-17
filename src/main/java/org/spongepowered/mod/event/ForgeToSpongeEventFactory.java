@@ -480,14 +480,6 @@ public class ForgeToSpongeEventFactory {
     private static InteractBlockEvent.Primary createAndPostInteractBlockPrimaryEvent(ForgeToSpongeEventData eventData) {
         final PlayerInteractEvent.LeftClickBlock forgeEvent = (PlayerInteractEvent.LeftClickBlock) eventData.getForgeEvent();
         final EntityPlayerMP player = (EntityPlayerMP) forgeEvent.getEntityPlayer();
-        Cause cause = causeStackManager.getCurrentCause();
-        if (!cause.containsType(EntityPlayer.class)) {
-            cause = Cause.of(
-                    EventContext.builder()
-                    .add(EventContextKeys.OWNER, (User) player)
-                .build(), player);
-        }
-
         final BlockPos pos = forgeEvent.getPos();
         final BlockSnapshot blockSnapshot = ((World) forgeEvent.getWorld()).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         final EnumFacing face = forgeEvent.getFace();
@@ -508,13 +500,6 @@ public class ForgeToSpongeEventFactory {
     private static InteractBlockEvent.Secondary createAndPostInteractBlockSecondaryEvent(ForgeToSpongeEventData eventData) {
         final PlayerInteractEvent.RightClickBlock forgeEvent = (PlayerInteractEvent.RightClickBlock) eventData.getForgeEvent();
         final EntityPlayer player = forgeEvent.getEntityPlayer();
-        Cause cause = causeStackManager.getCurrentCause();
-        if (!cause.containsType(EntityPlayer.class)) {
-            cause = Cause.of(
-                    EventContext.builder()
-                    .add(EventContextKeys.OWNER, (User) player)
-                .build(), player);
-        }
         final HandType hand = forgeEvent.getHand() == EnumHand.MAIN_HAND ? HandTypes.MAIN_HAND : HandTypes.OFF_HAND;
         final Tristate useBlockResult = getTristateFromResult(forgeEvent.getUseBlock());
         final Tristate useItemResult = getTristateFromResult(forgeEvent.getUseItem());
@@ -524,9 +509,9 @@ public class ForgeToSpongeEventFactory {
         final Direction direction = DirectionFacingProvider.getInstance().getKey(forgeEvent.getFace()).get();
         InteractBlockEvent.Secondary spongeEvent = null;
         if (hand == HandTypes.MAIN_HAND) {
-            spongeEvent = SpongeEventFactory.createInteractBlockEventSecondaryMainHand(cause, useBlockResult, useBlockResult, useItemResult, useItemResult, hand, Optional.ofNullable(interactionPoint), blockSnapshot, direction);
+            spongeEvent = SpongeEventFactory.createInteractBlockEventSecondaryMainHand(causeStackManager.getCurrentCause(), useBlockResult, useBlockResult, useItemResult, useItemResult, hand, Optional.ofNullable(interactionPoint), blockSnapshot, direction);
         } else {
-            spongeEvent = SpongeEventFactory.createInteractBlockEventSecondaryOffHand(cause, useBlockResult, useBlockResult, useItemResult, useItemResult, hand, Optional.ofNullable(interactionPoint), blockSnapshot, direction);
+            spongeEvent = SpongeEventFactory.createInteractBlockEventSecondaryOffHand(causeStackManager.getCurrentCause(), useBlockResult, useBlockResult, useItemResult, useItemResult, hand, Optional.ofNullable(interactionPoint), blockSnapshot, direction);
         }
         eventData.setSpongeEvent(spongeEvent);
         eventManager.postEvent(eventData);
