@@ -38,20 +38,11 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
@@ -63,25 +54,17 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.event.action.FishingEvent;
 import org.spongepowered.api.event.action.SleepingEvent;
-import org.spongepowered.api.event.advancement.AdvancementEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.event.entity.MoveEntityEvent;
-import org.spongepowered.api.event.entity.SpawnEntityEvent;
-import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
-import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
-import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.message.MessageEvent.DefaultBodyApplier;
 import org.spongepowered.api.event.message.MessageEvent.DefaultHeaderApplier;
 import org.spongepowered.api.event.message.MessageEvent.MessageFormatter;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
@@ -120,29 +103,14 @@ public class ForgeToSpongeEventFactory {
     static final SpongeModEventManager eventManager = ((SpongeModEventManager) Sponge.getEventManager());
     public static final ImmutableMap<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, Class<? extends Event>>
     forgeToSpongeClassMap = new ImmutableMap.Builder<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>, Class<? extends Event>>()
-        .put(net.minecraftforge.event.entity.player.AdvancementEvent.class, AdvancementEvent.Grant.class)
         .put(BlockEvent.BreakEvent.class, ChangeBlockEvent.Pre.class)
         .put(BlockEvent.MultiPlaceEvent.class, ChangeBlockEvent.Place.class)
         .put(BlockEvent.PlaceEvent.class, ChangeBlockEvent.Place.class)
-        .put(EntityJoinWorldEvent.class, SpawnEntityEvent.class)
-        .put(EntityItemPickupEvent.class, ChangeInventoryEvent.Pickup.Pre.class)
-        .put(EntityTravelToDimensionEvent.class, MoveEntityEvent.Teleport.class)
-        .put(net.minecraftforge.event.world.ExplosionEvent.Start.class, ExplosionEvent.Pre.class)
         .put(net.minecraftforge.event.world.ExplosionEvent.Detonate.class, ExplosionEvent.Detonate.class)
-        .put(ItemFishedEvent.class, FishingEvent.Stop.class)
-        .put(ItemTossEvent.class, DropItemEvent.Dispense.class)
-        .put(LivingDropsEvent.class, DropItemEvent.Destruct.class)
-        .put(LivingEntityUseItemEvent.Start.class, UseItemStackEvent.Start.class)
-        .put(LivingEntityUseItemEvent.Stop.class, UseItemStackEvent.Stop.class)
-        .put(LivingEntityUseItemEvent.Tick.class, UseItemStackEvent.Tick.class)
-        .put(LivingEntityUseItemEvent.Finish.class, UseItemStackEvent.Finish.class)
         .put(PlayerInteractEvent.LeftClickBlock.class, InteractBlockEvent.Primary.class)
-        .put(PlayerInteractEvent.LeftClickEmpty.class, InteractBlockEvent.Primary.class)
         .put(PlayerInteractEvent.RightClickBlock.class, InteractBlockEvent.Secondary.class)
-        .put(PlayerInteractEvent.RightClickEmpty.class, InteractBlockEvent.Secondary.class)
         .put(PlayerInteractEvent.RightClickItem.class, InteractItemEvent.Secondary.class)
-        .put(PlayerLoggedInEvent.class, ClientConnectionEvent.Login.class)
-        .put(PlayerLoggedOutEvent.class, ClientConnectionEvent.Disconnect.class)
+        .put(PlayerSleepInBedEvent.class, SleepingEvent.Pre.class)
         .put(ServerChatEvent.class, MessageChannelEvent.Chat.class)
         .build();
 
@@ -207,14 +175,16 @@ public class ForgeToSpongeEventFactory {
         if (forgeEvent instanceof PlayerSleepInBedEvent) {
             return createAndPostSleepingEventPre(eventData);
         }
-        if (forgeEvent instanceof PlayerInteractEvent.LeftClickBlock) {
-            return createAndPostInteractBlockPrimaryEvent(eventData);
-        }
-        if (forgeEvent instanceof PlayerInteractEvent.RightClickBlock) {
-            return createAndPostInteractBlockSecondaryEvent(eventData);
-        }
-        if (forgeEvent instanceof PlayerInteractEvent.RightClickItem) {
-            return createAndPostInteractItemSecondaryEvent(eventData);
+        if (forgeEvent instanceof PlayerInteractEvent) {
+            if (forgeEvent instanceof PlayerInteractEvent.LeftClickBlock) {
+                return createAndPostInteractBlockPrimaryEvent(eventData);
+            }
+            if (forgeEvent instanceof PlayerInteractEvent.RightClickBlock) {
+                return createAndPostInteractBlockSecondaryEvent(eventData);
+            }
+            if (forgeEvent instanceof PlayerInteractEvent.RightClickItem) {
+                return createAndPostInteractItemSecondaryEvent(eventData);
+            }
         }
         if (forgeEvent instanceof net.minecraftforge.event.world.ExplosionEvent.Detonate) {
             return createAndPostExplosionEventDetonate(eventData);
