@@ -26,11 +26,13 @@ package org.spongepowered.mod.mixin.core.item;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import org.spongepowered.api.item.ItemGroup;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,15 +42,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.item.IMixinItem;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-@Mixin(Item.class)
+@Mixin(value = Item.class, priority = 1001)
 public abstract class MixinItem implements ItemType, IMixinItem {
 
     @Shadow(remap = false) public abstract boolean hasCustomEntity(ItemStack stack);
     @Shadow(remap = false) @Nullable public abstract Entity createEntity(World world, Entity location, ItemStack itemstack);
+    @Shadow(remap = false) public abstract CreativeTabs[] getCreativeTabs();
 
     @Inject(method = "registerItem(ILnet/minecraft/util/ResourceLocation;Lnet/minecraft/item/Item;)V", at = @At("RETURN"))
     private static void registerMinecraftItem(int id, ResourceLocation name, Item item, CallbackInfo ci) {
@@ -69,5 +75,16 @@ public abstract class MixinItem implements ItemType, IMixinItem {
             return Optional.ofNullable(createEntity(world, location, itemstack));
         }
         return Optional.empty();
+    }
+
+    // Note: This method overrides the getItemGroups method in SpongeCommon's MixinItem
+    @Override
+    public Collection<ItemGroup> getItemGroups() {
+        CreativeTabs[] creativeTabs = getCreativeTabs();
+        if (creativeTabs.length == 0 || (creativeTabs.length == 1 && creativeTabs[0] == null)) {
+            return Collections.emptyList();
+        } else {
+            return (Collection) Arrays.asList(creativeTabs);
+        }
     }
 }
