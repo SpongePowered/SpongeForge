@@ -167,10 +167,6 @@ public class SpongeToForgeEventFactory {
             return PlayerInteractEvent.RightClickItem.class;
         } else if (spongeEvent instanceof NotifyNeighborBlockEvent) {
             return BlockEvent.NeighborNotifyEvent.class;
-        } else if (spongeEvent instanceof ChangeBlockEvent.Pre) {
-            if (spongeEvent.getSource() instanceof Player) {
-                return BlockEvent.BreakEvent.class;
-            }
         } else if (spongeEvent instanceof ChangeBlockEvent.Place) {
             if (((ChangeBlockEvent) spongeEvent).getTransactions().size() > 1) {
                 return BlockEvent.MultiPlaceEvent.class;
