@@ -69,6 +69,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
+import org.spongepowered.common.event.tracking.IPhaseState;
+import org.spongepowered.common.event.tracking.PhaseData;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
@@ -132,6 +135,7 @@ public abstract class MixinForgeHooks {
 
     /**
      * @author gabizou - May 24th, 2018
+     * @author blood - July 20th, 2018 - Don't fire event for player interacts
      * @reason Add procussive {@link ChangeBlockEvent.Pre} events to be thrown here
      * as mods can use this hook to check if a block can be broken. Specifically
      * however, this does not interact with {@link ForgeEventFactory#doPlayerHarvestCheck(EntityPlayer, IBlockState, boolean)}
@@ -163,18 +167,23 @@ public abstract class MixinForgeHooks {
             return player.canHarvestBlock(state);
         }
 
-        // Sponge Start - Add the changeblockevent.pre check here before we bother with item stacks.
-        if (world instanceof IMixinWorldServer && !((IMixinWorld) world).isFake() && SpongeImplHooks.isMainThread()) {
-            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-                // Might as well provide the active item in use.
-                frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));
-                if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos, player).isCancelled()) {
-                    // Since a plugin cancelled it, go ahead and cancel it.
-                    return false;
+        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+        final PhaseData peek = phaseTracker.getCurrentPhaseData();
+        final IPhaseState<?> phaseState = peek.state;
+        if (!phaseState.isInteraction()) {
+            // Sponge Start - Add the changeblockevent.pre check here before we bother with item stacks.
+            if (world instanceof IMixinWorldServer && !((IMixinWorld) world).isFake() && SpongeImplHooks.isMainThread()) {
+                try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                    // Might as well provide the active item in use.
+                    frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));
+                    if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos, player).isCancelled()) {
+                        // Since a plugin cancelled it, go ahead and cancel it.
+                        return false;
+                    }
                 }
             }
+            // Sponge End
         }
-        // Sponge End
 
         int toolLevel = stack.getItem().getHarvestLevel(stack, tool, player, state);
         if (toolLevel < 0)

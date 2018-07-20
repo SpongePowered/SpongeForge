@@ -167,13 +167,15 @@ public class SpongeToForgeEventFactory {
             return PlayerInteractEvent.RightClickItem.class;
         } else if (spongeEvent instanceof NotifyNeighborBlockEvent) {
             return BlockEvent.NeighborNotifyEvent.class;
-        } else if (spongeEvent instanceof ChangeBlockEvent) {
-            if (spongeEvent instanceof ChangeBlockEvent.Place) {
-                if (((ChangeBlockEvent) spongeEvent).getTransactions().size() > 1) {
-                    return BlockEvent.MultiPlaceEvent.class;
-                }
-                return BlockEvent.PlaceEvent.class;
+        } else if (spongeEvent instanceof ChangeBlockEvent.Pre) {
+            if (spongeEvent.getSource() instanceof Player) {
+                return BlockEvent.BreakEvent.class;
             }
+        } else if (spongeEvent instanceof ChangeBlockEvent.Place) {
+            if (((ChangeBlockEvent) spongeEvent).getTransactions().size() > 1) {
+                return BlockEvent.MultiPlaceEvent.class;
+            }
+            return BlockEvent.PlaceEvent.class;
         } else if (spongeEvent instanceof ExplosionEvent.Pre) {
             return net.minecraftforge.event.world.ExplosionEvent.Start.class;
         } else if (spongeEvent instanceof ExplosionEvent.Detonate) {
@@ -248,6 +250,8 @@ public class SpongeToForgeEventFactory {
             return createAndPostNeighborNotifyEvent(spongeEventData);
         } else if (spongeEvent instanceof ChangeBlockEvent.Place) {
             return createAndPostBlockPlaceEvent(spongeEventData);
+        } else if (spongeEvent instanceof ChangeBlockEvent.Pre) {
+            return createAndPostBlockBreakEvent(spongeEventData);
         } else if (PlayerInteractEvent.class.isAssignableFrom(clazz)) {
             if (spongeEvent instanceof InteractBlockEvent) {
                 return createAndPostPlayerInteractBlockEvent(spongeEventData);
@@ -671,6 +675,26 @@ public class SpongeToForgeEventFactory {
                     forgeEvent.getNotifiedSides().add(DirectionFacingProvider.getInstance().get(mapEntry.getKey()).get());
                 }
             }
+        }
+
+        forgeEventBus.post(eventData);
+        return true;
+    }
+
+    private static boolean createAndPostBlockBreakEvent(SpongeToForgeEventData eventData) {
+        final ChangeBlockEvent.Pre spongeEvent = (ChangeBlockEvent.Pre) eventData.getSpongeEvent();
+        BlockEvent.BreakEvent forgeEvent = (BlockEvent.BreakEvent) eventData.getForgeEvent();
+        if (!(spongeEvent.getCause().root() instanceof Player) || spongeEvent.getLocations().size() != 1) {
+            return false;
+        }
+
+        if (forgeEvent == null) {
+            final EntityPlayer player = (EntityPlayer) spongeEvent.getCause().root();
+            final net.minecraft.world.World world = player.world;
+            final Location<World> location = spongeEvent.getLocations().get(0);
+            final BlockPos pos = VecHelper.toBlockPos(location.getBlockPosition());
+            final IBlockState state = (IBlockState) location.getBlock();
+            forgeEvent = new BlockEvent.BreakEvent(world, pos, state, player);
         }
 
         forgeEventBus.post(eventData);

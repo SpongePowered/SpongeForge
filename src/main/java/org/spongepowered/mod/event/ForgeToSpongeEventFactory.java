@@ -405,14 +405,6 @@ public class ForgeToSpongeEventFactory {
     private static InteractItemEvent.Secondary createAndPostInteractItemSecondaryEvent(ForgeToSpongeEventData eventData) {
         final PlayerInteractEvent.RightClickItem forgeEvent = (PlayerInteractEvent.RightClickItem) eventData.getForgeEvent();
         final EntityPlayerMP player = (EntityPlayerMP) forgeEvent.getEntityPlayer();
-        Cause cause = causeStackManager.getCurrentCause();
-        if (!cause.containsType(EntityPlayer.class)) {
-            cause = Cause.of(
-                    EventContext.builder()
-                    .add(EventContextKeys.OWNER, (User) player)
-                .build(), player);
-        }
-
         final ItemStack heldItem = forgeEvent.getItemStack();
         final BlockPos pos = forgeEvent.getPos();
         final EnumFacing face = forgeEvent.getFace();
