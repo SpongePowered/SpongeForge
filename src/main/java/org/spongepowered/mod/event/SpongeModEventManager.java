@@ -114,6 +114,7 @@ import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinLoadController;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -424,7 +425,13 @@ public class SpongeModEventManager extends SpongeEventManager {
             if (spongeEvent.getClass().getInterfaces().length > 0) {
                 clazz = SpongeToForgeEventFactory.getForgeEventClass(spongeEvent);
                 if (clazz != null) {
-                    if (((IMixinEventBus) MinecraftForge.EVENT_BUS).getEventListenerClassList().contains(clazz)) {
+                    final Set<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> forgeListenerClassList = ((IMixinEventBus) MinecraftForge.EVENT_BUS).getEventListenerClassList();
+                    boolean hasListener = forgeListenerClassList.contains(clazz);
+                    if (!hasListener) {
+                        // check super class
+                        hasListener = forgeListenerClassList.contains(clazz.getSuperclass());
+                    }
+                    if (hasListener) {
                         return post(new SpongeToForgeEventData(spongeEvent, clazz, listenerCache, useCauseStackManager));
                     }
                 }
