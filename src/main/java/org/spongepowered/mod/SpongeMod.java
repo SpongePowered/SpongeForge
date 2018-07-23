@@ -63,7 +63,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -429,6 +428,7 @@ public class SpongeMod extends MetaModContainer {
         // used for client
         if (this.game.getPlatform().getType().isClient()) {
             WorldManager.registerVanillaTypesAndDimensions();
+            ((SqlServiceImpl) this.game.getServiceManager().provideUnchecked(SqlService.class)).buildConnectionCache();
         }
     }
 
