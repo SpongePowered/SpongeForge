@@ -310,7 +310,7 @@ public class SpongeToForgeEventFactory {
             forgeEvent = new ServerChatEvent(player, spongeEvent.getRawMessage().toPlain(), SpongeTexts.toComponent(spongeEvent.getMessage()));
             eventData.setForgeEvent(forgeEvent);
         }
-        forgeEventBus.post(forgeEvent, true);
+        forgeEventBus.post(eventData);
         return true;
     }
 
@@ -346,7 +346,7 @@ public class SpongeToForgeEventFactory {
             forgeEvent.setDuration(spongeEvent.getRemainingDuration());
         }
 
-        forgeEventBus.post(forgeEvent, true);
+        forgeEventBus.post(eventData);
         spongeEvent.setRemainingDuration(forgeEvent.getDuration());
 
         // Cancelling the Forge tick event stops all usage of the item, whereas
