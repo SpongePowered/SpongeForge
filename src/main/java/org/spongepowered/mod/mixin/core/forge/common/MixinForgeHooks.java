@@ -172,7 +172,7 @@ public abstract class MixinForgeHooks {
         final IPhaseState<?> phaseState = peek.state;
         if (!phaseState.isInteraction()) {
             // Sponge Start - Add the changeblockevent.pre check here before we bother with item stacks.
-            if (world instanceof IMixinWorldServer && !((IMixinWorld) world).isFake() && SpongeImplHooks.isMainThread()) {
+            if (!((IMixinWorld) world).isFake() && SpongeImplHooks.isMainThread()) {
                 try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                     // Might as well provide the active item in use.
                     frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));
