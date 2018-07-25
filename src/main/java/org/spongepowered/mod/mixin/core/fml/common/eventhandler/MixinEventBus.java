@@ -81,7 +81,6 @@ public abstract class MixinEventBus implements IMixinEventBus {
     // Because Forge can't be bothered to keep track of this information itself
     private static Map<IEventListener, Class<? extends Event>> forgeListenerRegistry = new HashMap<>();
     private static Set<Class<? extends Event>> forgeListenerEventClasses = new HashSet<>();
-    @Nullable private Boolean isClient;
 
     @Shadow @Final private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;
@@ -102,12 +101,8 @@ public abstract class MixinEventBus implements IMixinEventBus {
     }
 
     private boolean isClientPlatform() {
-        if (this.isClient == null) {
-            // This can be called before Sponge is initialied, so use this hack
-            this.isClient = SpongeModPlatform.staticGetExecutionType().isClient();
-        }
-
-        return this.isClient;
+        // This can be called before Sponge is initialied, so use this hack
+        return SpongeModPlatform.staticGetExecutionType().isClient();
     }
 
     private boolean isIgnoredEvent(Event event) {
