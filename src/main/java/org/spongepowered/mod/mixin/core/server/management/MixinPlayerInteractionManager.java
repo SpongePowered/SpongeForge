@@ -54,6 +54,7 @@ import net.minecraft.world.World;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.asm.mixin.Mixin;
@@ -118,6 +119,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         final Vector3d hitVec = VecHelper.toVector3d(pos.add(hitX, hitY, hitZ));
         Sponge.getCauseStackManager().addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(oldStack));
+        Sponge.getCauseStackManager().addContext(EventContextKeys.BLOCK_HIT, currentSnapshot);
         final boolean interactItemCancelled = SpongeCommonEventFactory.callInteractItemEventSecondary(player, oldStack, hand, hitVec, currentSnapshot).isCancelled();
         event = SpongeCommonEventFactory.createInteractBlockEventSecondary(player, oldStack, hitVec
                 , currentSnapshot, DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
