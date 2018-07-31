@@ -131,7 +131,7 @@ public class SpongeMod extends MetaModContainer {
 
     // USED ONLY TO KEEP TRACK OF THE THREAD. SINCE CLIENTS CAN HAVE MULTIPLE SERVERS
     // WE NEED TO BE ABLE TO STORE A REFERENCE TO THE THREAD TO MAINTAIN SPEED OF ISMAINTHREAD CHECKS
-    @javax.annotation.Nullable public static Thread SERVVER_THREAD;
+    @javax.annotation.Nullable public static Thread SERVER_THREAD;
 
     @Inject private SpongeGame game;
     @Inject private SpongeScheduler scheduler;

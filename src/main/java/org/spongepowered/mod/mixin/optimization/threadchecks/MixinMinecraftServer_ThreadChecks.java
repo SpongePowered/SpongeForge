@@ -35,7 +35,7 @@ public class MixinMinecraftServer_ThreadChecks {
 
     @Redirect(method = "startServerThread", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;start()V", remap = false))
     private void onServerStart(Thread thread) {
-        SpongeMod.SERVVER_THREAD = thread;
+        SpongeMod.SERVER_THREAD = thread;
         thread.start();
 
     }

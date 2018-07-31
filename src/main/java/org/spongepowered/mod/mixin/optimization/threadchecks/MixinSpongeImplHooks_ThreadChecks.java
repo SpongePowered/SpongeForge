@@ -47,6 +47,6 @@ public class MixinSpongeImplHooks_ThreadChecks {
         // Return true when the server isn't yet initialized, this means on a client
         // that the game is still being loaded. This is needed to support initialization
         // events with cause tracking.
-        return SpongeMod.SERVVER_THREAD == null || Thread.currentThread() == SpongeMod.SERVVER_THREAD;
+        return SpongeMod.SERVER_THREAD == null || Thread.currentThread() == SpongeMod.SERVER_THREAD;
     }
 }

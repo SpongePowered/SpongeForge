@@ -36,7 +36,7 @@ public class MixinIntegratedServer_ThreadChecks {
 
     @Inject(method = "stopServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;stopServer()V", shift = At.Shift.AFTER))
     private void onSpongeShutDown(CallbackInfo callbackInfo) {
-        SpongeMod.SERVVER_THREAD = null; // Reset it
+        SpongeMod.SERVER_THREAD = null; // Reset it
     }
 
 }
