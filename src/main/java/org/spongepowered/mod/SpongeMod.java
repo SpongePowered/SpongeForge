@@ -395,6 +395,7 @@ public class SpongeMod extends MetaModContainer {
     public void onPostInitialization(FMLPostInitializationEvent event) {
         try {
             SpongeImpl.getRegistry().postInit();
+            SpongeHooks.populatePluginsInStatsConfig();
             SpongeImpl.getConfigSaveManager().flush();
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
