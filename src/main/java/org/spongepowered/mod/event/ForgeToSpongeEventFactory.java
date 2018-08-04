@@ -154,7 +154,7 @@ public class ForgeToSpongeEventFactory {
 
     /**
      * This event creates and posts a corresponding sponge event from a forge mod.
-     * 
+     *
      * @param eventData The forge event data
      * @return The sponge event created or posted
      */
@@ -334,7 +334,7 @@ public class ForgeToSpongeEventFactory {
         final ITextComponent forgeComponent = forgeEvent.getComponent();
         final MessageFormatter formatter = new MessageFormatter();
         MessageChannel channel;
-        Text[] chat = SpongeTexts.splitChatMessage((TextComponentTranslation) forgeComponent);
+        Text[] chat = SpongeTexts.splitChatMessage(forgeComponent);
         if (chat[1] == null) {
             // Move content from head part to body part
             chat[1] = chat[0] != null ? chat[0] : SpongeTexts.toText(forgeComponent);

@@ -208,7 +208,7 @@ public abstract class MixinForgeHooks {
         final MessageFormatter formatter = new MessageFormatter();
         final EntityPlayerMP player = net.player;
         MessageChannel channel;
-        Text[] chat = SpongeTexts.splitChatMessage((TextComponentTranslation) comp);
+        Text[] chat = SpongeTexts.splitChatMessage(comp);
         if (chat[1] == null) {
             // Move content from head part to body part
             chat[1] = chat[0] != null ? chat[0] : SpongeTexts.toText(comp);
