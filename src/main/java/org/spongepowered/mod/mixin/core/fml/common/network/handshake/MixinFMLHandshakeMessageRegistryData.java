@@ -33,6 +33,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.mixin.core.util.MixinResourceLocation;
 
 import java.util.Map;
 
@@ -47,6 +48,6 @@ public abstract class MixinFMLHandshakeMessageRegistryData {
         remap = false
     )
     private void onInit(boolean hasMore, ResourceLocation name, ForgeRegistry.Snapshot entry, CallbackInfo ci) {
-        this.ids.remove(new ResourceLocation(EntityTypes.HUMAN.getId()));
+        this.ids.remove((ResourceLocation) (Object) EntityTypes.HUMAN.getKey());
     }
 }
