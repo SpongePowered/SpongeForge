@@ -373,8 +373,8 @@ public class SpongeMod extends MetaModContainer {
     @SubscribeEvent
     public void onEntityRegister(RegistryEvent.Register<EntityEntry> event) {
         for (EntityTypeRegistryModule.FutureRegistration registration : EntityTypeRegistryModule.getInstance().getCustomEntities()) {
-            EntityRegistry.registerModEntity(registration.name, registration.type, registration.name.getResourcePath(), registration.id,
-                    registration.name.getResourceDomain(), 0, 0, false);
+            EntityRegistry.registerModEntity(registration.name, registration.type, registration.name.getPath(), registration.id,
+                    registration.name.getNamespace(), 0, 0, false);
         }
     }
 

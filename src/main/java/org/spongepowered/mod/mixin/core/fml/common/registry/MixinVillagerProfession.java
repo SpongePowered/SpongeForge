@@ -69,7 +69,7 @@ public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<V
 
     @Override
     public String getProfessionName() {
-        return this.name.getResourcePath();
+        return this.name.getPath();
     }
 
     @Override

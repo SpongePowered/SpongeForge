@@ -48,7 +48,7 @@ public class MixinBlockRailBase {
         Optional<User> notifier = spongeEntity.getNotifierUser();
         Optional<User> owner = spongeEntity.getCreatorUser();
         if (owner.isPresent() || notifier.isPresent()) {
-            IMixinChunk spongeChunk = (IMixinChunk) world.getChunkFromBlockCoords(pos);
+            IMixinChunk spongeChunk = (IMixinChunk) world.getChunk(pos);
             if (notifier.isPresent()) {
                 spongeChunk.addTrackedBlockPosition(world.getBlockState(pos).getBlock(), pos, notifier.get(), PlayerTracker.Type.NOTIFIER);
             } else {

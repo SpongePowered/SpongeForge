@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(VillagerRegistry.class)
 public interface IMixinVillagerRegistry {
 
-    @Accessor
+    @Accessor(remap = false)
     RegistryNamespaced<ResourceLocation, VillagerRegistry.VillagerProfession> getREGISTRY();
 
 }

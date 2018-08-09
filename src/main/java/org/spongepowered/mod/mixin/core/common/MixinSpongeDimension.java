@@ -33,7 +33,7 @@ import org.spongepowered.common.world.SpongeDimension;
 @Mixin(SpongeDimension.class)
 public abstract class MixinSpongeDimension implements Dimension {
 
-    @Shadow private WorldProvider worldProvider;
+    @Shadow(remap = false) private WorldProvider worldProvider;
 
     @Override
 
