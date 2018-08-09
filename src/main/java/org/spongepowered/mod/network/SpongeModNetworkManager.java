@@ -45,6 +45,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketRegistrationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.CauseStackManager;
@@ -69,6 +70,7 @@ import java.util.Set;
 public class SpongeModNetworkManager extends SpongeNetworkManager {
 
     public static final EventContextKey<INetHandler> NET_HANDLER = new EventContextKey<INetHandler>() {
+        private final CatalogKey key = CatalogKey.sponge("nethandler");
         @Override
         public Class<INetHandler> getAllowedType() {
             return INetHandler.class;
@@ -77,6 +79,11 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         @Override
         public String getId() {
             return "sponge:nethandler";
+        }
+
+        @Override
+        public CatalogKey getKey() {
+            return key;
         }
 
         @Override

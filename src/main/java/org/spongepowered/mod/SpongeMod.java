@@ -172,7 +172,7 @@ public class SpongeMod extends MetaModContainer {
             if (key == null || ((IMixinBlock) obj).isDummy()) {
                 return;
             }
-            BlockTypeRegistryModule.getInstance().registerFromGameData(key.toString(), (BlockType) obj);
+            BlockTypeRegistryModule.getInstance().registerFromGameData(key, (BlockType) obj);
 
         });
         SpongeGameData.addRegistryCallback(ForgeRegistries.ITEMS, (owner, manager, id, obj, oldObj) -> {
@@ -188,14 +188,14 @@ public class SpongeMod extends MetaModContainer {
             if (key == null) {
                 return;
             }
-            EnchantmentRegistryModule.getInstance().registerFromGameData(key.toString(), (EnchantmentType) obj);
+            EnchantmentRegistryModule.getInstance().registerFromGameData(key, (EnchantmentType) obj);
         });
         SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (owner, manager, id, obj, oldObj) -> {
             final ResourceLocation key = ForgeRegistries.POTIONS.getKey(obj);
             if (key == null) {
                 return;
             }
-            PotionEffectTypeRegistryModule.getInstance().registerFromGameData(key.toString(),
+            PotionEffectTypeRegistryModule.getInstance().registerFromGameData(key,
                     (PotionEffectType) obj);
         });
         SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj, oldObj) -> {
