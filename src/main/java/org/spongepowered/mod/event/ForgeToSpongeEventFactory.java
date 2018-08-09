@@ -485,7 +485,7 @@ public class ForgeToSpongeEventFactory {
         if (eventData.getForgeEvent() instanceof ServerChatEvent) {
             final MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) eventData.getSpongeEvent();
             final ServerChatEvent forgeEvent = (ServerChatEvent) eventData.getForgeEvent();
-            final EntityPlayerMP player = (EntityPlayerMP) forgeEvent.getPlayer();
+            final EntityPlayerMP player = forgeEvent.getPlayer();
             if (!spongeEvent.isCancelled()) {
                 Text message = spongeEvent.getMessage();
                 if (!spongeEvent.isMessageCancelled()) {
@@ -506,7 +506,7 @@ public class ForgeToSpongeEventFactory {
             final PlayerInteractEvent.RightClickItem forgeEvent = (PlayerInteractEvent.RightClickItem) eventData.getForgeEvent();
             final BlockPos pos = forgeEvent.getPos();
             final EnumFacing face = forgeEvent.getFace();
-            final ItemStack heldItem = (ItemStack) forgeEvent.getItemStack();
+            final ItemStack heldItem = forgeEvent.getItemStack();
             final Vector3d hitVec = VecHelper.toVector3d(new BlockPos(forgeEvent.getEntityPlayer()));
             final BlockSnapshot blockSnapshot = ((World) forgeEvent.getWorld()).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
             final Direction direction = face == null ? Direction.NONE : DirectionFacingProvider.getInstance().getKey(face).get();

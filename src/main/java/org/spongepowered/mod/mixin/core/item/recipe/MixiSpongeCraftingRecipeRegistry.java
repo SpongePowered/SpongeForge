@@ -38,6 +38,6 @@ public abstract class MixiSpongeCraftingRecipeRegistry {
 
     @Inject(method = "registerAdditionalCatalog", at = @At(value = "RETURN"))
     public void onRegisterAdditionalCatalog(CraftingRecipe recipe, CallbackInfo ci) {
-        ((IRecipe) recipe).setRegistryName(new ResourceLocation(recipe.getId()));
+        ((IRecipe) recipe).setRegistryName((ResourceLocation) (Object) recipe.getKey());
     }
 }

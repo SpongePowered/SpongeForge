@@ -81,7 +81,7 @@ public class GrassCreator {
             final Random random = event.getRand();
             final int x = random.nextInt(16) + 8;
             final int z = random.nextInt(16) + 8;
-            final BlockPos pos = world.getHeight(event.getPos().add(x, 0, z));
+            final BlockPos pos = world.getHeight(event.getChunkPos().getBlock(0, 0, 0).add(x, 0, z));
             event.setResult(Event.Result.DENY);
             event.setResult(Event.Result.DENY);
             BlockPos origin = pos;

@@ -38,6 +38,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandResult;
@@ -100,7 +101,7 @@ public class CustomItemDropTest {
         item.setCreativeTab(CreativeTabs.FOOD);
         item.setRegistryName(new ResourceLocation(MOD_ID, ITEM_ID));
         event.getRegistry().register(item);
-        final Optional<ItemType> type = Sponge.getRegistry().getType(ItemType.class, MOD_ID + ":" + ITEM_ID);
+        final Optional<ItemType> type = Sponge.getRegistry().getType(ItemType.class, CatalogKey.of(MOD_ID, ITEM_ID));
         type.ifPresent(itemType -> this.EGG_TOSS = itemType);
     }
 

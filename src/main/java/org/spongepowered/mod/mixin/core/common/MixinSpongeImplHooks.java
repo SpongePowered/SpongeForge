@@ -68,6 +68,7 @@ import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.logging.log4j.Level;
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.command.args.ChildCommandElementExecutor;
 import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.api.item.inventory.Inventory;
@@ -590,6 +591,19 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static Optional<CraftingRecipe> getRecipeById(String id) {
         IRecipe recipe = ForgeRegistries.RECIPES.getValue(new ResourceLocation(id));
+        if (recipe == null) {
+            return Optional.empty();
+        }
+        return Optional.of(((CraftingRecipe) recipe));
+    }
+
+    /**
+     * @author unknown
+     * @reason Forge compatibility
+     */
+    @Overwrite
+    public static Optional<CraftingRecipe> getRecipeById(CatalogKey id) {
+        IRecipe recipe = ForgeRegistries.RECIPES.getValue((ResourceLocation) (Object) id);
         if (recipe == null) {
             return Optional.empty();
         }

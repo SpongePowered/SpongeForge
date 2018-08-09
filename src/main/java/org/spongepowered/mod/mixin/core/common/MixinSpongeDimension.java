@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.common;
 
 import net.minecraft.world.WorldProvider;
 import org.spongepowered.api.world.Dimension;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.world.SpongeDimension;
@@ -33,10 +34,9 @@ import org.spongepowered.common.world.SpongeDimension;
 @Mixin(SpongeDimension.class)
 public abstract class MixinSpongeDimension implements Dimension {
 
-    @Shadow(remap = false) private WorldProvider worldProvider;
+    @Shadow(remap = false) @Final private WorldProvider worldProvider;
 
     @Override
-
     public int getHeight() {
         return this.worldProvider.getActualHeight();
     }

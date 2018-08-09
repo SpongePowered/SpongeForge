@@ -234,10 +234,10 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 context.buildAndSwitch();
                 Timing timing = null;
                 if (Timings.isTimingsEnabled()) {
-                    timing = this.populatorTimings.get(populator.getType().getId());
+                    timing = this.populatorTimings.get(populator.getType().getKey());
                     if (timing == null) {
-                        timing = SpongeTimingsFactory.ofSafe(populator.getType().getId());
-                        this.populatorTimings.put(populator.getType().getId(), timing);
+                        timing = SpongeTimingsFactory.ofSafe(populator.getType().getKey().toString());
+                        this.populatorTimings.put(populator.getType().getKey(), timing);
                     }
                     timing.startTimingIfSync();
                 }

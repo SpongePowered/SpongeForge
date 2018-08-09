@@ -30,7 +30,7 @@ import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(VillagerRegistry.class)
+@Mixin(value = VillagerRegistry.class, remap = false)
 public interface IMixinVillagerRegistry {
 
     @Accessor(remap = false)

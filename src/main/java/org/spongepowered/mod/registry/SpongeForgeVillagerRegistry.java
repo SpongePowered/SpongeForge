@@ -210,10 +210,10 @@ public final class SpongeForgeVillagerRegistry {
             printer.add("  %s %d : %s", "Career", i++, villagerCareer.getName());
         }
         printer.add();
-        printer.add("%s : %s", "Sponge Profession", profession.getId());
+        printer.add("%s : %s", "Sponge Profession", profession.getKey().toString());
         i = 0;
         for (Career spongeCareer : careers) {
-            printer.add("  %s %d : %s", "Career", i++, spongeCareer.getId());
+            printer.add("  %s %d : %s", "Career", i++, spongeCareer.getKey().toString());
         }
         printer.add();
         printer.add("Villager career id attempted: " + careerNumberId);

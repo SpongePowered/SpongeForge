@@ -40,7 +40,7 @@ import org.spongepowered.mod.util.StaticMixinForgeHelper;
 @Mixin(value = SimpleNetworkWrapper.class, remap = false)
 public class MixinSimpleNetworkWrapper {
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Redirect(method = "getHandlerWrapper", at = @At(value = "NEW", target = "net/minecraftforge/fml/common/network/simpleimpl/SimpleChannelHandlerWrapper"))
     private SimpleChannelHandlerWrapper<?, ?> onCreateChannelHandler(IMessageHandler<?, ?> messageHandler, Side side, Class<?> requestType) {
         if (StaticMixinForgeHelper.shouldTakeOverModNetworking(Loader.instance().activeModContainer())) {
