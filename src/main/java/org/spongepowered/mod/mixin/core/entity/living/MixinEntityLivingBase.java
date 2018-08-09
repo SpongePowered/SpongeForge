@@ -92,24 +92,42 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
         return stack.isEmpty();
     }
 
-    @Redirect(method = "setActiveHand", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;onItemUseStart(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;I)I"))
-    public int onItemUseStart(EntityLivingBase this$0, ItemStack stack, int duration) {
+    @Redirect(method = "setActiveHand",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;onItemUseStart(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;I)I",
+            remap = false
+        )
+    )
+    private int onItemUseStart(EntityLivingBase this$0, ItemStack stack, int duration) {
         if (!this.world.isRemote) {
             return duration;
         }
         return ForgeEventFactory.onItemUseStart(this$0, stack, duration);
     }
 
-    @Redirect(method = "onItemUseFinish", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;onItemUseFinish(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;ILnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;"))
-    public ItemStack onItemUseFinish(EntityLivingBase entity, ItemStack item, int duration, ItemStack result) {
+    @Redirect(method = "onItemUseFinish",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;onItemUseFinish(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;ILnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
+            remap = false
+        )
+    )
+    private ItemStack onItemUseFinish(EntityLivingBase entity, ItemStack item, int duration, ItemStack result) {
         if (!this.world.isRemote) {
             return result;
         }
         return ForgeEventFactory.onItemUseFinish(entity, item, duration, result);
     }
 
-    @Redirect(method = "stopActiveHand", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;onUseItemStop(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;I)Z"))
-    public boolean onUseItemStop(EntityLivingBase entity, ItemStack item, int duration) {
+    @Redirect(method = "stopActiveHand",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;onUseItemStop(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;I)Z",
+            remap = false
+        )
+    )
+    private boolean onUseItemStop(EntityLivingBase entity, ItemStack item, int duration) {
         if (!this.world.isRemote) {
             return false;
         }

@@ -97,9 +97,9 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
             if (isMainThread) {
                 if (event.getHandler() instanceof NetHandlerPlayServer) {
-                    Sponge.getCauseStackManager().pushCause(((NetHandlerPlayServer) event.getHandler()).player);
+                    frame.pushCause(((NetHandlerPlayServer) event.getHandler()).player);
                 }
-                Sponge.getCauseStackManager().addContext(NET_HANDLER, event.getHandler());
+                frame.addContext(NET_HANDLER, event.getHandler());
             }
 
             if (event.getOperation().equals("REGISTER")) {
@@ -107,7 +107,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
                 for (String channel : event.getRegistrations()) {
                     final Cause
                         currentCause =
-                        isMainThread ? Sponge.getCauseStackManager().getCurrentCause() : Cause.of(EventContext.empty(), Sponge.getGame());
+                        isMainThread ? frame.getCurrentCause() : Cause.of(EventContext.empty(), Sponge.getGame());
                     SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(currentCause, channel));
                 }
             } else if (event.getOperation().equals("UNREGISTER")) {

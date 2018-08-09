@@ -464,6 +464,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     public RegisteredListener.Cache getHandlerCache(Class<? extends Event> eventClass) {
         final EventType<? extends Event> eventType = new EventType(eventClass);
         return this.handlersCache.get(eventType);

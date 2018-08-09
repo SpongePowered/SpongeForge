@@ -770,7 +770,7 @@ public class SpongeToForgeEventFactory {
         net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent = (net.minecraftforge.event.world.ExplosionEvent.Start) eventData.getForgeEvent();
         if (forgeEvent == null) {
             forgeEvent = new net.minecraftforge.event.world.ExplosionEvent.Start(
-                    ((net.minecraft.world.World) spongeEvent.getTargetWorld()), ((Explosion) ((ExplosionEvent.Pre) spongeEvent).getExplosion()));
+                    ((net.minecraft.world.World) spongeEvent.getTargetWorld()), ((Explosion) spongeEvent.getExplosion()));
             eventData.setForgeEvent(forgeEvent);
         }
         forgeEventBus.post(eventData);
