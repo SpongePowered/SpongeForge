@@ -49,7 +49,7 @@ import javax.annotation.Nullable;
 public abstract class MixinFluid implements FluidType {
 
     @Shadow @Nullable protected Block block;
-    @Shadow @Final protected ResourceLocation still;
+    @Shadow @Final protected String fluidName;
 
     @Override
     public Optional<BlockType> getBlockTypeBase() {
@@ -58,7 +58,7 @@ public abstract class MixinFluid implements FluidType {
 
     @Override
     public CatalogKey getKey() {
-        return (CatalogKey) (Object) this.still;
+        return (CatalogKey) (Object) new ResourceLocation(this.fluidName);
     }
 
     @Override
