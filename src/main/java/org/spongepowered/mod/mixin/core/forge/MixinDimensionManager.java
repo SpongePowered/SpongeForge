@@ -33,6 +33,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLLog;
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.WorldArchetype;
 import org.spongepowered.api.world.storage.WorldProperties;
@@ -243,7 +244,8 @@ public abstract class MixinDimensionManager {
                 WorldManager.unregisterWorldProperties(properties, false);
             }
             String modId = StaticMixinForgeHelper.getModIdFromClass(provider.getClass());
-            WorldArchetype archetype = Sponge.getRegistry().getType(WorldArchetype.class, modId + ":" + dimensionType.getName().toLowerCase()).orElse(null);
+            final CatalogKey key = CatalogKey.of(modId, dimensionType.getName().toLowerCase());
+            WorldArchetype archetype = Sponge.getRegistry().getType(WorldArchetype.class, key).orElse(null);
             if (archetype == null) {
                 final WorldArchetype.Builder builder = WorldArchetype.builder()
                         .dimension((org.spongepowered.api.world.DimensionType) (Object) dimensionType)
