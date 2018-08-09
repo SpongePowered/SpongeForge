@@ -77,13 +77,8 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         }
 
         @Override
-        public String getId() {
-            return "sponge:nethandler";
-        }
-
-        @Override
         public CatalogKey getKey() {
-            return key;
+            return this.key;
         }
 
         @Override

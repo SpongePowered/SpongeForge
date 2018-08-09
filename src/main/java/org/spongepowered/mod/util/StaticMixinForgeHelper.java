@@ -75,11 +75,6 @@ public final class StaticMixinForgeHelper {
         }
 
         @Override
-        public String getId() {
-            return "forge:ArmorProperty";
-        }
-
-        @Override
         public CatalogKey getKey() {
             return this.key;
         }
@@ -94,11 +89,6 @@ public final class StaticMixinForgeHelper {
         @Override
         public Class<DamageEventObject> getAllowedType() {
             return DamageEventObject.class;
-        }
-
-        @Override
-        public String getId() {
-            return "sponge:damage_event_object";
         }
 
         @Override
