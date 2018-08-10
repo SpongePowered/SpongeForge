@@ -1,6 +1,10 @@
 # https://help.github.com/articles/about-codeowners/
 # please keep this file in the same order as packages
 
+.travis.yml @Minecrell
+*gradle* @Minecrell
+Jenkinsfile @Minecrell
+
 src/main/java/org/spongepowered/mod/command/** @kashike
 src/main/java/org/spongepowered/mod/data/** @gabizou
 src/main/java/org/spongepowered/mod/inject/** @kashike
