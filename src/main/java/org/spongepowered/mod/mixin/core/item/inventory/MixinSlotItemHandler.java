@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.mixin.core.item.inventory.MixinSlot;
 import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 
-@Mixin(SlotItemHandler.class)
+@Mixin(value = SlotItemHandler.class, remap = false)
 public abstract class MixinSlotItemHandler extends MixinSlot {
 
     @Shadow @Final private IItemHandler itemHandler;

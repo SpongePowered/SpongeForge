@@ -63,7 +63,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
     private static final String FORGE_TRANSFORMER_EXIT_VISITOR =
             "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V";
 
-    @Shadow private LanguageManager mcLanguageManager;
+    @Shadow private LanguageManager languageManager;
     @Shadow private IntegratedServer integratedServer;
 
     private GuiOverlayDebug debugGui;
@@ -148,7 +148,7 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
         } else {
             String loadingString;
             if (this.kickMessage instanceof TranslatableText) {
-                loadingString = ((TranslatableText) this.kickMessage).getTranslation().get(Locale.forLanguageTag(this.mcLanguageManager.getCurrentLanguage()
+                loadingString = ((TranslatableText) this.kickMessage).getTranslation().get(Locale.forLanguageTag(this.languageManager.getCurrentLanguage()
                         .getLanguageCode()));
             } else {
                 loadingString = TextSerializers.LEGACY_FORMATTING_CODE.serialize(this.kickMessage);

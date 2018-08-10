@@ -25,13 +25,13 @@
 package org.spongepowered.mod.item.inventory.adapter;
 
 import net.minecraftforge.items.IItemHandler;
-import org.spongepowered.common.item.inventory.adapter.impl.AbstractInventoryAdapter;
+import org.spongepowered.common.item.inventory.adapter.impl.BasicInventoryAdapter;
 import org.spongepowered.mod.item.inventory.fabric.IItemHandlerFabric;
 
 /**
  * Basic Wrapper Adapter for {@link IItemHandler}
  */
-public class IItemHandlerAdapter extends AbstractInventoryAdapter<IItemHandler> {
+public class IItemHandlerAdapter extends BasicInventoryAdapter {
     public IItemHandlerAdapter(IItemHandler inventory) {
         super(new IItemHandlerFabric(inventory));
     }

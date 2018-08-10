@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
 @Mixin(ChunkProviderClient.class)
 public abstract class MixinChunkProviderClient implements IMixinChunkProviderServer {
 
-    @Shadow @Final private Long2ObjectMap<Chunk> chunkMapping;
+    @Shadow @Final private Long2ObjectMap<Chunk> loadedChunks;
 
     @Override
     public void setMaxChunkUnloads(int maxUnloads) {
@@ -47,6 +47,6 @@ public abstract class MixinChunkProviderClient implements IMixinChunkProviderSer
     @Nullable
     @Override
     public Chunk getLoadedChunkWithoutMarkingActive(int x, int z) {
-        return this.chunkMapping.get(ChunkPos.asLong(x, z));
+        return this.loadedChunks.get(ChunkPos.asLong(x, z));
     }
 }

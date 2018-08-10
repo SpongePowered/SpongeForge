@@ -24,12 +24,10 @@
  */
 package org.spongepowered.mod.data;
 
-import net.minecraft.block.Block;
-import org.spongepowered.api.block.BlockState;
+import net.minecraft.block.state.IBlockState;
 import org.spongepowered.api.data.property.block.LightEmissionProperty;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import org.spongepowered.common.block.BlockUtil;
 import org.spongepowered.common.data.property.store.block.LightEmissionPropertyStore;
 import org.spongepowered.common.util.VecHelper;
 
@@ -45,8 +43,7 @@ public class ForgeLightEmissionPropertyStore extends LightEmissionPropertyStore 
     @Override
     public Optional<LightEmissionProperty> getFor(Location<World> location) {
         net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
-        Block block = (Block) location.getBlockType();
-        final BlockState blockState = location.getBlock();
-        return Optional.of(new LightEmissionProperty(block.getLightValue(BlockUtil.toNative(blockState), world, VecHelper.toBlockPos(location))));
+        final IBlockState state = (IBlockState) location.getBlock();
+        return Optional.of(new LightEmissionProperty(state.getLightValue(world, VecHelper.toBlockPos(location))));
     }
 }

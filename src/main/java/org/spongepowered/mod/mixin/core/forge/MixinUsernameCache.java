@@ -25,10 +25,12 @@
 package org.spongepowered.mod.mixin.core.forge;
 
 import net.minecraftforge.common.UsernameCache;
+import net.minecraftforge.fml.relauncher.FMLInjectionData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.util.SpongeUsernameCache;
 
+import java.io.File;
 import java.util.Map;
 import java.util.UUID;
 
@@ -37,37 +39,70 @@ import javax.annotation.Nullable;
 @Mixin(value = UsernameCache.class, remap = false)
 public class MixinUsernameCache {
 
+    static {
+        // Copied from Forge's UsernameCache
+        SpongeUsernameCache.setServerDir(/* The minecraft dir */ (File) FMLInjectionData.data()[6]);
+    }
+
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     protected static void setUsername(UUID uuid, String username) {
         SpongeUsernameCache.setUsername(uuid, username);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     protected static boolean removeUsername(UUID uuid) {
         return SpongeUsernameCache.removeUsername(uuid);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     @Nullable
     public static String getLastKnownUsername(UUID uuid) {
         return SpongeUsernameCache.getLastKnownUsername(uuid);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static boolean containsUUID(UUID uuid) {
         return SpongeUsernameCache.containsUUID(uuid);
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static Map<UUID, String> getMap() {
         return SpongeUsernameCache.getMap();
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     protected static void save() {
         // saves are only performed during world save
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     protected static void load() {
         SpongeUsernameCache.load();

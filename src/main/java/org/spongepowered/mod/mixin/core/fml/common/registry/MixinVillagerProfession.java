@@ -32,16 +32,25 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.entity.SpongeCareer;
+import org.spongepowered.common.entity.SpongeProfession;
+import org.spongepowered.common.text.translation.SpongeTranslation;
+import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
 import java.util.List;
+import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 @Mixin(value = VillagerRegistry.VillagerProfession.class, remap = false)
 public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<VillagerRegistry.VillagerProfession> implements IMixinVillagerProfession {
 
     @Shadow private ResourceLocation name;
     @Shadow private List<VillagerRegistry.VillagerCareer> careers;
+
+    @Nullable private SpongeProfession spongeProfession;
 
     @Override
     public String getId() {
@@ -60,13 +69,30 @@ public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<V
 
     @Override
     public String getProfessionName() {
-        return this.name.getResourcePath();
+        return this.name.getPath();
+    }
+
+    @Override
+    public Optional<SpongeProfession> getSpongeProfession() {
+        return Optional.ofNullable(this.spongeProfession);
+    }
+
+    @Override
+    public void setSpongeProfession(@Nullable SpongeProfession profession) {
+        this.spongeProfession = profession;
     }
 
     @Inject(method = "register(Lnet/minecraftforge/fml/common/registry/VillagerRegistry$VillagerCareer;)V",
             at = @At(value = "RETURN"), remap = false)
     private void registerForgeCareer(VillagerRegistry.VillagerCareer career, CallbackInfo callbackInfo) {
-        SpongeForgeVillagerRegistry.registerForgeCareer(career);
+        if (this.spongeProfession == null) {
+            this.spongeProfession = SpongeForgeVillagerRegistry.fromNative((VillagerRegistry.VillagerProfession) (Object) this);
+        }
+        final IMixinVillagerCareer mixinCareer = (IMixinVillagerCareer) career;
+        final int careerId = mixinCareer.getId();
+        final SpongeCareer suggestedCareer = new SpongeCareer(careerId, career.getName(), this.spongeProfession, new SpongeTranslation("entity.Villager." + career.getName()));
+        mixinCareer.setSpongeCareer(suggestedCareer);
+        this.spongeProfession.getUnderlyingCareers().add(suggestedCareer);
     }
 
 }

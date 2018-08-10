@@ -25,14 +25,27 @@
 package org.spongepowered.mod.interfaces;
 
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import org.spongepowered.common.entity.SpongeCareer;
+
+import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 public interface IMixinVillagerCareer {
 
     VillagerRegistry.VillagerProfession getProfession();
+
+    Optional<SpongeCareer> getSpongeCareer();
+
+    void setSpongeCareer(@Nullable SpongeCareer career);
 
     int getId();
 
     boolean isDelayed();
 
     void performDelayedInit();
+
+    void forceProfession(VillagerRegistry.VillagerProfession villagerProfession);
+
+    boolean isModded();
 }

@@ -46,22 +46,16 @@ import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 public abstract class MixinChunkProviderServer implements IMixinChunkProviderServer {
 
     @Shadow @Final public WorldServer world;
-    @Shadow @Final public Long2ObjectMap<Chunk> id2ChunkMap;
+    @Shadow @Final public Long2ObjectMap<Chunk> loadedChunks;
     @Shadow public abstract Chunk loadChunk(int x, int z);
     @Shadow public abstract void saveChunkExtraData(Chunk chunkIn);
-
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/ChunkProviderServer;saveChunkExtraData(Lnet/minecraft/world/chunk/Chunk;)V"))
-    public void onSaveExtraChunkData(ChunkProviderServer chunkProviderServer, Chunk chunkIn) {
-        this.saveChunkExtraData(chunkIn);
-        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(chunkIn.x, chunkIn.z), chunkIn);
-    }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = Shift.AFTER, remap = false))
     public void onUnloadQueuedChunksReturn(CallbackInfoReturnable<Boolean> cir) {
         // Remove forge's persistent chunk check since we cache it in the chunk. Only unload the world if we're not the overworld and we're told that
         // we are not to keep spawn loaded (which is our flag to keep the world loaded)
         // TODO Consider splitting this into two flags: keep-spawn-loaded and keep-world-loaded
-        if (this.id2ChunkMap.size() == 0 && ((IMixinWorldServer) this.world).getDimensionId() != 0 && !SpongeImplHooks.shouldKeepSpawnLoaded(this
+        if (this.loadedChunks.size() == 0 && ((IMixinWorldServer) this.world).getDimensionId() != 0 && !SpongeImplHooks.shouldKeepSpawnLoaded(this
                 .world.provider.getDimensionType(), ((IMixinWorldServer) this.world).getDimensionId())) {
             net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
         }

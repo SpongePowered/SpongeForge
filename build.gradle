@@ -26,6 +26,7 @@ buildscript {
 
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
 ext.minecraftVersion = forgeBuild
+ext.testmods = project.project('testmods')
 
 // Apply shared implementation Gradle config
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
@@ -34,6 +35,7 @@ version = "$minecraft.version-$forgeBuild-$apiSuffix-$buildNumber"
 
 minecraft {
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
+    replace '@expected_certificate_fingerprint@', project.hasProperty('spongeCertificateFingerprint') ? project.property('spongeCertificateFingerprint') : ''
 }
 
 sponge.plugin.meta {
@@ -44,8 +46,26 @@ sponge.plugin.meta {
     }
 }
 
+dependencies {
+    runtime testmods
+}
+
 compileJava {
     options.compilerArgs += [ "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild" ]
+}
+
+if (project.hasProperty('spongeKeyStore')) {
+    task signShadowJar(type: SignJar, dependsOn: reobfJar) {
+        keyStore = project.spongeKeyStore
+        alias = project.spongeKeyStoreAlias
+        storePass = project.spongeKeyStorePass
+        keyPass = project.spongeKeyStoreKeyPass
+        inputFile = shadowJar.archivePath
+        outputFile = shadowJar.archivePath
+    }
+
+    signShadowJar.dependsOn shadowJar
+    build.dependsOn signShadowJar
 }
 
 jar {
@@ -86,7 +106,7 @@ artifacts {
 
 allprojects {
     // Re-obfuscate only after creating the shadowDevJar
-    tasks.findByName('reobfJar')?.mustRunAfter rootProject.tasks.shadowDevJar
+    tasks.findByName('reobfJar')?.mustRunAfter this.tasks.shadowDevJar
 }
 
 tasks.withType(ShadowJar) {
@@ -96,6 +116,8 @@ tasks.withType(ShadowJar) {
     relocate('com.typesafe.config', 'configurate.typesafe.config')
 
     dependencies {
+        exclude project(testmods.path)
+
         include dependency('com.typesafe:config')
 
         // This is not available on the client so we need to shade it

@@ -38,6 +38,7 @@ import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.registry.EntityEntry;
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKey;
@@ -46,6 +47,7 @@ import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifierTypes;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.event.damage.DamageEventHandler;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
@@ -66,14 +68,15 @@ public final class StaticMixinForgeHelper {
 
     static final Map<String, EventContextKey<ItemStackSnapshot>> ARMOR_KEYS = new ConcurrentHashMap<>();
     public static final EventContextKey<ISpecialArmor.ArmorProperties> ARMOR_PROPERTY = new EventContextKey<ISpecialArmor.ArmorProperties>() {
+        private final CatalogKey key = CatalogKey.of("forge", "ArmorProperty");
         @Override
         public Class<ISpecialArmor.ArmorProperties> getAllowedType() {
             return ISpecialArmor.ArmorProperties.class;
         }
 
         @Override
-        public String getId() {
-            return "forge:ArmorProperty";
+        public CatalogKey getKey() {
+            return this.key;
         }
 
         @Override
@@ -82,14 +85,15 @@ public final class StaticMixinForgeHelper {
         }
     };
     private static final EventContextKey<DamageEventObject> DAMAGE_MODIFIER_OBJECT = new EventContextKey<DamageEventObject>() {
+        private final CatalogKey key = CatalogKey.of("sponge", "damage_event_object");
         @Override
         public Class<DamageEventObject> getAllowedType() {
             return DamageEventObject.class;
         }
 
         @Override
-        public String getId() {
-            return "sponge:damage_event_object";
+        public CatalogKey getKey() {
+            return this.key;
         }
 
         @Override
@@ -97,17 +101,6 @@ public final class StaticMixinForgeHelper {
             return "0xDEADBEEF";
         }
     };
-
-    @Nullable
-    public static IBlockState breakEventExtendedState = null;
-
-    // Whether to prevent ForgeInternalHandler#onEntityJoinWorld from handling custom Item entities (due to Sponge already handling it)
-    public static boolean preventInternalForgeEntityListener = false;
-
-    public static DamageSource exchangeDamageSource(DamageSource damageSource) {
-
-        return damageSource;
-    }
 
     public static Optional<List<DamageFunction>> createArmorModifiers(
         EntityLivingBase entityLivingBase, DamageSource damageSource, double damage) {
@@ -190,17 +183,22 @@ public final class StaticMixinForgeHelper {
                 }
                 ratio += prop.AbsorbRatio;
 
-                EventContextKey<ItemStackSnapshot> contextKey = ARMOR_KEYS.get("armor:" + type.getId());
+                EventContextKey<ItemStackSnapshot> contextKey = ARMOR_KEYS.get(type.getKey().toString());
                 if (contextKey == null) {
                     contextKey = new EventContextKey<ItemStackSnapshot>() {
+                        private CatalogKey key;
+
                         @Override
                         public Class<ItemStackSnapshot> getAllowedType() {
                             return ItemStackSnapshot.class;
                         }
 
                         @Override
-                        public String getId() {
-                            return "armor:" + type.getId();
+                        public CatalogKey getKey() {
+                            if (this.key == null) {
+                                this.key = CatalogKey.of(type.getKey().getNamespace(), "armor_" + type.getKey().getValue());
+                            }
+                            return this.key;
                         }
 
                         @Override
@@ -208,7 +206,7 @@ public final class StaticMixinForgeHelper {
                             return type.getName();
                         }
                     };
-                    ARMOR_KEYS.put("armor: " + type.getId(), contextKey);
+                    ARMOR_KEYS.put(type.getKey().toString(), contextKey);
                 }
 
                 final ItemStack itemStack = inventory.get(prop.Slot);
@@ -395,5 +393,12 @@ public final class StaticMixinForgeHelper {
             SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass, null);
             EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
         }
+    }
+
+    public static boolean shouldTakeOverModNetworking(ModContainer mod) {
+        if (mod == null) {
+            return false;
+        }
+        return SpongeImpl.getGlobalConfig().getConfig().getBrokenMods().getBrokenNetworkHandlerMods().contains(mod.getModId());
     }
 }

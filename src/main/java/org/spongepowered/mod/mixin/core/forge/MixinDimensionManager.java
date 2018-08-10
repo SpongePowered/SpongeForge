@@ -33,10 +33,13 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLLog;
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.WorldArchetype;
 import org.spongepowered.api.world.storage.WorldProperties;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
@@ -64,38 +67,66 @@ import javax.annotation.Nullable;
 @Mixin(value = DimensionManager.class, remap = false)
 public abstract class MixinDimensionManager {
 
-    @Shadow static Multiset<Integer> leakedWorlds = HashMultiset.create();
+    @Shadow @Final @Mutable private static Multiset<Integer> leakedWorlds = HashMultiset.create();
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static int[] getDimensions(DimensionType type) {
         return WorldManager.getRegisteredDimensionIdsFor(type);
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static void init() {
         WorldManager.registerVanillaTypesAndDimensions();
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static void registerDimension(int id, DimensionType type) {
         WorldManager.registerDimension(id, type);
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static void unregisterDimension(int id) {
         WorldManager.unregisterDimension(id);
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static boolean isDimensionRegistered(int dim) {
         return WorldManager.isDimensionRegistered(dim);
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static DimensionType getProviderType(int dim) {
         return WorldManager.getDimensionType(dim).orElse(null);
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static WorldProvider getProvider(int dim) {
         final Optional<WorldServer> optWorldServer = WorldManager.getWorldByDimensionId(dim);
@@ -110,6 +141,8 @@ public abstract class MixinDimensionManager {
      * Gets loaded dimension ids
      * @param check Check for leaked worlds
      * @return An array of loaded dimension ids
+     * @author Zidane, blood
+     * @reason Gets the loaded id's from world manager.
      */
     @Overwrite
     public static Integer[] getIDs(boolean check) {
@@ -137,6 +170,10 @@ public abstract class MixinDimensionManager {
         return getIDs();
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static Integer[] getIDs() {
         final int[] spongeDimIds = WorldManager.getLoadedWorldDimensionIds();
@@ -147,6 +184,11 @@ public abstract class MixinDimensionManager {
         return forgeDimIds;
     }
 
+    /**
+     * @author Zidane - Chris Sanders
+     * @reason Redirect all logic to the WorldManager.
+     */
+    @SuppressWarnings("deprecation")
     @Overwrite
     public static void setWorld(int id, WorldServer world, MinecraftServer server) {
         if (world != null) {
@@ -154,9 +196,11 @@ public abstract class MixinDimensionManager {
             server.worldTickTimes.put(id, new long[100]);
             FMLLog.info("Loading dimension %d (%s) (%s)", id, world.getWorldInfo().getWorldName(), world.getMinecraftServer());
         } else {
-            WorldManager.unloadWorld(WorldManager.getWorldByDimensionId(id).orElseThrow(() -> new RuntimeException("Attempt made to unload a "
-                    + "world with dimension id [" + id + "].")), false);
-            server.worldTickTimes.remove(id);
+            final WorldServer worldServer = WorldManager.getWorldByDimensionId(id).orElse(null);
+            if (worldServer != null) {
+                WorldManager.unloadWorld(worldServer, false);
+                server.worldTickTimes.remove(id);
+            }
         }
 
         WorldManager.reorderWorldsVanillaFirst();
@@ -192,7 +236,7 @@ public abstract class MixinDimensionManager {
         final WorldProvider provider = dimensionType.createDimension();
         // make sure to set the dimension id to avoid getting a null save folder
         provider.setDimension(dim);
-        String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(provider.getSaveFolder());
+        final String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(provider.getSaveFolder());
         WorldProperties properties = WorldManager.getWorldProperties(worldFolder).orElse(null);
         final Path worldPath = WorldManager.getCurrentSavesDirectory().get().resolve(worldFolder);
         if (properties == null || !Files.isDirectory(worldPath)) {
@@ -200,7 +244,8 @@ public abstract class MixinDimensionManager {
                 WorldManager.unregisterWorldProperties(properties, false);
             }
             String modId = StaticMixinForgeHelper.getModIdFromClass(provider.getClass());
-            WorldArchetype archetype = Sponge.getRegistry().getType(WorldArchetype.class, modId + ":" + dimensionType.getName().toLowerCase()).orElse(null);
+            final CatalogKey key = CatalogKey.of(modId, dimensionType.getName().toLowerCase());
+            WorldArchetype archetype = Sponge.getRegistry().getType(WorldArchetype.class, key).orElse(null);
             if (archetype == null) {
                 final WorldArchetype.Builder builder = WorldArchetype.builder()
                         .dimension((org.spongepowered.api.world.DimensionType) (Object) dimensionType)
@@ -224,17 +269,29 @@ public abstract class MixinDimensionManager {
         }
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static WorldServer getWorld(int id) {
         return WorldManager.getWorldByDimensionId(id).orElse(null);
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static WorldServer[] getWorlds() {
         final Collection<WorldServer> worlds = WorldManager.getWorlds();
-        return worlds.toArray(new WorldServer[worlds.size()]);
+        return worlds.toArray(new WorldServer[0]);
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static Integer[] getStaticDimensionIDs() {
         final int[] spongeDimIds = WorldManager.getRegisteredDimensionIds();
@@ -245,6 +302,10 @@ public abstract class MixinDimensionManager {
         return forgeDimIds;
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static WorldProvider createProviderFor(int dim) {
         final DimensionType dimensionType = WorldManager.getDimensionType(dim).orElseThrow(() -> new RuntimeException("Attempt to create "
@@ -258,31 +319,55 @@ public abstract class MixinDimensionManager {
         }
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static void unloadWorld(int id) {
         WorldManager.getWorldByDimensionId(id).ifPresent(WorldManager::queueWorldToUnload);
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static void unloadWorlds(Hashtable<Integer, long[]> worldTickTimes) {
         WorldManager.unloadQueuedWorlds();
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static int getNextFreeDimId() {
         return WorldManager.getNextFreeDimensionId();
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static NBTTagCompound saveDimensionDataMap() {
         return WorldManager.saveDimensionDataMap();
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     public static void loadDimensionDataMap(NBTTagCompound compoundTag) {
         WorldManager.loadDimensionDataMap(compoundTag);
     }
 
+    /**
+     * @author Zidane, blood
+     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
+     */
     @Overwrite
     @Nullable
     public static File getCurrentSaveRootDirectory() {

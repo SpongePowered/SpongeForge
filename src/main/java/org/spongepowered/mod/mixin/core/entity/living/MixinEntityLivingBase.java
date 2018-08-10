@@ -25,15 +25,20 @@
 package org.spongepowered.mod.mixin.core.entity.living;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ISpecialArmor.ArmorProperties;
+import net.minecraftforge.event.ForgeEventFactory;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.event.cause.entity.damage.DamageFunction;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
@@ -44,6 +49,8 @@ import java.util.Optional;
 @NonnullByDefault
 @Mixin(value = EntityLivingBase.class, priority = 1001)
 public abstract class MixinEntityLivingBase extends MixinEntity implements Living, IMixinEntityLivingBase {
+
+    @Shadow public abstract void stopActiveHand();
 
     @Override
     public Optional<List<DamageFunction>> provideArmorModifiers(EntityLivingBase entityLivingBase,
@@ -68,4 +75,64 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
     public boolean hookModAttack(EntityLivingBase entityLivingBase, DamageSource source, float amount) {
         return net.minecraftforge.common.ForgeHooks.onLivingAttack((EntityLivingBase) (Object) this, source, amount);
     }
+
+    // Stub out all the places where Forge fires LivingEntityUseItemEvent
+    // Our UseItemStackEvent is different enough that we completely take over
+    // the handling of this event, and explicitly fire the forge event ourselves
+    // from SpongeForgeEventFactory
+    // However, we only want to do this stubbing on the server
+    // If ew're on a client entity, we make sure to restore the original behavior,
+    // since Sponge events only fire on the server
+
+    @Redirect(method = "updateActiveHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
+    public boolean onIsEmpty(ItemStack stack) {
+        if (!this.world.isRemote) {
+            return true; // This skips Forge's added if-block
+        }
+        return stack.isEmpty();
+    }
+
+    @Redirect(method = "setActiveHand",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;onItemUseStart(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;I)I",
+            remap = false
+        )
+    )
+    private int onItemUseStart(EntityLivingBase this$0, ItemStack stack, int duration) {
+        if (!this.world.isRemote) {
+            return duration;
+        }
+        return ForgeEventFactory.onItemUseStart(this$0, stack, duration);
+    }
+
+    @Redirect(method = "onItemUseFinish",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;onItemUseFinish(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;ILnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
+            remap = false
+        )
+    )
+    private ItemStack onItemUseFinish(EntityLivingBase entity, ItemStack item, int duration, ItemStack result) {
+        if (!this.world.isRemote) {
+            return result;
+        }
+        return ForgeEventFactory.onItemUseFinish(entity, item, duration, result);
+    }
+
+    @Redirect(method = "stopActiveHand",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;onUseItemStop(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;I)Z",
+            remap = false
+        )
+    )
+    private boolean onUseItemStop(EntityLivingBase entity, ItemStack item, int duration) {
+        if (!this.world.isRemote) {
+            return false;
+        }
+        return ForgeEventFactory.onUseItemStop(entity, item, duration);
+    }
+
+
 }

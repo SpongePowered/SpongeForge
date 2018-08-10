@@ -25,11 +25,14 @@
 package org.spongepowered.mod.mixin.core.forge.fluids;
 
 import net.minecraft.block.Block;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.property.PropertyStore;
 import org.spongepowered.api.extra.fluid.FluidType;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
@@ -46,14 +49,16 @@ import javax.annotation.Nullable;
 public abstract class MixinFluid implements FluidType {
 
     @Shadow @Nullable protected Block block;
+    @Shadow @Final protected String fluidName;
 
     @Override
     public Optional<BlockType> getBlockTypeBase() {
         return Optional.ofNullable((BlockType) this.block);
     }
 
-    public String fluid$getId() {
-        return this.getName();
+    @Override
+    public CatalogKey getKey() {
+        return (CatalogKey) (Object) new ResourceLocation(this.fluidName);
     }
 
     @Override

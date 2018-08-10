@@ -30,9 +30,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fluids.IFluidBlock;
 import org.spongepowered.api.data.property.block.MatterProperty;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.common.data.property.store.common.AbstractBlockPropertyStore;
 
 import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 public class ForgeMatterPropertyStore extends AbstractBlockPropertyStore<MatterProperty> {
 
@@ -45,7 +48,7 @@ public class ForgeMatterPropertyStore extends AbstractBlockPropertyStore<MatterP
     }
 
     @Override
-    protected Optional<MatterProperty> getForBlock(IBlockState block) {
+    protected Optional<MatterProperty> getForBlock(@Nullable Location<?> location, IBlockState block) {
         if (block.getBlock() instanceof BlockLiquid || block.getBlock() instanceof BlockFluidBase || block.getBlock() instanceof IFluidBlock) {
             return Optional.of(LIQUID);
         } else if (block.getMaterial() == Material.AIR) {

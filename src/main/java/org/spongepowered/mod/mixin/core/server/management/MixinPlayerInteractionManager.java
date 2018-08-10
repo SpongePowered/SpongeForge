@@ -48,26 +48,25 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameType;
 import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
 import org.spongepowered.common.util.VecHelper;
-
-import java.util.Optional;
+import org.spongepowered.mod.event.SpongeToForgeEventData;
+import org.spongepowered.mod.event.SpongeModEventManager;
 
 @Mixin(value = PlayerInteractionManager.class, priority = 1001)
 public abstract class MixinPlayerInteractionManager implements IMixinPlayerInteractionManager {
@@ -117,13 +116,19 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         ItemStack oldStack = stack.copy();
         InteractBlockEvent.Secondary event;
         BlockSnapshot currentSnapshot = ((org.spongepowered.api.world.World) worldIn).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
-
-
-        event = SpongeCommonEventFactory.callInteractBlockEventSecondary(player, oldStack, VecHelper.toVector3d(pos.add(hitX, hitY, hitZ))
+        final Vector3d hitVec = VecHelper.toVector3d(pos.add(hitX, hitY, hitZ));
+        Sponge.getCauseStackManager().addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(oldStack));
+        final boolean interactItemCancelled = SpongeCommonEventFactory.callInteractItemEventSecondary(player, oldStack, hand, hitVec, currentSnapshot).isCancelled();
+        event = SpongeCommonEventFactory.createInteractBlockEventSecondary(player, oldStack, hitVec
                 , currentSnapshot, DirectionFacingProvider.getInstance().getKey(facing).get(), hand);
+        if (interactItemCancelled) {
+            event.setUseItemResult(Tristate.FALSE);
+        }
+        SpongeToForgeEventData eventData = ((SpongeModEventManager) Sponge.getEventManager()).extendedPost(event, false, false);
         if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
             SpongeCommonEventFactory.playerInteractItemChanged = true;
         }
+        SpongeCommonEventFactory.lastInteractItemOnBlockCancelled = event.getUseItemResult() == Tristate.UNDEFINED ? false : !event.getUseItemResult().asBoolean();
 
         TileEntity tileEntity = worldIn.getTileEntity(pos);
         if (event.isCancelled()) {
@@ -152,9 +157,27 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
 
             // Some mods such as OpenComputers open a GUI on client-side
             // To workaround this, we will always send a SPacketCloseWindow to client if interacting with a TE
-            // However, we skip closing it if an inventory has already been opened on the server (e.g. by a plugin),
+            // However, we skip closing under two circumstances:
+            //
+            // * If an inventory has already been opened on the server (e.g. by a plugin),
             // since we don't want to undo that
-            if (tileEntity != null && this.player.openContainer instanceof ContainerPlayer) {
+
+            // * If the event was cancelled by a Forge mod. In this case, we adhere to Forge's normal
+            // bheavior, which is to leave any GUIs open on the client. Some mods, like Quark, modify
+            // Vanilla blocks (such as noteblocks) by opening a custom GUI on the client interaction event,
+            // and then cancelling the interaction event on the server.
+            //
+            // In the second case, we have two conflicting goals. First, we want to ensure that Sponge protection
+            // plugins are ablee to fully prevent interactions with a block. This means sending a close
+            // window packet to the client when the event is cancelled, since we can't know what
+            // client-side only GUIs (no Container) a mod may have opened.
+            //
+            // However, we don't want to break mods that rely on the fact that cancelling
+            // a server-side interaction events leaves any client GUIs open.
+            //
+            // To resolve this issue, we only send a close window packet if the event was not cancelled
+            // by a Forge event listener.
+            if (tileEntity != null && this.player.openContainer instanceof ContainerPlayer && (eventData == null || !eventData.getForgeEvent().isCanceled())) {
                 this.player.closeScreen();
             }
             SpongeCommonEventFactory.interactBlockEventCancelled = true;
@@ -162,7 +185,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         }
 
         net.minecraft.item.Item item = stack.isEmpty() ? null : stack.getItem();
-        EnumActionResult ret = item == null
+        EnumActionResult ret = item == null || event.getUseItemResult() == Tristate.FALSE
                                ? EnumActionResult.PASS
                                : item.onItemUseFirst(player, worldIn, pos, facing, hitX, hitY, hitZ, hand);
         if (ret != EnumActionResult.PASS) {
@@ -184,9 +207,9 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 IBlockState iblockstate = worldIn.getBlockState(pos);
                 Container lastOpenContainer = player.openContainer;
 
-                result = iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, facing, hitX, hitY, hitZ)
-                         ? EnumActionResult.SUCCESS
-                         : EnumActionResult.FAIL;
+                if (iblockstate.getBlock().onBlockActivated(worldIn, pos, iblockstate, player, hand, facing, hitX, hitY, hitZ)) {
+                    result = EnumActionResult.SUCCESS;
+                }
                 // Mods such as StorageDrawers alter the stack on block activation
                 // if itemstack changed, avoid restore
                 if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
@@ -197,13 +220,15 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             } else {
                 this.player.connection.sendPacket(new SPacketBlockChange(this.world, pos));
                 result = TristateUtil.toActionResult(event.getUseItemResult());
-            }
-        }
 
-        // Same issue as above with OpenComputers
-        // This handles the event not cancelled and block not activated
-        if (result != EnumActionResult.SUCCESS && tileEntity != null && hand == EnumHand.MAIN_HAND) {
-            this.player.closeScreen();
+                // Same issue as above with OpenComputers
+                // This handles the event not cancelled and block not activated
+                // We only run this if the event was changed. If the event wasn't changed,
+                // we need to keep the GUI open on the client for Forge compatibility.
+                if (result != EnumActionResult.SUCCESS && tileEntity != null && hand == EnumHand.MAIN_HAND) {
+                    this.player.closeScreen();
+                }
+            }
         }
 
         // store result instead of returning
@@ -231,12 +256,5 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         }
         return result;
         // Sponge end
-    }
-
-    @Redirect(method = "onBlockClicked", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onLeftClickBlock(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;Lnet/minecraft/util/math/Vec3d;)Lnet/minecraftforge/event/entity/player/PlayerInteractEvent$LeftClickBlock;", remap = false))
-    public PlayerInteractEvent.LeftClickBlock onForgeCallLeftClickBlock(EntityPlayer player, BlockPos pos, EnumFacing side, Vec3d hitVec) {
-        // We fire Forge's LeftClickBlock event when InteractBlockEvent.Primary is invoked which occurs before this method.
-        // Due to this, we will simply return a dummy event
-        return new PlayerInteractEvent.LeftClickBlock(player, pos, side, hitVec);
     }
 }

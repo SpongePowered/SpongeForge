@@ -45,6 +45,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketRegistrationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.CauseStackManager;
@@ -69,14 +70,15 @@ import java.util.Set;
 public class SpongeModNetworkManager extends SpongeNetworkManager {
 
     public static final EventContextKey<INetHandler> NET_HANDLER = new EventContextKey<INetHandler>() {
+        private final CatalogKey key = CatalogKey.sponge("nethandler");
         @Override
         public Class<INetHandler> getAllowedType() {
             return INetHandler.class;
         }
 
         @Override
-        public String getId() {
-            return "sponge:nethandler";
+        public CatalogKey getKey() {
+            return this.key;
         }
 
         @Override
@@ -95,9 +97,9 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
             if (isMainThread) {
                 if (event.getHandler() instanceof NetHandlerPlayServer) {
-                    Sponge.getCauseStackManager().pushCause(((NetHandlerPlayServer) event.getHandler()).player);
+                    frame.pushCause(((NetHandlerPlayServer) event.getHandler()).player);
                 }
-                Sponge.getCauseStackManager().addContext(NET_HANDLER, event.getHandler());
+                frame.addContext(NET_HANDLER, event.getHandler());
             }
 
             if (event.getOperation().equals("REGISTER")) {
@@ -105,7 +107,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
                 for (String channel : event.getRegistrations()) {
                     final Cause
                         currentCause =
-                        isMainThread ? Sponge.getCauseStackManager().getCurrentCause() : Cause.of(EventContext.empty(), Sponge.getGame());
+                        isMainThread ? frame.getCurrentCause() : Cause.of(EventContext.empty(), Sponge.getGame());
                     SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(currentCause, channel));
                 }
             } else if (event.getOperation().equals("UNREGISTER")) {

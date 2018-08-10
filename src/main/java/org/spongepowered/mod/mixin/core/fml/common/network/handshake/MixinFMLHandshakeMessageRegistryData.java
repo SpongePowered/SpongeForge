@@ -33,16 +33,21 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.mixin.core.util.MixinResourceLocation;
 
 import java.util.Map;
 
-@Mixin(FMLHandshakeMessage.RegistryData.class)
+@Mixin(value = FMLHandshakeMessage.RegistryData.class, remap = false)
 public abstract class MixinFMLHandshakeMessageRegistryData {
 
     @Shadow private Map<ResourceLocation, Integer> ids;
 
-    @Inject(method = "<init>(ZLnet/minecraft/util/ResourceLocation;Lnet/minecraftforge/registries/ForgeRegistry$Snapshot;)V", at = @At("RETURN"))
+    @Inject(
+        method = "<init>(ZLnet/minecraft/util/ResourceLocation;Lnet/minecraftforge/registries/ForgeRegistry$Snapshot;)V",
+        at = @At("RETURN"),
+        remap = false
+    )
     private void onInit(boolean hasMore, ResourceLocation name, ForgeRegistry.Snapshot entry, CallbackInfo ci) {
-        this.ids.remove(new ResourceLocation(EntityTypes.HUMAN.getId()));
+        this.ids.remove((ResourceLocation) (Object) EntityTypes.HUMAN.getKey());
     }
 }
