@@ -97,8 +97,10 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         }
 
         Mixins.addConfiguration("mixins.forge.core.json");
+        Mixins.addConfiguration("mixins.forge.brokenmods.json");
         Mixins.addConfiguration("mixins.forge.bungeecord.json");
         Mixins.addConfiguration("mixins.forge.entityactivation.json");
+        Mixins.addConfiguration("mixins.forge.optimization.json");
 
         MixinEnvironment.getDefaultEnvironment().registerTokenProviderClass("org.spongepowered.mod.SpongeCoremod$TokenProvider");
 
@@ -119,6 +121,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("ninja.leaping.configurate.");
         Launch.classLoader.addTransformerExclusion("org.apache.commons.lang3.");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
+        Launch.classLoader.addTransformerExclusion("scala.");
 
         SpongeLaunch.setupSuperClassTransformer();
 

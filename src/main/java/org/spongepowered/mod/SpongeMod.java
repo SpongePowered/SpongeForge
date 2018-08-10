@@ -25,11 +25,13 @@
 package org.spongepowered.mod;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Stage;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
@@ -38,8 +40,10 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
 import net.minecraftforge.fml.client.FMLFolderResourcePack;
+import net.minecraftforge.fml.common.CertificateHelper;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModContainerFactory;
+import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
@@ -55,8 +59,13 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.Level;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.effect.potion.PotionEffectType;
@@ -70,6 +79,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.sql.SqlService;
 import org.spongepowered.api.world.ChunkTicketManager;
+import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
@@ -97,7 +107,6 @@ import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.event.SpongeEventHooks;
-import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.inject.SpongeForgeModule;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
@@ -111,10 +120,18 @@ import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.util.List;
 
 public class SpongeMod extends MetaModContainer {
 
     public static SpongeMod instance;
+
+    // USED ONLY TO KEEP TRACK OF THE THREAD. SINCE CLIENTS CAN HAVE MULTIPLE SERVERS
+    // WE NEED TO BE ABLE TO STORE A REFERENCE TO THE THREAD TO MAINTAIN SPEED OF ISMAINTHREAD CHECKS
+    @javax.annotation.Nullable public static Thread SERVER_THREAD;
 
     @Inject private SpongeGame game;
     @Inject private SpongeScheduler scheduler;
@@ -123,10 +140,19 @@ public class SpongeMod extends MetaModContainer {
     private LoadController controller;
     private File modFile;
 
+    // treat this field as final
+    private static String EXPECTED_CERTIFICATE_FINGERPRINT = "@expected_certificate_fingerprint@";
+    private Certificate certificate;
+
+    // Updating
+    private @MonotonicNonNull URL updateJsonUrl;
+
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
     public SpongeMod() throws Exception {
         super(SpongeModMetadata.getSpongeForgeMetadata());
+
+        this.readMetadata();
 
         // Register our special instance creator with FML
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
@@ -174,12 +200,14 @@ public class SpongeMod extends MetaModContainer {
         });
         SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj, oldObj) -> {
             final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) obj;
+            if (mixinProfession.getSpongeProfession().isPresent()) {
+                return;
+            }
             final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
-            final SpongeProfession registeredProfession = SpongeForgeVillagerRegistry.validateProfession(obj, spongeProfession);
-            ProfessionRegistryModule.getInstance().registerAdditionalCatalog(registeredProfession);
-
-            for (VillagerRegistry.VillagerCareer career: mixinProfession.getCareers()) {
-                SpongeForgeVillagerRegistry.registerForgeCareer(career);
+            mixinProfession.setSpongeProfession(spongeProfession);
+            ProfessionRegistryModule.getInstance().registerAdditionalCatalog(spongeProfession);
+            for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
+                SpongeForgeVillagerRegistry.fromNative(villagerCareer);
             }
         }));
         SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, (owner, manager, id, obj, oldObj) ->
@@ -189,6 +217,17 @@ public class SpongeMod extends MetaModContainer {
 
         this.game.getEventManager().registerListeners(this, this);
         SpongeImpl.getInternalPlugins().add((PluginContainer) ForgeModContainer.getInstance());
+    }
+
+    private void readMetadata() {
+        final ModMetadata metadata = this.getMetadata();
+        if (!Strings.isNullOrEmpty(metadata.updateJSON)) {
+            try {
+                this.updateJsonUrl = new URL(metadata.updateJSON);
+            } catch (final MalformedURLException e) {
+                this.getLogger().warn("Encountered an exception while constructing version check data URL", e);
+            }
+        }
     }
 
     @Override
@@ -218,7 +257,7 @@ public class SpongeMod extends MetaModContainer {
 
     @Override
     public Class<?> getCustomResourcePackClass() {
-        if (getSource().isDirectory()) {
+        if (this.getSource().isDirectory()) {
             return FMLFolderResourcePack.class;
         }
         return FMLFileResourcePack.class;
@@ -229,15 +268,57 @@ public class SpongeMod extends MetaModContainer {
         // We can't control Guava's event bus priority, so
         // we make sure to avoid double-firing here.
         if (!event.getClass().equals(FMLConstructionEvent.class)) {
-            ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post((Event) event, true);
+            SpongeImpl.postEvent((Event) event, true);
         }
+    }
+
+    @Subscribe
+    public void construction(final FMLConstructionEvent event) {
+        this.checkFingerprint();
+    }
+
+    // CSI: Sponge
+    private void checkFingerprint() {
+        final Certificate[] certificates = this.getClass().getProtectionDomain().getCodeSource().getCertificates();
+        final List<String> fingerprints = CertificateHelper.getFingerprints(certificates);
+        if (((Boolean) Launch.blackboard.getOrDefault("fml.deobfuscatedEnvironment", false))) {
+            SpongeImpl.getLogger().debug("Skipping certificate fingerprint check - we're in a deobfuscated environment");
+            return;
+        }
+        if (!EXPECTED_CERTIFICATE_FINGERPRINT.isEmpty()) {
+            if (!fingerprints.contains(EXPECTED_CERTIFICATE_FINGERPRINT)) {
+                final PrettyPrinter pp = new PrettyPrinter(60).wrapTo(60);
+                pp.add("Uh oh! Something's fishy here.").centre().hr();
+                pp.addWrapped("It looks like we didn't find the certificate fingerprint we were expecting.");
+                pp.add();
+                pp.add("%s: %s", "Expected Fingerprint", EXPECTED_CERTIFICATE_FINGERPRINT);
+                if (fingerprints.size() > 1) {
+                    pp.add("Actual Fingerprints:");
+                    for (final String fingerprint : fingerprints) {
+                        pp.add(" - %s", fingerprint);
+                    }
+                } else {
+                    pp.add("%s: %s", "Actual Fingerprint", fingerprints.get(0));
+                }
+                pp.log(SpongeImpl.getLogger(), Level.ERROR);
+            } else {
+                this.certificate = certificates[fingerprints.indexOf(EXPECTED_CERTIFICATE_FINGERPRINT)];
+            }
+        } else {
+            SpongeImpl.getLogger().warn("There's no certificate fingerprint available");
+        }
+    }
+
+    @Override
+    public Certificate getSigningCertificate() {
+        return this.certificate;
     }
 
     @Subscribe
     public void onPreInit(FMLPreInitializationEvent event) {
         try {
             SpongeImpl.getGame().getEventManager().registerListeners(SpongeImpl.getPlugin().getInstance().get(), SpongeInternalListeners.getInstance());
-            registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
+            this.registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.initializeCommands();
             SpongeImpl.getRegistry().preInit();
@@ -270,6 +351,17 @@ public class SpongeMod extends MetaModContainer {
         }
     }
 
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onTick(TickEvent.ClientTickEvent event) {
+        // If we haven't launched the integrated server, allow the sync scheduler to still pulse tasks
+        if (!Minecraft.getMinecraft().isIntegratedServerRunning()) {
+            if (event.phase == TickEvent.Phase.START) {
+                this.scheduler.tickSyncScheduler();
+            }
+        }
+    }
+
     @SubscribeEvent
     public void onRecipeRegister(RegistryEvent.Register<IRecipe> event) {
         for (CraftingRecipe craftingRecipe : SpongeCraftingRecipeRegistry.getInstance().getCustomRecipes()) {
@@ -281,8 +373,8 @@ public class SpongeMod extends MetaModContainer {
     @SubscribeEvent
     public void onEntityRegister(RegistryEvent.Register<EntityEntry> event) {
         for (EntityTypeRegistryModule.FutureRegistration registration : EntityTypeRegistryModule.getInstance().getCustomEntities()) {
-            EntityRegistry.registerModEntity(registration.name, registration.type, registration.name.getResourcePath(), registration.id,
-                    registration.name.getResourceDomain(), 0, 0, false);
+            EntityRegistry.registerModEntity(registration.name, registration.type, registration.name.getPath(), registration.id,
+                    registration.name.getNamespace(), 0, 0, false);
         }
     }
 
@@ -303,6 +395,7 @@ public class SpongeMod extends MetaModContainer {
     public void onPostInitialization(FMLPostInitializationEvent event) {
         try {
             SpongeImpl.getRegistry().postInit();
+            SpongeImpl.getConfigSaveManager().flush();
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
         }
@@ -314,11 +407,18 @@ public class SpongeMod extends MetaModContainer {
         for (EntityEntry entry : ForgeRegistries.ENTITIES) {
             StaticMixinForgeHelper.registerCustomEntity(entry);
         }
+
     }
 
     @Subscribe
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         try {
+            try {
+                ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
+            } catch (Throwable t) {
+                this.controller.errorOccurred(this, t);
+            }
+
             // Register vanilla-style commands (if necessary -- not necessary on client)
             ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerEarlyCommands(this.game);
         } catch (Throwable t) {
@@ -326,19 +426,24 @@ public class SpongeMod extends MetaModContainer {
         }
 
         // used for client
-        WorldManager.registerVanillaTypesAndDimensions();
+        if (this.game.getPlatform().getType().isClient()) {
+            WorldManager.registerVanillaTypesAndDimensions();
+            ((SqlServiceImpl) this.game.getServiceManager().provideUnchecked(SqlService.class)).buildConnectionCache();
+        }
     }
 
     @Subscribe
     public void onServerStarted(FMLServerStartedEvent event) {
+        // Flush what needs to be saved.
+        SpongeImpl.getConfigSaveManager().flush();
+
+        // Call this also here instead of the SpongeBootstrap, this
+        // is necessary in the client
+        Sponge.getServer().getConsole().getContainingCollection();
         // This is intentionally called multiple times on the client -
         // once for each time a new server is started (when a world is selected from the gui)
         SpongePlayerDataHandler.init();
-        try {
-            ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
-        } catch (Throwable t) {
-            this.controller.errorOccurred(this, t);
-        }
+
 
     }
 
@@ -353,8 +458,13 @@ public class SpongeMod extends MetaModContainer {
             this.controller.errorOccurred(this, t);
         }
 
+        // Save all data that is waiting to be saved
+        SpongeImpl.getConfigSaveManager().flush();
+
         // used by client
-        WorldManager.unregisterAllWorldSettings();
+        if (this.game.getPlatform().getType().isClient()) {
+            WorldManager.unregisterAllWorldSettings();
+        }
     }
 
     // This overrides the method in PluginContainer
@@ -363,4 +473,8 @@ public class SpongeMod extends MetaModContainer {
         return this.logger;
     }
 
+    @Override
+    public URL getUpdateUrl() {
+        return this.updateJsonUrl;
+    }
 }

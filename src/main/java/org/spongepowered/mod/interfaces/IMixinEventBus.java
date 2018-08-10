@@ -25,12 +25,17 @@
 package org.spongepowered.mod.interfaces;
 
 import net.minecraftforge.fml.common.eventhandler.Event;
+import org.spongepowered.mod.event.SpongeToForgeEventData;
+
+import java.util.Set;
 
 public interface IMixinEventBus {
 
     int getBusID();
 
+    boolean post(SpongeToForgeEventData eventData);
+
     boolean post(Event event, boolean forced);
 
-    org.spongepowered.api.event.Event postForgeAndCreateSpongeEvent(Event forgeEvent);
+    Set<Class<? extends Event>> getEventListenerClassList();
 }

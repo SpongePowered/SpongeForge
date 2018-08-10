@@ -1,6 +1,6 @@
 {
     "required": true,
-    "minVersion": "0.7.2",
+    "minVersion": "0.7.10",
     "package": "org.spongepowered.mod.mixin.core",
     "refmap": "mixins.forge.refmap.json",
     "target": "@env(PREINIT)",
@@ -12,6 +12,7 @@
         "fml.common.MixinModContainer",
         "fml.common.eventhandler.MixinASMEventHandler",
         "fml.common.eventhandler.MixinEvent",
+        "fml.common.event.MixinFMLEvent",
         "fml.common.registry.MixinGameRegistry"
     ],
     "injectors": {

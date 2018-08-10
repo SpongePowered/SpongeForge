@@ -56,6 +56,10 @@ public final class SpongeModPlatform extends SpongePlatform {
 
     @Override
     public Type getExecutionType() {
+        return staticGetExecutionType();
+    }
+
+    public static Type staticGetExecutionType() {
         String threadName = Thread.currentThread().getName();
 
         // Most common

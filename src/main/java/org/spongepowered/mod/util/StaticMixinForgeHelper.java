@@ -46,6 +46,7 @@ import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifierTypes;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.event.damage.DamageEventHandler;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
@@ -97,17 +98,6 @@ public final class StaticMixinForgeHelper {
             return "0xDEADBEEF";
         }
     };
-
-    @Nullable
-    public static IBlockState breakEventExtendedState = null;
-
-    // Whether to prevent ForgeInternalHandler#onEntityJoinWorld from handling custom Item entities (due to Sponge already handling it)
-    public static boolean preventInternalForgeEntityListener = false;
-
-    public static DamageSource exchangeDamageSource(DamageSource damageSource) {
-
-        return damageSource;
-    }
 
     public static Optional<List<DamageFunction>> createArmorModifiers(
         EntityLivingBase entityLivingBase, DamageSource damageSource, double damage) {
@@ -381,10 +371,6 @@ public final class StaticMixinForgeHelper {
         }
 
         entityName = entityName.replace("entity", "");
-        if (entityName.startsWith("ent")) {
-            entityName = entityName.replace("ent", "");
-        }
-
         entityName = entityName.replaceAll("[^A-Za-z0-9]", "");
         String modId = "unknown";
         if (modContainer != null) {
@@ -395,5 +381,12 @@ public final class StaticMixinForgeHelper {
             SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass, null);
             EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
         }
+    }
+
+    public static boolean shouldTakeOverModNetworking(ModContainer mod) {
+        if (mod == null) {
+            return false;
+        }
+        return SpongeImpl.getGlobalConfig().getConfig().getBrokenMods().getBrokenNetworkHandlerMods().contains(mod.getModId());
     }
 }

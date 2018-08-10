@@ -59,4 +59,14 @@ public class MixinNetHandlerPlayClient implements RemoteConnection, IMixinNetPla
         return this.registeredChannels;
     }
 
+    @Override
+    public int getChatSpamThresholdCount() {
+        return 0;
+    }
+
+    @Override
+    public void setChatSpamThresholdCount(int count) {
+        // unused
+    }
+
 }

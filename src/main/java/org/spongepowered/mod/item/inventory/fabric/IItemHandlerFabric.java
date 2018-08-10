@@ -29,13 +29,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import org.spongepowered.api.text.translation.FixedTranslation;
 import org.spongepowered.api.text.translation.Translation;
-import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
 import org.spongepowered.common.item.inventory.lens.Fabric;
-import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 
 import java.util.Collection;
 
-public class IItemHandlerFabric implements Fabric<IItemHandler> {
+public class IItemHandlerFabric implements Fabric {
     private final IItemHandler inventory;
 
     public IItemHandlerFabric(IItemHandler inventory) {
@@ -43,7 +41,7 @@ public class IItemHandlerFabric implements Fabric<IItemHandler> {
     }
 
     @Override
-    public Collection<IItemHandler> allInventories() {
+    public Collection<?> allInventories() {
         return ImmutableSet.of(this.inventory);
     }
 

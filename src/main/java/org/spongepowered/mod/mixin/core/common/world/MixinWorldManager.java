@@ -57,6 +57,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 @Mixin(value = WorldManager.class, priority = 999, remap = false)
 public abstract class MixinWorldManager {
 
@@ -94,6 +96,10 @@ public abstract class MixinWorldManager {
         return Optional.empty();
     }
 
+    /**
+     * @author unknown
+     * @reason forge
+     */
     @Overwrite
     public static void sendDimensionRegistration(EntityPlayerMP player, WorldProvider provider) {
         // register dimension on client-side
@@ -111,8 +117,9 @@ public abstract class MixinWorldManager {
      *
      * @return The path if available
      */
+    @Nullable
     @Overwrite
-    public static Path getWorldFolder(DimensionType dimensionType, int dimensionId) {
+    private static Path getWorldFolder(DimensionType dimensionType, int dimensionId) {
         Path path = dimensionPathByDimensionId.get(dimensionId);
         if (path != null) {
             return path;
@@ -123,10 +130,10 @@ public abstract class MixinWorldManager {
         }
 
         try {
-            WorldProvider provider = dimensionType.createDimension();
+            final WorldProvider provider = dimensionType.createDimension();
             provider.setDimension(dimensionId);
-            String worldFolder = provider.getSaveFolder();
-            path = SpongeImpl.getGame().getSavesDirectory().resolve(SpongeImpl.getServer().getFolderName()).resolve(worldFolder);
+            final String worldFolder = provider.getSaveFolder();
+            path = WorldManager.getCurrentSavesDirectory().get().resolve(worldFolder);
             WorldManager.registerDimensionPath(dimensionId, path);
         } catch (Throwable t) {
             t.printStackTrace();
@@ -138,42 +145,39 @@ public abstract class MixinWorldManager {
     /**
      * @author blood - August 10th, 2016
      * @reason Registers DimensionType with passed ID to not break mods.
-     *
-     * @return true if successful
      */
     @Overwrite
-    public static boolean registerDimensionType(DimensionType type) {
+    public static void registerDimensionType(DimensionType type) {
         checkNotNull(type);
-        return WorldManager.registerDimensionType(type.getId(), type);
+        WorldManager.registerDimensionType(type.getId(), type);
     }
 
     /**
      * @author blood - February 5th, 2017
      * @reason Registers dimension id with passed ID and type to not break mods.
-     *
-     * @return true if successful
      */
     @Overwrite
-    public static boolean registerDimension(int dimensionId, DimensionType type) {
+    public static void registerDimension(int dimensionId, DimensionType type) {
         checkNotNull(type);
 
         if (dimensionTypeByDimensionId.containsKey(dimensionId)) {
-            return false;
+            return;
         }
         dimensionTypeByDimensionId.put(dimensionId, type);
         dimensionTypeByTypeId.put(dimensionId, type);
         if (dimensionId >= 0) {
             dimensionBits.set(dimensionId);
         }
-        return true;
     }
 
+    /**
+     * @author unknown
+     * @reason hell if I know... I believe it's to properly unregister dimensions from forge mods that may not have been
+     * loaded or registered before.
+     * @param dimensionId the dimension id.
+     */
     @Overwrite
     public static void unregisterDimension(int dimensionId) {
-        if (!dimensionTypeByDimensionId.containsKey(dimensionId))
-        {
-            throw new IllegalArgumentException("Failed to unregister dimension [" + dimensionId + "] as it is not registered!");
-        }
         dimensionTypeByDimensionId.remove(dimensionId);
         dimensionTypeByTypeId.remove(dimensionId);
         dimensionPathByDimensionId.remove(dimensionId);
@@ -181,7 +185,7 @@ public abstract class MixinWorldManager {
             dimensionBits.clear(dimensionId);
         }
         String worldFolder = worldFolderByDimensionId.get(dimensionId);
-        UUID worldUniqueId = null;
+        UUID worldUniqueId;
         if (worldFolder != null) {
             worldPropertiesByFolderName.remove(worldFolder);
             worldUniqueId = worldUuidByFolderName.get(worldFolder);

@@ -24,12 +24,13 @@
  */
 package org.spongepowered.mod.event;
 
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.plugin.PluginPhase;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 
 import javax.annotation.Nullable;
 
@@ -39,21 +40,20 @@ public final class SpongeForgeEventHooks {
     public static PhaseContext<?> preEventPhaseCheck(IEventListener listener, Event event) {
         if (event instanceof TickEvent.WorldTickEvent) {
             final TickEvent.WorldTickEvent worldTickEvent = (TickEvent.WorldTickEvent) event;
-            if (!(worldTickEvent.world instanceof IMixinWorldServer)) {
+            final World world = worldTickEvent.world;
+            if (world == null || ((IMixinWorld) world).isFake()) {
                 return null;
             }
             if (worldTickEvent.phase == TickEvent.Phase.START) {
                 return PluginPhase.Listener.PRE_WORLD_TICK_LISTENER
                     .createPhaseContext()
                     .source(listener)
-                    .event(event)
-                    .buildAndSwitch();
+                    .event(event);
             } else if (worldTickEvent.phase == TickEvent.Phase.END) {
                 return PluginPhase.Listener.POST_WORLD_TICK_LISTENER
                     .createPhaseContext()
                     .source(listener)
-                    .event(event)
-                    .buildAndSwitch();
+                    .event(event);
             }
         }
         // Basically some forge mods also listen to the server tick event and perform world changes as well...........
@@ -63,14 +63,12 @@ public final class SpongeForgeEventHooks {
                 // Need to prepare all worlds many mods do this
                 return PluginPhase.Listener.PRE_SERVER_TICK_LISTENER.createPhaseContext()
                         .source(listener)
-                        .event(event)
-                        .buildAndSwitch();
+                        .event(event);
             } else if (serverTickEvent.phase == TickEvent.Phase.END) {
                 // Need to prepare all worlds many mods do this
                 return PluginPhase.Listener.POST_SERVER_TICK_LISTENER.createPhaseContext()
                     .source(listener)
-                    .event(event)
-                    .buildAndSwitch();
+                    .event(event);
 
             }
         }
