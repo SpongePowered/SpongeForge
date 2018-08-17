@@ -44,6 +44,7 @@ import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.mixin.core.block.MixinBlock;
+import org.spongepowered.common.world.SpongeLocatableBlockBuilder;
 
 import javax.annotation.Nullable;
 
@@ -75,10 +76,8 @@ public abstract class MixinBlockLog extends MixinBlock {
     @Nullable
     private PhaseContext<?> createDecayContext(BlockState state, World worldIn, BlockPos pos, boolean canCreate) {
         if (canCreate) {
-            final LocatableBlock locatable = LocatableBlock.builder()
-                .location(new Location<>(worldIn, pos.getX(), pos.getY(), pos.getZ()))
-                .state(state)
-                .build();
+            final LocatableBlock locatable = new SpongeLocatableBlockBuilder().world((World) worldIn).position(pos.getX(), pos.getY(), pos.getZ()).state((BlockState) state).build();
+
             return BlockPhase.State.BLOCK_DECAY.createPhaseContext()
                 .source(locatable);
         }
