@@ -76,6 +76,7 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.EntityUtil;
@@ -106,6 +107,7 @@ public class ForgeToSpongeEventFactory {
         .put(BlockEvent.BreakEvent.class, ChangeBlockEvent.Pre.class)
         .put(BlockEvent.MultiPlaceEvent.class, ChangeBlockEvent.Place.class)
         .put(BlockEvent.PlaceEvent.class, ChangeBlockEvent.Place.class)
+        .put(net.minecraftforge.event.world.ExplosionEvent.Start.class, ExplosionEvent.Pre.class)
         .put(net.minecraftforge.event.world.ExplosionEvent.Detonate.class, ExplosionEvent.Detonate.class)
         .put(PlayerInteractEvent.LeftClickBlock.class, InteractBlockEvent.Primary.class)
         .put(PlayerInteractEvent.RightClickBlock.class, InteractBlockEvent.Secondary.class)
@@ -186,14 +188,29 @@ public class ForgeToSpongeEventFactory {
                 return createAndPostInteractItemSecondaryEvent(eventData);
             }
         }
+        if (forgeEvent instanceof net.minecraftforge.event.world.ExplosionEvent.Start) {
+            return createAndPostExplosionEventPre(eventData);
+        }
         if (forgeEvent instanceof net.minecraftforge.event.world.ExplosionEvent.Detonate) {
             return createAndPostExplosionEventDetonate(eventData);
         }
         return null;
     }
 
+    private static ExplosionEvent.Pre createAndPostExplosionEventPre(ForgeToSpongeEventData eventData) {
+        net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent = (net.minecraftforge.event.world.ExplosionEvent.Start) eventData.getForgeEvent();
+
+        ExplosionEvent.Pre spongeEvent = SpongeEventFactory.createExplosionEventPre(causeStackManager.getCurrentCause(), (Explosion) forgeEvent.getExplosion(), (World) forgeEvent.getWorld());
+        eventData.setSpongeEvent(spongeEvent);
+        eventManager.postEvent(eventData);
+
+        // TODO - the Forge event doesn't allowing setting the explosion, but the Sponge event does
+        // For now, we have no choice but to ignore explosion replacement in the Sponge event.
+        return spongeEvent;
+    }
+
     private static ExplosionEvent.Detonate createAndPostExplosionEventDetonate(ForgeToSpongeEventData eventData) {
-        ExplosionEvent.Detonate spongeEvent = (ExplosionEvent.Detonate) eventData.getSpongeEvent();
+        ExplosionEvent.Detonate spongeEvent;
         final net.minecraftforge.event.world.ExplosionEvent.Detonate forgeEvent = (net.minecraftforge.event.world.ExplosionEvent.Detonate) eventData.getForgeEvent();
         final List<Location<World>> blockPositions = new ArrayList<>(forgeEvent.getAffectedBlocks().size());
         final List<org.spongepowered.api.entity.Entity> entities = new ArrayList<>(forgeEvent.getAffectedEntities().size());
