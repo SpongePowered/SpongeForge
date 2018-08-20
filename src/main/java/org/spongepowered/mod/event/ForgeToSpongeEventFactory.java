@@ -511,10 +511,13 @@ public class ForgeToSpongeEventFactory {
             }
 
             // Chat spam suppression from MC
-            int chatSpamThresholdCount = ((IMixinNetPlayHandler) player.connection).getChatSpamThresholdCount() + 20;
-            ((IMixinNetPlayHandler) player.connection).setChatSpamThresholdCount(chatSpamThresholdCount);
-            if (chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(player.getGameProfile())) {
-                player.connection.disconnect(new TextComponentTranslation("disconnect.spam"));
+            if (!SpongeImplHooks.isFakePlayer(player)) {
+                // We don't want to check fake players.
+                int chatSpamThresholdCount = ((IMixinNetPlayHandler) player.connection).getChatSpamThresholdCount() + 20;
+                ((IMixinNetPlayHandler) player.connection).setChatSpamThresholdCount(chatSpamThresholdCount);
+                if (chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(player.getGameProfile())) {
+                    player.connection.disconnect(new TextComponentTranslation("disconnect.spam"));
+                }
             }
             // We set the forge component to null here to exit NetHandlerPlayServer#processChatMessage before it sends a message
             // This is done since we send our own message via the channel above
