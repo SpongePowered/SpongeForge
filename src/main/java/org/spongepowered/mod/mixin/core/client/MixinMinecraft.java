@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.client;
 
+import static net.minecraft.client.Minecraft.getSystemTime;
+
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiOverlayDebug;
@@ -65,6 +67,8 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
 
     @Shadow private LanguageManager languageManager;
     @Shadow private IntegratedServer integratedServer;
+
+    @Shadow private long debugUpdateTime;
 
     private GuiOverlayDebug debugGui;
     private Text kickMessage;
@@ -156,5 +160,12 @@ public abstract class MixinMinecraft implements IMixinMinecraft {
             loadingScreen.displayLoadingString(loadingString);
             this.kickMessage = null;
         }
+    }
+
+    // There's absolutely no reason to loop here. We force the loop
+    // to always exit after one interation by setting debugUpdateTime to getSystemTime()
+    @Redirect(method = "runGameLoop", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;debugUpdateTime:J", opcode = Opcodes.PUTFIELD))
+    public void onSetDebugUpdateTime(Minecraft this$0, long value) {
+        this.debugUpdateTime = getSystemTime();
     }
 }
