@@ -27,34 +27,27 @@ package org.spongepowered.mod.data;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fluids.IFluidBlock;
-import org.spongepowered.api.data.property.block.MatterProperty;
+import org.spongepowered.api.data.type.Matter;
 import org.spongepowered.api.world.Location;
-import org.spongepowered.common.data.property.store.common.AbstractBlockPropertyStore;
+import org.spongepowered.common.data.property.store.block.MatterPropertyStore;
 
 import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-public class ForgeMatterPropertyStore extends AbstractBlockPropertyStore<MatterProperty> {
-
-    private static final MatterProperty SOLID = new MatterProperty(MatterProperty.Matter.SOLID);
-    private static final MatterProperty LIQUID = new MatterProperty(MatterProperty.Matter.LIQUID);
-    private static final MatterProperty GAS = new MatterProperty(MatterProperty.Matter.GAS);
-
-    public ForgeMatterPropertyStore() {
-        super(true);
-    }
+public class ForgeMatterPropertyStore extends MatterPropertyStore {
 
     @Override
-    protected Optional<MatterProperty> getForBlock(@Nullable Location<?> location, IBlockState block) {
+    protected Optional<Matter> getForBlock(@Nullable Location<?> location, IBlockState block, @Nullable EnumFacing facing) {
         if (block.getBlock() instanceof BlockLiquid || block.getBlock() instanceof BlockFluidBase || block.getBlock() instanceof IFluidBlock) {
-            return Optional.of(LIQUID);
+            return LIQUID;
         } else if (block.getMaterial() == Material.AIR) {
-            return Optional.of(GAS);
+            return GAS;
         } else {
-            return Optional.of(SOLID);
+            return SOLID;
         }
     }
 

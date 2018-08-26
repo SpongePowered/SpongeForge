@@ -24,9 +24,7 @@
  */
 package org.spongepowered.mod.registry;
 
-import org.spongepowered.api.data.property.block.LightEmissionProperty;
-import org.spongepowered.api.data.property.block.MatterProperty;
-import org.spongepowered.api.data.property.block.SolidCubeProperty;
+import org.spongepowered.api.data.property.Properties;
 import org.spongepowered.api.extra.fluid.data.manipulator.immutable.ImmutableFluidTankData;
 import org.spongepowered.api.extra.fluid.data.manipulator.mutable.FluidTankData;
 import org.spongepowered.common.SpongeImpl;
@@ -48,9 +46,9 @@ public class SpongeForgeModuleRegistry {
         SpongePropertyRegistry propertyRegistry = SpongeImpl.getPropertyRegistry();
 
         // Property registration
-        propertyRegistry.register(LightEmissionProperty.class, new ForgeLightEmissionPropertyStore());
-        propertyRegistry.register(MatterProperty.class, new ForgeMatterPropertyStore());
-        propertyRegistry.register(SolidCubeProperty.class, new ForgeSolidCubePropertyStore());
+        propertyRegistry.register(Properties.LIGHT_EMISSION, new ForgeLightEmissionPropertyStore());
+        propertyRegistry.register(Properties.MATTER, new ForgeMatterPropertyStore());
+        propertyRegistry.register(Properties.IS_SOLID_CUBE, new ForgeSolidCubePropertyStore());
 
         // Data registration
 

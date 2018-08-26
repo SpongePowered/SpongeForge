@@ -24,15 +24,16 @@
  */
 package org.spongepowered.mod.data;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
-import org.spongepowered.api.data.property.block.SolidCubeProperty;
-import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.util.OptBool;
 import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
 import org.spongepowered.common.data.property.store.block.SolidCubePropertyStore;
 import org.spongepowered.common.util.VecHelper;
 
 import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 public class ForgeSolidCubePropertyStore extends SolidCubePropertyStore {
 
@@ -42,9 +43,11 @@ public class ForgeSolidCubePropertyStore extends SolidCubePropertyStore {
     }
 
     @Override
-    public Optional<SolidCubeProperty> getFor(Location<World> location, Direction direction) {
-        final net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
-        final EnumFacing facing = toEnumFacing(direction);
-        return Optional.of(world.isSideSolid(VecHelper.toBlockPos(location), facing) ? TRUE : FALSE);
+    protected Optional<Boolean> getForBlock(@Nullable Location<?> location, IBlockState block, @Nullable EnumFacing facing) {
+        if (location != null && facing != null) {
+            final net.minecraft.world.World world = (net.minecraft.world.World) location.getExtent();
+            return OptBool.of(world.isSideSolid(VecHelper.toBlockPos(location), facing));
+        }
+        return super.getForBlock(location, block, facing);
     }
 }

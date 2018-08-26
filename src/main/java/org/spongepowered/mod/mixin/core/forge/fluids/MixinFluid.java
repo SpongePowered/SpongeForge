@@ -29,24 +29,21 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
 import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.Property;
-import org.spongepowered.api.data.property.PropertyStore;
 import org.spongepowered.api.extra.fluid.FluidType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.data.property.IPropertyHolder;
 
-import java.util.Collection;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
 
 @Mixin(value = Fluid.class, remap = false)
 @Implements(@Interface(iface = FluidType.class, prefix = "fluid$"))
-public abstract class MixinFluid implements FluidType {
+public abstract class MixinFluid implements FluidType, IPropertyHolder {
 
     @Shadow @Nullable protected Block block;
     @Shadow @Final protected String fluidName;
@@ -59,19 +56,5 @@ public abstract class MixinFluid implements FluidType {
     @Override
     public CatalogKey getKey() {
         return (CatalogKey) (Object) new ResourceLocation(this.fluidName);
-    }
-
-    @Override
-    public <T extends Property<?, ?>> Optional<T> getProperty(Class<T> propertyClass) {
-        final Optional<PropertyStore<T>> optional = SpongeImpl.getPropertyRegistry().getStore(propertyClass);
-        if (optional.isPresent()) {
-            return optional.get().getFor(this);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Collection<Property<?, ?>> getApplicableProperties() {
-        return SpongeImpl.getPropertyRegistry().getPropertiesFor(this);
     }
 }

@@ -36,15 +36,14 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.persistence.InvalidDataException;
+import org.spongepowered.api.data.property.Property;
 import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.extra.fluid.FluidStackSnapshot;
 import org.spongepowered.api.extra.fluid.FluidType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -59,7 +58,10 @@ import org.spongepowered.common.interfaces.data.IMixinCustomDataHolder;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -289,12 +291,22 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
     }
 
     @Override
-    public <T extends Property<?, ?>> Optional<T> getProperty(Class<T> propertyClass) {
-        return this.getFluid().getProperty(propertyClass);
+    public OptionalDouble getDoubleProperty(Property<Double> property) {
+        return getFluid().getDoubleProperty(property);
     }
 
     @Override
-    public Collection<Property<?, ?>> getApplicableProperties() {
-        return this.getFluid().getApplicableProperties();
+    public OptionalInt getIntProperty(Property<Integer> property) {
+        return getFluid().getIntProperty(property);
+    }
+
+    @Override
+    public <V> Optional<V> getProperty(Property<V> property) {
+        return getFluid().getProperty(property);
+    }
+
+    @Override
+    public Map<Property<?>, ?> getProperties() {
+        return getFluid().getProperties();
     }
 }
