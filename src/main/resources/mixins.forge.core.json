@@ -16,6 +16,7 @@
         "block.MixinBlockOldLeaf",
         "block.MixinBlockRailBase",
         "command.MixinEntitySelector",
+        "common.MixinSponge",
         "common.MixinSpongeCommonEventFactory",
         "common.MixinSpongeDimension",
         "common.MixinSpongeImplHooks",

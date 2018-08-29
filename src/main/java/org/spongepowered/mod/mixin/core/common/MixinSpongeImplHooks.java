@@ -123,15 +123,6 @@ public abstract class MixinSpongeImplHooks {
     private static Boolean deobfuscatedEnvironment;
 
     /**
-     * @author unknown
-     * @reason Forge compatibility
-     */
-    @Overwrite
-    public static boolean isVanilla() {
-        return false;
-    }
-
-    /**
      * @author gabizou - July 9th, 2018
      * @reason During client shutdown or the integrated server shut down, we have
      * to be able to detect the integrated server is shutting down and we should not
