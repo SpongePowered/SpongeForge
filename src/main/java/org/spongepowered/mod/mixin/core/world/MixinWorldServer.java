@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.ChunkProviderServer;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.world.Chunk;
@@ -81,8 +82,8 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
      * @param server
      * @param worldIn
      * @param pos
-     * @param playerIn
-     * @return
+     * @param playerIn The player
+     * @return True if the event is cancelled, meaning the block is protected
      */
     @Redirect(
         method = "canMineBlockBody",
@@ -107,11 +108,16 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
 
     /**
      * @author gabizou - May 23rd, 2018
-     * @reason - Even though Dedicated server does handle this change, I'm inlining the
-     * block check for the player since
+     * @reason - Since Forge adds the override to check for world providers whether
+     * a block is modifiable, we have to provide the same contract to call "super".
+     *
+     * <p>Note: The event thrown here MUST be inverted for the {@link Cancellable#isCancelled()}
+     * check, because if the block is modifiable, then the event should not be cancelled; however,
+     * if the event is cancelled, then the block is not modifiable.
+     * </p>
      * @param player
      * @param pos
-     * @return True if the block is modifiable
+     * @return True if the block is modifiable, or if the event is not cancelled
      */
     @Overwrite
     @Override
@@ -123,7 +129,7 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 // Might as well provide the active item in use.
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));
-                return SpongeCommonEventFactory.callChangeBlockEventPre(this, pos, player).isCancelled();
+                return !SpongeCommonEventFactory.callChangeBlockEventPre(this, pos, player).isCancelled();
             }
         }
         return false;
