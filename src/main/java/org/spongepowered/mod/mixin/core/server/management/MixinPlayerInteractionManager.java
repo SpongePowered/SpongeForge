@@ -182,7 +182,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
             if (tileEntity != null && this.player.openContainer instanceof ContainerPlayer && (eventData == null || !eventData.getForgeEvent().isCanceled())) {
                 this.player.closeScreen();
             }
-            SpongeCommonEventFactory.interactBlockEventCancelled = true;
+            SpongeCommonEventFactory.interactBlockRightClickEventCancelled = true;
             return EnumActionResult.FAIL;
         }
 
