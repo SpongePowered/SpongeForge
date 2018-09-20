@@ -51,6 +51,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameType;
 import net.minecraft.world.ILockableContainer;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -60,6 +62,11 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
@@ -80,6 +87,12 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
     @Shadow public abstract EnumActionResult processRightClick(EntityPlayer player, net.minecraft.world.World worldIn, ItemStack stack, EnumHand hand);
     @Shadow(remap = false) public abstract double getBlockReachDistance();
     @Shadow(remap = false) public abstract void setBlockReachDistance(double distance);
+
+    @Inject(method = "onBlockClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/NetHandlerPlayServer;sendPacket"
+        + "(Lnet/minecraft/network/Packet;)V", ordinal = 0))
+    public void onBlockClickCancelled(final BlockPos pos, final EnumFacing side, final CallbackInfo ci) {
+        SpongeCommonEventFactory.interactBlockLeftClickEventCancelled = true;
+    }
 
     /**
      * @author gabizou - May 5th, 2016
