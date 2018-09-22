@@ -53,9 +53,7 @@ import javax.annotation.Nullable;
 @Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
 public abstract class MixinInvWrapper implements MinecraftInventoryAdapter, IMixinInventory {
 
-    @Nullable protected EmptyInventory empty;
     @Nullable protected Inventory parent;
-    protected Inventory next;
     protected SlotCollection slots;
     protected List<Inventory> children = new ArrayList<Inventory>();
     @Nullable protected Iterable<Slot> slotIterator;
@@ -78,25 +76,6 @@ public abstract class MixinInvWrapper implements MinecraftInventoryAdapter, IMix
     @Override
     public Inventory parent() {
         return this.parent == null ? this : this.parent;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Inventory> T first() {
-        return (T) this.iterator().next();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Inventory> T next() {
-        return (T) this.emptyInventory(); // TODO implement me
-    }
-
-    protected final EmptyInventory emptyInventory() {
-        if (this.empty == null) {
-            this.empty = new EmptyInventoryImpl(this);
-        }
-        return this.empty;
     }
 
     @SuppressWarnings("unchecked")
