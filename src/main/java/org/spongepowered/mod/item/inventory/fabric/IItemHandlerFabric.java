@@ -29,12 +29,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import org.spongepowered.api.text.translation.FixedTranslation;
 import org.spongepowered.api.text.translation.Translation;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.item.inventory.lens.Fabric;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class IItemHandlerFabric implements Fabric {
     private final IItemHandler inventory;
+    private static Set<Class> setStackUnsupported = new HashSet<>();
 
     public IItemHandlerFabric(IItemHandler inventory) {
         this.inventory = inventory;
@@ -83,16 +87,26 @@ public class IItemHandlerFabric implements Fabric {
     public void markDirty() {
     }
 
-    protected static void setIItemHandlerStack(IItemHandler handler, int index, ItemStack stack) {
+    private static void setIItemHandlerStack(IItemHandler handler, int index, ItemStack stack) {
+        if (setStackUnsupported.contains(handler.getClass())) {
+            return; // setting item is not always possible
+        }
         ItemStack prev = handler.getStackInSlot(index);
-        if (prev != null) {
+        if (!prev.isEmpty()) {
             int cnt = prev.getCount();
             // Extract all items
             while (cnt > 0) {
                 ItemStack extracted = handler.extractItem(index, cnt, false);
                 cnt -= extracted.getCount();
                 if (extracted.getCount() == 0) {
-                    break; // Do not keep looping if nothing was removed
+                    prev = handler.getStackInSlot(index);
+                    if (!prev.isEmpty()) { // Mod refuses to extract items
+                        setStackUnsupported.add(handler.getClass());
+                        SpongeImpl.getLogger().warn("Modded Inventory refused extraction. Sponge cannot handle modified slot transactions for this type of Inventory. " + handler.getClass());
+                        return; // setting item is not possible - abort to prevent duplication
+                    }
+                    // else stop looping when slot was emptied
+                    break;
                 }
             }
         }
