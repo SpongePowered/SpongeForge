@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.spongepowered.api.text.translation.FixedTranslation;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.common.SpongeImpl;
@@ -93,6 +94,17 @@ public class IItemHandlerFabric implements Fabric {
         if (setStackUnsupported.contains(handler.getClass())) {
             return; // setting item is not always possible
         }
+
+        if (handler instanceof IItemHandlerModifiable) {
+            try {
+                ((IItemHandlerModifiable) handler).setStackInSlot(index, stack);
+            } catch (RuntimeException e) {
+                setStackUnsupported.add(handler.getClass());
+                SpongeImpl.getLogger().warn("Modded Inventory refused setting slot. Sponge cannot handle modified slot transactions for this type of Inventory. " + handler.getClass());
+            }
+            return;
+        }
+
         ItemStack prev = handler.getStackInSlot(index);
         if (!prev.isEmpty()) {
             int cnt = prev.getCount();
