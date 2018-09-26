@@ -26,6 +26,7 @@ package org.spongepowered.mod.item.inventory.adapter;
 
 import net.minecraftforge.items.IItemHandler;
 import org.spongepowered.common.item.inventory.adapter.impl.BasicInventoryAdapter;
+import org.spongepowered.common.item.inventory.lens.impl.DefaultIndexedLens;
 import org.spongepowered.mod.item.inventory.fabric.IItemHandlerFabric;
 
 /**
@@ -33,6 +34,6 @@ import org.spongepowered.mod.item.inventory.fabric.IItemHandlerFabric;
  */
 public class IItemHandlerAdapter extends BasicInventoryAdapter {
     public IItemHandlerAdapter(IItemHandler inventory) {
-        super(new IItemHandlerFabric(inventory));
+        super(new IItemHandlerFabric(inventory), DefaultIndexedLens.class);
     }
 }
