@@ -31,11 +31,10 @@ import com.google.common.reflect.TypeToken;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -58,9 +57,9 @@ import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.mod.SpongeModPlatform;
 import org.spongepowered.mod.event.ForgeToSpongeEventData;
 import org.spongepowered.mod.event.ForgeToSpongeEventFactory;
-import org.spongepowered.mod.event.SpongeToForgeEventData;
 import org.spongepowered.mod.event.SpongeForgeEventHooks;
 import org.spongepowered.mod.event.SpongeModEventManager;
+import org.spongepowered.mod.event.SpongeToForgeEventData;
 import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
@@ -71,8 +70,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = EventBus.class, remap = false)
@@ -92,8 +89,6 @@ public abstract class MixinEventBus implements IMixinEventBus {
         } else if (event instanceof WorldEvent.Save) {
             return false;
         } else if (event instanceof WorldEvent.Unload) {
-            return false;
-        } else if (event instanceof AttackEntityEvent) { // TODO - gabizou - figure this one out
             return false;
         }
 
