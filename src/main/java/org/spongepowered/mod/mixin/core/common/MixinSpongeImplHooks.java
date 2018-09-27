@@ -761,5 +761,4 @@ public abstract class MixinSpongeImplHooks {
         net.minecraftforge.server.timings.TimeTracker.ENTITY_UPDATE.trackEnd(entity);
     }
 
-
 }
