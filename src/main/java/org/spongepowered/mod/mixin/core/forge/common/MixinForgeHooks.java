@@ -65,6 +65,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
@@ -131,6 +132,42 @@ public abstract class MixinForgeHooks {
                 cir.setReturnValue(null);
             }
         }
+    }
+
+    /**
+     * @author gabizou - September 27th, 2018
+     * @reason Due to forge mods having the ability to still check for
+     * mineability without a player instance, some tile entities will
+     * check for these sort of things without bothering to throw events
+     * or check world.setBlockState return values for capturing.
+     *
+     * See https://github.com/SpongePowered/SpongeForge/issues/1811
+     *
+     * @param stack The stack being used
+     * @param access The world access
+     * @param pos The position
+     * @param sameStack The very same stack, required by mixins
+     * @return True if the stack is empty, or the change block event pre was cancelled.
+     */
+    @Redirect(
+        method = "canToolHarvestBlock",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"
+        )
+    )
+    private static boolean isItemEmptyCheckThrowChangeBlockEvent(ItemStack stack, IBlockAccess access, BlockPos pos, ItemStack sameStack)  {
+        if (stack.isEmpty()) {
+            return true;
+        }
+        if (SpongeImplHooks.isMainThread() && access instanceof IMixinWorld && !((IMixinWorld) access).isFake()) {
+            // If the event is cancelled, return true because then the item was "empty" and therefor, the tool cannot harvest the block.
+            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(stack));
+                return SpongeCommonEventFactory.callChangeBlockEventPre(((IMixinWorldServer) access), pos).isCancelled();
+            }
+        }
+        return false;
     }
 
     /**
