@@ -153,8 +153,10 @@ public abstract class MixinForgeHooks {
         method = "canToolHarvestBlock",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"
-        )
+            target = "Lnet/minecraft/item/ItemStack;isEmpty()Z",
+            remap = true
+        ),
+        remap = false
     )
     private static boolean isItemEmptyCheckThrowChangeBlockEvent(ItemStack stack, IBlockAccess access, BlockPos pos, ItemStack sameStack)  {
         if (stack.isEmpty()) {
