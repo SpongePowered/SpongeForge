@@ -122,6 +122,13 @@ public abstract class MixinEventBus implements IMixinEventBus {
         return false;
     }
 
+    private boolean isTimingsIgnoredEvent(Event event) {
+        if (event instanceof AttachCapabilitiesEvent) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * @author unknown
      * @reason Use added boolean flag to direct whether the event is forced or not, since we sync sponge to forge events quite often.
@@ -168,15 +175,20 @@ public abstract class MixinEventBus implements IMixinEventBus {
             for (; index < listeners.length; index++) {
                 final IEventListener listener = listeners[index];
                 if (listener instanceof IMixinASMEventHandler) {
-                    modListener = (IMixinASMEventHandler) listener;
-                    modListener.getTimingsHandler().startTimingIfSync();
+                    if (isTimingsIgnoredEvent(event)) {
+                        // Certain events are thrown potentially thousands of times during initialization.
+                        modListener = (IMixinASMEventHandler) listener;
+                        modListener.getTimingsHandler().startTimingIfSync();
+                    }
                     try (PhaseContext<?> context = SpongeForgeEventHooks.preEventPhaseCheck(listener, event)) {
                         if (context != null) {
                             context.buildAndSwitch();
                         }
                         listener.invoke(event);
                     }
-                    modListener.getTimingsHandler().stopTimingIfSync();
+                    if (modListener != null) {
+                        modListener.getTimingsHandler().stopTimingIfSync();
+                    }
                 } else {
                     listener.invoke(event);
                 }
