@@ -122,11 +122,11 @@ public abstract class MixinEventBus implements IMixinEventBus {
         return false;
     }
 
-    private boolean isTimingsIgnoredEvent(Event event) {
+    private boolean isTimedEvent(Event event) {
         if (event instanceof AttachCapabilitiesEvent) {
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -175,7 +175,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
             for (; index < listeners.length; index++) {
                 final IEventListener listener = listeners[index];
                 if (listener instanceof IMixinASMEventHandler) {
-                    if (isTimingsIgnoredEvent(event)) {
+                    if (isTimedEvent(event)) {
                         // Certain events are thrown potentially thousands of times during initialization.
                         modListener = (IMixinASMEventHandler) listener;
                         modListener.getTimingsHandler().startTimingIfSync();
