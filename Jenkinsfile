@@ -3,7 +3,6 @@
 pipeline {
     agent any
 
-    withCredentials([string(credentialsId: 'spongeMavenUsername', variable: 'spongeMavenUsername'), string(credentialsId: 'spongeMavenPassword', variable: 'spongeMavenPassword'), string(credentialsId: 'spongeIndexerUsername', variable: 'spongeIndexerUsername'), string(credentialsId: 'spongeIndexerPassword', variable: 'spongeIndexerPassword'), string(credentialsId: 'spongeKeyStore', variable: 'spongeKeyStore'), string(credentialsId: 'spongeKeyStoreAlias', variable: 'spongeKeyStoreAlias'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStorePass'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStoreKeyPass')]) {
     stages {
         stage('Prepare') {
             steps {
@@ -13,8 +12,10 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh '''./gradlew --refresh-dependencies -s
-                -PforgeJenkinsPass=${forgeJenkinsPass}
+                withCredentials([string(credentialsId: 'spongeMavenUsername', variable: 'spongeMavenUsername'), string(credentialsId: 'spongeMavenPassword', variable: 'spongeMavenPassword'), string(credentialsId: 'spongeIndexerUsername', variable: 'spongeIndexerUsername'), string(credentialsId: 'spongeIndexerPassword', variable: 'spongeIndexerPassword'), string(credentialsId: 'spongeKeyStore', variable: 'spongeKeyStore'), string(credentialsId: 'spongeKeyStoreAlias', variable: 'spongeKeyStoreAlias'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStorePass'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStoreKeyPass')]) {
+
+                    sh '''./gradlew --refresh-dependencies -s
+                    -PforgeJenkinsPass=${forgeJenkinsPass}
                               -PspongeKeyStore=${spongeKeyStore}
                               -PspongeKeyStoreAlias=${spongeKeyStoreAlias}
                               -PspongeKeyStorePass=${spongeKeyStorePass}
@@ -22,57 +23,57 @@ pipeline {
                               -PspongeCertificateFingerprint=${spongeCertFingerprint}
                               clean build changelog'
                               '''
-                bash '''#!/bin/bash -e
-                    cat >.gradle/upload.gradle <<EOF
-                    allprojects {
-                        tasks.all {
-                            if (it.name != 'uploadArchives') {
-                                enabled = false
+                    bash '''#!/bin/bash -e
+                        cat >.gradle/upload.gradle <<EOF
+                        allprojects {
+                            tasks.all {
+                                if (it.name != 'uploadArchives') {
+                                    enabled = false
+                                }
                             }
                         }
-                    }
-                    EOF
+                        EOF
 
-                    deploy() {
-                        echo "Uploading artifacts to $1"
-                        if ./gradlew -I .gradle/upload.gradle \\
-                            -q \
-                            -PspongeRepo=$1 \
-                            -PspongeUsername=$2 \
-                            -PspongePassword=$3 \
-                            -PforgeJenkinsPass=${spongeJenkinsPassword} \
-                            :uploadArchives
-                        then
-                            echo "Successfully uploaded artifacts to $1"
-                        else
-                            echo "Failed to upload artifacts to $1"
-                            exit 1
-                        fi
-                    }
+                        deploy() {
+                            echo "Uploading artifacts to $1"
+                            if ./gradlew -I .gradle/upload.gradle \\
+                                -q \
+                                -PspongeRepo=$1 \
+                                -PspongeUsername=$2 \
+                                -PspongePassword=$3 \
+                                -PforgeJenkinsPass=${spongeJenkinsPassword} \
+                                :uploadArchives
+                            then
+                                echo "Successfully uploaded artifacts to $1"
+                            else
+                                echo "Failed to upload artifacts to $1"
+                                exit 1
+                            fi
+                        }
 
-                    promoteLatest() {
-                        echo "Promoting latest build"
-                        curl --user "$1:$2" http://files.minecraftforge.net/maven/manage/promote/latest/org.spongepowered.spongeforge/${BUILD_NUMBER}
-                    }
+                        promoteLatest() {
+                            echo "Promoting latest build"
+                            curl --user "$1:$2" http://files.minecraftforge.net/maven/manage/promote/latest/org.spongepowered.spongeforge/${BUILD_NUMBER}
+                        }
 
-                    deploy "http://files.minecraftforge.net/maven/manage/upload" "${spongeMavenUsername}" "${spongeMavenPassword}" \
-                        && promoteLatest "${spongeMavenUsername}" "${spongeMavenPassword}" &
-                    pids="$!"
-                    deploy "https://dl-indexer.spongepowered.org/maven/upload" "${spongeIndexerUsername}" "${spongeIndexerPassword}" &
-                    pids="$pids $!"
+                        deploy "http://files.minecraftforge.net/maven/manage/upload" "${spongeMavenUsername}" "${spongeMavenPassword}" \
+                            && promoteLatest "${spongeMavenUsername}" "${spongeMavenPassword}" &
+                        pids="$!"
+                        deploy "https://dl-indexer.spongepowered.org/maven/upload" "${spongeIndexerUsername}" "${spongeIndexerPassword}" &
+                        pids="$pids $!"
 
-                    result=0
-                    for pid in $pids; do
-                        wait $pid || result=1
-                    done
-                    exit $result
+                        result=0
+                        for pid in $pids; do
+                            wait $pid || result=1
+                        done
+                        exit $result
 
-                    '''
-
+                        '''
 
 
+
+                }
             }
-        }
         }
     }
 }
