@@ -14,7 +14,19 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'spongeMavenUsername', variable: 'spongeMavenUsername'), string(credentialsId: 'spongeMavenPassword', variable: 'spongeMavenPassword'), string(credentialsId: 'spongeIndexerUsername', variable: 'spongeIndexerUsername'), string(credentialsId: 'spongeIndexerPassword', variable: 'spongeIndexerPassword'), string(credentialsId: 'spongeKeyStore', variable: 'spongeKeyStore'), string(credentialsId: 'spongeKeyStoreAlias', variable: 'spongeKeyStoreAlias'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStorePass'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStoreKeyPass')]) {
 
-                    sh '''./gradlew --refresh-dependencies -s -PforgeJenkinsPass=${forgeJenkinsPass} -PspongeKeyStore=${spongeKeyStore}  -PspongeKeyStoreAlias=${spongeKeyStoreAlias} -PspongeKeyStorePass=${spongeKeyStorePass} -PspongeKeyStoreKeyPass=${spongeKeyStoreKeyPass} -PspongeCertificateFingerprint=${spongeCertFingerprint} clean build'''
+                    sh '''./gradlew --refresh-dependencies -s -PforgeJenkinsPass=${forgeJenkinsPass} -PspongeKeyStore=${spongeKeyStore}  -PspongeKeyStoreAlias=${spongeKeyStoreAlias} -PspongeKeyStorePass=${spongeKeyStorePass} -PspongeKeyStoreKeyPass=${spongeKeyStoreKeyPass} -PspongeCertificateFingerprint=${spongeCertFingerprint} clean build -xsignShadowJar'''
+                }
+            }
+            post {
+                success {
+                    writeChangelog(currentBuild, 'build/changelog.txt')
+                        archiveArtifacts artifacts: 'build/changelog.txt', fingerprint: false
+                }
+            }
+        }
+        stage('publish') {
+            steps {
+                withCredentials([string(credentialsId: 'spongeMavenUsername', variable: 'spongeMavenUsername'), string(credentialsId: 'spongeMavenPassword', variable: 'spongeMavenPassword'), string(credentialsId: 'spongeIndexerUsername', variable: 'spongeIndexerUsername'), string(credentialsId: 'spongeIndexerPassword', variable: 'spongeIndexerPassword'), string(credentialsId: 'spongeKeyStore', variable: 'spongeKeyStore'), string(credentialsId: 'spongeKeyStoreAlias', variable: 'spongeKeyStoreAlias'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStorePass'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStoreKeyPass')]) {
                     bash '''#!/bin/bash -e
                         cat >.gradle/upload.gradle <<EOF
                         allprojects {
@@ -44,26 +56,23 @@ pipeline {
                         }
 
                         promoteLatest() {
-                            echo "Promoting latest build"
-                            curl --user "$1:$2" http://files.minecraftforge.net/maven/manage/promote/latest/org.spongepowered.spongeforge/${BUILD_NUMBER}
-                        }
+                           echo "Promoting latest build"
+                           curl --user "$1:$2" http://files.minecraftforge.net/maven/manage/promote/latest/org.spongepowered.spongeforge/${BUILD_NUMBER}
+                         }
 
                         deploy "http://files.minecraftforge.net/maven/manage/upload" "${spongeMavenUsername}" "${spongeMavenPassword}" \
-                            && promoteLatest "${spongeMavenUsername}" "${spongeMavenPassword}" &
-                        pids="$!"
-                        deploy "https://dl-indexer.spongepowered.org/maven/upload" "${spongeIndexerUsername}" "${spongeIndexerPassword}" &
-                        pids="$pids $!"
+                           && promoteLatest "${spongeMavenUsername}" "${spongeMavenPassword}" &
+                         pids="$!"
+                         deploy "https://dl-indexer.spongepowered.org/maven/upload" "${spongeIndexerUsername}" "${spongeIndexerPassword}" &
+                         pids="$pids $!"
 
                         result=0
                         for pid in $pids; do
-                            wait $pid || result=1
-                        done
-                        exit $result
+                           wait $pid || result=1
+                         done
+                         exit $result
 
                         '''
-
-
-
                 }
             }
         }
