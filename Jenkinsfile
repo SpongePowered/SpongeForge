@@ -11,9 +11,6 @@ pipeline {
         }
 
         stage('Build') {
-            environment {
-                MAVEN = credentials('maven')
-            }
             steps {
                 sh '''./gradlew --refresh-dependencies
                 -s
