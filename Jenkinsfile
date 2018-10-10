@@ -11,9 +11,9 @@ pipeline {
         }
 
         stage('Build') {
+        withCredentials([string(credentialsId: 'spongeMavenUsername', variable: 'spongeMavenUsername'), string(credentialsId: 'spongeMavenPassword', variable: 'spongeMavenPassword'), string(credentialsId: 'spongeIndexerUsername', variable: 'spongeIndexerUsername'), string(credentialsId: 'spongeIndexerPassword', variable: 'spongeIndexerPassword'), string(credentialsId: 'spongeKeyStore', variable: 'spongeKeyStore'), string(credentialsId: 'spongeKeyStoreAlias', variable: 'spongeKeyStoreAlias'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStorePass'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStoreKeyPass')]) {
             steps {
-                sh '''./gradlew --refresh-dependencies
-                -s
+                sh '''./gradlew --refresh-dependencies -s
                 -PforgeJenkinsPass=${forgeJenkinsPass}
                               -PspongeKeyStore=${spongeKeyStore}
                               -PspongeKeyStoreAlias=${spongeKeyStoreAlias}
@@ -35,8 +35,8 @@ pipeline {
 
                     deploy() {
                         echo "Uploading artifacts to $1"
-                        if ./gradlew -I .gradle/upload.gradle \
-                            -s -q \
+                        if ./gradlew -I .gradle/upload.gradle \\
+                            -q \
                             -PspongeRepo=$1 \
                             -PspongeUsername=$2 \
                             -PspongePassword=$3 \
@@ -72,6 +72,7 @@ pipeline {
 
 
             }
+        }
         }
     }
 }
