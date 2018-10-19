@@ -33,7 +33,6 @@ ext.implementationId = "spongeforge"
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
 
 version = "$minecraft.version-$forgeBuild-$implementationVersion"
-System.err.println(version)
 minecraft {
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
     replace '@expected_certificate_fingerprint@', project.hasProperty('spongeCertificateFingerprint') ? project.property('spongeCertificateFingerprint') : ''

@@ -40,4 +40,9 @@ public class SpongeCommonModContainer extends MetaModContainer {
         return SpongeCoremod.modFile;
     }
 
+    @Override
+    public Object getMod() {
+        // We need to return an instance of the mod with the mod container.
+        return this;
+    }
 }
