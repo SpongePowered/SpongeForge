@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraftforge.fml.common.MetadataCollection;
 import net.minecraftforge.fml.common.ModMetadata;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.plugin.meta.McModInfo;
 
 import java.io.IOException;
@@ -114,7 +115,7 @@ public final class SpongeModMetadata {
     }
 
     public static ModMetadata getSpongeForgeMetadata() {
-        return get(SpongeImpl.ECOSYSTEM_ID, "SpongeForge");
+        return get(SpongeImplHooks.getImplementationId(), "SpongeForge");
     }
 
 }

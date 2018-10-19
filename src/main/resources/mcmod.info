@@ -1,6 +1,6 @@
 [
     {
-        "modid": "sponge",
+        "modid": "spongeforge",
         "updateJSON": "https://files.minecraftforge.net/maven/org/spongepowered/spongeforge/promotions_slim.json",
         "credits": "Copyright (C) SpongePowered and contributors",
         "logoFile": "/org/spongepowered/launch/gui/sponge_logo.png"

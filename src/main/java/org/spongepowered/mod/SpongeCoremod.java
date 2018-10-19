@@ -171,6 +171,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
     public void injectData(Map<String, Object> data) {
         // Register SpongeAPI mod container
         FMLInjectionData.containers.add("org.spongepowered.mod.SpongeApiModContainer");
+        FMLInjectionData.containers.add("org.spongepowered.mod.SpongeCommonModContainer");
 
         modFile = (File) data.get("coremodLocation");
         if (modFile == null) {

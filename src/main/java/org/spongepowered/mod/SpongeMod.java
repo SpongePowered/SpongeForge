@@ -165,6 +165,7 @@ public class SpongeMod extends MetaModContainer {
         // Do not replace `SpongeImpl.getLogger()` with `this.getLogger()`. You've been warned.
         SpongeImpl.getLogger().info("Creating injector in stage '{}'", stage);
         Guice.createInjector(stage, new SpongeModule(), new SpongeForgeModule());
+        Sponge.getPluginManager().getPlugin(SpongeImpl.ECOSYSTEM_ID).ifPresent(SpongeImpl::setSpongePlugin);
 
         SpongeImpl.getRegistry().preRegistryInit();
         SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (owner, manager, id, obj, oldObj) -> {
