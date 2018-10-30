@@ -1,7 +1,9 @@
 @Library('forge-shared-library')_
 
 pipeline {
-    agent any
+    agent {
+        docker { image 'aaron1011/xvfb-docker' }
+    }
 
     stages {
         stage('Prepare') {
