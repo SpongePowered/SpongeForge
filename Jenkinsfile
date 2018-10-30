@@ -8,6 +8,7 @@ pipeline {
     stages {
         stage('Prepare') {
             steps {
+                sh './gradlew cleanCache'
                 sh './gradlew --refresh-dependencies -s clean setupDecompWorkspace'
             }
         }
