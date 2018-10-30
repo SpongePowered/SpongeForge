@@ -2,7 +2,7 @@
 
 pipeline {
     agent {
-        docker { image 'aaron1011/xvfb-docker:fixed' }
+        docker { image 'aaron1011/xvfb-docker:fixed-new' }
     }
 
     stages {
