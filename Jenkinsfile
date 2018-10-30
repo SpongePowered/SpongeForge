@@ -78,10 +78,4 @@ exit $result
             }
         }*/
     }
-    /*post {
-        always {
-            //junit 'build/test-results/*/*.xml'
-            //jacoco sourcePattern: '**/src/*/java'
-        }
-    }*/
 }
