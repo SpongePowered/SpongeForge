@@ -23,7 +23,7 @@ pipeline {
                         archiveArtifacts artifacts: 'build/changelog.txt', fingerprint: false
                 }
             }
-        }
+        }/*
         stage('publish') {
             steps {
                 withCredentials([string(credentialsId: 'spongeMavenUsername', variable: 'spongeMavenUsername'), string(credentialsId: 'spongeMavenPassword', variable: 'spongeMavenPassword'), string(credentialsId: 'spongeIndexerUsername', variable: 'spongeIndexerUsername'), string(credentialsId: 'spongeIndexerPassword', variable: 'spongeIndexerPassword'), string(credentialsId: 'spongeKeyStore', variable: 'spongeKeyStore'), string(credentialsId: 'spongeKeyStoreAlias', variable: 'spongeKeyStoreAlias'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStorePass'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStoreKeyPass')]) {
@@ -76,7 +76,7 @@ exit $result
 
                 }
             }
-        }
+        }*/
     }
     post {
         always {
