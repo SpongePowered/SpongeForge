@@ -67,6 +67,10 @@ dependencies {
     runtime testmods
 }
 
+test {
+    systemProperty "org.lwjgl.util.Debug", "true"
+}
+
 compileJava {
     options.compilerArgs += [ "-Atokens=FORGE=$forgeBuild;FML=$forgeBuild" ]
 }
