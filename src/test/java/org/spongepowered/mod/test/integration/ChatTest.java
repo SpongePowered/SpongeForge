@@ -68,7 +68,7 @@ public class ChatTest extends BaseTest {
     @Test(expected = AssertionError.class)
     public void deliberateFailure() throws Throwable {
         testUtils.listenOneShot(() -> { client.sendMessage("blah"); }, new StandaloneEventListener<>(MessageChannelEvent.Chat.class, (MessageChannelEvent.Chat event) -> {
-            Assert.assertEquals(1, 2);
+            throw new AssertionError("Deliberate failure!");
         }));
     }
 
