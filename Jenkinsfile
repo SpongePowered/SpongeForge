@@ -2,7 +2,10 @@
 
 pipeline {
     agent {
-        docker { image 'aaron1011/mc-headless:latest' }
+        docker {
+            image 'aaron1011/mc-headless:latest'
+            args '-v $HOME/.m2:/root/.m2 -v $HOME/.gradle:/root/.gradle'
+        }
     }
 
     stages {
