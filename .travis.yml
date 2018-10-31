@@ -12,11 +12,10 @@ jdk:
 git:
   submodules: false
 before_install:
-  - scripts/run-xvfb
   - scripts/travis-initialize-submodules
 
 install: ./gradlew setupDecompWorkspace
-script: DISPLAY=:99 ./gradlew test --stacktrace
+script: xvfb-run -w 0 ./gradlew test --stacktrace
 after_failure: scripts/upload
 
 notifications:
