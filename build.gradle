@@ -24,6 +24,15 @@ buildscript {
     }
 }
 
+// ForgeGradle tries to pull in typesafe config 1.2.1,
+// which causes issues when running Sponge from Intellij.
+// We force Gradle to use 1.3.1, which resolves the issue
+configurations.all {
+    resolutionStrategy { 
+        force 'com.typesafe:config:1.3.1'
+    }
+}
+
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
 ext.minecraftVersion = forgeBuild
 ext.testmods = project.project('testmods')
