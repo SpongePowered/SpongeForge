@@ -13,9 +13,10 @@ git:
   submodules: false
 before_install:
   - scripts/travis-initialize-submodules
+  - scripts/run-xvfb
 
 install: ./gradlew setupDecompWorkspace
-script: xvfb-run -w 0 ./gradlew test --stacktrace
+script: DISPLAY=:99 ./gradlew build --stacktrace
 after_failure: scripts/upload
 
 notifications:
