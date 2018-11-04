@@ -227,7 +227,9 @@ public class ForgeToSpongeEventFactory {
         if (spongeEvent.isCancelled()) {
             forgeEvent.getAffectedBlocks().clear();
             forgeEvent.getAffectedEntities().clear();
+            return spongeEvent;
         }
+
         if (forgeEvent.getAffectedBlocks().size() != spongeEvent.getAffectedLocations().size()) {
             forgeEvent.getAffectedBlocks().clear();
             for (Location<World> location : spongeEvent.getAffectedLocations()) {
