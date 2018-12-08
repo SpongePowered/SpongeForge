@@ -30,7 +30,6 @@ import com.google.common.collect.Streams;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -43,6 +42,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
@@ -182,6 +182,15 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static boolean isFakePlayer(Entity entity) {
         return entity instanceof FakePlayer;
+    }
+
+    /**
+     * @author JBYoshi
+     * @reason Forge compatibility - see SpongeForge#2528
+     */
+    @Overwrite
+    public static void fireServerConnectionEvent(NetworkManager netManager) {
+        FMLCommonHandler.instance().fireServerConnectionEvent(netManager);
     }
 
     /**
