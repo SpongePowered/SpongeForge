@@ -211,13 +211,11 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
         SpongeModEventManager manager = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager());
 
-        if (!forgeListenerEventClasses.contains(eventType)) {
-            for (Class clazz : TypeToken.of(eventType).getTypes().rawTypes()) {
-                Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(clazz);
-                if (spongeEvents != null) {
-                    for (Class<? extends org.spongepowered.api.event.Event> event : spongeEvents) {
-                        manager.checker.registerListenerFor(event);
-                    }
+        for (Class clazz : TypeToken.of(eventType).getTypes().rawTypes()) {
+            Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(clazz);
+            if (spongeEvents != null) {
+                for (Class<? extends org.spongepowered.api.event.Event> event : spongeEvents) {
+                    manager.checker.registerListenerFor(event);
                 }
             }
         }
