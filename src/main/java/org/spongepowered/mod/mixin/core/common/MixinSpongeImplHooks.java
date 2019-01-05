@@ -350,6 +350,11 @@ public abstract class MixinSpongeImplHooks {
             return;
         }
 
+        // TODO: https://github.com/SpongePowered/SpongeForge/issues/2266
+        if (!(teleporter instanceof PortalAgent)) {
+            return;
+        }
+
         // ignore default
         if (PortalAgentTypes.DEFAULT.equals(((PortalAgent) teleporter).getType())) {
             return;
