@@ -462,7 +462,7 @@ public class SpongeToForgeEventFactory {
                 return false;
             }
 
-            final EnumHand hand = spongeEvent instanceof InteractBlockEvent.Secondary.MainHand ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
+            final EnumHand hand = spongeEvent instanceof InteractItemEvent.Secondary.MainHand ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
             forgeEvent = new PlayerInteractEvent.RightClickItem(EntityUtil.toNative(player), hand);
             eventData.setForgeEvent(forgeEvent);
         }
