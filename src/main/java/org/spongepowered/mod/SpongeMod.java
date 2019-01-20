@@ -87,10 +87,12 @@ import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
+import org.spongepowered.common.event.registry.SpongeGameRegistryRegisterEvent;
 import org.spongepowered.common.inject.SpongeGuice;
 import org.spongepowered.common.inject.SpongeModule;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
+import org.spongepowered.common.item.recipe.crafting.DelegateSpongeCraftingRecipe;
 import org.spongepowered.common.item.recipe.crafting.SpongeCraftingRecipeRegistry;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
@@ -363,11 +365,22 @@ public class SpongeMod extends MetaModContainer {
     }
 
     @SubscribeEvent
-    public void onRecipeRegister(RegistryEvent.Register<IRecipe> event) {
-        for (CraftingRecipe craftingRecipe : SpongeCraftingRecipeRegistry.getInstance().getCustomRecipes()) {
-            event.getRegistry().register((IRecipe) craftingRecipe);
-        }
-        SpongeCraftingRecipeRegistry.getInstance().disableRegistrations();
+    public void onRecipeRegister(RegistryEvent.Register<IRecipe> event) { // IRecipe is a CraftingRecipe
+        final SpongeGameRegistryRegisterEvent<CraftingRecipe> registerEvent = new SpongeGameRegistryRegisterEvent<CraftingRecipe>(
+                Sponge.getCauseStackManager().getCurrentCause(), CraftingRecipe.class, SpongeCraftingRecipeRegistry.getInstance()) {
+            @Override
+            public void register(CraftingRecipe catalogType) {
+                final IRecipe recipe;
+                if (catalogType instanceof IRecipe) {
+                    recipe = (IRecipe) catalogType;
+                } else {
+                    recipe = new DelegateSpongeCraftingRecipe(catalogType);
+                }
+                recipe.setRegistryName((ResourceLocation) (Object) catalogType.getKey());
+                event.getRegistry().register(recipe);
+            }
+        };
+        SpongeImpl.postEvent(registerEvent);
     }
 
     @SubscribeEvent

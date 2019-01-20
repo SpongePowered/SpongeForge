@@ -63,6 +63,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.items.IItemHandler;
@@ -569,15 +570,6 @@ public abstract class MixinSpongeImplHooks {
      * @reason Forge compatibility
      */
     @Overwrite
-    public static void onCraftingRecipeRegister(CraftingRecipe recipe) {
-        // Emptied out as this is performed during the Registry.Register event.
-    }
-
-    /**
-     * @author unknown
-     * @reason Forge compatibility
-     */
-    @Overwrite
     public static Optional<CraftingRecipe> findMatchingRecipe(CraftingGridInventory inventory, org.spongepowered.api.world.World world) {
         IRecipe recipe = CraftingManager.findMatchingRecipe(InventoryUtil.toNativeInventory(inventory), ((net.minecraft.world.World) world));
         return Optional.ofNullable(((CraftingRecipe) recipe));
@@ -617,6 +609,16 @@ public abstract class MixinSpongeImplHooks {
             return Optional.empty();
         }
         return Optional.of(((CraftingRecipe) recipe));
+    }
+
+    /**
+     * @author Cybermaxke
+     * @reason Forge compatibility
+     */
+    @Nullable
+    @Overwrite
+    public static PluginContainer getActiveModContainer() {
+        return (PluginContainer) Loader.instance().activeModContainer();
     }
 
     /**
