@@ -26,8 +26,10 @@ package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import co.aikar.timings.Timing;
 import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
+import net.minecraft.world.World;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
@@ -54,10 +56,13 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.PhaseTracker;
+import org.spongepowered.common.event.tracking.phase.plugin.ListenerPhaseContext;
+import org.spongepowered.common.event.tracking.phase.plugin.PluginPhase;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.mod.SpongeModPlatform;
 import org.spongepowered.mod.event.ForgeToSpongeEventData;
 import org.spongepowered.mod.event.ForgeToSpongeEventFactory;
-import org.spongepowered.mod.event.SpongeForgeEventHooks;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.SpongeToForgeEventData;
 import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
@@ -71,6 +76,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 @NonnullByDefault
 @Mixin(value = EventBus.class, remap = false)
 public abstract class MixinEventBus implements IMixinEventBus {
@@ -81,6 +88,49 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     @Shadow @Final private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;
+
+    @Nullable
+    private PhaseContext<?> preEventPhaseCheck(IMixinASMEventHandler listener, Event event) {
+        if (event instanceof TickEvent.WorldTickEvent) {
+            final TickEvent.WorldTickEvent worldTickEvent = (TickEvent.WorldTickEvent) event;
+            final World world = worldTickEvent.world;
+            if (world == null || ((IMixinWorld) world).isFake()) {
+                return null;
+            }
+            if (worldTickEvent.phase == TickEvent.Phase.START) {
+                return PluginPhase.Listener.PRE_WORLD_TICK_LISTENER
+                    .createPhaseContext()
+                    .source(listener)
+                    .event(event);
+            } else if (worldTickEvent.phase == TickEvent.Phase.END) {
+                return PluginPhase.Listener.POST_WORLD_TICK_LISTENER
+                    .createPhaseContext()
+                    .source(listener)
+                    .event(event);
+            }
+        }
+        // Basically some forge mods also listen to the server tick event and perform world changes as well...........
+        if (event instanceof TickEvent.ServerTickEvent) {
+            final TickEvent.ServerTickEvent serverTickEvent = (TickEvent.ServerTickEvent) event;
+            if (serverTickEvent.phase == TickEvent.Phase.START) {
+                // Need to prepare all worlds many mods do this
+                return PluginPhase.Listener.PRE_SERVER_TICK_LISTENER.createPhaseContext()
+                        .source(listener)
+                        .event(event);
+            } else if (serverTickEvent.phase == TickEvent.Phase.END) {
+                // Need to prepare all worlds many mods do this
+                return PluginPhase.Listener.POST_SERVER_TICK_LISTENER.createPhaseContext()
+                    .source(listener)
+                    .event(event);
+
+            }
+        }
+        if (!isIgnoredEvent(event) &&  listener.getContainer() != null && PhaseTracker.getInstance().getCurrentState().allowsEventListener()) {
+            return PluginPhase.Listener.GENERAL_LISTENER.createPhaseContext()
+                .source(listener.getContainer());
+        }
+        return null;
+    }
 
     // Events that should not be posted on the event bus
     private boolean isEventAllowed(Event event) {
@@ -170,38 +220,36 @@ public abstract class MixinEventBus implements IMixinEventBus {
         }
 
         int index = 0;
-        IMixinASMEventHandler modListener = null;
         try {
             for (; index < listeners.length; index++) {
                 final IEventListener listener = listeners[index];
                 if (listener instanceof IMixinASMEventHandler) {
-                    if (isTimedEvent(event)) {
-                        // Certain events are thrown potentially thousands of times during initialization.
-                        modListener = (IMixinASMEventHandler) listener;
-                        modListener.getTimingsHandler().startTimingIfSync();
-                    }
-                    try (PhaseContext<?> context = SpongeForgeEventHooks.preEventPhaseCheck(listener, event)) {
+                    // Set up the timing object, since it's a try with resources, it'll always close
+                    // Likewise, the PhaseContext for GeneralListener will be enabled
+                    // Note: As per JLS 14.20.3, the resources are closed in the opposite order in which they are initialized
+                    // in which case the PhaseContext will unwind and close out before Timings closes out the listener.
+                    try (final Timing timing = isTimedEvent(event) ? ((IMixinASMEventHandler) listener).getTimingsHandler() : null;
+                        PhaseContext<?> context = preEventPhaseCheck((IMixinASMEventHandler) listener, event)) {
+                        // However, we don't want to add to the timing of the event listener for whatever costs may be involved with the PhaseTracker
+                        // switching phases.
                         if (context != null) {
                             context.buildAndSwitch();
                         }
+                        if (timing != null) {
+                            timing.startTimingIfSync();
+                        }
                         listener.invoke(event);
-                    }
-                    if (modListener != null) {
-                        modListener.getTimingsHandler().stopTimingIfSync();
                     }
                 } else {
                     listener.invoke(event);
                 }
             }
         } catch (Throwable throwable) {
-            if (modListener != null) {
-                modListener.getTimingsHandler().stopTimingIfSync();
-            }
             this.exceptionHandler.handleException((EventBus) (Object) this, event, listeners, index, throwable);
             Throwables.throwIfUnchecked(throwable);
             throw new RuntimeException(throwable);
         }
-        return (event.isCancelable() ? event.isCanceled() : false);
+        return event.isCancelable() && event.isCanceled();
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

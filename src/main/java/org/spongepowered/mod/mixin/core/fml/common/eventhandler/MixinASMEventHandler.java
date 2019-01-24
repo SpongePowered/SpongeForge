@@ -61,4 +61,9 @@ public abstract class MixinASMEventHandler implements IMixinASMEventHandler {
         }
         return this.timingsHandler;
     }
+
+    @Override
+    public ModContainer getContainer() {
+        return this.owner;
+    }
 }

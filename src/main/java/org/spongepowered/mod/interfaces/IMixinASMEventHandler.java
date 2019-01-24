@@ -25,8 +25,12 @@
 package org.spongepowered.mod.interfaces;
 
 import co.aikar.timings.Timing;
+import net.minecraftforge.fml.common.ModContainer;
 
 public interface IMixinASMEventHandler {
 
     Timing getTimingsHandler();
+
+    ModContainer getContainer();
+
 }
