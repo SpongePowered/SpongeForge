@@ -124,7 +124,7 @@ public abstract class MixinForgeHooks {
     @Inject(method = "onItemRightClick", at = @At(value = "HEAD"), cancellable = true)
     private static void onItemRightClickHead(EntityPlayer player, EnumHand hand, CallbackInfoReturnable<EnumActionResult> cir) {
         if (!player.world.isRemote) {
-            long packetDiff = System.currentTimeMillis() - SpongeCommonEventFactory.lastTryBlockPacketTimeStamp;
+            long packetDiff = System.currentTimeMillis() - SpongeCommonEventFactory.lastTryItemPacketTimeStamp;
             // If the time between packets is small enough, use the last result.
             if (packetDiff < 100) {
                 // Avoid firing a second event
