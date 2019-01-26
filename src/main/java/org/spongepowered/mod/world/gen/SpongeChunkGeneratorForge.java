@@ -32,9 +32,13 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.block.BlockFalling;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import net.minecraftforge.common.MinecraftForge;
@@ -63,6 +67,7 @@ import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.GeneratorTypes;
 import org.spongepowered.api.world.biome.BiomeGenerationSettings;
 import org.spongepowered.api.world.biome.BiomeType;
+import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.api.world.extent.ImmutableBiomeVolume;
 import org.spongepowered.api.world.gen.BiomeGenerator;
@@ -93,6 +98,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
 import org.spongepowered.common.event.tracking.phase.generation.PopulatorPhaseContext;
+import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.interfaces.world.gen.IGenerationPopulator;
@@ -104,6 +110,8 @@ import org.spongepowered.common.world.gen.WorldGenConstants;
 import org.spongepowered.common.world.gen.populators.AnimalPopulator;
 import org.spongepowered.common.world.gen.populators.PlainsGrassPopulator;
 import org.spongepowered.common.world.gen.populators.SnowPopulator;
+import org.spongepowered.mod.mixin.core.world.MixinDimensionType;
+import org.spongepowered.mod.util.CompatibilityException;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.rmi.activation.ActivationGroup_Stub;
@@ -113,11 +121,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import javax.annotation.Nullable;
+
 /**
  * Similar class to {@link SpongeChunkGenerator}, but instead gets its blocks
  * from a custom chunk generator.
  */
 public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
+
+    @Nullable private IChunkGenerator moddedGeneratorFallback = null;
 
     public SpongeChunkGeneratorForge(World world, GenerationPopulator generationPopulator, BiomeGenerator biomeGenerator) {
         super(world, generationPopulator, biomeGenerator);
@@ -149,8 +161,11 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
     @SuppressWarnings("deprecation")
     @Override
     public void populate(int chunkX, int chunkZ) {
-        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
         this.chunkGeneratorTiming.startTimingIfSync();
+        if (this.moddedGeneratorFallback != null) {
+            this.moddedGeneratorFallback.populate(chunkX, chunkZ);
+            return;
+        }
         this.rand.setSeed(this.world.getSeed());
         long i1 = this.rand.nextLong() / 2L * 2L + 1L;
         long j1 = this.rand.nextLong() / 2L * 2L + 1L;
@@ -164,6 +179,28 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
         BlockPos blockpos = new BlockPos(chunkX * 16, 0, chunkZ * 16);
         BiomeType biome = (BiomeType) this.world.getBiome(blockpos.add(16, 0, 16));
+
+        if (biome == null) {
+            // We have a failure of stupidity at this point. We can't crash the game, and clearly, a mod
+            // is failing to provide us with a proper biome, so, we've got to "reverse" and delegate back to the mod.
+            if (!((IMixinWorld) this.world).isFake()) {
+                DimensionType type = (DimensionType) (Object) ((org.spongepowered.api.world.World) this.world).getDimension().getType();
+                try {
+                    this.moddedGeneratorFallback = type.createDimension().createChunkGenerator();
+                } catch (Exception e) {
+                    throw new CompatibilityException("Unable to create a fallback compatibility adaptor for IChunkGenerator for Dimension: " + type + " in world: " + this.world);
+                }
+                if (this.moddedGeneratorFallback == null) {
+                    // Seriously, if we can't fall back to the chunk generator for that type, just might as well let the game work, but not
+                    // crash at world generation stages.
+                    biome = BiomeTypes.PLAINS;
+                } else {
+                    this.moddedGeneratorFallback.populate(chunkX, chunkZ);
+                    return;
+                }
+
+            }
+        }
 
         Chunk chunk = (Chunk) this.world.getChunk(chunkX, chunkZ);
 
