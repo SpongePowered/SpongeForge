@@ -54,6 +54,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
@@ -125,7 +126,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
             }
         }
-        if (!isIgnoredEvent(event) &&  listener.getContainer() != null && PhaseTracker.getInstance().getCurrentState().allowsEventListener()) {
+        if (SpongeImplHooks.isMainThread() && !isIgnoredEvent(event) && listener.getContainer() != null && PhaseTracker.getInstance().getCurrentState().allowsEventListener()) {
             return PluginPhase.Listener.GENERAL_LISTENER.createPhaseContext()
                 .source(listener.getContainer());
         }
