@@ -305,7 +305,7 @@ public class SpongeToForgeEventFactory {
     private static boolean createAndPostServerChatEvent(SpongeToForgeEventData eventData) {
         final MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) eventData.getSpongeEvent();
         ServerChatEvent forgeEvent = (ServerChatEvent) eventData.getForgeEvent();
-        if (forgeEvent == null) {
+        if (forgeEvent == null && spongeEvent.getSource() instanceof EntityPlayerMP) {
             final EntityPlayerMP player = (EntityPlayerMP) spongeEvent.getSource();
             forgeEvent = new ServerChatEvent(player, spongeEvent.getRawMessage().toPlain(), SpongeTexts.toComponent(spongeEvent.getMessage()));
             eventData.setForgeEvent(forgeEvent);
