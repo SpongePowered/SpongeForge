@@ -10,38 +10,49 @@ buildscript {
             url = 'https://repo.spongepowered.org/maven'
         }
         maven {
-            name = 'forge'
+            name = 'forge1'
             url = 'http://files.minecraftforge.net/maven'
         }
+//        maven {
+//            name = 'forge'
+//            url = 'https://files.minecraftforge.net/maven'
+//        }
     }
 
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'gradle.plugin.net.minecrell:licenser:0.3'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath 'org.spongepowered:spongegradle:0.8.2-SNAPSHOT'
+        classpath 'gradle.plugin.net.minecrell:licenser:0.4'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
-        classpath 'gradle.plugin.org.spongepowered:spongegradle:0.8.1'
-        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
     }
 }
 
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
-ext.minecraftVersion = forgeBuild
+ext.minecraftVersion = minecraftVersion
 ext.testmods = project.project('testmods')
 
 // Apply shared implementation Gradle config
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
 
-version = "$minecraft.version-$forgeBuild-$apiSuffix-$buildNumber"
+version = "$minecraftVersion-$forgeBuild-$apiSuffix-$buildNumber"
+
+dependencies {
+    minecraft "net.minecraftforge.test:forge:$minecraftVersion-$forgeBuild-1.13-pre"
+}
 
 minecraft {
-    coreMod = 'org.spongepowered.mod.SpongeCoremod'
-    replace '@expected_certificate_fingerprint@', project.hasProperty('spongeCertificateFingerprint') ? project.property('spongeCertificateFingerprint') : ''
+    // todo - coremod handling from modlauncher is different
+//    coreMod = 'org.spongepowered.mod.SpongeCoremod'
+//    mappings channel: 'snapshot', version: '20190126-1.13.1'
+    // TODO - fingerprint signatures
+//    replace '@expected_certificate_fingerprint@', project.hasProperty('spongeCertificateFingerprint') ? project.property('spongeCertificateFingerprint') : ''
+
 }
 
 sponge.plugin.meta {
     dependencies {
         forge {
-            version = project.minecraft.forgeVersion
+            version = "$minecraftVersion-$forgeBuild-1.13-pre"
         }
     }
 }
@@ -55,17 +66,17 @@ compileJava {
 }
 
 if (project.hasProperty('spongeKeyStore')) {
-    task signShadowJar(type: SignJar, dependsOn: reobfJar) {
-        keyStore = project.spongeKeyStore
-        alias = project.spongeKeyStoreAlias
-        storePass = project.spongeKeyStorePass
-        keyPass = project.spongeKeyStoreKeyPass
-        inputFile = shadowJar.archivePath
-        outputFile = shadowJar.archivePath
-    }
-
-    signShadowJar.dependsOn shadowJar
-    build.dependsOn signShadowJar
+//    task signShadowJar(type: SignJar, dependsOn: reobfJar) {
+//        keyStore = project.spongeKeyStore
+//        alias = project.spongeKeyStoreAlias
+//        storePass = project.spongeKeyStorePass
+//        keyPass = project.spongeKeyStoreKeyPass
+//        inputFile = shadowJar.archivePath
+//        outputFile = shadowJar.archivePath
+//    }
+//
+//    signShadowJar.dependsOn shadowJar
+//    build.dependsOn signShadowJar
 }
 
 jar {
@@ -74,8 +85,8 @@ jar {
     manifest {
         attributes(
                 'Main-Class': 'org.spongepowered.launch.Main',
-                'TargetForgeBuild': forgeBuild,
-                'TargetForgeVersion': minecraft.forgeVersion,
+                'TargetForgeBuild': "$forgeBuild",
+                'TargetForgeVersion': "$minecraftVersion-$forgeBuild-1.13-pre",
                 'FMLCorePlugin': 'org.spongepowered.mod.SpongeCoremod',
                 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                 'TweakOrder': 0
@@ -106,7 +117,9 @@ artifacts {
 
 allprojects {
     // Re-obfuscate only after creating the shadowDevJar
-    tasks.findByName('reobfJar')?.mustRunAfter this.tasks.shadowDevJar
+
+    // TODO - fix once we figure out how to reobf
+//    tasks.findByName('reobfJar')?.mustRunAfter this.tasks.shadowDevJar
 }
 
 tasks.withType(ShadowJar) {
@@ -127,10 +140,11 @@ tasks.withType(ShadowJar) {
 
 sourceSets.java6.runtimeClasspath += sourceSets.main.runtimeClasspath
 
-reobf {
-    jar {
-        extraFiles 'extraSrg.srg'
-    }
-}
+// TODO - figure this part out.
+//reobf {
+//    jar {
+//        extraFiles 'extraSrg.srg'
+//    }
+//}
 
 apply from: 'changelog.gradle'
