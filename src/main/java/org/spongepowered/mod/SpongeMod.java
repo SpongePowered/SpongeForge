@@ -69,6 +69,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.effect.potion.PotionEffectType;
+import org.spongepowered.api.item.potion.PotionType;
 import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.item.ItemType;
@@ -101,6 +102,7 @@ import org.spongepowered.common.registry.type.effect.SoundRegistryModule;
 import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.item.EnchantmentRegistryModule;
+import org.spongepowered.common.registry.type.item.PotionTypeRegistryModule;
 import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
@@ -192,6 +194,13 @@ public class SpongeMod extends MetaModContainer {
                 return;
             }
             EnchantmentRegistryModule.getInstance().registerFromGameData(key.toString(), (EnchantmentType) obj);
+        });
+        SpongeGameData.addRegistryCallback(ForgeRegistries.POTION_TYPES, (owner, manager, id, obj, oldObj) -> {
+            final ResourceLocation key = ForgeRegistries.POTION_TYPES.getKey(obj);
+            if (key == null) {
+                return;
+            }
+            PotionTypeRegistryModule.getInstance().registerFromGameData(key.toString(), (PotionType) obj);
         });
         SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (owner, manager, id, obj, oldObj) -> {
             final ResourceLocation key = ForgeRegistries.POTIONS.getKey(obj);
