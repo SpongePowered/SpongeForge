@@ -25,12 +25,14 @@
 package org.spongepowered.mod.mixin.core.item;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,11 +46,18 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-@Mixin(Item.class)
+@Mixin(value = Item.class, priority = 1050)
 public abstract class MixinItem implements ItemType, IMixinItem {
 
     @Shadow(remap = false) public abstract boolean hasCustomEntity(ItemStack stack);
     @Shadow(remap = false) @Nullable public abstract Entity createEntity(World world, Entity location, ItemStack itemstack);
+
+    @Override
+    public CatalogKey getKey() {
+        final ResourceLocation resourceLocation = ((Item) (Object) this).getRegistryName();
+        checkState(resourceLocation != null, "Attempted to access the id before the registry name is set.");
+        return (CatalogKey) (Object) resourceLocation;
+    }
 
     @Inject(method = "registerItem(ILnet/minecraft/util/ResourceLocation;Lnet/minecraft/item/Item;)V", at = @At("RETURN"))
     private static void registerMinecraftItem(int id, ResourceLocation name, Item item, CallbackInfo ci) {
