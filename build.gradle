@@ -1,6 +1,7 @@
 // Gradle plugins
 buildscript {
     repositories {
+        mavenLocal()
         maven {
             name = 'gradle-plugins'
             url = 'https://plugins.gradle.org/m2'
@@ -28,8 +29,11 @@ buildscript {
 }
 
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
-ext.minecraftVersion = minecraftVersion
 ext.testmods = project.project('testmods')
+ext.rootGroup = "net.minecraftforge.test"
+ext.rootMinecraft = "forge"
+ext.rootVersion = "$minecraftVersion-$forgeBuild-1.13-pre"
+ext.isClient = true
 
 // Apply shared implementation Gradle config
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
@@ -43,10 +47,8 @@ dependencies {
 minecraft {
     // todo - coremod handling from modlauncher is different
 //    coreMod = 'org.spongepowered.mod.SpongeCoremod'
-//    mappings channel: 'snapshot', version: '20190126-1.13.1'
     // TODO - fingerprint signatures
 //    replace '@expected_certificate_fingerprint@', project.hasProperty('spongeCertificateFingerprint') ? project.property('spongeCertificateFingerprint') : ''
-
 }
 
 sponge.plugin.meta {
