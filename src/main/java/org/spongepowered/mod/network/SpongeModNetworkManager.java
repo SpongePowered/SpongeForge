@@ -35,7 +35,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Singleton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.network.INetHandler;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
@@ -47,11 +47,9 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.network.ChannelBinding;
 import org.spongepowered.api.network.ChannelBinding.IndexedMessageChannel;
 import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
@@ -68,54 +66,35 @@ import java.util.Set;
 @Singleton
 public class SpongeModNetworkManager extends SpongeNetworkManager {
 
-    public static final EventContextKey<INetHandler> NET_HANDLER = new EventContextKey<INetHandler>() {
-        @Override
-        public Class<INetHandler> getAllowedType() {
-            return INetHandler.class;
-        }
-
-        @Override
-        public String getId() {
-            return "sponge:nethandler";
-        }
-
-        @Override
-        public String getName() {
-            return "NetHandler";
-        }
-    };
-
     private final Map<String, SpongeModChannelBinding> channelMap = Maps.newHashMap();
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onCustomPacketRegistration(CustomPacketRegistrationEvent<?> event) {
-        Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
-        ;
-        final boolean isMainThread = Sponge.isServerAvailable() && Sponge.getServer().isMainThread();
-        try (final CauseStackManager.StackFrame frame = isMainThread ? Sponge.getCauseStackManager().pushCauseFrame() : null) {
-            if (isMainThread) {
-                if (event.getHandler() instanceof NetHandlerPlayServer) {
-                    frame.pushCause(((NetHandlerPlayServer) event.getHandler()).player);
-                }
-                frame.addContext(NET_HANDLER, event.getHandler());
-            }
+        final Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
+        final EntityPlayer player;
 
-            if (event.getOperation().equals("REGISTER")) {
-                channels.addAll(event.getRegistrations());
-                for (String channel : event.getRegistrations()) {
-                    final Cause
-                        currentCause =
-                        isMainThread ? frame.getCurrentCause() : Cause.of(EventContext.empty(), Sponge.getGame());
-                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(currentCause, channel));
-                }
-            } else if (event.getOperation().equals("UNREGISTER")) {
-                channels.removeAll(event.getRegistrations());
-                for (String channel : event.getRegistrations()) {
-                    final Cause
-                        currentCause =
-                        isMainThread ? frame.getCurrentCause() : Cause.of(EventContext.empty(), Sponge.getGame());
-                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(currentCause, channel));
-                }
+        if (event.getSide().isClient()) {
+            player = null; // TODO In 1.13, Client player will be a Sponge player, should we still put in the cause in 1.12?
+        } else {
+            player = ((NetHandlerPlayServer) event.getHandler()).player;
+        }
+
+        final Cause currentCause = Cause.of(EventContext.empty(), player == null ? Sponge.getGame() : player, event.getSide().isClient() ?
+            Platform.Type.CLIENT : Platform.Type.SERVER);
+
+        if (event.getOperation().equals("REGISTER")) {
+
+            channels.addAll(event.getRegistrations());
+
+            for (String channel : event.getRegistrations()) {
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(currentCause, channel));
+            }
+        } else if (event.getOperation().equals("UNREGISTER")) {
+
+            channels.removeAll(event.getRegistrations());
+
+            for (String channel : event.getRegistrations()) {
+                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(currentCause, channel));
             }
         }
     }
@@ -216,7 +195,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
             return false;
         }
         return !NetworkRegistry.INSTANCE.channelNamesFor(Side.SERVER).contains(channelName)
-                && !NetworkRegistry.INSTANCE.channelNamesFor(Side.CLIENT).contains(channelName);
+            && !NetworkRegistry.INSTANCE.channelNamesFor(Side.CLIENT).contains(channelName);
     }
 
 }
