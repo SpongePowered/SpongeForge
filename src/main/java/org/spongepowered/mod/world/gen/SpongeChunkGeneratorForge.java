@@ -92,6 +92,7 @@ import org.spongepowered.api.world.gen.populator.SeaFloor;
 import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
 import org.spongepowered.common.event.tracking.phase.generation.PopulatorPhaseContext;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
@@ -224,7 +225,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(this.world, this.rand, blockpos));
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Pre(this.world, this.rand, blockpos));
         List<String> flags = Lists.newArrayList();
-        Vector3i min = new Vector3i(chunkX * 16 + 8, 0, chunkZ * 16 + 8);
+        final Vector3i min = PhaseTracker.getInstance().getCurrentState().getChunkPopulatorOffset(chunk, chunkX, chunkZ);
         org.spongepowered.api.world.World spongeWorld = (org.spongepowered.api.world.World) this.world;
         Extent volume = new SoftBufferExtentViewDownsize(chunk.getWorld(), min, min.add(15, 255, 15), min.sub(8, 0, 8), min.add(23, 255, 23));
 
