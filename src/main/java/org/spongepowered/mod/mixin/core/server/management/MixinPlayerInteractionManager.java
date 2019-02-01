@@ -43,11 +43,9 @@ import net.minecraft.item.ItemDoor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.network.play.server.SPacketCloseWindow;
-import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -58,34 +56,21 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.EventContextKey;
-import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.packet.PacketContext;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.util.TristateUtil;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.event.SpongeToForgeEventData;
 import org.spongepowered.mod.event.SpongeModEventManager;
+import org.spongepowered.mod.event.SpongeToForgeEventData;
 
 @Mixin(value = PlayerInteractionManager.class, priority = 1001)
 public abstract class MixinPlayerInteractionManager implements IMixinPlayerInteractionManager {
@@ -211,7 +196,11 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
 
             ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
 
-            return ((PlayerInteractEvent) eventData.getForgeEvent()).getCancellationResult(); // SpongeForge - return event result
+            // If a Forge event wasn't fired (due to no Forge mods listening for event), we want
+            // to act as though an un-cancelled, unmodified Forge event was still fired.
+            // Forge's PlayerInteractEvent#getCancellationResult() defaults to EnumActionResult.PASS,
+            // so we return that.
+            return eventData == null ? EnumActionResult.PASS : ((PlayerInteractEvent) eventData.getForgeEvent()).getCancellationResult(); // SpongeForge - return event result
         }
         // Sponge end
 
