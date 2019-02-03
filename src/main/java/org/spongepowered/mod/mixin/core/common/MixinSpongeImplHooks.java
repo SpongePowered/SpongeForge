@@ -84,7 +84,6 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.command.SpongeCommandFactory;
-import org.spongepowered.common.data.type.SpongeTileEntityType;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.event.tracking.PhaseContext;
@@ -808,7 +807,7 @@ public abstract class MixinSpongeImplHooks {
             // this is a rare case where we don't even have access to the correct tile entity type
             // through normal registrations. So, instead, what we do is we have to re-create the type
             // for this tile entity class and then say "ok, here's a newly registered one"
-            return TileEntityTypeRegistryModule.getInstance().doTileEntityRegistration(aClass, location.getResourcePath());
+            return TileEntityTypeRegistryModule.getInstance().doTileEntityRegistration(aClass, location.getPath());
         }
         return translated;
     }
