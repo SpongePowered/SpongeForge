@@ -310,7 +310,9 @@ public class SpongeToForgeEventFactory {
             forgeEvent = new ServerChatEvent(player, spongeEvent.getRawMessage().toPlain(), SpongeTexts.toComponent(spongeEvent.getMessage()));
             eventData.setForgeEvent(forgeEvent);
         }
-        forgeEventBus.post(eventData);
+        if (forgeEvent != null) {
+            forgeEventBus.post(eventData);
+        }
         return true;
     }
 
