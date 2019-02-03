@@ -68,6 +68,7 @@ import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.logging.log4j.Level;
+import org.spongepowered.api.block.tileentity.TileEntityType;
 import org.spongepowered.api.command.args.ChildCommandElementExecutor;
 import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.api.item.inventory.Inventory;
@@ -83,17 +84,20 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.command.SpongeCommandFactory;
+import org.spongepowered.common.data.type.SpongeTileEntityType;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
+import org.spongepowered.common.interfaces.block.tile.IMixinTileEntity;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
 import org.spongepowered.common.interfaces.world.IMixinITeleporter;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
+import org.spongepowered.common.registry.type.block.TileEntityTypeRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.common.util.SpawnerSpawnType;
@@ -780,5 +784,32 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static String getImplementationId() {
         return "spongeforge";
+    }
+
+    /**
+     * @author gabizou - July 31st, 2018
+     * @reason Due to ForgeMultiPart having some modifications to tile entity registration,
+     * we sometimes cannot guarantee that we'll have a valid type. If this is the case,
+     * we sometimes need to "register" one for our own uses for plugins to validate.
+     *
+     * Refer to https://github.com/TheCBProject/ForgeMultipart/issues/33
+     */
+    @SuppressWarnings("unchecked")
+    @Overwrite
+    public static TileEntityType getTileEntityType(Class<? extends IMixinTileEntity> aClass) {
+        final ResourceLocation location = TileEntity.REGISTRY.getNameForObject((Class<? extends TileEntity>) aClass);
+        if (location == null) {
+            // Means it's not properly registered either....
+            return null;
+        }
+
+        final TileEntityType translated = SpongeImpl.getRegistry().getTranslated(aClass, TileEntityType.class);
+        if (translated == null) {
+            // this is a rare case where we don't even have access to the correct tile entity type
+            // through normal registrations. So, instead, what we do is we have to re-create the type
+            // for this tile entity class and then say "ok, here's a newly registered one"
+            return TileEntityTypeRegistryModule.getInstance().doTileEntityRegistration(aClass, location.getResourcePath());
+        }
+        return translated;
     }
 }
