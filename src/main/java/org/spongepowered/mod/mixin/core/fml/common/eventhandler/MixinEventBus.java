@@ -91,7 +91,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     @Nullable
     private PhaseContext<?> preEventPhaseCheck(IMixinASMEventHandler listener, Event event) {
-        if (!SpongeImplHooks.isMainThread() || (isClientPlatform() && !SpongeImpl.isInitialized())) {
+        if (!SpongeImplHooks.isMainThread()) {
             // We don't want to throw phases async, nor on the client before sponge is initialized, since main thread is technically
             // allowed before the server has started.
             return null;
