@@ -24,35 +24,24 @@
  */
 package org.spongepowered.mod.mixin.optimization.threadchecks;
 
-
-import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.mod.SpongeMod;
 
-@Mixin(value = SpongeImplHooks.class, remap = false)
-public class MixinSpongeImplHooks_ThreadChecks {
+@Mixin(Minecraft.class)
+public class MixinMinecraft_ThreadChecks {
 
-    /**
-     * @author gabizou - July 8th, 2018
-     * @author gabizou - February 10th, 2019 - Better client support checks for client run server and client joining remote server
-     *
-     * @reason Makes the thread checks simply faster than the multiple
-     * null and state checks and finally delegating to
-     * {@link MinecraftServer#isCallingFromMinecraftThread()}. This is
-     * only possible through mixins due to having to set and reset the
-     * server thread.
-     */
-    @Overwrite
-    public static boolean isMainThread() {
-        // Return true when the server isn't yet initialized, this means on a client
-        // that the game is still being loaded. This is needed to support initialization
-        // events with cause tracking.
-        return SpongeMod.isClient()
-               ? SpongeMod.isClientRunningServerAndServerThread()
-               : SpongeMod.SERVER_THREAD == null || Thread.currentThread() == SpongeMod.SERVER_THREAD;
+    @Shadow private static Minecraft instance;
+
+    @Redirect(method = "<init>", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;instance:Lnet/minecraft/client/Minecraft;"))
+    private void onSpongeModInitClientThread(Minecraft minecraft) {
+        instance = minecraft;
+        SpongeMod.CLIENT_THREAD = Thread.currentThread();
+        SpongeMod.side = Side.CLIENT;
     }
+
 }

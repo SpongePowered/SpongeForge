@@ -34,6 +34,7 @@ import com.google.inject.Stage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
@@ -41,6 +42,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
 import net.minecraftforge.fml.client.FMLFolderResourcePack;
 import net.minecraftforge.fml.common.CertificateHelper;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
@@ -129,30 +131,69 @@ import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 public class SpongeMod extends MetaModContainer {
 
     public static SpongeMod instance;
 
     // USED ONLY TO KEEP TRACK OF THE THREAD. SINCE CLIENTS CAN HAVE MULTIPLE SERVERS
     // WE NEED TO BE ABLE TO STORE A REFERENCE TO THE THREAD TO MAINTAIN SPEED OF ISMAINTHREAD CHECKS
-    @javax.annotation.Nullable public static Thread SERVER_THREAD;
+    @Nullable public static Thread SERVER_THREAD;
+    @Nullable public static Thread CLIENT_THREAD;
+    @Nullable public static Side side; // Platform side
+    private static boolean hasChecked = false;
+    private static boolean isClientSide = false;
 
+    public static boolean isClientRunningServerAndServerThread() {
+        if (isClient()) {
+            final Thread current = Thread.currentThread();
+            if (CLIENT_THREAD != null && current == CLIENT_THREAD) {
+                return false;
+            }
+            if (SERVER_THREAD != null) {
+                return SERVER_THREAD == current;
+            }
+            final NetworkManager client = FMLCommonHandler.instance().getClientToServerNetworkManager();
+            // Here we're just checking if we're connected to a server and
+            // connected to that server, because the connection would no longer
+            // be open
+            return client != null && client.isChannelOpen() && client.isLocalChannel();
+        }
+        return false;
+    }
+
+    public static boolean isClient() {
+        if (!hasChecked) {
+            hasChecked = true;
+            if (side == null) {
+                // In the rare instance that the side hasn't been set,
+                // we need to determine based on our thread linking.
+                // If both threads are null, well, we're going to consider we're on the client to disable any processing that
+                // could go wrong.
+                side = CLIENT_THREAD != null ? Side.CLIENT : SERVER_THREAD != null ? Side.SERVER : Side.CLIENT; // Rare case where both tthreads are null, just make it client
+            }
+            isClientSide = side == Side.CLIENT;
+        }
+        return isClientSide;
+    }
     @Inject private SpongeGame game;
     @Inject private SpongeScheduler scheduler;
+
     @Inject private Logger logger;
-
     private LoadController controller;
-    private File modFile;
 
+    private File modFile;
     // treat this field as final
     private static String EXPECTED_CERTIFICATE_FINGERPRINT = "@expected_certificate_fingerprint@";
+
     private Certificate certificate;
-
     // Updating
-    private @MonotonicNonNull URL updateJsonUrl;
 
+    private @MonotonicNonNull URL updateJsonUrl;
     // This is a special Mod, provided by the IFMLLoadingPlugin. It will be
     // instantiated before FML scans the system for mods (or plugins)
+
     public SpongeMod() throws Exception {
         super(SpongeModMetadata.getSpongeForgeMetadata());
 
@@ -162,6 +203,7 @@ public class SpongeMod extends MetaModContainer {
         ModContainerFactory.instance().registerContainerType(Type.getType(Plugin.class), SpongeModPluginContainer.class);
 
         SpongeMod.instance = this;
+        side = FMLCommonHandler.instance().getSide();
         this.modFile = SpongeCoremod.modFile;
 
         // Initialize Sponge
