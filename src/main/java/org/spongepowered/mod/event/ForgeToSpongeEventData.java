@@ -33,17 +33,15 @@ public class ForgeToSpongeEventData {
 
     private final Event forgeEvent;
     private final IEventListener[] forgeListeners;
-    private final boolean isClient;
     private final boolean useCauseStackManager;
     private org.spongepowered.api.event.Event spongeEvent;
     private RegisteredListener.Cache spongeListenerCache;
     private boolean beforeModifications = false;
     private boolean forced = false;
 
-    public ForgeToSpongeEventData(Event forgeEvent, final IEventListener[] forgeListeners, boolean isClient) {
+    public ForgeToSpongeEventData(Event forgeEvent, final IEventListener[] forgeListeners) {
         this.forgeEvent = forgeEvent;
         this.forgeListeners = forgeListeners;
-        this.isClient = isClient;
         this.useCauseStackManager = SpongeModEventManager.shouldUseCauseStackManager(false);
     }
 
@@ -57,10 +55,6 @@ public class ForgeToSpongeEventData {
 
     public IEventListener[] getForgeListeners() {
         return this.forgeListeners;
-    }
-
-    public boolean isClient() {
-        return this.isClient;
     }
 
     public boolean useCauseStackManager() {

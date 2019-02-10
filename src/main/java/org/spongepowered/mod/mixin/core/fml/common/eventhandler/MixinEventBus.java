@@ -58,7 +58,6 @@ import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
-import org.spongepowered.common.event.tracking.phase.plugin.ListenerPhaseContext;
 import org.spongepowered.common.event.tracking.phase.plugin.PluginPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.mod.SpongeModPlatform;
@@ -92,7 +91,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     @Nullable
     private PhaseContext<?> preEventPhaseCheck(IMixinASMEventHandler listener, Event event) {
-        if (!SpongeImplHooks.isMainThread() || isClientPlatform() && !SpongeImpl.isInitialized()) {
+        if (!SpongeImplHooks.isMainThread() || (isClientPlatform() && !SpongeImpl.isInitialized())) {
             // We don't want to throw phases async, nor on the client before sponge is initialized, since main thread is technically
             // allowed before the server has started.
             return null;
@@ -209,7 +208,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         Class<? extends org.spongepowered.api.event.Event> spongeEventClass = null;
 
         final IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
-        if (!forced && !this.isClientPlatform() && SpongeImpl.isInitialized() && !isIgnoredEvent(event)) {
+        if (!forced && SpongeImplHooks.isMainThread() && SpongeImpl.isInitialized() && !isIgnoredEvent(event)) {
             if (!isEventAllowed(event)) {
                 return false;
             }
@@ -218,7 +217,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
             if (spongeEventClass != null) {
                 final RegisteredListener.Cache listenerCache = ((SpongeModEventManager) Sponge.getEventManager()).getHandlerCache(spongeEventClass);
                 if (!listenerCache.getListeners().isEmpty()) {
-                    final ForgeToSpongeEventData forgeEventData = new ForgeToSpongeEventData(event, listeners, this.isClientPlatform());
+                    final ForgeToSpongeEventData forgeEventData = new ForgeToSpongeEventData(event, listeners);
                     forgeEventData.setSpongeListenerCache(listenerCache);
                     return ((SpongeModEventManager) SpongeImpl.getGame().getEventManager()).post(forgeEventData);
                 }
