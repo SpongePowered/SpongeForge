@@ -154,9 +154,6 @@ public class SpongeMod extends MetaModContainer {
             if (SERVER_THREAD != null) {
                 return SERVER_THREAD == current;
             }
-            if (FMLCommonHandler.instance().getSidedDelegate() == null) {
-                return false;
-            }
             final NetworkManager client = FMLCommonHandler.instance().getClientToServerNetworkManager();
             // Here we're just checking if we're connected to a server and
             // connected to that server, because the connection would no longer
