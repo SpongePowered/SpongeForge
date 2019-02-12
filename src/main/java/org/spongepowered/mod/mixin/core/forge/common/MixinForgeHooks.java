@@ -208,13 +208,16 @@ public abstract class MixinForgeHooks {
         final PhaseTracker phaseTracker = PhaseTracker.getInstance();
         final PhaseData peek = phaseTracker.getCurrentPhaseData();
         final IPhaseState<?> phaseState = peek.state;
+        // Many mods use this hook with fake players so we need to avoid passing them when possible
+        // and instead pass the true source which is usually a TileEntity
+        final Object source = peek.context.getSource() == null ? player : peek.context.getSource();
         if (!phaseState.isInteraction()) {
             // Sponge Start - Add the changeblockevent.pre check here before we bother with item stacks.
             if (world instanceof IMixinWorldServer && !((IMixinWorld) world).isFake() && SpongeImplHooks.isMainThread()) {
                 try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                     // Might as well provide the active item in use.
                     frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));
-                    if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos, player).isCancelled()) {
+                    if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos, source).isCancelled()) {
                         // Since a plugin cancelled it, go ahead and cancel it.
                         return false;
                     }
