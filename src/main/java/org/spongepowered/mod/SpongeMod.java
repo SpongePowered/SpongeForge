@@ -35,6 +35,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
@@ -166,17 +167,16 @@ public class SpongeMod extends MetaModContainer {
     public static boolean isClient() {
         if (!hasChecked) {
             hasChecked = true;
-            if (side == null) {
-                // In the rare instance that the side hasn't been set,
-                // we need to determine based on our thread linking.
-                // If both threads are null, well, we're going to consider we're on the client to disable any processing that
-                // could go wrong.
-                side = CLIENT_THREAD != null ? Side.CLIENT : SERVER_THREAD != null ? Side.SERVER : Side.CLIENT; // Rare case where both tthreads are null, just make it client
+            try {
+                Class.forName("net.minecraft.server.dedicated.DedicatedServer", false, SpongeMod.class.getClassLoader());
+                isClientSide = false;
+            } catch (ClassNotFoundException e) {
+                isClientSide = true;
             }
-            isClientSide = side == Side.CLIENT;
         }
         return isClientSide;
     }
+
     @Inject private SpongeGame game;
     @Inject private SpongeScheduler scheduler;
 
