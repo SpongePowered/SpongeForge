@@ -27,7 +27,9 @@ package org.spongepowered.mod.mixin.optimization.threadchecks;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.SpongeMod;
 
 @Mixin(MinecraftServer.class)
@@ -38,5 +40,10 @@ public class MixinMinecraftServer_ThreadChecks {
         SpongeMod.SERVER_THREAD = thread;
         thread.start();
 
+    }
+
+    @Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;systemExitNow()V"))
+    private void onServerStop(CallbackInfo ci) {
+        SpongeMod.SERVER_THREAD = null; // Reset it
     }
 }
