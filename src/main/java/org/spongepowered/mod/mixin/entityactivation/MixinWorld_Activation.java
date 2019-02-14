@@ -37,6 +37,7 @@ import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 import org.spongepowered.common.mixin.plugin.entityactivation.EntityActivationRange;
 import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.IModData_Activation;
+import org.spongepowered.common.relocate.co.aikar.timings.TimingHistory;
 
 @NonnullByDefault
 @Mixin(value = net.minecraft.world.World.class, priority = 999)
@@ -80,7 +81,7 @@ public abstract class MixinWorld_Activation implements IMixinWorld {
         if (forceUpdate && entityIn.addedToChunk)
         {
             ++entityIn.ticksExisted;
-            ++co.aikar.timings.TimingHistory.activatedEntityTicks; // Sponge
+            ++TimingHistory.activatedEntityTicks; // Sponge
 
             if (entityIn.isRiding())
             {

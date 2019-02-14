@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.world.gen;
 
-import co.aikar.timings.SpongeTimingsFactory;
+import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimingsFactory;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
 import com.flowpowered.math.vector.Vector3i;
@@ -32,13 +32,10 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.block.BlockFalling;
-import net.minecraft.client.multiplayer.ChunkProviderClient;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import net.minecraftforge.common.MinecraftForge;
@@ -95,7 +92,6 @@ import org.spongepowered.api.world.gen.populator.SeaFloor;
 import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
 import org.spongepowered.common.event.tracking.phase.generation.PopulatorPhaseContext;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
@@ -110,11 +106,9 @@ import org.spongepowered.common.world.gen.WorldGenConstants;
 import org.spongepowered.common.world.gen.populators.AnimalPopulator;
 import org.spongepowered.common.world.gen.populators.PlainsGrassPopulator;
 import org.spongepowered.common.world.gen.populators.SnowPopulator;
-import org.spongepowered.mod.mixin.core.world.MixinDimensionType;
 import org.spongepowered.mod.util.CompatibilityException;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
-import java.rmi.activation.ActivationGroup_Stub;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

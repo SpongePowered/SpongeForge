@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.registry;
 
-import co.aikar.timings.SpongeTimingsFactory;
+import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimingsFactory;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
 import com.google.common.collect.Maps;
@@ -53,7 +53,7 @@ public class MixinGameRegistry {
             "Lnet/minecraftforge/fml/common/IWorldGenerator;generate("
             + "Ljava/util/Random;IILnet/minecraft/world/World;Lnet/minecraft/world/gen/IChunkGenerator;"
             + "Lnet/minecraft/world/chunk/IChunkProvider;)V";
-    
+
     private static Map<Class<?>, Timing> worldGeneratorTimings = Maps.newHashMap();
 
     @Redirect(method = "generateWorld", at = @At(value = "INVOKE", target = WORLD_GENERATOR_GENERATE, remap = false))

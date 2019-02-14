@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
-import co.aikar.timings.SpongeTimings;
+import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimings;
 import co.aikar.timings.Timing;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.ASMEventHandler;
