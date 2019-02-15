@@ -208,7 +208,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         Class<? extends org.spongepowered.api.event.Event> spongeEventClass = null;
 
         final IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
-        if (!forced && SpongeImplHooks.isMainThread() && SpongeImpl.isInitialized() && !isIgnoredEvent(event)) {
+        if (!forced && SpongeImpl.isInitialized() && SpongeImplHooks.isMainThread() && !isIgnoredEvent(event)) {
             if (!isEventAllowed(event)) {
                 return false;
             }
@@ -228,7 +228,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         try {
             for (; index < listeners.length; index++) {
                 final IEventListener listener = listeners[index];
-                if (listener instanceof IMixinASMEventHandler) {
+                if (SpongeImpl.isInitialized() && listener instanceof IMixinASMEventHandler) {
                     // Set up the timing object, since it's a try with resources, it'll always close
                     // Likewise, the PhaseContext for GeneralListener will be enabled
                     // Note: As per JLS 14.20.3, the resources are closed in the opposite order in which they are initialized
