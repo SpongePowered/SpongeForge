@@ -34,14 +34,15 @@ configurations.all {
 }
 
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
-ext.minecraftVersion = forgeBuild
+
+ext.minecraftVersion = forgeVersion + '.' + forgeBuild
 ext.testmods = project.project('testmods')
 ext.implementationId = "spongeforge"
 
 // Apply shared implementation Gradle config
 apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
 
-version = "$forgeBuild-$implementationVersion"
+version = "$minecraft.version-$forgeBuild-$implementationVersion"
 minecraft {
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
     replace '@expected_certificate_fingerprint@', project.hasProperty('spongeCertificateFingerprint') ? project.property('spongeCertificateFingerprint') : ''
@@ -50,7 +51,7 @@ minecraft {
 sponge.plugin.meta {
     dependencies {
         forge {
-            version = project.minecraft.forgeVersion
+            version = forgeVersion + '.' + forgeBuild
         }
     }
 }
