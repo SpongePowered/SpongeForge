@@ -28,16 +28,20 @@ import net.minecraft.entity.Entity;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ITeleporter;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.PortalAgent;
+import org.spongepowered.api.world.PortalAgentType;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.world.IMixinITeleporter;
+import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 
 @Mixin(value = ITeleporter.class, remap = false)
 @Implements(@Interface(iface = IMixinITeleporter.class, prefix = "sponge$"))
-public interface MixinITeleporter {
+public interface MixinITeleporter extends PortalAgent {
 
     @Shadow void placeEntity(World world, Entity entity, float yaw);
 
@@ -52,4 +56,28 @@ public interface MixinITeleporter {
         return this.getClass().equals(Teleporter.class);
     }
 
+    @Override
+    default int getSearchRadius() {
+        return 0;
+    }
+
+    @Override
+    default PortalAgent setSearchRadius(final int radius) {
+        return this;
+    }
+
+    @Override
+    default int getCreationRadius() {
+        return 0;
+    }
+
+    @Override
+    default PortalAgent setCreationRadius(final int radius) {
+        return this;
+    }
+
+    @Override
+    default PortalAgentType getType() {
+        return PortalAgentRegistryModule.getInstance().validatePortalAgent((IMixinITeleporter) this);
+    }
 }
