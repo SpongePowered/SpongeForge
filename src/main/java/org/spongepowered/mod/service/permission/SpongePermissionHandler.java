@@ -50,6 +50,7 @@ import org.spongepowered.common.service.permission.SpongePermissionService;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -125,10 +126,11 @@ public enum SpongePermissionHandler implements IPermissionHandler {
     }
 
     private Set<Context> getContexts(Contextual contextual, @Nullable final IContext context) {
-        final Set<Context> contexts = contextual.getActiveContexts();
+        Set<Context> contexts = contextual.getActiveContexts();
         if (context != null) {
             final World world = (World) context.getWorld();
             if (world != null) {
+                contexts = new HashSet<>(contexts);
                 contexts.add(new Context(Context.WORLD_KEY, world.getName()));
             }
         }
