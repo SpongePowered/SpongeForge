@@ -377,6 +377,7 @@ public class SpongeMod extends MetaModContainer {
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.initializeCommands();
             SpongePermissionHandler.INSTANCE.adopt();
+            SpongeImpl.getGame().getEventManager().registerListeners(SpongeImpl.getPlugin().getInstance().get(), SpongePermissionHandler.INSTANCE);
             SpongeImpl.getRegistry().preInit();
             SpongeModMessageHandler.init();
 
