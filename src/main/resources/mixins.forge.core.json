@@ -70,7 +70,6 @@
         "item.inventory.MixinItemStackHandler",
         "item.inventory.MixinSlotItemHandler",
         "item.recipe.MixinSpongeRecipe",
-        "item.recipe.MixiSpongeCraftingRecipeRegistry",
         "nbt.MixinNBTTagCompound",
         "network.packet.MixinCPacketClickWindow",
         "network.packet.MixinCPacketPlayerTryUseItemOnBlock",

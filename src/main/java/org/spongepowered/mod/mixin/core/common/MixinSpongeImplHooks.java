@@ -607,6 +607,16 @@ public abstract class MixinSpongeImplHooks {
      * @author Cybermaxke
      * @reason Forge compatibility
      */
+    @Overwrite
+    public static void register(ResourceLocation name, IRecipe recipe) {
+        recipe.setRegistryName(name);
+        ForgeRegistries.RECIPES.register(recipe);
+    }
+
+    /**
+     * @author Cybermaxke
+     * @reason Forge compatibility
+     */
     @Nullable
     @Overwrite
     public static PluginContainer getActiveModContainer() {
