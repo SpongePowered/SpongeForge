@@ -84,11 +84,16 @@ public class SpongeRawChannel extends SpongeModChannelBinding implements Channel
     }
 
     void handlePacket(FMLProxyPacket msg, RemoteConnection con) {
-        ChannelBuf payload = SpongeNetworkManager.toChannelBuf(msg.payload());
-        Platform.Type side = msg.getTarget().isClient() ? Platform.Type.CLIENT : Platform.Type.SERVER;
-        Set<RawDataListener> listeners = this.listeners.get(side);
-        for (RawDataListener listener : listeners) {
-            listener.handlePayload(payload, con, side);
+        try {
+            final ChannelBuf payload = SpongeNetworkManager.toChannelBuf(msg.payload());
+            final Platform.Type side = msg.getTarget().isClient() ? Platform.Type.CLIENT : Platform.Type.SERVER;
+            final Set<RawDataListener> listeners = this.listeners.get(side);
+            for (RawDataListener listener : listeners) {
+                payload.setReadIndex(0);
+                listener.handlePayload(payload, con, side);
+            }
+        } finally {
+            msg.payload().release();
         }
     }
 
