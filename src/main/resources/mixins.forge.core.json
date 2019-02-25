@@ -44,6 +44,7 @@
         "fml.common.gameevent.MixinPlayerEvent",
         "fml.common.gameevent.MixinWorldTickEvent",
         "fml.common.network.handshake.MixinFMLHandshakeMessageRegistryData",
+        "fml.common.network.handshake.MixinNetworkDispatcher",
         "fml.common.registry.MixinEntityRegistry",
         "fml.common.registry.MixinBlockDummyAir",
         "fml.common.registry.MixinNetworkRegistry",
