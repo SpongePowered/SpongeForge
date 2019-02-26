@@ -312,6 +312,7 @@ public class SpongeToForgeEventFactory {
         }
         if (forgeEvent != null) {
             forgeEventBus.post(eventData);
+            spongeEvent.setMessage(SpongeTexts.toText(forgeEvent.getComponent()));
         }
         return true;
     }
