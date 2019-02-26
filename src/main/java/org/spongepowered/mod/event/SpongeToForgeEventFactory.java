@@ -42,6 +42,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.Explosion;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
@@ -305,14 +306,29 @@ public class SpongeToForgeEventFactory {
     private static boolean createAndPostServerChatEvent(SpongeToForgeEventData eventData) {
         final MessageChannelEvent.Chat spongeEvent = (MessageChannelEvent.Chat) eventData.getSpongeEvent();
         ServerChatEvent forgeEvent = (ServerChatEvent) eventData.getForgeEvent();
+
+        // We store this to check if the component in the forge event changes - we don't want to sync
+        // the forge component back if no changes have been made (to keep our header/footer formatting).
+        //
+        // This will remain null if no forge event is to be fired.
+        ITextComponent originalComponent = null;
         if (forgeEvent == null && spongeEvent.getSource() instanceof EntityPlayerMP) {
             final EntityPlayerMP player = (EntityPlayerMP) spongeEvent.getSource();
-            forgeEvent = new ServerChatEvent(player, spongeEvent.getRawMessage().toPlain(), SpongeTexts.toComponent(spongeEvent.getMessage()));
+            originalComponent = SpongeTexts.toComponent(spongeEvent.getMessage());
+            forgeEvent = new ServerChatEvent(player, spongeEvent.getRawMessage().toPlain(), originalComponent.createCopy());
             eventData.setForgeEvent(forgeEvent);
+        } else if (forgeEvent != null) {
+            // Get what the sponge event is saying, because that's what will potentially have to change.
+            originalComponent = SpongeTexts.toComponent(spongeEvent.getMessage());
         }
+
         if (forgeEvent != null) {
             forgeEventBus.post(eventData);
-            spongeEvent.setMessage(SpongeTexts.toText(forgeEvent.getComponent()));
+            if (!originalComponent.equals(forgeEvent.getComponent())) {
+                // The message has changed, all we can do is set the body and leave the
+                // header/footer blank.
+                spongeEvent.setMessage(SpongeTexts.toText(forgeEvent.getComponent()));
+            }
         }
         return true;
     }
