@@ -26,8 +26,10 @@ package org.spongepowered.mod.mixin.core.fml.common.network.handshake;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.unix.Errors;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -36,10 +38,12 @@ import org.spongepowered.common.SpongeImpl;
 @Mixin(value = NetworkDispatcher.class, remap = false)
 public class MixinNetworkDispatcher {
 
+    @Shadow private EntityPlayerMP player;
+
     @Inject(method = "exceptionCaught", at = @At(value = "HEAD"))
     public void onExceptionCaught(ChannelHandlerContext ctx, Throwable cause, CallbackInfo ci) {
         if (cause instanceof Errors.NativeIoException && cause.getMessage().equals("syscall:writev(..) failed: Broken pipe")) {
-            SpongeImpl.getLogger().error("Detected broken pipe Netty error - closing channel");
+            SpongeImpl.getLogger().error(String.format("Detected broken pipe Netty error - closing channel. This: '%s' Player: '%s' Channel: '%s'", this, this.player, ctx.isRemoved()));
             ctx.close();
         }
     }
