@@ -90,7 +90,6 @@ import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
-import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.block.tile.IMixinTileEntity;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
@@ -342,9 +341,7 @@ public abstract class MixinSpongeImplHooks {
      */
     @Overwrite
     public static Iterator<Chunk> getChunkIterator(WorldServer world) {
-        // We avoid regenerating the persisted chunk list every tick and simply use loaded chunks
-        //return world.getPersistentChunkIterable(world.getPlayerChunkMap().getChunkIterator());
-        return world.getChunkProvider().getLoadedChunks().iterator();
+        return world.getPersistentChunkIterable(world.getPlayerChunkMap().getChunkIterator());
     }
 
     /**

@@ -26,8 +26,6 @@ package org.spongepowered.mod.mixin.core.world;
 
 import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.server.management.PlayerChunkMap;
-import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.WorldServer;
@@ -51,15 +49,10 @@ import org.spongepowered.common.interfaces.IMixinChunk;
 @Mixin(value = net.minecraft.world.chunk.Chunk.class, priority = 1001)
 public abstract class MixinChunk implements Chunk, IMixinChunk {
 
-    private PlayerChunkMapEntry playerChunkMapEntry;
-
     @Shadow @Final private net.minecraft.world.World world;
     @Shadow @Final public int x;
     @Shadow @Final public int z;
     @Shadow public boolean unloadQueued;
-    @Shadow private boolean isTerrainPopulated;
-    @Shadow private boolean isLightPopulated;
-    @Shadow private boolean ticked;
 
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract IBlockState getBlockState(int x, int y, int z);
@@ -221,41 +214,4 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         // Sponge End
     }
 
-    @Override
-    public void setPlayerChunkMapEntry(PlayerChunkMapEntry entry) {
-        this.playerChunkMapEntry = entry;
-    }
-
-    /**
-     * Checks to see if the chunk can tick.
-     * 
-     * Note: This method is a copy of PlayerChunkMap.getChunkIterator()'s logic with
-     * support for persisted chunks.
-     * 
-     * @return Whether chunk can tick
-     */
-    @Override
-    public boolean canTick() {
-        if (this.world.isRemote || this.isPersistedChunk()) {
-            return true;
-        }
-
-        if (this.playerChunkMapEntry == null) {
-            return false;    
-        }
-
-        if (!this.isLightPopulated && this.isTerrainPopulated) {
-            return true;
-        }
-
-        if (!this.ticked) {
-            return true;
-        }
-
-        if (!this.playerChunkMapEntry.hasPlayerMatchingInRange(128.0D, PlayerChunkMap.NOT_SPECTATOR)) {
-            return false;
-        }
-
-        return true;
-    }
 }

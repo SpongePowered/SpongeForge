@@ -54,20 +54,11 @@ public class SpongeEventHooks {
 
     @SubscribeEvent
     public void onForceChunk(ForceChunkEvent event) {
-        if (event.getTicket().getMaxChunkListDepth() > 0 && event.getTicket().getChunkList().size() > event.getTicket().getMaxChunkListDepth()) {
-            // Forge unforces the chunk if this check passes so we simply ignore our logic
-            return;
-        }
-
-        // Since we are no longer using Forge's persisted iterator during block updates
-        // we need to load the chunk here when requested by mod
-        final IMixinChunkProviderServer spongeChunkProvider = (IMixinChunkProviderServer) event.getTicket().world.getChunkProvider();
-        spongeChunkProvider.setForceChunkRequests(true);
-        final net.minecraft.world.chunk.Chunk chunk = event.getTicket().world.getChunkProvider().getLoadedChunk(event.getLocation().x, event.getLocation().z);
+        final net.minecraft.world.chunk.Chunk chunk = ((IMixinChunkProviderServer) event.getTicket().world.getChunkProvider())
+                .getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
             ((IMixinChunk) chunk).setPersistedChunk(true);
         }
-        spongeChunkProvider.setForceChunkRequests(false);
     }
 
     @SubscribeEvent

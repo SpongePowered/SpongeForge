@@ -56,7 +56,8 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
     public Chunk onLoadChunk(ChunkProviderServer chunkProviderServer, int chunkX, int chunkZ, Runnable runnable) {
         this.loading = true;
         this.loadedRunnable = new PlayerChunkRunnable(this.playerChunkMap, (PlayerChunkMapEntry) (Object) this);
-        this.setChunk(this.playerChunkMap.getWorldServer().getChunkProvider().loadChunk(chunkX, chunkZ, this.loadedRunnable));
+        this.chunk = this.playerChunkMap.getWorldServer().getChunkProvider().loadChunk(chunkX, chunkZ, this.loadedRunnable);
+        this.markChunkUsed();
         return this.chunk;
     }
 
@@ -75,11 +76,12 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
     public Chunk onProvidePlayerChunk(ChunkProviderServer chunkProviderServer, int chunkX, int chunkZ) {
         this.loading = true;
         if (!chunkProviderServer.chunkExists(chunkX, chunkZ)) {
-            this.setChunk(chunkProviderServer.provideChunk(chunkX, chunkZ));
+            this.chunk = chunkProviderServer.provideChunk(chunkX, chunkZ);
         } else {
             // try to load chunk async
-            this.setChunk(chunkProviderServer.loadChunk(chunkX, chunkZ, this.loadedRunnable));
+            this.chunk = chunkProviderServer.loadChunk(chunkX, chunkZ, this.loadedRunnable);
         }
+        markChunkUsed();
         return this.chunk;
     }
 
@@ -91,7 +93,8 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
     public Chunk onLoadPlayerChunk(ChunkProviderServer chunkProviderServer, int chunkX, int chunkZ) {
         // try to load chunk async
         this.loading = true;
-        this.setChunk(chunkProviderServer.loadChunk(chunkX, chunkZ, this.loadedRunnable));
+        this.chunk = chunkProviderServer.loadChunk(chunkX, chunkZ, this.loadedRunnable);
+        this.markChunkUsed();
         return this.chunk;
     }
 
@@ -99,9 +102,6 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
     @Override
     public void setChunk(Chunk chunk) {
         this.chunk = chunk;
-        if (this.chunk != null) {
-            ((IMixinChunk) this.chunk).setPlayerChunkMapEntry((PlayerChunkMapEntry)(Object) this);
-        }
         this.markChunkUsed();
     }
 

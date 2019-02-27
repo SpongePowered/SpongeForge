@@ -78,7 +78,6 @@
         "server.MixinMinecraftServer",
         "server.MixinPlayerList",
         "server.MixinServerCommandManager",
-        "server.management.MixinPlayerChunkMap",
         "server.management.MixinPlayerChunkMapEntry",
         "server.management.MixinPlayerInteractionManager",
         "world.MixinChunk",
