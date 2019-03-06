@@ -19,7 +19,6 @@
         "common.MixinSpongeCommonEventFactory",
         "common.MixinSpongeDimension",
         "common.MixinSpongeImplHooks",
-        "common.MixinSpongeProxyBlockAccess",
         "common.fluid.MixinSpongeFluidStackBuilder",
         "common.world.MixinWorldManager",
         "entity.MixinEntity",
@@ -84,6 +83,7 @@
         "world.MixinDimensionType",
         "world.MixinWorld",
         "world.MixinWorldServer",
+        "world.MixinWorldServer_Forge",
         "world.biome.MixinBiomeDecorator",
         "world.biome.MixinBiomeGenBaseForge",
         "world.gen.MixinChunkProviderEnd",
@@ -92,6 +92,7 @@
         "world.storage.MixinSaveHandler"
     ],
     "client": [
+        "common.MixinSpongeProxyBlockAccess",
         "client.MixinMinecraft",
         "client.gui.MixinGuiOptions",
         "client.gui.MixinGuiOverlayDebug",

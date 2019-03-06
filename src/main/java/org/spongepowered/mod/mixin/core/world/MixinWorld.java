@@ -24,7 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
@@ -41,6 +43,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
@@ -59,6 +62,8 @@ public abstract class MixinWorld implements IMixinWorld {
     @Shadow public abstract boolean canSeeSky(BlockPos pos);
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract int getLightFor(EnumSkyBlock type, BlockPos pos);
+
+    @Shadow public abstract void updateComparatorOutputLevel(BlockPos pos, Block blockIn);
 
     /**
      * @author gabizou - July 25th, 2016
@@ -109,6 +114,22 @@ public abstract class MixinWorld implements IMixinWorld {
                 return i;
             }
         }
+    }
+
+    /**
+     * @author gabizou - March 1st, 2019 - 1.12.2
+     * @reason Forge adds the comparator output update to notify neighboring
+     * blocks, and when Sponge is performing block restores, this needs to be
+     * ignored when Sponge performs the restore. To be overridden in the mod
+     * equivalent to MixinWorldServer.
+     *
+     * @param world This world
+     * @param pos The position of the tile being removed
+     * @param blockIn The block type of the tile entity being removed
+     */
+    @Redirect(method = "removeTileEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;updateComparatorOutputLevel(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;)V"))
+    protected void onUpdateComparatorDuringTileRemoval(World world, BlockPos pos, Block blockIn, BlockPos samePos) {
+        this.updateComparatorOutputLevel(pos, blockIn);
     }
 
     @Inject(method = "getWorldInfo", at = @At("HEAD"), cancellable = true)
