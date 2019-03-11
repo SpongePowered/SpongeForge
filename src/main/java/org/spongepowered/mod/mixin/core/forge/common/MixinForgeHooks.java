@@ -71,7 +71,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
-import org.spongepowered.common.event.tracking.PhaseData;
+import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
@@ -205,12 +205,11 @@ public abstract class MixinForgeHooks {
             return player.canHarvestBlock(state);
         }
 
-        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
-        final PhaseData peek = phaseTracker.getCurrentPhaseData();
-        final IPhaseState<?> phaseState = peek.state;
+        final PhaseContext<?> context = PhaseTracker.getInstance().getCurrentContext();
+        final IPhaseState<?> phaseState = context.state;
         // Many mods use this hook with fake players so we need to avoid passing them when possible
         // and instead pass the true source which is usually a TileEntity
-        final Object source = peek.context.getSource() == null ? player : peek.context.getSource();
+        final Object source = context.getSource() == null ? player : context.getSource();
         if (!phaseState.isInteraction()) {
             // Sponge Start - Add the changeblockevent.pre check here before we bother with item stacks.
             if (world instanceof IMixinWorldServer && !((IMixinWorld) world).isFake() && SpongeImplHooks.isMainThread()) {

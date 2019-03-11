@@ -62,7 +62,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
-import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.packet.PacketContext;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerInteractionManager;
@@ -134,8 +133,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
         // SpongeForge - end
 
         if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
-            final PhaseData peek = PhaseTracker.getInstance().getCurrentPhaseData();
-            ((PacketContext<?>) peek.context).interactItemChanged(true);
+            ((PacketContext<?>) PhaseTracker.getInstance().getCurrentContext()).interactItemChanged(true);
         }
 
         SpongeCommonEventFactory.lastInteractItemOnBlockCancelled = event.isCancelled() || event.getUseItemResult() == Tristate.FALSE;
@@ -234,8 +232,7 @@ public abstract class MixinPlayerInteractionManager implements IMixinPlayerInter
                 // Mods such as StorageDrawers alter the stack on block activation
                 // if itemstack changed, avoid restore
                 if (!ItemStack.areItemStacksEqual(oldStack, this.player.getHeldItem(hand))) {
-                    final PhaseData peek = PhaseTracker.getInstance().getCurrentPhaseData();
-                    ((PacketContext<?>) peek.context).interactItemChanged(true);
+                    ((PacketContext<?>) PhaseTracker.getInstance().getCurrentContext()).interactItemChanged(true);
                 }
 
                 result = this.handleOpenEvent(lastOpenContainer, this.player, currentSnapshot, result);
