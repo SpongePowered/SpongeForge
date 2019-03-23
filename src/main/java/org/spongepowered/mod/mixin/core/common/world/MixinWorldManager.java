@@ -29,6 +29,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.BiMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
@@ -70,7 +71,7 @@ public abstract class MixinWorldManager {
     @Shadow @Final private static Map<UUID, WorldProperties> worldPropertiesByWorldUuid;
     @Shadow @Final private static Map<Integer, String> worldFolderByDimensionId;
     @Shadow @Final private static BiMap<String, UUID> worldUuidByFolderName;
-    @Shadow @Final private static BitSet dimensionBits;
+    @Shadow @Final private static IntSet usedDimensionIds;
 
     /**
      * @author Zidane - May 11th, 2016
@@ -166,7 +167,7 @@ public abstract class MixinWorldManager {
         dimensionTypeByDimensionId.put(dimensionId, type);
         dimensionTypeByTypeId.put(dimensionId, type);
         if (dimensionId >= 0) {
-            dimensionBits.set(dimensionId);
+            usedDimensionIds.add(dimensionId);
         }
     }
 
@@ -182,7 +183,7 @@ public abstract class MixinWorldManager {
         dimensionTypeByTypeId.remove(dimensionId);
         dimensionPathByDimensionId.remove(dimensionId);
         if (dimensionId >= 0) {
-            dimensionBits.clear(dimensionId);
+            usedDimensionIds.remove(dimensionId);
         }
         String worldFolder = worldFolderByDimensionId.get(dimensionId);
         UUID worldUniqueId;
