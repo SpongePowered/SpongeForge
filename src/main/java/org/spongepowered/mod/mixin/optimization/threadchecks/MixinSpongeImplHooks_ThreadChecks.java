@@ -31,6 +31,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.mod.SpongeMod;
 
 @Mixin(value = SpongeImplHooks.class, remap = false)
@@ -53,6 +54,6 @@ public class MixinSpongeImplHooks_ThreadChecks {
         // events with cause tracking.
         return SpongeMod.isClient()
                ? SpongeMod.isClientRunningServerAndServerThread()
-               : SpongeMod.SERVER_THREAD == null || Thread.currentThread() == SpongeMod.SERVER_THREAD;
+               : PhaseTracker.SERVER.getSidedThread() == null || Thread.currentThread() == PhaseTracker.SERVER.getSidedThread();
     }
 }

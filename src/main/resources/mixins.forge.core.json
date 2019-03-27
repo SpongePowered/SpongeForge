@@ -63,6 +63,7 @@
         "forge.fluids.MixinFluidStack",
         "item.MixinEnchantment",
         "item.MixinItem",
+        "item.MixinItemDye",
         "item.MixinItemShears",
         "item.MixinItemStack",
         "item.MixinItemLilyPad",

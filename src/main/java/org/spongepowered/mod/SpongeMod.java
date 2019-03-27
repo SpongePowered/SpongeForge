@@ -92,6 +92,7 @@ import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.event.registry.SpongeGameRegistryRegisterEvent;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.inject.SpongeGuice;
 import org.spongepowered.common.inject.SpongeModule;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
@@ -137,11 +138,6 @@ import javax.annotation.Nullable;
 public class SpongeMod extends MetaModContainer {
 
     public static SpongeMod instance;
-
-    // USED ONLY TO KEEP TRACK OF THE THREAD. SINCE CLIENTS CAN HAVE MULTIPLE SERVERS
-    // WE NEED TO BE ABLE TO STORE A REFERENCE TO THE THREAD TO MAINTAIN SPEED OF ISMAINTHREAD CHECKS
-    @Nullable public static Thread SERVER_THREAD;
-    @Nullable public static Thread CLIENT_THREAD;
     @Nullable public static Side side; // Platform side
     private static boolean hasChecked = false;
     private static boolean isClientSide = false;
@@ -149,11 +145,13 @@ public class SpongeMod extends MetaModContainer {
     public static boolean isClientRunningServerAndServerThread() {
         if (isClient()) {
             final Thread current = Thread.currentThread();
-            if (CLIENT_THREAD != null && current == CLIENT_THREAD) {
+            final Thread trackerClientThread = PhaseTracker.CLIENT.getSidedThread();
+            if (trackerClientThread != null && current == trackerClientThread) {
                 return false;
             }
-            if (SERVER_THREAD != null) {
-                return SERVER_THREAD == current;
+            final Thread trackerServerThread = PhaseTracker.SERVER.getSidedThread();
+            if (trackerServerThread != null) {
+                return trackerServerThread == current;
             }
             final NetworkManager client = FMLCommonHandler.instance().getClientToServerNetworkManager();
             // Here we're just checking if we're connected to a server and
@@ -214,6 +212,7 @@ public class SpongeMod extends MetaModContainer {
         Sponge.getPluginManager().getPlugin(SpongeImpl.ECOSYSTEM_ID).ifPresent(SpongeImpl::setSpongePlugin);
 
         SpongeImpl.getRegistry().preRegistryInit();
+        PhaseTracker.SERVER.init(); // Needs to occur after the game registry registers all the builders.
         SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (owner, manager, id, obj, oldObj) -> {
             final ResourceLocation key = ForgeRegistries.BLOCKS.getKey(obj);
             if (key == null || ((IMixinBlock) obj).isDummy()) {
