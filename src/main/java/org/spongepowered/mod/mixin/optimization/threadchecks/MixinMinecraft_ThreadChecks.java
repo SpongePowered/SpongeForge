@@ -30,6 +30,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.mod.SpongeMod;
 
 @Mixin(Minecraft.class)
@@ -38,10 +39,10 @@ public class MixinMinecraft_ThreadChecks {
     @Shadow private static Minecraft instance;
 
     @Redirect(method = "<init>", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;instance:Lnet/minecraft/client/Minecraft;"))
-    private void onSpongeModInitClientThread(Minecraft minecraft) {
+    private void onSpongeModInitClientThread(Minecraft minecraft) throws IllegalAccessException {
         instance = minecraft;
-        SpongeMod.CLIENT_THREAD = Thread.currentThread();
-        SpongeMod.side = Side.CLIENT;
+        final Thread thread = Thread.currentThread();
+        PhaseTracker.CLIENT.setThread(thread);
     }
 
 }

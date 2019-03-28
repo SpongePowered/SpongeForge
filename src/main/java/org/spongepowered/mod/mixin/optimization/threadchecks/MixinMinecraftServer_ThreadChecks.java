@@ -30,20 +30,21 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.mod.SpongeMod;
 
 @Mixin(MinecraftServer.class)
 public class MixinMinecraftServer_ThreadChecks {
 
     @Redirect(method = "startServerThread", at = @At(value = "INVOKE", target = "Ljava/lang/Thread;start()V", remap = false))
-    private void onServerStart(Thread thread) {
-        SpongeMod.SERVER_THREAD = thread;
+    private void onServerStart(Thread thread) throws IllegalAccessException {
+        PhaseTracker.SERVER.setThread(thread);
         thread.start();
 
     }
 
     @Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;systemExitNow()V"))
-    private void onServerStop(CallbackInfo ci) {
-        SpongeMod.SERVER_THREAD = null; // Reset it
+    private void onServerStop(CallbackInfo ci) throws IllegalAccessException {
+        PhaseTracker.SERVER.setThread(null);
     }
 }
