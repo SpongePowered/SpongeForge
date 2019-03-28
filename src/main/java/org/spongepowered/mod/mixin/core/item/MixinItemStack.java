@@ -25,23 +25,29 @@
 package org.spongepowered.mod.mixin.core.item;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.item.IMixinItemStack;
+
+import javax.annotation.Nullable;
 
 @Mixin(net.minecraft.item.ItemStack.class)
-public abstract class MixinItemStack {
+public abstract class MixinItemStack implements IMixinItemStack {
 
-    @Shadow private net.minecraft.item.Item item;
-    @Shadow public abstract net.minecraft.item.Item getItem();
+    @Shadow public abstract net.minecraft.item.Item shadow$getItem();
 
     // Disable Forge PlaceEvent patch as we handle this in World setBlockState
+
+    @Shadow(remap = false) @Nullable private CapabilityDispatcher capabilities;
 
     /**
      * @author blood - October 7th, 2015
@@ -60,14 +66,22 @@ public abstract class MixinItemStack {
     @Overwrite
     public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing
             side, float hitX, float hitY, float hitZ) {
-        final EnumActionResult result = this.getItem().onItemUse(playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ);
+        final EnumActionResult result = this.shadow$getItem().onItemUse(playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ);
 
         if (result == EnumActionResult.SUCCESS) {
-            playerIn.addStat(StatList.getObjectUseStats(this.item));
+            playerIn.addStat(StatList.getObjectUseStats(this.shadow$getItem()));
         }
 
         return result;
     }
 
 
+    @Nullable
+    @Override
+    public NBTTagCompound getCapabitilitiesForSpongeContainer() {
+        if (this.capabilities != null) {
+            return this.capabilities.serializeNBT();
+        }
+        return null;
+    }
 }
