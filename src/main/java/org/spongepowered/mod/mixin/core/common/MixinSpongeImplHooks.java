@@ -493,9 +493,10 @@ public abstract class MixinSpongeImplHooks {
      * @author unknown
      * @reason forge
      */
+    @SuppressWarnings("unused")
     @Overwrite
     public static boolean isRestoringBlocks(World world) {
-        return world.restoringBlockSnapshots || PhaseTracker.getInstance().getCurrentState() == BlockPhase.State.RESTORING_BLOCKS;
+        return world.restoringBlockSnapshots || PhaseTracker.getInstance().getCurrentState().isRestoring();
 
     }
 

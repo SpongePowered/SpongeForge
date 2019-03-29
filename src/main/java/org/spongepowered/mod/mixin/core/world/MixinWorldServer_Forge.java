@@ -43,7 +43,7 @@ public abstract class MixinWorldServer_Forge extends MixinWorld {
     @Override
     protected void onUpdateComparatorDuringTileRemoval(World world, BlockPos pos, Block blockIn, BlockPos samePos) {
         if (!this.isFake()) {
-            if (PhaseTracker.getInstance().getCurrentState() == BlockPhase.State.RESTORING_BLOCKS) {
+            if (PhaseTracker.getInstance().getCurrentState().isRestoring()) {
                 return;
             }
         }
