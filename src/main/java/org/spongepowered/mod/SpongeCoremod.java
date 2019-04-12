@@ -122,6 +122,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.apache.commons.lang3.");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.interfaces.IMixinEvent");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.common.event.tracking.PhaseTracker");
+        Launch.classLoader.addTransformerExclusion("org.spongepowered.common.event.tracking.TrackingUtil");
         Launch.classLoader.addTransformerExclusion("scala.");
 
         SpongeLaunch.setupSuperClassTransformer();
