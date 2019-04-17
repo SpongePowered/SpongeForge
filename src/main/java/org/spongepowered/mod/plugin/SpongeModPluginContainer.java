@@ -49,6 +49,7 @@ import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionParser;
 import net.minecraftforge.fml.common.versioning.VersionRange;
+import org.objectweb.asm.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.plugin.PluginAdapter;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -279,15 +280,19 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
             modClassLoader.clearNegativeCacheFor(this.candidate.getClassList());
 
             final Class<?> pluginClass = Class.forName(this.className, true, modClassLoader);
-            Class<?> adapterClass = (Class<?>) this.descriptor.get("adapter");
-            if (adapterClass == null) {
+
+            final Type adapterType = (org.objectweb.asm.Type) this.descriptor.get("adapter");
+            final Class<?> adapterClass;
+            if (adapterType != null) {
+                adapterClass = Class.forName(adapterType.getClassName());
+            } else {
                 adapterClass = PluginAdapter.Default.class;
             }
 
             this.injector = spongeInjector.getParent().createChildInjector(new PluginModule((PluginContainer) this, pluginClass));
 
             final PluginAdapter adapter = (PluginAdapter) adapterClass.newInstance();
-            this.injector = checkNotNull(adapter.getInjector(this.pluginContainer, this.injector),
+            this.injector = checkNotNull(adapter.getInjector(this.pluginContainer, this.injector, pluginClass),
                     "The injector cannot be null");
             this.instance = checkNotNull(adapter.getInstance(this.pluginContainer, this.injector, pluginClass),
                     "The plugin instance cannot be null");
