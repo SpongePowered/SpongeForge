@@ -34,6 +34,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ILanguageAdapter;
 import net.minecraftforge.fml.common.LoadController;
@@ -267,6 +268,7 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     @Subscribe
     public void constructMod(FMLConstructionEvent event) {
         try {
@@ -289,13 +291,24 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
                 adapterClass = PluginAdapter.Default.class;
             }
 
-            this.injector = spongeInjector.getParent().createChildInjector(new PluginModule((PluginContainer) this, pluginClass));
+            Injector injector = spongeInjector.getParent().createChildInjector(new PluginModule((PluginContainer) this));
+
+            // Check for plugin specified modules
+            final List<Type> injectionModuleTypes = (List<Type>) this.descriptor.get("injectionModules");
+            if (injectionModuleTypes != null && injectionModuleTypes.size() > 0) {
+                final Module[] modules = new Module[injectionModuleTypes.size()];
+                for (int i = 0; i < modules.length; i++) {
+                    final Class<?> moduleClass = Class.forName(injectionModuleTypes.get(i).getClassName());
+                    modules[i] = (Module) moduleClass.newInstance();
+                }
+                injector = injector.createChildInjector(modules);
+            }
 
             final PluginAdapter adapter = (PluginAdapter) adapterClass.newInstance();
-            this.injector = checkNotNull(adapter.getInjector(this.pluginContainer, this.injector, pluginClass),
-                    "The injector cannot be null");
-            this.instance = checkNotNull(adapter.getInstance(this.pluginContainer, this.injector, pluginClass),
-                    "The plugin instance cannot be null");
+            injector = checkNotNull(adapter.getInjector(this.pluginContainer, injector, pluginClass), "The injector cannot be null");
+
+            this.injector = injector;
+            this.instance = injector.getInstance(pluginClass);
 
             // TODO: Detect Scala or use meta to know if we're scala and use proper adapter here...
             ProxyInjector.inject(this, event.getASMHarvestedData(), FMLCommonHandler.instance().getSide(), new ILanguageAdapter.JavaAdapter());
