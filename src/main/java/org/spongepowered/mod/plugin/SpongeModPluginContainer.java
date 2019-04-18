@@ -32,11 +32,16 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.AbstractModule;
 import com.google.inject.Binding;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.PrivateBinder;
 import com.google.inject.Scopes;
+import com.google.inject.Stage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ILanguageAdapter;
 import net.minecraftforge.fml.common.LoadController;
@@ -312,9 +317,29 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
             final Injector parentInjector = spongeInjector.getParent();
 
             final CachedAdapter cachedAdapter = adapterCache.computeIfAbsent(adapterClass, clazz -> {
+                // Copy the parent injector bindings to allow complete
+                // control with injectors. If there's a parent injector,
+                // implicit bindings may be delegated to it, skipping
+                // registered TypeListeners, etc. in the child injector
+                final AbstractModule globalModule = new AbstractModule() {
+                    @Override
+                    protected void configure() {
+                        for (Map.Entry<Key<?>, Binding<?>> entry : parentInjector.getBindings().entrySet()) {
+                            final Key<?> key = entry.getKey();
+                            // Some default bindings we need to skip
+                            if (key.equals(Key.get(Stage.class)) ||
+                                    key.equals(Key.get(Injector.class)) ||
+                                    key.equals(Key.get(java.util.logging.Logger.class))) {
+                                continue;
+                            }
+                            bind((Key) entry.getKey()).toProvider(entry.getValue().getProvider());
+                        }
+                    }
+                };
+
                 final PluginAdapter adapter = adapterClass == PluginAdapter.Default.class ? DefaultPluginAdapter.INSTANCE :
                         (PluginAdapter) parentInjector.getInstance(adapterClass);
-                final Injector injector = adapter.createGlobalInjector(parentInjector);
+                final Injector injector = adapter.createGlobalInjector(globalModule);
                 return new CachedAdapter(adapter, injector);
             });
 
@@ -326,6 +351,7 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
                     moduleClasses.add(Class.forName(injectionModuleType.getClassName(), true, modClassLoader));
                 }
             }
+
             Injector injector = cachedAdapter.globalInjector.createChildInjector(new PluginModule(this.pluginContainer, moduleClasses));
 
             final ImmutableList.Builder<Module> pluginModules = ImmutableList.builder();
