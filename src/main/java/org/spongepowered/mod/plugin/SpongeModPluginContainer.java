@@ -289,7 +289,7 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
             final Type adapterType = (org.objectweb.asm.Type) this.descriptor.get("adapter");
             final Class<?> adapterClass;
             if (adapterType != null) {
-                adapterClass = Class.forName(adapterType.getClassName());
+                adapterClass = Class.forName(adapterType.getClassName(), true, modClassLoader);
             } else {
                 adapterClass = PluginAdapter.Default.class;
             }
@@ -301,7 +301,7 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
             final List<Type> injectionModuleTypes = (List<Type>) this.descriptor.get("injectionModules");
             if (injectionModuleTypes != null && injectionModuleTypes.size() > 0) {
                 for (Type injectionModuleType : injectionModuleTypes) {
-                    final Class<?> moduleClass = Class.forName(injectionModuleType.getClassName());
+                    final Class<?> moduleClass = Class.forName(injectionModuleType.getClassName(), true, modClassLoader);
                     modules.add((Module) moduleClass.newInstance());
                 }
             }
