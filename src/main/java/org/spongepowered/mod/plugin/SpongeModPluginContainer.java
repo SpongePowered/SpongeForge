@@ -64,9 +64,12 @@ import org.objectweb.asm.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.plugin.PluginAdapter;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.util.Tuple;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.inject.InjectionPointProvider;
 import org.spongepowered.common.inject.plugin.PluginModule;
 import org.spongepowered.common.plugin.DefaultPluginAdapter;
+import org.spongepowered.common.plugin.PluginConstructor;
 import org.spongepowered.common.plugin.PluginContainerExtension;
 
 import java.io.File;
@@ -87,8 +90,6 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
 
     // This is the implementation (SpongeForge) injector.
     @Inject private static Injector spongeInjector;
-
-    private static Map<Class<?>, PluginAdapter> adapterCache = new ConcurrentHashMap<>();
 
     private final String id;
 
@@ -297,113 +298,30 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
             modClassLoader.addFile(getSource());
             modClassLoader.clearNegativeCacheFor(this.candidate.getClassList());
 
-            final Class<?> pluginClass = Class.forName(this.className, true, modClassLoader);
+            final Class pluginClass = Class.forName(this.className, true, modClassLoader);
 
             final Type adapterType = (org.objectweb.asm.Type) this.descriptor.get("adapter");
-            final Class<?> adapterClass;
+            final Class<? extends PluginAdapter> adapterClass;
             if (adapterType != null) {
-                adapterClass = Class.forName(adapterType.getClassName(), true, modClassLoader);
+                adapterClass = (Class<? extends PluginAdapter>) Class.forName(adapterType.getClassName(), true, modClassLoader);
             } else {
                 adapterClass = PluginAdapter.Default.class;
             }
 
-            final Injector parentInjector = spongeInjector.getParent();
-            final Stage stage = parentInjector.getInstance(Stage.class);
-
-            final PluginAdapter adapter = adapterCache.computeIfAbsent(adapterClass,
-                    clazz -> adapterClass == PluginAdapter.Default.class ? DefaultPluginAdapter.INSTANCE :
-                            (PluginAdapter) parentInjector.getInstance(adapterClass));
-
-            // Copy the parent injector bindings to allow complete
-            // control with injectors. If there's a parent injector,
-            // implicit bindings may be delegated to it, skipping
-            // registered TypeListeners, etc. in the child injector
-            final AbstractModule globalModule = new AbstractModule() {
-                @Override
-                protected void configure() {
-                    for (Map.Entry<Key<?>, Binding<?>> entry : parentInjector.getBindings().entrySet()) {
-                        final Key<?> key = entry.getKey();
-                        // Some default bindings we need to skip
-                        if (key.equals(Key.get(Stage.class)) ||
-                                key.equals(Key.get(Injector.class)) ||
-                                key.equals(Key.get(java.util.logging.Logger.class))) {
-                            continue;
-                        }
-                        bind((Key) entry.getKey()).toProvider(entry.getValue().getProvider());
-                    }
-                }
-            };
-
-            final List<Class<?>> moduleClasses = new ArrayList<>();
+            final List<Class<? extends Module>> moduleClasses = new ArrayList<>();
             // Check for plugin specified modules
             final List<Type> injectionModuleTypes = (List<Type>) this.descriptor.get("injectionModules");
-            if (injectionModuleTypes != null && injectionModuleTypes.size() > 0) {
+            if (injectionModuleTypes != null) {
                 for (Type injectionModuleType : injectionModuleTypes) {
-                    moduleClasses.add(Class.forName(injectionModuleType.getClassName(), true, modClassLoader));
+                    moduleClasses.add((Class<? extends Module>) Class.forName(injectionModuleType.getClassName(), true, modClassLoader));
                 }
             }
 
-            Module module = adapter.createGlobalModule(globalModule);
-            final Module pluginModule = new PluginModule(this.pluginContainer, moduleClasses);
+            final Tuple<Object, Injector> tuple = PluginConstructor.constructPlugin(spongeInjector.getParent(),
+                    this.pluginContainer, pluginClass, adapterClass, moduleClasses);
 
-            List<Element> elements = Elements.getElements(module, pluginModule);
-            final Injector pluginModuleInjector = Guice.createInjector(stage, Elements.getModule(elements));
-
-            final List<Module> pluginModules = new ArrayList<>();
-            for (Class<?> moduleClass : moduleClasses) {
-                pluginModules.add((Module) pluginModuleInjector.getInstance(moduleClass));
-            }
-
-            elements = new ArrayList<>(elements);
-            final ListIterator<Element> it = elements.listIterator();
-            while (it.hasNext()) {
-                final Element element = it.next();
-                if (element instanceof Binding) {
-                    final Binding<?> binding = (Binding<?>) element;
-                    // Forward all the singleton bindings to the plugin module
-                    // injector, this allows explicit defined bindings to be shared
-                    if (Scopes.isSingleton(binding)) {
-                        it.set(new Element() {
-                            @Override
-                            public Object getSource() {
-                                return element.getSource();
-                            }
-
-                            @Override
-                            public <T> T acceptVisitor(ElementVisitor<T> visitor) {
-                                return (T) this;
-                            }
-
-                            @Override
-                            public void applyTo(Binder binder) {
-                                binder.bind((Key) binding.getKey()).toProvider(pluginModuleInjector.getProvider(binding.getKey()));
-                            }
-                        });
-                    }
-                }
-            }
-
-            final Module baseModule = Elements.getModule(elements);
-            module = new AbstractModule() {
-                @Override
-                protected void configure() {
-                    install(baseModule);
-
-                    // Install all plugin modules
-                    pluginModules.forEach(this::install);
-                }
-            };
-
-            module = adapter.createPluginModule(this.pluginContainer, pluginClass, module);
-            final Injector injector = Guice.createInjector(stage, module);
-
-            final Binding<?> binding = injector.getBinding(pluginClass);
-            if (!Scopes.isSingleton(binding)) {
-                throw new IllegalStateException("The plugin instance (" + pluginClass.getName() + ") must be bound in the singleton scope.");
-            }
-
-            this.injector = injector;
-            this.instance = injector.getInstance(pluginClass);
+            this.injector = tuple.getSecond();
+            this.instance = tuple.getFirst();
 
             // TODO: Detect Scala or use meta to know if we're scala and use proper adapter here...
             ProxyInjector.inject(this, event.getASMHarvestedData(), FMLCommonHandler.instance().getSide(), new ILanguageAdapter.JavaAdapter());
