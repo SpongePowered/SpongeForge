@@ -56,6 +56,7 @@ import org.spongepowered.api.plugin.PluginAdapter;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.inject.plugin.PluginModule;
+import org.spongepowered.common.plugin.DefaultPluginAdapter;
 import org.spongepowered.common.plugin.PluginContainerExtension;
 
 import java.io.File;
@@ -294,7 +295,6 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
             Injector injector = spongeInjector.getParent().createChildInjector(new PluginModule((PluginContainer) this));
 
             final ImmutableList.Builder<Module> modules = ImmutableList.builder();
-
             // Check for plugin specified modules
             final List<Type> injectionModuleTypes = (List<Type>) this.descriptor.get("injectionModules");
             if (injectionModuleTypes != null && injectionModuleTypes.size() > 0) {
@@ -304,8 +304,10 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
                 }
             }
 
-            final PluginAdapter adapter = (PluginAdapter) adapterClass.newInstance();
-            injector = checkNotNull(adapter.getInjector(this.pluginContainer, pluginClass, injector, modules.build()), "The injector cannot be null");
+            final PluginAdapter adapter = adapterClass == PluginAdapter.Default.class ? DefaultPluginAdapter.INSTANCE :
+                    (PluginAdapter) adapterClass.newInstance();
+            injector = checkNotNull(adapter.createInjector(this.pluginContainer, pluginClass, injector, modules.build()),
+                    "The injector cannot be null");
 
             this.injector = injector;
             this.instance = injector.getInstance(pluginClass);
