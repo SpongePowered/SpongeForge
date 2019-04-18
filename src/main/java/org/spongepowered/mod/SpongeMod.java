@@ -97,6 +97,7 @@ import org.spongepowered.common.inject.SpongeGuice;
 import org.spongepowered.common.inject.SpongeModule;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
+import org.spongepowered.common.interfaces.world.biome.IMixinBiome;
 import org.spongepowered.common.item.recipe.crafting.DelegateSpongeCraftingRecipe;
 import org.spongepowered.common.item.recipe.crafting.SpongeCraftingRecipeRegistry;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
@@ -107,6 +108,8 @@ import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.item.EnchantmentRegistryModule;
 import org.spongepowered.common.registry.type.item.PotionTypeRegistryModule;
+import org.spongepowered.common.registry.type.world.gen.BiomeTypeRegistryModule;
+import org.spongepowered.common.registry.type.world.gen.PopulatorTypeRegistryModule;
 import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
@@ -266,6 +269,18 @@ public class SpongeMod extends MetaModContainer {
         SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, (owner, manager, id, obj, oldObj) ->
                 SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) obj)
         );
+        SpongeGameData.addRegistryCallback(ForgeRegistries.BIOMES, (owner, manager, id, obj, old) -> {
+            ResourceLocation registryName = obj.getRegistryName();
+            if (registryName != null) {
+                if (!registryName.getNamespace().equals(((IMixinBiome) obj).getModId())) {
+                    ((IMixinBiome) obj).setModId(registryName.getNamespace());
+                    ((IMixinBiome) obj).setId(registryName.toString());
+                }
+                if (PopulatorTypeRegistryModule.getInstance().hasRegistrationFor(obj.getClass())) {
+                    PopulatorTypeRegistryModule.getInstance().replaceFromForge(obj);
+                }
+            }
+        });
         SpongeForgeModuleRegistry.registerForgeData();
 
         this.game.getEventManager().registerListeners(this, this);

@@ -59,9 +59,6 @@ public class SpongeForgeModuleRegistry {
 
         // Value registration
 
-        //Populator types
-        PopulatorTypeRegistryModule populatorTypeModule = PopulatorTypeRegistryModule.getInstance();
-        populatorTypeModule.customTypeFunction = (type) -> new SpongePopulatorType(type.getSimpleName(), StaticMixinForgeHelper.getModIdFromClass(type));
     }
 
 }
