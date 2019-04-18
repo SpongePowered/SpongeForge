@@ -71,12 +71,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 // PluginContainer is implemented indirectly through the mixin to ModContainer
 public class SpongeModPluginContainer implements ModContainer, PluginContainerExtension {
 
     // This is the implementation (SpongeForge) injector.
     @Inject private static Injector spongeInjector;
+
+    private static Map<Class<?>, CachedAdapter> adapterCache = new ConcurrentHashMap<>();
+
+    static class CachedAdapter {
+
+        final PluginAdapter adapter;
+        final Injector globalInjector;
+
+        CachedAdapter(PluginAdapter adapter, Injector injector) {
+            this.adapter = adapter;
+            this.globalInjector = injector;
+        }
+    }
+
     private final String id;
 
     private final String className;
@@ -294,22 +309,32 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
                 adapterClass = PluginAdapter.Default.class;
             }
 
-            Injector injector = spongeInjector.getParent().createChildInjector(new PluginModule((PluginContainer) this));
+            final Injector parentInjector = spongeInjector.getParent();
 
-            final ImmutableList.Builder<Module> modules = ImmutableList.builder();
+            final CachedAdapter cachedAdapter = adapterCache.computeIfAbsent(adapterClass, clazz -> {
+                final PluginAdapter adapter = adapterClass == PluginAdapter.Default.class ? DefaultPluginAdapter.INSTANCE :
+                        (PluginAdapter) parentInjector.getInstance(adapterClass);
+                final Injector injector = adapter.createGlobalInjector(parentInjector);
+                return new CachedAdapter(adapter, injector);
+            });
+
+            final List<Class<?>> moduleClasses = new ArrayList<>();
             // Check for plugin specified modules
             final List<Type> injectionModuleTypes = (List<Type>) this.descriptor.get("injectionModules");
             if (injectionModuleTypes != null && injectionModuleTypes.size() > 0) {
                 for (Type injectionModuleType : injectionModuleTypes) {
-                    final Class<?> moduleClass = Class.forName(injectionModuleType.getClassName(), true, modClassLoader);
-                    modules.add((Module) moduleClass.newInstance());
+                    moduleClasses.add(Class.forName(injectionModuleType.getClassName(), true, modClassLoader));
                 }
             }
+            Injector injector = cachedAdapter.globalInjector.createChildInjector(new PluginModule(this.pluginContainer, moduleClasses));
 
-            final PluginAdapter adapter = adapterClass == PluginAdapter.Default.class ? DefaultPluginAdapter.INSTANCE :
-                    (PluginAdapter) adapterClass.newInstance();
-            injector = checkNotNull(adapter.createInjector(this.pluginContainer, pluginClass, injector, modules.build()),
-                    "The injector cannot be null");
+            final ImmutableList.Builder<Module> pluginModules = ImmutableList.builder();
+            for (Class<?> moduleClass : moduleClasses) {
+                pluginModules.add((Module) injector.getInstance(moduleClass));
+            }
+
+            injector = checkNotNull(cachedAdapter.adapter.createInjector(
+                    this.pluginContainer, pluginClass, injector, pluginModules.build()), "The injector cannot be null");
 
             final Binding<?> binding = injector.getBinding(pluginClass);
             if (!Scopes.isSingleton(binding)) {
