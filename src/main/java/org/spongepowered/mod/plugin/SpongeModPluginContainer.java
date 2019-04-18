@@ -293,19 +293,19 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
 
             Injector injector = spongeInjector.getParent().createChildInjector(new PluginModule((PluginContainer) this));
 
+            final ImmutableList.Builder<Module> modules = ImmutableList.builder();
+
             // Check for plugin specified modules
             final List<Type> injectionModuleTypes = (List<Type>) this.descriptor.get("injectionModules");
             if (injectionModuleTypes != null && injectionModuleTypes.size() > 0) {
-                final Module[] modules = new Module[injectionModuleTypes.size()];
-                for (int i = 0; i < modules.length; i++) {
-                    final Class<?> moduleClass = Class.forName(injectionModuleTypes.get(i).getClassName());
-                    modules[i] = (Module) moduleClass.newInstance();
+                for (Type injectionModuleType : injectionModuleTypes) {
+                    final Class<?> moduleClass = Class.forName(injectionModuleType.getClassName());
+                    modules.add((Module) moduleClass.newInstance());
                 }
-                injector = injector.createChildInjector(modules);
             }
 
             final PluginAdapter adapter = (PluginAdapter) adapterClass.newInstance();
-            injector = checkNotNull(adapter.getInjector(this.pluginContainer, injector, pluginClass), "The injector cannot be null");
+            injector = checkNotNull(adapter.getInjector(this.pluginContainer, pluginClass, injector, modules.build()), "The injector cannot be null");
 
             this.injector = injector;
             this.instance = injector.getInstance(pluginClass);
