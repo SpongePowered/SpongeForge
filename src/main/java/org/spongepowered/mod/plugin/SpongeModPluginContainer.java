@@ -32,9 +32,11 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.Binding;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.Scopes;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ILanguageAdapter;
 import net.minecraftforge.fml.common.LoadController;
@@ -308,6 +310,11 @@ public class SpongeModPluginContainer implements ModContainer, PluginContainerEx
                     (PluginAdapter) adapterClass.newInstance();
             injector = checkNotNull(adapter.createInjector(this.pluginContainer, pluginClass, injector, modules.build()),
                     "The injector cannot be null");
+
+            final Binding<?> binding = injector.getBinding(pluginClass);
+            if (!Scopes.isSingleton(binding)) {
+                throw new IllegalStateException("The plugin instance (" + pluginClass.getName() + ") must be bound in the singleton scope.");
+            }
 
             this.injector = injector;
             this.instance = injector.getInstance(pluginClass);
