@@ -31,18 +31,19 @@ import net.minecraftforge.server.permission.PermissionAPI;
 import net.minecraftforge.server.permission.context.IContext;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.ProviderRegistration;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.user.UserStorageService;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.registry.RegistryHelper;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -50,50 +51,46 @@ import javax.annotation.Nullable;
 public enum SpongePermissionHandler implements IPermissionHandler {
     INSTANCE;
 
-    private final Set<String> nodes = new HashSet<>();
-
     public void adopt() {
         PermissionAPI.setPermissionHandler(this);
     }
 
     public void forceAdoption() {
-        SpongeImpl.getLogger().debug("Forcing adoption of the Sponge permission handler - previous handler was '{}'", PermissionAPI.getPermissionHandler().getClass().getName());
+        SpongeImpl.getLogger().debug("Forcing adoption of the Sponge permission handler - previous handler was '{}'",
+                PermissionAPI.getPermissionHandler().getClass().getName());
         RegistryHelper.setFinalStatic(PermissionAPI.class, "permissionHandler", this);
     }
 
     @Override
     public void registerNode(final String node, final DefaultPermissionLevel level, final String desc) {
-        this.nodes.add(node);
-        // TODO: do.... what with level and desc?
+        PluginContainer activeContainer = SpongeImplHooks.getActiveModContainer();
+        PermissionDescription.Builder builder = this.getService().newDescriptionBuilder(activeContainer);
+        builder.id(node).description(Text.of(desc)).register();
     }
 
     @Override
     public Collection<String> getRegisteredNodes() {
-        return Collections.unmodifiableSet(this.nodes);
+        return this.getService().getDescriptions().stream().map(desc -> desc.getId()).collect(Collectors.toCollection(() -> new LinkedList<>()));
     }
 
     @Override
     public boolean hasPermission(final GameProfile profile, final String node, @Nullable final IContext context) {
-        @Nullable final Player player = Sponge.getServer().getPlayer(profile.getId()).orElse(null);
-        if (player != null) {
-            // TODO contexts?
-            return player.hasPermission(node);
+        @Nullable final Subject subject = this.getService().getUserSubjects().getSubject(profile.getId().toString()).orElse(null);
+        if (subject != null) {
+            if (context != null && context.getPlayer() != null) {
+                return subject.hasPermission(((Player) context.getPlayer()).getActiveContexts(), node);
+            } else {
+                return subject.hasPermission(node);
+            }
         }
 
-        // TODO contexts?
-        return Sponge.getServiceManager().getRegistration(UserStorageService.class)
-                .map(ProviderRegistration::getProvider)
-                .flatMap(service -> service.get(profile.getId()))
-                .map(user1 -> user1.hasPermission(node))
-                .orElse(false);
+        return false;
     }
 
     @Override
     public String getNodeDescription(final String node) {
-        return this.getService().getDescription(node)
-                .map(PermissionDescription::getDescription)
-                .map(text -> text.orElse(null))
-                .orElse(Text.EMPTY).toPlain();
+        @Nullable final PermissionDescription desc = this.getService().getDescription(node).orElse(null);
+        return desc == null ? "" : TextSerializers.FORMATTING_CODE.serialize(desc.getDescription().orElse(Text.EMPTY));
     }
 
     private PermissionService getService() {

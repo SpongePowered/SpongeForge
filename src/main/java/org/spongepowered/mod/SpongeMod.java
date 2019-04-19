@@ -391,7 +391,9 @@ public class SpongeMod extends MetaModContainer {
             this.registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
             SpongeBootstrap.initializeServices();
             SpongeBootstrap.initializeCommands();
-            SpongePermissionHandler.INSTANCE.adopt();
+            if (SpongeImpl.getGlobalConfig().getConfig().getPermission().shouldEnableHandler()) {
+                SpongePermissionHandler.INSTANCE.adopt();
+            }
             SpongeImpl.getRegistry().preInit();
             SpongeModMessageHandler.init();
 
@@ -484,7 +486,7 @@ public class SpongeMod extends MetaModContainer {
 
     @Subscribe
     public void onInitialization(FMLInitializationEvent event) {
-        if (SpongeImpl.getGlobalConfig().getConfig().getPermission().shouldForceHandler()) {
+        if (SpongeImpl.getGlobalConfig().getConfig().getPermission().shouldEnableHandler()) {
             SpongePermissionHandler.INSTANCE.forceAdoption();
         }
 
