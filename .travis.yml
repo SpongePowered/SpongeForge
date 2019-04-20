@@ -22,16 +22,6 @@ after_failure: scripts/upload
 notifications:
   email: false
 
-before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-cache:
-  directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-    - $TRAVIS_BUILD_DIR/.gradle/
-    - $TRAVIS_BUILD_DIR/build/
-
 env:
   - MCTESTER_UPLOAD_URL="https://openwhisk.ng.bluemix.net/api/v1/web/aa1ronham%40gmail.com_dev/default/image-upload.json"
 
