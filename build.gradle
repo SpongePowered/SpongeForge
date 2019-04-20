@@ -35,6 +35,11 @@ plugins {
 configurations.all {
     resolutionStrategy {
         force 'com.typesafe:config:1.3.1'
+
+        // Force McTester to use our local SpongeAPI
+        dependencySubstitution {
+            substitute(module("org.spongepowered:spongeapi")).with(project(":SpongeCommon:SpongeAPI"))
+        }
     }
 }
 
@@ -50,6 +55,8 @@ apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
 
 version = "$minecraft.version-$forgeBuild-$implementationVersion"
 apply plugin: 'org.spongepowered.mctester'
+
+
 
 minecraft {
     coreMod = 'org.spongepowered.mod.SpongeCoremod'
@@ -188,30 +195,33 @@ license.include '**/*.kt'
 sourceSets {
     integrationTest {
         java {
-            compileClasspath += sourceSets.test.runtimeClasspath
-            runtimeClasspath += sourceSets.test.runtimeClasspath
-            srcDir file('src/integration-test/java')
+            // This is a terrible hack to get McTester to work in development
+            // We want to include the following:
+            // * Dependencies from the 'test' sourceset
+            // * Deobfuscated (dev jar) classes
+            //
+            // We do NOT want to include:
+            // * Reobfuscated classess
+            //
+            // To that end, we explicitly include the output of 'shadowDevJar' and 'test.compileClasspath',
+            // while exlucding the outputs of the SpongeCommon and SpongeForge regular (obfuscated) jars
+
+            // Eventually, this should no longer be necessary once McTester supports obfuscated Sponge jars
+            // For the time being, we're stuck with this
+            def newFiles = (tasks.shadowDevJar.outputs.files + ((sourceSets.test.compileClasspath - tasks.jar.outputs.files))) - project(":SpongeCommon").tasks.jar.outputs.files
+
+            compileClasspath += newFiles
+            runtimeClasspath += newFiles
+
+            srcDirs += file('src/integration-test/java')
         }
         kotlin {
-            compileClasspath += sourceSets.test.runtimeClasspath
-            runtimeClasspath += sourceSets.test.runtimeClasspath
-            srcDir file('src/integration-test/kotlin')
+            srcDirs += file('src/integration-test/kotlin')
         }
         resources.srcDir file('src/integration-test/resources')
     }
 }
 
-
-configurations {
-    integrationTestCompile.extendsFrom compile
-    integrationTestCompile.extendsFrom testCompile
-    //integrationTestCompileKotlin.kotlinOptions.jvmTarget = "1.8"
-}
-
-dependencies {
-    integrationTestCompile sourceSets.main.output
-    integrationTestCompile sourceSets.test.output
-}
 
 task runMcTester(type: Test) {
     testClassesDir = sourceSets.integrationTest.output.classesDir
