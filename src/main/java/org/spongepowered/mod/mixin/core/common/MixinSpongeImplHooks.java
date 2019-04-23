@@ -38,6 +38,7 @@ import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
@@ -45,7 +46,9 @@ import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -61,6 +64,7 @@ import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -68,9 +72,11 @@ import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.logging.log4j.Level;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.tileentity.TileEntityType;
 import org.spongepowered.api.command.args.ChildCommandElementExecutor;
 import org.spongepowered.api.data.type.Profession;
+import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.crafting.CraftingGridInventory;
@@ -100,7 +106,10 @@ import org.spongepowered.common.registry.type.block.TileEntityTypeRegistryModule
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.common.util.SpawnerSpawnType;
+import org.spongepowered.common.util.TristateUtil;
 import org.spongepowered.mod.command.SpongeForgeCommand;
+import org.spongepowered.mod.event.SpongeModEventManager;
+import org.spongepowered.mod.event.SpongeToForgeEventData;
 import org.spongepowered.mod.interfaces.IMixinBlock;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
@@ -814,5 +823,124 @@ public abstract class MixinSpongeImplHooks {
             return TileEntityTypeRegistryModule.getInstance().doTileEntityRegistration(aClass, location.getPath());
         }
         return translated;
+    }
+
+    /**
+     * @author gabizou - April 23rd, 2019 - 1.12.2
+     * @reason Eliminate an extra overwrite for SpongeForge for MixinPlayerInteractionManager#processRightClickBlock.
+     *
+     * @param spongeEvent The sponge event
+     * @return The forge event
+     */
+    @Overwrite
+    @Nullable
+    public static Object postForgeEventDataCompatForSponge(InteractBlockEvent.Secondary spongeEvent) {
+        return ((SpongeModEventManager) Sponge.getEventManager()).extendedPost(spongeEvent, false, false);
+    }
+
+    /**
+     * @author gabizou - April 23rd, 2019 - 1.12.2
+     * @reason Eliminate an extra overwrite for SpongeForge for MixinPlayerInteractionManager#processRightClickBlock.
+     *
+     * @param worldIn The world
+     * @param pos The position
+     * @param eventData The event data, if it was created
+     * @param player The player
+     */
+    @Overwrite
+    public static void shouldCloseScreen(World worldIn, BlockPos pos, @Nullable Object eventData, EntityPlayerMP player) {
+        if (worldIn.getTileEntity(pos) != null && player.openContainer instanceof ContainerPlayer && (eventData == null || !((SpongeToForgeEventData) eventData).getForgeEvent().isCanceled())) {
+            player.closeScreen();
+        }
+    }
+
+    /**
+     * @author gabizou - April 23rd, 2019 - 1.12.2
+     * @reason Eliminate an extra overwrite for SpongeForge for MixinPlayerInteractionManager#processRightClickBlock.
+     *
+     * @param forgeEventObject The forge event object, if it was created
+     * @return The result as a result of the event data
+     */
+    @Overwrite
+    public static EnumActionResult getInteractionCancellationResult(@Nullable Object forgeEventObject) {
+        // If a Forge event wasn't fired (due to no Forge mods listening for event), we want
+        // to act as though an un-cancelled, unmodified Forge event was still fired.
+        // Forge's PlayerInteractEvent#getCancellationResult() defaults to EnumActionResult.PASS,
+        // so we return that.
+        SpongeToForgeEventData eventData = (SpongeToForgeEventData) forgeEventObject;
+        return eventData == null ? EnumActionResult.PASS : ((PlayerInteractEvent) eventData.getForgeEvent()).getCancellationResult(); // SpongeForge - return event result
+
+    }
+
+    /**
+     * @author gabizou - April 23rd, 2019 - 1.12.2
+     * @reason Eliminate an extra overwrite for SpongeForge for MixinPlayerInteractionManager#processRightClickBlock.
+     *
+     * @param worldIn The world in
+     * @param pos The position
+     * @param player The player
+     * @param main The main hand item
+     * @param off The offhand item
+     * @return Whether to bypass sneaking state
+     */
+    @Overwrite
+    public static boolean doesItemSneakBypass(World worldIn, BlockPos pos, EntityPlayer player, net.minecraft.item.ItemStack main,
+        net.minecraft.item.ItemStack off) {
+        boolean bypass = true;
+        bypass = bypass && (main.isEmpty() || main.getItem().doesSneakBypassUse(main, worldIn, pos, player));
+        bypass = bypass && (off.isEmpty() || off.getItem().doesSneakBypassUse(off, worldIn, pos, player));
+        return bypass;
+    }
+
+    /**
+     * @author gabizou - April 23rd, 2019 - 1.12.2
+     * @reason Eliminate an extra overwrite for SpongeForge for MixinPlayerInteractionManager#processRightClickBlock.
+     *
+     * @param player The player interacting
+     * @param event The sponge event
+     * @param result The current result
+     * @param worldIn The world
+     * @param pos the position
+     * @param hand the hand used
+     * @return Null so that the rest of the method continues processing? TODO - Zidane and Morph, please check this...
+     */
+    @Nullable
+    @Overwrite
+    public static EnumActionResult getEnumResultForProcessRightClickBlock(EntityPlayerMP player, InteractBlockEvent.Secondary event, EnumActionResult result, World worldIn, BlockPos pos,
+        EnumHand hand) {
+        result = TristateUtil.toActionResult(event.getUseItemResult());
+
+        // SpongeForge - start
+        // Same issue as above with OpenComputers
+        // This handles the event not cancelled and block not activated
+        // We only run this if the event was changed. If the event wasn't changed,
+        // we need to keep the GUI open on the client for Forge compatibility.
+        if (result != EnumActionResult.SUCCESS && worldIn.getTileEntity(pos) != null && hand == EnumHand.MAIN_HAND) {
+            player.closeScreen();
+        }
+        // SpongeForge - end
+        return null;
+    }
+
+    /**
+     * @author gabizou - April 23rd, 2019 - 1.12.2
+     * @reason Eliminate an extra overwrite for SpongeForge for MixinPlayerInteractionManager#processRightClickBlock.
+     *
+     * @param player The player
+     * @param stack The item stack to check
+     * @param worldIn The world
+     * @param pos the position
+     * @param hand the hand used
+     * @param facing Facing direction
+     * @param hitX hit x pos
+     * @param hitY hit y pos
+     * @param hitZ hit z pos
+     * @return The result of the item stack's hook method
+     */
+    @Nullable
+    @Overwrite
+    public static EnumActionResult onForgeItemUseFirst(EntityPlayer player, net.minecraft.item.ItemStack stack, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX,
+        float hitY, float hitZ) {
+        return stack.onItemUseFirst(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
     }
 }
