@@ -45,6 +45,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.living.player.Player;
@@ -74,6 +75,7 @@ import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
+import org.spongepowered.common.interfaces.network.IMixinNetHandlerPlayServer;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
@@ -123,8 +125,8 @@ public abstract class MixinForgeHooks {
 
     @Inject(method = "onItemRightClick", at = @At(value = "HEAD"), cancellable = true)
     private static void onItemRightClickHead(EntityPlayer player, EnumHand hand, CallbackInfoReturnable<EnumActionResult> cir) {
-        if (!player.world.isRemote) {
-            long packetDiff = System.currentTimeMillis() - SpongeCommonEventFactory.lastTryBlockPacketTimeStamp;
+        if (!player.world.isRemote && player instanceof EntityPlayerMP) {
+            long packetDiff = System.currentTimeMillis() - ((IMixinNetHandlerPlayServer) ((EntityPlayerMP) player).connection).getLastTryBlockPacketTimeStamp();
             // If the time between packets is small enough, use the last result.
             if (packetDiff < 100) {
                 // Avoid firing a second event
