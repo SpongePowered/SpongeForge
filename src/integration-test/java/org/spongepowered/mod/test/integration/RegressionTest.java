@@ -22,9 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.handler;
+package org.spongepowered.mod.test.integration;
 
-public interface IExitHandler
-{
-    void exit(int status);
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * An annotation used to mark tests that ensure that a specific
+ * Sponge issue has not regressed. These will usually, but not always,
+ * be written using Mctester.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface RegressionTest {
+
+    /**
+     * A fully-qualified link to the GitHub issue being tested by this test.
+     *
+     * <p>Example: 'https://github.com/SpongePowered/SpongeCommon/issues/1945'</p>
+     *
+     * @return The URL of the issue
+     */
+    String ghIssue();
+
 }
