@@ -937,7 +937,6 @@ public abstract class MixinSpongeImplHooks {
      * @param hitZ hit z pos
      * @return The result of the item stack's hook method
      */
-    @Nullable
     @Overwrite
     public static EnumActionResult onForgeItemUseFirst(EntityPlayer player, net.minecraft.item.ItemStack stack, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX,
         float hitY, float hitZ) {
