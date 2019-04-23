@@ -70,6 +70,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.GameState;
 import org.spongepowered.api.Sponge;
@@ -105,6 +106,7 @@ import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.EventType;
 import org.spongepowered.common.event.RegisteredListener;
@@ -387,7 +389,20 @@ public class SpongeModEventManager extends SpongeEventManager {
                     }
                 }
             } catch (Throwable e) {
-                this.logger.error("Could not pass {} to {}", event.getClass().getSimpleName(), listener.getPlugin(), e);
+                new PrettyPrinter(60).add("%s %s", "Could not pass ", event.getClass().getSimpleName()).centre().hr()
+                    .add("Could not pass the event %s to an Event Listener!", event.getClass().getSimpleName())
+                    .add()
+                    .add("Since the event can be modified during the event's listener,\n"
+                         + " there could be adverse side effects of the exception occuring\n"
+                         + "such that duplications or other game breaking issues could exist.\n"
+                         + "Due to the nature of the exception, this is not likely an exception\n"
+                         + "that is covered by SpongeForge or Forge itself, and therefor should\n"
+                         + "be reported to the mod/plugin author first prior to reporting to\n"
+                         + "Sponge or Forge.")
+                    .add("%s: %s", "Owning Mod/Plugin", listener.getPlugin().getId())
+                    .add("Exception:")
+                    .add(e)
+                    .log(SpongeImpl.getLogger(), Level.WARN);
             } finally {
                 listener.getTimingsHandler().stopTimingIfSync();
             }
