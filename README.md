@@ -42,6 +42,7 @@ __For [IntelliJ]__
   1. Make sure you have the Gradle plugin enabled (File > Settings > Plugins).  
   2. Click File > New > Project from Existing Sources > Gradle and select the root folder for SpongeForge.
   3. Make sure _Use default gradle wrapper_ is selected. Older/newer Gradle versions may work but we only test using the wrapper.
+  4. Make sure _Create separate module per source set_ is selected. This ensures that Intellij properly handles SpongeForge's Kotlin and Java dependencies.
 
 ## Running
 __Note:__ The following is aimed to help you setup run configurations for Eclipse and IntelliJ, if you do not want to be able to run SpongeForge directly from your IDE then you can skip this.
