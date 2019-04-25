@@ -47,9 +47,9 @@ configurations.all {
         force 'com.typesafe:config:1.3.1'
 
         // Force McTester to use our local SpongeAPI
-        dependencySubstitution {
+        /*dependencySubstitution {
             substitute(module("org.spongepowered:spongeapi")).with(project(":SpongeCommon:SpongeAPI"))
-        }
+        }*/
     }
 }
 
@@ -202,6 +202,8 @@ license.include '**/*.kt'
 
 // Based on https://www.petrikainulainen.net/programming/gradle/getting-started-with-gradle-integration-testing/
 
+def newFiles = (tasks.shadowDevJar.outputs.files + ((sourceSets.test.compileClasspath - tasks.jar.outputs.files))).minus(project(":SpongeCommon").tasks.jar.outputs.files)
+
 sourceSets {
     integrationTest {
         java {
@@ -218,19 +220,36 @@ sourceSets {
 
             // Eventually, this should no longer be necessary once McTester supports obfuscated Sponge jars
             // For the time being, we're stuck with this
-            def newFiles = (tasks.shadowDevJar.outputs.files + ((sourceSets.test.compileClasspath - tasks.jar.outputs.files))) - project(":SpongeCommon").tasks.jar.outputs.files
 
-            compileClasspath += newFiles
-            runtimeClasspath += newFiles
+            compileClasspath += tasks.shadowDevJar.outputs.files + sourceSets.test.compileClasspath
+            runtimeClasspath += tasks.shadowDevJar.outputs.files + sourceSets.test.compileClasspath
+
+            //compileClasspath += newFiles
+            //runtimeClasspath += newFiles
 
             srcDirs += file('src/integration-test/java')
         }
         kotlin {
+
             srcDirs += file('src/integration-test/kotlin')
         }
         resources.srcDir file('src/integration-test/resources')
     }
 }
+
+dependencies {
+    //integrationTestCompile common
+    //integrationTestCompile common.sourceSets.test.output
+    //integrationTestCompile "org.spongepowered:spongeapi:7.2.0-SNAPSHOT"
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
+sourceSets.integrationTest.compileClasspath -= (tasks.jar.outputs.files + project(":SpongeCommon").tasks.jar.outputs.files)
+sourceSets.integrationTest.runtimeClasspath -= (tasks.jar.outputs.files + project(":SpongeCommon").tasks.jar.outputs.files)
 
 
 task runMcTester(type: Test) {
