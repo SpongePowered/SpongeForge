@@ -15,8 +15,18 @@ buildscript {
         }
     }
 
+
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath('net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT') {
+            // The gradle Kotlin plugin depends on Intellij's custom fork
+            // of GNU Trove, which it doesn't relocate.
+            // Therefore, we need to remove any other version of Trove
+            // from the classpath, to ensure that 'gnu.trove.*' always
+            // resolves to Intellij's version of Trove at runtime
+            // See https://youtrack.jetbrains.com/issue/IDEA-211616
+            exclude group: 'trove', module: 'trove'
+            exclude group: 'net.sf.trove4j', module: 'trove4j'
+        }
         classpath 'gradle.plugin.net.minecrell:licenser:0.3'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
         classpath 'gradle.plugin.org.spongepowered:spongegradle:0.8.1'
@@ -237,4 +247,9 @@ compileIntegrationTestKotlin {
 tasks.withType(JavaCompile) {
    options.incremental = false
 }
+
+// Unfortunately, Mixin's annotation processor requires that SpongeCommon
+// is compiled, in order for SpongeForge's references to SpongeCommon
+// to be resolved by the AP. See https://github.com/SpongePowered/Mixin/issues/320
+project(":SpongeCommon").tasks.compileJava.outputs.upToDateWhen { false }
 
