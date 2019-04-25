@@ -26,7 +26,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.30'
 }
 
 // ForgeGradle tries to pull in typesafe config 1.2.1,
@@ -233,3 +233,8 @@ task runMcTester(type: Test) {
 compileIntegrationTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+tasks.withType(JavaCompile) {
+   options.incremental = false
+}
+
