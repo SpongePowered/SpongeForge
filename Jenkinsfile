@@ -1,12 +1,7 @@
 @Library('forge-shared-library')_
 
 pipeline {
-    agent {
-        docker {
-            image 'aaron1011/mc-headless:oracle-v2'
-            args '-v $HOME/.m2:/root/.m2 -v $HOME/.gradle:/root/.gradle'
-        }
-    }
+    agent any
 
     stages {
         stage('Prepare') {
@@ -19,7 +14,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'spongeMavenUsername', variable: 'spongeMavenUsername'), string(credentialsId: 'spongeMavenPassword', variable: 'spongeMavenPassword'), string(credentialsId: 'spongeIndexerUsername', variable: 'spongeIndexerUsername'), string(credentialsId: 'spongeIndexerPassword', variable: 'spongeIndexerPassword'), string(credentialsId: 'spongeKeyStore', variable: 'spongeKeyStore'), string(credentialsId: 'spongeKeyStoreAlias', variable: 'spongeKeyStoreAlias'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStorePass'), string(credentialsId: 'spongeKeyStorePass', variable: 'spongeKeyStoreKeyPass')]) {
 
-                    sh '''Xvfb-run -w 0 ./gradlew --refresh-dependencies -s -Dorg.lwjgl.util.Debug=true -PforgeJenkinsPass=${forgeJenkinsPass} -PspongeKeyStore=${spongeKeyStore}  -PspongeKeyStoreAlias=${spongeKeyStoreAlias} -PspongeKeyStorePass=${spongeKeyStorePass} -PspongeKeyStoreKeyPass=${spongeKeyStoreKeyPass} -PspongeCertificateFingerprint=${spongeCertFingerprint} clean build -xsignShadowJar'''
+                    sh '''./gradlew --refresh-dependencies -s -PforgeJenkinsPass=${forgeJenkinsPass} -PspongeKeyStore=${spongeKeyStore}  -PspongeKeyStoreAlias=${spongeKeyStoreAlias} -PspongeKeyStorePass=${spongeKeyStorePass} -PspongeKeyStoreKeyPass=${spongeKeyStoreKeyPass} -PspongeCertificateFingerprint=${spongeCertFingerprint} clean build -xsignShadowJar'''
                 }
             }
             post {
