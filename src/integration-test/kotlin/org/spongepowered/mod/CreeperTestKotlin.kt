@@ -41,7 +41,6 @@ import org.spongepowered.api.entity.living.monster.Creeper
 import org.spongepowered.api.entity.living.player.Player
 import org.spongepowered.api.entity.living.player.gamemode.GameMode
 import org.spongepowered.api.entity.living.player.gamemode.GameModes
-import org.spongepowered.api.event.Event
 import org.spongepowered.api.event.EventListener
 import org.spongepowered.api.event.block.ChangeBlockEvent
 import org.spongepowered.api.event.cause.EventContextKeys
@@ -74,50 +73,48 @@ class CreeperTestKotlin(testUtils: TestUtils): BaseTest(testUtils) {
         (player.inventory.query<Inventory>(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar::class.java)) as Hotbar).selectedSlotIndex = 0
         player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.builder().itemType(ItemTypes.SPAWN_EGG).quantity(1).add<EntityType>(Keys.SPAWNABLE_ENTITY_TYPE, EntityTypes.CREEPER).build())
 
-        CoroutineTestUtils.waitForInventoryPropagation();
+        CoroutineTestUtils.waitForInventoryPropagation()
 
-        val targetPos = this.testUtils.thePlayer.getLocation().getPosition().add(0f, -1f, 2f)
-        this.client.lookAtSuspend(targetPos);
+        val targetPos = this.testUtils.thePlayer.location.position.add(0f, -1f, 2f)
+        this.client.lookAtSuspend(targetPos)
 
         val creeper = arrayOfNulls<Creeper>(1)
 
         val listener: EventListener<SpawnEntityEvent> = EventListener { event:SpawnEntityEvent->
-            if (event.getEntities().stream().noneMatch({ e -> e.getType() == EntityTypes.CREEPER }))
+            if (event.entities.stream().noneMatch { e -> e.type == EntityTypes.CREEPER })
                 return@EventListener
 
-            assertThat<List<Entity>>(event.getEntities(), hasSize<Entity>(1))
-            creeper[0] = event.getEntities().get(0) as Creeper
+            assertThat<List<Entity>>(event.entities, hasSize<Entity>(1))
+            creeper[0] = event.entities[0] as Creeper
 
-            assertTrue("Cause doesn't contain player: " + event.getCause(), event.getCause().contains(this.testUtils.thePlayer))
-            assertTrue("Cause doesn't contain correct item: " + event.getCause(),
-                    event.getCause().getContext().get(EventContextKeys.USED_ITEM).map({ i -> i.getType() == ItemTypes.SPAWN_EGG }).orElse(false)
+            assertTrue("Cause doesn't contain player: " + event.cause, event.cause.contains(this.testUtils.thePlayer))
+            assertTrue("Cause doesn't contain correct item: " + event.cause,
+                    event.cause.context.get(EventContextKeys.USED_ITEM).map { i -> i.type == ItemTypes.SPAWN_EGG }.orElse(false)
             )
 
             Sponge.getEventManager().unregisterListeners(this)
 
         }
 
-        val standalone: StandaloneEventListener<Event> = StandaloneEventListener(Event::class.java, EventListener<Event> { event -> })
-
         this.testUtils.listen(StandaloneEventListener<SpawnEntityEvent>(SpawnEntityEvent::class.java, listener))
 
-        client.rightClickSuspend();
+        client.rightClickSuspend()
 
         assertThat<Creeper>("Creeper did not spawn!", creeper[0], instanceOf<Creeper>(Creeper::class.java))
 
-        this.testUtils.listen<MoveEntityEvent>(StandaloneEventListener<MoveEntityEvent>(MoveEntityEvent::class.java, EventListener { event:MoveEntityEvent->
+        this.testUtils.listen(StandaloneEventListener<MoveEntityEvent>(MoveEntityEvent::class.java, EventListener { event:MoveEntityEvent->
 
-            if (event.getTargetEntity().getUniqueId() === creeper[0]!!.getUniqueId())
+            if (event.targetEntity.uniqueId === creeper[0]!!.uniqueId)
             {
-                event.setCancelled(true)
+                event.isCancelled = true
             }
         }))
 
 
-        this.testUtils.thePlayer.getInventory().query<Hotbar>(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar::class.java)).selectedSlotIndex = 1
+        this.testUtils.thePlayer.inventory.query<Hotbar>(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar::class.java)).selectedSlotIndex = 1
         this.testUtils.thePlayer.setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.FLINT_AND_STEEL, 1))
 
-        CoroutineTestUtils.waitForInventoryPropagation();
+        CoroutineTestUtils.waitForInventoryPropagation()
         this.client.lookAtSuspend(creeper[0]!!)
 
         var fuseDuration: Int? = null
@@ -137,7 +134,7 @@ class CreeperTestKotlin(testUtils: TestUtils): BaseTest(testUtils) {
 
         // We should expect blokcs to break once the duration is up.
         try {
-            this.testUtils.listenTimeOutSuspend<ChangeBlockEvent.Break>({ this.client.rightClickSuspend() },
+            this.testUtils.listenTimeOutSuspend({ this.client.rightClickSuspend() },
                     StandaloneEventListener<ChangeBlockEvent.Break>(ChangeBlockEvent.Break::class.java) { event: ChangeBlockEvent.Break ->
 
                         assertThat(event.cause.context.get(EventContextKeys.OWNER).get().uniqueId,
