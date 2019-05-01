@@ -114,16 +114,11 @@ public class CapturedSnapshotWrapperList extends ArrayList<BlockSnapshot> implem
 
     @Override
     public boolean contains(Object o) {
-        if (this.cachedSnapshots == null) {
-            populateCachedList();
-        }
-        return this.cachedSnapshots.contains(o);
+        return getCachedForgeList().contains(o);
     }
 
     private List<BlockSnapshot> getCachedForgeList() {
-        if (this.cachedSnapshots == null) {
-            populateCachedList();
-        }
+        populateCachedList();
         return this.cachedSnapshots;
     }
 
