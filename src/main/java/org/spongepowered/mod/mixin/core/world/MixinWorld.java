@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.world;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.profiler.Profiler;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
@@ -34,6 +34,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
@@ -44,9 +45,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.mod.event.CapturedSnapshotWrapperList;
 
 // Use lower priority so it is applied before the changes in SpongeCommon
 @Mixin(value = World.class, priority = 999)
@@ -54,6 +57,10 @@ public abstract class MixinWorld implements IMixinWorld {
 
 
     private boolean callingWorldEvent = false;
+
+    @Shadow(remap = false) public boolean restoringBlockSnapshots;
+    @Shadow(remap = false) public boolean captureBlockSnapshots;
+    @Shadow(remap = false) public java.util.ArrayList<net.minecraftforge.common.util.BlockSnapshot> capturedBlockSnapshots;
     @Shadow @Final public WorldProvider provider;
     @Shadow @Final public boolean isRemote;
     @Shadow protected MapStorage mapStorage;
@@ -62,7 +69,6 @@ public abstract class MixinWorld implements IMixinWorld {
     @Shadow public abstract boolean canSeeSky(BlockPos pos);
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract int getLightFor(EnumSkyBlock type, BlockPos pos);
-
     @Shadow public abstract void updateComparatorOutputLevel(BlockPos pos, Block blockIn);
 
     /**
@@ -155,4 +161,13 @@ public abstract class MixinWorld implements IMixinWorld {
     public void setCallingWorldEvent(boolean flag) {
         this.callingWorldEvent = flag;
     }
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onIniitToSetForgeList(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client,
+        CallbackInfo ci) {
+        if (!this.isFake()) {
+            this.capturedBlockSnapshots = new CapturedSnapshotWrapperList((World) (Object) this);
+        }
+    }
+
 }
