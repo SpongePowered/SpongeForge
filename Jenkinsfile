@@ -57,10 +57,10 @@ deploy() {
 
 promoteLatest() {
     echo "Promoting latest build"
-    curl --user "$1:$2" http://files.minecraftforge.net/maven/manage/promote/latest/org.spongepowered.spongeforge/${BUILD_NUMBER}
+    curl --user "$1:$2" https://files.minecraftforge.net/maven/manage/promote/latest/org.spongepowered.spongeforge/${BUILD_NUMBER}
 }
 
-deploy "http://files.minecraftforge.net/maven/manage/upload" "${spongeMavenUsername}" "${spongeMavenPassword}" \\
+deploy "https://files.minecraftforge.net/maven/manage/upload" "${spongeMavenUsername}" "${spongeMavenPassword}" \\
     && promoteLatest "${spongeMavenUsername}" "${spongeMavenPassword}" &
 pids="$!"
 deploy "https://dl-indexer.spongepowered.org/maven/upload" "${spongeIndexerUsername}" "${spongeIndexerPassword}" &
