@@ -400,7 +400,7 @@ public class SpongeToForgeEventFactory {
 
     // Bulk Event Handling
     private static boolean createAndPostItemTossEvent(SpongeToForgeEventData eventData) {
-        final DropItemEvent.Dispense spongeEvent = (DropItemEvent.Dispense) eventData.getSpongeEvent();
+        final SpawnEntityEvent spongeEvent = (SpawnEntityEvent) eventData.getSpongeEvent();
         ItemTossEvent forgeEvent = (ItemTossEvent) eventData.getForgeEvent();
         if (forgeEvent == null) {
             final Cause cause = spongeEvent.getCause();
