@@ -84,4 +84,11 @@ public abstract class MixinItemStack implements IMixinItemStack {
         }
         return null;
     }
+
+    @Override
+    public void setCapabilitiesFromSpongeBuilder(NBTTagCompound compound) {
+        if (this.capabilities != null) {
+            this.capabilities.deserializeNBT(compound);
+        }
+    }
 }
