@@ -37,6 +37,7 @@ import org.spongepowered.common.block.SpongeBlockSnapshotBuilder;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
+import org.spongepowered.common.event.tracking.context.MultiBlockCaptureSupplier;
 import org.spongepowered.common.registry.type.world.BlockChangeFlagRegistryModule;
 import org.spongepowered.common.util.VecHelper;
 
@@ -232,11 +233,25 @@ public class CapturedSnapshotWrapperList extends ArrayList<BlockSnapshot> implem
         underlyingList.add(index, sponge);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public BlockSnapshot remove(int index) {
         final List<BlockSnapshot> cachedForgeList = getCachedForgeList();
         final BlockSnapshot remove = cachedForgeList.remove(index);
-        getUnderlyingList().remove(index);
+        try {
+            final PhaseContext<?> data = PhaseTracker.getInstance().getCurrentContext();
+            if (((IPhaseState) data.state).doesBulkBlockCapture(data)) {
+                final MultiBlockCaptureSupplier capturedBlockSupplier = data.getCapturedBlockSupplier();
+                final SpongeBlockSnapshot snapshot = capturedBlockSupplier.get().get(index);
+                if (snapshot != null) {
+                    capturedBlockSupplier.prune(snapshot);
+                }
+            } else {
+                this.wrappedList.remove(index);
+            }
+        } catch (IndexOutOfBoundsException e) {
+            // something's fucky....
+        }
         return remove;
     }
 
