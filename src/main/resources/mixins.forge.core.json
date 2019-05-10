@@ -99,7 +99,8 @@
         "client.multiplayer.MixinChunkProviderClient",
         "client.network.MixinNetHandlerPlayClient",
         "client.server.MixinIntegratedServer",
-        "server.MixinIntegratedServerAnonInner3"
+        "server.MixinIntegratedServerAnonInner3",
+        "common.MixinSpongeImplHooks_Client"
     ],
     "server": [
         "network.packet.MixinC00Handshake"
