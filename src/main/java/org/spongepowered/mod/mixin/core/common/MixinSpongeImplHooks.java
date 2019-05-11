@@ -658,14 +658,17 @@ public abstract class MixinSpongeImplHooks {
      * @reason Adds support for modded inventories
      */
     @Overwrite
-    public static Inventory toInventory(Object inventory, @Nullable Object fallback) {
+    public static Inventory toInventory(Object inventory, @Nullable Object forgeItemHandler) {
+        if (forgeItemHandler instanceof IItemHandler) {
+            return new IItemHandlerAdapter(((IItemHandler) forgeItemHandler));
+        }
+        if (inventory instanceof Inventory) {
+            return ((Inventory) inventory);
+        }
         if (inventory instanceof IInventory) {
             return ((Inventory) new InvWrapper(((IInventory) inventory)));
         }
-        if (fallback instanceof IItemHandler) {
-            return new IItemHandlerAdapter(((IItemHandler) fallback));
-        }
-        String fallbackName = fallback == null ? "no fallback" : fallback.getClass().getName();
+        String fallbackName = forgeItemHandler == null ? "no forgeItemHandler" : forgeItemHandler.getClass().getName();
         SpongeImpl.getLogger().error("Unknown inventory " + inventory.getClass().getName() + " and " + fallbackName + " report this to Sponge");
         return null;
     }
