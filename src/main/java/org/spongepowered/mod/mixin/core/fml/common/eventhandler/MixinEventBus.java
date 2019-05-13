@@ -212,7 +212,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         Class<? extends org.spongepowered.api.event.Event> spongeEventClass = null;
 
         final IEventListener[] listeners = event.getListenerList().getListeners(this.busID);
-        if (!forced && SpongeImpl.isInitialized() && PhaseTracker.getInstance().getSidedThread() == Thread.currentThread() && !isIgnoredEvent(event)) {
+        if (!forced && SpongeImpl.isInitialized() && SpongeImplHooks.isMainThread() && !isIgnoredEvent(event)) {
             if (!isEventAllowed(event)) {
                 return false;
             }
