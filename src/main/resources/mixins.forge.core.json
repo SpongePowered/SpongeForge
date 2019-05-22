@@ -73,6 +73,7 @@
         "item.recipe.MixinSpongeRecipe",
         "nbt.MixinNBTTagCompound",
         "network.packet.MixinCPacketClickWindow",
+        "network.packet.MixinCPacketPlayerDigging",
         "network.packet.MixinCPacketPlayerTryUseItemOnBlock",
         "network.MixinNetHandlerPlayServer",
         "server.MixinMinecraftServer",
