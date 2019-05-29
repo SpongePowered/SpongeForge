@@ -142,7 +142,7 @@ public class SpongeModEventManager extends SpongeEventManager {
 	@SuppressWarnings({"unchecked"}) private
     Class<? extends Event>[] interactBlock = new Class[] {InteractBlockEvent.Primary.MainHand.class, InteractBlockEvent.Primary.OffHand.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class};
 	@SuppressWarnings({"unchecked", "deprecation"}) private
-    Class<? extends Event>[] spawnEntityEvent = new Class[] {SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class};
+    Class<? extends Event>[] spawnEntityEvent = new Class[] {SpawnEntityEvent.ChunkLoad.class, SpawnEntityEvent.Spawner.class, SpawnEntityEvent.class};
 
     @SuppressWarnings({"unchecked", "deprecation"})
     /**

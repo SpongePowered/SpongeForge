@@ -414,7 +414,7 @@ public class SpongeToForgeEventFactory {
                     (EntityItem) e, serverPlayer), true));
     
             createAndPostEntityJoinWorldEvent(eventData);
-            handleCustomStack((SpawnEntityEvent) spongeEvent);
+            handleCustomStack(spongeEvent);
             return true;
         } else {
             // Sync Sponge to Forge
@@ -623,27 +623,31 @@ public class SpongeToForgeEventFactory {
         while (it.hasNext()) {
             Entity entity = (Entity) it.next(); //Sponge - use entity from event
             if (entity instanceof EntityItem) {
-                final ItemStack stack =  EntityUtil.getItem(entity);
-                final Item item = stack.getItem();
+                handleCustomEntityFromIterator(it, entity);
+            }
+        }
+    }
 
-                if (item.hasCustomEntity(stack)) {
-                    final Entity newEntity = item.createEntity(entity.getEntityWorld(), entity, stack); // Sponge - use world from entity
-                    if (newEntity != null) {
-                        entity.setDead();
+    private static void handleCustomEntityFromIterator(ListIterator<org.spongepowered.api.entity.Entity> it, Entity entity) {
+        final ItemStack stack =  EntityUtil.getItem(entity);
+        final Item item = stack.getItem();
 
-                        final EntityJoinWorldEvent cancelledEvent = new EntityJoinWorldEvent(entity, entity.getEntityWorld());
-                        cancelledEvent.setCanceled(true);
-                        forgeEventBus.post(cancelledEvent, true);
+        if (item.hasCustomEntity(stack)) {
+            final Entity newEntity = item.createEntity(entity.getEntityWorld(), entity, stack); // Sponge - use world from entity
+            if (newEntity != null) {
+                entity.setDead();
 
-                        if (!cancelledEvent.isCanceled()) {
-                            SpongeImpl.getLogger()
-                                    .error("A mod has un-cancelled the EntityJoinWorld event for the original EntityItem (from before Item#createEntity is called). This is almost certainly a terrible idea!");
-                        }
+                final EntityJoinWorldEvent cancelledEvent = new EntityJoinWorldEvent(entity, entity.getEntityWorld());
+                cancelledEvent.setCanceled(true);
+                forgeEventBus.post(cancelledEvent, true);
 
-                        it.set((org.spongepowered.api.entity.Entity) newEntity);
-                        // Sponge end
-                    }
+                if (!cancelledEvent.isCanceled()) {
+                    SpongeImpl.getLogger()
+                            .error("A mod has un-cancelled the EntityJoinWorld event for the original EntityItem (from before Item#createEntity is called). This is almost certainly a terrible idea!");
                 }
+
+                it.set((org.spongepowered.api.entity.Entity) newEntity);
+                // Sponge end
             }
         }
     }

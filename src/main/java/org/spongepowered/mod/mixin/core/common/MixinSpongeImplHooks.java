@@ -40,6 +40,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
@@ -83,8 +84,6 @@ import org.spongepowered.api.item.inventory.crafting.CraftingGridInventory;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.world.PortalAgent;
-import org.spongepowered.api.world.PortalAgentTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImpl;
@@ -945,4 +944,32 @@ public abstract class MixinSpongeImplHooks {
         float hitY, float hitZ) {
         return stack.onItemUseFirst(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
     }
+
+    /**
+     * @author gabizou - May 28th, 2019 - 1.12.2
+     * @reason Forge has custom items, and normally, we throw an event for any
+     * and all listeners. The problem is that since Forge just blindly calls
+     * events, and Sponge only throws events if there are listeners, the custom
+     * item hook does not get called for direct spawned entities, so, we need
+     * to explicitly call the custom item creation hooks here.
+     *
+     * @param entity The vanilla entity item
+     * @return The custom item entity for the dropped item
+     */
+    @Overwrite
+    public static Entity getCustomEntityIfItem(Entity entity) {
+        final net.minecraft.item.ItemStack stack = EntityUtil.getItem(entity);
+        final Item item = stack.getItem();
+
+        if (item.hasCustomEntity(stack)) {
+            final Entity newEntity = item.createEntity(entity.getEntityWorld(), entity, stack); // Sponge - use world from entity
+            if (newEntity != null) {
+                entity.setDead();
+
+                return newEntity;
+            }
+        }
+        return entity;
+    }
+
 }
