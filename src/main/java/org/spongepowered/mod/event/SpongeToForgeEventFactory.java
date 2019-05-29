@@ -960,12 +960,14 @@ public class SpongeToForgeEventFactory {
     private static boolean createAndPostWorldUnloadEvent(SpongeToForgeEventData eventData) {
         final UnloadWorldEvent spongeEvent = (UnloadWorldEvent) eventData.getSpongeEvent();
         WorldEvent.Unload forgeEvent = (WorldEvent.Unload) eventData.getForgeEvent();
+        ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(true);
         if (forgeEvent == null) {
             forgeEvent = new WorldEvent.Unload((net.minecraft.world.World) spongeEvent.getTargetWorld());
             eventData.setForgeEvent(forgeEvent);
         }
 
         forgeEventBus.post(forgeEvent, true);
+        ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(false);
         return true;
     }
 

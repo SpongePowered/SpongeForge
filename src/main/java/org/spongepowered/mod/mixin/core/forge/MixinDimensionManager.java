@@ -31,6 +31,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.WorldSettings;
+import net.minecraft.world.storage.DerivedWorldInfo;
+import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLLog;
 import org.spongepowered.api.Sponge;
@@ -42,6 +45,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.interfaces.world.IMixinDerivedWorldInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.interfaces.world.IMixinWorldSettings;
@@ -232,10 +236,11 @@ public abstract class MixinDimensionManager {
             return;
         }
 
-        final WorldProvider provider = dimensionType.createDimension();
+        WorldProvider provider = dimensionType.createDimension();
         // make sure to set the dimension id to avoid getting a null save folder
         provider.setDimension(dim);
-        final String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(provider.getSaveFolder());
+        String saveFolder = provider.getSaveFolder();
+        String worldFolder = WorldManager.getWorldFolderByDimensionId(dim).orElse(saveFolder);
         WorldProperties properties = WorldManager.getWorldProperties(worldFolder).orElse(null);
         final Path worldPath = WorldManager.getCurrentSavesDirectory().get().resolve(worldFolder);
         if (properties == null || !Files.isDirectory(worldPath)) {
@@ -261,9 +266,37 @@ public abstract class MixinDimensionManager {
             return;
         }
 
-        Optional<WorldServer> optWorld = WorldManager.loadWorld(properties);
-        if (!optWorld.isPresent()) {
+        WorldServer worldServer = WorldManager.loadWorld(properties).orElse(null);
+        if (worldServer == null) {
             SpongeImpl.getLogger().error("Could not load world [{}]!", properties.getWorldName());
+            return;
+        }
+
+        final WorldInfo oldWorldInfo = (WorldInfo) properties;
+        final WorldInfo newWorldInfo = worldServer.getWorldInfo();
+
+        if (newWorldInfo instanceof DerivedWorldInfo) {
+            // Mods such as Mystcraft perform hacks and lie about their DimensionType and swap out the WorldInfo for the Derived version
+            // which allows them to add on to Vanilla's WorldInfo via a wrapper. We need to try and support this
+
+            ((IMixinDerivedWorldInfo) newWorldInfo).setDelegate(oldWorldInfo);
+
+            // WorldProperties up to this point is bogus, no reason to pass it to plugins
+            WorldManager.unregisterWorldProperties(properties, true);
+
+            provider = worldServer.provider;
+            dimensionType = provider.getDimensionType();
+
+            ((IMixinWorldInfo) newWorldInfo).setUniqueId(properties.getUniqueId());
+            ((IMixinWorldInfo) newWorldInfo).setDimensionId(dimensionType.getId());
+            ((IMixinWorldInfo) newWorldInfo).setIsMod(true);
+            ((IMixinWorldInfo) newWorldInfo).setDimensionType((org.spongepowered.api.world.DimensionType) (Object) dimensionType);
+            ((WorldProperties) newWorldInfo).setGeneratorType(((WorldProperties) newWorldInfo).getGeneratorType());
+            saveFolder = provider.getSaveFolder();
+            ((IMixinDerivedWorldInfo) newWorldInfo).getDelegate().setWorldName(saveFolder);
+            ((IMixinWorldInfo) newWorldInfo).getOrCreateWorldConfig().save();
+
+            WorldManager.registerWorldProperties((WorldProperties) ((IMixinDerivedWorldInfo) newWorldInfo).getDelegate());
         }
     }
 
