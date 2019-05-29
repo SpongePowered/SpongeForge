@@ -105,12 +105,12 @@ public abstract class MixinEventBus implements IMixinEventBus {
             if (worldTickEvent.phase == TickEvent.Phase.START) {
                 return PluginPhase.Listener.PRE_WORLD_TICK_LISTENER
                     .createPhaseContext()
-                    .source(listener)
+                    .source(listener.getContainer())
                     .event(event);
             } else if (worldTickEvent.phase == TickEvent.Phase.END) {
                 return PluginPhase.Listener.POST_WORLD_TICK_LISTENER
                     .createPhaseContext()
-                    .source(listener)
+                    .source(listener.getContainer())
                     .event(event);
             }
         }
@@ -120,18 +120,19 @@ public abstract class MixinEventBus implements IMixinEventBus {
             if (serverTickEvent.phase == TickEvent.Phase.START) {
                 // Need to prepare all worlds many mods do this
                 return PluginPhase.Listener.PRE_SERVER_TICK_LISTENER.createPhaseContext()
-                        .source(listener)
+                        .source(listener.getContainer())
                         .event(event);
             } else if (serverTickEvent.phase == TickEvent.Phase.END) {
                 // Need to prepare all worlds many mods do this
                 return PluginPhase.Listener.POST_SERVER_TICK_LISTENER.createPhaseContext()
-                    .source(listener)
+                    .source(listener.getContainer())
                     .event(event);
 
             }
         }
         if (SpongeImplHooks.isMainThread() && !isIgnoredEvent(event) && listener.getContainer() != null && PhaseTracker.getInstance().getCurrentState().allowsEventListener()) {
             return PluginPhase.Listener.GENERAL_LISTENER.createPhaseContext()
+                .event(event)
                 .source(listener.getContainer());
         }
         return null;
