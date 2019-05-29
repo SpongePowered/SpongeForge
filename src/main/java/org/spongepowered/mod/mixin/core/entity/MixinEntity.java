@@ -65,7 +65,7 @@ public abstract class MixinEntity implements IMixinEntity {
     public net.minecraft.entity.Entity changeDimension(int toDimensionId, ITeleporter teleporter) {
         if (!this.world.isRemote && !this.isDead) {
             // Sponge Start - Handle teleportation solely in TrackingUtil where everything can be debugged.
-            return EntityUtil.transferEntityToDimension(this, toDimensionId, (IMixinITeleporter) teleporter);
+            return EntityUtil.transferEntityToDimension(this, toDimensionId, (IMixinITeleporter) teleporter, null);
             // Sponge End
         }
         return null;

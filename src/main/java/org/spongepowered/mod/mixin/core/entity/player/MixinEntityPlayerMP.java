@@ -54,6 +54,6 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
     @Overwrite(remap = false)
     @Nullable
     public Entity changeDimension(int dimensionId, ITeleporter teleporter) {
-        return EntityUtil.teleportPlayerToDimension((EntityPlayerMP) (Object) this, dimensionId, (IMixinITeleporter) (Object) teleporter);
+        return EntityUtil.teleportPlayerToDimension((EntityPlayerMP) (Object) this, dimensionId, (IMixinITeleporter) (Object) teleporter, null);
     }
 }
