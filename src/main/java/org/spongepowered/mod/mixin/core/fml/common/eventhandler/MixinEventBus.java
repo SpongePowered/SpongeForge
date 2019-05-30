@@ -91,7 +91,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
 
     @Nullable
     private PhaseContext<?> preEventPhaseCheck(IMixinASMEventHandler listener, Event event) {
-        if (!isIgnoredEvent(event)) {
+        if (isIgnoredEvent(event)) {
             return null;
         }
         if (!SpongeImplHooks.isMainThread()) {
