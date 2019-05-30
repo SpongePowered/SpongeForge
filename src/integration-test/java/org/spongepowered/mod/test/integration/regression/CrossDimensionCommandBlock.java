@@ -72,7 +72,8 @@ public class CrossDimensionCommandBlock extends BaseTest  {
 
             World world = Sponge.getServer().loadWorld(worldProperties).get();
 
-            this.testUtils.getThePlayer().setLocationSafely(world.getSpawnLocation());
+            final Location<World> spawnLocation = world.getSpawnLocation();
+            this.testUtils.getThePlayer().setLocation(spawnLocation);
             this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.COMMAND_BLOCK, 1));
 
             return this.testUtils.getThePlayer().getLocation().add(0, 1, 1);

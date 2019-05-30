@@ -53,6 +53,7 @@ configurations.all {
     }
 }
 
+configurations { testCompile.extendsFrom(forgeGradleMcDeps) }
 
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
 
