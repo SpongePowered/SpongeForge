@@ -26,7 +26,6 @@ package org.spongepowered.mod.test.integration.regression;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.flowpowered.math.vector.Vector3d;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,7 +72,7 @@ public class CrossDimensionCommandBlock extends BaseTest  {
 
             World world = Sponge.getServer().loadWorld(worldProperties).get();
 
-            this.testUtils.getThePlayer().setLocation(world.getSpawnLocation());
+            this.testUtils.getThePlayer().setLocationSafely(world.getSpawnLocation());
             this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.COMMAND_BLOCK, 1));
 
             return this.testUtils.getThePlayer().getLocation().add(0, 1, 1);
