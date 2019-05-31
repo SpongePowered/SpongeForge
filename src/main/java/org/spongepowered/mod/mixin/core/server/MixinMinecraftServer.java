@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.server;
 
 import net.minecraft.profiler.Snooper;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import org.apache.logging.log4j.Logger;
@@ -42,6 +43,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.IMixinMinecraftServer;
+import org.spongepowered.common.interfaces.server.management.IMixinPlayerProfileCache;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
@@ -60,6 +62,8 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
     @Shadow(remap = false) public Hashtable<Integer, long[]> worldTickTimes;
 
     @Shadow private boolean serverIsRunning;
+
+    @Shadow public abstract PlayerProfileCache getPlayerProfileCache();
 
     @Override
     public long[] getWorldTickTimes(int dimensionId) {
@@ -122,7 +126,9 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
         LOGGER.info("Stopping server");
 
         // Sponge Start - Force player profile cache save
+        ((IMixinPlayerProfileCache) this.getPlayerProfileCache()).setCanSave(true);
         ((MinecraftServer) (Object) this).getPlayerProfileCache().save();
+        ((IMixinPlayerProfileCache) this.getPlayerProfileCache()).setCanSave(false);
 
         final MinecraftServer server = (MinecraftServer) (Object) this;
         if (server.getNetworkSystem() != null)
