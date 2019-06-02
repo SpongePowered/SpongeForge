@@ -34,11 +34,11 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.entity.Hotbar;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
+import org.spongepowered.common.test.RegressionTest;
+import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
-import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.TestUtils;
-import org.spongepowered.mod.test.integration.RegressionTest;
 
 @RegressionTest(ghIssue = "https://github.com/SpongePowered/SpongeCommon/issues/1923")
 @RunWith(MinecraftRunner.class)

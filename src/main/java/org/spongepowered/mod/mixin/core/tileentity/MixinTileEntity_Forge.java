@@ -22,29 +22,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.test.integration;
+package org.spongepowered.mod.mixin.core.tileentity;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Intrinsic;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.block.tile.IMixinTileEntity;
 
-/**
- * An annotation used to mark tests that ensure that a specific
- * Sponge issue has not regressed. These will usually, but not always,
- * be written using Mctester.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface RegressionTest {
+@Mixin(TileEntity.class)
+@Implements(@Interface(iface = IMixinTileEntity.class, prefix = "spongeIMixinTile$"))
+public abstract class MixinTileEntity_Forge {
 
-    /**
-     * A fully-qualified link to the GitHub issue being tested by this test.
-     *
-     * <p>Example: 'https://github.com/SpongePowered/SpongeCommon/issues/1945'</p>
-     *
-     * @return The URL of the issue
-     */
-    String ghIssue();
+    @Shadow private NBTTagCompound customTileData;
+
+    @Intrinsic
+    public boolean spongeIMixinTile$hasTileDataCompound() {
+        return this.customTileData != null;
+    }
 
 }

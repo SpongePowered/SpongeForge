@@ -224,7 +224,6 @@ sourceSets {
 
             compileClasspath += tasks.shadowDevJar.outputs.files + sourceSets.test.compileClasspath
             runtimeClasspath += tasks.shadowDevJar.outputs.files + sourceSets.test.compileClasspath
-
             //compileClasspath += newFiles
             //runtimeClasspath += newFiles
 
@@ -239,9 +238,7 @@ sourceSets {
 }
 
 dependencies {
-    //integrationTestCompile common
-    //integrationTestCompile common.sourceSets.test.output
-    //integrationTestCompile "org.spongepowered:spongeapi:7.2.0-SNAPSHOT"
+    integrationTestCompile common.sourceSets.test.output
 }
 
 configurations {
