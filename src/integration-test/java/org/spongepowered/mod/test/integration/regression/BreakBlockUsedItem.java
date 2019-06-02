@@ -34,11 +34,11 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.common.test.RegressionTest;
 import org.spongepowered.mctester.internal.BaseTest;
 import org.spongepowered.mctester.internal.event.StandaloneEventListener;
 import org.spongepowered.mctester.api.junit.MinecraftRunner;
 import org.spongepowered.mctester.junit.TestUtils;
-import org.spongepowered.mod.test.integration.RegressionTest;
 
 import java.util.Optional;
 

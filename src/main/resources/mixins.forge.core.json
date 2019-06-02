@@ -80,6 +80,7 @@
         "server.MixinPlayerList",
         "server.MixinServerCommandManager",
         "server.management.MixinPlayerChunkMapEntry",
+        "tileentity.MixinTileEntity_Forge",
         "world.MixinChunk",
         "world.MixinDimensionType",
         "world.MixinWorld",
