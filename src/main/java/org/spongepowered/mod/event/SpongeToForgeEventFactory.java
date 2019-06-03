@@ -117,6 +117,7 @@ import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.interfaces.IMixinEventBus;
 
 import java.util.ArrayList;
@@ -931,14 +932,14 @@ public class SpongeToForgeEventFactory {
         WorldEvent.Save forgeEvent = (WorldEvent.Save) eventData.getForgeEvent();
         // Since Forge only uses a single save handler, we need to make sure to pass the overworld's handler.
         // This makes sure that mods dont attempt to save/read their data from the wrong location.
-        ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(true);
+        ((IMixinWorld) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
         if (forgeEvent == null) {
             forgeEvent = new WorldEvent.Save((net.minecraft.world.World) spongeEvent.getTargetWorld());
             eventData.setForgeEvent(forgeEvent);
         }
 
         forgeEventBus.post(forgeEvent, true);
-        ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(false);
+        ((IMixinWorld) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(null);
         return true;
     }
 
@@ -948,7 +949,7 @@ public class SpongeToForgeEventFactory {
         // Since Forge only uses a single save handler, we need to make sure to pass the overworld's handler.
         // This makes sure that mods dont attempt to save/read their data from the wrong location.
         final net.minecraft.world.World minecraftWorld = (net.minecraft.world.World) spongeEvent.getTargetWorld();
-        ((IMixinWorld) spongeEvent.getTargetWorld()).setCallingWorldEvent(true);
+        ((IMixinWorld) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
         ((IMixinChunkProviderServer) minecraftWorld.getChunkProvider()).setForceChunkRequests(true);
         if (forgeEvent == null) {
             forgeEvent = new WorldEvent.Load(minecraftWorld);
@@ -957,7 +958,7 @@ public class SpongeToForgeEventFactory {
 
         forgeEventBus.post(forgeEvent, true);
         ((IMixinChunkProviderServer) minecraftWorld.getChunkProvider()).setForceChunkRequests(false);
-        ((IMixinWorld) minecraftWorld).setCallingWorldEvent(false);
+        ((IMixinWorld) minecraftWorld).setRedirectedWorldInfo(null);
         return true;
     }
 

@@ -51,12 +51,13 @@ import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.mod.event.CapturedSnapshotWrapperList;
 
+import javax.annotation.Nullable;
+
 // Use lower priority so it is applied before the changes in SpongeCommon
 @Mixin(value = World.class, priority = 999)
 public abstract class MixinWorld implements IMixinWorld {
 
-
-    private boolean callingWorldEvent = false;
+    private WorldInfo redirectWorldInfo;
 
     @Shadow(remap = false) public boolean restoringBlockSnapshots;
     @Shadow(remap = false) public boolean captureBlockSnapshots;
@@ -64,7 +65,6 @@ public abstract class MixinWorld implements IMixinWorld {
     @Shadow @Final public WorldProvider provider;
     @Shadow @Final public boolean isRemote;
     @Shadow protected MapStorage mapStorage;
-
     @Shadow public abstract IChunkProvider getChunkProvider();
     @Shadow public abstract boolean canSeeSky(BlockPos pos);
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
@@ -140,8 +140,8 @@ public abstract class MixinWorld implements IMixinWorld {
 
     @Inject(method = "getWorldInfo", at = @At("HEAD"), cancellable = true)
     public void onGetWorldInfo(CallbackInfoReturnable<WorldInfo> cir) {
-        if (this.provider.getDimension() != 0 && this.callingWorldEvent) {
-            cir.setReturnValue(DimensionManager.getWorld(0).getWorldInfo());
+        if (this.provider.getDimension() != 0 && this.redirectWorldInfo != null) {
+            cir.setReturnValue(this.redirectWorldInfo);
         }
     }
 
@@ -158,8 +158,8 @@ public abstract class MixinWorld implements IMixinWorld {
     }
 
     @Override
-    public void setCallingWorldEvent(boolean flag) {
-        this.callingWorldEvent = flag;
+    public void setRedirectedWorldInfo(@Nullable WorldInfo info) {
+        this.redirectWorldInfo = info;
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
