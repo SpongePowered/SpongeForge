@@ -74,7 +74,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
         final EntityPlayer player;
 
         if (event.getSide().isClient()) {
-            player = null; // TODO In 1.13, Client player will be a Sponge player, should we still put in the cause in 1.12?
+            player = null;
         } else {
             player = ((NetHandlerPlayServer) event.getHandler()).player;
         }
