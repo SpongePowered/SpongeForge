@@ -176,7 +176,7 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
                     }
 
                     // Direct to WorldManager for unload
-                    WorldManager.unloadWorld(worldserver1, false);
+                    WorldManager.unloadWorld(worldserver1, false, true);
                     // Sponge End
                     worldserver1.flush();
                 }

@@ -197,7 +197,7 @@ public abstract class MixinDimensionManager {
         } else {
             final WorldServer worldServer = WorldManager.getWorldByDimensionId(id).orElse(null);
             if (worldServer != null) {
-                WorldManager.unloadWorld(worldServer, false);
+                WorldManager.unloadWorld(worldServer, false, false);
                 server.worldTickTimes.remove(id);
             }
         }
