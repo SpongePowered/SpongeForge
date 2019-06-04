@@ -508,7 +508,7 @@ public class SpongeMod extends MetaModContainer {
         // used for client
         if (this.game.getPlatform().getType().isClient()) {
             WorldManager.registerVanillaTypesAndDimensions();
-            ((SqlServiceImpl) this.game.getServiceManager().provideUnchecked(SqlService.class)).buildConnectionCache();
+            this.game.getServiceManager().provide(SqlService.class).ifPresent(sqlService -> ((SqlServiceImpl) sqlService).buildConnectionCache());
         }
     }
 
@@ -533,7 +533,13 @@ public class SpongeMod extends MetaModContainer {
             CommandManager service = this.game.getCommandManager();
             service.getCommands().stream().filter(mapping -> mapping.getCallable() instanceof MinecraftCommandWrapper)
                     .forEach(service::removeMapping);
-            ((SqlServiceImpl) this.game.getServiceManager().provideUnchecked(SqlService.class)).close();
+            this.game.getServiceManager().provide(SqlService.class).ifPresent(sqlService -> {
+                try {
+                    ((SqlServiceImpl) sqlService).close();
+                } catch (Throwable t) {
+                    this.controller.errorOccurred(this, t);
+                }
+            });
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
         }
