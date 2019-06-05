@@ -172,6 +172,9 @@ reobf {
         extraFiles 'extraSrg.srg'
     }
 }
+mixin {
+    extraSrgFile("searge", file('extraSrg.srg'))
+}
 
 uploadArchives {
     repositories {
