@@ -31,15 +31,18 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.BlockSnapshot;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
 import org.spongepowered.common.block.SpongeBlockSnapshotBuilder;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
+import org.spongepowered.common.event.tracking.context.BlockTransaction;
 import org.spongepowered.common.event.tracking.context.MultiBlockCaptureSupplier;
 import org.spongepowered.common.registry.type.world.BlockChangeFlagRegistryModule;
 import org.spongepowered.common.util.VecHelper;
+import org.spongepowered.common.world.BlockChange;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,7 +87,6 @@ public class CapturedSnapshotWrapperList extends ArrayList<BlockSnapshot> implem
     private final World worldPointer;
     private List<SpongeBlockSnapshot> wrappedList = new ArrayList<>();
 
-    @Nullable private List<BlockSnapshot> cachedSnapshots;
 
     public CapturedSnapshotWrapperList(World world) {
         this.worldPointer = world;
@@ -147,16 +149,27 @@ public class CapturedSnapshotWrapperList extends ArrayList<BlockSnapshot> implem
 
     @Override
     public <T> T[] toArray(T[] a) {
-        return getCachedForgeList().toArray(a);
+        return getCachedForgeList();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean add(BlockSnapshot blockSnapshot) {
-        final List<SpongeBlockSnapshot> underlyingList = getUnderlyingList();
-        final List<BlockSnapshot> cachedForgeList = getCachedForgeList();
-        cachedForgeList.add(blockSnapshot);
-        final SpongeBlockSnapshot sponge = toSponge(blockSnapshot);
-        return underlyingList.add(sponge);
+        final SpongeBlockSnapshot spongeSnapshot = toSponge(blockSnapshot);
+        if (SpongeImplHooks.isMainThread()) {
+            final PhaseContext<?> data = PhaseTracker.getInstance().getCurrentContext();
+            if (((IPhaseState) data.state).doesBulkBlockCapture(data)) {
+                final BlockPos pos = blockSnapshot.getPos();
+                final IBlockState currentState = this.worldPointer.getBlockState(pos);
+                final BlockChangeFlag flag = BlockChangeFlagRegistryModule.fromNativeInt(blockSnapshot.getFlag());
+                final BlockTransaction.ChangeBlock
+                    changeBlock =
+                    ((IPhaseState) data.state).captureBlockChange(data, pos, spongeSnapshot, currentState, flag, blockSnapshot.getTileEntity());
+                return true;
+            }
+            return this.wrappedList.add(spongeSnapshot);
+        }
+        return this.wrappedList.add(spongeSnapshot);
     }
 
     @Override
@@ -278,5 +291,53 @@ public class CapturedSnapshotWrapperList extends ArrayList<BlockSnapshot> implem
     @Override
     public List<BlockSnapshot> subList(int fromIndex, int toIndex) {
         return getCachedForgeList().subList(fromIndex, toIndex);
+    }
+
+    public static final class WrappedIterator implements ListIterator<BlockSnapshot> {
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public BlockSnapshot next() {
+            return null;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return false;
+        }
+
+        @Override
+        public BlockSnapshot previous() {
+            return null;
+        }
+
+        @Override
+        public int nextIndex() {
+            return 0;
+        }
+
+        @Override
+        public int previousIndex() {
+            return 0;
+        }
+
+        @Override
+        public void remove() {
+
+        }
+
+        @Override
+        public void set(BlockSnapshot blockSnapshot) {
+
+        }
+
+        @Override
+        public void add(BlockSnapshot blockSnapshot) {
+
+        }
     }
 }
