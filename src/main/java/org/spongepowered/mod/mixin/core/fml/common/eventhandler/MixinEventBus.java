@@ -109,11 +109,13 @@ public abstract class MixinEventBus implements IMixinEventBus {
                 return PluginPhase.Listener.PRE_WORLD_TICK_LISTENER
                     .createPhaseContext()
                     .source(listener.getContainer())
+                    .world(world)
                     .event(event);
             } else if (worldTickEvent.phase == TickEvent.Phase.END) {
                 return PluginPhase.Listener.POST_WORLD_TICK_LISTENER
                     .createPhaseContext()
                     .source(listener.getContainer())
+                    .world(world)
                     .event(event);
             }
         }
