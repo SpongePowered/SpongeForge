@@ -107,14 +107,12 @@ public abstract class MixinBlockFluidClassic extends MixinBlockFluidBase {
     }
 
     // Capture Fluids flowing into other blocks
-    @SuppressWarnings({"unchecked", "DefaultAnnotationParam"})
+    @SuppressWarnings({"unchecked"})
     @Redirect(
         method = "flowIntoBlock",
-        remap = false,
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Z",
-            remap = true
+            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Z"
         )
     )
     private boolean afterCanFlowInto(World targetWorld, BlockPos targetPos, IBlockState newLiquidState, World world, BlockPos pos, int meta) {
