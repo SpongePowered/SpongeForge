@@ -181,7 +181,8 @@ public abstract class MixinBlockFluidFinite extends MixinBlockFluidBase {
             )
         ),
         locals = LocalCapture.CAPTURE_FAILSOFT,
-        cancellable = true
+        cancellable = true,
+        constraints = "FORGE(2821+)"
     )
     private void setNewStateWithMaximumQuantaWhileFlowing(World world, BlockPos pos, int amtToInput, CallbackInfoReturnable<Integer> cir, IBlockState myState, BlockPos other, int newAmount) {
         if (((IMixinWorld) world).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_PLACE) {
@@ -203,6 +204,7 @@ public abstract class MixinBlockFluidFinite extends MixinBlockFluidBase {
      * we can technically call it mixing and throw an appropriate event before
      * the scheduled updates are actually added.
      */
+    @SuppressWarnings("unchecked")
     @Inject(
         method = "tryToFlowVerticallyInto",
         at = {
@@ -251,17 +253,11 @@ public abstract class MixinBlockFluidFinite extends MixinBlockFluidBase {
                     ordinal = 0
                 )
             )
-        }
+        },
+        constraints = "FORGE(2821+)"
     )
     private void onSetBlockForSwapping(World world, BlockPos myPos, int amtToInput, CallbackInfoReturnable<Integer> cir,
         IBlockState myState, BlockPos other, int amt, int density_other, IBlockState otherState) {
-        throwSpongeMixingEvent(world, myPos, amtToInput, cir, myState, other, otherState);
-    }
-
-
-    @SuppressWarnings("unchecked")
-    private void throwSpongeMixingEvent(World world, BlockPos myPos, int amtToInput, CallbackInfoReturnable<Integer> cir, IBlockState myState,
-        BlockPos other, IBlockState otherState) {
         if (((IMixinWorld) world).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_MODIFY) {
             return;
         }
@@ -275,7 +271,8 @@ public abstract class MixinBlockFluidFinite extends MixinBlockFluidBase {
         final SpongeBlockSnapshot otherSnapshot = builder.reset().blockState(otherState).worldId(worldId).position(otherPosition).build();
         final IBlockState myNewState = myState.withProperty(LEVEL, amtToInput - 1);
         final PhaseContext<?> currentContext = PhaseTracker.getInstance().getCurrentContext();
-        ((IPhaseState) currentContext.state).associateBlockChangeWithSnapshot(currentContext, myNewState, (BlockFluidFinite) (Object) this, otherState, otherSnapshot, otherState.getBlock());
+        ((IPhaseState) currentContext.state).associateBlockChangeWithSnapshot(currentContext, myNewState, (BlockFluidFinite) (Object) this,
+            otherState, otherSnapshot, otherState.getBlock());
         ((IPhaseState) currentContext.state).associateBlockChangeWithSnapshot(currentContext, otherState, otherState.getBlock(), myState, mySnapshot, (BlockFluidFinite) (Object) this);
         Object source = currentContext.getSource();
         boolean pushSource = false;

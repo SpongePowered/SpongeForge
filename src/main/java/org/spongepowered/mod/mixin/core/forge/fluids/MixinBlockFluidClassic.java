@@ -31,6 +31,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fluids.BlockFluidClassic;
+import org.apache.logging.log4j.core.config.plugins.validation.Constraint;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.CauseStackManager;
@@ -113,7 +114,8 @@ public abstract class MixinBlockFluidClassic extends MixinBlockFluidBase {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Z"
-        )
+        ),
+        constraints = "FORGE(2821+)"
     )
     private boolean afterCanFlowInto(World targetWorld, BlockPos targetPos, IBlockState newLiquidState, World world, BlockPos pos, int meta) {
         if (((IMixinWorld) targetWorld).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_BREAK) { // Check if we even need to fire.
