@@ -24,24 +24,39 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common;
 
+import com.google.common.collect.Multimap;
 import com.google.common.eventbus.EventBus;
+import net.minecraftforge.common.util.TextTable;
+import net.minecraftforge.fml.common.CertificateHelper;
 import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.LoaderState;
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.mod.event.StateRegistry;
 import org.spongepowered.mod.interfaces.IMixinLoadController;
+import org.spongepowered.mod.plugin.SpongeModPluginContainer;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 @Mixin(value = LoadController.class, remap = false)
 public abstract class MixinLoadController implements IMixinLoadController {
     @Shadow private ModContainer activeContainer;
+
+    @Shadow private Loader loader;
+
+    @Shadow private Multimap<String, LoaderState.ModState> modStates;
 
     @Redirect(method = "distributeStateMessage", at = @At(value = "INVOKE", target = "Lcom/google/common/eventbus/EventBus;post(Ljava/lang/Object;)V", ordinal = 0, remap = false))
     public void onPost(EventBus eventBus, Object event, LoaderState state, Object[] eventData) {
@@ -54,6 +69,44 @@ public abstract class MixinLoadController implements IMixinLoadController {
         if (state == LoaderState.CONSTRUCTING) {
             SpongeImpl.postEvent((Event) event, true);
         }
+    }
+
+    @Inject(method = "printModStates", at = @At(value = "NEW", target = "net/minecraftforge/common/util/TextTable"))
+    private void printModsTableHeader(StringBuilder ret, CallbackInfo ci) {
+        ret.append("\n");
+        ret.append("\n\t");
+        ret.append("Mods:");
+    }
+
+    @Redirect(method = "printModStates", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/Loader;getModList()Ljava/util/List;"))
+    private List<ModContainer> separateModsForTable(final Loader loader) {
+        return loader.getModList().stream().filter(modContainer -> !(modContainer instanceof SpongeModPluginContainer)).collect(Collectors.toList());
+    }
+
+    @Inject(method = "printModStates", at = @At("RETURN"), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+    private void addPluginsTable(StringBuilder ret, CallbackInfo ci, TextTable table) {
+        table.clear();
+
+        ret.append("\n");
+        ret.append("\n\t");
+        ret.append("Plugins:");
+
+        for (ModContainer mc : this.loader.getModList().stream().filter(modContainer -> modContainer instanceof SpongeModPluginContainer).collect(
+            Collectors.toList()))
+        {
+            table.add(
+                this.modStates.get(mc.getModId()).stream().map(LoaderState.ModState::getMarker).reduce("", (a, b) -> a + b),
+                mc.getModId(),
+                mc.getVersion(),
+                mc.getSource().getName(),
+                mc.getSigningCertificate() != null ? CertificateHelper.getFingerprint(mc.getSigningCertificate()) : "None"
+            );
+        }
+
+        ret.append("\n");
+        ret.append("\n\t");
+        table.append(ret, "\n\t");
+        ret.append("\n");
     }
 
     @Override
