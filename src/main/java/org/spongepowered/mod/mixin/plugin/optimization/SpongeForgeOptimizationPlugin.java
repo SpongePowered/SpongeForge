@@ -46,7 +46,7 @@ public class SpongeForgeOptimizationPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return SpongeImpl.getGlobalConfig().getConfig().getOptimizations().useFastThreadChecks();
+        return SpongeImpl.getGlobalConfigAdapter().getConfig().getOptimizations().useFastThreadChecks();
     }
 
     @Override

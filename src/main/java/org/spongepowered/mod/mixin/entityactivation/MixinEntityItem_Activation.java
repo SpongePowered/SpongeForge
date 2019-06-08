@@ -29,6 +29,7 @@ import net.minecraft.item.ItemStack;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.mixin.entityactivation.MixinEntity_Activation;
 
@@ -49,7 +50,7 @@ public abstract class MixinEntityItem_Activation extends MixinEntity_Activation 
         }
 
         if (!this.world.isRemote && this.lifespan == 6000) {
-            if (this.age >= ((IMixinWorldServer) this.world).getWorldConfig().getConfig().getEntity().getItemDespawnRate()) {
+            if (this.age >= ((IMixinWorldInfo) this.world.getWorldInfo()).getConfigAdapter().getConfig().getEntity().getItemDespawnRate()) {
                 this.setDead();
             }
         } else if (!this.world.isRemote && this.age >= this.lifespan) {

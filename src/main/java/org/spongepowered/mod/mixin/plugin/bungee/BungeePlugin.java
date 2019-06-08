@@ -48,7 +48,7 @@ public class BungeePlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!SpongeImpl.getGlobalConfig().getConfig().getModules().usePluginBungeeCord()
+        if (!SpongeImpl.getGlobalConfigAdapter().getConfig().getModules().usePluginBungeeCord()
                 && mixinClassName.contains("mixin.bungee")) {
             return false;
         }

@@ -46,7 +46,7 @@ public class BrokenModPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return SpongeImpl.getGlobalConfig().getConfig().getModules().useBrokenMods();
+        return SpongeImpl.getGlobalConfigAdapter().getConfig().getModules().useBrokenMods();
     }
 
     @Override

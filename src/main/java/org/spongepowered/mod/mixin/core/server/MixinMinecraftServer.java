@@ -162,8 +162,8 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
                 if (worldserver1 != null)
                 {
                     // Turn off Async Lighting
-                    if (SpongeImpl.getGlobalConfig().getConfig().getModules().useOptimizations() &&
-                        SpongeImpl.getGlobalConfig().getConfig().getOptimizations().useAsyncLighting()) {
+                    if (SpongeImpl.getGlobalConfigAdapter().getConfig().getModules().useOptimizations() &&
+                        SpongeImpl.getGlobalConfigAdapter().getConfig().getOptimizations().useAsyncLighting()) {
                         ((IMixinWorldServer) worldserver1).getLightingExecutor().shutdown();
 
                         try {

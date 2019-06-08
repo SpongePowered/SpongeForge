@@ -24,11 +24,9 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common;
 
-import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.discovery.ModDiscoverer;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionRange;
@@ -46,7 +44,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * MixinLoader adds support for a second, user-defined, mods search directory.
@@ -91,7 +88,7 @@ public abstract class MixinLoader {
 
     @Unique
     private File getPluginsDir() {
-        return new File(PathTokens.replace(SpongeImpl.getGlobalConfig().getConfig().getGeneral().pluginsDir()));
+        return new File(PathTokens.replace(SpongeImpl.getGlobalConfigAdapter().getConfig().getGeneral().pluginsDir()));
     }
 
     @Redirect(method = "sortModList", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/ModContainer;getDependencies"

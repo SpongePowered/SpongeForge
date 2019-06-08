@@ -25,7 +25,6 @@
 package org.spongepowered.mod.util;
 
 import com.google.common.collect.Lists;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
@@ -387,6 +386,6 @@ public final class StaticMixinForgeHelper {
         if (mod == null) {
             return false;
         }
-        return SpongeImpl.getGlobalConfig().getConfig().getBrokenMods().getBrokenNetworkHandlerMods().contains(mod.getModId());
+        return SpongeImpl.getGlobalConfigAdapter().getConfig().getBrokenMods().getBrokenNetworkHandlerMods().contains(mod.getModId());
     }
 }

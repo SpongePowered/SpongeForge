@@ -60,8 +60,8 @@ public abstract class MixinC00Handshake {
         // Sponge start
         this.protocolVersion = buf.readVarInt();
 
-        if (!SpongeImpl.getGlobalConfig().getConfig().getModules().usePluginBungeeCord()
-                || !SpongeImpl.getGlobalConfig().getConfig().getBungeeCord().getIpForwarding()) {
+        if (!SpongeImpl.getGlobalConfigAdapter().getConfig().getModules().usePluginBungeeCord()
+                || !SpongeImpl.getGlobalConfigAdapter().getConfig().getBungeeCord().getIpForwarding()) {
             this.ip = buf.readString(255);
         } else {
             this.ip = buf.readString(Short.MAX_VALUE);
