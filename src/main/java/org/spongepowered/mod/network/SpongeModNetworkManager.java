@@ -83,18 +83,16 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
             Platform.Type.CLIENT : Platform.Type.SERVER);
 
         if (event.getOperation().equals("REGISTER")) {
-
-            channels.addAll(event.getRegistrations());
-
             for (String channel : event.getRegistrations()) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(currentCause, channel));
+                if (channels.add(channel)) {
+                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventRegister(currentCause, channel));
+                }
             }
         } else if (event.getOperation().equals("UNREGISTER")) {
-
-            channels.removeAll(event.getRegistrations());
-
             for (String channel : event.getRegistrations()) {
-                SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(currentCause, channel));
+                if (channels.remove(channel)) {
+                    SpongeImpl.postEvent(SpongeEventFactory.createChannelRegistrationEventUnregister(currentCause, channel));
+                }
             }
         }
     }
