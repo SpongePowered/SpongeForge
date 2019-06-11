@@ -22,24 +22,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.item;
+package org.spongepowered.mod.mixin.core.item.recipe.crafting;
 
-import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.enchantment.EnchantmentType;
-import org.spongepowered.api.item.inventory.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.item.recipe.crafting.DelegateSpongeCraftingRecipe;
 
-@Mixin(net.minecraft.enchantment.Enchantment.class)
-public abstract class MixinEnchantment implements EnchantmentType {
+import javax.annotation.Nullable;
 
-    @Shadow public abstract boolean canApply(net.minecraft.item.ItemStack stack);
-    @Shadow(remap = false)
-    public abstract boolean isAllowedOnBooks();
+@Mixin(value = DelegateSpongeCraftingRecipe.class, remap = false)
+public abstract class MixinDelegateSpongeCraftingRecipe_Forge implements IForgeRegistryEntry<IRecipe> {
+
+    private ResourceLocation registryName;
 
     @Override
-    public boolean canBeAppliedToStack(ItemStack stack) {
-        return (stack.getType() == ItemTypes.BOOK) ? isAllowedOnBooks() : canApply((net.minecraft.item.ItemStack) (Object) stack);
+    public IRecipe setRegistryName(ResourceLocation name) {
+        if (getRegistryName() != null)
+            throw new IllegalStateException("Attempted to set registry name with existing registry name! New: " + name + " Old: " + getRegistryName());
+        this.registryName = name;
+        return ((IRecipe) this);
     }
 
+    @Override
+    @Nullable
+    public ResourceLocation getRegistryName() {
+        return this.registryName;
+    }
+
+    @Override
+    public Class<IRecipe> getRegistryType() {
+        return IRecipe.class;
+    }
 }

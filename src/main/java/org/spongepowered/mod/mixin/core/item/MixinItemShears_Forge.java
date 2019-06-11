@@ -50,8 +50,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Mixin(value = ItemShears.class, remap = false)
-public abstract class MixinItemShears extends Item {
+@Mixin(value = ItemShears.class)
+public abstract class MixinItemShears_Forge extends Item {
 
 
     /**
@@ -63,10 +63,9 @@ public abstract class MixinItemShears extends Item {
      * Returns true if the item can be used on the given entity, e.g. shears on sheep.
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    @Overwrite
+    @Overwrite(remap = false)
     @Override
-    public boolean itemInteractionForEntity(ItemStack itemstack, EntityPlayer player, EntityLivingBase entity,
-            EnumHand hand) {
+    public boolean itemInteractionForEntity(ItemStack itemstack, EntityPlayer player, EntityLivingBase entity, EnumHand hand) {
 
         if (entity.world.isRemote) {
             return false;
@@ -93,7 +92,7 @@ public abstract class MixinItemShears extends Item {
                     final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
                     original.add(snapshot);
                     try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-                        item = EntityUtil.throwDropItemAndConstructEvent(EntityUtil.toMixin(entity), posX, posY, posZ, snapshot, original, frame);
+                        item = EntityUtil.throwDropItemAndConstructEvent(entity, posX, posY, posZ, snapshot, original, frame);
                     }
 
                     if (item == null || item.isEmpty()) {

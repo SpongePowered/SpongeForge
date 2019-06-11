@@ -41,10 +41,10 @@ import org.spongepowered.common.SpongeImpl;
 import java.lang.reflect.Method;
 
 @Mixin(NBTTagCompound.class)
-public class MixinNBTTagCompound {
+public class MixinNBTTagCompound_Forge {
 
     @Inject(method = "setTag(Ljava/lang/String;Lnet/minecraft/nbt/NBTBase;)V", at = @At("HEAD"))
-    private void checkNullTag(String key, NBTBase value, CallbackInfo callbackInfo) {
+    private void sponge$throwNPEForNullTag(String key, NBTBase value, CallbackInfo callbackInfo) {
         if (value == null) {
             final PrettyPrinter printer = new PrettyPrinter(60);
             printer.add("Null being stored in NBT!").centre().hr();

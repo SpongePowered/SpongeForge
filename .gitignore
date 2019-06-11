@@ -64,8 +64,7 @@ Thumbs.db
 .settings
 .checkstyle
 .factorypath
-run
-./eclipse
+*/eclipse
 nbproject
 atlassian-ide-plugin.xml
 build.xml
@@ -76,3 +75,5 @@ nb-configuration.xml
 /.apt_generated/
 *.launch
 classes/
+# Ignore mixin generated folders. these contain compiled class transformed classes and potentially generated sourcecode.
+.mixin.out/

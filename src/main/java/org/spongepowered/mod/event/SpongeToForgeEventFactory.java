@@ -630,7 +630,7 @@ public class SpongeToForgeEventFactory {
     }
 
     private static void handleCustomEntityFromIterator(ListIterator<org.spongepowered.api.entity.Entity> it, Entity entity) {
-        final ItemStack stack =  EntityUtil.getItem(entity);
+        final ItemStack stack = entity instanceof EntityItem ? ((EntityItem) entity).getItem() : ItemStack.EMPTY;
         final Item item = stack.getItem();
 
         if (item.hasCustomEntity(stack)) {

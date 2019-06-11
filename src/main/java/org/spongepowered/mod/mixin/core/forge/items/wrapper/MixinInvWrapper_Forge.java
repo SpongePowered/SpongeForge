@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.item.inventory;
+package org.spongepowered.mod.mixin.core.forge.items.wrapper;
 
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.spongepowered.api.item.inventory.EmptyInventory;
@@ -51,7 +51,7 @@ import javax.annotation.Nullable;
 @SuppressWarnings("rawtypes")
 @Mixin(InvWrapper.class)
 @Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
-public abstract class MixinInvWrapper implements MinecraftInventoryAdapter, IMixinInventory {
+public abstract class MixinInvWrapper_Forge implements MinecraftInventoryAdapter, IMixinInventory {
 
     @Nullable protected Inventory parent;
     protected SlotCollection slots;

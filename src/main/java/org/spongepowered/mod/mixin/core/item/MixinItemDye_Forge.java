@@ -50,7 +50,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 @Mixin(ItemDye.class)
-public abstract class MixinItemDye extends MixinItem {
+public abstract class MixinItemDye_Forge extends MixinItem {
 
     /**
      * @author gabizou - March 20th, 2019 - 1.12.2

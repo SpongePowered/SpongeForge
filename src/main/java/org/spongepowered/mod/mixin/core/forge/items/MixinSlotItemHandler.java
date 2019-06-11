@@ -22,37 +22,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.item.recipe;
+package org.spongepowered.mod.mixin.core.forge.items;
 
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.item.recipe.crafting.DelegateSpongeCraftingRecipe;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.mixin.core.inventory.MixinSlot;
+import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 
-import javax.annotation.Nullable;
+@Mixin(value = SlotItemHandler.class, remap = false)
+public abstract class MixinSlotItemHandler extends MixinSlot {
 
-@Mixin(value = DelegateSpongeCraftingRecipe.class, remap = false)
-public abstract class MixinSpongeRecipe implements IForgeRegistryEntry<IRecipe> {
-
-    private ResourceLocation registryName;
-
-    @Override
-    public IRecipe setRegistryName(ResourceLocation name) {
-        if (getRegistryName() != null)
-            throw new IllegalStateException("Attempted to set registry name with existing registry name! New: " + name + " Old: " + getRegistryName());
-        this.registryName = name;
-        return ((IRecipe) this);
-    }
+    @Shadow @Final private IItemHandler itemHandler;
 
     @Override
-    @Nullable
-    public ResourceLocation getRegistryName() {
-        return this.registryName;
-    }
-
-    @Override
-    public Class<IRecipe> getRegistryType() {
-        return IRecipe.class;
+    public Inventory parent() {
+        if (this.itemHandler instanceof Inventory) {
+            return ((Inventory) this.itemHandler);
+        }
+        return new IItemHandlerAdapter(this.itemHandler);
     }
 }
