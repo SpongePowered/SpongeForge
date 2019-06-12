@@ -167,16 +167,6 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
-    private static int getChunkBlockLightOpacity(IBlockState blockState, net.minecraft.world.World worldObj, BlockPos pos) {
-        return blockState.getLightOpacity();
-    }
-
-    @SuppressWarnings("deprecation")
-    private static int getChunkBlockLightOpacity(IBlockState state, net.minecraft.world.World worldObj, int x, int y, int z) {
-        return state.getLightOpacity();
-    }
-
     /**
      * @author gabizou - July 25th, 2016
      * @reason - Adds ignorance to blocks who do not perform any
@@ -190,7 +180,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         // Sponge Start - Rewrite to use SpongeImplHooks
         // return this.getBlockState(pos).getLightOpacity(); // Vanilla
         // return this.getBlockState(pos).getLightOpacity(this.worldObj, pos); // Forge
-        return getChunkBlockLightOpacity(this.getBlockState(pos), this.world, pos);
+        return SpongeImplHooks.getChunkPosLight(this.getBlockState(pos), this.world, pos);
     }
 
     /**
@@ -210,7 +200,7 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
         // Sponge Start - Rewrite to use SpongeImplHooks because, again, unecessary block state retrieval.
         // return this.getBlockState(x, y, z).getLightOpacity(); // Vanilla
         // return this.unloaded ? state.getLightOpacity() : state.getLightOpacity(this.worldObj, new BlockPos(x, y, z)); // Forge
-        return this.unloadQueued ? state.getLightOpacity() : getChunkBlockLightOpacity(state, this.world, x, y, z);
+        return this.unloadQueued ? state.getLightOpacity() : SpongeImplHooks.getBlockLightOpacity(state, this.world, new BlockPos(x, y, z));
         // Sponge End
     }
 

@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.entity.PlayerTracker;
 import org.spongepowered.common.interfaces.IMixinChunk;
-import org.spongepowered.common.bridge.entity.IMixinEntity;
+import org.spongepowered.common.bridge.entity.EntityBridge;
 
 import java.util.Optional;
 
@@ -44,7 +44,7 @@ public class MixinBlockRailBase {
     // Used to transfer tracking information from minecarts to block positions
     @Inject(method = "onMinecartPass", at = @At(value = "HEAD"))
     public void onMinecartRailPass(World world, net.minecraft.entity.item.EntityMinecart cart, BlockPos pos, CallbackInfo ci) {
-        IMixinEntity spongeEntity = (IMixinEntity) cart;
+        EntityBridge spongeEntity = (EntityBridge) cart;
         Optional<User> notifier = spongeEntity.getNotifierUser();
         Optional<User> owner = spongeEntity.getCreatorUser();
         if (owner.isPresent() || notifier.isPresent()) {

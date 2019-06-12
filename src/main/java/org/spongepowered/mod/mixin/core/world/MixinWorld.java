@@ -48,14 +48,14 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.mod.event.CapturedSnapshotWrapperList;
 
 import javax.annotation.Nullable;
 
 // Use lower priority so it is applied before the changes in SpongeCommon
 @Mixin(value = World.class, priority = 999)
-public abstract class MixinWorld implements IMixinWorld {
+public abstract class MixinWorld implements WorldBridge {
 
     private WorldInfo redirectWorldInfo;
 

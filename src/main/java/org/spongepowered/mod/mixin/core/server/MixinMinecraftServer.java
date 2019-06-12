@@ -44,7 +44,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.interfaces.IMixinMinecraftServer;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerProfileCache;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.interfaces.world.ServerWorldBridge;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
@@ -87,7 +87,7 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
 
     @Inject(method = "updateTimeLightAndEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldServer;updateEntities()V", shift = Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     public void onPostUpdateEntities(CallbackInfo ci, Integer ids[], int x, int id, long i, WorldServer worldServer) {
-        IMixinWorldServer spongeWorld = (IMixinWorldServer) worldServer;
+        ServerWorldBridge spongeWorld = (ServerWorldBridge) worldServer;
         if (spongeWorld.getChunkGCTickInterval() > 0) {
             spongeWorld.doChunkGC();
         }
@@ -164,14 +164,14 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
                     // Turn off Async Lighting
                     if (SpongeImpl.getGlobalConfigAdapter().getConfig().getModules().useOptimizations() &&
                         SpongeImpl.getGlobalConfigAdapter().getConfig().getOptimizations().useAsyncLighting()) {
-                        ((IMixinWorldServer) worldserver1).getLightingExecutor().shutdown();
+                        ((ServerWorldBridge) worldserver1).getLightingExecutor().shutdown();
 
                         try {
-                            ((IMixinWorldServer) worldserver1).getLightingExecutor().awaitTermination(1, TimeUnit.SECONDS);
+                            ((ServerWorldBridge) worldserver1).getLightingExecutor().awaitTermination(1, TimeUnit.SECONDS);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } finally {
-                            ((IMixinWorldServer) worldserver1).getLightingExecutor().shutdownNow();
+                            ((ServerWorldBridge) worldserver1).getLightingExecutor().shutdownNow();
                         }
                     }
 

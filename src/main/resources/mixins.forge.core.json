@@ -71,7 +71,7 @@
         "forge.items.wrapper.MixinInvWrapper_Forge",
         "forge.items.MixinItemStackHandler_Forge",
         "forge.items.MixinSlotItemHandler",
-        "item.recipe.crafting.MixinDelegateSpongeCraftingRecipe_Forge",
+        "api.item.recipe.crafting.MixinDelegateSpongeCraftingRecipe_Forge",
         "nbt.MixinNBTTagCompound_Forge",
         "network.packet.MixinCPacketClickWindow",
         "network.packet.MixinCPacketPlayerDigging",

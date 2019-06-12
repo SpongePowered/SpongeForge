@@ -42,7 +42,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.interfaces.world.ServerWorldBridge;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.mixin.core.world.MixinWorld;
 import org.spongepowered.common.world.gen.SpongeChunkGenerator;
@@ -54,7 +54,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Mixin(value = WorldServer.class, priority = 1001)
-public abstract class MixinWorldServer extends MixinWorld implements World, IMixinWorldServer {
+public abstract class MixinWorldServer extends MixinWorld implements World, ServerWorldBridge {
 
     @Shadow public abstract ChunkProviderServer getChunkProvider();
 

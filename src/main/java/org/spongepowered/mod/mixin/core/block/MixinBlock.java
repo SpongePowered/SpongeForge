@@ -42,7 +42,7 @@ public abstract class MixinBlock implements IMixinBlock {
     private boolean requiresLocationCheckForOpacity;
 
     @Inject(method = "<init>*", at = @At("RETURN"))
-    public void onConstructionForge(CallbackInfo ci) {
+    private void forge$setUpMethodsFromReflection(CallbackInfo ci) {
         // Determine which blocks can avoid executing un-needed event logic
         // This will allow us to avoid running event logic for blocks that do nothing such as grass collisions
         // -- blood

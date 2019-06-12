@@ -42,7 +42,7 @@ import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.block.GrowablePhaseContext;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.mixin.core.item.MixinItem;
 
 import java.util.Random;
@@ -85,7 +85,7 @@ public abstract class MixinItemDye_Forge extends MixinItem {
     )
     private static void onGrowableGrow(IGrowable iGrowable, World worldIn, Random rand, BlockPos pos, IBlockState blockState, ItemStack stack,
         World sameWorld, BlockPos target, EntityPlayer player, @Nullable EnumHand hand) {
-        if (((IMixinWorld) worldIn).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_GROW) {
+        if (((WorldBridge) worldIn).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_GROW) {
             iGrowable.grow(worldIn, rand, pos, blockState);
             return;
         }

@@ -40,15 +40,15 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
-import org.spongepowered.common.interfaces.block.IMixinBlock;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.bridge.block.BlockBridge;
+import org.spongepowered.common.bridge.world.WorldBridge;
+import org.spongepowered.common.interfaces.world.ServerWorldBridge;
 import org.spongepowered.mod.mixin.core.block.MixinBlock;
 
 import java.util.Map;
 
 @Mixin(value = BlockFluidBase.class)
-public abstract class MixinBlockFluidBase extends MixinBlock implements IMixinBlock {
+public abstract class MixinBlockFluidBase extends MixinBlock implements BlockBridge {
 
     @Shadow @Final public static PropertyInteger LEVEL;
     @Shadow protected int tickRate;
@@ -62,13 +62,13 @@ public abstract class MixinBlockFluidBase extends MixinBlock implements IMixinBl
         )
     )
     private Object getDisplacementWithSponge(Map map, Object key, IBlockAccess world, BlockPos pos) {
-        if (!(world instanceof IMixinWorld) || ((IMixinWorld) world).isFake()) {
+        if (!(world instanceof WorldBridge) || ((WorldBridge) world).isFake()) {
             return map.get(key);
         }
         if (!((Boolean) map.get(key))) {
             return Boolean.FALSE;
         }
-        ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos);
+        ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos);
         if (event.isCancelled()) {
             return Boolean.FALSE;
         }
@@ -86,10 +86,10 @@ public abstract class MixinBlockFluidBase extends MixinBlock implements IMixinBl
         )
     )
     private void onSpongeInjectFailEvent(IBlockAccess world, BlockPos pos, CallbackInfoReturnable<Boolean> cir, IBlockState state, Block block) {
-        if (!(world instanceof IMixinWorld) || ((IMixinWorld) world).isFake()) {
+        if (!(world instanceof WorldBridge) || ((WorldBridge) world).isFake()) {
             return;
         }
-        ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos);
+        ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos);
         if (event.isCancelled()) {
             cir.setReturnValue(false);
         }

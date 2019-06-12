@@ -105,13 +105,13 @@ import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.UnwindingPhaseContext;
 import org.spongepowered.common.event.tracking.phase.packet.PacketContext;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
@@ -932,14 +932,14 @@ public class SpongeToForgeEventFactory {
         WorldEvent.Save forgeEvent = (WorldEvent.Save) eventData.getForgeEvent();
         // Since Forge only uses a single save handler, we need to make sure to pass the overworld's handler.
         // This makes sure that mods dont attempt to save/read their data from the wrong location.
-        ((IMixinWorld) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
+        ((WorldBridge) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
         if (forgeEvent == null) {
             forgeEvent = new WorldEvent.Save((net.minecraft.world.World) spongeEvent.getTargetWorld());
             eventData.setForgeEvent(forgeEvent);
         }
 
         forgeEventBus.post(forgeEvent, true);
-        ((IMixinWorld) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(null);
+        ((WorldBridge) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(null);
         return true;
     }
 
@@ -949,7 +949,7 @@ public class SpongeToForgeEventFactory {
         // Since Forge only uses a single save handler, we need to make sure to pass the overworld's handler.
         // This makes sure that mods dont attempt to save/read their data from the wrong location.
         final net.minecraft.world.World minecraftWorld = (net.minecraft.world.World) spongeEvent.getTargetWorld();
-        ((IMixinWorld) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
+        ((WorldBridge) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
         ((IMixinChunkProviderServer) minecraftWorld.getChunkProvider()).setForceChunkRequests(true);
         if (forgeEvent == null) {
             forgeEvent = new WorldEvent.Load(minecraftWorld);
@@ -958,7 +958,7 @@ public class SpongeToForgeEventFactory {
 
         forgeEventBus.post(forgeEvent, true);
         ((IMixinChunkProviderServer) minecraftWorld.getChunkProvider()).setForceChunkRequests(false);
-        ((IMixinWorld) minecraftWorld).setRedirectedWorldInfo(null);
+        ((WorldBridge) minecraftWorld).setRedirectedWorldInfo(null);
         return true;
     }
 

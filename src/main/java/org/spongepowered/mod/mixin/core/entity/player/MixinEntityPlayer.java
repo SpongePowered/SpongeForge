@@ -49,10 +49,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.entity.player.ISpongeUser;
 import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayer;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLivingBase;
 
@@ -144,7 +143,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         }
 
         SleepingEvent.Post post = null;
-        if (!((IMixinWorld) this.world).isFake()) {
+        if (!((WorldBridge) this.world).isFake()) {
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.pushCause(this);
                 post = SpongeEventFactory.createSleepingEventPost(frame.getCurrentCause(),

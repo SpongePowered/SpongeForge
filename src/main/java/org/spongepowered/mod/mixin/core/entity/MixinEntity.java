@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.entity.EntityUtil;
-import org.spongepowered.common.bridge.entity.IMixinEntity;
+import org.spongepowered.common.bridge.entity.EntityBridge;
 import org.spongepowered.common.interfaces.world.IMixinITeleporter;
 import org.spongepowered.mod.util.WrappedArrayList;
 
@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = Entity.class, priority = 1001)
-public abstract class MixinEntity implements IMixinEntity {
+public abstract class MixinEntity implements EntityBridge {
 
     @Shadow public net.minecraft.world.World world;
     @Shadow public boolean isDead;

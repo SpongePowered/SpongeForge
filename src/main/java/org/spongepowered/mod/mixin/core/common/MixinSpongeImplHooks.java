@@ -155,6 +155,19 @@ public abstract class MixinSpongeImplHooks {
     }
 
     /**
+     * @author gabizou - June 11th, 2019
+     * @reason Forge adds the static variable to WorldServer for modders to be able
+     * to change.... Sponge has to abide by it.
+     *
+     * @param mixinWorldServer The server
+     * @return The max radius
+     */
+    @Overwrite
+    public static double getWorldMaxEntityRadius(WorldServer mixinWorldServer) {
+        return WorldServer.MAX_ENTITY_RADIUS;
+    }
+
+    /**
      * @author gabizou - July 9th, 2018
      * @reason During client shutdown or the integrated server shut down, we have
      * to be able to detect the integrated server is shutting down and we should not

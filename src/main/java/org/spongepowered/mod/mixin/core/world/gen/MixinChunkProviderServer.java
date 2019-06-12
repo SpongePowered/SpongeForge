@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.world.gen;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
@@ -34,12 +33,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.interfaces.world.IMixinDimensionType;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.interfaces.world.ServerWorldBridge;
 import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
 
 @Mixin(value = ChunkProviderServer.class, priority = 1001)
@@ -55,8 +52,8 @@ public abstract class MixinChunkProviderServer implements IMixinChunkProviderSer
         // Remove forge's persistent chunk check since we cache it in the chunk. Only unload the world if we're not the overworld and we're told that
         // we are not to keep spawn loaded (which is our flag to keep the world loaded)
         // TODO Consider splitting this into two flags: keep-spawn-loaded and keep-world-loaded
-        if (this.loadedChunks.size() == 0 && ((IMixinWorldServer) this.world).getDimensionId() != 0 && !SpongeImplHooks.shouldKeepSpawnLoaded(this
-                .world.provider.getDimensionType(), ((IMixinWorldServer) this.world).getDimensionId())) {
+        if (this.loadedChunks.size() == 0 && ((ServerWorldBridge) this.world).getDimensionId() != 0 && !SpongeImplHooks.shouldKeepSpawnLoaded(this
+                .world.provider.getDimensionType(), ((ServerWorldBridge) this.world).getDimensionId())) {
             net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
         }
     }
