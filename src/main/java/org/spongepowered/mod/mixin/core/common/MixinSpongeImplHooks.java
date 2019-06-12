@@ -106,7 +106,7 @@ import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
-import org.spongepowered.common.interfaces.block.tile.IMixinTileEntity;
+import org.spongepowered.common.bridge.tileentity.TileEntityBridge;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
 import org.spongepowered.common.interfaces.world.IMixinITeleporter;
@@ -836,7 +836,7 @@ public abstract class MixinSpongeImplHooks {
      */
     @SuppressWarnings("unchecked")
     @Overwrite
-    public static TileEntityType getTileEntityType(Class<? extends IMixinTileEntity> aClass) {
+    public static TileEntityType getTileEntityType(Class<? extends TileEntityBridge> aClass) {
         final ResourceLocation location = TileEntity.REGISTRY.getNameForObject((Class<? extends TileEntity>) aClass);
         if (location == null) {
             // Means it's not properly registered either....
@@ -1049,7 +1049,7 @@ public abstract class MixinSpongeImplHooks {
             final NBTTagCompound caps = capabilities.serializeNBT();
             if (caps != null && !caps.isEmpty()) {
                 final DataContainer capsView = NbtTranslator.getInstance().translate(caps);
-                container.set(DataQueries.UNSAFE_NBT.then(NbtDataUtil.FORGE_CAPS), capsView);
+                container.set(DataQueries.Sponge.UNSAFE_NBT.then(NbtDataUtil.FORGE_CAPS), capsView);
             }
         }
     }

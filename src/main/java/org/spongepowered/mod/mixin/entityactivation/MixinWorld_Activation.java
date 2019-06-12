@@ -31,10 +31,10 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.interfaces.IMixinChunk;
+import org.spongepowered.common.bridge.world.ChunkBridge;
 import org.spongepowered.common.bridge.entity.EntityBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
-import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
+import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
 import org.spongepowered.common.mixin.plugin.entityactivation.EntityActivationRange;
 import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.IModData_Activation;
 import org.spongepowered.common.relocate.co.aikar.timings.TimingHistory;
@@ -134,7 +134,8 @@ public abstract class MixinWorld_Activation implements WorldBridge {
             }
             // Sponge end
 
-            final IMixinChunk newChunk = (IMixinChunk) ((IMixinChunkProviderServer) entityIn.world.getChunkProvider()).getLoadedChunkWithoutMarkingActive(l, j1);
+            final ChunkBridge
+                newChunk = (ChunkBridge) ((ServerChunkProviderBridge) entityIn.world.getChunkProvider()).getLoadedChunkWithoutMarkingActive(l, j1);
             final boolean isPositionDirty = entityIn.setPositionNonDirty();
             if (newChunk == null || (!isPositionDirty && newChunk.isQueuedForUnload() && !newChunk.isPersistedChunk())) {
                 entityIn.addedToChunk = false;

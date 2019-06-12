@@ -28,12 +28,13 @@ import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.api.world.Chunk;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -43,11 +44,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.interfaces.IMixinChunk;
+import org.spongepowered.common.bridge.world.ChunkBridge;
 
 @NonnullByDefault
-@Mixin(value = net.minecraft.world.chunk.Chunk.class, priority = 1001)
-public abstract class MixinChunk implements Chunk, IMixinChunk {
+@Mixin(value = Chunk.class, priority = 1001)
+public abstract class MixinChunk_Forge implements ChunkBridge {
 
     @Shadow @Final private net.minecraft.world.World world;
     @Shadow @Final public int x;
@@ -58,20 +59,24 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     @Shadow public abstract IBlockState getBlockState(int x, int y, int z);
     @Shadow public abstract int getTopFilledSegment();
 
-    @Redirect(method = "onLoad", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
-    public boolean onLoadForgeEvent(net.minecraftforge.fml.common.eventhandler.EventBus eventBus, net.minecraftforge.fml.common.eventhandler.Event event) {
+    @Redirect(method = "onLoad",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z",
+            remap = false))
+    private boolean forgeImpl$IgnoreLoadEvent(EventBus eventBus, Event event) {
         // This event is handled in SpongeForgeEventFactory
         return false;
     }
 
     @Redirect(method = "onUnload", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
-    public boolean onUnloadForgeEvent(net.minecraftforge.fml.common.eventhandler.EventBus eventBus, net.minecraftforge.fml.common.eventhandler.Event event) {
+    private boolean forgeImpl$IgnoreUnloadEvent(EventBus eventBus, Event event) {
         // This event is handled in SpongeForgeEventFactory
         return false;
     }
 
     @Inject(method = "onLoad", at = @At("RETURN"))
-    public void onLoadInject(CallbackInfo ci) {
+    private void forgeImpl$updatePersistingChunks(CallbackInfo ci) {
         if (!this.world.isRemote) {
             for (ChunkPos forced : this.world.getPersistentChunks().keySet()) {
                 if (forced.x == this.x && forced.z == this.z) {
@@ -84,38 +89,22 @@ public abstract class MixinChunk implements Chunk, IMixinChunk {
     }
 
     @Inject(method = "onUnload", at = @At("RETURN"))
-    public void onUnloadInject(CallbackInfo ci) {
+    private void forgeImpl$UpdateDormantChunks(CallbackInfo ci) {
         // Moved from ChunkProviderServer
-        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(this.x, this.z), (net.minecraft.world.chunk.Chunk) (Object) this);
+        net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(this.x, this.z), (Chunk) (Object) this);
     }
 
-    @Override
-    public boolean unloadChunk() {
-        if (this.isPersistedChunk()) {
-            return false;
-        }
-
-        // TODO 1.9 Update - Zidane's thing
-        if (this.world.provider.canRespawnHere()) {//&& DimensionManager.shouldLoadSpawn(this.world.provider.getDimension())) {
-            if (this.world.isSpawnChunk(this.x, this.z)) {
-                return false;
-            }
-        }
-        ((WorldServer) this.world).getChunkProvider().queueUnload((net.minecraft.world.chunk.Chunk) (Object) this);
-        return true;
-    }
 
     @SideOnly(Side.CLIENT)
     @Inject(method = "markLoaded", at = @At("RETURN"))
-    public void onSetChunkLoaded(boolean loaded, CallbackInfo ci) {
+    private void forgeImpl$UpdateNeighborsOnClient(boolean loaded, CallbackInfo ci) {
         Direction[] directions = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
         for (Direction direction : directions) {
-            Vector3i neighborPosition = this.getPosition().add(direction.asBlockOffset());
-            net.minecraft.world.chunk.Chunk neighbor = this.world.getChunkProvider().getLoadedChunk
-                    (neighborPosition.getX(), neighborPosition.getZ());
+            Vector3i neighborPosition = ((org.spongepowered.api.world.Chunk) this).getPosition().add(direction.asBlockOffset());
+            Chunk neighbor = this.world.getChunkProvider().getLoadedChunk(neighborPosition.getX(), neighborPosition.getZ());
             if (neighbor != null) {
-                this.setNeighbor(direction, (Chunk) neighbor);
-                ((IMixinChunk) neighbor).setNeighbor(direction.getOpposite(), this);
+                this.setNeighbor(direction, neighbor);
+                ((ChunkBridge) neighbor).setNeighbor(direction.getOpposite(), (Chunk) (Object) this);
             }
         }
     }

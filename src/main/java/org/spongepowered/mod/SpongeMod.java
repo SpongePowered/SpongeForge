@@ -91,6 +91,7 @@ import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.bridge.entity.EntityBridge;
+import org.spongepowered.common.bridge.world.ChunkBridge;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
@@ -98,11 +99,10 @@ import org.spongepowered.common.event.registry.SpongeGameRegistryRegisterEvent;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.inject.SpongeGuice;
 import org.spongepowered.common.inject.SpongeModule;
-import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
 import org.spongepowered.common.bridge.block.BlockBridge;
 import org.spongepowered.common.interfaces.world.biome.IMixinBiome;
-import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
+import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
 import org.spongepowered.common.item.recipe.crafting.DelegateSpongeCraftingRecipe;
 import org.spongepowered.common.item.recipe.crafting.SpongeCraftingRecipeRegistry;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
@@ -477,19 +477,19 @@ public class SpongeMod extends MetaModContainer {
 
     @SubscribeEvent
     public void onForceChunk(ForgeChunkManager.ForceChunkEvent event) {
-        final net.minecraft.world.chunk.Chunk chunk = ((IMixinChunkProviderServer) event.getTicket().world.getChunkProvider())
+        final net.minecraft.world.chunk.Chunk chunk = ((ServerChunkProviderBridge) event.getTicket().world.getChunkProvider())
             .getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
-            ((IMixinChunk) chunk).setPersistedChunk(true);
+            ((ChunkBridge) chunk).setPersistedChunk(true);
         }
     }
 
     @SubscribeEvent
     public void onUnforceChunk(ForgeChunkManager.UnforceChunkEvent event) {
-        final net.minecraft.world.chunk.Chunk chunk = ((IMixinChunkProviderServer) event.getTicket().world.getChunkProvider())
+        final net.minecraft.world.chunk.Chunk chunk = ((ServerChunkProviderBridge) event.getTicket().world.getChunkProvider())
             .getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
-            ((IMixinChunk) chunk).setPersistedChunk(false);
+            ((ChunkBridge) chunk).setPersistedChunk(false);
         }
     }
 

@@ -25,7 +25,6 @@
 package org.spongepowered.mod.mixin.core.forge.items.wrapper;
 
 import net.minecraftforge.items.wrapper.InvWrapper;
-import org.spongepowered.api.item.inventory.EmptyInventory;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
@@ -33,8 +32,7 @@ import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.interfaces.IMixinInventory;
-import org.spongepowered.common.item.inventory.EmptyInventoryImpl;
+import org.spongepowered.common.bridge.inventory.TrackedInventoryBridge;
 import org.spongepowered.common.item.inventory.adapter.impl.MinecraftInventoryAdapter;
 import org.spongepowered.common.item.inventory.lens.Fabric;
 import org.spongepowered.common.item.inventory.lens.Lens;
@@ -51,7 +49,7 @@ import javax.annotation.Nullable;
 @SuppressWarnings("rawtypes")
 @Mixin(InvWrapper.class)
 @Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
-public abstract class MixinInvWrapper_Forge implements MinecraftInventoryAdapter, IMixinInventory {
+public abstract class MixinInvWrapper_Forge implements MinecraftInventoryAdapter, TrackedInventoryBridge {
 
     @Nullable protected Inventory parent;
     protected SlotCollection slots;
@@ -132,7 +130,7 @@ public abstract class MixinInvWrapper_Forge implements MinecraftInventoryAdapter
     }
 
     @Override
-    public List<SlotTransaction> getCapturedTransactions() {
+    public List<SlotTransaction> bridge$getCapturedSlotTransactions() {
         return this.capturedTransactions;
     }
 

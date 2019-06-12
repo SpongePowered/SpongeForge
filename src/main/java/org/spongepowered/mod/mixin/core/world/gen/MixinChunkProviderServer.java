@@ -37,10 +37,10 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.world.ServerWorldBridge;
-import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
+import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
 
 @Mixin(value = ChunkProviderServer.class, priority = 1001)
-public abstract class MixinChunkProviderServer implements IMixinChunkProviderServer {
+public abstract class MixinChunkProviderServer implements ServerChunkProviderBridge {
 
     @Shadow @Final public WorldServer world;
     @Shadow @Final public Long2ObjectMap<Chunk> loadedChunks;

@@ -32,8 +32,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.bridge.world.ChunkBridge;
 import org.spongepowered.common.entity.PlayerTracker;
-import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.bridge.entity.EntityBridge;
 
 import java.util.Optional;
@@ -48,7 +48,7 @@ public class MixinBlockRailBase {
         Optional<User> notifier = spongeEntity.getNotifierUser();
         Optional<User> owner = spongeEntity.getCreatorUser();
         if (owner.isPresent() || notifier.isPresent()) {
-            IMixinChunk spongeChunk = (IMixinChunk) world.getChunk(pos);
+            ChunkBridge spongeChunk = (ChunkBridge) world.getChunk(pos);
             if (notifier.isPresent()) {
                 spongeChunk.addTrackedBlockPosition(world.getBlockState(pos).getBlock(), pos, notifier.get(), PlayerTracker.Type.NOTIFIER);
             } else {

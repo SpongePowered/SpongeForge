@@ -279,10 +279,10 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
     public DataContainer toContainer() {
         final DataContainer container = DataContainer.createNew()
                 .set(Queries.CONTENT_VERSION, getContentVersion())
-                .set(DataQueries.FLUID_TYPE, this.fluidDelegate.get().getName())
-                .set(DataQueries.FLUID_VOLUME, this.getVolume());
+                .set(DataQueries.Fluids.FLUID_TYPE, this.fluidDelegate.get().getName())
+                .set(DataQueries.Fluids.FLUID_VOLUME, this.getVolume());
         if (this.tag != null) {
-            container.set(DataQueries.UNSAFE_NBT, NbtTranslator.getInstance().translateFrom(this.tag));
+            container.set(DataQueries.Sponge.UNSAFE_NBT, NbtTranslator.getInstance().translateFrom(this.tag));
         }
         return container;
     }

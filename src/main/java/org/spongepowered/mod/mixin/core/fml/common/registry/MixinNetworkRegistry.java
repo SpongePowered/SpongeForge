@@ -35,7 +35,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.interfaces.IMixinContainer;
+import org.spongepowered.common.bridge.inventory.ContainerBridge;
 
 @Mixin(value = NetworkRegistry.class, remap = false)
 public abstract class MixinNetworkRegistry {
@@ -46,7 +46,7 @@ public abstract class MixinNetworkRegistry {
             EntityPlayerMP player1, int id1, World world1, int x1, int y1, int z1) {
         Object value = factory.getServerGuiElement(id, player, world, x, y, z);
         if (value instanceof Container) {
-            ((IMixinContainer) value).setPlugin((PluginContainer) mc);
+            ((ContainerBridge) value).setPlugin((PluginContainer) mc);
         }
         return value;
     }

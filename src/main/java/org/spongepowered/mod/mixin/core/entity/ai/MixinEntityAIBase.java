@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.interfaces.ai.IMixinEntityAIBase;
+import org.spongepowered.common.bridge.entity.ai.EntityGoalBridge;
 import org.spongepowered.common.registry.type.entity.AITaskTypeModule;
 
 import java.util.Optional;
@@ -65,7 +65,7 @@ public abstract class MixinEntityAIBase {
                 container = SpongeImpl.getMinecraftPlugin();
             }
             final String idAndName = getClass().getSimpleName();
-            ((IMixinEntityAIBase) this).setType(AITaskTypeModule.getInstance().createAITaskType(container, idAndName, idAndName,
+            ((EntityGoalBridge) this).setType(AITaskTypeModule.getInstance().createAITaskType(container, idAndName, idAndName,
                     (Class<? extends AITask<? extends Agent>>) getClass()));
         }
     }

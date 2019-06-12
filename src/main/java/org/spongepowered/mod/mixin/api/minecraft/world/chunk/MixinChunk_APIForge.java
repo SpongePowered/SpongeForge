@@ -22,26 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.tileentity;
+package org.spongepowered.mod.mixin.api.minecraft.world.chunk;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.bridge.tileentity.TileEntityBridge;
+import org.spongepowered.common.bridge.world.ChunkBridge;
 
-@Mixin(TileEntity.class)
-@Implements(@Interface(iface = TileEntityBridge.class, prefix = "spongeIMixinTile$"))
-public abstract class MixinTileEntity_Forge {
+@NonnullByDefault
+@Mixin(value = Chunk.class, priority = 1001)
+public abstract class MixinChunk_APIForge implements org.spongepowered.api.world.Chunk {
 
-    @Shadow private NBTTagCompound customTileData;
+    @Shadow @Final private net.minecraft.world.World world;
+    @Shadow @Final public int x;
+    @Shadow @Final public int z;
 
-    @Intrinsic
-    public boolean spongeIMixinTile$hasTileDataCompound() {
-        return this.customTileData != null;
+    @Override
+    public boolean unloadChunk() {
+        if (((ChunkBridge) this).isPersistedChunk()) {
+            return false;
+        }
+
+        // TODO 1.9 Update - Zidane's thing
+        if (this.world.provider.canRespawnHere()) {//&& DimensionManager.shouldLoadSpawn(this.world.provider.getDimension())) {
+            if (this.world.isSpawnChunk(this.x, this.z)) {
+                return false;
+            }
+        }
+        ((WorldServer) this.world).getChunkProvider().queueUnload((Chunk) (Object) this);
+        return true;
     }
+
 
 }
