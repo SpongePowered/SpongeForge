@@ -27,33 +27,92 @@ package org.spongepowered.mod.mixin.core.entity.player;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.play.server.SPacketChangeGameState;
+import net.minecraft.network.play.server.SPacketEffect;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.world.IMixinITeleporter;
+import org.spongepowered.common.interfaces.world.IMixinTeleporter;
 import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
 
 import javax.annotation.Nullable;
 
 @Mixin(value = EntityPlayerMP.class, priority = 1001)
-public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
-    @Shadow private NetHandlerPlayServer connection;
+public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements IMixinEntityPlayerMP {
+    @Shadow public NetHandlerPlayServer connection;
 
-    // TODO - investigate whether this is used anywhere.
+    @Shadow public boolean invulnerableDimensionChange;
+
+    @Shadow private Vec3d enteredNetherPosition;
+
+    @Shadow public boolean queuedEndExit;
+
+    @Shadow public boolean seenCredits;
+
+    @Shadow @Final public MinecraftServer server;
+
+    @Shadow public int lastExperience;
+
+    @Shadow private float lastHealth;
+
+    @Shadow private int lastFoodLevel;
+
+    @Override
     public boolean usesCustomClient() {
         return this.connection.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
     }
 
     /**
-     * @author gabizou - April 7th, 2018
-     * @reason reroute teleportation logic to common
+     * @author Zidane
+     * @reason Re-route dimension changes to common hook
      */
-    @Overwrite(remap = false)
     @Nullable
-    public Entity changeDimension(int dimensionId, ITeleporter teleporter) {
-        return EntityUtil.teleportPlayerToDimension((EntityPlayerMP) (Object) this, dimensionId, (IMixinITeleporter) (Object) teleporter, null);
+    @Overwrite(remap = false)
+    public net.minecraft.entity.Entity changeDimension(int toDimensionId, ITeleporter teleporter) {
+        final EntityPlayerMP player = (EntityPlayerMP) (Object) this;
+
+        if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(player, toDimensionId)) {
+            return player;
+        }
+
+        this.invulnerableDimensionChange = true;
+
+        if (this.dimension == 0 && toDimensionId == -1) {
+            this.enteredNetherPosition = new Vec3d(this.posX, this.posY, this.posZ);
+        } else if (this.dimension != -1 && toDimensionId != 0) {
+            this.enteredNetherPosition = null;
+        }
+
+        if (this.dimension == 1 && toDimensionId == 1 && teleporter.isVanilla()) {
+            this.world.removeEntity(player);
+
+            if (!this.queuedEndExit) {
+                this.queuedEndExit = true;
+                this.connection.sendPacket(new SPacketChangeGameState(4, this.seenCredits ? 0.0F : 1.0F));
+                this.seenCredits = true;
+            }
+
+            return player;
+        }
+        else {
+
+            EntityUtil.transferPlayerToWorld(player, null, this.server.getWorld(toDimensionId), (IMixinITeleporter) teleporter);
+
+            this.connection.sendPacket(new SPacketEffect(1032, BlockPos.ORIGIN, 0, false));
+            this.lastExperience = -1;
+            this.lastHealth = -1.0F;
+            this.lastFoodLevel = -1;
+            return player;
+        }
     }
 }

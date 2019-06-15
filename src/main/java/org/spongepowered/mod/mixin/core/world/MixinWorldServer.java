@@ -59,7 +59,7 @@ public abstract class MixinWorldServer extends MixinWorld implements World, IMix
     @Shadow public abstract ChunkProviderServer getChunkProvider();
 
     @Override
-    public Integer getDimensionId() {
+    public int getDimensionId() {
         return this.provider.getDimension();
     }
 

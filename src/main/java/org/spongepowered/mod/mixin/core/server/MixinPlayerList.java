@@ -24,17 +24,35 @@
  */
 package org.spongepowered.mod.mixin.core.server;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.ai.attributes.AttributeMap;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.play.server.SPacketEntityEffect;
+import net.minecraft.network.play.server.SPacketEntityProperties;
+import net.minecraft.network.play.server.SPacketPlayerAbilities;
+import net.minecraft.network.play.server.SPacketRespawn;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.interfaces.IMixinPlayerList;
+import org.spongepowered.common.interfaces.world.IMixinITeleporter;
+
+import java.util.Collection;
 
 import javax.annotation.Nullable;
 
@@ -45,6 +63,8 @@ public abstract class MixinPlayerList implements IMixinPlayerList {
     @Shadow public abstract void preparePlayer(EntityPlayerMP playerIn, @Nullable WorldServer worldIn);
     @Shadow public abstract void updateTimeAndWeatherForPlayer(EntityPlayerMP playerIn, WorldServer worldIn);
     @Shadow public abstract void syncPlayerInventory(EntityPlayerMP playerIn);
+    @Shadow @Final private MinecraftServer server;
+    @Shadow public abstract void updatePermissionLevel(EntityPlayerMP player);
 
     /**
      * @author Simon816
@@ -73,4 +93,21 @@ public abstract class MixinPlayerList implements IMixinPlayerList {
         }
     }
 
+    /**
+     * @author Zidane
+     * @reason Re-route to the common hook
+     */
+    @Overwrite(remap = false)
+    public void transferEntityToWorld(Entity entityIn, int lastDimension, WorldServer oldWorldIn, WorldServer toWorldIn, ITeleporter teleporter) {
+        EntityUtil.transferEntityToWorld(entityIn, null, toWorldIn, (IMixinITeleporter) teleporter, false);
+    }
+
+    /**
+     * @author Zidane
+     * @reason Re-route to the common hook
+     */
+    @Overwrite(remap = false)
+    public void transferPlayerToDimension(EntityPlayerMP player, int dimensionIn, ITeleporter teleporter) {
+        EntityUtil.transferPlayerToWorld(player, null, this.server.getWorld(dimensionIn), (IMixinITeleporter) teleporter);
+    }
 }

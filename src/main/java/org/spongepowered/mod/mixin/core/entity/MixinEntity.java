@@ -26,6 +26,8 @@ package org.spongepowered.mod.mixin.core.entity;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.ITeleporter;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -35,6 +37,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.interfaces.world.IMixinITeleporter;
+import org.spongepowered.common.interfaces.world.IMixinTeleporter;
 import org.spongepowered.mod.util.WrappedArrayList;
 
 import java.util.ArrayList;
@@ -52,20 +55,25 @@ public abstract class MixinEntity implements IMixinEntity {
     @Shadow protected abstract void setSize(float width, float height);
 
 
+    @Shadow @Nullable public abstract MinecraftServer getServer();
+
+    @Shadow public int dimension;
+
     /**
-     * @author blood - May 30th, 2016
-     * @author gabizou - May 31st, 2016 - Update for 1.9.4
-     *
-     * @reason - rewritten to support {@link MoveEntityEvent.Teleport.Portal}
-     *
-     * @param toDimensionId The id of target dimension.
+     * @author Zidane
+     * @reason Re-route dimension changes to common hook
      */
     @Nullable
     @Overwrite(remap = false)
     public net.minecraft.entity.Entity changeDimension(int toDimensionId, ITeleporter teleporter) {
         if (!this.world.isRemote && !this.isDead) {
-            // Sponge Start - Handle teleportation solely in TrackingUtil where everything can be debugged.
-            return EntityUtil.transferEntityToDimension(this, toDimensionId, (IMixinITeleporter) teleporter, null);
+
+            if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension((Entity) (Object) this, toDimensionId)) {
+                return (Entity) (Object) this;
+            }
+
+            final WorldServer world = this.getServer().getWorld(toDimensionId);
+            return EntityUtil.transferEntityToWorld((Entity) (Object) this, null, world, (IMixinTeleporter) teleporter, true);
             // Sponge End
         }
         return null;
@@ -79,6 +87,5 @@ public abstract class MixinEntity implements IMixinEntity {
     @Override
     public void clearWrappedCaptureList() {
         this.capturedDrops = new ArrayList<>();
-
     }
 }

@@ -160,8 +160,10 @@ public abstract class MixinDimensionManager {
 
                 // Log every 5 loops
                 if (leakCount > 0 && leakCount % 5 == 0) {
-                    SpongeImpl.getLogger().warn("World [{}] (DIM{}) (HASH: {}) may have leaked. Encountered [{}] times", worldServer.getWorldInfo()
-                            .getWorldName(), ((IMixinWorldServer) worldServer).getDimensionId(), hashCode, leakCount);
+                    SpongeImpl.getLogger().warn("World {} ({}/{}) (HASH: {}) may have leaked. Encountered [{}] times",
+                        worldServer.getWorldInfo().getWorldName(),
+                        ((org.spongepowered.api.world.DimensionType) (Object) worldServer.provider.getDimensionType()).getId(),
+                        ((IMixinWorldServer) worldServer).getDimensionId(), hashCode, leakCount);
                 }
             }
         }

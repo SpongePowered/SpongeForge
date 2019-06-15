@@ -51,8 +51,7 @@ public interface MixinITeleporter extends PortalAgent {
     }
 
     @Intrinsic
-    default boolean sponge$isVanilla()
-    {
+    default boolean sponge$isVanilla() {
         return this.getClass().equals(Teleporter.class);
     }
 
