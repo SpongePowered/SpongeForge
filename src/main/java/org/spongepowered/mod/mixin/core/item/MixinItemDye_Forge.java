@@ -71,7 +71,7 @@ public abstract class MixinItemDye_Forge extends MixinItem {
      * @param sameWorld The same world as worldIn
      * @param target The target position, same as pos
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "Duplicates", "rawtypes"})
     // Pending https://github.com/SpongePowered/Mixin/issues/312
     // @Group(name = "org.spongepowered.tracker:bonemeal", min = 1, max = 1)
     @Redirect(

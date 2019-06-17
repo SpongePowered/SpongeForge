@@ -46,7 +46,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-@SuppressWarnings("rawtypes")
+@SuppressWarnings("unchecked")
 @Mixin(ItemStackHandler.class)
 @Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
 public abstract class MixinItemStackHandler_Forge implements MinecraftInventoryAdapter, TrackedInventoryBridge {
@@ -61,13 +61,12 @@ public abstract class MixinItemStackHandler_Forge implements MinecraftInventoryA
     private List<SlotTransaction> capturedTransactions = new ArrayList<>();
     private boolean initalized = false;
 
-    @SuppressWarnings("unchecked")
     private void init() {
-        if (!initalized) {
-            initalized = true;
+        if (!this.initalized) {
+            this.initalized = true;
             this.fabric = new IItemHandlerFabric(((ItemStackHandler)(Object) this));
             this.slots = new SlotCollection.Builder().add(this.fabric.getSize()).build();
-            this.lens = new OrderedInventoryLensImpl(0, this.fabric.getSize(), 1, slots);
+            this.lens = new OrderedInventoryLensImpl(0, this.fabric.getSize(), 1, this.slots);
         }
     }
 
@@ -76,7 +75,6 @@ public abstract class MixinItemStackHandler_Forge implements MinecraftInventoryA
         return this.parent == null ? this : this.parent;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public SlotProvider getSlotProvider() {
         this.init();
@@ -122,11 +120,10 @@ public abstract class MixinItemStackHandler_Forge implements MinecraftInventoryA
         return this.lens;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Fabric getFabric() {
         this.init();
-        return ((Fabric) this.fabric);
+        return this.fabric;
     }
 
     @Override

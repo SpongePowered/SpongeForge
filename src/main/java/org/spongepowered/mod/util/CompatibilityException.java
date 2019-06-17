@@ -26,6 +26,8 @@ package org.spongepowered.mod.util;
 
 public class CompatibilityException extends RuntimeException {
 
+    private static final long serialVersionUID = 2438839069499131356L;
+
     public CompatibilityException(String message) {
         super(message);
     }

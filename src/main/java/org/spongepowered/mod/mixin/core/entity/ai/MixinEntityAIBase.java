@@ -46,7 +46,7 @@ public abstract class MixinEntityAIBase {
 
     @SuppressWarnings({"unchecked", "ConstantConditions"})
     @Inject(method = "<init>", at = @At(value = "RETURN"))
-    public void addModAIType(CallbackInfo ci) {
+    private void forge$AdjustApiTypes(CallbackInfo ci) {
         // Only set a type if we have none
         if (((AITask<Agent>) this).getType() != null) {
             return;

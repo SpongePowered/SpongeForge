@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = Entity.class, priority = 1001)
-public abstract class MixinEntity implements EntityBridge {
+public abstract class MixinEntity_Forge implements EntityBridge {
 
     @Shadow public net.minecraft.world.World world;
     @Shadow public boolean isDead;

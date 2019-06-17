@@ -28,8 +28,10 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
+import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -38,9 +40,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.interfaces.world.ServerWorldBridge;
 import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
+import org.spongepowered.common.mixin.core.world.gen.MixinChunkProviderServer;
 
 @Mixin(value = ChunkProviderServer.class, priority = 1001)
-public abstract class MixinChunkProviderServer implements ServerChunkProviderBridge {
+public abstract class MixinChunkProviderServer_Forge implements ServerChunkProviderBridge {
 
     @Shadow @Final public WorldServer world;
     @Shadow @Final public Long2ObjectMap<Chunk> loadedChunks;
@@ -48,7 +51,7 @@ public abstract class MixinChunkProviderServer implements ServerChunkProviderBri
     @Shadow public abstract void saveChunkExtraData(Chunk chunkIn);
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = Shift.AFTER, remap = false))
-    public void onUnloadQueuedChunksReturn(CallbackInfoReturnable<Boolean> cir) {
+    private void forge$RemoveForgePersistingChunkCheck(CallbackInfoReturnable<Boolean> cir) {
         // Remove forge's persistent chunk check since we cache it in the chunk. Only unload the world if we're not the overworld and we're told that
         // we are not to keep spawn loaded (which is our flag to keep the world loaded)
         // TODO Consider splitting this into two flags: keep-spawn-loaded and keep-world-loaded
@@ -64,10 +67,14 @@ public abstract class MixinChunkProviderServer implements ServerChunkProviderBri
      * since the only modification made is the removal of a check we've already done.
      *
      * However, loadChunk is completely different in Forge. therefore, we need to delegate to
-     * the original method to ensure that async loadig gets handled properly (Forge's code properly
+     * the original method to ensure that async loading gets handled properly (Forge's code properly
      * handles a concurrent asychronous load of the same chunk).
      *
+     * @see MixinChunkProviderServer#loadChunkForce(int, int)
      */
+    @SuppressWarnings("OverwriteTarget") // MCDev - this method overwrites the target from common
+    @Dynamic
+    @Overwrite(remap = false)
     private Chunk loadChunkForce(int x, int z) {
         return this.loadChunk(x, z);
     }

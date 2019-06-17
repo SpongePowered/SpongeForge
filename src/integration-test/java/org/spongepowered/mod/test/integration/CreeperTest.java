@@ -77,11 +77,11 @@ public class CreeperTest extends BaseTest {
             player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.builder().itemType(ItemTypes.SPAWN_EGG).quantity(1).add(Keys.SPAWNABLE_ENTITY_TYPE, EntityTypes.CREEPER).build());
         });
 
-        testUtils.waitForInventoryPropagation();
+        this.testUtils.waitForInventoryPropagation();
 
         // Look at the ground two blocks in the z direction
         Vector3d targetPos = this.testUtils.runOnMainThread(() -> CreeperTest.this.testUtils.getThePlayer().getLocation().getPosition().add(0, -1, 2));
-        client.lookAt(targetPos);
+        this.client.lookAt(targetPos);
 
         final Creeper[] creeper = new Creeper[1];
 
@@ -101,7 +101,7 @@ public class CreeperTest extends BaseTest {
             Sponge.getEventManager().unregisterListeners(this);
 
         }));
-        client.rightClick();
+        this.client.rightClick();
 
         assertThat("Creeper did not spawn!", creeper[0], instanceOf(Creeper.class));
 
@@ -119,7 +119,7 @@ public class CreeperTest extends BaseTest {
             this.testUtils.getThePlayer().setItemInHand(HandTypes.MAIN_HAND, ItemStack.of(ItemTypes.FLINT_AND_STEEL, 1));
         });
 
-        testUtils.waitForInventoryPropagation();
+        this.testUtils.waitForInventoryPropagation();
         this.client.lookAt(creeper[0]);
 
         final int[] fuseDuration = new int[1];

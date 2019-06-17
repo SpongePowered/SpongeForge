@@ -42,7 +42,7 @@ import org.spongepowered.common.mixin.core.block.MixinBlock;
 import java.util.Random;
 
 @Mixin(BlockFire.class)
-public abstract class MixinBlockFire extends MixinBlock {
+public abstract class MixinBlockFire_Forge extends MixinBlock {
 
     @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z"), cancellable = true)
     private void onCatchFirePreCheck(World world, BlockPos pos, int chance, Random random, int age, EnumFacing facing, CallbackInfo callbackInfo) {

@@ -38,6 +38,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.entity.living.Humanoid;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.action.SleepingEvent;
@@ -49,23 +50,21 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.common.bridge.entity.player.ServerPlayerEntityBridge;
 import org.spongepowered.common.entity.player.ISpongeUser;
-import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayer;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.mixin.core.entity.living.MixinEntityLivingBase;
+import org.spongepowered.mod.mixin.core.entity.MixinEntityLivingBase_Forge;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.Nullable;
-
 import java.util.Optional;
 import java.util.UUID;
 
 @Mixin(value = EntityPlayer.class, priority = 1001)
-public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements ISpongeUser, IMixinEntityPlayer {
+public abstract class MixinEntityPlayer_Forge extends MixinEntityLivingBase_Forge implements ISpongeUser, ServerPlayerEntityBridge {
 
     @Shadow public InventoryPlayer inventory;
     @Shadow public BlockPos bedLocation;
@@ -113,11 +112,6 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         }
     }
 
-    @Override
-    public void setOverworldSpawnPoint(@Nullable BlockPos pos) {
-        this.spawnPos = pos;
-    }
-
     /**
      * @author JBYoshi - November 23rd, 2015
      * @reason implement SpongeAPI events.
@@ -139,7 +133,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
                 blockpos = ((EntityPlayer) (Object) this).bedLocation.up();
             }
 
-            newLocation = this.getTransform().setPosition(new Vector3d(blockpos.getX() + 0.5F, blockpos.getY() + 0.1F, blockpos.getZ() + 0.5F));
+            newLocation = ((Humanoid) this).getTransform().setPosition(new Vector3d(blockpos.getX() + 0.5F, blockpos.getY() + 0.1F, blockpos.getZ() + 0.5F));
         }
 
         SleepingEvent.Post post = null;
@@ -147,7 +141,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.pushCause(this);
                 post = SpongeEventFactory.createSleepingEventPost(frame.getCurrentCause(),
-                    this.getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), Optional.ofNullable(newLocation), this, setSpawn);
+                    ((Humanoid) this).getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), Optional.ofNullable(newLocation), ((Humanoid) this), setSpawn);
                 Sponge.getEventManager().post(post);
                 if (post.isCancelled()) {
                     return;
@@ -177,7 +171,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
         }
         if (post != null) {
             Sponge.getGame().getEventManager().post(SpongeEventFactory.createSleepingEventFinish(post.getCause(),
-                    this.getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), this));
+                ((Humanoid) this).getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), ((Humanoid) this)));
         }
     }
 

@@ -39,11 +39,11 @@ import org.spongepowered.common.bridge.entity.EntityBridge;
 import java.util.Optional;
 
 @Mixin(value = BlockRailBase.class, remap = false)
-public class MixinBlockRailBase {
+public class MixinBlockRailBase_Forge {
 
     // Used to transfer tracking information from minecarts to block positions
     @Inject(method = "onMinecartPass", at = @At(value = "HEAD"))
-    public void onMinecartRailPass(World world, net.minecraft.entity.item.EntityMinecart cart, BlockPos pos, CallbackInfo ci) {
+    private void onMinecartRailPass(World world, net.minecraft.entity.item.EntityMinecart cart, BlockPos pos, CallbackInfo ci) {
         EntityBridge spongeEntity = (EntityBridge) cart;
         Optional<User> notifier = spongeEntity.getNotifierUser();
         Optional<User> owner = spongeEntity.getCreatorUser();

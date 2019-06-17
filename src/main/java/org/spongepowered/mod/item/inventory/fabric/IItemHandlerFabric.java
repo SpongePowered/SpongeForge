@@ -37,9 +37,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+@SuppressWarnings("unchecked")
 public class IItemHandlerFabric implements Fabric {
     private final IItemHandler inventory;
-    private static Set<Class> setStackUnsupported = new HashSet<>();
+    private static Set<Class<?>> setStackUnsupported = new HashSet<>();
 
     public IItemHandlerFabric(IItemHandler inventory) {
         this.inventory = inventory;

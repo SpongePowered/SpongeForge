@@ -22,38 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.entity.player;
+package org.spongepowered.mod.mixin.core.block;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraftforge.common.util.ITeleporter;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraft.block.BlockLeaves;
+import net.minecraft.block.BlockOldLeaf;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.entity.EntityUtil;
-import org.spongepowered.common.interfaces.world.IMixinITeleporter;
-import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
 
-import javax.annotation.Nullable;
-
-@Mixin(value = EntityPlayerMP.class, priority = 1001)
-public abstract class MixinEntityPlayerMP extends MixinEntityPlayer {
-    @Shadow private NetHandlerPlayServer connection;
-
-    // TODO - investigate whether this is used anywhere.
-    public boolean usesCustomClient() {
-        return this.connection.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
-    }
+@Mixin(BlockOldLeaf.class)
+public abstract class MixinBlockOldLeaf_Forge extends BlockLeaves {
 
     /**
-     * @author gabizou - April 7th, 2018
-     * @reason reroute teleportation logic to common
+     * @author bloodmc
+     *
+     *  @reason Oak, Spruce, Birch, and Jungle blocks currently do not call
+     *  Forge's super method in Block on server side. This causes our harvest
+     *  event not to be fired correctly.
      */
-    @Overwrite(remap = false)
-    @Nullable
-    public Entity changeDimension(int dimensionId, ITeleporter teleporter) {
-        return EntityUtil.teleportPlayerToDimension((EntityPlayerMP) (Object) this, dimensionId, (IMixinITeleporter) (Object) teleporter, null);
+    @Override
+    @Overwrite
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
+        super.harvestBlock(worldIn, player, pos, state, te, stack);
     }
 }

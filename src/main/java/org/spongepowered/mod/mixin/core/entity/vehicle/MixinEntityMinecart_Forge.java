@@ -36,13 +36,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @NonnullByDefault
 @Mixin(value = EntityMinecart.class, priority = 1111)
-public abstract class MixinEntityMinecart implements Minecart {
+public abstract class MixinEntityMinecart_Forge implements Minecart {
 
-    private static final String MINECART_MOTION_X_FIELD = "Lnet/minecraft/entity/item/EntityMinecart;motionX:D";
-    private static final String MINECART_MOTION_Y_FIELD = "Lnet/minecraft/entity/item/EntityMinecart;motionY:D";
-    private static final String MINECART_MOTION_Z_FIELD = "Lnet/minecraft/entity/item/EntityMinecart;motionZ:D";
-
-    @Shadow(remap = false) public abstract double getMaxSpeed();
+    @Shadow(remap = false) protected abstract double getMaxSpeed();
 
     // Added in SpongeCommon
     private Vector3d airborneMod;
@@ -53,17 +49,17 @@ public abstract class MixinEntityMinecart implements Minecart {
         return getMaxSpeed();
     }
 
-    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_X_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 2))
+    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityMinecart;motionX:D", opcode = Opcodes.PUTFIELD, ordinal = 2))
     private void onGetDragAirX(EntityMinecart self, double modifier) {
         self.motionX *= this.airborneMod.getX();
     }
 
-    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_Y_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 2))
+    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityMinecart;motionY:D", opcode = Opcodes.PUTFIELD, ordinal = 2))
     private void onGetDragAirY(EntityMinecart self, double modifier) {
         self.motionY *= this.airborneMod.getY();
     }
 
-    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = MINECART_MOTION_Z_FIELD, opcode = Opcodes.PUTFIELD, ordinal = 2))
+    @Redirect(method = "moveDerailedMinecart", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityMinecart;motionZ:D", opcode = Opcodes.PUTFIELD, ordinal = 2))
     private void onGetDragAirZ(EntityMinecart self, double modifier) {
         self.motionZ *= this.airborneMod.getZ();
     }

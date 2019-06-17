@@ -55,7 +55,7 @@ import javax.annotation.Nullable;
 
 // Use lower priority so it is applied before the changes in SpongeCommon
 @Mixin(value = World.class, priority = 999)
-public abstract class MixinWorld implements WorldBridge {
+public abstract class MixinWorld_Forge implements WorldBridge {
 
     private WorldInfo redirectWorldInfo;
 

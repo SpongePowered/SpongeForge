@@ -22,26 +22,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.tileentity;
+package org.spongepowered.mod.mixin.core.network;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
+import com.google.common.collect.Sets;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.util.text.ITextComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.bridge.tileentity.TileEntityBridge;
+import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
 
-@Mixin(TileEntity.class)
-@Implements(@Interface(iface = TileEntityBridge.class, prefix = "spongeIMixinTile$"))
-public abstract class MixinTileEntity_Forge {
+import java.util.Set;
 
-    @Shadow(remap = false) private NBTTagCompound customTileData;
+@Mixin(value = NetHandlerPlayServer.class, priority = 1001)
+public abstract class MixinNetHandlerPlayServer_Forge implements IMixinNetPlayHandler {
 
-    @Intrinsic
-    public boolean spongeIMixinTile$hasTileDataCompound() {
-        return this.customTileData != null;
+    @Shadow public EntityPlayerMP player;
+    @Shadow private int chatSpamThresholdCount;
+
+    private final Set<String> registeredChannels = Sets.newHashSet();
+
+    @Shadow public abstract void disconnect(ITextComponent message); // disconnect
+
+    @Override
+    public int getChatSpamThresholdCount() {
+        return this.chatSpamThresholdCount;
     }
 
+    @Override
+    public void setChatSpamThresholdCount(int count) {
+        this.chatSpamThresholdCount = count;
+    }
+
+    @Override
+    public Set<String> getRegisteredChannels() {
+        return this.registeredChannels;
+    }
 }

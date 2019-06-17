@@ -46,7 +46,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-@SuppressWarnings("rawtypes")
 @Mixin(InvWrapper.class)
 @Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
 public abstract class MixinInvWrapper_Forge implements MinecraftInventoryAdapter, TrackedInventoryBridge {
@@ -61,13 +60,12 @@ public abstract class MixinInvWrapper_Forge implements MinecraftInventoryAdapter
     private List<SlotTransaction> capturedTransactions = new ArrayList<>();
     private boolean initalized = false;
 
-    @SuppressWarnings("unchecked")
     private void init() {
-        if (!initalized) {
-            initalized = true;
+        if (!this.initalized) {
+            this.initalized = true;
             this.fabric = new IItemHandlerFabric(((InvWrapper) (Object) this));
             this.slots = new SlotCollection.Builder().add(this.fabric.getSize()).build();
-            this.lens = new OrderedInventoryLensImpl(0, this.fabric.getSize(), 1, slots);
+            this.lens = new OrderedInventoryLensImpl(0, this.fabric.getSize(), 1, this.slots);
         }
     }
 
@@ -122,11 +120,10 @@ public abstract class MixinInvWrapper_Forge implements MinecraftInventoryAdapter
         return this.lens;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Fabric getFabric() {
         this.init();
-        return ((Fabric) this.fabric);
+        return this.fabric;
     }
 
     @Override

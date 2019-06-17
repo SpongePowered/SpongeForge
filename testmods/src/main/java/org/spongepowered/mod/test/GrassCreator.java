@@ -74,6 +74,7 @@ public class GrassCreator {
             .build();
     }
 
+    @SuppressWarnings("deprecation")
     @SubscribeEvent
     public void onGrassPlacement(DecorateBiomeEvent.Decorate event) {
         if (this.areListenersEnabled && event.getType() == DecorateBiomeEvent.Decorate.EventType.GRASS) {

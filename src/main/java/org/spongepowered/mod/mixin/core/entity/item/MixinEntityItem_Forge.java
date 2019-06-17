@@ -26,19 +26,19 @@ package org.spongepowered.mod.mixin.core.entity.item;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(value = EntityItem.class, priority = 1001)
-public class MixinEntityItem {
+public class MixinEntityItem_Forge {
 
-    private static final String ON_ITEM_PICKUP =
-            "Lnet/minecraftforge/event/ForgeEventFactory;onItemPickup(Lnet/minecraft/entity/item/EntityItem;Lnet/minecraft/entity/player/EntityPlayer;)I";
-
-    @Redirect(method = "onCollideWithPlayer", at = @At(value = "INVOKE", target= ON_ITEM_PICKUP, remap = false))
-    public int onEntityCollideWithPlayer(EntityItem entityItem, EntityPlayer entityIn) {
+    @Redirect(method = "onCollideWithPlayer",
+        at = @At(
+            value = "INVOKE",
+            target= "Lnet/minecraftforge/event/ForgeEventFactory;onItemPickup(Lnet/minecraft/entity/item/EntityItem;Lnet/minecraft/entity/player/EntityPlayer;)I",
+            remap = false))
+    private int forge$ignoreForgeEventDueToSpongeFiring(EntityItem entityItem, EntityPlayer entityIn) {
         return 0; // ignore Forge event as we fire it for them
     }
 }

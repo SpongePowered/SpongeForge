@@ -27,12 +27,10 @@ package org.spongepowered.mod.mixin.core.entity.passive;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
-import org.spongepowered.api.entity.living.Villager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.interfaces.entity.IMixinVillager;
 import org.spongepowered.common.mixin.core.entity.MixinEntityAgeable;
 import org.spongepowered.mod.interfaces.IMixinEntityVillagerForge;
 import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
@@ -41,7 +39,7 @@ import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 import javax.annotation.Nullable;
 
 @Mixin(value = EntityVillager.class, priority = 1100)
-public abstract class MixinEntityVillager extends MixinEntityAgeable implements Villager, IMixinVillager, IMixinEntityVillagerForge {
+public abstract class MixinEntityVillager_Forge extends MixinEntityAgeable implements IMixinEntityVillagerForge {
 
     @Shadow private int careerId;
     @Shadow private int careerLevel;
@@ -57,7 +55,6 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
      * forge professions and sponge professions. This aims to have failsafes for handling
      * with Sponge's system.
      */
-    @SuppressWarnings("unchecked")
     @Overwrite
     public void populateBuyingList() {
         final VillagerRegistry.VillagerProfession professionForge = this.getProfessionForge();
@@ -82,7 +79,7 @@ public abstract class MixinEntityVillager extends MixinEntityAgeable implements 
         }
         if (mixinCareer.isModded()) {
             // we have to allow forge mods to do their own forge things.
-            SpongeForgeVillagerRegistry.populateOffers(this, career, careerLevel, rand);
+            SpongeForgeVillagerRegistry.populateOffers(this, career, careerLevel, this.rand);
             return;
         }
         // Otherwise, if we are able to control the offers, then go ahead and modify them.

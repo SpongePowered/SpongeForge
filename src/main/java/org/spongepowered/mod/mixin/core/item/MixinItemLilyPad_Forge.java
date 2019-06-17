@@ -73,8 +73,12 @@ public abstract class MixinItemLilyPad_Forge extends MixinItem {
      * @return Always false, we handle this in the Sponge implementation for interactions
      */
     @Redirect(method = "onItemRightClick",
-        at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/world/BlockEvent$PlaceEvent;isCanceled()Z")
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/event/world/BlockEvent$PlaceEvent;isCanceled()Z",
+            remap = false)
     )
+    @SuppressWarnings("deprecation")
     private boolean sponge$IgnoreEventCancellation(BlockEvent.PlaceEvent placeEvent) {
         return false;
     }

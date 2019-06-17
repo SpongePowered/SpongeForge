@@ -22,40 +22,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.network;
+package org.spongepowered.mod.mixin.api.minecraft.world;
 
-import com.google.common.collect.Sets;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.gen.ChunkProviderServer;
+import org.spongepowered.api.world.Chunk;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
+import org.spongepowered.common.mixin.api.minecraft.world.MixinWorld_API;
+import org.spongepowered.common.world.storage.SpongeChunkLayout;
 
-import java.util.Set;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
-@Mixin(value = NetHandlerPlayServer.class, priority = 1001)
-public abstract class MixinNetHandlerPlayServer implements IMixinNetPlayHandler {
+@Mixin(value = WorldServer.class, priority = 1001)
+public abstract class MixinWorldServer_APIForge extends MixinWorld_API implements World {
 
-    @Shadow public EntityPlayerMP player;
-    @Shadow private int chatSpamThresholdCount;
+    @Shadow public abstract ChunkProviderServer getChunkProvider();
 
-    private final Set<String> registeredChannels = Sets.newHashSet();
-
-    @Shadow public abstract void disconnect(ITextComponent message); // disconnect
 
     @Override
-    public int getChatSpamThresholdCount() {
-        return this.chatSpamThresholdCount;
+    public CompletableFuture<Optional<Chunk>> loadChunkAsync(int cx, int cy, int cz, boolean shouldGenerate) {
+        // Currently, we can only load asynchronously if the chunk should not be generated
+        if (shouldGenerate) {
+            return World.super.loadChunkAsync(cx, cy, cz, true);
+        }
+
+        if (!SpongeChunkLayout.instance.isValidChunk(cx, cy, cz)) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+
+        CompletableFuture<Optional<Chunk>> future = new CompletableFuture<>();
+        getChunkProvider().loadChunk(cx, cz, () -> future.complete(Optional.ofNullable((Chunk) getChunkProvider().getLoadedChunk(cx, cz))));
+        return future;
     }
 
-    @Override
-    public void setChatSpamThresholdCount(int count) {
-        this.chatSpamThresholdCount = count;
-    }
 
-    @Override
-    public Set<String> getRegisteredChannels() {
-        return this.registeredChannels;
-    }
+
 }

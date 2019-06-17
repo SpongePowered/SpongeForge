@@ -58,6 +58,8 @@ import javax.annotation.Nullable;
  */
 public class CapturedSnapshotWrapperList extends ArrayList<BlockSnapshot> implements List<BlockSnapshot> {
 
+    private static final long serialVersionUID = -8973153582753299054L;
+
     private static SpongeBlockSnapshot toSponge(BlockSnapshot blockSnapshot) {
         final SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
         final SpongeBlockSnapshot sponge = builder
@@ -159,6 +161,7 @@ public class CapturedSnapshotWrapperList extends ArrayList<BlockSnapshot> implem
         return underlyingList.add(sponge);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public boolean remove(Object o) {
         if (!(o instanceof BlockSnapshot)) {
@@ -233,7 +236,7 @@ public class CapturedSnapshotWrapperList extends ArrayList<BlockSnapshot> implem
         underlyingList.add(index, sponge);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public BlockSnapshot remove(int index) {
         final List<BlockSnapshot> cachedForgeList = getCachedForgeList();

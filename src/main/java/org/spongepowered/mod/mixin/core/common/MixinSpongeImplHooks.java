@@ -743,8 +743,8 @@ public abstract class MixinSpongeImplHooks {
      * @return The modifier based on forge hooks.
      */
     @Overwrite
-    public static int getLootingEnchantmentModifier(IMixinEntityLivingBase mixinEntityLivingBase, EntityLivingBase entity, DamageSource cause) {
-        return ForgeHooks.getLootingLevel(EntityUtil.toNative(mixinEntityLivingBase), entity, cause);
+    public static int getLootingEnchantmentModifier(EntityLivingBase mixinEntityLivingBase, EntityLivingBase entity, DamageSource cause) {
+        return ForgeHooks.getLootingLevel(mixinEntityLivingBase, entity, cause);
     }
 
     /**
@@ -821,6 +821,12 @@ public abstract class MixinSpongeImplHooks {
         net.minecraftforge.server.timings.TimeTracker.ENTITY_UPDATE.trackEnd(entity);
     }
 
+    /**
+     * @author unknown
+     * @reason Use "spongeforge" as the implementation id.
+     *
+     * @return "spongeforge" for SpongeForge
+     */
     @Overwrite
     public static String getImplementationId() {
         return "spongeforge";

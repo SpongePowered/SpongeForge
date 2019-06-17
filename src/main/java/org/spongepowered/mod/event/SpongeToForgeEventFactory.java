@@ -131,6 +131,7 @@ import java.util.stream.Collectors;
 
 //This class handles events initiated by Sponge plugins.
 //It is primarily responsible for firing a corresponding Forge event to mods.
+@SuppressWarnings("deprecation")
 public class SpongeToForgeEventFactory {
 
     static final IMixinEventBus forgeEventBus = ((IMixinEventBus) MinecraftForge.EVENT_BUS);
@@ -441,7 +442,7 @@ public class SpongeToForgeEventFactory {
             BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetBlock().getPosition());
             EnumFacing face = DirectionFacingProvider.getInstance().get(spongeEvent.getTargetSide()).orElse(null);
             Vec3d hitVec = null;
-            final EntityPlayerMP entityPlayerMP = EntityUtil.toNative(player);
+            final EntityPlayerMP entityPlayerMP = (EntityPlayerMP) player;
             if (spongeEvent.getInteractionPoint().isPresent()) {
                 hitVec = VecHelper.toVec3d(spongeEvent.getInteractionPoint().get());
             }
@@ -483,7 +484,7 @@ public class SpongeToForgeEventFactory {
             }
 
             final EnumHand hand = spongeEvent instanceof InteractItemEvent.Secondary.MainHand ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
-            forgeEvent = new PlayerInteractEvent.RightClickItem(EntityUtil.toNative(player), hand);
+            forgeEvent = new PlayerInteractEvent.RightClickItem((EntityPlayerMP) player, hand);
             eventData.setForgeEvent(forgeEvent);
         }
 
@@ -565,7 +566,7 @@ public class SpongeToForgeEventFactory {
                 } else {
                     // Re-sync entity list from forge to sponge
                     spongeEvent.getEntities().removeAll(items);
-                    spongeEvent.getEntities().addAll(forgeEvent.getDrops().stream().map(EntityUtil::fromNative).collect(Collectors.toList()));
+                    spongeEvent.getEntities().addAll(forgeEvent.getDrops().stream().map(entity -> (org.spongepowered.api.entity.Entity) entity).collect(Collectors.toList()));
                 }
             }
         }
@@ -721,6 +722,7 @@ public class SpongeToForgeEventFactory {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean createAndPostBlockPlaceEvent(SpongeToForgeEventData eventData) {
         final ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) eventData.getSpongeEvent();
         BlockEvent.PlaceEvent forgeEvent = (BlockEvent.PlaceEvent) eventData.getForgeEvent();
@@ -794,7 +796,7 @@ public class SpongeToForgeEventFactory {
         net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent = (net.minecraftforge.event.world.ExplosionEvent.Start) eventData.getForgeEvent();
         if (forgeEvent == null) {
             forgeEvent = new net.minecraftforge.event.world.ExplosionEvent.Start(
-                    ((net.minecraft.world.World) spongeEvent.getTargetWorld()), ((Explosion) ((ExplosionEvent.Pre) spongeEvent).getExplosion()));
+                    ((net.minecraft.world.World) spongeEvent.getTargetWorld()), ((Explosion) spongeEvent.getExplosion()));
             eventData.setForgeEvent(forgeEvent);
         }
         forgeEventBus.post(eventData);
@@ -850,7 +852,7 @@ public class SpongeToForgeEventFactory {
             if (!player.isPresent()) {
                 return false;
             }
-            final EntityPlayerMP entityPlayerMP = EntityUtil.toNative(player.get());
+            final EntityPlayerMP entityPlayerMP = (EntityPlayerMP) player.get();
             final EnumHand hand = entityPlayerMP.getActiveHand();
     
             final EntityPlayer entityPlayer = (EntityPlayer) player.get();

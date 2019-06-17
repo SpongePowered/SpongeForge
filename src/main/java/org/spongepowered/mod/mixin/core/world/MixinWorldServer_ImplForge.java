@@ -33,8 +33,6 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.world.Chunk;
-import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -47,14 +45,10 @@ import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.mixin.core.world.MixinWorld;
 import org.spongepowered.common.world.gen.SpongeChunkGenerator;
 import org.spongepowered.common.world.gen.SpongeWorldGenerator;
-import org.spongepowered.common.world.storage.SpongeChunkLayout;
 import org.spongepowered.mod.world.gen.SpongeChunkGeneratorForge;
 
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-
 @Mixin(value = WorldServer.class, priority = 1001)
-public abstract class MixinWorldServer extends MixinWorld implements World, ServerWorldBridge {
+public abstract class MixinWorldServer_ImplForge extends MixinWorld implements ServerWorldBridge {
 
     @Shadow public abstract ChunkProviderServer getChunkProvider();
 
@@ -144,20 +138,5 @@ public abstract class MixinWorldServer extends MixinWorld implements World, Serv
                 newGenerator.getBiomeGenerator());
     }
 
-    @Override
-    public CompletableFuture<Optional<Chunk>> loadChunkAsync(int cx, int cy, int cz, boolean shouldGenerate) {
-        // Currently, we can only load asynchronously if the chunk should not be generated
-        if (shouldGenerate) {
-            return org.spongepowered.api.world.World.super.loadChunkAsync(cx, cy, cz, true);
-        }
-
-        if (!SpongeChunkLayout.instance.isValidChunk(cx, cy, cz)) {
-            return CompletableFuture.completedFuture(Optional.empty());
-        }
-
-        CompletableFuture<Optional<Chunk>> future = new CompletableFuture<>();
-        getChunkProvider().loadChunk(cx, cz, () -> future.complete(Optional.ofNullable((Chunk) getChunkProvider().getLoadedChunk(cx, cz))));
-        return future;
-    }
 
 }

@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.entity.living;
+package org.spongepowered.mod.mixin.core.entity;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -40,7 +40,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
-import org.spongepowered.mod.mixin.core.entity.MixinEntity;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.List;
@@ -48,9 +47,7 @@ import java.util.Optional;
 
 @NonnullByDefault
 @Mixin(value = EntityLivingBase.class, priority = 1001)
-public abstract class MixinEntityLivingBase extends MixinEntity implements Living, IMixinEntityLivingBase {
-
-    @Shadow public abstract void stopActiveHand();
+public abstract class MixinEntityLivingBase_Forge extends MixinEntity_Forge implements IMixinEntityLivingBase {
 
     @Override
     public Optional<List<DamageFunction>> provideArmorModifiers(EntityLivingBase entityLivingBase,
@@ -85,31 +82,46 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
     // since Sponge events only fire on the server
 
     @Redirect(method = "updateActiveHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
-    public boolean onIsEmpty(ItemStack stack) {
+    private boolean forge$SkipForgeCheckOnServer(ItemStack stack) {
         if (!this.world.isRemote) {
             return true; // This skips Forge's added if-block
         }
         return stack.isEmpty();
     }
 
-    @Redirect(method = "setActiveHand", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;onItemUseStart(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;I)I"))
-    public int onItemUseStart(EntityLivingBase this$0, ItemStack stack, int duration) {
+    @Redirect(method = "setActiveHand",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;onItemUseStart(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;I)I",
+            remap = false
+        ))
+    private int forge$OnlyThrowForgeEventOnClient(EntityLivingBase this$0, ItemStack stack, int duration) {
         if (!this.world.isRemote) {
             return duration;
         }
         return ForgeEventFactory.onItemUseStart(this$0, stack, duration);
     }
 
-    @Redirect(method = "onItemUseFinish", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;onItemUseFinish(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;ILnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;"))
-    public ItemStack onItemUseFinish(EntityLivingBase entity, ItemStack item, int duration, ItemStack result) {
+    @Redirect(method = "onItemUseFinish",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;onItemUseFinish(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;ILnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
+            remap = false
+        ))
+    private ItemStack forge$OnlyThrowForgeEventOnClient(EntityLivingBase entity, ItemStack item, int duration, ItemStack result) {
         if (!this.world.isRemote) {
             return result;
         }
         return ForgeEventFactory.onItemUseFinish(entity, item, duration, result);
     }
 
-    @Redirect(method = "stopActiveHand", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/event/ForgeEventFactory;onUseItemStop(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;I)Z"))
-    public boolean onUseItemStop(EntityLivingBase entity, ItemStack item, int duration) {
+    @Redirect(method = "stopActiveHand",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/event/ForgeEventFactory;onUseItemStop(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;I)Z",
+            remap = false
+        ))
+    private boolean forge$OnlyThrowForgeStopEventOnClient(EntityLivingBase entity, ItemStack item, int duration) {
         if (!this.world.isRemote) {
             return false;
         }

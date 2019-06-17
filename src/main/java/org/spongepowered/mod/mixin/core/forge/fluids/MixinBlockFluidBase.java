@@ -43,15 +43,15 @@ import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.bridge.block.BlockBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.interfaces.world.ServerWorldBridge;
-import org.spongepowered.mod.mixin.core.block.MixinBlock;
+import org.spongepowered.mod.mixin.core.block.MixinBlock_Forge;
 
 import java.util.Map;
 
 @Mixin(value = BlockFluidBase.class)
-public abstract class MixinBlockFluidBase extends MixinBlock implements BlockBridge {
+public abstract class MixinBlockFluidBase extends MixinBlock_Forge implements BlockBridge {
 
-    @Shadow @Final public static PropertyInteger LEVEL;
-    @Shadow protected int tickRate;
+    @Shadow(remap = false) @Final public static PropertyInteger LEVEL;
+    @Shadow(remap = false) protected int tickRate;
 
     @Redirect(method = "canDisplace",
         remap = false,
@@ -61,7 +61,7 @@ public abstract class MixinBlockFluidBase extends MixinBlock implements BlockBri
             remap = false
         )
     )
-    private Object getDisplacementWithSponge(Map map, Object key, IBlockAccess world, BlockPos pos) {
+    private Object getDisplacementWithSponge(Map<?, ?> map, Object key, IBlockAccess world, BlockPos pos) {
         if (!(world instanceof WorldBridge) || ((WorldBridge) world).isFake()) {
             return map.get(key);
         }

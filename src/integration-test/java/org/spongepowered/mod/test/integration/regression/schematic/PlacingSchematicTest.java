@@ -78,6 +78,7 @@ public class PlacingSchematicTest extends BaseTest {
     }
 
     @BeforeClass
+    @SuppressWarnings("deprecation")
     public static void setupSchematic() {
         // Note that these are tested against in CustomTileRegistration test
         GameRegistry.registerTileEntity(Test1Tile.class, TileEntityRegistrationTest.UNQUALIFIED_TILE_ID);

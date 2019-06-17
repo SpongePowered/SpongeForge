@@ -69,12 +69,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.bridge.entity.player.ServerPlayerEntityBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
-import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.network.IMixinNetHandlerPlayServer;
 import org.spongepowered.common.interfaces.world.ServerWorldBridge;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
@@ -113,7 +113,7 @@ public abstract class MixinForgeHooks {
         final RayTraceResult result = SpongeImplHooks.rayTraceEyes(player, SpongeImplHooks.getBlockReachDistance((EntityPlayerMP) player));
         final Vector3d vec = result == null ? null : VecHelper.toVector3d(result.hitVec);
         if (SpongeCommonEventFactory.callInteractItemEventPrimary(player, stack, EnumHand.MAIN_HAND, vec, blockSnapshot).isCancelled()) {
-            ((IMixinEntityPlayerMP) player).sendBlockChange(pos, player.world.getBlockState(pos));
+            ((ServerPlayerEntityBridge) player).sendBlockChange(pos, player.world.getBlockState(pos));
             evt.setCanceled(true);
             return evt;
         }
