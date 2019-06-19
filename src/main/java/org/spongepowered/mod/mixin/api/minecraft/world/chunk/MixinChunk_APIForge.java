@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.bridge.world.ChunkBridge;
 
 @NonnullByDefault
-@Mixin(value = Chunk.class, priority = 1001)
+@Mixin(value = Chunk.class)
 public abstract class MixinChunk_APIForge implements org.spongepowered.api.world.Chunk {
 
     @Shadow @Final private net.minecraft.world.World world;

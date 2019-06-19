@@ -25,7 +25,7 @@
 package org.spongepowered.mod.world.gen;
 
 import org.spongepowered.common.bridge.world.WorldBridge;
-import org.spongepowered.common.interfaces.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimingsFactory;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;

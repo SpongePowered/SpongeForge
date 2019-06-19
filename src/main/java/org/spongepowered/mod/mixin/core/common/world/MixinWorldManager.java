@@ -53,7 +53,6 @@ import org.spongepowered.common.bridge.entity.player.ServerPlayerEntityBridge;
 import org.spongepowered.common.world.WorldManager;
 
 import java.nio.file.Path;
-import java.util.BitSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -104,7 +103,7 @@ public abstract class MixinWorldManager {
     @Overwrite
     public static void sendDimensionRegistration(EntityPlayerMP player, WorldProvider provider) {
         // register dimension on client-side
-        if (((ServerPlayerEntityBridge) player).usesCustomClient()) {
+        if (((ServerPlayerEntityBridge) player).bridge$usesCustomClient()) {
             FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
             serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
             serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);

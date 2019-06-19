@@ -79,7 +79,6 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
@@ -267,7 +266,7 @@ public class ForgeToSpongeEventFactory {
         User notifier = currentContext.getNotifier().orElse((User) player);
 
         if (SpongeImplHooks.isFakePlayer(player)) {
-            frame.addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
+            frame.addContext(EventContextKeys.FAKE_PLAYER, (Player) player);
         } else {
             frame.addContext(EventContextKeys.OWNER, owner);
             frame.addContext(EventContextKeys.NOTIFIER, notifier);
@@ -304,7 +303,7 @@ public class ForgeToSpongeEventFactory {
         User notifier = context.getNotifier().orElse((User) player);
 
         if (SpongeImplHooks.isFakePlayer(player)) {
-            frame.addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
+            frame.addContext(EventContextKeys.FAKE_PLAYER, (Player) player);
         } else {
             frame.addContext(EventContextKeys.OWNER, owner);
             frame.addContext(EventContextKeys.NOTIFIER, notifier);
@@ -339,7 +338,7 @@ public class ForgeToSpongeEventFactory {
         User notifier = currentContext.getNotifier().orElse((User) player);
 
         if (SpongeImplHooks.isFakePlayer(player)) {
-            frame.addContext(EventContextKeys.FAKE_PLAYER, EntityUtil.toPlayer(player));
+            frame.addContext(EventContextKeys.FAKE_PLAYER, (Player) player);
         } else {
             frame.addContext(EventContextKeys.OWNER, owner);
             frame.addContext(EventContextKeys.NOTIFIER, notifier);

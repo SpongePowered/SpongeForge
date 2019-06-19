@@ -277,8 +277,6 @@ public class SpongeToForgeEventFactory {
             return createAndPostPlayerLoggedInEvent(spongeEventData);
         } else if (spongeEvent instanceof ClientConnectionEvent.Disconnect) {
             return createAndPostPlayerLoggedOutEvent(spongeEventData);
-        } else if (spongeEvent instanceof MoveEntityEvent.Teleport) {
-            return createAndPostEntityTravelToDimensionEvent(spongeEventData);
         } else if (EntityJoinWorldEvent.class.isAssignableFrom(clazz)) {
             return createAndPostEntityJoinWorldEvent(spongeEventData);
         } else if (spongeEvent instanceof UnloadWorldEvent) {
@@ -892,40 +890,6 @@ public class SpongeToForgeEventFactory {
         }
 
         forgeEventBus.post(eventData);
-        return true;
-    }
-
-    private static boolean createAndPostEntityTravelToDimensionEvent(SpongeToForgeEventData eventData) {
-        final MoveEntityEvent.Teleport spongeEvent = (MoveEntityEvent.Teleport) eventData.getSpongeEvent();
-        EntityTravelToDimensionEvent forgeEvent = (EntityTravelToDimensionEvent) eventData.getForgeEvent();
-        org.spongepowered.api.entity.Entity entity = spongeEvent.getTargetEntity();
-        if (!(entity instanceof EntityPlayerMP)) {
-            return false;
-        }
-
-        if (forgeEvent == null) {
-            int fromDimensionId = ((net.minecraft.world.World) spongeEvent.getFromTransform().getExtent()).provider.getDimension();
-            int toDimensionId = ((net.minecraft.world.World) spongeEvent.getToTransform().getExtent()).provider.getDimension();
-            if (fromDimensionId == toDimensionId) {
-                return false;
-            }
-    
-            // Copied from net.minecraftforge.common.ForgeHooks.onTravelToDimension
-            forgeEvent = new EntityTravelToDimensionEvent((EntityPlayerMP) entity, toDimensionId);
-            eventData.setForgeEvent(forgeEvent);
-        }
-
-        forgeEventBus.post(eventData);
-        if (forgeEvent.isCanceled())
-        {
-            // Revert variable back to true as it would have been set to false
-            if (entity instanceof EntityMinecartContainer)
-            {
-               ((EntityMinecartContainer) entity).dropContentsWhenDead = true;
-            }
-            spongeEvent.setCancelled(true);
-        }
-
         return true;
     }
 

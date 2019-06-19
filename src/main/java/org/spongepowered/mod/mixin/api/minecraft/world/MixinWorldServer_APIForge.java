@@ -36,7 +36,7 @@ import org.spongepowered.common.world.storage.SpongeChunkLayout;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-@Mixin(value = WorldServer.class, priority = 1001)
+@Mixin(value = WorldServer.class)
 public abstract class MixinWorldServer_APIForge extends MixinWorld_API implements World {
 
     @Shadow public abstract ChunkProviderServer getChunkProvider();

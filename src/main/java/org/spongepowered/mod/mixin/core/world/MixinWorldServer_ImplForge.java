@@ -40,7 +40,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
-import org.spongepowered.common.interfaces.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.mixin.core.world.MixinWorld;
 import org.spongepowered.common.world.gen.SpongeChunkGenerator;
@@ -53,7 +53,7 @@ public abstract class MixinWorldServer_ImplForge extends MixinWorld implements S
     @Shadow public abstract ChunkProviderServer getChunkProvider();
 
     @Override
-    public Integer bridge$getDimensionId() {
+    public int bridge$getDimensionId() {
         return this.provider.getDimension();
     }
 

@@ -24,27 +24,36 @@
  */
 package org.spongepowered.mod.mixin.core.server;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.interfaces.IMixinPlayerList;
+import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(PlayerList.class)
-public abstract class MixinPlayerList implements IMixinPlayerList {
+public abstract class MixinPlayerList_Forge {
+
+    @Shadow @Final private MinecraftServer server;
 
     @Shadow public abstract void preparePlayer(EntityPlayerMP playerIn, @Nullable WorldServer worldIn);
     @Shadow public abstract void updateTimeAndWeatherForPlayer(EntityPlayerMP playerIn, WorldServer worldIn);
     @Shadow public abstract void syncPlayerInventory(EntityPlayerMP playerIn);
+    @Shadow public abstract void updatePermissionLevel(EntityPlayerMP player);
 
     /**
      * @author Simon816
@@ -67,10 +76,27 @@ public abstract class MixinPlayerList implements IMixinPlayerList {
     @Redirect(method = "playerLoggedOut", at = @At(value = "INVOKE",
             target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;firePlayerLoggedOut(Lnet/minecraft/entity/player/EntityPlayer;)V",
             remap = false))
-    public void onFirePlayerLoggedOutCall(FMLCommonHandler thisCtx, EntityPlayer playerIn) {
+    private void forge$ValidateFirePlayerLoggedOutWithValidConnection(FMLCommonHandler thisCtx, EntityPlayer playerIn) {
         if (playerIn instanceof EntityPlayerMP && ((EntityPlayerMP) playerIn).connection == null) {
             net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerLoggedOut(playerIn);
         }
     }
 
+    /**
+     * @author Zidane - June 2019 - 1.12.2
+     * @reason Re-route to the common hook
+     */
+    @Overwrite(remap = false)
+    public void transferEntityToWorld(Entity entityIn, int lastDimension, WorldServer oldWorldIn, WorldServer toWorldIn, ITeleporter teleporter) {
+        EntityUtil.transferEntityToWorld(entityIn, null, toWorldIn, (ForgeITeleporterBridge) teleporter, false);
+    }
+
+    /**
+     * @author Zidane - June 2019 - 1.12.2
+     * @reason Re-route to the common hook
+     */
+    @Overwrite(remap = false)
+    public void transferPlayerToDimension(EntityPlayerMP player, int dimensionIn, ITeleporter teleporter) {
+        EntityUtil.transferPlayerToWorld(player, null, this.server.getWorld(dimensionIn), (ForgeITeleporterBridge) teleporter);
+    }
 }

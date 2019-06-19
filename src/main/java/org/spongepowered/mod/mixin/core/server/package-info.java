@@ -22,29 +22,5 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.forge.common.util;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ITeleporter;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
-
-@Mixin(value = ITeleporter.class, remap = false)
-public interface MixinITeleporter extends ForgeITeleporterBridge {
-
-    @Shadow boolean isVanilla();
-    @Shadow void placeEntity(World world, Entity entity, float yaw);
-
-    @Override
-    default void bridge$placeEntity(World world, Entity entity, float yaw) {
-        this.placeEntity(world, entity, yaw);
-    }
-
-    @Override
-    default boolean bridge$isVanilla() {
-        return this.isVanilla();
-    }
-
-}
+@org.spongepowered.api.util.annotation.NonnullByDefault
+package org.spongepowered.mod.mixin.core.server;

@@ -22,29 +22,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.forge.common.util;
+package org.spongepowered.mod.mixin.api.forge.common.util;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.ITeleporter;
+import org.spongepowered.api.world.PortalAgent;
+import org.spongepowered.api.world.PortalAgentType;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
+import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 
 @Mixin(value = ITeleporter.class, remap = false)
-public interface MixinITeleporter extends ForgeITeleporterBridge {
-
-    @Shadow boolean isVanilla();
-    @Shadow void placeEntity(World world, Entity entity, float yaw);
+public interface MixinITeleporter_APIForge extends PortalAgent {
 
     @Override
-    default void bridge$placeEntity(World world, Entity entity, float yaw) {
-        this.placeEntity(world, entity, yaw);
+    default int getSearchRadius() {
+        return 0;
     }
 
     @Override
-    default boolean bridge$isVanilla() {
-        return this.isVanilla();
+    default PortalAgent setSearchRadius(final int radius) {
+        return this;
     }
 
+    @Override
+    default int getCreationRadius() {
+        return 0;
+    }
+
+    @Override
+    default PortalAgent setCreationRadius(final int radius) {
+        return this;
+    }
+
+    @Override
+    default PortalAgentType getType() {
+        return PortalAgentRegistryModule.getInstance().validatePortalAgent((ForgeITeleporterBridge) this);
+    }
 }

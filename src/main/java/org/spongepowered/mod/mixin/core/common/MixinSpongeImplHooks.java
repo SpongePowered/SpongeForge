@@ -100,16 +100,14 @@ import org.spongepowered.common.command.SpongeCommandFactory;
 import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.data.util.NbtDataUtil;
-import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
 import org.spongepowered.common.bridge.tileentity.TileEntityBridge;
-import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
-import org.spongepowered.common.interfaces.world.IMixinITeleporter;
+import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
@@ -386,7 +384,7 @@ public abstract class MixinSpongeImplHooks {
      * @reason Forge compatibility
      */
     @Overwrite
-    public static void registerPortalAgentType(@Nullable IMixinITeleporter teleporter) {
+    public static void registerPortalAgentType(@Nullable ForgeITeleporterBridge teleporter) {
         if (teleporter == null) {
             return;
         }

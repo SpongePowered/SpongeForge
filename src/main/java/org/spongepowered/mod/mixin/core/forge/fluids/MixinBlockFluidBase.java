@@ -42,7 +42,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.bridge.block.BlockBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
-import org.spongepowered.common.interfaces.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.mod.mixin.core.block.MixinBlock_Forge;
 
 import java.util.Map;

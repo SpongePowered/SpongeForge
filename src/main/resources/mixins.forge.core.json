@@ -78,7 +78,7 @@
         "network.packet.MixinCPacketPlayerTryUseItemOnBlock",
         "network.MixinNetHandlerPlayServer_Forge",
         "server.MixinMinecraftServer",
-        "server.MixinPlayerList",
+        "server.MixinPlayerList_Forge",
         "server.MixinServerCommandManager",
         "server.management.MixinPlayerChunkMapEntry",
         "tileentity.MixinTileEntity_Forge",

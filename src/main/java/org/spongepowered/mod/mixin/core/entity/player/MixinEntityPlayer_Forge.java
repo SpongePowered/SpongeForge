@@ -150,7 +150,7 @@ public abstract class MixinEntityPlayer_Forge extends MixinEntityLivingBase_Forg
                 ForgeEventFactory.onPlayerWakeup(((EntityPlayer) (Object) this), immediately, updateWorldFlag, setSpawn);
                 this.setSize(0.6F, 1.8F);
                 if (post.getSpawnTransform().isPresent()) {
-                    this.setLocationAndAngles(post.getSpawnTransform().get());
+                    this.bridge$setLocationAndAngles(post.getSpawnTransform().get());
                 }
             }
         } else {
