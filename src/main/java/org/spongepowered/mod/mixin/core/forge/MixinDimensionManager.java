@@ -42,8 +42,8 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.bridge.world.WorldInfoBridge;
 import org.spongepowered.common.bridge.world.WorldSettingsBridge;
-import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.world.ServerWorldBridge;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
@@ -161,7 +161,7 @@ public abstract class MixinDimensionManager {
                 // Log every 5 loops
                 if (leakCount > 0 && leakCount % 5 == 0) {
                     SpongeImpl.getLogger().warn("World [{}] (DIM{}) (HASH: {}) may have leaked. Encountered [{}] times", worldServer.getWorldInfo()
-                            .getWorldName(), ((ServerWorldBridge) worldServer).getDimensionId(), hashCode, leakCount);
+                            .getWorldName(), ((ServerWorldBridge) worldServer).bridge$getDimensionId(), hashCode, leakCount);
                 }
             }
         }
@@ -254,8 +254,8 @@ public abstract class MixinDimensionManager {
             worldSettings.bridge$setDimensionType((org.spongepowered.api.world.DimensionType) (Object) dimensionType);
             worldSettings.bridge$setLoadOnStartup(false);
             properties = WorldManager.createWorldProperties(worldFolder, archetype, dim);
-            ((IMixinWorldInfo) properties).setDimensionId(dim);
-            ((IMixinWorldInfo) properties).setIsMod(true);
+            ((WorldInfoBridge) properties).setDimensionId(dim);
+            ((WorldInfoBridge) properties).setIsMod(true);
         }
         if (!properties.isEnabled()) {
             return;

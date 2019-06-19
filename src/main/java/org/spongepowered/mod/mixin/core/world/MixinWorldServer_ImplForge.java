@@ -53,7 +53,7 @@ public abstract class MixinWorldServer_ImplForge extends MixinWorld implements S
     @Shadow public abstract ChunkProviderServer getChunkProvider();
 
     @Override
-    public Integer getDimensionId() {
+    public Integer bridge$getDimensionId() {
         return this.provider.getDimension();
     }
 
@@ -133,7 +133,7 @@ public abstract class MixinWorldServer_ImplForge extends MixinWorld implements S
 
 
     @Override
-    public SpongeChunkGenerator createChunkGenerator(SpongeWorldGenerator newGenerator) {
+    public SpongeChunkGenerator bridge$createChunkGenerator(SpongeWorldGenerator newGenerator) {
         return new SpongeChunkGeneratorForge((net.minecraft.world.World) (Object) this, newGenerator.getBaseGenerationPopulator(),
                 newGenerator.getBiomeGenerator());
     }

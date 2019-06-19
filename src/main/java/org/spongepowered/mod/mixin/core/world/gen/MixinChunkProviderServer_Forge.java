@@ -55,8 +55,8 @@ public abstract class MixinChunkProviderServer_Forge implements ServerChunkProvi
         // Remove forge's persistent chunk check since we cache it in the chunk. Only unload the world if we're not the overworld and we're told that
         // we are not to keep spawn loaded (which is our flag to keep the world loaded)
         // TODO Consider splitting this into two flags: keep-spawn-loaded and keep-world-loaded
-        if (this.loadedChunks.size() == 0 && ((ServerWorldBridge) this.world).getDimensionId() != 0 && !SpongeImplHooks.shouldKeepSpawnLoaded(this
-                .world.provider.getDimensionType(), ((ServerWorldBridge) this.world).getDimensionId())) {
+        if (this.loadedChunks.size() == 0 && ((ServerWorldBridge) this.world).bridge$getDimensionId() != 0 && !SpongeImplHooks.shouldKeepSpawnLoaded(this
+                .world.provider.getDimensionType(), ((ServerWorldBridge) this.world).bridge$getDimensionId())) {
             net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
         }
     }

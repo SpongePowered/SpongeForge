@@ -78,7 +78,7 @@ public class MixinGameRegistry {
     private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         if (Timings.isTimingsEnabled()) {
-            ((ServerWorldBridge) world).getTimingsHandler().chunkPopulate.startTimingIfSync();
+            ((ServerWorldBridge) world).bridge$getTimingsHandler().chunkPopulate.startTimingIfSync();
         }
     }
 
@@ -86,7 +86,7 @@ public class MixinGameRegistry {
     private static void onGenerateWorldEnd(int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         if (Timings.isTimingsEnabled()) {
-            ((ServerWorldBridge) world).getTimingsHandler().chunkPopulate.stopTimingIfSync();
+            ((ServerWorldBridge) world).bridge$getTimingsHandler().chunkPopulate.stopTimingIfSync();
         }
     }
 

@@ -36,7 +36,7 @@ import org.spongepowered.common.bridge.entity.EntityBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
 import org.spongepowered.common.mixin.plugin.entityactivation.EntityActivationRange;
-import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.IModData_Activation;
+import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.ActivationCapability;
 import org.spongepowered.common.relocate.co.aikar.timings.TimingHistory;
 
 @NonnullByDefault
@@ -68,7 +68,7 @@ public abstract class MixinWorld_Activation implements WorldBridge {
 
         if (!canUpdate) {
             entityIn.ticksExisted++;
-            ((IModData_Activation) entityIn).inactiveTick();
+            ((ActivationCapability) entityIn).activation$inactiveTick();
             return;
         }
         // Sponge end

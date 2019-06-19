@@ -141,7 +141,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             chunkGeneratorName = "chunkGenerator (" + modId + ":" + generationPopulator.getClass().getSimpleName().toLowerCase() + ")";
         }
 
-        this.chunkGeneratorTiming = SpongeTimingsFactory.ofSafe(chunkGeneratorName, ((ServerWorldBridge) world).getTimingsHandler().chunkPopulate);
+        this.chunkGeneratorTiming = SpongeTimingsFactory.ofSafe(chunkGeneratorName, ((ServerWorldBridge) world).bridge$getTimingsHandler().chunkPopulate);
     }
 
     @Override
@@ -310,7 +310,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
         BlockFalling.fallInstantly = false;
         this.chunkGeneratorTiming.stopTimingIfSync();
-        ((ServerWorldBridge) spongeWorld).getTimingsHandler().chunkPopulate.stopTimingIfSync();
+        ((ServerWorldBridge) spongeWorld).bridge$getTimingsHandler().chunkPopulate.stopTimingIfSync();
     }
 
     @SuppressWarnings("deprecation")
