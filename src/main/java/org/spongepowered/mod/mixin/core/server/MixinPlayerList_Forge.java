@@ -27,6 +27,8 @@ package org.spongepowered.mod.mixin.core.server;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.world.WorldServer;
@@ -39,8 +41,9 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
+import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.util.NetworkUtil;
 
 import javax.annotation.Nullable;
 
@@ -49,11 +52,6 @@ import javax.annotation.Nullable;
 public abstract class MixinPlayerList_Forge {
 
     @Shadow @Final private MinecraftServer server;
-
-    @Shadow public abstract void preparePlayer(EntityPlayerMP playerIn, @Nullable WorldServer worldIn);
-    @Shadow public abstract void updateTimeAndWeatherForPlayer(EntityPlayerMP playerIn, WorldServer worldIn);
-    @Shadow public abstract void syncPlayerInventory(EntityPlayerMP playerIn);
-    @Shadow public abstract void updatePermissionLevel(EntityPlayerMP player);
 
     /**
      * @author Simon816
@@ -80,6 +78,17 @@ public abstract class MixinPlayerList_Forge {
         if (playerIn instanceof EntityPlayerMP && ((EntityPlayerMP) playerIn).connection == null) {
             net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerLoggedOut(playerIn);
         }
+    }
+
+    /**
+     * @author gabizou - June 18th, 2019 - 1.12.2
+     * @reason Use the common hook to initialize the connection to the player
+     * with the changed signature. Vanilla doesn't have the handler added on
+     * by default.
+     */
+    @Overwrite(remap = false)
+    public void initializeConnectionToPlayer(NetworkManager netManager, EntityPlayerMP playerIn, @Nullable NetHandlerPlayServer handler) {
+        NetworkUtil.initializeConnectionToPlayer((PlayerList) (Object) this, netManager, playerIn, handler);
     }
 
     /**
