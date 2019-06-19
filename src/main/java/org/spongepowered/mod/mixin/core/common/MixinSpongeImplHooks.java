@@ -106,7 +106,7 @@ import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.common.util.SpawnerSpawnType;
 import org.spongepowered.common.util.TristateUtil;
-import org.spongepowered.mod.command.SpongeForgeCommand;
+import org.spongepowered.mod.command.SpongeForgeCommandFactory;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.SpongeToForgeEventData;
 import org.spongepowered.mod.interfaces.IMixinBlock;
@@ -640,7 +640,7 @@ public abstract class MixinSpongeImplHooks {
      */
     @Overwrite
     public static void registerAdditionalCommands(ChildCommandElementExecutor flagChildren, ChildCommandElementExecutor nonFlagChildren) {
-        nonFlagChildren.register(SpongeForgeCommand.createSpongeModsCommand(), "mods");
+        nonFlagChildren.register(SpongeForgeCommandFactory.createSpongeModsCommand(), "mods");
     }
 
     /**

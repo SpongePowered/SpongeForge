@@ -38,21 +38,23 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.command.SpongeCommandFactory;
+import org.spongepowered.common.command.args.FilteredPluginsCommandElement;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 
-public class SpongeForgeCommand extends SpongeCommandFactory {
+public class SpongeForgeCommandFactory extends SpongeCommandFactory {
     private static final List<String> MOD_LIST_STATICS = Lists.newArrayList("minecraft", "mcp", "FML", "forge", "spongeapi", "sponge");
 
     public static CommandSpec createSpongeModsCommand() {
         return CommandSpec.builder()
                 .description(Text.of("List currently installed mods"))
                 .permission("sponge.command.mods")
-                .arguments(optional(plugin(Text.of("mod"))))
+                .arguments(optional(new FilteredPluginsCommandElement(Text.of("mod"), getFilteredModsPredicate())))
                 .executor((src, args) -> {
                     if (args.hasAny("mod")) {
                         sendContainerMeta(src, args,  "mod");
@@ -111,5 +113,9 @@ public class SpongeForgeCommand extends SpongeCommandFactory {
                     }
                     return CommandResult.success();
                 }).build();
+    }
+
+    private static Predicate<? super PluginContainer> getFilteredModsPredicate() {
+        return plugin -> !SpongeCommandFactory.CONTAINER_LIST_STATICS.contains(plugin.getId()) && !(plugin instanceof SpongeModPluginContainer);
     }
 }
