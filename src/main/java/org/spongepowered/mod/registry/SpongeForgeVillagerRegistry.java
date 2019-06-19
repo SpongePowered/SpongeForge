@@ -208,7 +208,7 @@ public final class SpongeForgeVillagerRegistry {
         printer.add("%s : %s", "Forge Profession", mixinProfession.getProfessionName());
         int i = 0;
         for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
-            printer.add("  %s %d : %s", "Career", i++, villagerCareer.getName());
+            printer.add(" - %s %d : %s", "Career", i++, villagerCareer.getName());
         }
         printer.add();
         printer.add("%s : %s", "Sponge Profession", profession.getId());

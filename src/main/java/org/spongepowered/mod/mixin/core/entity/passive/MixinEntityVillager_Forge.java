@@ -34,6 +34,7 @@ import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.mixin.core.entity.MixinEntityAgeable;
 import org.spongepowered.mod.interfaces.IMixinEntityVillagerForge;
 import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
+import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
 import javax.annotation.Nullable;
@@ -65,12 +66,17 @@ public abstract class MixinEntityVillager_Forge extends MixinEntityAgeable imple
             this.careerLevel = 1;
         }
 
+        // Sanity purposes, occasionally NBT doesn't get validated that the career id is higher than the profession's list.
+        if (this.careerId - 1 >= ((IMixinVillagerProfession) professionForge).getCareers().size()) {
+            this.careerId = professionForge.getRandomCareer(this.rand) + 1;
+        }
+
         if (this.buyingList == null) {
             this.buyingList = new MerchantRecipeList();
         }
 
-        int careerNumberId = this.careerId - 1;
-        int careerLevel = this.careerLevel - 1;
+        final int careerNumberId = this.careerId - 1;
+        final int careerLevel = this.careerLevel - 1;
         // Sponge - only get the profession once
         final VillagerRegistry.VillagerCareer career = professionForge.getCareer(careerNumberId);
         final IMixinVillagerCareer mixinCareer = (IMixinVillagerCareer) career;
