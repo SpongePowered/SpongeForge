@@ -40,13 +40,11 @@ import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.common.bridge.entity.EntityBridge;
 import org.spongepowered.common.entity.EntityUtil;
-import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
-import org.spongepowered.common.mixin.core.entity.AccessorEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +78,7 @@ public abstract class MixinItemShears_Forge extends Item {
                 // Sponge Start - Handle drops according to the current phase
                 final PhaseContext<?> currentContext = PhaseTracker.getInstance().getCurrentContext();
                 final IPhaseState<?> currentState = currentContext.state;
-                final Random random = ((AccessorEntity) entity).accessor$getRandom();
+                final Random random = entity.getRNG();
                 final double posX = entity.posX;
                 final double posY = entity.posY + 1.0F;
                 final double posZ = entity.posZ;

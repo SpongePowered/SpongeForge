@@ -96,6 +96,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
             Mixins.registerErrorHandlerClass("org.spongepowered.mod.mixin.handler.MixinErrorHandler");
         }
 
+        Mixins.addConfiguration("mixins.forge.api.json");
         Mixins.addConfiguration("mixins.forge.core.json");
         Mixins.addConfiguration("mixins.forge.brokenmods.json");
         Mixins.addConfiguration("mixins.forge.bungeecord.json");

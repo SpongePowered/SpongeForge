@@ -8,6 +8,7 @@
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "forge.common.util.MixinITeleporter_APIForge",
+        "minecraft.server.MixinMinecraftServer_APIForge",
         "minecraft.world.MixinWorldServer_APIForge",
         "minecraft.world.chunk.MixinChunk_APIForge"
     ],

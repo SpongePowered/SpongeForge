@@ -52,12 +52,10 @@ import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
 @Mixin(value = MinecraftServer.class, priority = 1001)
-public abstract class MixinMinecraftServer implements Server, IMixinMinecraftServer {
+public abstract class MixinMinecraftServer_Forge implements IMixinMinecraftServer {
 
     @Shadow @Final private static Logger LOGGER;
     @Shadow @Final private Snooper usageSnooper;
-
-    public ChunkTicketManager chunkTicketManager = new SpongeChunkTicketManager();
 
     @Shadow(remap = false) public Hashtable<Integer, long[]> worldTickTimes;
 
@@ -78,11 +76,6 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
     @Override
     public void removeWorldTickTimes(int dimensionId) {
         this.worldTickTimes.remove(dimensionId);
-    }
-
-    @Override
-    public ChunkTicketManager getChunkTicketManager() {
-        return this.chunkTicketManager;
     }
 
     @Inject(method = "updateTimeLightAndEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldServer;updateEntities()V", shift = Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
@@ -183,7 +176,7 @@ public abstract class MixinMinecraftServer implements Server, IMixinMinecraftSer
             }
         }
 
-        if (usageSnooper.isSnooperRunning())
+        if (this.usageSnooper.isSnooperRunning())
         {
             this.usageSnooper.stopSnooper();
         }
