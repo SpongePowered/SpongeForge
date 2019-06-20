@@ -114,6 +114,7 @@ import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
 import org.spongepowered.common.registry.type.block.TileEntityTypeRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
+import org.spongepowered.common.util.Constants;
 import org.spongepowered.common.util.SpawnerSpawnType;
 import org.spongepowered.common.util.TristateUtil;
 import org.spongepowered.mod.command.SpongeForgeCommand;
@@ -1053,7 +1054,7 @@ public abstract class MixinSpongeImplHooks {
             final NBTTagCompound caps = capabilities.serializeNBT();
             if (caps != null && !caps.isEmpty()) {
                 final DataContainer capsView = NbtTranslator.getInstance().translate(caps);
-                container.set(DataQueries.Sponge.UNSAFE_NBT.then(NbtDataUtil.FORGE_CAPS), capsView);
+                container.set(DataQueries.Sponge.UNSAFE_NBT.then(Constants.Forge.FORGE_CAPS), capsView);
             }
         }
     }

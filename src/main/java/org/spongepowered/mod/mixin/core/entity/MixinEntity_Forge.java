@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.entity;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.ITeleporter;
@@ -33,6 +34,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.bridge.data.DataCompoundHolder;
 import org.spongepowered.common.bridge.entity.EntityBridge;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.bridge.world.TeleporterBridge;
@@ -44,18 +46,27 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = Entity.class, priority = 1001)
-public abstract class MixinEntity_Forge implements EntityBridge {
+public abstract class MixinEntity_Forge implements EntityBridge, DataCompoundHolder {
 
     @Shadow public net.minecraft.world.World world;
     @Shadow public boolean isDead;
+    @Shadow public int dimension;
+    @Shadow(remap = false) @Nullable private NBTTagCompound customEntityData;
     @Shadow(remap = false) public ArrayList<EntityItem> capturedDrops = new WrappedArrayList((Entity) (Object) this, new ArrayList<>());
 
     @Shadow protected abstract void setSize(float width, float height);
-
-
     @Shadow @Nullable public abstract MinecraftServer getServer();
+    @Shadow(remap = false) public abstract NBTTagCompound getEntityData();
 
-    @Shadow public int dimension;
+    @Override
+    public boolean data$hasRootCompound() {
+        return this.customEntityData != null;
+    }
+
+    @Override
+    public NBTTagCompound data$getRootCompound() {
+        return getEntityData();
+    }
 
     /**
      * @author Zidane - June 2019 - 1.12.2
