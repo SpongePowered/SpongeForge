@@ -460,17 +460,6 @@ public class SpongeMod extends MetaModContainer {
 
 
     @SubscribeEvent
-    public void onChunkWatchEvent(ChunkWatchEvent event) {
-        EntityBridge spongeEntity = (EntityBridge) event.getPlayer();
-
-        if (spongeEntity.isTeleporting()) {
-            spongeEntity.getTeleportVehicle().getPassengers().add(event.getPlayer());
-            spongeEntity.setTeleportVehicle(null);
-            spongeEntity.setIsTeleporting(false);
-        }
-    }
-
-    @SubscribeEvent
     public void onEntityDeathEvent(LivingDeathEvent event) {
         SpongeHooks.logEntityDeath(event.getEntity());
     }

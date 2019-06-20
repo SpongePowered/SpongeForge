@@ -97,7 +97,6 @@ public abstract class MixinForgeHooks {
      * @author blood - July 15th, 2018
      * @reason Overwritten to inject our InteractItemEvent.
      * @param player The player
-     * @param hand The hand used
      */
     @Overwrite
     public static PlayerInteractEvent.LeftClickBlock onLeftClickBlock(EntityPlayer player, BlockPos pos, EnumFacing face, Vec3d hitVec)
@@ -213,7 +212,7 @@ public abstract class MixinForgeHooks {
         final Object source = context.getSource() == null ? player : context.getSource();
         if (!phaseState.isInteraction()) {
             // Sponge Start - Add the changeblockevent.pre check here before we bother with item stacks.
-            if (world instanceof ServerWorldBridge && !((WorldBridge) world).isFake() && SpongeImplHooks.isMainThread()) {
+            if (world instanceof WorldBridge && !((WorldBridge) world).isFake() && SpongeImplHooks.isMainThread()) {
                 try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                     // Might as well provide the active item in use.
                     frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));
