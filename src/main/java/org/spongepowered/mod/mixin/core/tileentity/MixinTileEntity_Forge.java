@@ -47,7 +47,7 @@ public abstract class MixinTileEntity_Forge implements DataCompoundHolder {
 
     @Shadow(remap = false) private NBTTagCompound customTileData;
 
-    @Shadow public abstract NBTTagCompound getTileData();
+    @Shadow(remap = false) public abstract NBTTagCompound getTileData();
 
     private boolean forge$isGettingTileData = false;
     private static final Set<TileEntityType> REPORTED_RECURSIVE_TILES = new ConcurrentSet<>();

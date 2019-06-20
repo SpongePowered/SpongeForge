@@ -51,14 +51,12 @@ import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
-@Mixin(value = MinecraftServer.class, priority = 1001)
+@Mixin(value = MinecraftServer.class, priority = 1002)
 public abstract class MixinMinecraftServer_Forge implements IMixinMinecraftServer {
 
     @Shadow @Final private static Logger LOGGER;
     @Shadow @Final private Snooper usageSnooper;
-
     @Shadow(remap = false) public Hashtable<Integer, long[]> worldTickTimes;
-
     @Shadow private boolean serverIsRunning;
 
     @Shadow public abstract PlayerProfileCache getPlayerProfileCache();
