@@ -41,7 +41,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.block.BlockUtil;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
@@ -138,7 +137,7 @@ public abstract class MixinBlockFluidClassic extends MixinBlockFluidBase {
 
             // Transaction modified?
             if (transaction.getCustom().isPresent()) {
-                return targetWorld.setBlockState(targetPos, BlockUtil.toNative(transaction.getFinal().getState()), Constants.BlockFlags.DEFAULT);
+                return targetWorld.setBlockState(targetPos, (IBlockState) transaction.getFinal().getState(), Constants.BlockFlags.DEFAULT);
             }
         }
 

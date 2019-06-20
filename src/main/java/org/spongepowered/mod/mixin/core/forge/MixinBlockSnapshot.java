@@ -60,7 +60,7 @@ public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
     public BlockSnapshot createSpongeBlockSnapshot() {
         Location<World> location = new Location<>((World) this.getWorld(), VecHelper.toVector3i(this.pos));
         SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
-        builder.blockState((BlockState) this.replacedBlock)
+        builder.blockState(this.replacedBlock)
                 .worldId(location.getExtent().getUniqueId())
                 .position(location.getBlockPosition());
         if (this.nbt != null) {
