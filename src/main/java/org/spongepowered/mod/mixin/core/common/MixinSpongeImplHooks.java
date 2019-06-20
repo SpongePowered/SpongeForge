@@ -117,6 +117,7 @@ import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.common.util.Constants;
 import org.spongepowered.common.util.SpawnerSpawnType;
 import org.spongepowered.common.util.TristateUtil;
+import org.spongepowered.mod.bridge.PseudoForgeItemStackBridge;
 import org.spongepowered.mod.command.SpongeForgeCommandFactory;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.SpongeToForgeEventData;
@@ -1049,7 +1050,7 @@ public abstract class MixinSpongeImplHooks {
     @SuppressWarnings("ConstantConditions")
     @Overwrite
     public static void writeItemStackCapabilitiesToDataView(DataContainer container, net.minecraft.item.ItemStack stack) {
-        final CapabilityDispatcher capabilities = ((AccessorForgeItemStack) (Object) stack).accessor$getCapabilities();
+        final CapabilityDispatcher capabilities = ((PseudoForgeItemStackBridge) (Object) stack).pseudo$getCapabilities();
         if (capabilities != null) {
             final NBTTagCompound caps = capabilities.serializeNBT();
             if (caps != null && !caps.isEmpty()) {

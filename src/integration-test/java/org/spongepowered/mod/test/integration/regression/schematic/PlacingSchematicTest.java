@@ -100,9 +100,12 @@ public class PlacingSchematicTest extends BaseTest {
             player.offer(Keys.GAME_MODE, GameModes.CREATIVE);
             player.offer(Keys.IS_FLYING, true);
             player.setLocation(new Location<>(schematica, 0, 64, 0));
-
-            File inputFile = new File(this.getClass().getClassLoader().getResource("placement.schematic").getFile());
-            DataContainer container = DataFormats.NBT.readFrom(new GZIPInputStream(new FileInputStream(inputFile)));
+            final DataContainer container;
+            try (final GZIPInputStream stream = new GZIPInputStream(this.getClass().getClassLoader().getResourceAsStream("placement.schematic"))) {
+                container = DataFormats.NBT.readFrom(stream);
+            } catch (Exception e) {
+                throw new AssertionError("Failed to load schematic file", e);
+            }
             final Schematic toPlace = DataTranslators.SCHEMATIC.translate(container);
             final Location<World> location = player.getLocation();
             toPlace.apply(location, BlockChangeFlags.NONE);

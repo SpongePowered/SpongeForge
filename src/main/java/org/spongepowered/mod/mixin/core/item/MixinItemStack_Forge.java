@@ -25,14 +25,19 @@
 package org.spongepowered.mod.mixin.core.item;
 
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.mod.bridge.PseudoForgeItemStackBridge;
 
 @Mixin(net.minecraft.item.ItemStack.class)
-public abstract class MixinItemStack_Forge {
+public abstract class MixinItemStack_Forge implements PseudoForgeItemStackBridge {
+
+    @Shadow(remap = false) private CapabilityDispatcher capabilities;
 
     /**
      * @author gabizou - June 10th, 2019 - 1.12.2
@@ -64,4 +69,8 @@ public abstract class MixinItemStack_Forge {
         return true;
     }
 
+    @Override
+    public CapabilityDispatcher pseudo$getCapabilities() {
+        return this.capabilities;
+    }
 }
