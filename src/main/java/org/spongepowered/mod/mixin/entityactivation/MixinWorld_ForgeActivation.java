@@ -31,17 +31,18 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.bridge.world.ChunkBridge;
 import org.spongepowered.common.bridge.entity.EntityBridge;
-import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
+import org.spongepowered.common.bridge.world.WorldBridge;
+import org.spongepowered.common.bridge.world.chunk.ActiveChunkReferantBridge;
+import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
 import org.spongepowered.common.mixin.plugin.entityactivation.EntityActivationRange;
 import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.ActivationCapability;
 import org.spongepowered.common.relocate.co.aikar.timings.TimingHistory;
 
 @NonnullByDefault
 @Mixin(value = net.minecraft.world.World.class, priority = 999)
-public abstract class MixinWorld_Activation implements WorldBridge {
+public abstract class MixinWorld_ForgeActivation implements WorldBridge {
 
 
     @Shadow public abstract void updateEntity(Entity ent);
@@ -127,7 +128,7 @@ public abstract class MixinWorld_Activation implements WorldBridge {
         if (!entityIn.addedToChunk || entityIn.chunkCoordX != l || entityIn.chunkCoordY != i1 || entityIn.chunkCoordZ != j1)
         {
             // Sponge start - use cached chunk
-            final Chunk activeChunk = (Chunk) ((EntityBridge) entityIn).getActiveChunk();
+            final Chunk activeChunk = (Chunk) ((ActiveChunkReferantBridge) entityIn).bridge$getActiveChunk();
             if (activeChunk != null)
             {
                 activeChunk.removeEntityAtIndex(entityIn, entityIn.chunkCoordY);

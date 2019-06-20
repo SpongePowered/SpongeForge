@@ -7,7 +7,7 @@
     "compatibilityLevel": "JAVA_8",
     "server": [
         "MixinEntityItem_Activation",
-        "MixinWorld_Activation"
+        "MixinWorld_ForgeActivation"
     ],
     "injectors": {
         "defaultRequire": 1
