@@ -42,9 +42,9 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
-import org.spongepowered.common.interfaces.world.IMixinWorldSettings;
+import org.spongepowered.common.bridge.world.WorldInfoBridge;
+import org.spongepowered.common.bridge.world.WorldSettingsBridge;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
@@ -163,7 +163,7 @@ public abstract class MixinDimensionManager {
                     SpongeImpl.getLogger().warn("World {} ({}/{}) (HASH: {}) may have leaked. Encountered [{}] times",
                         worldServer.getWorldInfo().getWorldName(),
                         ((org.spongepowered.api.world.DimensionType) (Object) worldServer.provider.getDimensionType()).getId(),
-                        ((IMixinWorldServer) worldServer).getDimensionId(), hashCode, leakCount);
+                        ((ServerWorldBridge) worldServer).bridge$getDimensionId(), hashCode, leakCount);
                 }
             }
         }
@@ -252,12 +252,12 @@ public abstract class MixinDimensionManager {
                         .keepsSpawnLoaded(dimensionType.shouldLoadSpawn());
                 archetype = builder.build(modId + ":" + dimensionType.getName().toLowerCase(), dimensionType.getName());
             }
-            IMixinWorldSettings worldSettings = (IMixinWorldSettings) archetype;
-            worldSettings.setDimensionType((org.spongepowered.api.world.DimensionType) (Object) dimensionType);
-            worldSettings.setLoadOnStartup(false);
+            WorldSettingsBridge worldSettings = (WorldSettingsBridge) archetype;
+            worldSettings.bridge$setDimensionType((org.spongepowered.api.world.DimensionType) (Object) dimensionType);
+            worldSettings.bridge$setLoadOnStartup(false);
             properties = WorldManager.createWorldProperties(worldFolder, archetype, dim);
-            ((IMixinWorldInfo) properties).setDimensionId(dim);
-            ((IMixinWorldInfo) properties).setIsMod(true);
+            ((WorldInfoBridge) properties).setDimensionId(dim);
+            ((WorldInfoBridge) properties).setIsMod(true);
         }
         if (!properties.isEnabled()) {
             return;

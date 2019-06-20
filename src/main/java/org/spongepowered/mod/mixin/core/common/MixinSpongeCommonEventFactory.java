@@ -26,11 +26,8 @@ package org.spongepowered.mod.mixin.core.common;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.util.DamageSource;
-import net.minecraftforge.items.wrapper.InvWrapper;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
-import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,13 +44,6 @@ public abstract class MixinSpongeCommonEventFactory {
     private static void onCallDestructEntityEventDeath(EntityLivingBase entity, DamageSource source, boolean isMainThread, CallbackInfoReturnable<Optional<DestructEntityEvent.Death>> cir) {
         if (net.minecraftforge.common.ForgeHooks.onLivingDeath(entity, source)) {
             cir.setReturnValue(Optional.empty());
-        }
-    }
-
-    @Inject(method = "toInventory", at = @At("HEAD"), cancellable = true)
-    private static void onToInventory(IInventory inventory, CallbackInfoReturnable<Inventory> cir) {
-        if (!(inventory instanceof Inventory)) {
-            cir.setReturnValue(((Inventory) new InvWrapper(inventory)));
         }
     }
 

@@ -24,6 +24,8 @@
  */
 package org.spongepowered.mod.world.gen;
 
+import org.spongepowered.common.bridge.world.WorldBridge;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimingsFactory;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
@@ -95,8 +97,6 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
 import org.spongepowered.common.event.tracking.phase.generation.PopulatorPhaseContext;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.interfaces.world.gen.IGenerationPopulator;
 import org.spongepowered.common.util.VecHelper;
@@ -141,7 +141,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             chunkGeneratorName = "chunkGenerator (" + modId + ":" + generationPopulator.getClass().getSimpleName().toLowerCase() + ")";
         }
 
-        this.chunkGeneratorTiming = SpongeTimingsFactory.ofSafe(chunkGeneratorName, ((IMixinWorldServer) world).getTimingsHandler().chunkPopulate);
+        this.chunkGeneratorTiming = SpongeTimingsFactory.ofSafe(chunkGeneratorName, ((ServerWorldBridge) world).bridge$getTimingsHandler().chunkPopulate);
     }
 
     @Override
@@ -178,7 +178,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         if (biome == null) {
             // We have a failure of stupidity at this point. We can't crash the game, and clearly, a mod
             // is failing to provide us with a proper biome, so, we've got to "reverse" and delegate back to the mod.
-            if (!((IMixinWorld) this.world).isFake()) {
+            if (!((WorldBridge) this.world).isFake()) {
                 DimensionType type = (DimensionType) (Object) ((org.spongepowered.api.world.World) this.world).getDimension().getType();
                 try {
                     this.moddedGeneratorFallback = type.createDimension().createChunkGenerator();
@@ -310,7 +310,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
         BlockFalling.fallInstantly = false;
         this.chunkGeneratorTiming.stopTimingIfSync();
-        ((IMixinWorldServer) spongeWorld).getTimingsHandler().chunkPopulate.stopTimingIfSync();
+        ((ServerWorldBridge) spongeWorld).bridge$getTimingsHandler().chunkPopulate.stopTimingIfSync();
     }
 
     @SuppressWarnings("deprecation")

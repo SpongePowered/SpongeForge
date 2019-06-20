@@ -24,12 +24,15 @@
  */
 package org.spongepowered.mod.mixin.core.common;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.crash.CrashReport;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -44,6 +47,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
@@ -63,6 +67,7 @@ import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -76,8 +81,11 @@ import org.apache.logging.log4j.Level;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.tileentity.TileEntityType;
 import org.spongepowered.api.command.args.ChildCommandElementExecutor;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.type.Profession;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.crafting.CraftingGridInventory;
@@ -89,21 +97,24 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.command.SpongeCommandFactory;
-import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.data.persistence.NbtTranslator;
+import org.spongepowered.common.data.util.DataQueries;
+import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
-import org.spongepowered.common.interfaces.block.tile.IMixinTileEntity;
-import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
+import org.spongepowered.common.bridge.tileentity.TileEntityBridge;
 import org.spongepowered.common.interfaces.world.IMixinDimensionType;
-import org.spongepowered.common.interfaces.world.IMixinITeleporter;
+import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
+import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
 import org.spongepowered.common.registry.type.block.TileEntityTypeRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
+import org.spongepowered.common.util.Constants;
 import org.spongepowered.common.util.SpawnerSpawnType;
 import org.spongepowered.common.util.TristateUtil;
 import org.spongepowered.mod.command.SpongeForgeCommandFactory;
@@ -114,6 +125,7 @@ import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 import org.spongepowered.mod.mixin.core.forge.IMixinVillagerRegistry;
+import org.spongepowered.mod.mixin.core.item.AccessorForgeItemStack;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 import org.spongepowered.mod.util.WrappedArrayList;
@@ -139,6 +151,19 @@ public abstract class MixinSpongeImplHooks {
     @Overwrite
     public static boolean isVanilla() {
         return false;
+    }
+
+    /**
+     * @author gabizou - June 11th, 2019
+     * @reason Forge adds the static variable to WorldServer for modders to be able
+     * to change.... Sponge has to abide by it.
+     *
+     * @param mixinWorldServer The server
+     * @return The max radius
+     */
+    @Overwrite
+    public static double getWorldMaxEntityRadius(WorldServer mixinWorldServer) {
+        return WorldServer.MAX_ENTITY_RADIUS;
     }
 
     /**
@@ -360,7 +385,7 @@ public abstract class MixinSpongeImplHooks {
      * @reason Forge compatibility
      */
     @Overwrite
-    public static void registerPortalAgentType(@Nullable IMixinITeleporter teleporter) {
+    public static void registerPortalAgentType(@Nullable ForgeITeleporterBridge teleporter) {
         if (teleporter == null) {
             return;
         }
@@ -717,8 +742,8 @@ public abstract class MixinSpongeImplHooks {
      * @return The modifier based on forge hooks.
      */
     @Overwrite
-    public static int getLootingEnchantmentModifier(IMixinEntityLivingBase mixinEntityLivingBase, EntityLivingBase entity, DamageSource cause) {
-        return ForgeHooks.getLootingLevel(EntityUtil.toNative(mixinEntityLivingBase), entity, cause);
+    public static int getLootingEnchantmentModifier(EntityLivingBase mixinEntityLivingBase, EntityLivingBase entity, DamageSource cause) {
+        return ForgeHooks.getLootingLevel(mixinEntityLivingBase, entity, cause);
     }
 
     /**
@@ -795,6 +820,12 @@ public abstract class MixinSpongeImplHooks {
         net.minecraftforge.server.timings.TimeTracker.ENTITY_UPDATE.trackEnd(entity);
     }
 
+    /**
+     * @author unknown
+     * @reason Use "spongeforge" as the implementation id.
+     *
+     * @return "spongeforge" for SpongeForge
+     */
     @Overwrite
     public static String getImplementationId() {
         return "spongeforge";
@@ -810,7 +841,7 @@ public abstract class MixinSpongeImplHooks {
      */
     @SuppressWarnings("unchecked")
     @Overwrite
-    public static TileEntityType getTileEntityType(Class<? extends IMixinTileEntity> aClass) {
+    public static TileEntityType getTileEntityType(Class<? extends TileEntityBridge> aClass) {
         final ResourceLocation location = TileEntity.REGISTRY.getNameForObject((Class<? extends TileEntity>) aClass);
         if (location == null) {
             // Means it's not properly registered either....
@@ -956,9 +987,11 @@ public abstract class MixinSpongeImplHooks {
      * @param entity The vanilla entity item
      * @return The custom item entity for the dropped item
      */
+    @Nullable
     @Overwrite
     public static Entity getCustomEntityIfItem(Entity entity) {
-        final net.minecraft.item.ItemStack stack = EntityUtil.getItem(entity);
+        final net.minecraft.item.ItemStack stack =
+            entity instanceof EntityItem ? ((EntityItem) entity).getItem() : net.minecraft.item.ItemStack.EMPTY;
         final Item item = stack.getItem();
 
         if (item.hasCustomEntity(stack)) {
@@ -972,4 +1005,86 @@ public abstract class MixinSpongeImplHooks {
         return entity;
     }
 
+    /**
+     * @author gabizou - June 10th, 2019 - 1.12.2
+     * @reason Forge supports replacing registry entries,
+     * and for Items, that's being done pretty much by half the
+     * larger library mods out there.
+     *
+     * @param mixinItem_api The item
+     * @return The resource location
+     */
+    @Overwrite
+    @Nullable
+    public static ResourceLocation getItemResourceLocation(Item mixinItem_api) {
+        return mixinItem_api.getRegistryName();
+    }
+
+    /**
+     * @author gabizou - June 10th, 2019 - 1.12.2
+     * @reason Forge supports item registration replacements, we have to abide
+     * by that.
+     *
+     * @param id The numerical id
+     * @param name The item name/id being registered to like "minecraft:diamond_sword"
+     * @param item The item
+     */
+    @Overwrite
+    public static void registerItemForSpongeRegistry(int id, ResourceLocation name, Item item) {
+        final Item registered;
+        final ResourceLocation nameForObject = Item.REGISTRY.getNameForObject(item);
+        if (nameForObject == null) {
+            registered = checkNotNull(Item.REGISTRY.getObject(name), "Someone replaced a vanilla item with a null item!!!");
+        } else {
+            registered = item;
+        }
+        ItemTypeRegistryModule.getInstance().registerAdditionalCatalog((ItemType) registered);
+    }
+
+    /**
+     * @author gabizou - June 10th, 2019
+     * @reason Access forge capabilities to write to DataView
+     * for the implementation of {@link ItemStack#toContainer()}.
+     */
+    @SuppressWarnings("ConstantConditions")
+    @Overwrite
+    public static void writeItemStackCapabilitiesToDataView(DataContainer container, net.minecraft.item.ItemStack stack) {
+        final CapabilityDispatcher capabilities = ((AccessorForgeItemStack) (Object) stack).accessor$getCapabilities();
+        if (capabilities != null) {
+            final NBTTagCompound caps = capabilities.serializeNBT();
+            if (caps != null && !caps.isEmpty()) {
+                final DataContainer capsView = NbtTranslator.getInstance().translate(caps);
+                container.set(DataQueries.Sponge.UNSAFE_NBT.then(Constants.Forge.FORGE_CAPS), capsView);
+            }
+        }
+    }
+
+    /**
+     * @author gabizou - June 10th, 2019
+     * @reason Forge adds some changes to allow enchantments on items or books.
+     *
+     * @param enchantment The enchantment
+     * @param stack The item stack
+     * @return True if it can be applied
+     */
+    @Overwrite
+    public static boolean canEnchantmentBeAppliedToItem(Enchantment enchantment, net.minecraft.item.ItemStack stack) {
+        return (stack.getItem() == ItemTypes.BOOK) ? enchantment.isAllowedOnBooks() : enchantment.canApply((net.minecraft.item.ItemStack) (Object) stack);
+    }
+
+    /**
+     * @author gabizou - June 10th, 2019
+     * @reason Forge adds capabilities and we need to deserialize them
+     * from the compound.
+     *
+     * @param stack The item stack
+     * @param compoundTag The compound tag
+     */
+    @Overwrite
+    public static void setCapabilitiesFromSpongeBuilder(ItemStack stack, NBTTagCompound compoundTag) {
+        final CapabilityDispatcher capabilities = ((AccessorForgeItemStack) stack).accessor$getCapabilities();
+        if (capabilities != null) {
+            capabilities.deserializeNBT(compoundTag);
+        }
+    }
 }

@@ -31,7 +31,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fluids.BlockFluidClassic;
-import org.apache.logging.log4j.core.config.plugins.validation.Constraint;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.CauseStackManager;
@@ -43,13 +42,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.block.BlockUtil;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -60,7 +59,7 @@ import javax.annotation.Nullable;
 public abstract class MixinBlockFluidClassic extends MixinBlockFluidBase {
 
     @Override
-    public BiConsumer<CauseStackManager.StackFrame, IMixinWorldServer> getTickFrameModifier() {
+    public BiConsumer<CauseStackManager.StackFrame, ServerWorldBridge> getTickFrameModifier() {
         return (frame, world) -> frame.addContext(EventContextKeys.LIQUID_FLOW, (org.spongepowered.api.world.World) world);
     }
 
@@ -69,8 +68,8 @@ public abstract class MixinBlockFluidClassic extends MixinBlockFluidBase {
         cancellable = true
     )
     private void onUpdateTickCheckSpongePre(World world, BlockPos pos, IBlockState state, Random rand, CallbackInfo ci) {
-        if (!((IMixinWorld) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos).isCancelled()) {
+        if (!((WorldBridge) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
+            if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
                 ci.cancel();
             }
         }
@@ -118,7 +117,7 @@ public abstract class MixinBlockFluidClassic extends MixinBlockFluidBase {
         constraints = "FORGE(2821+)"
     )
     private boolean afterCanFlowInto(World targetWorld, BlockPos targetPos, IBlockState newLiquidState, World world, BlockPos pos, int meta) {
-        if (((IMixinWorld) targetWorld).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_BREAK) { // Check if we even need to fire.
+        if (((WorldBridge) targetWorld).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_BREAK) { // Check if we even need to fire.
             return world.setBlockState(targetPos, newLiquidState, Constants.BlockFlags.DEFAULT);
         }
 

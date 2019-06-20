@@ -25,10 +25,9 @@
 package org.spongepowered.mod.interfaces;
 
 import net.minecraft.village.MerchantRecipeList;
-import net.minecraftforge.fml.common.registry.VillagerRegistry;
-import org.spongepowered.common.interfaces.entity.IMixinVillager;
+import org.spongepowered.common.bridge.entity.EntityVillagerBridge;
 
-public interface IMixinEntityVillagerForge extends IMixinVillager {
+public interface IMixinEntityVillagerForge extends EntityVillagerBridge {
 
     MerchantRecipeList getForgeTrades();
 

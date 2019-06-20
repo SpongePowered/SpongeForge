@@ -26,10 +26,10 @@ package org.spongepowered.mod.mixin.core.fml.common.registry;
 
 import net.minecraft.block.BlockAir;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.interfaces.block.IMixinBlock;
+import org.spongepowered.common.bridge.block.BlockBridge;
 
 @Mixin(targets = "net/minecraftforge/registries/GameData$BlockCallbacks$BlockDummyAir")
-public abstract class MixinBlockDummyAir extends BlockAir implements IMixinBlock {
+public abstract class MixinBlockDummyAir extends BlockAir implements BlockBridge {
 
     @Override
     public boolean isDummy() {

@@ -31,12 +31,12 @@ import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
+import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
 
 import javax.annotation.Nullable;
 
 @Mixin(ChunkProviderClient.class)
-public abstract class MixinChunkProviderClient implements IMixinChunkProviderServer {
+public abstract class MixinChunkProviderClient implements ServerChunkProviderBridge {
 
     @Shadow @Final private Long2ObjectMap<Chunk> loadedChunks;
 

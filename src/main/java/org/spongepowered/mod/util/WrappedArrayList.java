@@ -26,12 +26,8 @@ package org.spongepowered.mod.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
-import org.spongepowered.common.event.tracking.PhaseTracker;
-import org.spongepowered.common.event.tracking.phase.entity.EntityPhase;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

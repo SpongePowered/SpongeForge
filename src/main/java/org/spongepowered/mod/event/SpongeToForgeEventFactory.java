@@ -105,14 +105,14 @@ import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.UnwindingPhaseContext;
 import org.spongepowered.common.event.tracking.phase.packet.PacketContext;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.gen.IMixinChunkProviderServer;
+import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
@@ -131,6 +131,7 @@ import java.util.stream.Collectors;
 
 //This class handles events initiated by Sponge plugins.
 //It is primarily responsible for firing a corresponding Forge event to mods.
+@SuppressWarnings("deprecation")
 public class SpongeToForgeEventFactory {
 
     static final IMixinEventBus forgeEventBus = ((IMixinEventBus) MinecraftForge.EVENT_BUS);
@@ -439,7 +440,7 @@ public class SpongeToForgeEventFactory {
             BlockPos pos = VecHelper.toBlockPos(spongeEvent.getTargetBlock().getPosition());
             EnumFacing face = DirectionFacingProvider.getInstance().get(spongeEvent.getTargetSide()).orElse(null);
             Vec3d hitVec = null;
-            final EntityPlayerMP entityPlayerMP = EntityUtil.toNative(player);
+            final EntityPlayerMP entityPlayerMP = (EntityPlayerMP) player;
             if (spongeEvent.getInteractionPoint().isPresent()) {
                 hitVec = VecHelper.toVec3d(spongeEvent.getInteractionPoint().get());
             }
@@ -481,7 +482,7 @@ public class SpongeToForgeEventFactory {
             }
 
             final EnumHand hand = spongeEvent instanceof InteractItemEvent.Secondary.MainHand ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
-            forgeEvent = new PlayerInteractEvent.RightClickItem(EntityUtil.toNative(player), hand);
+            forgeEvent = new PlayerInteractEvent.RightClickItem((EntityPlayerMP) player, hand);
             eventData.setForgeEvent(forgeEvent);
         }
 
@@ -563,7 +564,7 @@ public class SpongeToForgeEventFactory {
                 } else {
                     // Re-sync entity list from forge to sponge
                     spongeEvent.getEntities().removeAll(items);
-                    spongeEvent.getEntities().addAll(forgeEvent.getDrops().stream().map(EntityUtil::fromNative).collect(Collectors.toList()));
+                    spongeEvent.getEntities().addAll(forgeEvent.getDrops().stream().map(entity -> (org.spongepowered.api.entity.Entity) entity).collect(Collectors.toList()));
                 }
             }
         }
@@ -628,7 +629,7 @@ public class SpongeToForgeEventFactory {
     }
 
     private static void handleCustomEntityFromIterator(ListIterator<org.spongepowered.api.entity.Entity> it, Entity entity) {
-        final ItemStack stack =  EntityUtil.getItem(entity);
+        final ItemStack stack = entity instanceof EntityItem ? ((EntityItem) entity).getItem() : ItemStack.EMPTY;
         final Item item = stack.getItem();
 
         if (item.hasCustomEntity(stack)) {
@@ -719,6 +720,7 @@ public class SpongeToForgeEventFactory {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean createAndPostBlockPlaceEvent(SpongeToForgeEventData eventData) {
         final ChangeBlockEvent.Place spongeEvent = (ChangeBlockEvent.Place) eventData.getSpongeEvent();
         BlockEvent.PlaceEvent forgeEvent = (BlockEvent.PlaceEvent) eventData.getForgeEvent();
@@ -792,7 +794,7 @@ public class SpongeToForgeEventFactory {
         net.minecraftforge.event.world.ExplosionEvent.Start forgeEvent = (net.minecraftforge.event.world.ExplosionEvent.Start) eventData.getForgeEvent();
         if (forgeEvent == null) {
             forgeEvent = new net.minecraftforge.event.world.ExplosionEvent.Start(
-                    ((net.minecraft.world.World) spongeEvent.getTargetWorld()), ((Explosion) ((ExplosionEvent.Pre) spongeEvent).getExplosion()));
+                    ((net.minecraft.world.World) spongeEvent.getTargetWorld()), ((Explosion) spongeEvent.getExplosion()));
             eventData.setForgeEvent(forgeEvent);
         }
         forgeEventBus.post(eventData);
@@ -848,7 +850,7 @@ public class SpongeToForgeEventFactory {
             if (!player.isPresent()) {
                 return false;
             }
-            final EntityPlayerMP entityPlayerMP = EntityUtil.toNative(player.get());
+            final EntityPlayerMP entityPlayerMP = (EntityPlayerMP) player.get();
             final EnumHand hand = entityPlayerMP.getActiveHand();
     
             final EntityPlayer entityPlayer = (EntityPlayer) player.get();
@@ -896,14 +898,14 @@ public class SpongeToForgeEventFactory {
         WorldEvent.Save forgeEvent = (WorldEvent.Save) eventData.getForgeEvent();
         // Since Forge only uses a single save handler, we need to make sure to pass the overworld's handler.
         // This makes sure that mods dont attempt to save/read their data from the wrong location.
-        ((IMixinWorld) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
+        ((WorldBridge) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
         if (forgeEvent == null) {
             forgeEvent = new WorldEvent.Save((net.minecraft.world.World) spongeEvent.getTargetWorld());
             eventData.setForgeEvent(forgeEvent);
         }
 
         forgeEventBus.post(forgeEvent, true);
-        ((IMixinWorld) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(null);
+        ((WorldBridge) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(null);
         return true;
     }
 
@@ -913,16 +915,16 @@ public class SpongeToForgeEventFactory {
         // Since Forge only uses a single save handler, we need to make sure to pass the overworld's handler.
         // This makes sure that mods dont attempt to save/read their data from the wrong location.
         final net.minecraft.world.World minecraftWorld = (net.minecraft.world.World) spongeEvent.getTargetWorld();
-        ((IMixinWorld) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
-        ((IMixinChunkProviderServer) minecraftWorld.getChunkProvider()).setForceChunkRequests(true);
+        ((WorldBridge) spongeEvent.getTargetWorld()).setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
+        ((ServerChunkProviderBridge) minecraftWorld.getChunkProvider()).setForceChunkRequests(true);
         if (forgeEvent == null) {
             forgeEvent = new WorldEvent.Load(minecraftWorld);
             eventData.setForgeEvent(forgeEvent);
         }
 
         forgeEventBus.post(forgeEvent, true);
-        ((IMixinChunkProviderServer) minecraftWorld.getChunkProvider()).setForceChunkRequests(false);
-        ((IMixinWorld) minecraftWorld).setRedirectedWorldInfo(null);
+        ((ServerChunkProviderBridge) minecraftWorld.getChunkProvider()).setForceChunkRequests(false);
+        ((WorldBridge) minecraftWorld).setRedirectedWorldInfo(null);
         return true;
     }
 

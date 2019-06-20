@@ -45,7 +45,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.living.player.Player;
@@ -70,14 +69,14 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.bridge.entity.player.ServerPlayerEntityBridge;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
-import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.network.IMixinNetHandlerPlayServer;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -114,7 +113,7 @@ public abstract class MixinForgeHooks {
         final RayTraceResult result = SpongeImplHooks.rayTraceEyes(player, SpongeImplHooks.getBlockReachDistance((EntityPlayerMP) player));
         final Vector3d vec = result == null ? null : VecHelper.toVector3d(result.hitVec);
         if (SpongeCommonEventFactory.callInteractItemEventPrimary(player, stack, EnumHand.MAIN_HAND, vec, blockSnapshot).isCancelled()) {
-            ((IMixinEntityPlayerMP) player).sendBlockChange(pos, player.world.getBlockState(pos));
+            ((ServerPlayerEntityBridge) player).sendBlockChange(pos, player.world.getBlockState(pos));
             evt.setCanceled(true);
             return evt;
         }
@@ -163,11 +162,11 @@ public abstract class MixinForgeHooks {
         if (stack.isEmpty()) {
             return true;
         }
-        if (SpongeImplHooks.isMainThread() && access instanceof IMixinWorld && !((IMixinWorld) access).isFake()) {
+        if (SpongeImplHooks.isMainThread() && access instanceof WorldBridge && !((WorldBridge) access).isFake()) {
             // If the event is cancelled, return true because then the item was "empty" and therefor, the tool cannot harvest the block.
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(stack));
-                return SpongeCommonEventFactory.callChangeBlockEventPre(((IMixinWorldServer) access), pos).isCancelled();
+                return SpongeCommonEventFactory.callChangeBlockEventPre(((ServerWorldBridge) access), pos).isCancelled();
             }
         }
         return false;
@@ -214,11 +213,11 @@ public abstract class MixinForgeHooks {
         final Object source = context.getSource() == null ? player : context.getSource();
         if (!phaseState.isInteraction()) {
             // Sponge Start - Add the changeblockevent.pre check here before we bother with item stacks.
-            if (world instanceof IMixinWorldServer && !((IMixinWorld) world).isFake() && SpongeImplHooks.isMainThread()) {
+            if (world instanceof ServerWorldBridge && !((WorldBridge) world).isFake() && SpongeImplHooks.isMainThread()) {
                 try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                     // Might as well provide the active item in use.
                     frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));
-                    if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos, source).isCancelled()) {
+                    if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos, source).isCancelled()) {
                         // Since a plugin cancelled it, go ahead and cancel it.
                         return false;
                     }

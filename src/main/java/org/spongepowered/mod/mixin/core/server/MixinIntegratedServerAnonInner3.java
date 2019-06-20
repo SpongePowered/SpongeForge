@@ -49,7 +49,7 @@ public class MixinIntegratedServerAnonInner3 {
      *
      * PlayerQuitEvent must be fired manually just before playerLoggedOut.
      *
-     * @see MixinPlayerList#onFirePlayerLoggedOutCall
+     * @see MixinPlayerList_Forge#onFirePlayerLoggedOutCall
      */
     @ModifyArg(method = "run()V", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/management/PlayerList;playerLoggedOut(Lnet/minecraft/entity/player/EntityPlayerMP;)V"))

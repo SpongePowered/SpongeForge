@@ -55,11 +55,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.plugin.PluginPhase;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.mod.SpongeModPlatform;
 import org.spongepowered.mod.event.ForgeToSpongeEventData;
 import org.spongepowered.mod.event.ForgeToSpongeEventFactory;
@@ -102,7 +102,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
         if (event instanceof TickEvent.WorldTickEvent) {
             final TickEvent.WorldTickEvent worldTickEvent = (TickEvent.WorldTickEvent) event;
             final World world = worldTickEvent.world;
-            if (world == null || ((IMixinWorld) world).isFake()) {
+            if (world == null || ((WorldBridge) world).isFake()) {
                 return null;
             }
             if (worldTickEvent.phase == TickEvent.Phase.START) {

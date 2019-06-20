@@ -35,11 +35,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
 import net.minecraftforge.fml.client.FMLFolderResourcePack;
 import net.minecraftforge.fml.common.CertificateHelper;
@@ -88,6 +90,8 @@ import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeInternalListeners;
+import org.spongepowered.common.bridge.entity.EntityBridge;
+import org.spongepowered.common.bridge.world.ChunkBridge;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
@@ -96,8 +100,9 @@ import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.inject.SpongeGuice;
 import org.spongepowered.common.inject.SpongeModule;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
-import org.spongepowered.common.interfaces.block.IMixinBlock;
+import org.spongepowered.common.bridge.block.BlockBridge;
 import org.spongepowered.common.interfaces.world.biome.IMixinBiome;
+import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
 import org.spongepowered.common.item.recipe.crafting.DelegateSpongeCraftingRecipe;
 import org.spongepowered.common.item.recipe.crafting.SpongeCraftingRecipeRegistry;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
@@ -108,7 +113,6 @@ import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.registry.type.item.EnchantmentRegistryModule;
 import org.spongepowered.common.registry.type.item.PotionTypeRegistryModule;
-import org.spongepowered.common.registry.type.world.gen.BiomeTypeRegistryModule;
 import org.spongepowered.common.registry.type.world.gen.PopulatorTypeRegistryModule;
 import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
@@ -117,7 +121,6 @@ import org.spongepowered.common.service.sql.SqlServiceImpl;
 import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
-import org.spongepowered.mod.event.SpongeEventHooks;
 import org.spongepowered.mod.inject.SpongeForgeModule;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
@@ -130,7 +133,6 @@ import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.Certificate;
@@ -138,6 +140,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+@SuppressWarnings("UnstableApiUsage")
 public class SpongeMod extends MetaModContainer {
 
     public static SpongeMod instance;
@@ -218,7 +221,7 @@ public class SpongeMod extends MetaModContainer {
         PhaseTracker.SERVER.init(); // Needs to occur after the game registry registers all the builders.
         SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (owner, manager, id, obj, oldObj) -> {
             final ResourceLocation key = ForgeRegistries.BLOCKS.getKey(obj);
-            if (key == null || ((IMixinBlock) obj).isDummy()) {
+            if (key == null || ((BlockBridge) obj).isDummy()) {
                 return;
             }
             BlockTypeRegistryModule.getInstance().registerFromGameData(key.toString(), (BlockType) obj);
@@ -394,8 +397,6 @@ public class SpongeMod extends MetaModContainer {
 
             Preconditions.checkArgument(Class.forName("org.spongepowered.api.entity.ai.task.AbstractAITask").getSuperclass().equals(SpongeEntityAICommonSuperclass.class));
 
-            MinecraftForge.EVENT_BUS.register(new SpongeEventHooks());
-
             SpongeInternalListeners.getInstance().registerServiceCallback(PermissionService.class,
                     input -> input.registerContextCalculator(new SpongeContextCalculator()));
 
@@ -454,6 +455,41 @@ public class SpongeMod extends MetaModContainer {
         for (EntityTypeRegistryModule.FutureRegistration registration : EntityTypeRegistryModule.getInstance().getCustomEntities()) {
             EntityRegistry.registerModEntity(registration.name, registration.type, registration.name.getPath(), registration.id,
                     registration.name.getNamespace(), 0, 0, false);
+        }
+    }
+
+
+    @SubscribeEvent
+    public void onChunkWatchEvent(ChunkWatchEvent event) {
+        EntityBridge spongeEntity = (EntityBridge) event.getPlayer();
+
+        if (spongeEntity.isTeleporting()) {
+            spongeEntity.getTeleportVehicle().getPassengers().add(event.getPlayer());
+            spongeEntity.setTeleportVehicle(null);
+            spongeEntity.setIsTeleporting(false);
+        }
+    }
+
+    @SubscribeEvent
+    public void onEntityDeathEvent(LivingDeathEvent event) {
+        SpongeHooks.logEntityDeath(event.getEntity());
+    }
+
+    @SubscribeEvent
+    public void onForceChunk(ForgeChunkManager.ForceChunkEvent event) {
+        final net.minecraft.world.chunk.Chunk chunk = ((ServerChunkProviderBridge) event.getTicket().world.getChunkProvider())
+            .getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
+        if (chunk != null) {
+            ((ChunkBridge) chunk).setPersistedChunk(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onUnforceChunk(ForgeChunkManager.UnforceChunkEvent event) {
+        final net.minecraft.world.chunk.Chunk chunk = ((ServerChunkProviderBridge) event.getTicket().world.getChunkProvider())
+            .getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
+        if (chunk != null) {
+            ((ChunkBridge) chunk).setPersistedChunk(false);
         }
     }
 
@@ -528,7 +564,7 @@ public class SpongeMod extends MetaModContainer {
     }
 
     @Subscribe
-    public void onServerStopped(FMLServerStoppedEvent event) throws IOException {
+    public void onServerStopped(FMLServerStoppedEvent event) {
         try {
             CommandManager service = this.game.getCommandManager();
             service.getCommands().stream().filter(mapping -> mapping.getCallable() instanceof MinecraftCommandWrapper)

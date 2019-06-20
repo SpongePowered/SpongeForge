@@ -45,7 +45,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
-import org.spongepowered.common.interfaces.IMixinInventory;
+import org.spongepowered.common.bridge.inventory.TrackedInventoryBridge;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 
 import javax.annotation.Nullable;
@@ -159,7 +159,7 @@ public abstract class MixinVanillaInventoryCodeHooks {
         if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
             // after putStackInInventoryAllSlots
             if (remainder.isEmpty()) {
-                IMixinInventory capture = InventoryUtil.forCapture(hopper);
+                TrackedInventoryBridge capture = InventoryUtil.forCapture(hopper);
                 if (capture == null) {
                     return;
                 }
@@ -191,7 +191,7 @@ public abstract class MixinVanillaInventoryCodeHooks {
             Object destination, ItemStack dispensedStack, ItemStack remainder) {
         if (ShouldFire.CHANGE_INVENTORY_EVENT_TRANSFER_POST) {
             // after setInventorySlotContents if return false
-            IMixinInventory capture = InventoryUtil.forCapture(dropper);
+            TrackedInventoryBridge capture = InventoryUtil.forCapture(dropper);
             Inventory source = InventoryUtil.toInventory(dropper, null);
             Inventory destInv = InventoryUtil.toInventory(destination, itemHandler);
             SpongeCommonEventFactory.captureTransaction(capture, source, slot, stack);

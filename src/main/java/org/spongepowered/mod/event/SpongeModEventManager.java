@@ -210,7 +210,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .putAll(net.minecraftforge.event.entity.player.PlayerEvent.HarvestCheck.class, ChangeBlockEvent.Modify.class, ChangeBlockEvent.Post.class)
                     .put(PlayerFlyableFallEvent.class, MoveEntityEvent.class)
 
-                    // This event is ignored as we handle it differently on plugin side. See MixinNetHandlerPlayServer for more info.
+                    // This event is ignored as we handle it differently on plugin side. See MixinNetHandlerPlayServer_Forge for more info.
                     //.putAll(PlayerInteractEvent.EntityInteract.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class)
                     .putAll(PlayerInteractEvent.EntityInteractSpecific.class, InteractEntityEvent.Secondary.MainHand.class, InteractEntityEvent.Secondary.OffHand.class)
                     .putAll(PlayerInteractEvent.RightClickBlock.class, InteractBlockEvent.Secondary.MainHand.class, InteractBlockEvent.Secondary.OffHand.class)
@@ -289,7 +289,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             // Fire event to plugins before modifications
             eventData.setBeforeModifications(true);
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-                ForgeToSpongeEventFactory.createAndPostSpongeEvent(eventData);
+                ForgeToSpongeEventFactory.createAndPostSpongeEvent(frame, eventData);
             }
             if (eventData.getSpongeEvent() == null) {
                 // If we were unable to create a valid sponge event, just fire to forge
@@ -303,9 +303,7 @@ public class SpongeModEventManager extends SpongeEventManager {
 
             final SpongeToForgeEventData spongeEventData = new SpongeToForgeEventData(eventData);
             // Sync and fire event to mods
-            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-                SpongeToForgeEventFactory.createAndPostForgeEvent(spongeEventData);
-            }
+            SpongeToForgeEventFactory.createAndPostForgeEvent(spongeEventData);
         }
 
         // Fire event to plugins after modifications (default)
@@ -313,7 +311,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         eventData.setBeforeModifications(false);
         eventData.setForced(!hasForgeListeners);
         try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-            ForgeToSpongeEventFactory.createAndPostSpongeEvent(eventData);
+            ForgeToSpongeEventFactory.createAndPostSpongeEvent(frame, eventData);
         }
         ForgeToSpongeEventFactory.onPostEnd(eventData);
         return eventData.getForgeEvent().isCancelable() && eventData.getForgeEvent().isCanceled();
@@ -336,9 +334,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             }
         }
 
-        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-            SpongeToForgeEventFactory.createAndPostForgeEvent(eventData);
-        }
+        SpongeToForgeEventFactory.createAndPostForgeEvent(eventData);
 
         if (hasSpongeListeners) {
             // Some special casing for the spawn events to process custom items.
@@ -358,7 +354,7 @@ public class SpongeModEventManager extends SpongeEventManager {
      * 
      * @param eventData The event data
      */
-    public void postEvent(ForgeToSpongeEventData eventData) {
+    void postEvent(ForgeToSpongeEventData eventData) {
         for (Order order : Order.values()) {
             post(eventData.getSpongeEvent(), eventData.getSpongeListenerCache().getListenersByOrder(order), eventData.isBeforeModifications(), eventData.isForced(), eventData.useCauseStackManager());
         }
@@ -480,7 +476,7 @@ public class SpongeModEventManager extends SpongeEventManager {
     }
 
     public RegisteredListener.Cache getHandlerCache(Class<? extends Event> eventClass) {
-        final EventType<? extends Event> eventType = new EventType(eventClass);
+        final EventType<? extends Event> eventType = new EventType<>(eventClass);
         return this.handlersCache.get(eventType);
     }
 }

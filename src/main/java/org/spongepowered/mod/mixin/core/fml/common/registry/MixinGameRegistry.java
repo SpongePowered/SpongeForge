@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.Map;
@@ -78,7 +78,7 @@ public class MixinGameRegistry {
     private static void onGenerateWorldHead(int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         if (Timings.isTimingsEnabled()) {
-            ((IMixinWorldServer) world).getTimingsHandler().chunkPopulate.startTimingIfSync();
+            ((ServerWorldBridge) world).bridge$getTimingsHandler().chunkPopulate.startTimingIfSync();
         }
     }
 
@@ -86,7 +86,7 @@ public class MixinGameRegistry {
     private static void onGenerateWorldEnd(int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider,
             CallbackInfo ci) {
         if (Timings.isTimingsEnabled()) {
-            ((IMixinWorldServer) world).getTimingsHandler().chunkPopulate.stopTimingIfSync();
+            ((ServerWorldBridge) world).bridge$getTimingsHandler().chunkPopulate.stopTimingIfSync();
         }
     }
 

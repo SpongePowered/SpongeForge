@@ -51,6 +51,7 @@ public class CustomTileRegistration extends BaseTest {
         super(testUtils);
     }
 
+    @SuppressWarnings("deprecation")
     @BeforeClass
     public static void registerStuff() {
         GameRegistry.registerTileEntity(Test1Tile.class, UNQUALIFIED_TILE_ID);

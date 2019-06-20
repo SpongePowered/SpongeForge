@@ -43,7 +43,7 @@ public class SpongeForgeGameDictionary implements GameDictionary {
 
     @Override
     public void register(String key, Entry entry) {
-        ItemStack stack = ((SpongeGameDictionaryEntry) entry).createDictionaryStack(OreDictionary.WILDCARD_VALUE);
+        ItemStack stack = ((SpongeGameDictionaryEntry) entry).bridge$createDictionaryStack(OreDictionary.WILDCARD_VALUE);
         stack.setCount(1);
         OreDictionary.registerOre(key, stack);
     }

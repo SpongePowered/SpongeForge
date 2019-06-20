@@ -35,6 +35,7 @@ import net.minecraftforge.registries.ForgeRegistry;
 import org.apache.logging.log4j.Level;
 import org.spongepowered.api.data.type.Career;
 import org.spongepowered.api.data.type.Profession;
+import org.spongepowered.api.entity.living.Villager;
 import org.spongepowered.api.item.merchant.Merchant;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.asm.util.PrettyPrinter;
@@ -105,11 +106,11 @@ public final class SpongeForgeVillagerRegistry {
         // Sync up the profession with forge first before getting the sponge equivalent. Some mods
         // have custom villagers, so some of our injections don't end up getting called (Ice and Fire mod is an example)
         // so re-syncing the and setting the profession for sponge is the first thing we need to do
-        if (!mixinEntityVillager.getProfession().isPresent()) {
-            mixinEntityVillager.setProfession(SpongeForgeVillagerRegistry.fromNative(professionForge));
+        if (!mixinEntityVillager.bridge$getProfessionOptional().isPresent()) {
+            mixinEntityVillager.bridge$setProfession(SpongeForgeVillagerRegistry.fromNative(professionForge));
         }
         // Then we can get the profession from the villager
-        final Profession profession = mixinEntityVillager.getProfession().get();
+        final Profession profession = mixinEntityVillager.bridge$getProfessionOptional().get();
         // Get the career from forge
         final VillagerRegistry.VillagerCareer career = professionForge.getCareer(careerNumberId);
 
@@ -207,7 +208,7 @@ public final class SpongeForgeVillagerRegistry {
         printer.add("%s : %s", "Forge Profession", mixinProfession.getProfessionName());
         int i = 0;
         for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
-            printer.add("  %s %d : %s", "Career", i++, villagerCareer.getName());
+            printer.add(" - %s %d : %s", "Career", i++, villagerCareer.getName());
         }
         printer.add();
         printer.add("%s : %s", "Sponge Profession", profession.getId());

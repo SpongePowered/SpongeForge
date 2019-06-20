@@ -1,0 +1,25 @@
+{
+    "required": true,
+    "minVersion": "0.7.10",
+    "package": "org.spongepowered.mod.mixin.api",
+    "refmap": "mixins.forge.refmap.json",
+    "priority": 1001,
+    "target": "@env(DEFAULT)",
+    "compatibilityLevel": "JAVA_8",
+    "mixins": [
+        "forge.common.util.MixinITeleporter_APIForge",
+        "minecraft.server.MixinMinecraftServer_APIForge",
+        "minecraft.world.MixinWorldServer_APIForge",
+        "minecraft.world.chunk.MixinChunk_APIForge"
+    ],
+    "client": [
+    ],
+    "server": [
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "overwrites": {
+        "conformVisibility": true
+    }
+}

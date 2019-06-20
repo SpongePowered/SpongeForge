@@ -28,7 +28,6 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.common.ForgeVersion;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfig;
@@ -47,6 +46,7 @@ import java.util.Set;
 /**
  * Error handler for Sponge mixins
  */
+@SuppressWarnings("deprecation")
 public class MixinErrorHandler implements IMixinErrorHandler {
 
     /**
@@ -227,7 +227,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
      * @return set of class names
      */
     private static Set<String> getLoadedClasses(String filter) {
-        Map<String, Class<?>> cachedClasses = ReflectionHelper.<Map<String, Class<?>>, LaunchClassLoader>getPrivateValue(LaunchClassLoader.class,
+        Map<String, Class<?>> cachedClasses = net.minecraftforge.fml.relauncher.ReflectionHelper.<Map<String, Class<?>>, LaunchClassLoader>getPrivateValue(LaunchClassLoader.class,
                 Launch.classLoader, "cachedClasses");
         
         if (cachedClasses == null) {

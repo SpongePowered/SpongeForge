@@ -48,13 +48,13 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
 import org.spongepowered.common.block.SpongeBlockSnapshotBuilder;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
-import org.spongepowered.common.interfaces.world.IMixinWorld;
-import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 
 import java.util.Random;
 import java.util.UUID;
@@ -64,7 +64,7 @@ import java.util.function.BiConsumer;
 public abstract class MixinBlockFluidFinite extends MixinBlockFluidBase {
 
     @Override
-    public BiConsumer<CauseStackManager.StackFrame, IMixinWorldServer> getTickFrameModifier() {
+    public BiConsumer<CauseStackManager.StackFrame, ServerWorldBridge> getTickFrameModifier() {
         return (frame, world) -> frame.addContext(EventContextKeys.LIQUID_FLOW, (org.spongepowered.api.world.World) world);
     }
 
@@ -74,8 +74,8 @@ public abstract class MixinBlockFluidFinite extends MixinBlockFluidBase {
         cancellable = true
     )
     private void checkBeforeTick(World world, BlockPos pos, IBlockState state, Random rand, CallbackInfo ci) {
-        if (!((IMixinWorld) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, pos).isCancelled()) {
+        if (!((WorldBridge) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
+            if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
                 ci.cancel();
             }
         }
@@ -115,7 +115,7 @@ public abstract class MixinBlockFluidFinite extends MixinBlockFluidBase {
         cancellable = true
     )
     private void setBlockToAirDueToWorldHeight(World world, BlockPos pos, int amtToInput, CallbackInfoReturnable<Integer> cir, IBlockState myState, BlockPos targetFlow) {
-        if (!((IMixinWorld) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
+        if (!((WorldBridge) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
             if (SpongeCommonEventFactory.callChangeBlockEventModifyLiquidBreak(world, pos, myState, Blocks.AIR.getDefaultState()).isCancelled()) {
                 cir.setReturnValue(0);
             }
@@ -185,10 +185,10 @@ public abstract class MixinBlockFluidFinite extends MixinBlockFluidBase {
         constraints = "FORGE(2821+)"
     )
     private void setNewStateWithMaximumQuantaWhileFlowing(World world, BlockPos pos, int amtToInput, CallbackInfoReturnable<Integer> cir, IBlockState myState, BlockPos other, int newAmount) {
-        if (((IMixinWorld) world).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_PLACE) {
+        if (((WorldBridge) world).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_PLACE) {
             return;
         }
-        if (SpongeCommonEventFactory.callChangeBlockEventPre((IMixinWorldServer) world, other).isCancelled()) {
+        if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, other).isCancelled()) {
             cir.setReturnValue(0);
         }
     }
@@ -258,7 +258,7 @@ public abstract class MixinBlockFluidFinite extends MixinBlockFluidBase {
     )
     private void onSetBlockForSwapping(World world, BlockPos myPos, int amtToInput, CallbackInfoReturnable<Integer> cir,
         IBlockState myState, BlockPos other, int amt, int density_other, IBlockState otherState) {
-        if (((IMixinWorld) world).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_MODIFY) {
+        if (((WorldBridge) world).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_MODIFY) {
             return;
         }
         final SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();

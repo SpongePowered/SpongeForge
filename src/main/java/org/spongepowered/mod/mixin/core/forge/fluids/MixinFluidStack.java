@@ -44,7 +44,6 @@ import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.extra.fluid.FluidStackSnapshot;
 import org.spongepowered.api.extra.fluid.FluidType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -55,7 +54,7 @@ import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.extra.fluid.SpongeFluidStackSnapshotBuilder;
-import org.spongepowered.common.interfaces.data.IMixinCustomDataHolder;
+import org.spongepowered.common.bridge.data.CustomDataHolderBridge;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -88,8 +87,8 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
         final Optional<DataProcessor<?, ?>> optional = DataUtil.getWildProcessor(containerClass);
         if (optional.isPresent()) {
             return (Optional<T>) optional.get().createFrom(this);
-        } else if (this instanceof IMixinCustomDataHolder) {
-            return ((IMixinCustomDataHolder) this).getCustom(containerClass);
+        } else if (this instanceof CustomDataHolderBridge) {
+            return ((CustomDataHolderBridge) this).getCustom(containerClass);
         }
         return Optional.empty();
     }
@@ -105,8 +104,8 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
         final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = DataUtil.getBaseValueProcessor(key);
         if (optional.isPresent()) {
             return optional.get().offerToStore(this, value);
-        } else if (this instanceof IMixinCustomDataHolder) {
-            return ((IMixinCustomDataHolder) this).offerCustom(key, value);
+        } else if (this instanceof CustomDataHolderBridge) {
+            return ((CustomDataHolderBridge) this).offerCustom(key, value);
         }
         return DataTransactionResult.failNoData();
     }
@@ -117,8 +116,8 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
         final Optional<DataProcessor> optional = DataUtil.getWildDataProcessor(valueContainer.getClass());
         if (optional.isPresent()) {
             return optional.get().set(this, valueContainer, checkNotNull(function));
-        } else if (this instanceof IMixinCustomDataHolder) {
-            return ((IMixinCustomDataHolder) this).offerCustom(valueContainer, function);
+        } else if (this instanceof CustomDataHolderBridge) {
+            return ((CustomDataHolderBridge) this).offerCustom(valueContainer, function);
         }
         return DataTransactionResult.failResult(valueContainer.getValues());
     }
@@ -156,8 +155,8 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
         final Optional<DataProcessor<?, ?>> optional = DataUtil.getWildProcessor(containerClass);
         if (optional.isPresent()) {
             return optional.get().remove(this);
-        } else if (this instanceof IMixinCustomDataHolder) {
-            return ((IMixinCustomDataHolder) this).removeCustom(containerClass);
+        } else if (this instanceof CustomDataHolderBridge) {
+            return ((CustomDataHolderBridge) this).removeCustom(containerClass);
         }
         return DataTransactionResult.failNoData();
     }
@@ -167,8 +166,8 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
         final Optional<ValueProcessor<?, ?>> optional = DataUtil.getWildValueProcessor(checkNotNull(key));
         if (optional.isPresent()) {
             return optional.get().removeFrom(this);
-        } else if (this instanceof IMixinCustomDataHolder) {
-            return ((IMixinCustomDataHolder) this).removeCustom(key);
+        } else if (this instanceof CustomDataHolderBridge) {
+            return ((CustomDataHolderBridge) this).removeCustom(key);
         }
         return DataTransactionResult.failNoData();
     }
@@ -280,10 +279,10 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
     public DataContainer toContainer() {
         final DataContainer container = DataContainer.createNew()
                 .set(Queries.CONTENT_VERSION, getContentVersion())
-                .set(DataQueries.FLUID_TYPE, this.fluidDelegate.get().getName())
-                .set(DataQueries.FLUID_VOLUME, this.getVolume());
+                .set(DataQueries.Fluids.FLUID_TYPE, this.fluidDelegate.get().getName())
+                .set(DataQueries.Fluids.FLUID_VOLUME, this.getVolume());
         if (this.tag != null) {
-            container.set(DataQueries.UNSAFE_NBT, NbtTranslator.getInstance().translateFrom(this.tag));
+            container.set(DataQueries.Sponge.UNSAFE_NBT, NbtTranslator.getInstance().translateFrom(this.tag));
         }
         return container;
     }
