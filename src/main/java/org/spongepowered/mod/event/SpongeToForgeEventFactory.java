@@ -323,6 +323,7 @@ public class SpongeToForgeEventFactory {
         }
 
         if (forgeEvent != null) {
+            forgeEvent.setCanceled(spongeEvent.isCancelled());
             forgeEventBus.post(eventData);
             if (!originalComponent.equals(forgeEvent.getComponent())) {
                 // The message has changed, all we can do is set the body and leave the
@@ -346,13 +347,17 @@ public class SpongeToForgeEventFactory {
     
             if (spongeEvent instanceof UseItemStackEvent.Start) {
                 forgeEvent = new LivingEntityUseItemEvent.Start(entity, stack, spongeEvent.getRemainingDuration());
+                forgeEvent.setCanceled(((UseItemStackEvent.Start) spongeEvent).isCancelled());
             } else if (spongeEvent instanceof UseItemStackEvent.Tick) {
                 forgeEvent = new LivingEntityUseItemEvent.Tick(entity, stack, spongeEvent.getRemainingDuration());
+                forgeEvent.setCanceled(((UseItemStackEvent.Tick) spongeEvent).isCancelled());
             } else if (spongeEvent instanceof UseItemStackEvent.Stop) {
                 forgeEvent = new LivingEntityUseItemEvent.Stop(entity, stack, spongeEvent.getRemainingDuration());
+                forgeEvent.setCanceled(((UseItemStackEvent.Stop) spongeEvent).isCancelled());
             } else if (spongeEvent instanceof UseItemStackEvent.Replace) {
                 forgeEvent = new LivingEntityUseItemEvent.Finish(entity, stack, spongeEvent.getRemainingDuration(), ItemStackUtil.toNative((
                         (UseItemStackEvent.Replace) spongeEvent).getItemStackResult().getFinal().createStack()));
+                forgeEvent.setCanceled(((UseItemStackEvent.Replace) spongeEvent).isCancelled());
             }
     
             if (forgeEvent == null) {
@@ -457,6 +462,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
 
+        forgeEvent.setCanceled(spongeEvent.isCancelled());
         forgeEventBus.post(eventData);
         if (forgeEvent instanceof PlayerInteractEvent.RightClickBlock) {
             PlayerInteractEvent.RightClickBlock event = (PlayerInteractEvent.RightClickBlock) forgeEvent;
@@ -486,6 +492,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
 
+        forgeEvent.setCanceled(spongeEvent.isCancelled());
         forgeEventBus.post(eventData);
         return true;
     }
@@ -509,6 +516,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
 
+        forgeEvent.setCanceled(spongeEvent.isCancelled());
         forgeEventBus.post(eventData);
         return true;
     }
@@ -797,6 +805,7 @@ public class SpongeToForgeEventFactory {
                     ((net.minecraft.world.World) spongeEvent.getTargetWorld()), ((Explosion) spongeEvent.getExplosion()));
             eventData.setForgeEvent(forgeEvent);
         }
+        forgeEvent.setCanceled(spongeEvent.isCancelled());
         forgeEventBus.post(eventData);
         return true;
     }
@@ -865,6 +874,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
 
+        forgeEvent.setCanceled(spongeEvent.isCancelled());
         forgeEventBus.post(eventData);
         return true;
     }
