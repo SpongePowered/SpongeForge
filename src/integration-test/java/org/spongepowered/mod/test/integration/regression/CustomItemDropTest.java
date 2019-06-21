@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.test;
+package org.spongepowered.mod.test.integration.regression;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -38,10 +38,12 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.EntityTypes;
@@ -55,6 +57,9 @@ import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.mctester.api.junit.MinecraftRunner;
+import org.spongepowered.mctester.internal.BaseTest;
+import org.spongepowered.mctester.junit.TestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,14 +67,25 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-@Mod(modid = CustomItemDropTest.MOD_ID, name = "Custom Item Drop Test", acceptableRemoteVersions = "*")
-public class CustomItemDropTest {
+//@RunWith(MinecraftRunner.class)
+//@Mod(modid = CustomItemDropTest.MOD_ID, name = "Custom Item Drop Test", acceptableRemoteVersions = "*")
+public class CustomItemDropTest extends BaseTest {
 
     public static final String MOD_ID = "customitemdroptest";
     public static final String ITEM_ID = "dropitem";
     private ItemType EGG_TOSS;
     private boolean areListenersEnabled = false;
     private static CustomItemDropTest INSTANCE;
+
+    public CustomItemDropTest(TestUtils testUtils) {
+        super(testUtils);
+    }
+    @Test
+    public void testCustomItem() {
+        // TODO - make this test actually integrated. need to find out if it will work.
+
+
+    }
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
