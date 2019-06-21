@@ -49,7 +49,6 @@ import org.spongepowered.api.world.schematic.PaletteTypes;
 import org.spongepowered.api.world.schematic.Schematic;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.regression.registry.Test1Tile;
 import org.spongepowered.common.regression.registry.Test2Tile;
 import org.spongepowered.common.regression.registry.Test3Tile;
@@ -69,12 +68,6 @@ import java.util.zip.GZIPInputStream;
 @RunWith(MinecraftRunner.class)
 public class PlacingSchematicTest extends BaseTest {
 
-
-    // The origin point where to apply all schematics.
-    public static final Vector3i ORIGIN = new Vector3i(0, 64, 0);
-    public static final Vector3i OFFSET = new Vector3i(4, 2, 4);
-
-
     public PlacingSchematicTest(TestUtils testUtils) {
         super(testUtils);
     }
@@ -87,8 +80,6 @@ public class PlacingSchematicTest extends BaseTest {
         GameRegistry.registerTileEntity(Test2Tile.class, TileEntityRegistrationTest.CORRECTLY_QUALIFIED_ID);
         GameRegistry.registerTileEntity(Test3Tile.class, TileEntityRegistrationTest.MINECRAFT_PREFIXED_ID);
     }
-
-
 
     @Test
     public void createSchematic() throws Throwable {
@@ -155,7 +146,6 @@ public class PlacingSchematicTest extends BaseTest {
         }));
         this.testUtils.runOnMainThread(() -> {
             final Player thePlayer = this.testUtils.getThePlayer();
-
         });
 
         File inputFile = new File(this.getClass().getClassLoader().getResource("placement.schematic").getFile());
