@@ -96,6 +96,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
+import org.spongepowered.common.bridge.tileentity.TileEntityBridge;
+import org.spongepowered.common.bridge.world.DimensionTypeBridge;
+import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
 import org.spongepowered.common.command.SpongeCommandFactory;
 import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.data.util.DataQueries;
@@ -104,9 +107,6 @@ import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
-import org.spongepowered.common.bridge.tileentity.TileEntityBridge;
-import org.spongepowered.common.bridge.world.DimensionTypeBridge;
-import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
@@ -125,7 +125,6 @@ import org.spongepowered.mod.interfaces.IMixinEventBus;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 import org.spongepowered.mod.mixin.core.forge.IMixinVillagerRegistry;
-import org.spongepowered.mod.mixin.core.item.AccessorForgeItemStack;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 import org.spongepowered.mod.util.WrappedArrayList;
@@ -987,6 +986,7 @@ public abstract class MixinSpongeImplHooks {
      * @param entity The vanilla entity item
      * @return The custom item entity for the dropped item
      */
+    @SuppressWarnings("ConstantConditions")
     @Nullable
     @Overwrite
     public static Entity getCustomEntityIfItem(Entity entity) {
@@ -1082,7 +1082,7 @@ public abstract class MixinSpongeImplHooks {
      */
     @Overwrite
     public static void setCapabilitiesFromSpongeBuilder(ItemStack stack, NBTTagCompound compoundTag) {
-        final CapabilityDispatcher capabilities = ((AccessorForgeItemStack) stack).accessor$getCapabilities();
+        final CapabilityDispatcher capabilities = ((PseudoForgeItemStackBridge) stack).pseudo$getCapabilities();
         if (capabilities != null) {
             capabilities.deserializeNBT(compoundTag);
         }
