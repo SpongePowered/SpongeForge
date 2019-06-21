@@ -27,10 +27,10 @@ package org.spongepowered.mod.mixin.core.world;
 import net.minecraft.world.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.interfaces.world.IMixinDimensionType;
+import org.spongepowered.common.bridge.world.DimensionTypeBridge;
 
 @Mixin(value = DimensionType.class, priority = 1002, remap = false)
-public abstract class MixinDimensionType_Forge implements IMixinDimensionType {
+public abstract class MixinDimensionType_Forge implements DimensionTypeBridge {
 
     @Shadow private boolean shouldLoadSpawn;
 
