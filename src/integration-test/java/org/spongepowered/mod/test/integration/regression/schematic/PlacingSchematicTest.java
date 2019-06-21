@@ -48,6 +48,8 @@ import org.spongepowered.api.world.extent.ArchetypeVolume;
 import org.spongepowered.api.world.schematic.PaletteTypes;
 import org.spongepowered.api.world.schematic.Schematic;
 import org.spongepowered.api.world.storage.WorldProperties;
+import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.regression.registry.Test1Tile;
 import org.spongepowered.common.regression.registry.Test2Tile;
 import org.spongepowered.common.regression.registry.Test3Tile;
@@ -90,11 +92,11 @@ public class PlacingSchematicTest extends BaseTest {
 
     @Test
     public void createSchematic() throws Throwable {
-        final World world = this.testUtils.runOnMainThread(() -> {
+        this.testUtils.runOnMainThread(() -> {
             final WorldArchetype schematics = WorldArchetype.builder().from(WorldArchetypes.THE_VOID)
                 .gameMode(GameModes.CREATIVE)
-                .build("schematic", "schematics");
-            final WorldProperties properties = Sponge.getServer().createWorldProperties("schematicstest", schematics);
+                .build(SpongeImpl.ECOSYSTEM_ID + ":schematica", "Schematica");
+            final WorldProperties properties = Sponge.getServer().createWorldProperties("schematica", schematics);
             final World schematica = Sponge.getServer().loadWorld(properties).get();
             final Player player = this.testUtils.getThePlayer();
             player.offer(Keys.GAME_MODE, GameModes.CREATIVE);
@@ -117,13 +119,13 @@ public class PlacingSchematicTest extends BaseTest {
 
             // A note about this:
             /*
-            The recreated schematic should always equal the deserialized
-            schematic since the Schematic will verify that it's backing
-            volume is that of an ArchetypeVolume. The reason for this is
-            that if it were the case it retains the backed ArchetypeVolume,
-            duplication of maps and lists are retained, so the object
-            memory footprint doubles for the amount of TileEntities and Entities
-            that are stored within.
+                The recreated schematic should always equal the deserialized
+                schematic since the Schematic will verify that it's backing
+                volume is that of an ArchetypeVolume. The reason for this is
+                that if it were the case it retains the backed ArchetypeVolume,
+                duplication of maps and lists are retained, so the object
+                memory footprint doubles for the amount of TileEntities and Entities
+                that are stored within.
              */
             final ArchetypeVolume archetypeVolume = schematica.createArchetypeVolume(origin.add(blockMin), origin.add(blockMax), origin);
             final Schematic recreated = Schematic.builder()
@@ -132,19 +134,19 @@ public class PlacingSchematicTest extends BaseTest {
                 .metaValue(Schematic.METADATA_NAME, "placement")
                 .blockPaletteType(PaletteTypes.LOCAL_BLOCKS)
                 .build();
-            assertEquals("The recreated schematic from world should equal the deserialized schematic", toPlace, recreated);
+            assertEquals("The recreated schematic from world should equal the de-serialized schematic", toPlace, recreated);
             final Schematic deserialized = DataTranslators.SCHEMATIC.translate(DataTranslators.SCHEMATIC.translate(recreated));
             /*
-            This assertion proves the following:
-            - Deserializing a schematic and pasting it into the world works
-            - Creating a new schematic with the *SAME* information as the original schematic (metadata) at the location
-              and then "translating" and "re-translating back" into a Schematic will yeild the an equal Schematic.
-            - The full circle of creating, serializing, deserializing, and translating produces the same
-              schematic as if you loaded a new schematic from file.
-            - Schematics that contain extra data attached to tile entities are retained, but the engine
-              may not respect those when a new schematic is created from the placed original schematic
+                This assertion proves the following:
+                - Deserializing a schematic and pasting it into the world works
+                - Creating a new schematic with the *SAME* information as the original schematic (metadata) at the location
+                  and then "translating" and "re-translating back" into a Schematic will yeild the an equal Schematic.
+                - The full circle of creating, serializing, deserializing, and translating produces the same
+                  schematic as if you loaded a new schematic from file.
+                - Schematics that contain extra data attached to tile entities are retained, but the engine
+                  may not respect those when a new schematic is created from the placed original schematic
              */
-            assertEquals("The deserialized recreated schematic should equal the original deserialized schematic", toPlace, deserialized);
+            assertEquals("The de-serialized recreated schematic should equal the original deserialized schematic", toPlace, deserialized);
             return schematica;
         });
         this.testUtils.waitForWorldChunks();
@@ -160,8 +162,6 @@ public class PlacingSchematicTest extends BaseTest {
         DataContainer container = DataFormats.NBT.readFrom(new GZIPInputStream(new FileInputStream(inputFile)));
 
         // Up next: test loading and saving v1 schematics.
-
     }
-
 }
 
