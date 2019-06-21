@@ -357,7 +357,9 @@ public class SpongeToForgeEventFactory {
             } else if (spongeEvent instanceof UseItemStackEvent.Replace) {
                 forgeEvent = new LivingEntityUseItemEvent.Finish(entity, stack, spongeEvent.getRemainingDuration(), ItemStackUtil.toNative((
                         (UseItemStackEvent.Replace) spongeEvent).getItemStackResult().getFinal().createStack()));
-                forgeEvent.setCanceled(((UseItemStackEvent.Replace) spongeEvent).isCancelled());
+                if (forgeEvent.isCancelable()) {
+                    forgeEvent.setCanceled(((UseItemStackEvent.Replace) spongeEvent).isCancelled());
+                }
             }
     
             if (forgeEvent == null) {
