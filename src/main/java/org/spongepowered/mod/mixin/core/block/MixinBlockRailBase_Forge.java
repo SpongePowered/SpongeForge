@@ -27,12 +27,15 @@ package org.spongepowered.mod.mixin.core.block;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.bridge.OwnershipTrackedBridge;
 import org.spongepowered.common.bridge.entity.EntityBridge;
+import org.spongepowered.common.bridge.world.chunk.ActiveChunkReferantBridge;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
 import org.spongepowered.common.entity.PlayerTracker;
 
@@ -44,15 +47,21 @@ public class MixinBlockRailBase_Forge {
     // Used to transfer tracking information from minecarts to block positions
     @Inject(method = "onMinecartPass", at = @At(value = "HEAD"))
     private void onMinecartRailPass(World world, net.minecraft.entity.item.EntityMinecart cart, BlockPos pos, CallbackInfo ci) {
-        EntityBridge spongeEntity = (EntityBridge) cart;
-        Optional<User> notifier = spongeEntity.getNotifierUser();
-        Optional<User> owner = spongeEntity.getCreatorUser();
+        if (!(cart instanceof OwnershipTrackedBridge)) {
+            return;
+        }
+        OwnershipTrackedBridge ownerBridge = (OwnershipTrackedBridge) cart;
+        Optional<User> notifier = ownerBridge.tracked$getNotifierReference();
+        Optional<User> owner = ownerBridge.tracked$getOwnerReference();
         if (owner.isPresent() || notifier.isPresent()) {
-            ChunkBridge spongeChunk = (ChunkBridge) world.getChunk(pos);
+            final Chunk chunk = (Chunk) ((ActiveChunkReferantBridge) this).bridge$getActiveChunk();
+            final boolean useActiveChunk = chunk != null && chunk.x == pos.getX() >> 4 && chunk.z == pos.getZ() >> 4;
+            final ChunkBridge spongeChunk = (ChunkBridge) (useActiveChunk ? chunk : world.getChunk(pos));
             if (notifier.isPresent()) {
                 spongeChunk.addTrackedBlockPosition(world.getBlockState(pos).getBlock(), pos, notifier.get(), PlayerTracker.Type.NOTIFIER);
             } else {
-                spongeChunk.addTrackedBlockPosition(world.getBlockState(pos).getBlock(), pos, owner.get(), PlayerTracker.Type.NOTIFIER);
+                owner.ifPresent(
+                    user -> spongeChunk.addTrackedBlockPosition(((Chunk) spongeChunk).getBlockState(pos).getBlock(), pos, user, PlayerTracker.Type.NOTIFIER));
             }
         }
     }
