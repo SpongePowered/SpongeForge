@@ -30,16 +30,14 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ISpecialArmor.ArmorProperties;
 import net.minecraftforge.event.ForgeEventFactory;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.event.cause.entity.damage.DamageFunction;
 import org.spongepowered.api.event.cause.entity.damage.DamageModifier;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
+import org.spongepowered.common.bridge.entity.BaseLivingEntityBridge;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.List;
@@ -47,21 +45,21 @@ import java.util.Optional;
 
 @NonnullByDefault
 @Mixin(value = EntityLivingBase.class, priority = 1001)
-public abstract class MixinEntityLivingBase_Forge extends MixinEntity_Forge implements IMixinEntityLivingBase {
+public abstract class MixinEntityLivingBase_Forge extends MixinEntity_Forge implements BaseLivingEntityBridge {
 
     @Override
-    public Optional<List<DamageFunction>> provideArmorModifiers(EntityLivingBase entityLivingBase,
+    public Optional<List<DamageFunction>> bridge$provideArmorModifiers(EntityLivingBase entityLivingBase,
          DamageSource source, double damage) {
         return StaticMixinForgeHelper.createArmorModifiers((EntityLivingBase) (Object) this, source, damage);
     }
 
     @Override
-    public float applyModDamage(EntityLivingBase entityLivingBase, DamageSource source, float damage) {
+    public float bridge$applyModDamage(EntityLivingBase entityLivingBase, DamageSource source, float damage) {
         return ForgeHooks.onLivingHurt((EntityLivingBase) (Object) this, source, damage);
     }
 
     @Override
-    public void applyArmorDamage(EntityLivingBase entityLivingBase, DamageSource source, DamageEntityEvent entityEvent, DamageModifier modifier) {
+    public void bridge$applyArmorDamage(EntityLivingBase entityLivingBase, DamageSource source, DamageEntityEvent entityEvent, DamageModifier modifier) {
         Optional<ArmorProperties> optional = modifier.getCause().getContext().get(StaticMixinForgeHelper.ARMOR_PROPERTY);
         if (optional.isPresent()) {
             StaticMixinForgeHelper.acceptArmorModifier((EntityLivingBase) (Object) this, source, modifier, entityEvent.getDamage(modifier));
@@ -69,7 +67,7 @@ public abstract class MixinEntityLivingBase_Forge extends MixinEntity_Forge impl
     }
 
     @Override
-    public boolean hookModAttack(EntityLivingBase entityLivingBase, DamageSource source, float amount) {
+    public boolean bridge$hookModAttack(EntityLivingBase entityLivingBase, DamageSource source, float amount) {
         return net.minecraftforge.common.ForgeHooks.onLivingAttack((EntityLivingBase) (Object) this, source, amount);
     }
 

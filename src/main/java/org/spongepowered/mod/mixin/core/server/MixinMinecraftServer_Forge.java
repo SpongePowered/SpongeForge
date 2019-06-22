@@ -30,23 +30,20 @@ import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.Server;
-import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.At.Shift;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.interfaces.IMixinMinecraftServer;
-import org.spongepowered.common.interfaces.server.management.IMixinPlayerProfileCache;
+import org.spongepowered.common.bridge.server.management.PlayerProfileCacheBridge;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.interfaces.IMixinMinecraftServer;
 import org.spongepowered.common.world.WorldManager;
-import org.spongepowered.mod.service.world.SpongeChunkTicketManager;
 
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
@@ -117,9 +114,9 @@ public abstract class MixinMinecraftServer_Forge implements IMixinMinecraftServe
         LOGGER.info("Stopping server");
 
         // Sponge Start - Force player profile cache save
-        ((IMixinPlayerProfileCache) this.getPlayerProfileCache()).setCanSave(true);
+        ((PlayerProfileCacheBridge) this.getPlayerProfileCache()).bridge$setCanSave(true);
         ((MinecraftServer) (Object) this).getPlayerProfileCache().save();
-        ((IMixinPlayerProfileCache) this.getPlayerProfileCache()).setCanSave(false);
+        ((PlayerProfileCacheBridge) this.getPlayerProfileCache()).bridge$setCanSave(false);
 
         final MinecraftServer server = (MinecraftServer) (Object) this;
         if (server.getNetworkSystem() != null)

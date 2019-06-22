@@ -29,7 +29,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.item.EntityMinecartContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityFishHook;
@@ -105,15 +104,14 @@ import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
-import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.UnwindingPhaseContext;
 import org.spongepowered.common.event.tracking.phase.packet.PacketContext;
-import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
-import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
+import org.spongepowered.common.mixin.core.entity.AccessorEntityLivingBase;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -547,12 +545,12 @@ public class SpongeToForgeEventFactory {
                     if (living instanceof EntityPlayerMP) {
                         final EntityPlayerMP serverPlayer = (EntityPlayerMP) living;
     
-                        forgeEvent = new PlayerDropsEvent(serverPlayer, damageSource, new ArrayList<>(items), ((IMixinEntityLivingBase)
-                          serverPlayer).getRecentlyHit() > 0);
+                        forgeEvent = new PlayerDropsEvent(serverPlayer, damageSource, new ArrayList<>(items), ((AccessorEntityLivingBase)
+                          serverPlayer).accessor$getRecentlyHitValue() > 0);
                     } else {
                         forgeEvent = new LivingDropsEvent(living, damageSource, new ArrayList<>(items), net.minecraftforge.common.ForgeHooks
                           .getLootingLevel(living, damageSource.getTrueSource(), damageSource),
-                          ((IMixinEntityLivingBase) living).getRecentlyHit() > 0);
+                          ((AccessorEntityLivingBase) living).accessor$getRecentlyHitValue() > 0);
                     }
                     eventData.setForgeEvent(forgeEvent);
                 } else {

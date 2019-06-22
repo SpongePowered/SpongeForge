@@ -89,7 +89,7 @@ public abstract class MixinEntityPlayer_Forge extends MixinEntityLivingBase_Forg
      */
     @Overwrite
     protected void damageEntity(DamageSource damageSource, float damage) {
-        this.damageEntityHook(damageSource, damage);
+        this.bridge$damageEntityHook(damageSource, damage);
     }
 
     @Inject(method = "trySleep", at = @At(value = "RETURN", ordinal = 0))
