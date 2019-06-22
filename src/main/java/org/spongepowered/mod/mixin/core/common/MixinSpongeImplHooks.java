@@ -1087,4 +1087,17 @@ public abstract class MixinSpongeImplHooks {
             capabilities.deserializeNBT(compoundTag);
         }
     }
+
+    /**
+     * @author JBYoshi - June 22, 2019
+     * @reason Forge uses its own list for mods to capture blocks, which has
+     * different usage conventions than Sponge's capture list - for example,
+     * mods are responsible for clearing the list when they're done with it.
+     */
+    @Overwrite
+    public static void captureBlockChangeForMods(World world, BlockPos pos, int flags) {
+        if (world.captureBlockSnapshots) {
+            world.capturedBlockSnapshots.add(net.minecraftforge.common.util.BlockSnapshot.getBlockSnapshot(world, pos, flags));
+        }
+    }
 }

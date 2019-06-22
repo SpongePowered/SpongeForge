@@ -26,7 +26,6 @@ package org.spongepowered.mod.mixin.core.world;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.profiler.Profiler;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
@@ -34,7 +33,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
@@ -45,11 +43,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.bridge.world.WorldBridge;
-import org.spongepowered.mod.event.CapturedSnapshotWrapperList;
 
 import javax.annotation.Nullable;
 
@@ -160,14 +156,6 @@ public abstract class MixinWorld_Forge implements WorldBridge {
     @Override
     public void setRedirectedWorldInfo(@Nullable WorldInfo info) {
         this.redirectWorldInfo = info;
-    }
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void onIniitToSetForgeList(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client,
-        CallbackInfo ci) {
-        if (!this.isFake()) {
-            this.capturedBlockSnapshots = new CapturedSnapshotWrapperList((World) (Object) this);
-        }
     }
 
 }
