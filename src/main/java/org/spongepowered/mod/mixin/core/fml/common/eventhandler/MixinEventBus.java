@@ -44,6 +44,7 @@ import net.minecraftforge.fml.common.eventhandler.IEventExceptionHandler;
 import net.minecraftforge.fml.common.eventhandler.IEventListener;
 import net.minecraftforge.fml.common.eventhandler.ListenerList;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -162,7 +163,7 @@ public abstract class MixinEventBus implements IMixinEventBus {
     }
 
     private boolean isIgnoredEvent(Event event) {
-        if (event instanceof TickEvent) {
+        if (event instanceof TickEvent && ((TickEvent) event).side == Side.CLIENT) {
             return true;
         }
         if (event instanceof EntityEvent.CanUpdate) {
