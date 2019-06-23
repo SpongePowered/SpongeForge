@@ -22,33 +22,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world.gen;
+package org.spongepowered.mod.mixin.core.client.multiplayer;
 
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.gen.ChunkGeneratorEnd;
-import net.minecraft.world.gen.IChunkGenerator;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.bridge.world.chunk.ChunkProviderBridge;
 
-@Mixin(ChunkGeneratorEnd.class)
-public abstract class MixinChunkProviderEnd implements IChunkGenerator {
+import javax.annotation.Nullable;
 
-    @Shadow(remap = false) private int chunkX; // Forge added
-    @Shadow(remap = false) private int chunkZ; // Forge added
-    @Shadow @Final private World world;
+@Mixin(ChunkProviderClient.class)
+public abstract class MixinChunkProviderClient_Forge implements ChunkProviderBridge {
 
+    @Shadow @Final private Long2ObjectMap<Chunk> loadedChunks;
 
-    @Inject(method = "buildSurfaces(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
-    public void cancelEndStone(ChunkPrimer chunk, CallbackInfo ci) {
-        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.world);
-        MinecraftForge.EVENT_BUS.post(event);
-        ci.cancel();
+    @Override
+    public void bridge$setMaxChunkUnloads(int maxUnloads) {
+    }
+
+    @Nullable
+    @Override
+    public Chunk bridge$getLoadedChunkWithoutMarkingActive(int x, int z) {
+        return this.loadedChunks.get(ChunkPos.asLong(x, z));
     }
 }

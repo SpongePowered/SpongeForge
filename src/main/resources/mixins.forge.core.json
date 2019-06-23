@@ -89,7 +89,7 @@
         "world.MixinWorldServer_Forge",
         "world.biome.MixinBiomeDecorator",
         "world.biome.MixinBiomeGenBaseForge",
-        "world.gen.MixinChunkProviderEnd",
+        "world.gen.MixinChunkGeneratorEnd_Forge",
         "world.gen.MixinChunkProviderServer_Forge",
         "world.gen.feature.MixinWorldGeneratorForge",
         "world.storage.MixinSaveHandler"
@@ -99,7 +99,7 @@
         "client.MixinMinecraft",
         "client.gui.MixinGuiOptions",
         "client.gui.MixinGuiOverlayDebug",
-        "client.multiplayer.MixinChunkProviderClient",
+        "client.multiplayer.MixinChunkProviderClient_Forge",
         "client.network.MixinNetHandlerPlayClient",
         "client.server.MixinIntegratedServer",
         "server.MixinIntegratedServerAnonInner3",

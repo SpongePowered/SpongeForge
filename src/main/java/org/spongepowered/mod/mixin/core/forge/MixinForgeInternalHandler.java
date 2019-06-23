@@ -24,11 +24,6 @@
  */
 package org.spongepowered.mod.mixin.core.forge;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeInternalHandler;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -36,10 +31,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.mod.event.SpongeToForgeEventFactory;
-import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 @Mixin(ForgeInternalHandler.class)
 public abstract class MixinForgeInternalHandler {

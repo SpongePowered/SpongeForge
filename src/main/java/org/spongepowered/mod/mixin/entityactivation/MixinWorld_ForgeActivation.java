@@ -31,8 +31,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.bridge.entity.EntityBridge;
-import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
+import org.spongepowered.common.bridge.world.chunk.ServerChunkProviderBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.chunk.ActiveChunkReferantBridge;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
@@ -136,7 +135,7 @@ public abstract class MixinWorld_ForgeActivation implements WorldBridge {
             // Sponge end
 
             final ChunkBridge
-                newChunk = (ChunkBridge) ((ServerChunkProviderBridge) entityIn.world.getChunkProvider()).getLoadedChunkWithoutMarkingActive(l, j1);
+                newChunk = (ChunkBridge) ((ServerChunkProviderBridge) entityIn.world.getChunkProvider()).bridge$getLoadedChunkWithoutMarkingActive(l, j1);
             final boolean isPositionDirty = entityIn.setPositionNonDirty();
             if (newChunk == null || (!isPositionDirty && newChunk.isQueuedForUnload() && !newChunk.isPersistedChunk())) {
                 entityIn.addedToChunk = false;

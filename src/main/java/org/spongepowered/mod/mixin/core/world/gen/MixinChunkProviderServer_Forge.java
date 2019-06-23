@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
-import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
+import org.spongepowered.common.bridge.world.chunk.ServerChunkProviderBridge;
 import org.spongepowered.common.mixin.core.world.gen.MixinChunkProviderServer;
 
 @Mixin(value = ChunkProviderServer.class, priority = 1001)
@@ -48,7 +48,7 @@ public abstract class MixinChunkProviderServer_Forge implements ServerChunkProvi
     @Shadow @Final public WorldServer world;
     @Shadow @Final public Long2ObjectMap<Chunk> loadedChunks;
     @Shadow public abstract Chunk loadChunk(int x, int z);
-    @Shadow public abstract void saveChunkExtraData(Chunk chunkIn);
+    @Shadow protected abstract void saveChunkExtraData(Chunk chunkIn);
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = Shift.AFTER, remap = false))
     private void forge$RemoveForgePersistingChunkCheck(CallbackInfoReturnable<Boolean> cir) {
@@ -70,12 +70,10 @@ public abstract class MixinChunkProviderServer_Forge implements ServerChunkProvi
      * the original method to ensure that async loading gets handled properly (Forge's code properly
      * handles a concurrent asychronous load of the same chunk).
      *
-     * @see MixinChunkProviderServer#loadChunkForce(int, int)
+     * @see MixinChunkProviderServer#impl$loadChunkForce(int, int)
      */
-    @SuppressWarnings("OverwriteTarget") // MCDev - this method overwrites the target from common
-    @Dynamic
-    @Overwrite(remap = false)
-    private Chunk loadChunkForce(int x, int z) {
+    @Override
+    public Chunk impl$loadChunkForce(int x, int z) {
         return this.loadChunk(x, z);
     }
 }

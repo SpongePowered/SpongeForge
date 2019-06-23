@@ -22,31 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.client.multiplayer;
+package org.spongepowered.mod.mixin.core.world.gen;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import net.minecraft.client.multiplayer.ChunkProviderClient;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.gen.ChunkGeneratorEnd;
+import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import javax.annotation.Nullable;
+@Mixin(ChunkGeneratorEnd.class)
+public abstract class MixinChunkGeneratorEnd_Forge implements IChunkGenerator {
 
-@Mixin(ChunkProviderClient.class)
-public abstract class MixinChunkProviderClient implements ServerChunkProviderBridge {
+    @Shadow(remap = false) private int chunkX; // Forge added
+    @Shadow(remap = false) private int chunkZ; // Forge added
+    @Shadow @Final private World world;
 
-    @Shadow @Final private Long2ObjectMap<Chunk> loadedChunks;
 
-    @Override
-    public void setMaxChunkUnloads(int maxUnloads) {
-    }
-
-    @Nullable
-    @Override
-    public Chunk getLoadedChunkWithoutMarkingActive(int x, int z) {
-        return this.loadedChunks.get(ChunkPos.asLong(x, z));
+    @Inject(method = "buildSurfaces(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
+    private void forge$cancelEndstoneWithEvent(ChunkPrimer chunk, CallbackInfo ci) {
+        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.world);
+        MinecraftForge.EVENT_BUS.post(event);
+        ci.cancel();
     }
 }

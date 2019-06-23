@@ -41,7 +41,6 @@ import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.fml.client.FMLFileResourcePack;
 import net.minecraftforge.fml.client.FMLFolderResourcePack;
 import net.minecraftforge.fml.common.CertificateHelper;
@@ -91,8 +90,7 @@ import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.bridge.block.BlockBridge;
-import org.spongepowered.common.bridge.entity.EntityBridge;
-import org.spongepowered.common.bridge.world.ServerChunkProviderBridge;
+import org.spongepowered.common.bridge.world.chunk.ServerChunkProviderBridge;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.SpongeProfession;
@@ -467,7 +465,7 @@ public class SpongeMod extends MetaModContainer {
     @SubscribeEvent
     public void onForceChunk(ForgeChunkManager.ForceChunkEvent event) {
         final net.minecraft.world.chunk.Chunk chunk = ((ServerChunkProviderBridge) event.getTicket().world.getChunkProvider())
-            .getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
+            .bridge$getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
             ((ChunkBridge) chunk).setPersistedChunk(true);
         }
@@ -476,7 +474,7 @@ public class SpongeMod extends MetaModContainer {
     @SubscribeEvent
     public void onUnforceChunk(ForgeChunkManager.UnforceChunkEvent event) {
         final net.minecraft.world.chunk.Chunk chunk = ((ServerChunkProviderBridge) event.getTicket().world.getChunkProvider())
-            .getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
+            .bridge$getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
             ((ChunkBridge) chunk).setPersistedChunk(false);
         }
