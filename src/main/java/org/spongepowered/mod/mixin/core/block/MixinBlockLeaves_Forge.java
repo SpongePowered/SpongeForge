@@ -38,13 +38,12 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
-import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.mixin.core.block.MixinBlock;
 import org.spongepowered.common.world.SpongeLocatableBlockBuilder;
 
@@ -59,10 +58,8 @@ public abstract class MixinBlockLeaves_Forge extends MixinBlock {
         if (!worldIn.isRemote) {
             final PhaseTracker phaseTracker = PhaseTracker.getInstance();
             final IPhaseState<?> currentState = phaseTracker.getCurrentState();
-            final boolean isBlockAlready = currentState.getPhase() != TrackingPhases.BLOCK;
             @Nullable PhaseContext<?> blockDecay = null;
-            final boolean isWorldGen = currentState.isWorldGeneration();
-            if (isBlockAlready && !isWorldGen) {
+            if (!currentState.includesDecays()) {
                 final LocatableBlock locatable = new SpongeLocatableBlockBuilder().world((World) worldIn).position(pos.getX(), pos.getY(), pos.getZ()).state((BlockState) state).build();
 
                 blockDecay = BlockPhase.State.BLOCK_DECAY.createPhaseContext()
