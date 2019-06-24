@@ -90,6 +90,7 @@ import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.bridge.block.BlockBridge;
+import org.spongepowered.common.bridge.world.chunk.ChunkProviderBridge;
 import org.spongepowered.common.bridge.world.chunk.ServerChunkProviderBridge;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
@@ -464,7 +465,7 @@ public class SpongeMod extends MetaModContainer {
 
     @SubscribeEvent
     public void onForceChunk(ForgeChunkManager.ForceChunkEvent event) {
-        final net.minecraft.world.chunk.Chunk chunk = ((ServerChunkProviderBridge) event.getTicket().world.getChunkProvider())
+        final net.minecraft.world.chunk.Chunk chunk = ((ChunkProviderBridge) event.getTicket().world.getChunkProvider())
             .bridge$getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
             ((ChunkBridge) chunk).setPersistedChunk(true);
@@ -473,7 +474,7 @@ public class SpongeMod extends MetaModContainer {
 
     @SubscribeEvent
     public void onUnforceChunk(ForgeChunkManager.UnforceChunkEvent event) {
-        final net.minecraft.world.chunk.Chunk chunk = ((ServerChunkProviderBridge) event.getTicket().world.getChunkProvider())
+        final net.minecraft.world.chunk.Chunk chunk = ((ChunkProviderBridge) event.getTicket().world.getChunkProvider())
             .bridge$getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
             ((ChunkBridge) chunk).setPersistedChunk(false);
