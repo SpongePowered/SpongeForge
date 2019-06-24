@@ -48,13 +48,13 @@ import org.spongepowered.api.extra.fluid.FluidStackSnapshot;
 import org.spongepowered.api.extra.fluid.FluidType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.bridge.data.CustomDataHolderBridge;
 import org.spongepowered.common.data.DataProcessor;
 import org.spongepowered.common.data.ValueProcessor;
 import org.spongepowered.common.data.persistence.NbtTranslator;
-import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.extra.fluid.SpongeFluidStackSnapshotBuilder;
-import org.spongepowered.common.bridge.data.CustomDataHolderBridge;
+import org.spongepowered.common.util.Constants;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -279,10 +279,10 @@ public class MixinFluidStack implements org.spongepowered.api.extra.fluid.FluidS
     public DataContainer toContainer() {
         final DataContainer container = DataContainer.createNew()
                 .set(Queries.CONTENT_VERSION, getContentVersion())
-                .set(DataQueries.Fluids.FLUID_TYPE, this.fluidDelegate.get().getName())
-                .set(DataQueries.Fluids.FLUID_VOLUME, this.getVolume());
+                .set(Constants.Fluids.FLUID_TYPE, this.fluidDelegate.get().getName())
+                .set(Constants.Fluids.FLUID_VOLUME, this.getVolume());
         if (this.tag != null) {
-            container.set(DataQueries.Sponge.UNSAFE_NBT, NbtTranslator.getInstance().translateFrom(this.tag));
+            container.set(Constants.Sponge.UNSAFE_NBT, NbtTranslator.getInstance().translateFrom(this.tag));
         }
         return container;
     }

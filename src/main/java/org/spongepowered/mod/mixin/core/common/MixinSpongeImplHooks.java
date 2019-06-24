@@ -101,7 +101,6 @@ import org.spongepowered.common.bridge.world.DimensionTypeBridge;
 import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
 import org.spongepowered.common.command.SpongeCommandFactory;
 import org.spongepowered.common.data.persistence.NbtTranslator;
-import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
@@ -1054,7 +1053,7 @@ public abstract class MixinSpongeImplHooks {
             final NBTTagCompound caps = capabilities.serializeNBT();
             if (caps != null && !caps.isEmpty()) {
                 final DataContainer capsView = NbtTranslator.getInstance().translate(caps);
-                container.set(DataQueries.Sponge.UNSAFE_NBT.then(Constants.Forge.FORGE_CAPS), capsView);
+                container.set(Constants.Sponge.UNSAFE_NBT.then(Constants.Forge.FORGE_CAPS), capsView);
             }
         }
     }
