@@ -988,7 +988,7 @@ public abstract class MixinSpongeImplHooks {
     @SuppressWarnings("ConstantConditions")
     @Nullable
     @Overwrite
-    public static Entity getCustomEntityIfItem(Entity entity) {
+    public static Entity getCustomEntityIfItem(final Entity entity) {
         final net.minecraft.item.ItemStack stack =
             entity instanceof EntityItem ? ((EntityItem) entity).getItem() : net.minecraft.item.ItemStack.EMPTY;
         final Item item = stack.getItem();
@@ -1001,7 +1001,7 @@ public abstract class MixinSpongeImplHooks {
                 return newEntity;
             }
         }
-        return entity;
+        return null;
     }
 
     /**
