@@ -40,16 +40,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.bridge.server.MinecraftServerBridge;
 import org.spongepowered.common.bridge.server.management.PlayerProfileCacheBridge;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
-import org.spongepowered.common.interfaces.IMixinMinecraftServer;
 import org.spongepowered.common.world.WorldManager;
 
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
 @Mixin(value = MinecraftServer.class, priority = 1002)
-public abstract class MixinMinecraftServer_Forge implements IMixinMinecraftServer {
+public abstract class MixinMinecraftServer_Forge implements MinecraftServerBridge {
 
     @Shadow @Final private static Logger LOGGER;
     @Shadow @Final private Snooper usageSnooper;
@@ -59,17 +59,17 @@ public abstract class MixinMinecraftServer_Forge implements IMixinMinecraftServe
     @Shadow public abstract PlayerProfileCache getPlayerProfileCache();
 
     @Override
-    public long[] getWorldTickTimes(int dimensionId) {
+    public long[] bridge$getWorldTickTimes(int dimensionId) {
         return this.worldTickTimes.get(dimensionId);
     }
 
     @Override
-    public void putWorldTickTimes(int dimensionId, long[] tickTimes) {
+    public void bridge$putWorldTickTimes(int dimensionId, long[] tickTimes) {
         this.worldTickTimes.put(dimensionId, tickTimes);
     }
 
     @Override
-    public void removeWorldTickTimes(int dimensionId) {
+    public void bridge$removeWorldTickTimes(int dimensionId) {
         this.worldTickTimes.remove(dimensionId);
     }
 
