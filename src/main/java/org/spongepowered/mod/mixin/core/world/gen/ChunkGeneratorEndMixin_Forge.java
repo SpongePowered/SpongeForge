@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ChunkGeneratorEnd.class)
-public abstract class MixinChunkGeneratorEnd_Forge implements IChunkGenerator {
+public abstract class ChunkGeneratorEndMixin_Forge implements IChunkGenerator {
 
     @Shadow(remap = false) private int chunkX; // Forge added
     @Shadow(remap = false) private int chunkZ; // Forge added

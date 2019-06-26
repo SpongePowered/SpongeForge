@@ -22,29 +22,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world;
+package org.spongepowered.mod.mixin.api.minecraft.world.chunk;
 
-import net.minecraft.world.DimensionType;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.bridge.world.DimensionTypeBridge;
+import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
 
-@Mixin(value = DimensionType.class, priority = 1002, remap = false)
-public abstract class MixinDimensionType_Forge implements DimensionTypeBridge {
+@Mixin(Chunk.class)
+public abstract class ChunkMixin_ForgeAPI implements org.spongepowered.api.world.Chunk {
 
-    @Shadow private boolean shouldLoadSpawn;
+    @Shadow @Final private net.minecraft.world.World world;
+    @Shadow @Final public int x;
+    @Shadow @Final public int z;
 
-    /**
-     * @author blood - September 10th, 2016
-     * @author gabizou - January 25th, 2019
-     *
-     * @reason - Uses forge's var for determining whether a dimension type should generate spawn.
-     * @update - Forge's variable is no longer to determine whether spawn is generated on load, it's
-     * to determine whether the spawn needs to remain loaded to the chunk ticket manager, or whether
-     * the world can be unloaded.
-     */
     @Override
-    public boolean shouldKeepSpawnLoaded() {
-        return this.shouldLoadSpawn;
+    public boolean unloadChunk() {
+        if (((ChunkBridge) this).isPersistedChunk()) {
+            return false;
+        }
+
+        // TODO 1.9 Update - Zidane's thing
+        if (this.world.provider.canRespawnHere()) {//&& DimensionManager.shouldLoadSpawn(this.world.provider.getDimension())) {
+            if (this.world.isSpawnChunk(this.x, this.z)) {
+                return false;
+            }
+        }
+        ((WorldServer) this.world).getChunkProvider().queueUnload((Chunk) (Object) this);
+        return true;
     }
+
+
 }

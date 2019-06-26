@@ -28,22 +28,20 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
-import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.At.Shift;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.bridge.world.chunk.ServerChunkProviderBridge;
-import org.spongepowered.common.mixin.core.world.gen.MixinChunkProviderServer;
+import org.spongepowered.common.mixin.core.world.gen.ChunkProviderServerMixin;
 
 @Mixin(value = ChunkProviderServer.class, priority = 1001)
-public abstract class MixinChunkProviderServer_Forge implements ServerChunkProviderBridge {
+public abstract class ChunkProviderServerMixin_Forge implements ServerChunkProviderBridge {
 
     @Shadow @Final public WorldServer world;
     @Shadow @Final public Long2ObjectMap<Chunk> loadedChunks;
@@ -70,7 +68,7 @@ public abstract class MixinChunkProviderServer_Forge implements ServerChunkProvi
      * the original method to ensure that async loading gets handled properly (Forge's code properly
      * handles a concurrent asychronous load of the same chunk).
      *
-     * @see MixinChunkProviderServer#impl$loadChunkForce(int, int)
+     * @see ChunkProviderServerMixin#impl$loadChunkForce(int, int)
      */
     @Override
     public Chunk impl$loadChunkForce(int x, int z) {

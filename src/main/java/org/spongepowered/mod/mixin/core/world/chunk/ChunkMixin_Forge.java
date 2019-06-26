@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world;
+package org.spongepowered.mod.mixin.core.world.chunk;
 
 import com.flowpowered.math.vector.Vector3i;
 import net.minecraft.block.state.IBlockState;
@@ -46,9 +46,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
 
-@NonnullByDefault
 @Mixin(value = Chunk.class, priority = 1001)
-public abstract class MixinChunk_Forge implements ChunkBridge {
+public abstract class ChunkMixin_Forge implements ChunkBridge {
 
     @Shadow @Final private net.minecraft.world.World world;
     @Shadow @Final public int x;

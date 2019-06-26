@@ -22,30 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world.biome;
+package org.spongepowered.mod.mixin.core.world;
 
-import net.minecraft.world.biome.BiomeDecorator;
+import net.minecraft.world.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.bridge.world.DimensionTypeBridge;
 
-@Mixin(BiomeDecorator.class)
-public class MixinBiomeDecorator {
+@Mixin(value = DimensionType.class, priority = 1002, remap = false)
+public abstract class DimensionTypeMixin_Forge implements DimensionTypeBridge {
 
-    // TODO - gabizou - evaluate whether this is still needed and whether we should be preventing chunk loads
-//    @Inject(method = "decorate", at = @At("HEAD"))
-//    protected void onBiomeDecorateHead(World worldIn, Random random, Biome biome, BlockPos pos, CallbackInfo ci) {
-//        if (!worldIn.isRemote) {
-//            WorldServer world = (WorldServer) worldIn;
-//            // don't allow chunks to load while decorating
-//            world.getChunkProvider().chunkLoadOverride = false;
-//        }
-//    }
-//
-//    @Inject(method = "decorate", at = @At("RETURN"))
-//    protected void onBiomeDecorateReturn(World worldIn, Random random, Biome biome, BlockPos pos, CallbackInfo ci) {
-//        if (!worldIn.isRemote) {
-//            WorldServer world = (WorldServer) worldIn;
-//            // decorate is finished, allow chunks to load
-//            world.theChunkProviderServer.chunkLoadOverride = true;
-//        }
-//    }
+    @Shadow private boolean shouldLoadSpawn;
+
+    /**
+     * @author blood - September 10th, 2016
+     * @author gabizou - January 25th, 2019
+     *
+     * @reason - Uses forge's var for determining whether a dimension type should generate spawn.
+     * @update - Forge's variable is no longer to determine whether spawn is generated on load, it's
+     * to determine whether the spawn needs to remain loaded to the chunk ticket manager, or whether
+     * the world can be unloaded.
+     */
+    @Override
+    public boolean bridge$shouldKeepSpawnLoaded() {
+        return this.shouldLoadSpawn;
+    }
 }

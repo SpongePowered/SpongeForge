@@ -24,9 +24,11 @@
  */
 package org.spongepowered.mod.mixin.core.world;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.ChunkProviderServer;
 import org.spongepowered.api.Sponge;
@@ -39,22 +41,34 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldBridge;
+import org.spongepowered.common.event.SpongeCommonEventFactory;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
-import org.spongepowered.common.mixin.core.world.MixinWorld;
 import org.spongepowered.common.world.gen.SpongeChunkGenerator;
 import org.spongepowered.common.world.gen.SpongeWorldGenerator;
 import org.spongepowered.mod.world.gen.SpongeChunkGeneratorForge;
 
 @Mixin(value = WorldServer.class, priority = 1001)
-public abstract class MixinWorldServer_ImplForge extends MixinWorld implements ServerWorldBridge {
+public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements ServerWorldBridge {
 
+    @Override
     @Shadow public abstract ChunkProviderServer getChunkProvider();
 
     @Override
     public int bridge$getDimensionId() {
         return this.provider.getDimension();
+    }
+
+    @Override
+    protected void forgeImpl$UseComparatorOutputLevel(World world, BlockPos pos, Block blockIn, BlockPos samePos) {
+        if (!((WorldBridge) this).isFake()) {
+            if (PhaseTracker.getInstance().getCurrentState().isRestoring()) {
+                return;
+            }
+        }
+        this.updateComparatorOutputLevel(pos, blockIn);
     }
 
     @Redirect(
@@ -90,7 +104,7 @@ public abstract class MixinWorldServer_ImplForge extends MixinWorld implements S
         if (server.isBlockProtected(worldIn, pos, playerIn)) {
             return true;
         }
-        if (!this.isFake() && SpongeImplHooks.isMainThread()) {
+        if (!((WorldBridge) this).isFake() && SpongeImplHooks.isMainThread()) {
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 // Might as well provide the active item in use.
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(playerIn.getActiveItemStack()));
@@ -119,7 +133,7 @@ public abstract class MixinWorldServer_ImplForge extends MixinWorld implements S
         if (super.isBlockModifiable(player, pos)) {
             return true;
         }
-        if (!this.isFake() && SpongeImplHooks.isMainThread()) {
+        if (!((WorldBridge) this).isFake() && SpongeImplHooks.isMainThread()) {
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 // Might as well provide the active item in use.
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));

@@ -32,10 +32,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
-import org.spongepowered.mod.bridge.PseudoForgeItemStackBridge;
+import org.spongepowered.mod.bridge.ItemStackBridge_Forge;
 
 @Mixin(net.minecraft.item.ItemStack.class)
-public abstract class MixinItemStack_Forge implements PseudoForgeItemStackBridge {
+public abstract class MixinItemStack_Forge implements ItemStackBridge_Forge {
 
     @Shadow(remap = false) private CapabilityDispatcher capabilities;
 
@@ -70,7 +70,7 @@ public abstract class MixinItemStack_Forge implements PseudoForgeItemStackBridge
     }
 
     @Override
-    public CapabilityDispatcher pseudo$getCapabilities() {
+    public CapabilityDispatcher forgeBridge$getCapabilities() {
         return this.capabilities;
     }
 }

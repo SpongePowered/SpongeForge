@@ -31,23 +31,28 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.common.bridge.world.gen.feature.WorldGeneratorBridge;
 
 @Mixin(value = net.minecraft.world.gen.feature.WorldGenerator.class, priority = 1001)
-public abstract class MixinWorldGeneratorForge {
+public abstract class MixinWorldGeneratorForge implements WorldGeneratorBridge {
 
-    public boolean isAir(IBlockState state, World worldIn, BlockPos pos) {
+    @Override
+    public boolean bridge$isAir(final IBlockState state, final World worldIn, final BlockPos pos) {
         return state.getBlock().isAir(state, worldIn, pos);
     }
 
-    public boolean isLeaves(IBlockState state, World worldIn, BlockPos pos) {
+    @Override
+    public boolean bridge$isLeaves(final IBlockState state, final World worldIn, final BlockPos pos) {
         return state.getBlock().isLeaves(state, worldIn, pos);
     }
 
-    public boolean isWood(IBlockState state, World worldIn, BlockPos pos) {
+    @Override
+    public boolean birdge$isWood(final IBlockState state, final World worldIn, final BlockPos pos) {
         return state.getBlock().isWood(worldIn, pos);
     }
     
-    public boolean canSustainPlant(Block block, World worldIn, BlockPos pos, EnumFacing direction, Block plant) {
+    @Override
+    public boolean bridge$canSustainPlant(final Block block, final World worldIn, final BlockPos pos, final EnumFacing direction, final Block plant) {
         return block.canSustainPlant(worldIn.getBlockState(pos), worldIn, pos, direction, (IPlantable) plant);
     }
 

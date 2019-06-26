@@ -97,7 +97,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
 import org.spongepowered.common.event.tracking.phase.generation.PopulatorPhaseContext;
-import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
+import org.spongepowered.common.bridge.world.gen.FlaggedPopulatorBridge;
 import org.spongepowered.common.interfaces.world.gen.IGenerationPopulator;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.common.world.extent.SoftBufferExtentViewDownsize;
@@ -273,8 +273,8 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                     }
                     timing.startTimingIfSync();
                 }
-                if (populator instanceof IFlaggedPopulator) {
-                    ((IFlaggedPopulator) populator).populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
+                if (populator instanceof FlaggedPopulatorBridge) {
+                    ((FlaggedPopulatorBridge) populator).populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
                 } else {
                     populator.populate(spongeWorld, volume, this.rand, biomeBuffer);
                 }

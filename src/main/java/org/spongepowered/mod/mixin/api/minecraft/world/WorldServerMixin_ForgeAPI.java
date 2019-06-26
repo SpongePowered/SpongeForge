@@ -22,30 +22,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world;
+package org.spongepowered.mod.mixin.api.minecraft.world;
 
-import net.minecraft.block.Block;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.gen.ChunkProviderServer;
+import org.spongepowered.api.world.Chunk;
+import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.event.tracking.PhaseTracker;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.mixin.api.mcp.world.WorldMixin_API;
+import org.spongepowered.common.world.storage.SpongeChunkLayout;
 
-/**
- * Created to be able to override Forge specific injections that we only want
- * to have for the WorldServer.
- */
-@Mixin(value = WorldServer.class, priority = 1010)
-public abstract class MixinWorldServer_Forge extends MixinWorld_Forge {
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
+@Mixin(WorldServer.class)
+public abstract class WorldServerMixin_ForgeAPI extends WorldMixin_API implements World {
+
+    @Shadow public abstract ChunkProviderServer getChunkProvider();
 
     @Override
-    protected void onUpdateComparatorDuringTileRemoval(World world, BlockPos pos, Block blockIn, BlockPos samePos) {
-        if (!this.isFake()) {
-            if (PhaseTracker.getInstance().getCurrentState().isRestoring()) {
-                return;
-            }
+    public CompletableFuture<Optional<Chunk>> loadChunkAsync(final int cx, final int cy, final int cz, final boolean shouldGenerate) {
+        // Currently, we can only load asynchronously if the chunk should not be generated
+        if (shouldGenerate) {
+            return World.super.loadChunkAsync(cx, cy, cz, true);
         }
-        this.updateComparatorOutputLevel(pos, blockIn);
+
+        if (!SpongeChunkLayout.instance.isValidChunk(cx, cy, cz)) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+
+        final CompletableFuture<Optional<Chunk>> future = new CompletableFuture<>();
+        getChunkProvider().loadChunk(cx, cz, () -> future.complete(Optional.ofNullable((Chunk) getChunkProvider().getLoadedChunk(cx, cz))));
+        return future;
     }
+
+
 
 }

@@ -90,9 +90,9 @@ import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.bridge.block.BlockBridge;
-import org.spongepowered.common.bridge.world.chunk.ChunkProviderBridge;
-import org.spongepowered.common.bridge.world.chunk.ServerChunkProviderBridge;
+import org.spongepowered.common.bridge.world.biome.BiomeBridge;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
+import org.spongepowered.common.bridge.world.chunk.ChunkProviderBridge;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
@@ -101,7 +101,6 @@ import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.inject.SpongeGuice;
 import org.spongepowered.common.inject.SpongeModule;
 import org.spongepowered.common.interfaces.IMixinServerCommandManager;
-import org.spongepowered.common.interfaces.world.biome.IMixinBiome;
 import org.spongepowered.common.item.recipe.crafting.DelegateSpongeCraftingRecipe;
 import org.spongepowered.common.item.recipe.crafting.SpongeCraftingRecipeRegistry;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
@@ -274,9 +273,9 @@ public class SpongeMod extends MetaModContainer {
         SpongeGameData.addRegistryCallback(ForgeRegistries.BIOMES, (owner, manager, id, obj, old) -> {
             ResourceLocation registryName = obj.getRegistryName();
             if (registryName != null) {
-                if (!registryName.getNamespace().equals(((IMixinBiome) obj).getModId())) {
-                    ((IMixinBiome) obj).setModId(registryName.getNamespace());
-                    ((IMixinBiome) obj).setId(registryName.toString());
+                if (!registryName.getNamespace().equals(((BiomeBridge) obj).bridge$getModId())) {
+                    ((BiomeBridge) obj).bridge$setModId(registryName.getNamespace());
+                    ((BiomeBridge) obj).bridge$setId(registryName.toString());
                 }
                 if (PopulatorTypeRegistryModule.getInstance().hasRegistrationFor(obj.getClass())) {
                     PopulatorTypeRegistryModule.getInstance().replaceFromForge(obj);

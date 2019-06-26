@@ -9,8 +9,8 @@
     "mixins": [
         "forge.common.util.MixinITeleporter_APIForge",
         "minecraft.server.MixinMinecraftServer_APIForge",
-        "minecraft.world.MixinWorldServer_APIForge",
-        "minecraft.world.chunk.MixinChunk_APIForge"
+        "minecraft.world.WorldServerMixin_ForgeAPI",
+        "minecraft.world.chunk.ChunkMixin_ForgeAPI"
     ],
     "client": [
     ],

@@ -22,30 +22,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world.biome;
+package org.spongepowered.mod.bridge;
 
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeDecorator;
-import net.minecraftforge.event.terraingen.DeferredBiomeDecorator;
-import org.spongepowered.api.world.biome.BiomeGenerationSettings;
-import org.spongepowered.api.world.biome.BiomeType;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 
-@Mixin(value = Biome.class, priority = 1001)
-@Implements(value = @Interface(iface = BiomeType.class, prefix = "super$") )
-public abstract class MixinBiomeGenBaseForge implements BiomeType {
+public interface ItemStackBridge_Forge {
 
-    @Shadow public BiomeDecorator decorator;
+    CapabilityDispatcher forgeBridge$getCapabilities();
 
-    @Intrinsic(displace = true)
-    public BiomeGenerationSettings super$createDefaultGenerationSettings(org.spongepowered.api.world.World world) {
-        if (this.decorator instanceof DeferredBiomeDecorator) {
-            ((DeferredBiomeDecorator) this.decorator).fireCreateEventAndReplace((Biome) (Object) this);
-        }
-        return createDefaultGenerationSettings(world);
-    }
 }
