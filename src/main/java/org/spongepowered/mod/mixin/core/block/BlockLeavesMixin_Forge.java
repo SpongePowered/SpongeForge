@@ -25,10 +25,13 @@
 package org.spongepowered.mod.mixin.core.block;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLog;
+import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.event.CauseStackManager;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.World;
@@ -42,49 +45,43 @@ import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
-import org.spongepowered.common.mixin.core.block.MixinBlock;
+import org.spongepowered.common.mixin.core.block.BlockMixin;
 import org.spongepowered.common.world.SpongeLocatableBlockBuilder;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
-@Mixin(value = BlockLog.class, priority = 1001)
-public abstract class MixinBlockLog_Forge extends MixinBlock {
+@Mixin(value = BlockLeaves.class, priority = 1001)
+public abstract class BlockLeavesMixin_Forge extends BlockMixin {
 
     @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", remap = false))
     private void onSpongeBreakBlock(Block block, IBlockState state, net.minecraft.world.World worldIn, BlockPos pos) {
         if (!worldIn.isRemote) {
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) worldIn, pos).isCancelled()) {
-                return;
-            }
             final PhaseTracker phaseTracker = PhaseTracker.getInstance();
             final IPhaseState<?> currentState = phaseTracker.getCurrentState();
             final boolean isBlockAlready = currentState.getPhase() != TrackingPhases.BLOCK;
+            @Nullable PhaseContext<?> blockDecay = null;
             final boolean isWorldGen = currentState.isWorldGeneration();
-            try (final PhaseContext<?> decayContext = createDecayContext((BlockState) state, (World) worldIn, pos, isBlockAlready && !isWorldGen)) {
-                if (decayContext != null) {
-                    decayContext.buildAndSwitch();
+            if (isBlockAlready && !isWorldGen) {
+                final LocatableBlock locatable = new SpongeLocatableBlockBuilder().world((World) worldIn).position(pos.getX(), pos.getY(), pos.getZ()).state((BlockState) state).build();
+
+                blockDecay = BlockPhase.State.BLOCK_DECAY.createPhaseContext()
+                    .source(locatable);
+            }
+            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame();
+                 PhaseContext<?> context = blockDecay) {
+                if (context != null) {
+                    context.buildAndSwitch();
+                }
+                frame.addContext(EventContextKeys.LEAVES_DECAY, (World) worldIn);
+                if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) worldIn, pos).isCancelled()) {
+                    return;
                 }
                 block.beginLeavesDecay(state, worldIn, pos);
             }
         } else {
             block.beginLeavesDecay(state, worldIn, pos);
         }
-    }
-
-    @Nullable
-    private PhaseContext<?> createDecayContext(BlockState state, World worldIn, BlockPos pos, boolean canCreate) {
-        if (canCreate) {
-            final LocatableBlock locatable = new SpongeLocatableBlockBuilder()
-                .world(worldIn)
-                .position(pos.getX(), pos.getY(), pos.getZ())
-                .state(state)
-                .build();
-
-            return BlockPhase.State.BLOCK_DECAY.createPhaseContext()
-                .source(locatable);
-        }
-        return null;
     }
 
 }

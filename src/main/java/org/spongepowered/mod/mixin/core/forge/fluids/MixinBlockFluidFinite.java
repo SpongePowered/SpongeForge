@@ -64,7 +64,7 @@ import java.util.function.BiConsumer;
 public abstract class MixinBlockFluidFinite extends MixinBlockFluidBase {
 
     @Override
-    public BiConsumer<CauseStackManager.StackFrame, ServerWorldBridge> getTickFrameModifier() {
+    public BiConsumer<CauseStackManager.StackFrame, ServerWorldBridge> bridge$getTickFrameModifier() {
         return (frame, world) -> frame.addContext(EventContextKeys.LIQUID_FLOW, (org.spongepowered.api.world.World) world);
     }
 

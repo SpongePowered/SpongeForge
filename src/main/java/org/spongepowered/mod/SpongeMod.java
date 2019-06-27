@@ -219,7 +219,7 @@ public class SpongeMod extends MetaModContainer {
         PhaseTracker.SERVER.init(); // Needs to occur after the game registry registers all the builders.
         SpongeGameData.addRegistryCallback(ForgeRegistries.BLOCKS, (owner, manager, id, obj, oldObj) -> {
             final ResourceLocation key = ForgeRegistries.BLOCKS.getKey(obj);
-            if (key == null || ((BlockBridge) obj).isDummy()) {
+            if (key == null || ((BlockBridge) obj).bridge$isDummy()) {
                 return;
             }
             BlockTypeRegistryModule.getInstance().registerFromGameData(key.toString(), (BlockType) obj);

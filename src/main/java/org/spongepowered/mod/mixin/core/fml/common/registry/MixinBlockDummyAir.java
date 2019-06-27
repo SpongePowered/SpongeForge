@@ -32,7 +32,7 @@ import org.spongepowered.common.bridge.block.BlockBridge;
 public abstract class MixinBlockDummyAir extends BlockAir implements BlockBridge {
 
     @Override
-    public boolean isDummy() {
+    public boolean bridge$isDummy() {
         return true;
     }
 }
