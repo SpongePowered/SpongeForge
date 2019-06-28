@@ -28,21 +28,20 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.mod.interfaces.IMixinBlock;
+import org.spongepowered.mod.bridge.block.BlockBridge_Forge;
 
 @Mixin(Block.class)
-public abstract class BlockMixin_Forge implements IMixinBlock {
+public abstract class BlockMixin_Forge implements BlockBridge_Forge {
 
     private boolean requiresLocationCheckForLight;
     private boolean requiresLocationCheckForOpacity;
 
     @Inject(method = "<init>*", at = @At("RETURN"))
-    private void forge$setUpMethodsFromReflection(CallbackInfo ci) {
+    private void forge$setUpMethodsFromReflection(final CallbackInfo ci) {
         // Determine which blocks can avoid executing un-needed event logic
         // This will allow us to avoid running event logic for blocks that do nothing such as grass collisions
         // -- blood
@@ -50,10 +49,10 @@ public abstract class BlockMixin_Forge implements IMixinBlock {
         this.requiresLocationCheckForLight = true;
         this.requiresLocationCheckForOpacity = true;
 
-        // requiresLocationCheckForLightValue // Forge added method getLightValue that takes a state, world, and position
+        // forgeBridge$requiresLocationCheckForLightValue // Forge added method getLightValue that takes a state, world, and position
         try {
-            Class<?>[] args = {IBlockState.class, IBlockAccess.class, BlockPos.class};
-            Class<?> clazz = this.getClass().getMethod("getLightValue", args).getDeclaringClass();
+            final Class<?>[] args = {IBlockState.class, IBlockAccess.class, BlockPos.class};
+            final Class<?> clazz = this.getClass().getMethod("getLightValue", args).getDeclaringClass();
             if (clazz.equals(Block.class)) {
                 this.requiresLocationCheckForLight = false;
             }
@@ -61,10 +60,10 @@ public abstract class BlockMixin_Forge implements IMixinBlock {
             // Ignore
         }
 
-        // requiresLocationCheckForOpacity // Forge added method getLightValue that takes a state, world, and position
+        // forgeBridge$requiresLocationCheckForOpacity // Forge added method getLightValue that takes a state, world, and position
         try {
-            Class<?>[] args = {IBlockState.class, IBlockAccess.class, BlockPos.class};
-            Class<?> clazz = this.getClass().getMethod("getLightOpacity", args).getDeclaringClass();
+            final Class<?>[] args = {IBlockState.class, IBlockAccess.class, BlockPos.class};
+            final Class<?> clazz = this.getClass().getMethod("getLightOpacity", args).getDeclaringClass();
             if (clazz.equals(Block.class)) {
                 this.requiresLocationCheckForOpacity = false;
             }
@@ -74,12 +73,12 @@ public abstract class BlockMixin_Forge implements IMixinBlock {
     }
 
     @Override
-    public boolean requiresLocationCheckForLightValue() {
+    public boolean forgeBridge$requiresLocationCheckForLightValue() {
         return this.requiresLocationCheckForLight;
     }
 
     @Override
-    public boolean requiresLocationCheckForOpacity() {
+    public boolean forgeBridge$requiresLocationCheckForOpacity() {
         return this.requiresLocationCheckForOpacity;
     }
 

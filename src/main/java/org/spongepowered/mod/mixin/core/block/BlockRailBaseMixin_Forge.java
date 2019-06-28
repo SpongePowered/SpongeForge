@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.block;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -56,11 +57,12 @@ public class BlockRailBaseMixin_Forge {
             final Chunk chunk = (Chunk) ((ActiveChunkReferantBridge) cart).bridge$getActiveChunk();
             final boolean useActiveChunk = chunk != null && chunk.x == pos.getX() >> 4 && chunk.z == pos.getZ() >> 4;
             final ChunkBridge spongeChunk = (ChunkBridge) (useActiveChunk ? chunk : world.getChunk(pos));
+            final Block block = ((Chunk) spongeChunk).getBlockState(pos).getBlock();
             if (notifier.isPresent()) {
-                spongeChunk.addTrackedBlockPosition(world.getBlockState(pos).getBlock(), pos, notifier.get(), PlayerTracker.Type.NOTIFIER);
+                spongeChunk.addTrackedBlockPosition(block, pos, notifier.get(), PlayerTracker.Type.NOTIFIER);
             } else {
                 owner.ifPresent(
-                    user -> spongeChunk.addTrackedBlockPosition(((Chunk) spongeChunk).getBlockState(pos).getBlock(), pos, user, PlayerTracker.Type.NOTIFIER));
+                    user -> spongeChunk.addTrackedBlockPosition(block, pos, user, PlayerTracker.Type.NOTIFIER));
             }
         }
     }

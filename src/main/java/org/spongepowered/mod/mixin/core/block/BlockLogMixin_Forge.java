@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
@@ -50,27 +51,31 @@ import javax.annotation.Nullable;
 @Mixin(value = BlockLog.class, priority = 1001)
 public abstract class BlockLogMixin_Forge extends BlockMixin {
 
-    @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", remap = false))
-    private void onSpongeBreakBlock(Block block, IBlockState state, net.minecraft.world.World worldIn, BlockPos pos) {
-        if (!worldIn.isRemote) {
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) worldIn, pos).isCancelled()) {
-                return;
+    @Redirect(method = "breakBlock",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V",
+            remap = false))
+    private void onSpongeBreakBlock(final Block block, final IBlockState state, final net.minecraft.world.World worldIn, final BlockPos pos) {
+        if (((WorldBridge) worldIn).isFake()) {
+            block.beginLeavesDecay(state, worldIn, pos);
+            return;
+        }
+        if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) worldIn, pos).isCancelled()) {
+            return;
+        }
+        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+        final IPhaseState<?> currentState = phaseTracker.getCurrentState();
+        try (final PhaseContext<?> decayContext = createDecayContext((BlockState) state, (World) worldIn, pos, !currentState.includesDecays())) {
+            if (decayContext != null) {
+                decayContext.buildAndSwitch();
             }
-            final PhaseTracker phaseTracker = PhaseTracker.getInstance();
-            final IPhaseState<?> currentState = phaseTracker.getCurrentState();
-            try (final PhaseContext<?> decayContext = createDecayContext((BlockState) state, (World) worldIn, pos, !currentState.includesDecays())) {
-                if (decayContext != null) {
-                    decayContext.buildAndSwitch();
-                }
-                block.beginLeavesDecay(state, worldIn, pos);
-            }
-        } else {
             block.beginLeavesDecay(state, worldIn, pos);
         }
     }
 
     @Nullable
-    private PhaseContext<?> createDecayContext(BlockState state, World worldIn, BlockPos pos, boolean canCreate) {
+    private PhaseContext<?> createDecayContext(final BlockState state, final World worldIn, final BlockPos pos, final boolean canCreate) {
         if (canCreate) {
             final LocatableBlock locatable = new SpongeLocatableBlockBuilder()
                 .world(worldIn)

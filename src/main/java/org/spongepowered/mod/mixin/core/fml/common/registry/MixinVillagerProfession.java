@@ -35,8 +35,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.entity.SpongeCareer;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.text.translation.SpongeTranslation;
-import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
-import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
+import org.spongepowered.mod.bridge.registry.VillagerCareerBridge_Forge;
+import org.spongepowered.mod.bridge.registry.VillagerProfessionBridge_Forge;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
 import java.util.List;
@@ -45,7 +45,8 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 @Mixin(value = VillagerRegistry.VillagerProfession.class, remap = false)
-public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<VillagerRegistry.VillagerProfession> implements IMixinVillagerProfession {
+public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<VillagerRegistry.VillagerProfession> implements
+    VillagerProfessionBridge_Forge {
 
     @Shadow private ResourceLocation name;
     @Shadow private List<VillagerRegistry.VillagerCareer> careers;
@@ -53,32 +54,32 @@ public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<V
     @Nullable private SpongeProfession spongeProfession;
 
     @Override
-    public String getId() {
+    public String forgeBridge$getId() {
         return this.getRegistryName().toString();
     }
 
     @Override
-    public List<VillagerRegistry.VillagerCareer> getCareers() {
+    public List<VillagerRegistry.VillagerCareer> forgeBridge$getCareers() {
         return this.careers;
     }
 
     @Override
-    public ResourceLocation getName() {
+    public ResourceLocation forgeBridge$getName() {
         return this.name;
     }
 
     @Override
-    public String getProfessionName() {
+    public String forgeBridge$getProfessionName() {
         return this.name.getPath();
     }
 
     @Override
-    public Optional<SpongeProfession> getSpongeProfession() {
+    public Optional<SpongeProfession> forgeBridge$getSpongeProfession() {
         return Optional.ofNullable(this.spongeProfession);
     }
 
     @Override
-    public void setSpongeProfession(@Nullable SpongeProfession profession) {
+    public void forgeBridge$setSpongeProfession(@Nullable SpongeProfession profession) {
         this.spongeProfession = profession;
     }
 
@@ -88,10 +89,10 @@ public abstract class MixinVillagerProfession extends IForgeRegistryEntry.Impl<V
         if (this.spongeProfession == null) {
             this.spongeProfession = SpongeForgeVillagerRegistry.fromNative((VillagerRegistry.VillagerProfession) (Object) this);
         }
-        final IMixinVillagerCareer mixinCareer = (IMixinVillagerCareer) career;
-        final int careerId = mixinCareer.getId();
+        final VillagerCareerBridge_Forge mixinCareer = (VillagerCareerBridge_Forge) career;
+        final int careerId = mixinCareer.forgeBridge$getId();
         final SpongeCareer suggestedCareer = new SpongeCareer(careerId, career.getName(), this.spongeProfession, new SpongeTranslation("entity.Villager." + career.getName()));
-        mixinCareer.setSpongeCareer(suggestedCareer);
+        mixinCareer.forgeBridge$setSpongeCareer(suggestedCareer);
         this.spongeProfession.getUnderlyingCareers().add(suggestedCareer);
     }
 

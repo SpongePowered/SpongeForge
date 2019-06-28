@@ -48,8 +48,8 @@ import org.spongepowered.common.registry.type.entity.CareerRegistryModule;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
 import org.spongepowered.common.text.translation.SpongeTranslation;
 import org.spongepowered.mod.bridge.entity.passive.EntityVillagerBridge_Forge;
-import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
-import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
+import org.spongepowered.mod.bridge.registry.VillagerCareerBridge_Forge;
+import org.spongepowered.mod.bridge.registry.VillagerProfessionBridge_Forge;
 
 import java.util.List;
 import java.util.Random;
@@ -73,25 +73,25 @@ public final class SpongeForgeVillagerRegistry {
 
     @Nonnull
     public static SpongeProfession fromNative(final VillagerRegistry.VillagerProfession profession) {
-        final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) profession;
-        return mixinProfession.getSpongeProfession().orElseGet(() -> {
+        final VillagerProfessionBridge_Forge mixinProfession = (VillagerProfessionBridge_Forge) profession;
+        return mixinProfession.forgeBridge$getSpongeProfession().orElseGet(() -> {
             final int id = ((ForgeRegistry<VillagerRegistry.VillagerProfession>) ForgeRegistries.VILLAGER_PROFESSIONS).getID(profession);
-            final SpongeProfession newProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
-            mixinProfession.setSpongeProfession(newProfession);
+            final SpongeProfession newProfession = new SpongeProfession(id, mixinProfession.forgeBridge$getId(), mixinProfession.forgeBridge$getProfessionName());
+            mixinProfession.forgeBridge$setSpongeProfession(newProfession);
             ProfessionRegistryModule.getInstance().registerAdditionalCatalog(newProfession);
             return newProfession;
         });
     }
 
     public static SpongeCareer fromNative(final VillagerRegistry.VillagerCareer career) {
-        final IMixinVillagerCareer mixinCareer = (IMixinVillagerCareer) career;
-        if (mixinCareer.isDelayed() && SpongeImplHooks.isMainThread()) {
-            mixinCareer.performDelayedInit();
+        final VillagerCareerBridge_Forge mixinCareer = (VillagerCareerBridge_Forge) career;
+        if (mixinCareer.forgeBridge$isDelayed() && SpongeImplHooks.isMainThread()) {
+            mixinCareer.forgeBridge$performDelayedInit();
         }
-        return mixinCareer.getSpongeCareer().orElseGet(() -> {
-            final int careerId = mixinCareer.getId();
-            final SpongeCareer suggestedCareer = new SpongeCareer(careerId, career.getName(), fromNative(mixinCareer.getProfession()), new SpongeTranslation("entity.Villager." + career.getName()));
-            mixinCareer.setSpongeCareer(suggestedCareer);
+        return mixinCareer.forgeBridge$getSpongeCareer().orElseGet(() -> {
+            final int careerId = mixinCareer.forgeBridge$getId();
+            final SpongeCareer suggestedCareer = new SpongeCareer(careerId, career.getName(), fromNative(mixinCareer.forgeBridge$getProfession()), new SpongeTranslation("entity.Villager." + career.getName()));
+            mixinCareer.forgeBridge$setSpongeCareer(suggestedCareer);
             CareerRegistryModule.getInstance().registerCareer(suggestedCareer);
             ProfessionRegistryModule.getInstance().registerCareerForProfession(suggestedCareer);
             return suggestedCareer;
@@ -124,8 +124,8 @@ public final class SpongeForgeVillagerRegistry {
             final List<Career> underlyingCareers = ((SpongeProfession) profession).getUnderlyingCareers();
             underlyingCareers.clear();
             // Try to re-add every career based on the profession's career
-            final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) professionForge;
-            for (final VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
+            final VillagerProfessionBridge_Forge mixinProfession = (VillagerProfessionBridge_Forge) professionForge;
+            for (final VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.forgeBridge$getCareers()) {
                 fromNative(villagerCareer); // attempts to re-set the career just in case.
             }
             if (careers.size() <= careerNumberId) {
@@ -198,7 +198,7 @@ public final class SpongeForgeVillagerRegistry {
     }
 
     private static void printMismatch(
-        final int careerNumberId, final Profession profession, final List<Career> careers, final IMixinVillagerProfession mixinProfession) {
+        final int careerNumberId, final Profession profession, final List<Career> careers, final VillagerProfessionBridge_Forge mixinProfession) {
         final PrettyPrinter printer = new PrettyPrinter(60).add("Sponge Forge Career Mismatch!").centre().hr()
             .addWrapped(
                 "Sponge is attemping to recover from a mismatch from a Forge mod provided VillagerCareer and Sponge's Career implementation.")
@@ -206,9 +206,9 @@ public final class SpongeForgeVillagerRegistry {
             .addWrapped(
                 "Due to the issue, Sponge is printing out all this information to assist sponge resolving the issue. Please open an issue on github for SpongeForge")
             .add();
-        printer.add("%s : %s", "Forge Profession", mixinProfession.getProfessionName());
+        printer.add("%s : %s", "Forge Profession", mixinProfession.forgeBridge$getProfessionName());
         int i = 0;
-        for (final VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
+        for (final VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.forgeBridge$getCareers()) {
             printer.add(" - %s %d : %s", "Career", i++, villagerCareer.getName());
         }
         printer.add();

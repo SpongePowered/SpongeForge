@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.mixin.core.fml.common.eventhandler;
 
+import org.spongepowered.common.bridge.TimingBridge;
 import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimings;
 import co.aikar.timings.Timing;
 import net.minecraftforge.fml.common.ModContainer;
@@ -36,12 +37,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.mod.interfaces.IMixinASMEventHandler;
+import org.spongepowered.mod.bridge.event.ASMEventHandlerBridge;
 
 import java.lang.reflect.Method;
 
 @Mixin(value = ASMEventHandler.class, remap = false)
-public abstract class MixinASMEventHandler implements IMixinASMEventHandler {
+public abstract class MixinASMEventHandler implements ASMEventHandlerBridge, TimingBridge {
 
     private Timing timingsHandler;
     private String timingName;
@@ -55,7 +56,7 @@ public abstract class MixinASMEventHandler implements IMixinASMEventHandler {
     }
 
     @Override
-    public Timing getTimingsHandler() {
+    public Timing bridge$getTimingsHandler() {
         if (this.timingsHandler == null) {
             this.timingsHandler = SpongeTimings.getModTimings((PluginContainer) this.owner, this.timingName);
         }

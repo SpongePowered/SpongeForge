@@ -86,8 +86,8 @@ import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
-import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
+import org.spongepowered.mod.bridge.util.ForgeBlockSnapshotBridge_Forge;
+import org.spongepowered.mod.bridge.network.INetPlayHandlerBridge_Forge;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -290,7 +290,7 @@ public class ForgeToSpongeEventFactory {
             return null;
         }
 
-        BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) forgeEvent.getBlockSnapshot()).createSpongeBlockSnapshot();
+        BlockSnapshot originalSnapshot = ((ForgeBlockSnapshotBridge_Forge) forgeEvent.getBlockSnapshot()).forgeBridge$toSpongeSnapshot();
         BlockSnapshot
             finalSnapshot =
             ((BlockState) forgeEvent.getPlacedBlock()).snapshotFor(new Location<>((World) world, VecHelper.toVector3d(pos)));
@@ -327,7 +327,7 @@ public class ForgeToSpongeEventFactory {
         ImmutableList.Builder<Transaction<BlockSnapshot>> builder = new ImmutableList.Builder<>();
         for (net.minecraftforge.common.util.BlockSnapshot blockSnapshot : forgeEvent.getReplacedBlockSnapshots()) {
             final BlockPos snapshotPos = blockSnapshot.getPos();
-            BlockSnapshot originalSnapshot = ((IMixinBlockSnapshot) blockSnapshot).createSpongeBlockSnapshot();
+            BlockSnapshot originalSnapshot = ((ForgeBlockSnapshotBridge_Forge) blockSnapshot).forgeBridge$toSpongeSnapshot();
             BlockSnapshot finalSnapshot = ((World) world).createSnapshot(snapshotPos.getX(), snapshotPos.getY(), snapshotPos.getZ());
             builder.add(new Transaction<>(originalSnapshot, finalSnapshot));
         }
@@ -525,8 +525,8 @@ public class ForgeToSpongeEventFactory {
             // Chat spam suppression from MC
             if (!SpongeImplHooks.isFakePlayer(player)) {
                 // We don't want to check fake players.
-                int chatSpamThresholdCount = ((IMixinNetPlayHandler) player.connection).getChatSpamThresholdCount() + 20;
-                ((IMixinNetPlayHandler) player.connection).setChatSpamThresholdCount(chatSpamThresholdCount);
+                int chatSpamThresholdCount = ((INetPlayHandlerBridge_Forge) player.connection).forgeBridge$getChatSpamThresholdCount() + 20;
+                ((INetPlayHandlerBridge_Forge) player.connection).forgeBridge$setChatSpamThresholdCount(chatSpamThresholdCount);
                 if (chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(player.getGameProfile())) {
                     player.connection.disconnect(new TextComponentTranslation("disconnect.spam"));
                 }

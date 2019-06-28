@@ -32,8 +32,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.registry.type.entity.ProfessionRegistryModule;
-import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
-import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
+import org.spongepowered.mod.bridge.registry.VillagerProfessionBridge_Forge;
 
 @Mixin(value = VillagerRegistry.class, remap = false)
 public class MixinVillagerRegistry {
@@ -50,11 +49,11 @@ public class MixinVillagerRegistry {
      */
     @Overwrite
     private void register(VillagerRegistry.VillagerProfession prof, int id) {
-        this.REGISTRY.register(id, ((IMixinVillagerProfession) prof).getName(), prof);
+        this.REGISTRY.register(id, ((VillagerProfessionBridge_Forge) prof).forgeBridge$getName(), prof);
         final int professionId = this.REGISTRY.getIDForObject(prof);
-        final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) prof;
-        final SpongeProfession spongeProfession = new SpongeProfession(professionId, mixinProfession.getId(), mixinProfession.getProfessionName());
-        ((IMixinVillagerProfession) prof).setSpongeProfession(spongeProfession);
+        final VillagerProfessionBridge_Forge mixinProfession = (VillagerProfessionBridge_Forge) prof;
+        final SpongeProfession spongeProfession = new SpongeProfession(professionId, mixinProfession.forgeBridge$getId(), mixinProfession.forgeBridge$getProfessionName());
+        ((VillagerProfessionBridge_Forge) prof).forgeBridge$setSpongeProfession(spongeProfession);
         ProfessionRegistryModule.getInstance().registerAdditionalCatalog(spongeProfession);
     }
 

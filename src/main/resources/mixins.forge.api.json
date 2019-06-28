@@ -7,8 +7,10 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "forge.common.util.MixinITeleporter_APIForge",
-        "minecraft.server.MixinMinecraftServer_APIForge",
+        "common.extra.fluid.SpongeFluidStackBuilderMixin_ForgeAPI",
+        "common.world.SpongeDimensionMixin_ForgeAPI",
+        "forge.common.util.MixinITeleporter_ForgeAPI",
+        "minecraft.server.MinecraftServerMixin_ForgeAPI",
         "minecraft.world.WorldServerMixin_ForgeAPI",
         "minecraft.world.chunk.ChunkMixin_ForgeAPI"
     ],

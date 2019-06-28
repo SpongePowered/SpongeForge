@@ -33,8 +33,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.mixin.core.entity.EntityAgeableMixin;
 import org.spongepowered.mod.bridge.entity.passive.EntityVillagerBridge_Forge;
-import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
-import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
+import org.spongepowered.mod.bridge.registry.VillagerCareerBridge_Forge;
+import org.spongepowered.mod.bridge.registry.VillagerProfessionBridge_Forge;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
 import javax.annotation.Nullable;
@@ -67,7 +67,7 @@ public abstract class MixinEntityVillager_Forge extends EntityAgeableMixin imple
         }
 
         // Sanity purposes, occasionally NBT doesn't get validated that the career id is higher than the profession's list.
-        if (this.careerId - 1 >= ((IMixinVillagerProfession) professionForge).getCareers().size()) {
+        if (this.careerId - 1 >= ((VillagerProfessionBridge_Forge) professionForge).forgeBridge$getCareers().size()) {
             this.careerId = professionForge.getRandomCareer(this.rand) + 1;
         }
 
@@ -79,11 +79,11 @@ public abstract class MixinEntityVillager_Forge extends EntityAgeableMixin imple
         final int careerLevel = this.careerLevel - 1;
         // Sponge - only get the profession once
         final VillagerRegistry.VillagerCareer career = professionForge.getCareer(careerNumberId);
-        final IMixinVillagerCareer mixinCareer = (IMixinVillagerCareer) career;
-        if (mixinCareer.isDelayed() && SpongeImplHooks.isMainThread()) {
-            mixinCareer.performDelayedInit();
+        final VillagerCareerBridge_Forge mixinCareer = (VillagerCareerBridge_Forge) career;
+        if (mixinCareer.forgeBridge$isDelayed() && SpongeImplHooks.isMainThread()) {
+            mixinCareer.forgeBridge$performDelayedInit();
         }
-        if (mixinCareer.isModded()) {
+        if (mixinCareer.forgeBridge$isModded()) {
             // we have to allow forge mods to do their own forge things.
             SpongeForgeVillagerRegistry.populateOffers(this, career, careerLevel, this.rand);
             return;

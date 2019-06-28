@@ -42,7 +42,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.mod.event.StateRegistry;
-import org.spongepowered.mod.interfaces.IMixinLoadController;
+import org.spongepowered.mod.bridge.fml.LoadControllerBridge_Forge;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 
 import java.util.List;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 @Mixin(value = LoadController.class, remap = false)
-public abstract class MixinLoadController implements IMixinLoadController {
+public abstract class MixinLoadController implements LoadControllerBridge_Forge {
     @Shadow private ModContainer activeContainer;
 
     @Shadow private Loader loader;
@@ -110,12 +110,12 @@ public abstract class MixinLoadController implements IMixinLoadController {
     }
 
     @Override
-    public ModContainer getActiveModContainer() {
+    public ModContainer forgeBridge$getActiveModContainer() {
         return this.activeContainer;
     }
 
     @Override
-    public void setActiveModContainer(@Nullable ModContainer container) {
+    public void forgeBridge$setActiveModContainer(@Nullable ModContainer container) {
         this.activeContainer = container;
     }
 

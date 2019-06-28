@@ -35,6 +35,8 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
+import javax.annotation.Nullable;
+
 @Mixin(BlockOldLeaf.class)
 public abstract class BlockOldLeafMixin_Forge extends BlockLeaves {
 
@@ -48,7 +50,7 @@ public abstract class BlockOldLeafMixin_Forge extends BlockLeaves {
     @Override
     @Overwrite
     public void harvestBlock(
-        final World worldIn, final EntityPlayer player, final BlockPos pos, final IBlockState state, final TileEntity te, final ItemStack stack) {
+        final World worldIn, final EntityPlayer player, final BlockPos pos, final IBlockState state, @Nullable final TileEntity te, final ItemStack stack) {
         super.harvestBlock(worldIn, player, pos, state, te, stack);
     }
 }

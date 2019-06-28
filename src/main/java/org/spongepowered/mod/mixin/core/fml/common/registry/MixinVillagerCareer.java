@@ -32,13 +32,9 @@ import org.spongepowered.api.item.merchant.TradeOfferListMutator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeCareer;
 import org.spongepowered.common.registry.SpongeVillagerRegistry;
-import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
+import org.spongepowered.mod.bridge.registry.VillagerCareerBridge_Forge;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 
 import java.util.List;
@@ -47,7 +43,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 @Mixin(value = VillagerRegistry.VillagerCareer.class, remap = false)
-public class MixinVillagerCareer implements IMixinVillagerCareer {
+public class MixinVillagerCareer implements VillagerCareerBridge_Forge {
 
     @Shadow private int id;
     @Shadow private VillagerRegistry.VillagerProfession profession;
@@ -61,32 +57,32 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
     private boolean hasChecked = false;
 
     @Override
-    public VillagerRegistry.VillagerProfession getProfession() {
+    public VillagerRegistry.VillagerProfession forgeBridge$getProfession() {
         return this.profession;
     }
 
     @Override
-    public Optional<SpongeCareer> getSpongeCareer() {
+    public Optional<SpongeCareer> forgeBridge$getSpongeCareer() {
         return Optional.ofNullable(this.cachedCareer);
     }
 
     @Override
-    public void setSpongeCareer(@Nullable SpongeCareer career) {
+    public void forgeBridge$setSpongeCareer(@Nullable SpongeCareer career) {
         this.cachedCareer = career;
     }
 
     @Override
-    public int getId() {
+    public int forgeBridge$getId() {
         return this.id;
     }
 
     @Override
-    public boolean isDelayed() {
+    public boolean forgeBridge$isDelayed() {
         return this.delayed;
     }
 
     @Override
-    public boolean isModded() {
+    public boolean forgeBridge$isModded() {
         if (!this.hasChecked) {
             this.hasChecked = true;
             this.isModded = !VillagerRegistry.VillagerCareer.class.equals(this.getClass());
@@ -95,12 +91,12 @@ public class MixinVillagerCareer implements IMixinVillagerCareer {
     }
 
     @Override
-    public void performDelayedInit() {
+    public void forgeBridge$performDelayedInit() {
         this.registerTrades();
     }
 
     @Override
-    public void forceProfession(VillagerRegistry.VillagerProfession villagerProfession) {
+    public void forgeBridge$forceProfession(VillagerRegistry.VillagerProfession villagerProfession) {
         this.profession = villagerProfession;
     }
 

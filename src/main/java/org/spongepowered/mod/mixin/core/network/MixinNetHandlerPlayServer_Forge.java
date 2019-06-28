@@ -30,12 +30,12 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.util.text.ITextComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
+import org.spongepowered.mod.bridge.network.INetPlayHandlerBridge_Forge;
 
 import java.util.Set;
 
 @Mixin(value = NetHandlerPlayServer.class, priority = 1001)
-public abstract class MixinNetHandlerPlayServer_Forge implements IMixinNetPlayHandler {
+public abstract class MixinNetHandlerPlayServer_Forge implements INetPlayHandlerBridge_Forge {
 
     @Shadow public EntityPlayerMP player;
     @Shadow private int chatSpamThresholdCount;
@@ -45,17 +45,17 @@ public abstract class MixinNetHandlerPlayServer_Forge implements IMixinNetPlayHa
     @Shadow public abstract void disconnect(ITextComponent message); // disconnect
 
     @Override
-    public int getChatSpamThresholdCount() {
+    public int forgeBridge$getChatSpamThresholdCount() {
         return this.chatSpamThresholdCount;
     }
 
     @Override
-    public void setChatSpamThresholdCount(int count) {
+    public void forgeBridge$setChatSpamThresholdCount(int count) {
         this.chatSpamThresholdCount = count;
     }
 
     @Override
-    public Set<String> getRegisteredChannels() {
+    public Set<String> forgeBridge$getRegisteredChannels() {
         return this.registeredChannels;
     }
 }

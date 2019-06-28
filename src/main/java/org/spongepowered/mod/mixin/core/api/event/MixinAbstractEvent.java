@@ -27,16 +27,16 @@ package org.spongepowered.mod.mixin.core.api.event;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.impl.AbstractEvent;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.bridge.event.EventForgeBridge;
 
 @Mixin(AbstractEvent.class)
-public abstract class MixinAbstractEvent implements IMixinEvent {
+public abstract class MixinAbstractEvent implements EventForgeBridge {
 
     @Override
-    public void syncDataToForge(Event spongeEvent) { }
+    public void syncDataToForge(final Event spongeEvent) { }
 
     @Override
-    public void syncDataToSponge(Event spongeEvent) { }
+    public void syncDataToSponge(final Event spongeEvent) { }
 
     @Override
     public Event createSpongeEvent() {

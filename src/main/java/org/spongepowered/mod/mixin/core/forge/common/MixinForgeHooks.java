@@ -82,8 +82,8 @@ import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.SpongeToForgeEventData;
-import org.spongepowered.mod.interfaces.IMixinEventBus;
-import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
+import org.spongepowered.mod.bridge.event.EventBusBridge_Forge;
+import org.spongepowered.mod.bridge.network.INetPlayHandlerBridge_Forge;
 
 import java.util.Optional;
 
@@ -103,7 +103,7 @@ public abstract class MixinForgeHooks {
     {
         PlayerInteractEvent.LeftClickBlock evt = new PlayerInteractEvent.LeftClickBlock(player, pos, face, hitVec);
         if (player.world.isRemote) {
-            ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(evt, true);
+            ((EventBusBridge_Forge) MinecraftForge.EVENT_BUS).forgeBridge$post(evt, true);
             return evt;
         }
 
@@ -280,8 +280,8 @@ public abstract class MixinForgeHooks {
         }
 
         // Chat spam suppression from MC
-        int chatSpamThresholdCount = ((IMixinNetPlayHandler) player.connection).getChatSpamThresholdCount() + 20;
-        ((IMixinNetPlayHandler) player.connection).setChatSpamThresholdCount(chatSpamThresholdCount);
+        int chatSpamThresholdCount = ((INetPlayHandlerBridge_Forge) player.connection).forgeBridge$getChatSpamThresholdCount() + 20;
+        ((INetPlayHandlerBridge_Forge) player.connection).forgeBridge$setChatSpamThresholdCount(chatSpamThresholdCount);
         if (chatSpamThresholdCount > 200 && !SpongeImpl.getServer().getPlayerList().canSendCommands(player.getGameProfile())) {
             player.connection.disconnect(new TextComponentTranslation("disconnect.spam"));
         }

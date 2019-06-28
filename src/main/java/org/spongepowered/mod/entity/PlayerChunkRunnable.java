@@ -27,7 +27,7 @@ package org.spongepowered.mod.entity;
 import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.world.chunk.Chunk;
-import org.spongepowered.mod.interfaces.IMixinPlayerChunkMapEntry;
+import org.spongepowered.mod.bridge.server.management.PlayerChunkMapEntryBridge_Forge;
 
 public class PlayerChunkRunnable implements Runnable {
 
@@ -42,15 +42,15 @@ public class PlayerChunkRunnable implements Runnable {
     // Callback logic which is called after a chunk loads async or sync
     @Override
     public void run() {
-        IMixinPlayerChunkMapEntry spongePlayerChunkMapEntry = (IMixinPlayerChunkMapEntry) this.playerChunkMapEntry;
+        PlayerChunkMapEntryBridge_Forge spongePlayerChunkMapEntry = (PlayerChunkMapEntryBridge_Forge) this.playerChunkMapEntry;
         Chunk chunk = this.playerChunkMap.getWorldServer().getChunkProvider().getLoadedChunk(this.playerChunkMapEntry.pos.x,
                 this.playerChunkMapEntry.pos.z);
         if (chunk != null) {
-            spongePlayerChunkMapEntry.setChunk(chunk);
+            spongePlayerChunkMapEntry.forgeBridge$setChunk(chunk);
             return;
         }
         // Since we weren't able to load the chunk async, set loading to false to allow the PlayerChunkMap tick to load
-        spongePlayerChunkMapEntry.setLoading(false);
+        spongePlayerChunkMapEntry.forgeBridge$setLoading(false);
     }
 
 }

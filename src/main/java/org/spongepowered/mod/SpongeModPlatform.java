@@ -37,7 +37,7 @@ import org.spongepowered.common.SpongePlatform;
 public final class SpongeModPlatform extends SpongePlatform {
 
     @Inject
-    public SpongeModPlatform(PluginManager manager, MinecraftVersion minecraftVersion) {
+    public SpongeModPlatform(final PluginManager manager, final MinecraftVersion minecraftVersion) {
         super(manager, (PluginContainer) SpongeMod.instance, minecraftVersion);
         this.platformMap.put("ForgeVersion", ForgeVersion.getVersion());
     }
@@ -60,36 +60,36 @@ public final class SpongeModPlatform extends SpongePlatform {
     }
 
     public static Type staticGetExecutionType() {
-        String threadName = Thread.currentThread().getName();
+        final String threadName = Thread.currentThread().getName();
 
         // Most common
-        if (threadName.equals("Server thread")
-                || threadName.startsWith("Netty Epoll Server IO #")
-                || threadName.startsWith("Netty Server IO #")
-                || threadName.startsWith("User Authenticator #")) {
+        if ("Server thread".equals(threadName)
+            || threadName.startsWith("Netty Epoll Server IO #")
+            || threadName.startsWith("Netty Server IO #")
+            || threadName.startsWith("User Authenticator #")) {
             return Type.SERVER;
-        } else if (threadName.equals("Client thread")
-                || threadName.startsWith("Netty Client IO #")
-                || threadName.startsWith("Netty Epoll Client IO #")
-                || threadName.startsWith("Netty Local Client IO ")
-                || threadName.startsWith("Netty Local Server IO #")) {
+        } else if ("Client thread".equals(threadName)
+                   || threadName.startsWith("Netty Client IO #")
+                   || threadName.startsWith("Netty Epoll Client IO #")
+                   || threadName.startsWith("Netty Local Client IO ")
+                   || threadName.startsWith("Netty Local Server IO #")) {
             return Type.CLIENT;
         }
 
-        if (threadName.equals("Server Infinisleeper")
-                || threadName.equals("Server console handler")
-                || threadName.equals("Server Shutdown Thread")) {
+        if ("Server Infinisleeper".equals(threadName)
+            || "Server console handler".equals(threadName)
+            || "Server Shutdown Thread".equals(threadName)) {
             return Type.SERVER;
         } else if (threadName.startsWith("Server Pinger #")
                 || threadName.startsWith("Chunk Batcher ")
-                || threadName.equals("Client Shutdown Thread")
-                || threadName.equals("Realms-connect-task")
+                || "Client Shutdown Thread".equals(threadName)
+                || "Realms-connect-task".equals(threadName)
                 || threadName.startsWith("Texture Downloader #")
                 || threadName.startsWith("Server Connector #")
-                || threadName.equals("Timer hack thread")
-                || threadName.equals("Twitch authenticator")
-                || threadName.equals("Twitch shutdown hook")
-                || threadName.equals("Sound Library Loader")) {
+                || "Timer hack thread".equals(threadName)
+                || "Twitch authenticator".equals(threadName)
+                || "Twitch shutdown hook".equals(threadName)
+                || "Sound Library Loader".equals(threadName)) {
             return Type.CLIENT;
         } else {
             // "Downloader "

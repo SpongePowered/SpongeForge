@@ -113,7 +113,7 @@ import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.mod.bridge.world.WorldBridge_Forge;
-import org.spongepowered.mod.interfaces.IMixinEventBus;
+import org.spongepowered.mod.bridge.event.EventBusBridge_Forge;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -129,7 +129,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("deprecation")
 public class SpongeToForgeEventFactory {
 
-    static final IMixinEventBus forgeEventBus = ((IMixinEventBus) MinecraftForge.EVENT_BUS);
+    static final EventBusBridge_Forge forgeEventBus = ((EventBusBridge_Forge) MinecraftForge.EVENT_BUS);
 
     /**
      * Used by {@link SpongeModEventManager#extendedPost} to obtain
@@ -180,10 +180,10 @@ public class SpongeToForgeEventFactory {
                 return LivingDropsEvent.class;
             }
             if ((spongeEvent instanceof DropItemEvent.Dispense || spongeEvent instanceof DropItemEvent.Custom) && source instanceof Player) {
-                if (((IMixinEventBus) MinecraftForge.EVENT_BUS).getEventListenerClassList().contains(ItemTossEvent.class)) {
+                if (((EventBusBridge_Forge) MinecraftForge.EVENT_BUS).forgeBridge$getEventListenerClassList().contains(ItemTossEvent.class)) {
                     return ItemTossEvent.class;
                 }
-                if (((IMixinEventBus) MinecraftForge.EVENT_BUS).getEventListenerClassList().contains(EntityJoinWorldEvent.class)) {
+                if (((EventBusBridge_Forge) MinecraftForge.EVENT_BUS).forgeBridge$getEventListenerClassList().contains(EntityJoinWorldEvent.class)) {
                     return EntityJoinWorldEvent.class;
                 }
                 return null;
@@ -319,7 +319,7 @@ public class SpongeToForgeEventFactory {
 
         if (forgeEvent != null) {
             forgeEvent.setCanceled(spongeEvent.isCancelled());
-            forgeEventBus.post(eventData);
+            forgeEventBus.forgeBridge$post(eventData);
             if (!originalComponent.equals(forgeEvent.getComponent())) {
                 // The message has changed, all we can do is set the body and leave the
                 // header/footer blank.
@@ -367,7 +367,7 @@ public class SpongeToForgeEventFactory {
             forgeEvent.setDuration(spongeEvent.getRemainingDuration());
         }
 
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         spongeEvent.setRemainingDuration(forgeEvent.getDuration());
 
         // Cancelling the Forge tick event stops all usage of the item, whereas
@@ -395,7 +395,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
 
-        forgeEventBus.post(forgeEvent, true);
+        forgeEventBus.forgeBridge$post(forgeEvent, true);
         return true;
     }
 
@@ -412,7 +412,7 @@ public class SpongeToForgeEventFactory {
                 return false;
             }
 
-            spongeEvent.filterEntities(e -> (e instanceof EntityItem) && !forgeEventBus.post(new ItemTossEvent(
+            spongeEvent.filterEntities(e -> (e instanceof EntityItem) && !forgeEventBus.forgeBridge$post(new ItemTossEvent(
                     (EntityItem) e, serverPlayer), true));
 
             createAndPostEntityJoinWorldEvent(eventData);
@@ -425,7 +425,7 @@ public class SpongeToForgeEventFactory {
             }
         }
 
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 
@@ -460,7 +460,7 @@ public class SpongeToForgeEventFactory {
         }
 
         forgeEvent.setCanceled(spongeEvent.isCancelled());
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         if (forgeEvent instanceof PlayerInteractEvent.RightClickBlock) {
             PlayerInteractEvent.RightClickBlock event = (PlayerInteractEvent.RightClickBlock) forgeEvent;
             // Mods have higher priority
@@ -490,7 +490,7 @@ public class SpongeToForgeEventFactory {
         }
 
         forgeEvent.setCanceled(spongeEvent.isCancelled());
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 
@@ -514,7 +514,7 @@ public class SpongeToForgeEventFactory {
         }
 
         forgeEvent.setCanceled(spongeEvent.isCancelled());
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 
@@ -562,7 +562,7 @@ public class SpongeToForgeEventFactory {
                     }
                 }
 
-                forgeEventBus.post(eventData);
+                forgeEventBus.forgeBridge$post(eventData);
                 if (forgeEvent.isCanceled()) {
                     spongeEvent.setCancelled(true);
                     return true;
@@ -597,7 +597,7 @@ public class SpongeToForgeEventFactory {
 
             eventData.setForgeEvent(forgeEvent);
             // Avoid calling post with eventData as that propagates cancel
-            ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(forgeEvent, true);
+            ((EventBusBridge_Forge) MinecraftForge.EVENT_BUS).forgeBridge$post(forgeEvent, true);
             Entity mcEntity = (Entity) entity;
             if (mcEntity.isDead) {
                 // Don't restore packet item if a mod wants it dead
@@ -644,7 +644,7 @@ public class SpongeToForgeEventFactory {
 
                 final EntityJoinWorldEvent cancelledEvent = new EntityJoinWorldEvent(entity, entity.getEntityWorld());
                 cancelledEvent.setCanceled(true);
-                forgeEventBus.post(cancelledEvent, true);
+                forgeEventBus.forgeBridge$post(cancelledEvent, true);
 
                 if (!cancelledEvent.isCanceled()) {
                     SpongeImpl.getLogger()
@@ -701,7 +701,7 @@ public class SpongeToForgeEventFactory {
             }
         }
 
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 
@@ -721,7 +721,7 @@ public class SpongeToForgeEventFactory {
             forgeEvent = new BlockEvent.BreakEvent(world, pos, state, player);
         }
 
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 
@@ -790,7 +790,7 @@ public class SpongeToForgeEventFactory {
             }
         }
 
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 
@@ -803,7 +803,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
         forgeEvent.setCanceled(spongeEvent.isCancelled());
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 
@@ -838,7 +838,7 @@ public class SpongeToForgeEventFactory {
                 forgeEvent.getAffectedBlocks().add(VecHelper.toBlockPos(x.getPosition()));
             }
         }
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         if (spongeEvent.getAffectedLocations().size() != forgeEvent.getAffectedBlocks().size()) {
             spongeEvent.getAffectedLocations().clear();
             for (BlockPos pos : forgeEvent.getAffectedBlocks()) {
@@ -872,7 +872,7 @@ public class SpongeToForgeEventFactory {
         }
 
         forgeEvent.setCanceled(spongeEvent.isCancelled());
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 
@@ -884,7 +884,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
 
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 
@@ -896,7 +896,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
 
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 
@@ -911,7 +911,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
 
-        forgeEventBus.post(forgeEvent, true);
+        forgeEventBus.forgeBridge$post(forgeEvent, true);
         ((WorldBridge_Forge) spongeEvent.getTargetWorld()).forgeBridge$setRedirectedWorldInfo(null);
         return true;
     }
@@ -930,7 +930,7 @@ public class SpongeToForgeEventFactory {
                 eventData.setForgeEvent(forgeEvent);
             }
 
-            forgeEventBus.post(forgeEvent, true);
+            forgeEventBus.forgeBridge$post(forgeEvent, true);
             ((WorldBridge_Forge) minecraftWorld).forgeBridge$setRedirectedWorldInfo(null);
             return true;
         } finally {
@@ -946,7 +946,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
 
-        forgeEventBus.post(forgeEvent, true);
+        forgeEventBus.forgeBridge$post(forgeEvent, true);
         return true;
     }
 
@@ -958,7 +958,7 @@ public class SpongeToForgeEventFactory {
             forgeEvent = new ChunkEvent.Load(chunk);
             eventData.setForgeEvent(forgeEvent);
         }
-        forgeEventBus.post(forgeEvent, true);
+        forgeEventBus.forgeBridge$post(forgeEvent, true);
         return true;
     }
 
@@ -970,7 +970,7 @@ public class SpongeToForgeEventFactory {
             forgeEvent = new ChunkEvent.Unload(chunk);
             eventData.setForgeEvent(forgeEvent);
         }
-        forgeEventBus.post(forgeEvent, true);
+        forgeEventBus.forgeBridge$post(forgeEvent, true);
         return true;
     }
 
@@ -998,7 +998,7 @@ public class SpongeToForgeEventFactory {
             eventData.setForgeEvent(forgeEvent);
         }
 
-        forgeEventBus.post(eventData);
+        forgeEventBus.forgeBridge$post(eventData);
         return true;
     }
 

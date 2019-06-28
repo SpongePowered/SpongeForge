@@ -6,8 +6,8 @@
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinFMLEventChannel",
-    "MixinSimpleNetworkWrapper"
+      "FMLEventChannelMixin_BrokenMod",
+    "SimpleNetworkWrapperMixin_BrokenMod"
   ],
   "injectors": {
     "defaultRequire": 1

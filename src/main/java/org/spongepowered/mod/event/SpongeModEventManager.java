@@ -112,8 +112,8 @@ import org.spongepowered.common.event.EventType;
 import org.spongepowered.common.event.RegisteredListener;
 import org.spongepowered.common.event.SpongeEventManager;
 import org.spongepowered.mod.SpongeMod;
-import org.spongepowered.mod.interfaces.IMixinEventBus;
-import org.spongepowered.mod.interfaces.IMixinLoadController;
+import org.spongepowered.mod.bridge.event.EventBusBridge_Forge;
+import org.spongepowered.mod.bridge.fml.LoadControllerBridge_Forge;
 
 import java.util.List;
 import java.util.Set;
@@ -293,7 +293,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             }
             if (eventData.getSpongeEvent() == null) {
                 // If we were unable to create a valid sponge event, just fire to forge
-                ((IMixinEventBus) MinecraftForge.EVENT_BUS).post(eventData.getForgeEvent(), true);
+                ((EventBusBridge_Forge) MinecraftForge.EVENT_BUS).forgeBridge$post(eventData.getForgeEvent(), true);
                 return eventData.getForgeEvent().isCancelable() && eventData.getForgeEvent().isCanceled();
             }
             // If plugin cancelled event before modifications, ignore mods
@@ -364,10 +364,10 @@ public class SpongeModEventManager extends SpongeEventManager {
     @SuppressWarnings("unchecked")
     public boolean post(Event event, List<RegisteredListener<?>> listeners, boolean beforeModifications, boolean forced,
             boolean useCauseStackManager) {
-        ModContainer oldContainer = ((IMixinLoadController) SpongeMod.instance.getController()).getActiveModContainer();
+        ModContainer oldContainer = ((LoadControllerBridge_Forge) SpongeMod.instance.getController()).forgeBridge$getActiveModContainer();
         for (@SuppressWarnings("rawtypes")
         RegisteredListener listener : listeners) {
-            ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer((ModContainer) listener.getPlugin());
+            ((LoadControllerBridge_Forge) SpongeMod.instance.getController()).forgeBridge$setActiveModContainer((ModContainer) listener.getPlugin());
             try {
                 if (forced || (!listener.isBeforeModifications() && !beforeModifications)
                         || (listener.isBeforeModifications() && beforeModifications)) {
@@ -406,7 +406,7 @@ public class SpongeModEventManager extends SpongeEventManager {
         if (event instanceof AbstractEvent) {
             ((AbstractEvent) event).currentOrder = null;
         }
-        ((IMixinLoadController) SpongeMod.instance.getController()).setActiveModContainer(oldContainer);
+        ((LoadControllerBridge_Forge) SpongeMod.instance.getController()).forgeBridge$setActiveModContainer(oldContainer);
         return event instanceof Cancellable && ((Cancellable) event).isCancelled();
     }
 
@@ -436,7 +436,7 @@ public class SpongeModEventManager extends SpongeEventManager {
             if (spongeEvent.getClass().getInterfaces().length > 0) {
                 clazz = SpongeToForgeEventFactory.getForgeEventClass(spongeEvent);
                 if (clazz != null) {
-                    final Set<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> forgeListenerClassList = ((IMixinEventBus) MinecraftForge.EVENT_BUS).getEventListenerClassList();
+                    final Set<Class<? extends net.minecraftforge.fml.common.eventhandler.Event>> forgeListenerClassList = ((EventBusBridge_Forge) MinecraftForge.EVENT_BUS).forgeBridge$getEventListenerClassList();
                     boolean hasListener = forgeListenerClassList.contains(clazz);
                     if (!hasListener) {
                         // check super class

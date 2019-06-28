@@ -29,8 +29,8 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.common.network.message.MessageTrackerDataResponse;
 import org.spongepowered.common.network.message.SpongeMessageHandler;
-import org.spongepowered.mod.client.interfaces.IMixinGuiOverlayDebug;
-import org.spongepowered.mod.client.interfaces.IMixinMinecraft;
+import org.spongepowered.mod.bridge.client.gui.GUIOverlayDebugBridge_Forge;
+import org.spongepowered.mod.bridge.client.MinecraftBridge_Forge;
 
 public final class SpongeModMessageHandler {
 
@@ -43,9 +43,9 @@ public final class SpongeModMessageHandler {
     }
 
     public static void handleResponse(MessageTrackerDataResponse message, RemoteConnection connection, Platform.Type side) {
-        IMixinMinecraft spongeMc = (IMixinMinecraft) FMLClientHandler.instance().getClient();
-        IMixinGuiOverlayDebug debugGui = (IMixinGuiOverlayDebug) spongeMc.getDebugGui();
-        debugGui.setPlayerTrackerData(message.owner, message.notifier);
+        MinecraftBridge_Forge spongeMc = (MinecraftBridge_Forge) FMLClientHandler.instance().getClient();
+        GUIOverlayDebugBridge_Forge debugGui = (GUIOverlayDebugBridge_Forge) spongeMc.forgeBridge$getDebugGui();
+        debugGui.forgeBridge$setPlayerTrackerData(message.owner, message.notifier);
     }
 
 }

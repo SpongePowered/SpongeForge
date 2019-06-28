@@ -39,6 +39,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
@@ -53,30 +54,37 @@ import javax.annotation.Nullable;
 @Mixin(value = BlockLeaves.class, priority = 1001)
 public abstract class BlockLeavesMixin_Forge extends BlockMixin {
 
-    @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", remap = false))
-    private void onSpongeBreakBlock(Block block, IBlockState state, net.minecraft.world.World worldIn, BlockPos pos) {
-        if (!worldIn.isRemote) {
-            final PhaseTracker phaseTracker = PhaseTracker.getInstance();
-            final IPhaseState<?> currentState = phaseTracker.getCurrentState();
-            @Nullable PhaseContext<?> blockDecay = null;
-            if (!currentState.includesDecays()) {
-                final LocatableBlock locatable = new SpongeLocatableBlockBuilder().world((World) worldIn).position(pos.getX(), pos.getY(), pos.getZ()).state((BlockState) state).build();
+    @Redirect(method = "breakBlock",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V",
+            remap = false))
+    private void onSpongeBreakBlock(final Block block, final IBlockState state, final net.minecraft.world.World worldIn, final BlockPos pos) {
+        if (((WorldBridge) worldIn).isFake()) {
+            block.beginLeavesDecay(state, worldIn, pos);
+            return;
+        }
+        final PhaseTracker phaseTracker = PhaseTracker.getInstance();
+        final IPhaseState<?> currentState = phaseTracker.getCurrentState();
+        @Nullable PhaseContext<?> blockDecay = null;
+        if (!currentState.includesDecays()) {
+            final LocatableBlock locatable = new SpongeLocatableBlockBuilder()
+                .world((World) worldIn)
+                .position(pos.getX(), pos.getY(), pos.getZ())
+                .state((BlockState) state).build();
 
-                blockDecay = BlockPhase.State.BLOCK_DECAY.createPhaseContext()
-                    .source(locatable);
+            blockDecay = BlockPhase.State.BLOCK_DECAY.createPhaseContext()
+                .source(locatable);
+        }
+        try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame();
+             final PhaseContext<?> context = blockDecay) {
+            if (context != null) {
+                context.buildAndSwitch();
             }
-            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame();
-                 PhaseContext<?> context = blockDecay) {
-                if (context != null) {
-                    context.buildAndSwitch();
-                }
-                frame.addContext(EventContextKeys.LEAVES_DECAY, (World) worldIn);
-                if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) worldIn, pos).isCancelled()) {
-                    return;
-                }
-                block.beginLeavesDecay(state, worldIn, pos);
+            frame.addContext(EventContextKeys.LEAVES_DECAY, (World) worldIn);
+            if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) worldIn, pos).isCancelled()) {
+                return;
             }
-        } else {
             block.beginLeavesDecay(state, worldIn, pos);
         }
     }

@@ -120,7 +120,7 @@ import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
 import org.spongepowered.mod.inject.SpongeForgeModule;
-import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
+import org.spongepowered.mod.bridge.registry.VillagerProfessionBridge_Forge;
 import org.spongepowered.mod.network.SpongeModMessageHandler;
 import org.spongepowered.mod.plugin.MetaModContainer;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
@@ -256,14 +256,14 @@ public class SpongeMod extends MetaModContainer {
                     (PotionEffectType) obj);
         });
         SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj, oldObj) -> {
-            final IMixinVillagerProfession mixinProfession = (IMixinVillagerProfession) obj;
-            if (mixinProfession.getSpongeProfession().isPresent()) {
+            final VillagerProfessionBridge_Forge mixinProfession = (VillagerProfessionBridge_Forge) obj;
+            if (mixinProfession.forgeBridge$getSpongeProfession().isPresent()) {
                 return;
             }
-            final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.getId(), mixinProfession.getProfessionName());
-            mixinProfession.setSpongeProfession(spongeProfession);
+            final SpongeProfession spongeProfession = new SpongeProfession(id, mixinProfession.forgeBridge$getId(), mixinProfession.forgeBridge$getProfessionName());
+            mixinProfession.forgeBridge$setSpongeProfession(spongeProfession);
             ProfessionRegistryModule.getInstance().registerAdditionalCatalog(spongeProfession);
-            for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.getCareers()) {
+            for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.forgeBridge$getCareers()) {
                 SpongeForgeVillagerRegistry.fromNative(villagerCareer);
             }
         }));

@@ -57,7 +57,7 @@ import org.spongepowered.api.network.ChannelRegistrationException;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.network.SpongeNetworkManager;
-import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
+import org.spongepowered.mod.bridge.network.INetPlayHandlerBridge_Forge;
 
 import java.util.Map;
 import java.util.Optional;
@@ -70,7 +70,7 @@ public class SpongeModNetworkManager extends SpongeNetworkManager {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onCustomPacketRegistration(CustomPacketRegistrationEvent<?> event) {
-        final Set<String> channels = ((IMixinNetPlayHandler) event.getHandler()).getRegisteredChannels();
+        final Set<String> channels = ((INetPlayHandlerBridge_Forge) event.getHandler()).forgeBridge$getRegisteredChannels();
         final EntityPlayer player;
 
         if (event.getSide().isClient()) {

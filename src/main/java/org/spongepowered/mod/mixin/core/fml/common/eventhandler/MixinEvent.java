@@ -33,11 +33,11 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.mod.interfaces.IMixinEvent;
+import org.spongepowered.mod.bridge.event.EventForgeBridge;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.fml.common.eventhandler.Event.class, remap = false)
-public abstract class MixinEvent implements Cancellable, IMixinEvent {
+public abstract class MixinEvent implements Cancellable, EventForgeBridge {
 
     @Shadow public abstract void setCanceled(boolean cancel);
     @Shadow public abstract boolean isCanceled();

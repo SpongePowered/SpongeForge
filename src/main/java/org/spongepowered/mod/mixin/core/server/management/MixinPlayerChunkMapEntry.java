@@ -37,12 +37,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
 import org.spongepowered.mod.entity.PlayerChunkRunnable;
-import org.spongepowered.mod.interfaces.IMixinPlayerChunkMapEntry;
+import org.spongepowered.mod.bridge.server.management.PlayerChunkMapEntryBridge_Forge;
 
 import java.util.List;
 
 @Mixin(value = PlayerChunkMapEntry.class, priority = 1001)
-public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
+public class MixinPlayerChunkMapEntry implements PlayerChunkMapEntryBridge_Forge {
 
     @Shadow public Chunk chunk;
     @Shadow @Final private PlayerChunkMap playerChunkMap;
@@ -100,13 +100,13 @@ public class MixinPlayerChunkMapEntry implements IMixinPlayerChunkMapEntry {
 
     // Called by PlayerChunkRunnable after a chunk is loaded
     @Override
-    public void setChunk(Chunk chunk) {
+    public void forgeBridge$setChunk(Chunk chunk) {
         this.chunk = chunk;
         this.markChunkUsed();
     }
 
     @Override
-    public void setLoading(boolean loading) {
+    public void forgeBridge$setLoading(boolean loading) {
         this.loading = loading;
     }
 }

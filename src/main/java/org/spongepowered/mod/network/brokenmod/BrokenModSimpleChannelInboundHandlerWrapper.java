@@ -31,7 +31,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
-import org.spongepowered.mod.interfaces.IMixinFMLEventChannel;
+import org.spongepowered.mod.bridge.network.FMLEventChannelBridge_Forge;
 
 @ChannelHandler.Sharable
 public class BrokenModSimpleChannelInboundHandlerWrapper extends SimpleChannelInboundHandler<FMLProxyPacket> {
@@ -48,7 +48,7 @@ public class BrokenModSimpleChannelInboundHandlerWrapper extends SimpleChannelIn
     protected void channelRead0(ChannelHandlerContext ctx, FMLProxyPacket msg) throws Exception
     {
         this.brokenModData.schedule(() -> {
-            ((IMixinFMLEventChannel) eventChannel).spongeFireRead(msg,ctx);
+            ((FMLEventChannelBridge_Forge) eventChannel).forgeBridge$spongeFireRead(msg,ctx);
         });
 
     }

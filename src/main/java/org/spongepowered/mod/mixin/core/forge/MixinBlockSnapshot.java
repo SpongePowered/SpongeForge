@@ -29,7 +29,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Location;
@@ -40,13 +39,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.block.SpongeBlockSnapshotBuilder;
 import org.spongepowered.common.bridge.data.CustomDataHolderBridge;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.interfaces.IMixinBlockSnapshot;
+import org.spongepowered.mod.bridge.util.ForgeBlockSnapshotBridge_Forge;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = net.minecraftforge.common.util.BlockSnapshot.class, remap = false)
-public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
+public abstract class MixinBlockSnapshot implements ForgeBlockSnapshotBridge_Forge {
 
     @Shadow @Final private BlockPos pos;
     @Shadow @Final private NBTTagCompound nbt;
@@ -57,7 +56,7 @@ public abstract class MixinBlockSnapshot implements IMixinBlockSnapshot {
     @Shadow public abstract net.minecraft.world.World getWorld();
 
     @Override
-    public BlockSnapshot createSpongeBlockSnapshot() {
+    public BlockSnapshot forgeBridge$toSpongeSnapshot() {
         Location<World> location = new Location<>((World) this.getWorld(), VecHelper.toVector3i(this.pos));
         SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
         builder.blockState(this.replacedBlock)

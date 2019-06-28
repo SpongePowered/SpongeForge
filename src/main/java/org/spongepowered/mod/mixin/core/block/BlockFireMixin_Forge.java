@@ -45,10 +45,11 @@ import java.util.Random;
 public abstract class BlockFireMixin_Forge extends BlockMixin {
 
     @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z"), cancellable = true)
-    private void onCatchFirePreCheck(World world, BlockPos pos, int chance, Random random, int age, EnumFacing facing, CallbackInfo callbackInfo) {
+    private void onCatchFirePreCheck(final World world, final BlockPos pos, final int chance, final Random random, final int age,
+        final EnumFacing facing, final CallbackInfo callbackInfo) {
         if (!world.isRemote) {
             // SpongeForge uses the firespread context key, todo verify if we want to use FireSpread or what.
-            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
                 if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
                     callbackInfo.cancel();
@@ -58,10 +59,12 @@ public abstract class BlockFireMixin_Forge extends BlockMixin {
     }
 
     @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockToAir(Lnet/minecraft/util/math/BlockPos;)Z"), cancellable = true)
-    private void onCatchFirePreCheckOther(World world, BlockPos pos, int chance, Random random, int age, EnumFacing facing, CallbackInfo callbackInfo) {
+    private void onCatchFirePreCheckOther(
+        final World world, final BlockPos pos, final int chance, final Random random, final int age, final EnumFacing facing,
+        final CallbackInfo callbackInfo) {
         if (!world.isRemote) {
             // SpongeForge uses the firespread context key, todo verify if we want to use FireSpread or what.
-            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
                 if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
                     callbackInfo.cancel();

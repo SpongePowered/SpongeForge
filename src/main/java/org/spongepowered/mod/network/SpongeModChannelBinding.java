@@ -38,7 +38,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.common.network.SpongeNetworkManager.AbstractChannelBinding;
-import org.spongepowered.mod.interfaces.IMixinNetPlayHandler;
+import org.spongepowered.mod.bridge.network.INetPlayHandlerBridge_Forge;
 
 import java.util.EnumMap;
 
@@ -61,7 +61,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
 
     protected void sendTo(Player player, Object data) {
         checkValidState();
-        if (!((IMixinNetPlayHandler) ((EntityPlayerMP) player).connection).getRegisteredChannels().contains(getName())) {
+        if (!((INetPlayHandlerBridge_Forge) ((EntityPlayerMP) player).connection).forgeBridge$getRegisteredChannels().contains(getName())) {
             return; // Player doesn't accept this channel
         }
         this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
@@ -71,7 +71,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
 
     protected void sendToServer(Object data) {
         checkValidState();
-        if (!((IMixinNetPlayHandler) Minecraft.getMinecraft().player.connection).getRegisteredChannels().contains(getName())) {
+        if (!((INetPlayHandlerBridge_Forge) Minecraft.getMinecraft().player.connection).forgeBridge$getRegisteredChannels().contains(getName())) {
             return; // Server doesn't accept this channel
         }
         this.channels.get(Side.CLIENT).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.TOSERVER);
