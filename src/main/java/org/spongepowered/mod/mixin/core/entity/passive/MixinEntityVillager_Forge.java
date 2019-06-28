@@ -31,8 +31,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.mixin.core.entity.MixinEntityAgeable;
-import org.spongepowered.mod.interfaces.IMixinEntityVillagerForge;
+import org.spongepowered.common.mixin.core.entity.EntityAgeableMixin;
+import org.spongepowered.mod.bridge.entity.passive.EntityVillagerBridge_Forge;
 import org.spongepowered.mod.interfaces.IMixinVillagerCareer;
 import org.spongepowered.mod.interfaces.IMixinVillagerProfession;
 import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
@@ -40,7 +40,7 @@ import org.spongepowered.mod.registry.SpongeForgeVillagerRegistry;
 import javax.annotation.Nullable;
 
 @Mixin(value = EntityVillager.class, priority = 1100)
-public abstract class MixinEntityVillager_Forge extends MixinEntityAgeable implements IMixinEntityVillagerForge {
+public abstract class MixinEntityVillager_Forge extends EntityAgeableMixin implements EntityVillagerBridge_Forge {
 
     @Shadow private int careerId;
     @Shadow private int careerLevel;
@@ -94,7 +94,7 @@ public abstract class MixinEntityVillager_Forge extends MixinEntityAgeable imple
     }
 
     @Override
-    public MerchantRecipeList getForgeTrades() {
+    public MerchantRecipeList forgeBridge$getForgeTrades() {
         return this.buyingList;
     }
 

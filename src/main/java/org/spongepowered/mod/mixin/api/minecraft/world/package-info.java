@@ -22,32 +22,4 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.block;
-
-import net.minecraft.block.BlockLeaves;
-import net.minecraft.block.BlockOldLeaf;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-
-@Mixin(BlockOldLeaf.class)
-public abstract class MixinBlockOldLeaf_Forge extends BlockLeaves {
-
-    /**
-     * @author bloodmc
-     *
-     *  @reason Oak, Spruce, Birch, and Jungle blocks currently do not call
-     *  Forge's super method in Block on server side. This causes our harvest
-     *  event not to be fired correctly.
-     */
-    @Override
-    @Overwrite
-    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
-        super.harvestBlock(worldIn, player, pos, state, te, stack);
-    }
-}
+@org.spongepowered.api.util.annotation.NonnullByDefault package org.spongepowered.mod.mixin.api.minecraft.world;

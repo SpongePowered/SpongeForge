@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.interfaces.IMixinBlock;
 
 @Mixin(Block.class)
-public abstract class MixinBlock_Forge implements IMixinBlock {
+public abstract class BlockMixin_Forge implements IMixinBlock {
 
     private boolean requiresLocationCheckForLight;
     private boolean requiresLocationCheckForOpacity;

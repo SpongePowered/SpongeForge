@@ -22,17 +22,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.fml.common.registry;
+package org.spongepowered.mod.mixin.api.minecraft.world.chunk;
 
-import net.minecraft.block.BlockAir;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.Chunk;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.bridge.block.BlockBridge;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
 
-@Mixin(targets = "net/minecraftforge/registries/GameData$BlockCallbacks$BlockDummyAir")
-public abstract class MixinBlockDummyAir extends BlockAir implements BlockBridge {
+@Mixin(Chunk.class)
+public abstract class ChunkMixin_ForgeAPI implements org.spongepowered.api.world.Chunk {
+
+    @Shadow @Final private net.minecraft.world.World world;
+    @Shadow @Final public int x;
+    @Shadow @Final public int z;
 
     @Override
-    public boolean bridge$isDummy() {
+    public boolean unloadChunk() {
+        if (((ChunkBridge) this).isPersistedChunk()) {
+            return false;
+        }
+
+        // TODO 1.9 Update - Zidane's thing
+        if (this.world.provider.canRespawnHere()) {//&& DimensionManager.shouldLoadSpawn(this.world.provider.getDimension())) {
+            if (this.world.isSpawnChunk(this.x, this.z)) {
+                return false;
+            }
+        }
+        ((WorldServer) this.world).getChunkProvider().queueUnload((Chunk) (Object) this);
         return true;
     }
+
+
 }

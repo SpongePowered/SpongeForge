@@ -22,33 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world.gen;
+package org.spongepowered.mod.mixin.core.block;
 
+import net.minecraft.block.BlockLeaves;
+import net.minecraft.block.BlockOldLeaf;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkPrimer;
-import net.minecraft.world.gen.ChunkGeneratorEnd;
-import net.minecraft.world.gen.IChunkGenerator;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.Overwrite;
 
-@Mixin(ChunkGeneratorEnd.class)
-public abstract class MixinChunkGeneratorEnd_Forge implements IChunkGenerator {
+@Mixin(BlockOldLeaf.class)
+public abstract class BlockOldLeafMixin_Forge extends BlockLeaves {
 
-    @Shadow(remap = false) private int chunkX; // Forge added
-    @Shadow(remap = false) private int chunkZ; // Forge added
-    @Shadow @Final private World world;
-
-
-    @Inject(method = "buildSurfaces(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
-    private void forge$cancelEndstoneWithEvent(ChunkPrimer chunk, CallbackInfo ci) {
-        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.world);
-        MinecraftForge.EVENT_BUS.post(event);
-        ci.cancel();
+    /**
+     * @author bloodmc
+     *
+     *  @reason Oak, Spruce, Birch, and Jungle blocks currently do not call
+     *  Forge's super method in Block on server side. This causes our harvest
+     *  event not to be fired correctly.
+     */
+    @Override
+    @Overwrite
+    public void harvestBlock(
+        final World worldIn, final EntityPlayer player, final BlockPos pos, final IBlockState state, final TileEntity te, final ItemStack stack) {
+        super.harvestBlock(worldIn, player, pos, state, te, stack);
     }
 }

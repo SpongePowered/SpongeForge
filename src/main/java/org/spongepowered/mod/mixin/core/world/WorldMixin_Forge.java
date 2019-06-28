@@ -26,6 +26,7 @@ package org.spongepowered.mod.mixin.core.world;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -49,13 +50,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.bridge.world.WorldBridge;
+import org.spongepowered.mod.bridge.world.WorldBridge_Forge;
 import org.spongepowered.mod.event.CapturedSnapshotWrapperList;
 
 import javax.annotation.Nullable;
 
 // Use lower priority so it is applied before the changes in SpongeCommon
 @Mixin(value = World.class, priority = 999)
-public abstract class MixinWorld_Forge implements WorldBridge {
+public abstract class WorldMixin_Forge implements WorldBridge_Forge {
 
     private WorldInfo redirectWorldInfo;
 
@@ -70,6 +72,7 @@ public abstract class MixinWorld_Forge implements WorldBridge {
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract int getLightFor(EnumSkyBlock type, BlockPos pos);
     @Shadow public abstract void updateComparatorOutputLevel(BlockPos pos, Block blockIn);
+    @Shadow public boolean isBlockModifiable(EntityPlayer player, BlockPos pos) { return false; } // Shadow
 
     /**
      * @author gabizou - July 25th, 2016
@@ -80,13 +83,13 @@ public abstract class MixinWorld_Forge implements WorldBridge {
      * @return The raw light
      */
     @Overwrite
-    private int getRawLight(BlockPos pos, EnumSkyBlock lightType) {
+    private int getRawLight(final BlockPos pos, final EnumSkyBlock lightType) {
         if (lightType == EnumSkyBlock.SKY && this.canSeeSky(pos)) {
             return 15;
         } else {
             // Sponge Start - Optimize block light checks
-            IBlockState blockState = this.getBlockState(pos);
-            int blockLight = SpongeImplHooks.getChunkPosLight(blockState, (net.minecraft.world.World) (Object) this, pos);
+            final IBlockState blockState = this.getBlockState(pos);
+            final int blockLight = SpongeImplHooks.getChunkPosLight(blockState, (net.minecraft.world.World) (Object) this, pos);
             int i = lightType == EnumSkyBlock.SKY ? 0 : blockLight; // Changed by forge to use the local variable
             int j = SpongeImplHooks.getBlockLightOpacity(blockState, (net.minecraft.world.World) (Object) this, pos);
             // Sponge End
@@ -104,9 +107,9 @@ public abstract class MixinWorld_Forge implements WorldBridge {
             } else if (i >= 14) {
                 return i;
             } else {
-                for (EnumFacing enumfacing : EnumFacing.values()) {
-                    BlockPos blockpos = pos.offset(enumfacing);
-                    int k = this.getLightFor(lightType, blockpos) - j;
+                for (final EnumFacing enumfacing : EnumFacing.values()) {
+                    final BlockPos blockpos = pos.offset(enumfacing);
+                    final int k = this.getLightFor(lightType, blockpos) - j;
 
                     if (k > i) {
                         i = k;
@@ -134,23 +137,23 @@ public abstract class MixinWorld_Forge implements WorldBridge {
      * @param blockIn The block type of the tile entity being removed
      */
     @Redirect(method = "removeTileEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;updateComparatorOutputLevel(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;)V"))
-    protected void onUpdateComparatorDuringTileRemoval(World world, BlockPos pos, Block blockIn, BlockPos samePos) {
+    protected void forgeImpl$UseComparatorOutputLevel(final World world, final BlockPos pos, final Block blockIn, final BlockPos samePos) {
         this.updateComparatorOutputLevel(pos, blockIn);
     }
 
     @Inject(method = "getWorldInfo", at = @At("HEAD"), cancellable = true)
-    public void onGetWorldInfo(CallbackInfoReturnable<WorldInfo> cir) {
+    private void forgeImpl$getRedirectedWorldInfoIfAvailable(final CallbackInfoReturnable<WorldInfo> cir) {
         if (this.provider.getDimension() != 0 && this.redirectWorldInfo != null) {
             cir.setReturnValue(this.redirectWorldInfo);
         }
     }
 
     @Inject(method = "getMapStorage", at = @At("HEAD"), cancellable = true)
-    public void onGetMapStorage(CallbackInfoReturnable<MapStorage> cir)
+    private void forgeImpl$getOverworldMapStorageInsteadOfMultiDimension(final CallbackInfoReturnable<MapStorage> cir)
     {
         // Forge only uses a single save handler so we need to always pass overworld's mapstorage here
         if (!this.isRemote && (this.mapStorage == null || this.provider.getDimension() != 0)) {
-            WorldServer overworld = DimensionManager.getWorld(0);
+            final WorldServer overworld = DimensionManager.getWorld(0);
             if (overworld != null) {
                 cir.setReturnValue(overworld.getMapStorage());
             }
@@ -158,14 +161,14 @@ public abstract class MixinWorld_Forge implements WorldBridge {
     }
 
     @Override
-    public void setRedirectedWorldInfo(@Nullable WorldInfo info) {
+    public void forgeBridge$setRedirectedWorldInfo(@Nullable final WorldInfo info) {
         this.redirectWorldInfo = info;
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void onIniitToSetForgeList(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client,
-        CallbackInfo ci) {
-        if (!this.isFake()) {
+    private void onIniitToSetForgeList(final ISaveHandler saveHandlerIn, final WorldInfo info, final WorldProvider providerIn,
+        final Profiler profilerIn, final boolean client, final CallbackInfo ci) {
+        if (!((WorldBridge) this).isFake()) {
             this.capturedBlockSnapshots = new CapturedSnapshotWrapperList((World) (Object) this);
         }
     }

@@ -41,14 +41,14 @@ import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
-import org.spongepowered.common.mixin.core.block.MixinBlock;
+import org.spongepowered.common.mixin.core.block.BlockMixin;
 import org.spongepowered.common.world.SpongeLocatableBlockBuilder;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(value = BlockLog.class, priority = 1001)
-public abstract class MixinBlockLog_Forge extends MixinBlock {
+public abstract class BlockLogMixin_Forge extends BlockMixin {
 
     @Redirect(method = "breakBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", remap = false))
     private void onSpongeBreakBlock(Block block, IBlockState state, net.minecraft.world.World worldIn, BlockPos pos) {

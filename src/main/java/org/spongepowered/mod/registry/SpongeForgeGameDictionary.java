@@ -42,15 +42,15 @@ public class SpongeForgeGameDictionary implements GameDictionary {
     }
 
     @Override
-    public void register(String key, Entry entry) {
-        ItemStack stack = ((SpongeGameDictionaryEntry) entry).bridge$createDictionaryStack(OreDictionary.WILDCARD_VALUE);
+    public void register(final String key, final Entry entry) {
+        final ItemStack stack = ((SpongeGameDictionaryEntry) entry).bridge$createDictionaryStack(OreDictionary.WILDCARD_VALUE);
         stack.setCount(1);
         OreDictionary.registerOre(key, stack);
     }
 
     @Override
-    public Set<Entry> get(String key) {
-        ImmutableSet.Builder<Entry> items = ImmutableSet.builder();
+    public Set<Entry> get(final String key) {
+        final ImmutableSet.Builder<Entry> items = ImmutableSet.builder();
         for (ItemStack itemStack : OreDictionary.getOres(key)) {
         	itemStack = itemStack.copy();
         	itemStack.setCount(1);
@@ -61,8 +61,8 @@ public class SpongeForgeGameDictionary implements GameDictionary {
 
     @Override
     public SetMultimap<String, Entry> getAll() {
-        ImmutableSetMultimap.Builder<String, Entry> allItems = ImmutableSetMultimap.builder();
-        for (String key : OreDictionary.getOreNames()) {
+        final ImmutableSetMultimap.Builder<String, Entry> allItems = ImmutableSetMultimap.builder();
+        for (final String key : OreDictionary.getOreNames()) {
             allItems.putAll(key, this.get(key));
         }
         return allItems.build();

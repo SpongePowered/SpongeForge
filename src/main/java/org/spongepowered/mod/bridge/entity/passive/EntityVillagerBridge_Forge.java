@@ -22,13 +22,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.interfaces;
+package org.spongepowered.mod.bridge.entity.passive;
 
 import net.minecraft.village.MerchantRecipeList;
-import org.spongepowered.common.bridge.entity.EntityVillagerBridge;
 
-public interface IMixinEntityVillagerForge extends EntityVillagerBridge {
+public interface EntityVillagerBridge_Forge {
 
-    MerchantRecipeList getForgeTrades();
+    MerchantRecipeList forgeBridge$getForgeTrades();
 
 }

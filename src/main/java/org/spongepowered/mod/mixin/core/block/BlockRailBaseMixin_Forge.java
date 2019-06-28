@@ -41,17 +41,17 @@ import org.spongepowered.common.entity.PlayerTracker;
 import java.util.Optional;
 
 @Mixin(value = BlockRailBase.class, remap = false)
-public class MixinBlockRailBase_Forge {
+public class BlockRailBaseMixin_Forge {
 
     // Used to transfer tracking information from minecarts to block positions
     @Inject(method = "onMinecartPass", at = @At(value = "HEAD"))
-    private void onMinecartRailPass(World world, net.minecraft.entity.item.EntityMinecart cart, BlockPos pos, CallbackInfo ci) {
+    private void onMinecartRailPass(final World world, final net.minecraft.entity.item.EntityMinecart cart, final BlockPos pos, final CallbackInfo ci) {
         if (!(cart instanceof OwnershipTrackedBridge)) {
             return;
         }
-        OwnershipTrackedBridge ownerBridge = (OwnershipTrackedBridge) cart;
-        Optional<User> notifier = ownerBridge.tracked$getNotifierReference();
-        Optional<User> owner = ownerBridge.tracked$getOwnerReference();
+        final OwnershipTrackedBridge ownerBridge = (OwnershipTrackedBridge) cart;
+        final Optional<User> notifier = ownerBridge.tracked$getNotifierReference();
+        final Optional<User> owner = ownerBridge.tracked$getOwnerReference();
         if (owner.isPresent() || notifier.isPresent()) {
             final Chunk chunk = (Chunk) ((ActiveChunkReferantBridge) cart).bridge$getActiveChunk();
             final boolean useActiveChunk = chunk != null && chunk.x == pos.getX() >> 4 && chunk.z == pos.getZ() >> 4;

@@ -22,17 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.fml.common.registry;
+package org.spongepowered.mod.bridge.world;
 
-import net.minecraft.block.BlockAir;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.bridge.block.BlockBridge;
+import net.minecraft.world.storage.WorldInfo;
 
-@Mixin(targets = "net/minecraftforge/registries/GameData$BlockCallbacks$BlockDummyAir")
-public abstract class MixinBlockDummyAir extends BlockAir implements BlockBridge {
+import javax.annotation.Nullable;
 
-    @Override
-    public boolean bridge$isDummy() {
-        return true;
-    }
+public interface WorldBridge_Forge {
+
+    void forgeBridge$setRedirectedWorldInfo(@Nullable WorldInfo info);
+
 }

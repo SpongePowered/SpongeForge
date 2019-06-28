@@ -38,14 +38,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.bridge.entity.player.ServerPlayerEntityBridge;
-import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
-import org.spongepowered.common.mixin.core.entity.player.MixinEntityPlayer;
+import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.mixin.core.entity.player.EntityPlayerMixin;
 
 import javax.annotation.Nullable;
 
 @Mixin(value = EntityPlayerMP.class, priority = 1001)
-public abstract class MixinEntityPlayerMP_Forge extends MixinEntityPlayer implements ServerPlayerEntityBridge {
+public abstract class MixinEntityPlayerMP_Forge extends EntityPlayerMixin implements ServerPlayerEntityBridge {
 
     @Shadow public NetHandlerPlayServer connection;
     @Shadow public boolean invulnerableDimensionChange;
@@ -68,7 +68,7 @@ public abstract class MixinEntityPlayerMP_Forge extends MixinEntityPlayer implem
      */
     @Nullable
     @Overwrite(remap = false)
-    public net.minecraft.entity.Entity changeDimension(int toDimensionId, ITeleporter teleporter) {
+    public net.minecraft.entity.Entity changeDimension(final int toDimensionId, final ITeleporter teleporter) {
         if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension((EntityPlayerMP) (Object) this, toDimensionId)) {
             return (EntityPlayerMP) (Object) this;
         }

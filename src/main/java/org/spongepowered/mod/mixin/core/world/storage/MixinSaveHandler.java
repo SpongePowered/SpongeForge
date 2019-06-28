@@ -41,7 +41,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.interfaces.IMixinSaveHandler;
+import org.spongepowered.common.bridge.world.storage.SaveHandlerBridge;
 import org.spongepowered.common.plugin.PluginContainerExtension;
 import org.spongepowered.mod.SpongeMod;
 
@@ -64,20 +64,20 @@ public abstract class MixinSaveHandler {
     }
 
     @Redirect(method = "loadWorldInfo", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/SaveFormatOld;loadAndFix(Ljava/io/File;Lnet/minecraft/util/datafix/DataFixer;Lnet/minecraft/world/storage/SaveHandler;)Lnet/minecraft/world/storage/WorldInfo;", remap = false))
-    private WorldInfo onLoadWorldInfo(File file, DataFixer fixer, SaveHandler handler) {
+    private WorldInfo forgeImpl$hookToUpdateSpongeLoadData(File file, DataFixer fixer, SaveHandler handler) {
         final WorldInfo worldInfo = SaveFormatOld.loadAndFix(file, fixer, handler);
         if (worldInfo != null) {
             try {
-                ((IMixinSaveHandler) handler).loadSpongeDatData(worldInfo);
+                ((SaveHandlerBridge) handler).bridge$loadSpongeDatData(worldInfo);
             } catch (Exception e) {
-                throw new RuntimeException("derp", e);
+                throw new RuntimeException("Exception trying to load level_sponge.dat, file corruption maybe?", e);
             }
         }
         return worldInfo;
     }
 
     @Inject(method = "getWorldDirectory", at = @At("HEAD"), cancellable = true)
-    public void onGetWorldDirectory(CallbackInfoReturnable<File> cir) {
+    private void forgeImpl$useWorldSaveDirectoryforMods(CallbackInfoReturnable<File> cir) {
         final ModContainer activeContainer = Loader.instance().activeModContainer();
         // Since Forge uses a single save handler mods will expect this method to return overworld's world directory
         // Fixes mods such as ComputerCraft and FuturePack

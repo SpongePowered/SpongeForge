@@ -22,30 +22,4 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world.biome;
-
-import net.minecraft.world.biome.BiomeDecorator;
-import org.spongepowered.asm.mixin.Mixin;
-
-@Mixin(BiomeDecorator.class)
-public class MixinBiomeDecorator {
-
-    // TODO - gabizou - evaluate whether this is still needed and whether we should be preventing chunk loads
-//    @Inject(method = "decorate", at = @At("HEAD"))
-//    protected void onBiomeDecorateHead(World worldIn, Random random, Biome biome, BlockPos pos, CallbackInfo ci) {
-//        if (!worldIn.isRemote) {
-//            WorldServer world = (WorldServer) worldIn;
-//            // don't allow chunks to load while decorating
-//            world.getChunkProvider().chunkLoadOverride = false;
-//        }
-//    }
-//
-//    @Inject(method = "decorate", at = @At("RETURN"))
-//    protected void onBiomeDecorateReturn(World worldIn, Random random, Biome biome, BlockPos pos, CallbackInfo ci) {
-//        if (!worldIn.isRemote) {
-//            WorldServer world = (WorldServer) worldIn;
-//            // decorate is finished, allow chunks to load
-//            world.theChunkProviderServer.chunkLoadOverride = true;
-//        }
-//    }
-}
+@org.spongepowered.api.util.annotation.NonnullByDefault package org.spongepowered.mod.mixin.api.minecraft.world.chunk;

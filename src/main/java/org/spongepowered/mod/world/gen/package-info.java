@@ -22,30 +22,5 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.world;
-
-import net.minecraft.block.Block;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.event.tracking.PhaseTracker;
-
-/**
- * Created to be able to override Forge specific injections that we only want
- * to have for the WorldServer.
- */
-@Mixin(value = WorldServer.class, priority = 1010)
-public abstract class MixinWorldServer_Forge extends MixinWorld_Forge {
-
-    @Override
-    protected void onUpdateComparatorDuringTileRemoval(World world, BlockPos pos, Block blockIn, BlockPos samePos) {
-        if (!this.isFake()) {
-            if (PhaseTracker.getInstance().getCurrentState().isRestoring()) {
-                return;
-            }
-        }
-        this.updateComparatorOutputLevel(pos, blockIn);
-    }
-
-}
+@org.spongepowered.api.util.annotation.NonnullByDefault
+package org.spongepowered.mod.world.gen;

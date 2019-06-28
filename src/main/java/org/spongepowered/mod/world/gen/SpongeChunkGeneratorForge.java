@@ -24,9 +24,6 @@
  */
 package org.spongepowered.mod.world.gen;
 
-import org.spongepowered.common.bridge.world.WorldBridge;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
-import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimingsFactory;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
 import com.flowpowered.math.vector.Vector3i;
@@ -94,11 +91,14 @@ import org.spongepowered.api.world.gen.populator.SeaFloor;
 import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldBridge;
+import org.spongepowered.common.bridge.world.gen.FlaggedPopulatorBridge;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
 import org.spongepowered.common.event.tracking.phase.generation.PopulatorPhaseContext;
-import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.interfaces.world.gen.IGenerationPopulator;
+import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimingsFactory;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.common.world.extent.SoftBufferExtentViewDownsize;
 import org.spongepowered.common.world.gen.SpongeChunkGenerator;
@@ -126,12 +126,12 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
     @Nullable private IChunkGenerator moddedGeneratorFallback = null;
 
-    public SpongeChunkGeneratorForge(World world, GenerationPopulator generationPopulator, BiomeGenerator biomeGenerator) {
+    public SpongeChunkGeneratorForge(final World world, final GenerationPopulator generationPopulator, final BiomeGenerator biomeGenerator) {
         super(world, generationPopulator, biomeGenerator);
 
         String chunkGeneratorName = "";
-        String modId = StaticMixinForgeHelper.getModIdFromClass(generationPopulator.getClass());
-        if (modId.equalsIgnoreCase("unknown")) {
+        final String modId = StaticMixinForgeHelper.getModIdFromClass(generationPopulator.getClass());
+        if ("unknown".equalsIgnoreCase(modId)) {
             if (generationPopulator instanceof SpongeGenerationPopulator) {
                 chunkGeneratorName = "chunkGenerator (" + ((SpongeGenerationPopulator) generationPopulator).getHandle(world).getClass().getSimpleName() + ")";
             } else {
@@ -145,8 +145,8 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
     }
 
     @Override
-    public void replaceBiomeBlocks(World world, Random rand, int x, int z, ChunkPrimer chunk, ImmutableBiomeVolume biomes) {
-        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, x, z, chunk, world);
+    public void replaceBiomeBlocks(final World world, final Random rand, final int x, final int z, final ChunkPrimer chunk, final ImmutableBiomeVolume biomes) {
+        final ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, x, z, chunk, world);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.getResult() == Result.DENY)
             return;
@@ -155,31 +155,31 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void populate(int chunkX, int chunkZ) {
+    public void populate(final int chunkX, final int chunkZ) {
         this.chunkGeneratorTiming.startTimingIfSync();
         if (this.moddedGeneratorFallback != null) {
             this.moddedGeneratorFallback.populate(chunkX, chunkZ);
             return;
         }
         this.rand.setSeed(this.world.getSeed());
-        long i1 = this.rand.nextLong() / 2L * 2L + 1L;
-        long j1 = this.rand.nextLong() / 2L * 2L + 1L;
+        final long i1 = this.rand.nextLong() / 2L * 2L + 1L;
+        final long j1 = this.rand.nextLong() / 2L * 2L + 1L;
         this.rand.setSeed(chunkX * i1 + chunkZ * j1 ^ this.world.getSeed());
         BlockFalling.fallInstantly = true;
 
         // Have to regeneate the biomes so that any virtual biomes can be passed to the populator.
         this.cachedBiomes.reuse(new Vector3i(chunkX * 16, 0, chunkZ * 16));
         this.biomeGenerator.generateBiomes(this.cachedBiomes);
-        ImmutableBiomeVolume biomeBuffer = this.cachedBiomes.getImmutableBiomeCopy();
+        final ImmutableBiomeVolume biomeBuffer = this.cachedBiomes.getImmutableBiomeCopy();
 
-        BlockPos blockpos = new BlockPos(chunkX * 16, 0, chunkZ * 16);
+        final BlockPos blockpos = new BlockPos(chunkX * 16, 0, chunkZ * 16);
         BiomeType biome = (BiomeType) this.world.getBiome(blockpos.add(16, 0, 16));
 
         if (biome == null) {
             // We have a failure of stupidity at this point. We can't crash the game, and clearly, a mod
             // is failing to provide us with a proper biome, so, we've got to "reverse" and delegate back to the mod.
             if (!((WorldBridge) this.world).isFake()) {
-                DimensionType type = (DimensionType) (Object) ((org.spongepowered.api.world.World) this.world).getDimension().getType();
+                final DimensionType type = (DimensionType) (Object) ((org.spongepowered.api.world.World) this.world).getDimension().getType();
                 try {
                     this.moddedGeneratorFallback = type.createDimension().createChunkGenerator();
                 } catch (Exception e) {
@@ -197,16 +197,16 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             }
         }
 
-        Chunk chunk = (Chunk) this.world.getChunk(chunkX, chunkZ);
+        final Chunk chunk = (Chunk) this.world.getChunk(chunkX, chunkZ);
 
-        BiomeGenerationSettings settings = getBiomeSettings(biome);
+        final BiomeGenerationSettings settings = getBiomeSettings(biome);
 
-        List<Populator> populators = new ArrayList<>(this.pop);
+        final List<Populator> populators = new ArrayList<>(this.pop);
 
         Populator snowPopulator = null;
-        Iterator<Populator> itr = populators.iterator();
+        final Iterator<Populator> itr = populators.iterator();
         while (itr.hasNext()) {
-            Populator populator = itr.next();
+            final Populator populator = itr.next();
             if (populator instanceof SnowPopulator) {
                 itr.remove();
                 snowPopulator = populator;
@@ -224,12 +224,12 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Pre(this, this.world, this.rand, chunkX, chunkZ, false));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(this.world, this.rand, blockpos));
         MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Pre(this.world, this.rand, blockpos));
-        List<String> flags = Lists.newArrayList();
+        final List<String> flags = Lists.newArrayList();
         final Vector3i min = PhaseTracker.getInstance().getCurrentState().getChunkPopulatorOffset(chunk, chunkX, chunkZ);
-        org.spongepowered.api.world.World spongeWorld = (org.spongepowered.api.world.World) this.world;
-        Extent volume = new SoftBufferExtentViewDownsize(chunk.getWorld(), min, min.add(15, 255, 15), min.sub(8, 0, 8), min.add(23, 255, 23));
+        final org.spongepowered.api.world.World spongeWorld = (org.spongepowered.api.world.World) this.world;
+        final Extent volume = new SoftBufferExtentViewDownsize(chunk.getWorld(), min, min.add(15, 255, 15), min.sub(8, 0, 8), min.add(23, 255, 23));
 
-        for (Populator populator : populators) {
+        for (final Populator populator : populators) {
             if (!(populator instanceof PlainsGrassPopulator)) {
                 if (!this.checkForgeEvent(populator, this, chunkX, chunkZ, flags, chunk)) {
                     continue;
@@ -260,7 +260,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 continue;
             }
 
-            try (PopulatorPhaseContext context = GenerationPhase.State.POPULATOR_RUNNING.createPhaseContext()
+            try (final PopulatorPhaseContext context = GenerationPhase.State.POPULATOR_RUNNING.createPhaseContext()
                     .world(this.world)
                     .populator(type)) {
                 context.buildAndSwitch();
@@ -273,8 +273,8 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                     }
                     timing.startTimingIfSync();
                 }
-                if (populator instanceof IFlaggedPopulator) {
-                    ((IFlaggedPopulator) populator).populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
+                if (populator instanceof FlaggedPopulatorBridge) {
+                    ((FlaggedPopulatorBridge) populator).populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
                 } else {
                     populator.populate(spongeWorld, volume, this.rand, biomeBuffer);
                 }
@@ -292,9 +292,9 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         // populate method so that its particular changes are used.
         if (this.baseGenerator instanceof SpongeGenerationPopulator) {
             Timing timing = null;
-            IChunkGenerator chunkGenerator = ((SpongeGenerationPopulator) this.baseGenerator).getHandle(this.world);
+            final IChunkGenerator chunkGenerator = ((SpongeGenerationPopulator) this.baseGenerator).getHandle(this.world);
             if (Timings.isTimingsEnabled()) {
-                IGenerationPopulator spongePopulator = (IGenerationPopulator) this.baseGenerator;
+                final IGenerationPopulator spongePopulator = (IGenerationPopulator) this.baseGenerator;
                 timing = spongePopulator.getTimingsHandler();
                 timing.startTimingIfSync();
             }
@@ -304,7 +304,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             }
         }
 
-        org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
+        final org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
                 SpongeEventFactory.createPopulateChunkEventPost(Sponge.getCauseStackManager().getCurrentCause(), ImmutableList.copyOf(populators), chunk);
         SpongeImpl.postEvent(event);
 
@@ -314,20 +314,20 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
     }
 
     @SuppressWarnings("deprecation")
-    private boolean checkForgeEvent(Populator populator, IChunkGenerator chunkProvider, int chunkX, int chunkZ, List<String> flags, Chunk chunk) {
-        boolean village_flag = flags.contains(WorldGenConstants.VILLAGE_FLAG);
+    private boolean checkForgeEvent(final Populator populator, final IChunkGenerator chunkProvider, final int chunkX, final int chunkZ, final List<String> flags, final Chunk chunk) {
+        final boolean village_flag = flags.contains(WorldGenConstants.VILLAGE_FLAG);
         if (populator instanceof Ore && populator instanceof WorldGenerator) {
-            BlockType type = ((Ore) populator).getOreBlock().getType();
+            final BlockType type = ((Ore) populator).getOreBlock().getType();
             GenerateMinable.EventType otype = null;
             if (type.equals(BlockTypes.DIRT)) {
                 otype = GenerateMinable.EventType.DIRT;
             } else if (type.equals(BlockTypes.GRAVEL)) {
                 otype = GenerateMinable.EventType.GRAVEL;
             } else if (type.equals(BlockTypes.STONE)) {
-                BlockState state = ((Ore) populator).getOreBlock();
-                Optional<StoneType> stype;
+                final BlockState state = ((Ore) populator).getOreBlock();
+                final Optional<StoneType> stype;
                 if ((stype = state.get(Keys.STONE_TYPE)).isPresent()) {
-                    StoneType stoneType = stype.get();
+                    final StoneType stoneType = stype.get();
                     if (stoneType.equals(StoneTypes.DIORITE)) {
                         otype = GenerateMinable.EventType.DIORITE;
                     } else if (stoneType.equals(StoneTypes.ANDESITE)) {
@@ -363,13 +363,13 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         boolean populate = true;
         boolean decorate = true;
 
-        Populate.EventType etype = this.getForgeEventTypeForPopulator(populator, chunk);
+        final Populate.EventType etype = this.getForgeEventTypeForPopulator(populator, chunk);
         if (etype != null) {
             populate = TerrainGen.populate(chunkProvider, (net.minecraft.world.World) chunk.getWorld(), this.rand, chunkX, chunkZ, village_flag,
                     etype);
         }
 
-        Decorate.EventType detype = this.getForgeDecorateEventTypeForPopulator(populator, chunk);
+        final Decorate.EventType detype = this.getForgeDecorateEventTypeForPopulator(populator, chunk);
         if (detype != null) {
             decorate = TerrainGen.decorate((World) chunk.getWorld(), this.rand, VecHelper.toBlockPos(chunk.getBlockMin()), detype);
         }
@@ -378,7 +378,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         return populate && decorate;
     }
 
-    private Populate.EventType getForgeEventTypeForPopulator(Populator populator, Chunk chunk) {
+    private Populate.EventType getForgeEventTypeForPopulator(final Populator populator, final Chunk chunk) {
         if (populator instanceof Lake) {
             if (((Lake) populator).getLiquidType().getType().equals(BlockTypes.LAVA)
                     || ((Lake) populator).getLiquidType().getType().equals(BlockTypes.FLOWING_LAVA)) {
@@ -399,7 +399,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             return Populate.EventType.GLOWSTONE;
         }
         if (populator instanceof RandomBlock) {
-            BlockType type = ((RandomBlock) populator).getBlock().getType();
+            final BlockType type = ((RandomBlock) populator).getBlock().getType();
             if (type.equals(BlockTypes.FLOWING_LAVA) || type.equals(BlockTypes.LAVA)) {
                 if (chunk.getWorld().getProperties().getGeneratorType().equals(GeneratorTypes.NETHER)) {
                     if (((RandomBlock) populator).getPlacementTarget().equals(WorldGenConstants.HELL_LAVA_ENCLOSED)) {
@@ -418,9 +418,9 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
     }
 
     @SuppressWarnings("rawtypes")
-    private Decorate.EventType getForgeDecorateEventTypeForPopulator(Populator populator, Chunk chunk) {
+    private Decorate.EventType getForgeDecorateEventTypeForPopulator(final Populator populator, final Chunk chunk) {
         if (populator instanceof SeaFloor) {
-            BlockType type = ((SeaFloor) populator).getBlock().getType();
+            final BlockType type = ((SeaFloor) populator).getBlock().getType();
             if (type.equals(BlockTypes.SAND)) {
                 return Decorate.EventType.SAND;
             }

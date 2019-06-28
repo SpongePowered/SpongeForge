@@ -22,39 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.api.minecraft.world.chunk;
+package org.spongepowered.mod.mixin.core.world.gen;
 
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.chunk.Chunk;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.gen.ChunkGeneratorEnd;
+import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@NonnullByDefault
-@Mixin(value = Chunk.class)
-public abstract class MixinChunk_APIForge implements org.spongepowered.api.world.Chunk {
+@Mixin(ChunkGeneratorEnd.class)
+public abstract class ChunkGeneratorEndMixin_Forge implements IChunkGenerator {
 
-    @Shadow @Final private net.minecraft.world.World world;
-    @Shadow @Final public int x;
-    @Shadow @Final public int z;
+    @Shadow(remap = false) private int chunkX; // Forge added
+    @Shadow(remap = false) private int chunkZ; // Forge added
+    @Shadow @Final private World world;
 
-    @Override
-    public boolean unloadChunk() {
-        if (((ChunkBridge) this).isPersistedChunk()) {
-            return false;
-        }
 
-        // TODO 1.9 Update - Zidane's thing
-        if (this.world.provider.canRespawnHere()) {//&& DimensionManager.shouldLoadSpawn(this.world.provider.getDimension())) {
-            if (this.world.isSpawnChunk(this.x, this.z)) {
-                return false;
-            }
-        }
-        ((WorldServer) this.world).getChunkProvider().queueUnload((Chunk) (Object) this);
-        return true;
+    @Inject(method = "buildSurfaces(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
+    private void forge$cancelEndstoneWithEvent(ChunkPrimer chunk, CallbackInfo ci) {
+        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.world);
+        MinecraftForge.EVENT_BUS.post(event);
+        ci.cancel();
     }
-
-
 }

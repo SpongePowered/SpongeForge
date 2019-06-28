@@ -35,10 +35,12 @@ import net.minecraftforge.event.world.BlockEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.mixin.core.item.MixinItem;
+import org.spongepowered.common.mixin.core.item.ItemMixin;
+
+import javax.annotation.Nullable;
 
 @Mixin(ItemLilyPad.class)
-public abstract class MixinItemLilyPad_Forge extends MixinItem {
+public abstract class ItemLilyPadMixin_Forge extends ItemMixin {
 
     @Redirect(method = "onItemRightClick",
         at = @At(value = "INVOKE",
@@ -46,7 +48,7 @@ public abstract class MixinItemLilyPad_Forge extends MixinItem {
             remap = false
         )
     )
-    private BlockSnapshot sponge$IgnoreSnapshotCreationDuetoTracking(World world, BlockPos pos) {
+    private BlockSnapshot sponge$IgnoreSnapshotCreationDuetoTracking(final World world, final BlockPos pos) {
         return null;
     }
 
@@ -58,7 +60,9 @@ public abstract class MixinItemLilyPad_Forge extends MixinItem {
             remap = false
         )
     )
-    private BlockEvent.PlaceEvent sponge$IgnoreForgeEventDueToTracker(EntityPlayer player, BlockSnapshot blockSnapshot, EnumFacing direction, EnumHand hand) {
+    @Nullable
+    private BlockEvent.PlaceEvent sponge$IgnoreForgeEventDueToTracker(final EntityPlayer player, final BlockSnapshot blockSnapshot,
+        final EnumFacing direction, final EnumHand hand) {
         return null;
     }
 
@@ -79,7 +83,7 @@ public abstract class MixinItemLilyPad_Forge extends MixinItem {
             remap = false)
     )
     @SuppressWarnings("deprecation")
-    private boolean sponge$IgnoreEventCancellation(BlockEvent.PlaceEvent placeEvent) {
+    private boolean sponge$IgnoreEventCancellation(final BlockEvent.PlaceEvent placeEvent) {
         return false;
     }
 }

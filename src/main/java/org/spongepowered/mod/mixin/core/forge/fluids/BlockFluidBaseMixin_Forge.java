@@ -43,12 +43,12 @@ import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.bridge.block.BlockBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
-import org.spongepowered.mod.mixin.core.block.MixinBlock_Forge;
+import org.spongepowered.mod.mixin.core.block.BlockMixin_Forge;
 
 import java.util.Map;
 
 @Mixin(value = BlockFluidBase.class)
-public abstract class MixinBlockFluidBase extends MixinBlock_Forge implements BlockBridge {
+public abstract class BlockFluidBaseMixin_Forge extends BlockMixin_Forge implements BlockBridge {
 
     @Shadow(remap = false) @Final public static PropertyInteger LEVEL;
     @Shadow(remap = false) protected int tickRate;

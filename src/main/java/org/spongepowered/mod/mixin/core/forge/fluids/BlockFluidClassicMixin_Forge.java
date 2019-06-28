@@ -41,13 +41,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
 
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -55,10 +55,10 @@ import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 
 @Mixin(value = BlockFluidClassic.class)
-public abstract class MixinBlockFluidClassic extends MixinBlockFluidBase {
+public abstract class BlockFluidClassicMixin_Forge extends BlockFluidBaseMixin_Forge {
 
     @Override
-    public BiConsumer<CauseStackManager.StackFrame, ServerWorldBridge> getTickFrameModifier() {
+    public BiConsumer<CauseStackManager.StackFrame, ServerWorldBridge> bridge$getTickFrameModifier() {
         return (frame, world) -> frame.addContext(EventContextKeys.LIQUID_FLOW, (org.spongepowered.api.world.World) world);
     }
 
