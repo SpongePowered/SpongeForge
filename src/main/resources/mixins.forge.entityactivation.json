@@ -6,8 +6,8 @@
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_8",
     "server": [
-        "MixinEntityItem_Activation",
-        "MixinWorld_ForgeActivation"
+        "EntityItemMixin_ForgeActivation",
+        "WorldMixin_ForgeActivation"
     ],
     "injectors": {
         "defaultRequire": 1

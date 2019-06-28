@@ -46,7 +46,7 @@ import java.util.Set;
 /**
  * Error handler for Sponge mixins
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "unused"}) // This class is registered in SpongeCoremod
 public class MixinErrorHandler implements IMixinErrorHandler {
 
     /**

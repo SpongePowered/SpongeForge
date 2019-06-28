@@ -43,7 +43,7 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.util.VecHelper;
-import org.spongepowered.mod.mixin.core.forge.common.MixinForgeChunkManager$Ticket;
+import org.spongepowered.mod.mixin.core.forge.common.ForgeChunkManager$TicketAccessor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -58,13 +58,13 @@ import javax.annotation.Nullable;
 public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     @Override
-    public void registerCallback(Object plugin, Callback callback) {
+    public void registerCallback(final Object plugin, final Callback callback) {
         ForgeChunkManager.setForcedChunkLoadingCallback(plugin, new SpongeLoadingCallback(callback));
     }
 
     @Override
-    public Optional<LoadingTicket> createTicket(Object plugin, World world) {
-        Ticket forgeTicket = ForgeChunkManager.requestTicket(plugin, (net.minecraft.world.World) world, ForgeChunkManager.Type.NORMAL);
+    public Optional<LoadingTicket> createTicket(final Object plugin, final World world) {
+        final Ticket forgeTicket = ForgeChunkManager.requestTicket(plugin, (net.minecraft.world.World) world, ForgeChunkManager.Type.NORMAL);
         if (forgeTicket == null) {
             return Optional.empty();
         }
@@ -73,8 +73,8 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
     }
 
     @Override
-    public Optional<EntityLoadingTicket> createEntityTicket(Object plugin, World world) {
-        Ticket forgeTicket = ForgeChunkManager.requestTicket(plugin, (net.minecraft.world.World) world, ForgeChunkManager.Type.ENTITY);
+    public Optional<EntityLoadingTicket> createEntityTicket(final Object plugin, final World world) {
+        final Ticket forgeTicket = ForgeChunkManager.requestTicket(plugin, (net.minecraft.world.World) world, ForgeChunkManager.Type.ENTITY);
         if (forgeTicket == null) {
             return Optional.empty();
         }
@@ -83,13 +83,13 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
     }
 
     @Override
-    public Optional<PlayerLoadingTicket> createPlayerTicket(Object plugin, World world, UUID player) {
-        Optional<Player> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
+    public Optional<PlayerLoadingTicket> createPlayerTicket(final Object plugin, final World world, final UUID player) {
+        final Optional<Player> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
         if (!spongePlayer.isPresent()) {
             return Optional.empty();
         }
 
-        Ticket forgeTicket =
+        final Ticket forgeTicket =
                 ForgeChunkManager.requestPlayerTicket(plugin, spongePlayer.get().getName(), (net.minecraft.world.World) world,
                         ForgeChunkManager.Type.NORMAL);
         if (forgeTicket == null) {
@@ -100,13 +100,13 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
     }
 
     @Override
-    public Optional<PlayerEntityLoadingTicket> createPlayerEntityTicket(Object plugin, World world, UUID player) {
-        Optional<Player> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
+    public Optional<PlayerEntityLoadingTicket> createPlayerEntityTicket(final Object plugin, final World world, final UUID player) {
+        final Optional<Player> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
         if (!spongePlayer.isPresent()) {
             return Optional.empty();
         }
 
-        Ticket forgeTicket =
+        final Ticket forgeTicket =
                 ForgeChunkManager.requestPlayerTicket(plugin, spongePlayer.get().getName(), (net.minecraft.world.World) world,
                         ForgeChunkManager.Type.ENTITY);
         if (forgeTicket == null) {
@@ -117,28 +117,28 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
     }
 
     @Override
-    public int getMaxTickets(Object plugin) {
+    public int getMaxTickets(final Object plugin) {
         return ForgeChunkManager.getMaxTicketLengthFor(((PluginContainer) plugin).getId());
     }
 
     @Override
-    public int getAvailableTickets(Object plugin, World world) {
+    public int getAvailableTickets(final Object plugin, final World world) {
         return ForgeChunkManager.ticketCountAvailableFor(plugin, (net.minecraft.world.World) world);
     }
 
     @Override
-    public int getAvailableTickets(UUID player) {
-        Optional<Player> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
+    public int getAvailableTickets(final UUID player) {
+        final Optional<Player> spongePlayer = SpongeImpl.getGame().getServer().getPlayer(player);
         return spongePlayer.map(player1 -> ForgeChunkManager.ticketCountAvailableFor(player1.getName())).orElse(0);
 
     }
 
     @Override
-    public ImmutableSetMultimap<Vector3i, LoadingTicket> getForcedChunks(World world) {
-        ImmutableSetMultimap<ChunkPos, Ticket> forgeForcedChunks =
+    public ImmutableSetMultimap<Vector3i, LoadingTicket> getForcedChunks(final World world) {
+        final ImmutableSetMultimap<ChunkPos, Ticket> forgeForcedChunks =
                 ForgeChunkManager.getPersistentChunksFor((net.minecraft.world.World) world);
-        ImmutableSetMultimap.Builder<Vector3i, LoadingTicket> spongeForcedChunks = ImmutableSetMultimap.builder();
-        for (Map.Entry<ChunkPos, Ticket> ticketPair : forgeForcedChunks.entries()) {
+        final ImmutableSetMultimap.Builder<Vector3i, LoadingTicket> spongeForcedChunks = ImmutableSetMultimap.builder();
+        for (final Map.Entry<ChunkPos, Ticket> ticketPair : forgeForcedChunks.entries()) {
             spongeForcedChunks.put(new Vector3i(ticketPair.getKey().x, 0, ticketPair.getKey().z),
                     new SpongeLoadingTicket(ticketPair.getValue()));
         }
@@ -154,7 +154,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
         @Nullable private ImmutableSet<Vector3i> chunkList;
         private final World world;
 
-        SpongeLoadingTicket(Ticket ticket) {
+        SpongeLoadingTicket(final Ticket ticket) {
             this.forgeTicket = ticket;
             this.plugin = SpongeImpl.getGame().getPluginManager().getPlugin(ticket.getModId()).get();
             this.pluginId = this.plugin.getId();
@@ -162,7 +162,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
         }
 
         @Override
-        public boolean setNumChunks(int numChunks) {
+        public boolean setNumChunks(final int numChunks) {
             if (numChunks > this.getMaxNumChunks() || (numChunks <= 0 && this.getMaxNumChunks() > 0)) {
                 return false;
             }
@@ -194,9 +194,9 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
         @SuppressWarnings("MixinClassReference")
         @Override
-        public void setCompanionData(DataContainer container) {
-            ((MixinForgeChunkManager$Ticket) this.forgeTicket)
-                    .setModData(NbtTranslator.getInstance()
+        public void setCompanionData(final DataContainer container) {
+            ((ForgeChunkManager$TicketAccessor) this.forgeTicket)
+                    .forgeAccessor$setModData(NbtTranslator.getInstance()
                             .translate(container));
         }
 
@@ -211,8 +211,8 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
                 return this.chunkList;
             }
 
-            Set<Vector3i> forgeChunkList = new HashSet<>();
-            for (ChunkPos chunkCoord : this.forgeTicket.getChunkList()) {
+            final Set<Vector3i> forgeChunkList = new HashSet<>();
+            for (final ChunkPos chunkCoord : this.forgeTicket.getChunkList()) {
                 forgeChunkList.add(new Vector3i(chunkCoord.x, 0, chunkCoord.z));
             }
 
@@ -221,17 +221,17 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
         }
 
         @Override
-        public void forceChunk(Vector3i chunk) {
+        public void forceChunk(final Vector3i chunk) {
             ForgeChunkManager.forceChunk(this.forgeTicket, VecHelper.toChunkPos(chunk));
         }
 
         @Override
-        public void unforceChunk(Vector3i chunk) {
+        public void unforceChunk(final Vector3i chunk) {
             ForgeChunkManager.unforceChunk(this.forgeTicket, VecHelper.toChunkPos(chunk));
         }
 
         @Override
-        public void prioritizeChunk(Vector3i chunk) {
+        public void prioritizeChunk(final Vector3i chunk) {
             ForgeChunkManager.reorderChunk(this.forgeTicket, VecHelper.toChunkPos(chunk));
         }
 
@@ -244,12 +244,12 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     private class SpongeEntityLoadingTicket extends SpongeLoadingTicket implements EntityLoadingTicket {
 
-        SpongeEntityLoadingTicket(Ticket ticket) {
+        SpongeEntityLoadingTicket(final Ticket ticket) {
             super(ticket);
         }
 
         @Override
-        public void bindToEntity(Entity entity) {
+        public void bindToEntity(final Entity entity) {
             this.forgeTicket.bindEntity((net.minecraft.entity.Entity) entity);
         }
 
@@ -262,7 +262,7 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     private class SpongePlayerLoadingTicket extends SpongeLoadingTicket implements PlayerLoadingTicket {
 
-        SpongePlayerLoadingTicket(Ticket ticket) {
+        SpongePlayerLoadingTicket(final Ticket ticket) {
             super(ticket);
         }
 
@@ -275,12 +275,12 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
     private class SpongePlayerEntityLoadingTicket extends SpongePlayerLoadingTicket implements PlayerEntityLoadingTicket {
 
-        SpongePlayerEntityLoadingTicket(Ticket ticket) {
+        SpongePlayerEntityLoadingTicket(final Ticket ticket) {
             super(ticket);
         }
 
         @Override
-        public void bindToEntity(Entity entity) {
+        public void bindToEntity(final Entity entity) {
             this.forgeTicket.bindEntity((net.minecraft.entity.Entity) entity);
         }
 
@@ -295,15 +295,15 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
 
         Callback spongeLoadingCallback;
 
-        SpongeLoadingCallback(ChunkTicketManager.Callback callback) {
+        SpongeLoadingCallback(final ChunkTicketManager.Callback callback) {
             this.spongeLoadingCallback = callback;
         }
 
         @Override
-        public void ticketsLoaded(List<Ticket> tickets, net.minecraft.world.World world) {
-            List<LoadingTicket> loadingTickets = new ArrayList<>();
+        public void ticketsLoaded(final List<Ticket> tickets, final net.minecraft.world.World world) {
+            final List<LoadingTicket> loadingTickets = new ArrayList<>();
 
-            for (Ticket ticket : tickets) {
+            for (final Ticket ticket : tickets) {
                 loadingTickets.add(new SpongeLoadingTicket(ticket));
             }
 
@@ -316,23 +316,23 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
     @SuppressWarnings("unused")
     private class SpongeOrderedCallback extends SpongeLoadingCallback implements ForgeChunkManager.OrderedLoadingCallback {
 
-        public SpongeOrderedCallback(Object plugin, Callback callback) {
+        public SpongeOrderedCallback(final Object plugin, final Callback callback) {
             super(callback);
         }
 
         @Override
-        public List<Ticket> ticketsLoaded(List<Ticket> tickets, net.minecraft.world.World world, int maxTicketCount) {
-            List<LoadingTicket> spongeLoadingTickets = new ArrayList<>();
-            for (Ticket ticket : tickets) {
+        public List<Ticket> ticketsLoaded(final List<Ticket> tickets, final net.minecraft.world.World world, final int maxTicketCount) {
+            final List<LoadingTicket> spongeLoadingTickets = new ArrayList<>();
+            for (final Ticket ticket : tickets) {
                 spongeLoadingTickets.add(new SpongeLoadingTicket(ticket));
             }
 
-            OrderedCallback spongeOrderedCallback = (OrderedCallback) this.spongeLoadingCallback;
-            List<LoadingTicket> spongeKeptTickets =
+            final OrderedCallback spongeOrderedCallback = (OrderedCallback) this.spongeLoadingCallback;
+            final List<LoadingTicket> spongeKeptTickets =
                     spongeOrderedCallback.onLoaded(ImmutableList.copyOf(spongeLoadingTickets), (World) world, maxTicketCount);
-            List<Ticket> forgeTickets = new ArrayList<>();
+            final List<Ticket> forgeTickets = new ArrayList<>();
 
-            for (LoadingTicket ticket : spongeKeptTickets) {
+            for (final LoadingTicket ticket : spongeKeptTickets) {
                 forgeTickets.add(((SpongeLoadingTicket) ticket).forgeTicket);
             }
             return forgeTickets;
@@ -343,25 +343,25 @@ public class SpongeChunkTicketManager implements ChunkTicketManager {
     @SuppressWarnings("unused")
     private class SpongePlayerOrderedCallback extends SpongeLoadingCallback implements ForgeChunkManager.PlayerOrderedLoadingCallback {
 
-        public SpongePlayerOrderedCallback(Object plugin, Callback callback) {
+        public SpongePlayerOrderedCallback(final Object plugin, final Callback callback) {
             super(callback);
         }
 
         @Override
-        public ListMultimap<String, Ticket> playerTicketsLoaded(ListMultimap<String, Ticket> tickets, net.minecraft.world.World world) {
-            ListMultimap<UUID, LoadingTicket> spongeLoadingTickets = ArrayListMultimap.create();
-            for (Map.Entry<String, Ticket> mapEntry : tickets.entries()) {
-                Optional<Player> player = SpongeImpl.getGame().getServer().getPlayer(mapEntry.getKey());
+        public ListMultimap<String, Ticket> playerTicketsLoaded(final ListMultimap<String, Ticket> tickets, final net.minecraft.world.World world) {
+            final ListMultimap<UUID, LoadingTicket> spongeLoadingTickets = ArrayListMultimap.create();
+            for (final Map.Entry<String, Ticket> mapEntry : tickets.entries()) {
+                final Optional<Player> player = SpongeImpl.getGame().getServer().getPlayer(mapEntry.getKey());
                 player.ifPresent(player1 -> spongeLoadingTickets.put(player1.getUniqueId(), new SpongePlayerLoadingTicket(mapEntry.getValue())));
             }
 
-            ListMultimap<UUID, LoadingTicket> spongeKeptTickets =
+            final ListMultimap<UUID, LoadingTicket> spongeKeptTickets =
                     ((PlayerOrderedCallback) this.spongeLoadingCallback).onPlayerLoaded(ImmutableListMultimap.copyOf(spongeLoadingTickets),
                             (World) world);
-            ListMultimap<String, Ticket> forgeTickets = ArrayListMultimap.create();
+            final ListMultimap<String, Ticket> forgeTickets = ArrayListMultimap.create();
 
-            for (Map.Entry<UUID, LoadingTicket> mapEntry : spongeKeptTickets.entries()) {
-                Optional<Player> player = SpongeImpl.getGame().getServer().getPlayer(mapEntry.getKey());
+            for (final Map.Entry<UUID, LoadingTicket> mapEntry : spongeKeptTickets.entries()) {
+                final Optional<Player> player = SpongeImpl.getGame().getServer().getPlayer(mapEntry.getKey());
                 player.ifPresent(player1 -> forgeTickets.put(player1.getName(), ((SpongeLoadingTicket) mapEntry.getValue()).forgeTicket));
             }
 

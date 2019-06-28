@@ -72,7 +72,7 @@ public abstract class WorldMixin_Forge implements WorldBridge_Forge {
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract int getLightFor(EnumSkyBlock type, BlockPos pos);
     @Shadow public abstract void updateComparatorOutputLevel(BlockPos pos, Block blockIn);
-    @Shadow public boolean isBlockModifiable(EntityPlayer player, BlockPos pos) { return false; } // Shadow
+    @Shadow public boolean isBlockModifiable(final EntityPlayer player, final BlockPos pos) { return false; } // Shadow
 
     /**
      * @author gabizou - July 25th, 2016

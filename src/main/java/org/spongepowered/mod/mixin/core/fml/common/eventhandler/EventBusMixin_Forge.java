@@ -62,12 +62,12 @@ import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.plugin.PluginPhase;
 import org.spongepowered.mod.SpongeModPlatform;
+import org.spongepowered.mod.bridge.event.ASMEventHandlerBridge;
+import org.spongepowered.mod.bridge.event.EventBusBridge_Forge;
 import org.spongepowered.mod.event.ForgeToSpongeEventData;
 import org.spongepowered.mod.event.ForgeToSpongeEventFactory;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.SpongeToForgeEventData;
-import org.spongepowered.mod.bridge.event.ASMEventHandlerBridge;
-import org.spongepowered.mod.bridge.event.EventBusBridge_Forge;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -110,13 +110,13 @@ public abstract class EventBusMixin_Forge implements EventBusBridge_Forge {
             if (worldTickEvent.phase == TickEvent.Phase.START) {
                 return PluginPhase.Listener.PRE_WORLD_TICK_LISTENER
                     .createPhaseContext()
-                    .source(listener.getContainer())
+                    .source(listener.forgeBridge$getContainer())
                     .world(world)
                     .event(event);
             } else if (worldTickEvent.phase == TickEvent.Phase.END) {
                 return PluginPhase.Listener.POST_WORLD_TICK_LISTENER
                     .createPhaseContext()
-                    .source(listener.getContainer())
+                    .source(listener.forgeBridge$getContainer())
                     .world(world)
                     .event(event);
             }
@@ -127,20 +127,20 @@ public abstract class EventBusMixin_Forge implements EventBusBridge_Forge {
             if (serverTickEvent.phase == TickEvent.Phase.START) {
                 // Need to prepare all worlds many mods do this
                 return PluginPhase.Listener.PRE_SERVER_TICK_LISTENER.createPhaseContext()
-                        .source(listener.getContainer())
+                        .source(listener.forgeBridge$getContainer())
                         .event(event);
             } else if (serverTickEvent.phase == TickEvent.Phase.END) {
                 // Need to prepare all worlds many mods do this
                 return PluginPhase.Listener.POST_SERVER_TICK_LISTENER.createPhaseContext()
-                    .source(listener.getContainer())
+                    .source(listener.forgeBridge$getContainer())
                     .event(event);
 
             }
         }
-        if (listener.getContainer() != null && PhaseTracker.getInstance().getCurrentState().allowsEventListener()) {
+        if (listener.forgeBridge$getContainer() != null && PhaseTracker.getInstance().getCurrentState().allowsEventListener()) {
             return PluginPhase.Listener.GENERAL_LISTENER.createPhaseContext()
                 .event(event)
-                .source(listener.getContainer());
+                .source(listener.forgeBridge$getContainer());
         }
         return null;
     }

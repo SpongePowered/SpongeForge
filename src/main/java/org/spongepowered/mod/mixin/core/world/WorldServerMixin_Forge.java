@@ -62,7 +62,7 @@ public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements
     }
 
     @Override
-    protected void forgeImpl$UseComparatorOutputLevel(World world, BlockPos pos, Block blockIn, BlockPos samePos) {
+    protected void forgeImpl$UseComparatorOutputLevel(final World world, final BlockPos pos, final Block blockIn, final BlockPos samePos) {
         if (!((WorldBridge) this).isFake()) {
             if (PhaseTracker.getInstance().getCurrentState().isRestoring()) {
                 return;
@@ -79,7 +79,7 @@ public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements
             remap = false
         )
     )
-    private void redirectSetWorld(int id, WorldServer world, MinecraftServer server) {
+    private void redirectSetWorld(final int id, final WorldServer world, final MinecraftServer server) {
         // Handled by WorldManager
     }
 
@@ -100,12 +100,13 @@ public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements
             target = "Lnet/minecraft/server/MinecraftServer;isBlockProtected(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/player/EntityPlayer;)Z"
         )
     )
-    private boolean isSpongeBlockProtected(MinecraftServer server, net.minecraft.world.World worldIn, BlockPos pos, EntityPlayer playerIn) {
+    private boolean isSpongeBlockProtected(
+        final MinecraftServer server, final net.minecraft.world.World worldIn, final BlockPos pos, final EntityPlayer playerIn) {
         if (server.isBlockProtected(worldIn, pos, playerIn)) {
             return true;
         }
         if (!((WorldBridge) this).isFake() && SpongeImplHooks.isMainThread()) {
-            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 // Might as well provide the active item in use.
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(playerIn.getActiveItemStack()));
                 return SpongeCommonEventFactory.callChangeBlockEventPre(this, pos, playerIn).isCancelled();
@@ -129,12 +130,12 @@ public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements
      */
     @Overwrite
     @Override
-    public boolean isBlockModifiable(EntityPlayer player, BlockPos pos) {
+    public boolean isBlockModifiable(final EntityPlayer player, final BlockPos pos) {
         if (super.isBlockModifiable(player, pos)) {
             return true;
         }
         if (!((WorldBridge) this).isFake() && SpongeImplHooks.isMainThread()) {
-            try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+            try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 // Might as well provide the active item in use.
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));
                 return !SpongeCommonEventFactory.callChangeBlockEventPre(this, pos, player).isCancelled();
@@ -147,7 +148,7 @@ public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements
 
 
     @Override
-    public SpongeChunkGenerator bridge$createChunkGenerator(SpongeWorldGenerator newGenerator) {
+    public SpongeChunkGenerator bridge$createChunkGenerator(final SpongeWorldGenerator newGenerator) {
         return new SpongeChunkGeneratorForge((net.minecraft.world.World) (Object) this, newGenerator.getBaseGenerationPopulator(),
                 newGenerator.getBiomeGenerator());
     }

@@ -49,7 +49,7 @@ public final class TerminateVM implements IExitHandler {
         final LaunchClassLoader parent;
         final String className, classRef;
 
-        MasqueradeClassLoader(LaunchClassLoader parent, String masqueradePackage) {
+        MasqueradeClassLoader(final LaunchClassLoader parent, final String masqueradePackage) {
             super(parent);
             this.parent = parent;
             this.className = masqueradePackage + ".TerminateVM";
@@ -61,25 +61,25 @@ public final class TerminateVM implements IExitHandler {
         }
 
         @Override
-        protected Class<?> findClass(String name) throws ClassNotFoundException {
+        protected Class<?> findClass(final String name) throws ClassNotFoundException {
             try {
                 if (this.className.equals(name)) {
-                    ClassWriter cw = new ClassWriter(0);
-                    ClassVisitor cv = new ClassVisitor(Opcodes.ASM5, cw) {
+                    final ClassWriter cw = new ClassWriter(0);
+                    final ClassVisitor cv = new ClassVisitor(Opcodes.ASM5, cw) {
                         @Override
-                        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+                        public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
                             super.visit(version, access | Opcodes.ACC_PUBLIC, MasqueradeClassLoader.this.classRef, signature, superName, interfaces);
                         }
                         
                         @Override
-                        public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                        public MethodVisitor visitMethod(final int access, final String name, final String desc, final String signature, final String[] exceptions) {
                             if ("terminate".equals(name)) {
                                 return null;
                             }
-                            MethodVisitor mv = this.cv.visitMethod(access, name, desc, signature, exceptions);
+                            final MethodVisitor mv = this.cv.visitMethod(access, name, desc, signature, exceptions);
                             return new MethodVisitor(Opcodes.ASM5, mv) {
                                 @Override
-                                public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+                                public void visitMethodInsn(final int opcode, String owner, String name, final String desc, final boolean itf) {
                                     if (owner.endsWith("TerminateVM")) {
                                         owner = MasqueradeClassLoader.this.classRef;
                                         if ("systemExit".equals(name)) {
@@ -93,7 +93,7 @@ public final class TerminateVM implements IExitHandler {
                         }
                     };
                     new ClassReader(this.parent.getClassBytes(TerminateVM.class.getName())).accept(cv, 0);
-                    byte[] classBytes = cw.toByteArray();
+                    final byte[] classBytes = cw.toByteArray();
                     return this.defineClass(this.className, classBytes, 0, classBytes.length, null);
                 }
             } catch (IOException ex) {
@@ -105,7 +105,7 @@ public final class TerminateVM implements IExitHandler {
     }
     
     @SuppressWarnings("unchecked")
-    public static void terminate(String masqueradePackage, int status) {
+    public static void terminate(final String masqueradePackage, final int status) {
         final Logger log = LogManager.getLogger("Sponge");
         
         try {
@@ -117,8 +117,8 @@ public final class TerminateVM implements IExitHandler {
 
         IExitHandler handler = null;
         try {
-            MasqueradeClassLoader cl = new MasqueradeClassLoader(Launch.classLoader, masqueradePackage);
-            Constructor<IExitHandler> ctor = ((Class<IExitHandler>) Class.forName(cl.getClassName(), true, cl)).getDeclaredConstructor();
+            final MasqueradeClassLoader cl = new MasqueradeClassLoader(Launch.classLoader, masqueradePackage);
+            final Constructor<IExitHandler> ctor = ((Class<IExitHandler>) Class.forName(cl.getClassName(), true, cl)).getDeclaredConstructor();
             ctor.setAccessible(true);
             handler = ctor.newInstance();
         } catch (Throwable th) {
@@ -129,11 +129,11 @@ public final class TerminateVM implements IExitHandler {
     }
 
     @Override
-    public void exit(int status) {
+    public void exit(final int status) {
         TerminateVM.systemExit(status);
     }
 
-    private static void systemExit(int status) {
+    private static void systemExit(final int status) {
         throw new IllegalStateException("Not transformed");
     }
 }

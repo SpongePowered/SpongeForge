@@ -73,7 +73,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         at = @At("HEAD"),
         cancellable = true
     )
-    private void checkBeforeTick(World world, BlockPos pos, IBlockState state, Random rand, CallbackInfo ci) {
+    private void checkBeforeTick(final World world, final BlockPos pos, final IBlockState state, final Random rand, final CallbackInfo ci) {
         if (!((WorldBridge) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
             if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
                 ci.cancel();
@@ -114,7 +114,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         locals = LocalCapture.CAPTURE_FAILSOFT,
         cancellable = true
     )
-    private void setBlockToAirDueToWorldHeight(World world, BlockPos pos, int amtToInput, CallbackInfoReturnable<Integer> cir, IBlockState myState, BlockPos targetFlow) {
+    private void setBlockToAirDueToWorldHeight(final World world, final BlockPos pos, final int amtToInput, final CallbackInfoReturnable<Integer> cir, final IBlockState myState, final BlockPos targetFlow) {
         if (!((WorldBridge) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
             if (SpongeCommonEventFactory.callChangeBlockEventModifyLiquidBreak(world, pos, myState, Blocks.AIR.getDefaultState()).isCancelled()) {
                 cir.setReturnValue(0);
@@ -184,7 +184,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         cancellable = true,
         constraints = "FORGE(2821+)"
     )
-    private void setNewStateWithMaximumQuantaWhileFlowing(World world, BlockPos pos, int amtToInput, CallbackInfoReturnable<Integer> cir, IBlockState myState, BlockPos other, int newAmount) {
+    private void setNewStateWithMaximumQuantaWhileFlowing(final World world, final BlockPos pos, final int amtToInput, final CallbackInfoReturnable<Integer> cir, final IBlockState myState, final BlockPos other, final int newAmount) {
         if (((WorldBridge) world).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_PLACE) {
             return;
         }
@@ -204,7 +204,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
      * we can technically call it mixing and throw an appropriate event before
      * the scheduled updates are actually added.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Inject(
         method = "tryToFlowVerticallyInto",
         at = {
@@ -256,8 +256,8 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         },
         constraints = "FORGE(2821+)"
     )
-    private void onSetBlockForSwapping(World world, BlockPos myPos, int amtToInput, CallbackInfoReturnable<Integer> cir,
-        IBlockState myState, BlockPos other, int amt, int density_other, IBlockState otherState) {
+    private void onSetBlockForSwapping(final World world, final BlockPos myPos, final int amtToInput, final CallbackInfoReturnable<Integer> cir,
+        final IBlockState myState, final BlockPos other, final int amt, final int density_other, final IBlockState otherState) {
         if (((WorldBridge) world).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_MODIFY) {
             return;
         }
@@ -281,7 +281,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
             pushSource = true;
             source = mySnapshot;
         }
-        try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+        try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
             if (!pushSource) {
                 frame.pushCause(source);
             }
@@ -292,7 +292,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
             final Transaction<BlockSnapshot> otherReplacement = new Transaction<>(otherSnapshot, otherReplacementSnapshot);
             final Transaction<BlockSnapshot> ourReplacement = new Transaction<>(mySnapshot, ourReplacementSnapshot);
             final ImmutableList<Transaction<BlockSnapshot>> transactions = ImmutableList.of(otherReplacement, ourReplacement);
-            ChangeBlockEvent.Modify event = SpongeEventFactory.createChangeBlockEventModify(frame.getCurrentCause(), transactions);
+            final ChangeBlockEvent.Modify event = SpongeEventFactory.createChangeBlockEventModify(frame.getCurrentCause(), transactions);
             SpongeImpl.postEvent(event);
 
             if (event.isCancelled()) {

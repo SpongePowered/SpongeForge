@@ -1,0 +1,15 @@
+{
+    "required": true,
+    "minVersion": "0.7.10",
+    "package": "org.spongepowered.mod.mixin.api",
+    "refmap": "mixins.forge.refmap.json",
+    "target": "@env(PREINIT)",
+    "compatibilityLevel": "JAVA_8",
+    "mixins": [
+        "fml.common.ModContainerMixin_ForgeAPI",
+        "fml.common.event.FMLEventMixin_ForgeAPI"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

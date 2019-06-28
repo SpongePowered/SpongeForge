@@ -37,7 +37,7 @@ public interface EventForgeBridge {
      *
      * @param event The event to sync with
      */
-    void syncDataToForge(Event event);
+    void forgeBridge$syncDataToForge(Event event);
 
     /**
      * Syncs event data from the Forge event to the Sponge equivalent
@@ -47,13 +47,13 @@ public interface EventForgeBridge {
      *
      * @param event The event to sync with
      */
-    void syncDataToSponge(Event event);
+    void forgeBridge$syncDataToSponge(Event event);
 
-    Event createSpongeEvent();
+    Event forgeBridge$createSpongeEvent();
 
-    Cause getCause();
+    Cause forgeBridge$getCause();
 
-    default void postProcess() {
+    default void forgeBridge$postProcess() {
     }
 
 }

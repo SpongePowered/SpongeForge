@@ -99,14 +99,14 @@ public final class StaticMixinForgeHelper {
     };
 
     public static Optional<List<DamageFunction>> createArmorModifiers(
-        EntityLivingBase entityLivingBase, DamageSource damageSource, double damage) {
-        Iterable<ItemStack> inventory = entityLivingBase.getArmorInventoryList();
+        final EntityLivingBase entityLivingBase, final DamageSource damageSource, double damage) {
+        final Iterable<ItemStack> inventory = entityLivingBase.getArmorInventoryList();
         final List<ItemStack> itemStacks = Lists.newArrayList(inventory);
         damage *= 25;
         // Beware all ye who enter here, for there's nothing but black magic here.
-        ArrayList<ISpecialArmor.ArmorProperties> dmgVals = new ArrayList<ISpecialArmor.ArmorProperties>();
+        final ArrayList<ISpecialArmor.ArmorProperties> dmgVals = new ArrayList<ISpecialArmor.ArmorProperties>();
         for (int x = 0; x < itemStacks.size(); x++) {
-            ISpecialArmor.ArmorProperties properties = getProperties(entityLivingBase, itemStacks.get(x), damageSource, damage, x);
+            final ISpecialArmor.ArmorProperties properties = getProperties(entityLivingBase, itemStacks.get(x), damageSource, damage, x);
             if (properties != null) {
                 dmgVals.add(properties);
             }
@@ -114,14 +114,14 @@ public final class StaticMixinForgeHelper {
         return createArmorModifiers(dmgVals, itemStacks, damage);
     }
 
-    public static void acceptArmorModifier(EntityLivingBase entity, DamageSource damageSource, DamageModifier modifier, double damage) {
-        Optional<ISpecialArmor.ArmorProperties> property = modifier.getCause().getContext().get(ARMOR_PROPERTY);
+    public static void acceptArmorModifier(final EntityLivingBase entity, final DamageSource damageSource, final DamageModifier modifier, double damage) {
+        final Optional<ISpecialArmor.ArmorProperties> property = modifier.getCause().getContext().get(ARMOR_PROPERTY);
         final NonNullList<ItemStack> inventory = entity instanceof EntityPlayer ? ((EntityPlayer) entity).inventory.armorInventory : entity.armorArray;
         if (property.isPresent()) {
-            ItemStack stack = inventory.get(property.get().Slot);
+            final ItemStack stack = inventory.get(property.get().Slot);
 
             damage = Math.abs(damage) * 25;
-            int itemDamage = (int) (damage / 25D < 1 ? 1 : damage / 25D);
+            final int itemDamage = (int) (damage / 25D < 1 ? 1 : damage / 25D);
             if (stack.getItem() instanceof ISpecialArmor) {
                 ((ISpecialArmor) stack.getItem()).damageArmor(entity, stack, damageSource, itemDamage, property.get().Slot);
             } else {
@@ -135,16 +135,16 @@ public final class StaticMixinForgeHelper {
 
     private static double damageToHandle;
 
-    private static Optional<List<DamageFunction>> createArmorModifiers(List<ISpecialArmor.ArmorProperties> dmgVals, List<ItemStack> inventory, double damage) {
+    private static Optional<List<DamageFunction>> createArmorModifiers(final List<ISpecialArmor.ArmorProperties> dmgVals, final List<ItemStack> inventory, double damage) {
         if (dmgVals.size() > 0) {
             final List<DamageFunction> list = new ArrayList<>();
-            ISpecialArmor.ArmorProperties[] props = dmgVals.toArray(new ISpecialArmor.ArmorProperties[dmgVals.size()]);
+            final ISpecialArmor.ArmorProperties[] props = dmgVals.toArray(new ISpecialArmor.ArmorProperties[dmgVals.size()]);
             sortProperties(props, damage);
             boolean first = true;
             int level = props[0].Priority;
             double ratio = 0;
-            for (ISpecialArmor.ArmorProperties prop : props) {
-                EquipmentType type = DamageEventHandler.resolveEquipment(prop.Slot);
+            for (final ISpecialArmor.ArmorProperties prop : props) {
+                final EquipmentType type = DamageEventHandler.resolveEquipment(prop.Slot);
 
                 final DamageEventObject object = new DamageEventObject();
                 object.previousLevel = prop.Priority;
@@ -153,7 +153,7 @@ public final class StaticMixinForgeHelper {
                     object.previousDamage = damage;
                     object.augment = true;
                 }
-                DoubleUnaryOperator function = incomingDamage -> {
+                final DoubleUnaryOperator function = incomingDamage -> {
                     incomingDamage *= 25;
                     if (object.augment) {
                         damageToHandle = incomingDamage;
@@ -201,7 +201,7 @@ public final class StaticMixinForgeHelper {
                 }
 
                 final ItemStack itemStack = inventory.get(prop.Slot);
-                DamageModifier modifier = DamageModifier.builder()
+                final DamageModifier modifier = DamageModifier.builder()
                     .cause(Cause.of(
                         EventContext.builder()
                             .add(contextKey, ItemStackUtil.snapshotOf(itemStack))
@@ -220,16 +220,16 @@ public final class StaticMixinForgeHelper {
         return Optional.empty();
     }
 
-    private static ISpecialArmor.ArmorProperties getProperties(EntityLivingBase base, ItemStack armorStack, DamageSource damageSource, double damage, int index) {
+    private static ISpecialArmor.ArmorProperties getProperties(final EntityLivingBase base, final ItemStack armorStack, final DamageSource damageSource, final double damage, final int index) {
         if (armorStack.isEmpty()) {
             return null;
         }
         ISpecialArmor.ArmorProperties prop = null;
         if (armorStack.getItem() instanceof ISpecialArmor) {
-            ISpecialArmor armor = (ISpecialArmor) armorStack.getItem();
+            final ISpecialArmor armor = (ISpecialArmor) armorStack.getItem();
             prop = armor.getProperties(base, armorStack, damageSource, damage / 25D, index).copy();
         } else if (armorStack.getItem() instanceof ItemArmor && !damageSource.isUnblockable()) {
-            ItemArmor armor = (ItemArmor) armorStack.getItem();
+            final ItemArmor armor = (ItemArmor) armorStack.getItem();
             prop = new ISpecialArmor.ArmorProperties(0, armor.damageReduceAmount / 25D, Integer.MAX_VALUE);
         }
         if (prop != null) {
@@ -239,7 +239,7 @@ public final class StaticMixinForgeHelper {
         return null;
     }
 
-    private static void sortProperties(ISpecialArmor.ArmorProperties[] armor, double damage) {
+    private static void sortProperties(final ISpecialArmor.ArmorProperties[] armor, double damage) {
         Arrays.sort(armor);
 
         int start = 0;
@@ -259,7 +259,7 @@ public final class StaticMixinForgeHelper {
                 }
                 if (total > 1) {
                     for (int y = start; y <= x; y++) {
-                        double newRatio = armor[y].AbsorbRatio / total;
+                        final double newRatio = armor[y].AbsorbRatio / total;
                         if (newRatio * damage > armor[y].AbsorbMax) {
                             armor[y].AbsorbRatio = armor[y].AbsorbMax / damage;
                             total = 0;
@@ -316,11 +316,11 @@ public final class StaticMixinForgeHelper {
     }
 
     @SuppressWarnings("rawtypes")
-    public static String getModIdFromClass(Class clazz) {
+    public static String getModIdFromClass(final Class clazz) {
         final String className = clazz.getName();
         String modId = className.contains("net.minecraft.") ? "minecraft" : className.contains("org.spongepowered.") ? "sponge" : "unknown";
-        String modPackage = className.replace("." + clazz.getSimpleName(), "");
-        for (ModContainer mc : Loader.instance().getActiveModList()) {
+        final String modPackage = className.replace("." + clazz.getSimpleName(), "");
+        for (final ModContainer mc : Loader.instance().getActiveModList()) {
             if (mc.getOwnedPackages().contains(modPackage)) {
                 modId = mc.getModId();
                 break;
@@ -332,10 +332,10 @@ public final class StaticMixinForgeHelper {
 
     @SuppressWarnings("rawtypes")
     @Nullable
-    public static ModContainer getModContainerFromClass(Class clazz) {
+    public static ModContainer getModContainerFromClass(final Class clazz) {
         final String className = clazz.getName();
-        String modPackage = className.replace("." + clazz.getSimpleName(), "");
-        for (ModContainer mc : Loader.instance().getActiveModList()) {
+        final String modPackage = className.replace("." + clazz.getSimpleName(), "");
+        for (final ModContainer mc : Loader.instance().getActiveModList()) {
             if (mc.getOwnedPackages().contains(modPackage)) {
                 return mc;
             }
@@ -344,7 +344,7 @@ public final class StaticMixinForgeHelper {
         return null;
     }
 
-    public static void registerCustomEntity(EntityEntry entityEntry) {
+    public static void registerCustomEntity(final EntityEntry entityEntry) {
         if (EntityTypeRegistryModule.getInstance().entityClassToTypeMappings.get(entityEntry.getEntityClass()) != null) {
             return;
         }
@@ -357,7 +357,7 @@ public final class StaticMixinForgeHelper {
         registerCustomEntity(entityEntry.getEntityClass(), entityEntry.getName(), EntityList.getID(entityEntry.getEntityClass()), modContainer);
     }
 
-    public static void registerCustomEntity(Class<? extends Entity> entityClass, String entityName, int id, ModContainer modContainer) {
+    public static void registerCustomEntity(final Class<? extends Entity> entityClass, String entityName, final int id, final ModContainer modContainer) {
         // fix bad entity name registrations from mods
         final String[] parts = entityName.split(":");
         if (parts.length > 1) {
@@ -377,12 +377,12 @@ public final class StaticMixinForgeHelper {
         }
 
         if (!modContainer.equals(SpongeMod.instance)) {
-            SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass, null);
+            final SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass, null);
             EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
         }
     }
 
-    public static boolean shouldTakeOverModNetworking(ModContainer mod) {
+    public static boolean shouldTakeOverModNetworking(final ModContainer mod) {
         if (mod == null) {
             return false;
         }

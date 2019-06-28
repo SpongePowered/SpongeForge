@@ -46,8 +46,8 @@ public abstract class ChunkGeneratorEndMixin_Forge implements IChunkGenerator {
 
 
     @Inject(method = "buildSurfaces(Lnet/minecraft/world/chunk/ChunkPrimer;)V", at = @At("HEAD") , cancellable = true)
-    private void forge$cancelEndstoneWithEvent(ChunkPrimer chunk, CallbackInfo ci) {
-        ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.world);
+    private void forge$cancelEndstoneWithEvent(final ChunkPrimer chunk, final CallbackInfo ci) {
+        final ChunkGeneratorEvent.ReplaceBiomeBlocks event = new ChunkGeneratorEvent.ReplaceBiomeBlocks(this, this.chunkX, this.chunkZ, chunk, this.world);
         MinecraftForge.EVENT_BUS.post(event);
         ci.cancel();
     }

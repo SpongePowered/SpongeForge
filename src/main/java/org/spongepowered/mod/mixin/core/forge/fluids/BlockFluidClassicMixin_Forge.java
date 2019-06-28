@@ -66,7 +66,7 @@ public abstract class BlockFluidClassicMixin_Forge extends BlockFluidBaseMixin_F
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onUpdateTickCheckSpongePre(World world, BlockPos pos, IBlockState state, Random rand, CallbackInfo ci) {
+    private void onUpdateTickCheckSpongePre(final World world, final BlockPos pos, final IBlockState state, final Random rand, final CallbackInfo ci) {
         if (!((WorldBridge) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
             if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
                 ci.cancel();
@@ -97,7 +97,8 @@ public abstract class BlockFluidClassicMixin_Forge extends BlockFluidBaseMixin_F
         ),
         cancellable = true
     )
-    private void onCheckDisplaceIfPreAlreadyCancelled(World world, BlockPos pos, IBlockState state, Random rand, CallbackInfo ci) {
+    private void onCheckDisplaceIfPreAlreadyCancelled(
+        final World world, final BlockPos pos, final IBlockState state, final Random rand, final CallbackInfo ci) {
         if (this.isPreCancelled == Boolean.TRUE) {
             ci.cancel();
             // And reset the field so we don't leak...
@@ -106,7 +107,7 @@ public abstract class BlockFluidClassicMixin_Forge extends BlockFluidBaseMixin_F
     }
 
     // Capture Fluids flowing into other blocks
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Redirect(
         method = "flowIntoBlock",
         at = @At(
@@ -115,7 +116,8 @@ public abstract class BlockFluidClassicMixin_Forge extends BlockFluidBaseMixin_F
         ),
         constraints = "FORGE(2821+)"
     )
-    private boolean afterCanFlowInto(World targetWorld, BlockPos targetPos, IBlockState newLiquidState, World world, BlockPos pos, int meta) {
+    private boolean afterCanFlowInto(
+        final World targetWorld, final BlockPos targetPos, final IBlockState newLiquidState, final World world, final BlockPos pos, final int meta) {
         if (((WorldBridge) targetWorld).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_BREAK) { // Check if we even need to fire.
             return world.setBlockState(targetPos, newLiquidState, Constants.BlockFlags.DEFAULT);
         }
@@ -124,9 +126,9 @@ public abstract class BlockFluidClassicMixin_Forge extends BlockFluidBaseMixin_F
         // Do not call events when just flowing into air or same liquid
         //noinspection RedundantCast
         if (!existing.getBlock().isAir(existing, targetWorld, targetPos) && !(existing.getMaterial().isLiquid() || existing.getBlock() == (BlockFluidClassic) (Object) this)) {
-            ChangeBlockEvent.Break event = SpongeCommonEventFactory.callChangeBlockEventModifyLiquidBreak(world, pos, newLiquidState);
+            final ChangeBlockEvent.Break event = SpongeCommonEventFactory.callChangeBlockEventModifyLiquidBreak(world, pos, newLiquidState);
 
-            Transaction<BlockSnapshot> transaction = event.getTransactions().get(0);
+            final Transaction<BlockSnapshot> transaction = event.getTransactions().get(0);
             if (event.isCancelled() || !transaction.isValid()) {
                 // We need to clear any drops here because this is called after {@link #displaceIfPossible} and since it was true, well
                 // there's the likelyhood that there's a dropped item

@@ -6,14 +6,12 @@
     "target": "@env(PREINIT)",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "forge.MixinUsernameCache",
-        "fml.common.MixinLoadController",
-        "fml.common.MixinLoader",
-        "fml.common.MixinModContainer",
-        "fml.common.eventhandler.MixinASMEventHandler",
-        "fml.common.eventhandler.MixinEvent",
-        "fml.common.event.MixinFMLEvent",
-        "fml.common.registry.MixinGameRegistry"
+        "forge.common.UsernameCacheMixin_Forge",
+        "fml.common.LoadControllerMixin_Forge",
+        "fml.common.LoaderMixin_Forge",
+        "fml.common.eventhandler.ASMEventHandlerMixin_Forge",
+        "fml.common.eventhandler.EventMixin_Forge",
+        "fml.common.registry.GameRegistryMixin_Forge"
     ],
     "injectors": {
         "defaultRequire": 1

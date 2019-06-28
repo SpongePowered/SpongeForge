@@ -61,14 +61,14 @@ public abstract class BlockFluidBaseMixin_Forge extends BlockMixin_Forge impleme
             remap = false
         )
     )
-    private Object getDisplacementWithSponge(Map<?, ?> map, Object key, IBlockAccess world, BlockPos pos) {
+    private Object getDisplacementWithSponge(final Map<?, ?> map, final Object key, final IBlockAccess world, final BlockPos pos) {
         if (!(world instanceof WorldBridge) || ((WorldBridge) world).isFake()) {
             return map.get(key);
         }
         if (!((Boolean) map.get(key))) {
             return Boolean.FALSE;
         }
-        ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos);
+        final ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos);
         if (event.isCancelled()) {
             return Boolean.FALSE;
         }
@@ -85,11 +85,12 @@ public abstract class BlockFluidBaseMixin_Forge extends BlockMixin_Forge impleme
             remap = false
         )
     )
-    private void onSpongeInjectFailEvent(IBlockAccess world, BlockPos pos, CallbackInfoReturnable<Boolean> cir, IBlockState state, Block block) {
+    private void onSpongeInjectFailEvent(final IBlockAccess world, final BlockPos pos, final CallbackInfoReturnable<Boolean> cir,
+        final IBlockState state, final Block block) {
         if (!(world instanceof WorldBridge) || ((WorldBridge) world).isFake()) {
             return;
         }
-        ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos);
+        final ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos);
         if (event.isCancelled()) {
             cir.setReturnValue(false);
         }

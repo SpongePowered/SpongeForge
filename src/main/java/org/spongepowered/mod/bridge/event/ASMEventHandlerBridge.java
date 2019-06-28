@@ -28,6 +28,6 @@ import net.minecraftforge.fml.common.ModContainer;
 
 public interface ASMEventHandlerBridge {
 
-    ModContainer getContainer();
+    ModContainer forgeBridge$getContainer();
 
 }

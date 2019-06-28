@@ -39,6 +39,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.asm.lib.Opcodes;
+import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -72,7 +73,12 @@ public abstract class MinecraftMixin_Forge implements MinecraftBridge_Forge {
         this.isNewSave = true;
     }
 
-    @Redirect(method = "launchIntegratedServer", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/Minecraft;integratedServer:Lnet/minecraft/server/integrated/IntegratedServer;", ordinal = 0))
+    @Redirect(method = "launchIntegratedServer",
+        at = @At(
+            value = "FIELD",
+            opcode = Opcodes.PUTFIELD,
+            target = "Lnet/minecraft/client/Minecraft;integratedServer:Lnet/minecraft/server/integrated/IntegratedServer;",
+            ordinal = 0))
     private void forgeImpl$MarkForNewSaves(final Minecraft minecraft, final IntegratedServer server) {
         this.integratedServer = server;
         if (this.isNewSave) {
@@ -101,7 +107,12 @@ public abstract class MinecraftMixin_Forge implements MinecraftBridge_Forge {
         this.kickMessage = text;
     }
 
-    @Inject(method = "shutdownMinecraftApplet", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V", remap = false))
+    @Dynamic // Forge's TerminalTransformer performs a rewrite of the System.exit(1), and we need to just inject before
+    @Inject(method = "shutdownMinecraftApplet",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraftforge/fml/common/asm/transformers/TerminalTransformer$ExitVisitor;systemExitCalled(I)V",
+            remap = false))
     private void onShutdownDelegate(final CallbackInfo ci) {
         SpongeImpl.postShutdownEvents();
     }
@@ -117,7 +128,11 @@ public abstract class MinecraftMixin_Forge implements MinecraftBridge_Forge {
      * @param name The world name
      * @param callbackInfo The necessary callback info
      */
-    @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;preparePlayerToSpawn()V", shift = At.Shift.AFTER))
+    @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/entity/EntityPlayerSP;preparePlayerToSpawn()V",
+            shift = At.Shift.AFTER))
     private void onSpawn(final WorldClient client, final String name, final CallbackInfo callbackInfo) {
         try {
             if (Sponge.isServerAvailable() && SpongeImpl.getServer().isSinglePlayer()) {
@@ -136,9 +151,9 @@ public abstract class MinecraftMixin_Forge implements MinecraftBridge_Forge {
     }
 
     @SuppressWarnings("deprecation")
-    @Redirect(method="loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At(value="INVOKE", target="Lnet/minecraft/"
-            + "client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V", ordinal = 0))
-    public void onLoadWorld(final LoadingScreenRenderer loadingScreen, final String message) {
+    @Redirect(method="loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V",
+        at = @At(value="INVOKE", target="Lnet/minecraft/client/LoadingScreenRenderer;displayLoadingString(Ljava/lang/String;)V", ordinal = 0))
+    private void forgeImpl$updateLoadMessage(final LoadingScreenRenderer loadingScreen, final String message) {
         // TODO Minecrell should review this...
         if (this.kickMessage == null) {
             loadingScreen.displayLoadingString(I18n.format("forge.client.shutdown.internal"));
@@ -157,8 +172,9 @@ public abstract class MinecraftMixin_Forge implements MinecraftBridge_Forge {
 
     // There's absolutely no reason to loop here. We force the loop
     // to always exit after one interation by setting debugUpdateTime to getSystemTime()
-    @Redirect(method = "runGameLoop", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;debugUpdateTime:J", opcode = Opcodes.PUTFIELD))
-    public void onSetDebugUpdateTime(final Minecraft this$0, final long value) {
+    @Redirect(method = "runGameLoop",
+        at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;debugUpdateTime:J", opcode = Opcodes.PUTFIELD))
+    private void forgeImpl$updateDebugTime(final Minecraft this$0, final long value) {
         this.debugUpdateTime = getSystemTime();
     }
 }

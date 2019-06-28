@@ -124,7 +124,7 @@ import org.spongepowered.mod.bridge.block.BlockBridge_Forge;
 import org.spongepowered.mod.bridge.event.EventBusBridge_Forge;
 import org.spongepowered.mod.bridge.registry.VillagerProfessionBridge_Forge;
 import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
-import org.spongepowered.mod.mixin.core.forge.IMixinVillagerRegistry;
+import org.spongepowered.mod.mixin.core.fml.common.registry.VillagerRegistryAccessor;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 import org.spongepowered.mod.util.WrappedArrayList;
@@ -762,7 +762,7 @@ public abstract class SpongeImplHooksMixin_Forge {
     public static Profession validateProfession(final int professionId) {
         final VillagerRegistry.VillagerProfession
             profession =
-            ((IMixinVillagerRegistry) VillagerRegistry.instance()).getREGISTRY().getObjectById(professionId);
+            ((VillagerRegistryAccessor) VillagerRegistry.instance()).accessor$getRegistry().getObjectById(professionId);
         if (profession == null) {
             throw new RuntimeException("Attempted to set villager profession to unregistered profession: " + professionId);
         }

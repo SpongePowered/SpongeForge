@@ -62,21 +62,21 @@ public abstract class ChunkMixin_Forge implements ChunkBridge {
             value = "INVOKE",
             target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z",
             remap = false))
-    private boolean forgeImpl$IgnoreLoadEvent(EventBus eventBus, Event event) {
+    private boolean forgeImpl$IgnoreLoadEvent(final EventBus eventBus, final Event event) {
         // This event is handled in SpongeForgeEventFactory
         return false;
     }
 
     @Redirect(method = "onUnload", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/eventhandler/EventBus;post(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z", remap = false))
-    private boolean forgeImpl$IgnoreUnloadEvent(EventBus eventBus, Event event) {
+    private boolean forgeImpl$IgnoreUnloadEvent(final EventBus eventBus, final Event event) {
         // This event is handled in SpongeForgeEventFactory
         return false;
     }
 
     @Inject(method = "onLoad", at = @At("RETURN"))
-    private void forgeImpl$updatePersistingChunks(CallbackInfo ci) {
+    private void forgeImpl$updatePersistingChunks(final CallbackInfo ci) {
         if (!this.world.isRemote) {
-            for (ChunkPos forced : this.world.getPersistentChunks().keySet()) {
+            for (final ChunkPos forced : this.world.getPersistentChunks().keySet()) {
                 if (forced.x == this.x && forced.z == this.z) {
                     this.setPersistedChunk(true);
                     return;
@@ -87,7 +87,7 @@ public abstract class ChunkMixin_Forge implements ChunkBridge {
     }
 
     @Inject(method = "onUnload", at = @At("RETURN"))
-    private void forgeImpl$UpdateDormantChunks(CallbackInfo ci) {
+    private void forgeImpl$UpdateDormantChunks(final CallbackInfo ci) {
         // Moved from ChunkProviderServer
         net.minecraftforge.common.ForgeChunkManager.putDormantChunk(ChunkPos.asLong(this.x, this.z), (Chunk) (Object) this);
     }
@@ -95,11 +95,11 @@ public abstract class ChunkMixin_Forge implements ChunkBridge {
 
     @SideOnly(Side.CLIENT)
     @Inject(method = "markLoaded", at = @At("RETURN"))
-    private void forgeImpl$UpdateNeighborsOnClient(boolean loaded, CallbackInfo ci) {
-        Direction[] directions = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
-        for (Direction direction : directions) {
-            Vector3i neighborPosition = ((org.spongepowered.api.world.Chunk) this).getPosition().add(direction.asBlockOffset());
-            Chunk neighbor = this.world.getChunkProvider().getLoadedChunk(neighborPosition.getX(), neighborPosition.getZ());
+    private void forgeImpl$UpdateNeighborsOnClient(final boolean loaded, final CallbackInfo ci) {
+        final Direction[] directions = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
+        for (final Direction direction : directions) {
+            final Vector3i neighborPosition = ((org.spongepowered.api.world.Chunk) this).getPosition().add(direction.asBlockOffset());
+            final Chunk neighbor = this.world.getChunkProvider().getLoadedChunk(neighborPosition.getX(), neighborPosition.getZ());
             if (neighbor != null) {
                 this.setNeighbor(direction, neighbor);
                 ((ChunkBridge) neighbor).setNeighbor(direction.getOpposite(), (Chunk) (Object) this);
@@ -118,15 +118,15 @@ public abstract class ChunkMixin_Forge implements ChunkBridge {
      * @return whatever vanilla said
      */
     @Overwrite
-    private boolean checkLight(int x, int z) {
-        int i = this.getTopFilledSegment();
+    private boolean checkLight(final int x, final int z) {
+        final int i = this.getTopFilledSegment();
         boolean flag = false;
         boolean flag1 = false;
-        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos((this.x << 4) + x, 0, (this.z << 4) + z);
+        final BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos((this.x << 4) + x, 0, (this.z << 4) + z);
 
         for (int j = i + 16 - 1; j > this.world.getSeaLevel() || j > 0 && !flag1; --j) {
             blockpos$mutableblockpos.setPos(blockpos$mutableblockpos.getX(), j, blockpos$mutableblockpos.getZ());
-            int k = this.getBlockLightOpacity(blockpos$mutableblockpos);
+            final int k = this.getBlockLightOpacity(blockpos$mutableblockpos);
 
             if (k == 255 && blockpos$mutableblockpos.getY() < this.world.getSeaLevel()) {
                 flag1 = true;
@@ -163,7 +163,7 @@ public abstract class ChunkMixin_Forge implements ChunkBridge {
      * @return whatever vanilla said
      */
     @Overwrite
-    public int getBlockLightOpacity(BlockPos pos) {
+    public int getBlockLightOpacity(final BlockPos pos) {
         // Sponge Start - Rewrite to use SpongeImplHooks
         // return this.getBlockState(pos).getLightOpacity(); // Vanilla
         // return this.getBlockState(pos).getLightOpacity(this.worldObj, pos); // Forge
@@ -182,8 +182,8 @@ public abstract class ChunkMixin_Forge implements ChunkBridge {
      */
     @SuppressWarnings("deprecation")
     @Overwrite
-    private int getBlockLightOpacity(int x, int y, int z) {
-        IBlockState state = this.getBlockState(x, y, z); //Forge: Can sometimes be called before we are added to the global world list. So use the less accurate one during that. It'll be recalculated later
+    private int getBlockLightOpacity(final int x, final int y, final int z) {
+        final IBlockState state = this.getBlockState(x, y, z); //Forge: Can sometimes be called before we are added to the global world list. So use the less accurate one during that. It'll be recalculated later
         // Sponge Start - Rewrite to use SpongeImplHooks because, again, unecessary block state retrieval.
         // return this.getBlockState(x, y, z).getLightOpacity(); // Vanilla
         // return this.unloaded ? state.getLightOpacity() : state.getLightOpacity(this.worldObj, new BlockPos(x, y, z)); // Forge
