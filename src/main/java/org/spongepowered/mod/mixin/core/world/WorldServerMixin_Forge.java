@@ -30,14 +30,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.gen.ChunkProviderServer;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImplHooks;
@@ -52,9 +50,6 @@ import org.spongepowered.mod.world.gen.SpongeChunkGeneratorForge;
 
 @Mixin(value = WorldServer.class, priority = 1001)
 public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements ServerWorldBridge {
-
-    @Override
-    @Shadow public abstract ChunkProviderServer getChunkProvider();
 
     @Override
     public int bridge$getDimensionId() {

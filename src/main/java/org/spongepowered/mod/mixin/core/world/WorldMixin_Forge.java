@@ -34,7 +34,6 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldInfo;
@@ -59,15 +58,12 @@ import javax.annotation.Nullable;
 @Mixin(value = World.class, priority = 999)
 public abstract class WorldMixin_Forge implements WorldBridge_Forge {
 
-    private WorldInfo redirectWorldInfo;
+    private WorldInfo forgeImpl$redirectWorldInfo;
 
-    @Shadow(remap = false) public boolean restoringBlockSnapshots;
-    @Shadow(remap = false) public boolean captureBlockSnapshots;
     @Shadow(remap = false) public java.util.ArrayList<net.minecraftforge.common.util.BlockSnapshot> capturedBlockSnapshots;
     @Shadow @Final public WorldProvider provider;
     @Shadow @Final public boolean isRemote;
     @Shadow protected MapStorage mapStorage;
-    @Shadow public abstract IChunkProvider getChunkProvider();
     @Shadow public abstract boolean canSeeSky(BlockPos pos);
     @Shadow public abstract IBlockState getBlockState(BlockPos pos);
     @Shadow public abstract int getLightFor(EnumSkyBlock type, BlockPos pos);
@@ -143,8 +139,8 @@ public abstract class WorldMixin_Forge implements WorldBridge_Forge {
 
     @Inject(method = "getWorldInfo", at = @At("HEAD"), cancellable = true)
     private void forgeImpl$getRedirectedWorldInfoIfAvailable(final CallbackInfoReturnable<WorldInfo> cir) {
-        if (this.provider.getDimension() != 0 && this.redirectWorldInfo != null) {
-            cir.setReturnValue(this.redirectWorldInfo);
+        if (this.provider.getDimension() != 0 && this.forgeImpl$redirectWorldInfo != null) {
+            cir.setReturnValue(this.forgeImpl$redirectWorldInfo);
         }
     }
 
@@ -162,7 +158,7 @@ public abstract class WorldMixin_Forge implements WorldBridge_Forge {
 
     @Override
     public void forgeBridge$setRedirectedWorldInfo(@Nullable final WorldInfo info) {
-        this.redirectWorldInfo = info;
+        this.forgeImpl$redirectWorldInfo = info;
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
