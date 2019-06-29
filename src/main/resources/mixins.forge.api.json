@@ -19,7 +19,6 @@
         "fml.common.event.FMLServerStartingEventMixin_ForgeAPI",
         "fml.common.event.FMLServerStoppedEventMixin_ForgeAPI",
         "fml.common.event.FMLServerStoppingEventMixin_ForgeAPI",
-        "fml.common.eventhandler.EventMixin_ForgeAPI",
         "fml.common.gameevent.PlayerEventMixin_ForgeAPI",
         "forge.common.util.MixinITeleporter_ForgeAPI",
         "forge.fluids.FluidMixin_ForgeAPI",
