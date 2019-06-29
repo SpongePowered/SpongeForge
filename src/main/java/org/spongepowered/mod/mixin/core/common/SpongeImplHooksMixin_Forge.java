@@ -67,6 +67,7 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityDispatcher;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -76,6 +77,7 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.logging.log4j.Level;
@@ -693,6 +695,17 @@ public abstract class SpongeImplHooksMixin_Forge {
         if (inventory instanceof Inventory) {
             return ((Inventory) inventory);
         }
+
+        if (inventory instanceof ICapabilityProvider) {
+            IItemHandler itemHandler = ((ICapabilityProvider) inventory).getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+            if (itemHandler != null) {
+                if (itemHandler instanceof Inventory) {
+                    return ((Inventory) itemHandler);
+                }
+                return new IItemHandlerAdapter(itemHandler);
+            }
+        }
+
         if (inventory instanceof IInventory) {
             return ((Inventory) new InvWrapper(((IInventory) inventory)));
         }
