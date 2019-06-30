@@ -63,6 +63,7 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+@SuppressWarnings({"Duplicates", "ConstantConditions"})
 @Mixin(value = FluidStack.class, remap = false)
 public class FluidStackMixin_ForgeAPI implements org.spongepowered.api.extra.fluid.FluidStack {
 
@@ -74,10 +75,7 @@ public class FluidStackMixin_ForgeAPI implements org.spongepowered.api.extra.flu
     @Override
     public <T extends DataManipulator<?, ?>> Optional<T> get(final Class<T> containerClass) {
         final Optional<DataProcessor<?, ?>> optional = DataUtil.getWildProcessor(containerClass);
-        if (optional.isPresent()) {
-            return (Optional<T>) optional.get().from(this);
-        }
-        return Optional.empty();
+        return optional.flatMap(dataProcessor -> (Optional<T>) dataProcessor.from(this));
 
     }
 
@@ -200,19 +198,13 @@ public class FluidStackMixin_ForgeAPI implements org.spongepowered.api.extra.flu
     @Override
     public <E> Optional<E> get(final Key<? extends BaseValue<E>> key) {
         final Optional<ValueProcessor<E, ? extends BaseValue<E>>> optional = DataUtil.getBaseValueProcessor(checkNotNull(key));
-        if (optional.isPresent()) {
-            return optional.get().getValueFromContainer(this);
-        }
-        return Optional.empty();
+        return optional.flatMap(eValueProcessor -> eValueProcessor.getValueFromContainer(this));
     }
 
     @Override
     public <E, V extends BaseValue<E>> Optional<V> getValue(final Key<V> key) {
         final Optional<ValueProcessor<E, V>> optional = DataUtil.getValueProcessor(checkNotNull(key));
-        if (optional.isPresent()) {
-            return optional.get().getApiValueFromContainer(this);
-        }
-        return Optional.empty();
+        return optional.flatMap(evValueProcessor -> evValueProcessor.getApiValueFromContainer(this));
     }
 
     @Override

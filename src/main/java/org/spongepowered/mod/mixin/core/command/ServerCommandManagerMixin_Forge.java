@@ -33,15 +33,15 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
-import org.spongepowered.common.interfaces.IMixinServerCommandManager;
+import org.spongepowered.common.bridge.command.ServerCommandManagerBridge;
 import org.spongepowered.mod.command.ForgeMinecraftCommandWrapper;
 
 @NonnullByDefault
 @Mixin(value = ServerCommandManager.class, priority = 1001)
-public abstract class ServerCommandManagerMixin_Forge extends CommandHandler implements IMixinServerCommandManager {
+public abstract class ServerCommandManagerMixin_Forge extends CommandHandler implements ServerCommandManagerBridge {
 
     @Override
-    public MinecraftCommandWrapper wrapCommand(final ICommand command) {
+    public MinecraftCommandWrapper bridge$wrapCommand(final ICommand command) {
         ModContainer activeContainer = Loader.instance().activeModContainer();
         if (activeContainer == null) {
             activeContainer = Loader.instance().getMinecraftModContainer();

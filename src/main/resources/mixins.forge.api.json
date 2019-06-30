@@ -29,6 +29,8 @@
         "minecraft.world.chunk.ChunkMixin_ForgeAPI"
     ],
     "client": [
+        "minecraft.client.network.NetHandlerPlayClientMixin_ForgeAPI",
+        "minecraft.client.server.IntegratedServerMixin_ForgeAPI"
     ],
     "server": [
     ],

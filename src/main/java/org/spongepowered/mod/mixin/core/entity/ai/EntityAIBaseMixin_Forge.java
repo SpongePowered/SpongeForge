@@ -65,7 +65,7 @@ public abstract class EntityAIBaseMixin_Forge {
                 container = SpongeImpl.getMinecraftPlugin();
             }
             final String idAndName = getClass().getSimpleName();
-            ((EntityGoalBridge) this).setType(AITaskTypeModule.getInstance().createAITaskType(container, idAndName, idAndName,
+            ((EntityGoalBridge) this).bridge$setType(AITaskTypeModule.getInstance().createAITaskType(container, idAndName, idAndName,
                     (Class<? extends AITask<? extends Agent>>) getClass()));
         }
     }

@@ -91,13 +91,13 @@ import org.spongepowered.api.world.gen.populator.SeaFloor;
 import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.bridge.TimingBridge;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.gen.FlaggedPopulatorBridge;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
 import org.spongepowered.common.event.tracking.phase.generation.PopulatorPhaseContext;
-import org.spongepowered.common.interfaces.world.gen.IGenerationPopulator;
 import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimingsFactory;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.common.world.extent.SoftBufferExtentViewDownsize;
@@ -294,8 +294,8 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             Timing timing = null;
             final IChunkGenerator chunkGenerator = ((SpongeGenerationPopulator) this.baseGenerator).getHandle(this.world);
             if (Timings.isTimingsEnabled()) {
-                final IGenerationPopulator spongePopulator = (IGenerationPopulator) this.baseGenerator;
-                timing = spongePopulator.getTimingsHandler();
+                final TimingBridge spongePopulator = (TimingBridge) this.baseGenerator;
+                timing = spongePopulator.bridge$getTimingsHandler();
                 timing.startTimingIfSync();
             }
             chunkGenerator.populate(chunkX, chunkZ);

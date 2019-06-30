@@ -30,11 +30,11 @@ import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.mixin.core.inventory.MixinSlot;
+import org.spongepowered.common.mixin.core.inventory.SlotMixin;
 import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 
 @Mixin(value = SlotItemHandler.class, remap = false)
-public abstract class SlotItemHandlerMixin_Forge extends MixinSlot {
+public abstract class SlotItemHandlerMixin_Forge extends SlotMixin {
 
     @Shadow @Final private IItemHandler itemHandler;
 

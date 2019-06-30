@@ -58,7 +58,7 @@ public abstract class PlayerListMixin_Forge {
      * @author dualspiral
      *
      * Remove call to firePlayerLoggedOut under ordinary circumstances because
-     * SpongeCommon's MixinNetHandlerPlayServer.onDisconnectHandler fires the
+     * SpongeCommon's NetHandlerPlayServerMixin.onDisconnectHandler fires the
      * event already.
      *
      * There is a special case where this event is reinstated - if Sponge's

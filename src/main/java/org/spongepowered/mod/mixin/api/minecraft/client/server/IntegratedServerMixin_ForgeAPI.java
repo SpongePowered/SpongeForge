@@ -22,43 +22,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.client.server;
+package org.spongepowered.mod.mixin.api.minecraft.client.server;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.world.WorldSettings;
-import net.minecraft.world.WorldType;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.bridge.server.integrated.IntegratedServerBridge;
-import org.spongepowered.common.mixin.core.server.MinecraftServerMixin;
+import org.spongepowered.common.mixin.api.mcp.server.MinecraftServerMixin_API;
+import org.spongepowered.mod.bridge.client.MinecraftBridge_Forge;
 
 @NonnullByDefault
 @Mixin(IntegratedServer.class)
-public abstract class IntegratedServerMixin_Forge extends MinecraftServerMixin implements IntegratedServerBridge {
+public abstract class IntegratedServerMixin_ForgeAPI extends MinecraftServerMixin_API implements IntegratedServerBridge {
 
     @Shadow @Final private WorldSettings worldSettings;
     @Shadow @Final private Minecraft mc;
 
     private boolean forgeImpl$isNewSave;
 
-    /**
-     * @author bloodmc
-     *
-     * @reason In order to guarantee that both client and server load worlds the
-     * same using our custom logic, we call super and handle any client specific
-     * cases there.
-     * Reasoning: This avoids duplicate code and makes it easier to maintain.
-     */
     @Override
-    @Overwrite
-    public void loadAllWorlds(final String overworldFolder, final String unused, final long seed, final WorldType type, final String generator) {
-        super.loadAllWorlds(overworldFolder, unused, seed, type, generator);
+    public void shutdown() {
+        if (!this.mc.isIntegratedServerRunning()) {
+            return;
+        }
+
+        this.mc.addScheduledTask(() -> {
+            // Vanilla calls this, but it's completely unecessary.
+            // It can also inherently racy, and can cause the client
+            // thread to hang in unusual circumstances. For more information,
+            // see github.com/Aaron1011/McTester
+            /*if (this.mc.world != null) {
+                this.mc.world.sendQuittingDisconnectingPacket();
+            }*/
+
+            this.mc.loadWorld(null);
+            this.mc.displayGuiScreen(new GuiMainMenu());
+        });
+    }
+
+    @Override
+    public void shutdown(final Text kickMessage) {
+        checkNotNull(kickMessage);
+        ((MinecraftBridge_Forge) Minecraft.getMinecraft()).forgeBridge$setSinglePlayerKickMessage(kickMessage);
+        shutdown();
     }
 
     @Override

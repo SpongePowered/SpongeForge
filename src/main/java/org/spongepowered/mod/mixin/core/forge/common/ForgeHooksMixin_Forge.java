@@ -75,7 +75,7 @@ import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
-import org.spongepowered.common.interfaces.network.IMixinNetHandlerPlayServer;
+import org.spongepowered.common.bridge.network.NetHandlerPlayServerBridge;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.text.SpongeTexts;
@@ -125,7 +125,7 @@ public abstract class ForgeHooksMixin_Forge {
     @Inject(method = "onItemRightClick", at = @At(value = "HEAD"), cancellable = true)
     private static void forgeImpl$UpdatePacketDiff(final EntityPlayer player, final EnumHand hand, final CallbackInfoReturnable<EnumActionResult> cir) {
         if (!player.world.isRemote && player instanceof EntityPlayerMP) {
-            final long packetDiff = System.currentTimeMillis() - ((IMixinNetHandlerPlayServer) ((EntityPlayerMP) player).connection).getLastTryBlockPacketTimeStamp();
+            final long packetDiff = System.currentTimeMillis() - ((NetHandlerPlayServerBridge) ((EntityPlayerMP) player).connection).bridge$getLastTryBlockPacketTimeStamp();
             // If the time between packets is small enough, use the last result.
             if (packetDiff < 100) {
                 // Avoid firing a second event

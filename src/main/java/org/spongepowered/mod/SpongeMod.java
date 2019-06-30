@@ -100,7 +100,7 @@ import org.spongepowered.common.event.registry.SpongeGameRegistryRegisterEvent;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.inject.SpongeGuice;
 import org.spongepowered.common.inject.SpongeModule;
-import org.spongepowered.common.interfaces.IMixinServerCommandManager;
+import org.spongepowered.common.bridge.command.ServerCommandManagerBridge;
 import org.spongepowered.common.item.recipe.crafting.DelegateSpongeCraftingRecipe;
 import org.spongepowered.common.item.recipe.crafting.SpongeCraftingRecipeRegistry;
 import org.spongepowered.common.registry.type.BlockTypeRegistryModule;
@@ -517,13 +517,13 @@ public class SpongeMod extends MetaModContainer {
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         try {
             try {
-                ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerLowPriorityCommands(this.game);
+                ((ServerCommandManagerBridge) SpongeImpl.getServer().getCommandManager()).bridge$registerLowPriorityCommands(this.game);
             } catch (Throwable t) {
                 this.controller.errorOccurred(this, t);
             }
 
             // Register vanilla-style commands (if necessary -- not necessary on client)
-            ((IMixinServerCommandManager) SpongeImpl.getServer().getCommandManager()).registerEarlyCommands(this.game);
+            ((ServerCommandManagerBridge) SpongeImpl.getServer().getCommandManager()).bridge$registerEarlyCommands(this.game);
         } catch (Throwable t) {
             this.controller.errorOccurred(this, t);
         }

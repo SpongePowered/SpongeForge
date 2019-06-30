@@ -76,14 +76,14 @@ public abstract class ItemstackHandlerMixin_Forge implements MinecraftInventoryA
     }
 
     @Override
-    public SlotProvider getSlotProvider() {
+    public SlotProvider bridge$getSlotProvider() {
         this.init();
         return this.slots;
     }
 
     @Override
-    public Inventory getChild(int index) {
-        if (index < 0 || index >= this.getRootLens().getChildren().size()) {
+    public Inventory bridge$getChild(int index) {
+        if (index < 0 || index >= this.bridge$getRootLens().getChildren().size()) {
             throw new IndexOutOfBoundsException("No child at index: " + index);
         }
         while (index >= this.children.size()) {
@@ -91,13 +91,13 @@ public abstract class ItemstackHandlerMixin_Forge implements MinecraftInventoryA
         }
         Inventory child = this.children.get(index);
         if (child == null) {
-            child = this.getRootLens().getChildren().get(index).getAdapter(this.getFabric(), this);
+            child = this.bridge$getRootLens().getChildren().get(index).getAdapter(this.bridge$getFabric(), this);
             this.children.set(index, child);
         }
         return child;
     }
 
-    // TODO getChild with lens not implemented
+    // TODO bridge$getChild with lens not implemented
 
     @SuppressWarnings("unchecked")
     @Override
@@ -111,17 +111,17 @@ public abstract class ItemstackHandlerMixin_Forge implements MinecraftInventoryA
 
     @Intrinsic
     public void inventory$clear() {
-        this.getFabric().clear();
+        this.bridge$getFabric().clear();
     }
 
     @Override
-    public Lens getRootLens() {
+    public Lens bridge$getRootLens() {
         this.init();
         return this.lens;
     }
 
     @Override
-    public Fabric getFabric() {
+    public Fabric bridge$getFabric() {
         this.init();
         return this.fabric;
     }

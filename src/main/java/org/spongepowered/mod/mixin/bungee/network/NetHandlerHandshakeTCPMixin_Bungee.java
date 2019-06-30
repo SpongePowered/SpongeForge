@@ -34,7 +34,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.interfaces.IMixinNetworkManager;
+import org.spongepowered.common.bridge.network.NetworkManagerBridge_Bungee;
 
 /**
  * @author dualspiral
@@ -54,7 +54,7 @@ public abstract class NetHandlerHandshakeTCPMixin_Bungee {
     private boolean bungee$redirectFmlCheck(final FMLCommonHandler handler, final C00Handshake packetIn, final NetworkManager networkManager) {
         // Don't bother if the player is not allowed to log in.
         if (handler.shouldAllowPlayerLogins() && packetIn.getRequestedState() == EnumConnectionState.LOGIN) {
-            final Property[] pr = ((IMixinNetworkManager) networkManager).getSpoofedProfile();
+            final Property[] pr = ((NetworkManagerBridge_Bungee) networkManager).bungeeBridge$getSpoofedProfile();
             if (pr != null) {
                 for (final Property p : pr) {
                     if ("forgeClient".equalsIgnoreCase(p.getName()) && "true".equalsIgnoreCase(p.getValue())) {
