@@ -49,7 +49,6 @@
         "forge.fluids.BlockFluidFiniteMixin_Forge",
         "forge.fluids.FluidRegistryMixin_Forge",
         "forge.items.ItemstackHandlerMixin_Forge",
-        "forge.items.SlotItemHandlerMixin_Forge",
         "forge.items.VanillaInventoryCodeHooksMixin_Forge",
         "forge.items.wrapper.InvWrapperMixin_Forge",
         "forge.registries.BlockDummyAirMixin_Forge",

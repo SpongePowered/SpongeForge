@@ -26,14 +26,11 @@ package org.spongepowered.mod.mixin.core.forge.items;
 
 import net.minecraftforge.items.ItemStackHandler;
 import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.bridge.inventory.TrackedInventoryBridge;
-import org.spongepowered.common.item.inventory.adapter.impl.MinecraftInventoryAdapter;
+import org.spongepowered.common.bridge.item.inventory.InventoryAdapterBridge;
+import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
 import org.spongepowered.common.item.inventory.lens.Fabric;
 import org.spongepowered.common.item.inventory.lens.Lens;
 import org.spongepowered.common.item.inventory.lens.SlotProvider;
@@ -46,89 +43,59 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-@SuppressWarnings("unchecked")
 @Mixin(ItemStackHandler.class)
-@Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
-public abstract class ItemstackHandlerMixin_Forge implements MinecraftInventoryAdapter, TrackedInventoryBridge {
+public abstract class ItemstackHandlerMixin_Forge implements InventoryAdapter, TrackedInventoryBridge, InventoryAdapterBridge {
 
-    @Nullable protected Inventory parent;
-    protected SlotCollection slots;
-    protected List<Inventory> children = new ArrayList<Inventory>();
-    @Nullable protected Iterable<Slot> slotIterator;
-    private Fabric fabric;
-    @Nullable protected Lens lens = null;
-
-    private List<SlotTransaction> capturedTransactions = new ArrayList<>();
-    private boolean initalized = false;
-
-    private void init() {
-        if (!this.initalized) {
-            this.initalized = true;
-            this.fabric = new IItemHandlerFabric(((ItemStackHandler)(Object) this));
-            this.slots = new SlotCollection.Builder().add(this.fabric.getSize()).build();
-            this.lens = new OrderedInventoryLensImpl(0, this.fabric.getSize(), 1, this.slots);
-        }
-    }
-
-    @Override
-    public Inventory parent() {
-        return this.parent == null ? this : this.parent;
-    }
+    @Nullable private SlotCollection forgeImpl$slots;
+    @Nullable private Fabric forgeImpl$fabric;
+    @Nullable private Lens forgeImpl$lens;
+    private List<Inventory> forgeImpl$children = new ArrayList<Inventory>();
+    private List<SlotTransaction> forgeImpl$capturedTransactions = new ArrayList<>();
 
     @Override
     public SlotProvider bridge$getSlotProvider() {
-        this.init();
-        return this.slots;
+        if (this.forgeImpl$slots == null) {
+            this.forgeImpl$slots = new SlotCollection.Builder().add(this.bridge$getFabric().getSize()).build();
+        }
+        return this.forgeImpl$slots;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
-    public Inventory bridge$getChild(int index) {
+    public Inventory bridge$getChild(final int index) {
         if (index < 0 || index >= this.bridge$getRootLens().getChildren().size()) {
             throw new IndexOutOfBoundsException("No child at index: " + index);
         }
-        while (index >= this.children.size()) {
-            this.children.add(null);
+        while (index >= this.forgeImpl$children.size()) {
+            this.forgeImpl$children.add(null);
         }
-        Inventory child = this.children.get(index);
+        Inventory child = this.forgeImpl$children.get(index);
         if (child == null) {
-            child = this.bridge$getRootLens().getChildren().get(index).getAdapter(this.bridge$getFabric(), this);
-            this.children.set(index, child);
+            child = (Inventory) this.bridge$getRootLens().getChildren().get(index).getAdapter(this.bridge$getFabric(), (Inventory) this);
+            this.forgeImpl$children.set(index, child);
         }
         return child;
     }
 
-    // TODO bridge$getChild with lens not implemented
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Inventory> Iterable<T> slots() {
-        this.init();
-        if (this.slotIterator == null) {
-            this.slotIterator = this.slots.getIterator(this);
-        }
-        return (Iterable<T>) this.slotIterator;
-    }
-
-    @Intrinsic
-    public void inventory$clear() {
-        this.bridge$getFabric().clear();
-    }
-
     @Override
     public Lens bridge$getRootLens() {
-        this.init();
-        return this.lens;
+        if (this.forgeImpl$lens == null) {
+            this.forgeImpl$lens = new OrderedInventoryLensImpl(0, this.bridge$getFabric().getSize(), 1, this.bridge$getSlotProvider());
+        }
+        return this.forgeImpl$lens;
     }
 
     @Override
     public Fabric bridge$getFabric() {
-        this.init();
-        return this.fabric;
+        if (this.forgeImpl$fabric == null) {
+            this.forgeImpl$fabric = new IItemHandlerFabric(((ItemStackHandler)(Object) this));
+        }
+        return this.forgeImpl$fabric;
     }
 
     @Override
     public List<SlotTransaction> bridge$getCapturedSlotTransactions() {
-        return this.capturedTransactions;
+        return this.forgeImpl$capturedTransactions;
     }
 
 

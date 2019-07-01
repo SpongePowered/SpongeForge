@@ -36,6 +36,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.bridge.inventory.ContainerBridge;
+import org.spongepowered.common.bridge.item.inventory.InventoryAdapterBridge;
+import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
 
 @Mixin(value = NetworkRegistry.class, remap = false)
 public abstract class NetworkRegistryMixin_Forge {
@@ -48,7 +50,7 @@ public abstract class NetworkRegistryMixin_Forge {
         final int z1) {
         final Object value = factory.getServerGuiElement(id, player, world, x, y, z);
         if (value instanceof Container) {
-            ((ContainerBridge) value).setPlugin((PluginContainer) mc);
+            ((InventoryAdapterBridge) value).bridge$setPlugin((PluginContainer) mc);
         }
         return value;
     }

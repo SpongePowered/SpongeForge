@@ -22,27 +22,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.forge.items;
+package org.spongepowered.mod.bridge.forge.items.wrapper;
 
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
 import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.mixin.core.inventory.SlotMixin;
-import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 
-@Mixin(value = SlotItemHandler.class, remap = false)
-public abstract class SlotItemHandlerMixin_Forge extends SlotMixin {
+public interface InvWrapperBridge {
 
-    @Shadow @Final private IItemHandler itemHandler;
-
-    @Override
-    public Inventory parent() {
-        if (this.itemHandler instanceof Inventory) {
-            return ((Inventory) this.itemHandler);
-        }
-        return new IItemHandlerAdapter(this.itemHandler);
-    }
+    Inventory forgeBridge$getParent();
 }

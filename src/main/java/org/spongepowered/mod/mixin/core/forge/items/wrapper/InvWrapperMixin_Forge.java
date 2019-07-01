@@ -26,19 +26,17 @@ package org.spongepowered.mod.mixin.core.forge.items.wrapper;
 
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.bridge.inventory.TrackedInventoryBridge;
-import org.spongepowered.common.item.inventory.adapter.impl.MinecraftInventoryAdapter;
+import org.spongepowered.common.bridge.item.inventory.InventoryAdapterBridge;
+import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
 import org.spongepowered.common.item.inventory.lens.Fabric;
 import org.spongepowered.common.item.inventory.lens.Lens;
 import org.spongepowered.common.item.inventory.lens.SlotProvider;
 import org.spongepowered.common.item.inventory.lens.impl.collections.SlotCollection;
 import org.spongepowered.common.item.inventory.lens.impl.comp.OrderedInventoryLensImpl;
+import org.spongepowered.mod.bridge.forge.items.wrapper.InvWrapperBridge;
 import org.spongepowered.mod.item.inventory.fabric.IItemHandlerFabric;
 
 import java.util.ArrayList;
@@ -47,88 +45,64 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 @Mixin(InvWrapper.class)
-@Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
-public abstract class InvWrapperMixin_Forge implements MinecraftInventoryAdapter, TrackedInventoryBridge {
+public abstract class InvWrapperMixin_Forge implements InventoryAdapter, TrackedInventoryBridge, InvWrapperBridge, InventoryAdapterBridge {
 
-    @Nullable protected Inventory parent;
-    protected SlotCollection slots;
-    protected List<Inventory> children = new ArrayList<Inventory>();
-    @Nullable protected Iterable<Slot> slotIterator;
-    private Fabric fabric = new IItemHandlerFabric(((InvWrapper) (Object) this));
+    private Fabric forgeImpl$fabric = new IItemHandlerFabric(((InvWrapper) (Object) this));
+    @Nullable private Lens forgeImpl$lens = null;
+    @Nullable private SlotCollection forgeImpl$slots;
+    private int forgeImpl$initializedSize;
+    private List<Inventory> forgeImpl$children = new ArrayList<Inventory>();
+    private List<SlotTransaction> forgeImpl$capturedTransactions = new ArrayList<>();
 
-    @Nullable protected Lens lens = null;
-
-    private List<SlotTransaction> capturedTransactions = new ArrayList<>();
-    private int initializedSize;
-
-    private void init() {
-        if (this.initializedSize != this.fabric.getSize()) {
-            this.initializedSize = this.fabric.getSize();
-            this.slots = new SlotCollection.Builder().add(this.fabric.getSize()).build();
-            this.lens = new OrderedInventoryLensImpl(0, this.fabric.getSize(), 1, this.slots);
-        }
-    }
 
     @Override
-    public Inventory parent() {
-        return this.parent == null ? this : this.parent;
+    public Inventory forgeBridge$getParent() {
+        return (Inventory) this; // TODO - this used to use a parent field, but the parent field has not been written to, ever...
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public SlotProvider bridge$getSlotProvider() {
-        this.init();
-        return this.slots;
+        if (this.forgeImpl$slots == null || this.forgeImpl$initializedSize != this.bridge$getFabric().getSize()) {
+            this.forgeImpl$initializedSize = this.bridge$getFabric().getSize();
+            this.forgeImpl$slots = new SlotCollection.Builder().add(this.bridge$getFabric().getSize()).build();
+        }
+        return this.forgeImpl$slots;
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
-    public Inventory bridge$getChild(int index) {
+    public Inventory bridge$getChild(final int index) {
         if (index < 0 || index >= this.bridge$getRootLens().getChildren().size()) {
             throw new IndexOutOfBoundsException("No child at index: " + index);
         }
-        while (index >= this.children.size()) {
-            this.children.add(null);
+        while (index >= this.forgeImpl$children.size()) {
+            this.forgeImpl$children.add(null);
         }
-        Inventory child = this.children.get(index);
+        Inventory child = this.forgeImpl$children.get(index);
         if (child == null) {
-            child = this.bridge$getRootLens().getChildren().get(index).getAdapter(this.bridge$getFabric(), this);
-            this.children.set(index, child);
+            child = (Inventory) this.bridge$getRootLens().getChildren().get(index).getAdapter(this.bridge$getFabric(), (Inventory) this);
+            this.forgeImpl$children.set(index, child);
         }
         return child;
     }
 
-    // TODO bridge$getChild with lens not implemented
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Inventory> Iterable<T> slots() {
-        this.init();
-        if (this.slotIterator == null) {
-            this.slotIterator = this.slots.getIterator(this);
-        }
-        return (Iterable<T>) this.slotIterator;
-    }
-
-    @Intrinsic
-    public void inventory$clear() {
-        this.bridge$getFabric().clear();
-    }
-
     @Override
     public Lens bridge$getRootLens() {
-        this.init();
-        return this.lens;
+        if (this.forgeImpl$lens == null || this.forgeImpl$initializedSize != this.bridge$getFabric().getSize()) {
+            this.forgeImpl$initializedSize = this.bridge$getFabric().getSize();
+            this.forgeImpl$lens = new OrderedInventoryLensImpl(0, this.forgeImpl$fabric.getSize(), 1, this.bridge$getSlotProvider());
+        }
+        return this.forgeImpl$lens;
     }
 
     @Override
     public Fabric bridge$getFabric() {
-        this.init();
-        return this.fabric;
+        return this.forgeImpl$fabric;
     }
 
     @Override
     public List<SlotTransaction> bridge$getCapturedSlotTransactions() {
-        return this.capturedTransactions;
+        return this.forgeImpl$capturedTransactions;
     }
 
 
