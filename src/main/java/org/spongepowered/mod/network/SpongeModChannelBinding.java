@@ -47,7 +47,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
     final EnumMap<Side, FMLEmbeddedChannel> channels;
     private boolean valid;
 
-    public SpongeModChannelBinding(ChannelRegistrar registrar, String channelName, PluginContainer owner) {
+    public SpongeModChannelBinding(final ChannelRegistrar registrar, final String channelName, final PluginContainer owner) {
         super(registrar, channelName, owner);
         this.channels = NetworkRegistry.INSTANCE.newChannel(channelName, getHandlers());
         this.valid = true;
@@ -59,7 +59,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
         checkState(this.valid, "Channel bindng in invalid state (was it unbound?)");
     }
 
-    protected void sendTo(Player player, Object data) {
+    protected void sendTo(final Player player, final Object data) {
         checkValidState();
         if (!((INetPlayHandlerBridge_Forge) ((EntityPlayerMP) player).connection).forgeBridge$getRegisteredChannels().contains(getName())) {
             return; // Player doesn't accept this channel
@@ -69,7 +69,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
         this.channels.get(Side.SERVER).writeAndFlush(data).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 
-    protected void sendToServer(Object data) {
+    protected void sendToServer(final Object data) {
         checkValidState();
         if (!((INetPlayHandlerBridge_Forge) Minecraft.getMinecraft().player.connection).forgeBridge$getRegisteredChannels().contains(getName())) {
             return; // Server doesn't accept this channel
@@ -78,7 +78,7 @@ abstract class SpongeModChannelBinding extends AbstractChannelBinding {
         this.channels.get(Side.CLIENT).writeAndFlush(data).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 
-    protected void sendToAll(Object data) {
+    protected void sendToAll(final Object data) {
         checkValidState();
         // TODO Somehow make this check which players are registered to accept
         // this channel

@@ -49,6 +49,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.event.damage.DamageEventHandler;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
+import org.spongepowered.common.mixin.core.entity.EntityLivingBaseAccessor;
 import org.spongepowered.common.registry.type.entity.EntityTypeRegistryModule;
 import org.spongepowered.mod.SpongeMod;
 
@@ -116,7 +117,7 @@ public final class StaticMixinForgeHelper {
 
     public static void acceptArmorModifier(final EntityLivingBase entity, final DamageSource damageSource, final DamageModifier modifier, double damage) {
         final Optional<ISpecialArmor.ArmorProperties> property = modifier.getCause().getContext().get(ARMOR_PROPERTY);
-        final NonNullList<ItemStack> inventory = entity instanceof EntityPlayer ? ((EntityPlayer) entity).inventory.armorInventory : entity.armorArray;
+        final NonNullList<ItemStack> inventory = entity instanceof EntityPlayer ? ((EntityPlayer) entity).inventory.armorInventory : ((EntityLivingBaseAccessor) entity).accessor$getArmorArray();
         if (property.isPresent()) {
             final ItemStack stack = inventory.get(property.get().Slot);
 

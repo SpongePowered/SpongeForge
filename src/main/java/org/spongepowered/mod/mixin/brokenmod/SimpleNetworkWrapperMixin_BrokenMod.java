@@ -38,7 +38,7 @@ import org.spongepowered.mod.util.StaticMixinForgeHelper;
 @Mixin(value = SimpleNetworkWrapper.class, remap = false)
 public class SimpleNetworkWrapperMixin_BrokenMod {
 
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Redirect(method = "getHandlerWrapper",
         at = @At(
             value = "NEW",
