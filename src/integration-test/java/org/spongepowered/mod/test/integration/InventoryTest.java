@@ -49,7 +49,7 @@ public class InventoryTest extends BaseTest {
         int x = 2;
         int y = 2;
 
-        ItemStack serverStack = testUtils.runOnMainThread(() -> {
+        ItemStack serverStack = this.testUtils.runOnMainThread(() -> {
             ItemStack stack = ItemStack.of(ItemTypes.GOLD_INGOT, 5);
 
             Hotbar hotbar = (Hotbar) this.testUtils.getThePlayer().getInventory().query(QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class));
@@ -67,11 +67,11 @@ public class InventoryTest extends BaseTest {
         // However, we don't want to rely on this happening at any particular point during the tick,
         // so we wait two ticks to guarantee that the update packets have been sent by the time
         // our code runs.
-        testUtils.waitForInventoryPropagation();
+        this.testUtils.waitForInventoryPropagation();
 
-        PlayerInventory clientInventory = client.getClientInventory();
+        PlayerInventory clientInventory = this.client.getClientInventory();
         ItemStack mainGridStack = clientInventory.getMainGrid().getSlot(x, y).get().peek().get();
-        ItemStack clientStack = client.getItemInHand(HandTypes.MAIN_HAND);
+        ItemStack clientStack = this.client.getItemInHand(HandTypes.MAIN_HAND);
 
         this.testUtils.assertStacksEqual(serverStack, clientStack);
         this.testUtils.assertStacksEqual(serverStack, mainGridStack);
