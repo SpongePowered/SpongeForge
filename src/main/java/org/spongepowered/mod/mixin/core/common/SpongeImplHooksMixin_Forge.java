@@ -109,6 +109,7 @@ import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.block.TileEntityInvalidatingPhaseState;
+import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
 import org.spongepowered.common.item.inventory.util.InventoryUtil;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.type.ItemTypeRegistryModule;
@@ -689,29 +690,59 @@ public abstract class SpongeImplHooksMixin_Forge {
     @SuppressWarnings("ConstantConditions")
     @Overwrite
     public static Inventory toInventory(final Object inventory, @Nullable final Object forgeItemHandler) {
-        if (forgeItemHandler instanceof IItemHandler) {
-            return new IItemHandlerAdapter(((IItemHandler) forgeItemHandler));
+        if (forgeItemHandler instanceof Inventory) {
+            return (Inventory) forgeItemHandler;
         }
+
+        // Prefer forge IItemHandler for interaction with modded inventory
+        if (inventory instanceof ICapabilityProvider) {
+            IItemHandler itemHandler = ((ICapabilityProvider) inventory).getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+            if (itemHandler != null) {
+                return (Inventory) itemHandler;
+            }
+        }
+
         if (inventory instanceof Inventory) {
             return ((Inventory) inventory);
         }
 
-        if (inventory instanceof ICapabilityProvider) {
-            IItemHandler itemHandler = ((ICapabilityProvider) inventory).getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-            if (itemHandler != null) {
-                if (itemHandler instanceof Inventory) {
-                    return ((Inventory) itemHandler);
-                }
-                return new IItemHandlerAdapter(itemHandler);
-            }
-        }
-
-        if (inventory instanceof IInventory) {
-            return ((Inventory) new InvWrapper(((IInventory) inventory)));
-        }
         final String fallbackName = forgeItemHandler == null ? "no forgeItemHandler" : forgeItemHandler.getClass().getName();
         SpongeImpl.getLogger().error("Unknown inventory " + inventory.getClass().getName() + " and " + fallbackName + " report this to Sponge");
         return null;
+    }
+
+    /**
+     * @author Faithcaio
+     * @reason Adds support for modded inventories
+     */
+    @SuppressWarnings("ConstantConditions")
+    @Overwrite
+    public static InventoryAdapter findInventoryAdapter(final Object inventory) {
+
+        // If the inventory provides a IItemHandler take that one first
+        if (inventory instanceof ICapabilityProvider) {
+            IItemHandler itemHandler = ((ICapabilityProvider) inventory).getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+            if (itemHandler instanceof InventoryAdapter) {
+                return (InventoryAdapter) itemHandler;
+            }
+            if (itemHandler != null) {
+                return new IItemHandlerAdapter(itemHandler); // TODO caching?
+            }
+        }
+
+        // If the inventory directly implements IItemHandler we have to wrap it to get an adapter
+        if (inventory instanceof IItemHandler) {
+            return new IItemHandlerAdapter((IItemHandler) inventory); // TODO caching?
+        }
+
+        // If the inventory directly implements IInventory we wrap in in an InvWrapper
+        if (inventory instanceof IInventory) {
+            return (InventoryAdapter) new InvWrapper((IInventory) inventory); // TODO caching?
+        }
+
+        // This should never happen
+        SpongeImpl.getLogger().error("Unknown inventory " + inventory.getClass().getName() + " report this to Sponge");
+        throw new IllegalArgumentException("Unknown inventory " + inventory.getClass().getName() + " report this to Sponge");
     }
 
     /**

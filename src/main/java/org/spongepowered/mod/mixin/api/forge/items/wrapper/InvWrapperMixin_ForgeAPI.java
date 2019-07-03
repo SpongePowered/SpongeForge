@@ -25,46 +25,10 @@
 package org.spongepowered.mod.mixin.api.forge.items.wrapper;
 
 import net.minecraftforge.items.wrapper.InvWrapper;
-import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.item.inventory.Slot;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
-import org.spongepowered.common.item.inventory.adapter.impl.DefaultImplementedInventoryAdapter;
-import org.spongepowered.common.item.inventory.lens.impl.collections.SlotCollection;
-import org.spongepowered.mod.bridge.forge.items.wrapper.InvWrapperBridge;
-
-import javax.annotation.Nullable;
+import org.spongepowered.common.item.inventory.adapter.impl.DefaultImplementedAdapterInventory;
 
 @Mixin(InvWrapper.class)
-@Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
-public abstract class InvWrapperMixin_ForgeAPI implements Inventory, DefaultImplementedInventoryAdapter {
-
-    @Nullable private Iterable<Slot> forgeApi$slotIterator;
-
-    @Override
-    public Inventory parent() {
-        return ((InvWrapperBridge) this).forgeBridge$getParent();
-    }
-
-    // TODO bridge$getChild with lens not implemented
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Inventory> Iterable<T> slots() {
-        if (this.forgeApi$slotIterator == null) {
-            this.forgeApi$slotIterator = ((SlotCollection) this.bridge$getSlotProvider()).getIterator(this);
-        }
-        return (Iterable<T>) this.forgeApi$slotIterator;
-    }
-
-    @Intrinsic
-    public void inventory$clear() {
-        this.bridge$getFabric().clear();
-    }
-
-
+public abstract class InvWrapperMixin_ForgeAPI implements DefaultImplementedAdapterInventory.WithClear {
 
 }

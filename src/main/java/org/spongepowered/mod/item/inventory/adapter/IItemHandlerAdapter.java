@@ -26,8 +26,8 @@ package org.spongepowered.mod.item.inventory.adapter;
 
 import net.minecraftforge.items.IItemHandler;
 import org.spongepowered.common.item.inventory.adapter.impl.AbstractInventoryAdapter;
+import org.spongepowered.common.item.inventory.lens.Fabric;
 import org.spongepowered.common.item.inventory.lens.impl.DefaultIndexedLens;
-import org.spongepowered.mod.item.inventory.fabric.IItemHandlerFabric;
 
 /**
  * Basic Wrapper Adapter for {@link IItemHandler}
@@ -35,6 +35,6 @@ import org.spongepowered.mod.item.inventory.fabric.IItemHandlerFabric;
 public class IItemHandlerAdapter extends AbstractInventoryAdapter {
 
     public IItemHandlerAdapter(IItemHandler inventory) {
-        super(new IItemHandlerFabric(inventory), DefaultIndexedLens.class);
+        super(((Fabric) inventory), DefaultIndexedLens.class);
     }
 }

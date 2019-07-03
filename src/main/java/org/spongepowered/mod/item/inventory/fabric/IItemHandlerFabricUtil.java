@@ -24,77 +24,22 @@
  */
 package org.spongepowered.mod.item.inventory.fabric;
 
-import com.google.common.collect.ImmutableSet;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import org.spongepowered.api.text.translation.FixedTranslation;
-import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.item.inventory.lens.Fabric;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-@SuppressWarnings("unchecked")
-public class IItemHandlerFabric implements Fabric {
-    private final IItemHandler inventory;
+/**
+ * Helper class - some IItemHandlers do not support all inventory operations.
+ */
+public class IItemHandlerFabricUtil {
+
     private static Set<Class<?>> setStackUnsupported = new HashSet<>();
 
-    public IItemHandlerFabric(IItemHandler inventory) {
-        this.inventory = inventory;
-    }
-
-    @Override
-    public Collection<?> allInventories() {
-        return ImmutableSet.of(this.inventory);
-    }
-
-    @Override
-    public IItemHandler get(int index) {
-        return this.inventory;
-    }
-
-    @Override
-    public ItemStack getStack(int index) {
-        return this.inventory.getStackInSlot(index);
-    }
-
-    @Override
-    public void setStack(int index, ItemStack stack) {
-        setIItemHandlerStack(this.inventory, index, stack);
-    }
-
-    @Override
-    public int getMaxStackSize() {
-        return this.inventory.getSlotLimit(0);
-    }
-
-    @Override
-    public Translation getDisplayName() {
-        return new FixedTranslation(getClass().getName());
-    }
-
-    @Override
-    public int getSize() {
-        return this.inventory.getSlots();
-    }
-
-    @Override
-    public void clear() {
-        if (this.inventory instanceof IItemHandlerModifiable) {
-            for (int i = 0; i < this.inventory.getSlots(); i++) {
-                ((IItemHandlerModifiable) this.inventory).setStackInSlot(i, ItemStack.EMPTY);
-            }
-        }
-    }
-
-    @Override
-    public void markDirty() {
-    }
-
-    private static void setIItemHandlerStack(IItemHandler handler, int index, ItemStack stack) {
+    public static void setIItemHandlerStack(IItemHandler handler, int index, ItemStack stack) {
         if (setStackUnsupported.contains(handler.getClass())) {
             return; // setting item is not always possible
         }
@@ -139,5 +84,4 @@ public class IItemHandlerFabric implements Fabric {
             prev = stack;
         }
     }
-
 }
