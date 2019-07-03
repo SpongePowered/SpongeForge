@@ -31,19 +31,14 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.mixin.api.mcp.inventory.SlotMixin_API;
-import org.spongepowered.common.mixin.core.inventory.SlotMixin;
-import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 
 @Mixin(value = SlotItemHandler.class, remap = false)
-public abstract class SlotItemHandlerMixin_ForgeAPI extends SlotMixin_API implements Inventory {
+public abstract class SlotItemHandlerMixin_ForgeAPI extends SlotMixin_API {
 
     @Shadow @Final private IItemHandler itemHandler;
 
     @Override
     public Inventory parent() {
-        if (this.itemHandler instanceof Inventory) {
-            return ((Inventory) this.itemHandler);
-        }
-        return new IItemHandlerAdapter(this.itemHandler);
+        return (Inventory) this.itemHandler;
     }
 }

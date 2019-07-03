@@ -22,11 +22,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.bridge.forge.items.wrapper;
+package org.spongepowered.mod.mixin.api.forge.items;
 
-import org.spongepowered.api.item.inventory.Inventory;
+import net.minecraftforge.items.IItemHandler;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.common.item.inventory.adapter.impl.DefaultImplementedAdapterInventory;
 
-public interface InvWrapperBridge {
+@Mixin(IItemHandler.class)
+public interface IItemHandlerMixin_ForgeAPI extends DefaultImplementedAdapterInventory.WithClear {
 
-    Inventory forgeBridge$getParent();
 }

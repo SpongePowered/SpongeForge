@@ -23,7 +23,7 @@
         "forge.common.util.ITeleporterMixin_ForgeAPI",
         "forge.fluids.FluidMixin_ForgeAPI",
         "forge.fluids.FluidStackMixin_ForgeAPI",
-        "forge.items.ItemstackHandlerMixin_ForgeAPI",
+        "forge.items.IItemHandlerMixin_ForgeAPI",
         "forge.items.SlotItemHandlerMixin_ForgeAPI",
         "forge.items.wrapper.InvWrapperMixin_ForgeAPI",
         "minecraft.entity.vehicle.EntityMinecartMixin_ForgeAPI",
