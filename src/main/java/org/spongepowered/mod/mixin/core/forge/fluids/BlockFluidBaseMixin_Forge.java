@@ -62,7 +62,7 @@ public abstract class BlockFluidBaseMixin_Forge extends BlockMixin_Forge impleme
         )
     )
     private Object getDisplacementWithSponge(final Map<?, ?> map, final Object key, final IBlockAccess world, final BlockPos pos) {
-        if (!(world instanceof WorldBridge) || ((WorldBridge) world).isFake()) {
+        if (!(world instanceof WorldBridge) || ((WorldBridge) world).bridge$isFake()) {
             return map.get(key);
         }
         if (!((Boolean) map.get(key))) {
@@ -87,7 +87,7 @@ public abstract class BlockFluidBaseMixin_Forge extends BlockMixin_Forge impleme
     )
     private void onSpongeInjectFailEvent(final IBlockAccess world, final BlockPos pos, final CallbackInfoReturnable<Boolean> cir,
         final IBlockState state, final Block block) {
-        if (!(world instanceof WorldBridge) || ((WorldBridge) world).isFake()) {
+        if (!(world instanceof WorldBridge) || ((WorldBridge) world).bridge$isFake()) {
             return;
         }
         final ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos);

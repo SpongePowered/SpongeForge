@@ -467,7 +467,7 @@ public class SpongeMod extends MetaModContainer {
         final net.minecraft.world.chunk.Chunk chunk = ((ChunkProviderBridge) event.getTicket().world.getChunkProvider())
             .bridge$getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
-            ((ChunkBridge) chunk).setPersistedChunk(true);
+            ((ChunkBridge) chunk).bridge$setPersistedChunk(true);
         }
     }
 
@@ -476,7 +476,7 @@ public class SpongeMod extends MetaModContainer {
         final net.minecraft.world.chunk.Chunk chunk = ((ChunkProviderBridge) event.getTicket().world.getChunkProvider())
             .bridge$getLoadedChunkWithoutMarkingActive(event.getLocation().x,  event.getLocation().z);
         if (chunk != null) {
-            ((ChunkBridge) chunk).setPersistedChunk(false);
+            ((ChunkBridge) chunk).bridge$setPersistedChunk(false);
         }
     }
 

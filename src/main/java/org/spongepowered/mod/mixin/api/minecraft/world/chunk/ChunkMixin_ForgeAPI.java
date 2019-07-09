@@ -40,7 +40,7 @@ public abstract class ChunkMixin_ForgeAPI implements org.spongepowered.api.world
 
     @Override
     public boolean unloadChunk() {
-        if (((ChunkBridge) this).isPersistedChunk()) {
+        if (((ChunkBridge) this).bridge$isPersistedChunk()) {
             return false;
         }
 

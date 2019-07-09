@@ -59,10 +59,10 @@ public class BlockRailBaseMixin_Forge {
             final ChunkBridge spongeChunk = (ChunkBridge) (useActiveChunk ? chunk : world.getChunk(pos));
             final Block block = ((Chunk) spongeChunk).getBlockState(pos).getBlock();
             if (notifier.isPresent()) {
-                spongeChunk.addTrackedBlockPosition(block, pos, notifier.get(), PlayerTracker.Type.NOTIFIER);
+                spongeChunk.bridge$addTrackedBlockPosition(block, pos, notifier.get(), PlayerTracker.Type.NOTIFIER);
             } else {
                 owner.ifPresent(
-                    user -> spongeChunk.addTrackedBlockPosition(block, pos, user, PlayerTracker.Type.NOTIFIER));
+                    user -> spongeChunk.bridge$addTrackedBlockPosition(block, pos, user, PlayerTracker.Type.NOTIFIER));
             }
         }
     }

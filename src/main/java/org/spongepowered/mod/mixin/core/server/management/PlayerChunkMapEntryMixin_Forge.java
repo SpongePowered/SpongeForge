@@ -72,7 +72,7 @@ public class PlayerChunkMapEntryMixin_Forge implements PlayerChunkMapEntryBridge
         }
 
         final ChunkBridge spongeChunk = (ChunkBridge) this.chunk;
-        spongeChunk.setScheduledForUnload(-1);
+        spongeChunk.bridge$setScheduledForUnload(-1);
         this.loading = false;
     }
 

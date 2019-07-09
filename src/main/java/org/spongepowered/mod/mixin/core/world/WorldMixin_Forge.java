@@ -164,7 +164,7 @@ public abstract class WorldMixin_Forge implements WorldBridge_Forge {
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onIniitToSetForgeList(final ISaveHandler saveHandlerIn, final WorldInfo info, final WorldProvider providerIn,
         final Profiler profilerIn, final boolean client, final CallbackInfo ci) {
-        if (!((WorldBridge) this).isFake()) {
+        if (!((WorldBridge) this).bridge$isFake()) {
             this.capturedBlockSnapshots = new CapturedSnapshotWrapperList((World) (Object) this);
         }
     }

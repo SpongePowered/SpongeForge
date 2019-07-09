@@ -95,7 +95,7 @@ public abstract class EntityMixin_Forge implements EntityBridge, DataCompoundHol
      * This avoids leaking the PhaseContext for the entity and the potentila leakage of world objects, etc.
      */
     @Override
-    public void clearWrappedCaptureList() {
+    public void bridge$clearWrappedCaptureList() {
         this.capturedDrops = new ArrayList<>();
 
     }

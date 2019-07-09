@@ -232,7 +232,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(EntityTravelToDimensionEvent.class, MoveEntityEvent.Teleport.Portal.class)
 
 
-                    // These are handled in MixinPlayerInteractionManager#onTryHarvestBlock
+                    // These are handled in PlayerInteractionManagerMixin#onTryHarvestBlock
                     //.putAll(BlockEvent.HarvestDropsEvent.class, SpawnEntityEvent.class, DropItemEvent.class, ChangeBlockEvent.class)
                     //.putAll(BlockEvent.BreakEvent.class, ChangeBlockEvent.Break.class)
                     .putAll(BlockEvent.PlaceEvent.class, ChangeBlockEvent.Place.class, ChangeBlockEvent.Modify.class, ChangeBlockEvent.Post.class)

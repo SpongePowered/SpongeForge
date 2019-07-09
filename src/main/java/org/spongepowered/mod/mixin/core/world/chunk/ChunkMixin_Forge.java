@@ -78,11 +78,11 @@ public abstract class ChunkMixin_Forge implements ChunkBridge {
         if (!this.world.isRemote) {
             for (final ChunkPos forced : this.world.getPersistentChunks().keySet()) {
                 if (forced.x == this.x && forced.z == this.z) {
-                    this.setPersistedChunk(true);
+                    this.bridge$setPersistedChunk(true);
                     return;
                 }
             }
-            this.setPersistedChunk(false);
+            this.bridge$setPersistedChunk(false);
         }
     }
 
@@ -101,8 +101,8 @@ public abstract class ChunkMixin_Forge implements ChunkBridge {
             final Vector3i neighborPosition = ((org.spongepowered.api.world.Chunk) this).getPosition().add(direction.asBlockOffset());
             final Chunk neighbor = this.world.getChunkProvider().getLoadedChunk(neighborPosition.getX(), neighborPosition.getZ());
             if (neighbor != null) {
-                this.setNeighbor(direction, neighbor);
-                ((ChunkBridge) neighbor).setNeighbor(direction.getOpposite(), (Chunk) (Object) this);
+                this.bridge$setNeighbor(direction, neighbor);
+                ((ChunkBridge) neighbor).bridge$setNeighbor(direction.getOpposite(), (Chunk) (Object) this);
             }
         }
     }

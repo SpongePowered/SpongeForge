@@ -104,7 +104,7 @@ public abstract class EventBusMixin_Forge implements EventBusBridge_Forge {
         if (event instanceof TickEvent.WorldTickEvent) {
             final TickEvent.WorldTickEvent worldTickEvent = (TickEvent.WorldTickEvent) event;
             final World world = worldTickEvent.world;
-            if (world == null || ((WorldBridge) world).isFake()) {
+            if (world == null || ((WorldBridge) world).bridge$isFake()) {
                 return null;
             }
             if (worldTickEvent.phase == TickEvent.Phase.START) {

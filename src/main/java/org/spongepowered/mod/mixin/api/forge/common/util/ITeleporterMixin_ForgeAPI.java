@@ -32,7 +32,7 @@ import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
 import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 
 @Mixin(value = ITeleporter.class, remap = false)
-public interface MixinITeleporter_ForgeAPI extends PortalAgent {
+public interface ITeleporterMixin_ForgeAPI extends PortalAgent {
 
     @Override
     default int getSearchRadius() {

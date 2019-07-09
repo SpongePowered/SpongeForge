@@ -74,7 +74,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         cancellable = true
     )
     private void checkBeforeTick(final World world, final BlockPos pos, final IBlockState state, final Random rand, final CallbackInfo ci) {
-        if (!((WorldBridge) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
+        if (!((WorldBridge) world).bridge$isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
             if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
                 ci.cancel();
             }
@@ -115,7 +115,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         cancellable = true
     )
     private void setBlockToAirDueToWorldHeight(final World world, final BlockPos pos, final int amtToInput, final CallbackInfoReturnable<Integer> cir, final IBlockState myState, final BlockPos targetFlow) {
-        if (!((WorldBridge) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
+        if (!((WorldBridge) world).bridge$isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
             if (SpongeCommonEventFactory.callChangeBlockEventModifyLiquidBreak(world, pos, myState, Blocks.AIR.getDefaultState()).isCancelled()) {
                 cir.setReturnValue(0);
             }
@@ -185,7 +185,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         constraints = "FORGE(2821+)"
     )
     private void setNewStateWithMaximumQuantaWhileFlowing(final World world, final BlockPos pos, final int amtToInput, final CallbackInfoReturnable<Integer> cir, final IBlockState myState, final BlockPos other, final int newAmount) {
-        if (((WorldBridge) world).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_PLACE) {
+        if (((WorldBridge) world).bridge$isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_PLACE) {
             return;
         }
         if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, other).isCancelled()) {
@@ -258,7 +258,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
     )
     private void onSetBlockForSwapping(final World world, final BlockPos myPos, final int amtToInput, final CallbackInfoReturnable<Integer> cir,
         final IBlockState myState, final BlockPos other, final int amt, final int density_other, final IBlockState otherState) {
-        if (((WorldBridge) world).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_MODIFY) {
+        if (((WorldBridge) world).bridge$isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_MODIFY) {
             return;
         }
         final SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();

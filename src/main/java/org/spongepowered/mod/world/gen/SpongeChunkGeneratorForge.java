@@ -178,7 +178,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
         if (biome == null) {
             // We have a failure of stupidity at this point. We can't crash the game, and clearly, a mod
             // is failing to provide us with a proper biome, so, we've got to "reverse" and delegate back to the mod.
-            if (!((WorldBridge) this.world).isFake()) {
+            if (!((WorldBridge) this.world).bridge$isFake()) {
                 final DimensionType type = (DimensionType) (Object) ((org.spongepowered.api.world.World) this.world).getDimension().getType();
                 try {
                     this.moddedGeneratorFallback = type.createDimension().createChunkGenerator();
@@ -274,7 +274,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                     timing.startTimingIfSync();
                 }
                 if (populator instanceof FlaggedPopulatorBridge) {
-                    ((FlaggedPopulatorBridge) populator).populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
+                    ((FlaggedPopulatorBridge) populator).bridge$populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
                 } else {
                     populator.populate(spongeWorld, volume, this.rand, biomeBuffer);
                 }

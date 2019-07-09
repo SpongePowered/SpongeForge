@@ -70,7 +70,7 @@ public abstract class BlockSnapshotMixin_Forge implements ForgeBlockSnapshotBrid
             if (!te.hasWorld()) {
                 te.setWorld(this.getWorld());
             }
-            for (DataManipulator<?, ?> manipulator : ((CustomDataHolderBridge) te).getCustomManipulators()) {
+            for (DataManipulator<?, ?> manipulator : ((CustomDataHolderBridge) te).bridge$getCustomManipulators()) {
                 builder.add(manipulator);
             }
         }

@@ -86,7 +86,7 @@ public abstract class ItemDyeMixin_Forge extends ItemMixin {
     private static void onGrowableGrow(final IGrowable iGrowable, final World worldIn, final Random rand, final BlockPos pos,
         final IBlockState blockState, final ItemStack stack, final World sameWorld, final BlockPos target, final EntityPlayer player,
         @Nullable final EnumHand hand) {
-        if (((WorldBridge) worldIn).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_GROW) {
+        if (((WorldBridge) worldIn).bridge$isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_GROW) {
             iGrowable.grow(worldIn, rand, pos, blockState);
             return;
         }

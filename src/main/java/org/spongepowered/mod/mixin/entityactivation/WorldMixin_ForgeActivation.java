@@ -136,7 +136,7 @@ public abstract class WorldMixin_ForgeActivation {
             final ChunkBridge
                 newChunk = (ChunkBridge) ((ChunkProviderBridge) entityIn.world.getChunkProvider()).bridge$getLoadedChunkWithoutMarkingActive(l, j1);
             final boolean isPositionDirty = entityIn.setPositionNonDirty();
-            if (newChunk == null || (!isPositionDirty && newChunk.isQueuedForUnload() && !newChunk.isPersistedChunk())) {
+            if (newChunk == null || (!isPositionDirty && newChunk.bridge$isQueuedForUnload() && !newChunk.bridge$isPersistedChunk())) {
                 entityIn.addedToChunk = false;
             }
             else

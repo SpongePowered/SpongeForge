@@ -67,7 +67,7 @@ public abstract class BlockFluidClassicMixin_Forge extends BlockFluidBaseMixin_F
         cancellable = true
     )
     private void onUpdateTickCheckSpongePre(final World world, final BlockPos pos, final IBlockState state, final Random rand, final CallbackInfo ci) {
-        if (!((WorldBridge) world).isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
+        if (!((WorldBridge) world).bridge$isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
             if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
                 ci.cancel();
             }
@@ -118,7 +118,7 @@ public abstract class BlockFluidClassicMixin_Forge extends BlockFluidBaseMixin_F
     )
     private boolean afterCanFlowInto(
         final World targetWorld, final BlockPos targetPos, final IBlockState newLiquidState, final World world, final BlockPos pos, final int meta) {
-        if (((WorldBridge) targetWorld).isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_BREAK) { // Check if we even need to fire.
+        if (((WorldBridge) targetWorld).bridge$isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_BREAK) { // Check if we even need to fire.
             return world.setBlockState(targetPos, newLiquidState, Constants.BlockFlags.DEFAULT);
         }
 

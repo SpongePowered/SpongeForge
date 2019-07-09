@@ -134,7 +134,7 @@ public abstract class EntityPlayerMixin_Forge extends EntityLivingBaseMixin_Forg
         }
 
         SleepingEvent.Post post = null;
-        if (!((WorldBridge) this.world).isFake()) {
+        if (!((WorldBridge) this.world).bridge$isFake()) {
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.pushCause(this);
                 post = SpongeEventFactory.createSleepingEventPost(frame.getCurrentCause(),

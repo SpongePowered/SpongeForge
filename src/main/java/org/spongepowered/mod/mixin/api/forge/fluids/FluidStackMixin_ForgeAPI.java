@@ -86,7 +86,7 @@ public class FluidStackMixin_ForgeAPI implements org.spongepowered.api.extra.flu
         if (optional.isPresent()) {
             return (Optional<T>) optional.get().createFrom(this);
         } else if (this instanceof CustomDataHolderBridge) {
-            return ((CustomDataHolderBridge) this).getCustom(containerClass);
+            return ((CustomDataHolderBridge) this).bridge$getCustom(containerClass);
         }
         return Optional.empty();
     }
@@ -103,7 +103,7 @@ public class FluidStackMixin_ForgeAPI implements org.spongepowered.api.extra.flu
         if (optional.isPresent()) {
             return optional.get().offerToStore(this, value);
         } else if (this instanceof CustomDataHolderBridge) {
-            return ((CustomDataHolderBridge) this).offerCustom(key, value);
+            return ((CustomDataHolderBridge) this).bridge$offerCustom(key, value);
         }
         return DataTransactionResult.failNoData();
     }
@@ -115,7 +115,7 @@ public class FluidStackMixin_ForgeAPI implements org.spongepowered.api.extra.flu
         if (optional.isPresent()) {
             return optional.get().set(this, valueContainer, checkNotNull(function));
         } else if (this instanceof CustomDataHolderBridge) {
-            return ((CustomDataHolderBridge) this).offerCustom(valueContainer, function);
+            return ((CustomDataHolderBridge) this).bridge$offerCustom(valueContainer, function);
         }
         return DataTransactionResult.failResult(valueContainer.getValues());
     }
@@ -154,7 +154,7 @@ public class FluidStackMixin_ForgeAPI implements org.spongepowered.api.extra.flu
         if (optional.isPresent()) {
             return optional.get().remove(this);
         } else if (this instanceof CustomDataHolderBridge) {
-            return ((CustomDataHolderBridge) this).removeCustom(containerClass);
+            return ((CustomDataHolderBridge) this).bridge$removeCustom(containerClass);
         }
         return DataTransactionResult.failNoData();
     }
@@ -165,7 +165,7 @@ public class FluidStackMixin_ForgeAPI implements org.spongepowered.api.extra.flu
         if (optional.isPresent()) {
             return optional.get().removeFrom(this);
         } else if (this instanceof CustomDataHolderBridge) {
-            return ((CustomDataHolderBridge) this).removeCustom(key);
+            return ((CustomDataHolderBridge) this).bridge$removeCustom(key);
         }
         return DataTransactionResult.failNoData();
     }

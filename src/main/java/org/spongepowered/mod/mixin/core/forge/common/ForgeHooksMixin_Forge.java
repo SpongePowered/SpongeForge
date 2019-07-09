@@ -113,7 +113,7 @@ public abstract class ForgeHooksMixin_Forge {
         final RayTraceResult result = SpongeImplHooks.rayTraceEyes(player, SpongeImplHooks.getBlockReachDistance((EntityPlayerMP) player));
         final Vector3d vec = result == null ? null : VecHelper.toVector3d(result.hitVec);
         if (SpongeCommonEventFactory.callInteractItemEventPrimary(player, stack, EnumHand.MAIN_HAND, vec, blockSnapshot).isCancelled()) {
-            ((ServerPlayerEntityBridge) player).sendBlockChange(pos, player.world.getBlockState(pos));
+            ((ServerPlayerEntityBridge) player).bridge$sendBlockChange(pos, player.world.getBlockState(pos));
             evt.setCanceled(true);
             return evt;
         }
@@ -162,7 +162,7 @@ public abstract class ForgeHooksMixin_Forge {
         if (stack.isEmpty()) {
             return true;
         }
-        if (SpongeImplHooks.isMainThread() && access instanceof WorldBridge && !((WorldBridge) access).isFake()) {
+        if (SpongeImplHooks.isMainThread() && access instanceof WorldBridge && !((WorldBridge) access).bridge$isFake()) {
             // If the event is cancelled, return true because then the item was "empty" and therefor, the tool cannot harvest the block.
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(stack));
@@ -207,7 +207,7 @@ public abstract class ForgeHooksMixin_Forge {
         final Object source = context.getSource() == null ? player : context.getSource();
         if (!phaseState.isInteraction()) {
             // Sponge Start - Add the changeblockevent.pre check here before we bother with item stacks.
-            if (world instanceof WorldBridge && !((WorldBridge) world).isFake() && SpongeImplHooks.isMainThread()) {
+            if (world instanceof WorldBridge && !((WorldBridge) world).bridge$isFake() && SpongeImplHooks.isMainThread()) {
                 try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                     // Might as well provide the active item in use.
                     frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));

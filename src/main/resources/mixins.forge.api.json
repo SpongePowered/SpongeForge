@@ -20,7 +20,7 @@
         "fml.common.event.FMLServerStoppedEventMixin_ForgeAPI",
         "fml.common.event.FMLServerStoppingEventMixin_ForgeAPI",
         "fml.common.gameevent.PlayerEventMixin_ForgeAPI",
-        "forge.common.util.MixinITeleporter_ForgeAPI",
+        "forge.common.util.ITeleporterMixin_ForgeAPI",
         "forge.fluids.FluidMixin_ForgeAPI",
         "forge.fluids.FluidStackMixin_ForgeAPI",
         "forge.items.ItemstackHandlerMixin_ForgeAPI",

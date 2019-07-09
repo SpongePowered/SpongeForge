@@ -57,7 +57,7 @@ public abstract class BlockLogMixin_Forge extends BlockMixin {
             target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V",
             remap = false))
     private void onSpongeBreakBlock(final Block block, final IBlockState state, final net.minecraft.world.World worldIn, final BlockPos pos) {
-        if (((WorldBridge) worldIn).isFake()) {
+        if (((WorldBridge) worldIn).bridge$isFake()) {
             block.beginLeavesDecay(state, worldIn, pos);
             return;
         }

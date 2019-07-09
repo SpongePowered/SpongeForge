@@ -39,13 +39,14 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.bridge.server.MinecraftServerBridge;
 import org.spongepowered.common.bridge.server.management.PlayerProfileCacheBridge;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.ServerWorldBridge_AsyncLighting;
 import org.spongepowered.common.world.WorldManager;
 
 import java.util.Hashtable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Mixin(value = MinecraftServer.class, priority = 1002)
@@ -82,8 +83,8 @@ public abstract class MinecraftServerMixin_Forge implements MinecraftServerBridg
     private void forgeImpl$UpdateChunkGC(final CallbackInfo ci, final Integer[] ids, final int x, final int id, final long i,
         final WorldServer worldServer) {
         final ServerWorldBridge spongeWorld = (ServerWorldBridge) worldServer;
-        if (spongeWorld.getChunkGCTickInterval() > 0) {
-            spongeWorld.doChunkGC();
+        if (spongeWorld.bridge$getChunkGCTickInterval() > 0) {
+            spongeWorld.bridge$doChunkGC();
         }
     }
 
@@ -156,16 +157,15 @@ public abstract class MinecraftServerMixin_Forge implements MinecraftServerBridg
                 if (worldserver1 != null)
                 {
                     // Turn off Async Lighting
-                    if (SpongeImpl.getGlobalConfigAdapter().getConfig().getModules().useOptimizations() &&
-                        SpongeImpl.getGlobalConfigAdapter().getConfig().getOptimizations().useAsyncLighting()) {
-                        ((ServerWorldBridge) worldserver1).bridge$getLightingExecutor().shutdown();
-
+                    if (worldserver1 instanceof ServerWorldBridge_AsyncLighting) {
+                        final ExecutorService lightingExecutor = ((ServerWorldBridge_AsyncLighting) worldserver1).asyncLightingBridge$getLightingExecutor();
+                        lightingExecutor.shutdown();
                         try {
-                            ((ServerWorldBridge) worldserver1).bridge$getLightingExecutor().awaitTermination(1, TimeUnit.SECONDS);
+                            lightingExecutor.awaitTermination(1, TimeUnit.SECONDS);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } finally {
-                            ((ServerWorldBridge) worldserver1).bridge$getLightingExecutor().shutdownNow();
+                            lightingExecutor.shutdownNow();
                         }
                     }
 
