@@ -37,6 +37,7 @@ import org.spongepowered.asm.mixin.transformer.throwables.MixinTargetAlreadyLoad
 import org.spongepowered.asm.util.ConstraintParser.Constraint;
 import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.asm.util.throwables.ConstraintViolationException;
+import org.spongepowered.common.mixin.handler.TerminateVM;
 import org.spongepowered.launch.Main;
 
 import java.util.HashSet;
