@@ -44,6 +44,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -69,6 +70,10 @@ public abstract class WorldMixin_Forge implements WorldBridge_Forge {
     @Shadow public abstract int getLightFor(EnumSkyBlock type, BlockPos pos);
     @Shadow public abstract void updateComparatorOutputLevel(BlockPos pos, Block blockIn);
     @Shadow public boolean isBlockModifiable(final EntityPlayer player, final BlockPos pos) { return false; } // Shadow
+
+    @Shadow protected WorldInfo worldInfo;
+
+    @Shadow public abstract long getTotalWorldTime();
 
     /**
      * @author gabizou - July 25th, 2016
@@ -167,6 +172,17 @@ public abstract class WorldMixin_Forge implements WorldBridge_Forge {
         if (!((WorldBridge) this).bridge$isFake()) {
             this.capturedBlockSnapshots = new CapturedSnapshotWrapperList((World) (Object) this);
         }
+    }
+
+
+    @ModifyArg(method = "updateWeatherBody", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setRainTime(I)V"))
+    int vanillaImpl$updateRainTimeStart(final int newRainTime) {
+        return newRainTime;
+    }
+
+    @ModifyArg(method = "updateWeatherBody", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/storage/WorldInfo;setThunderTime(I)V"))
+    int vanillaImpl$updateThunderTimeStart(final int newThunderTime) {
+        return newThunderTime;
     }
 
 }

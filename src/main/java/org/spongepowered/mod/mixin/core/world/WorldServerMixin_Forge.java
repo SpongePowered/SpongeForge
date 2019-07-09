@@ -148,5 +148,25 @@ public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements
                 newGenerator.getBiomeGenerator());
     }
 
+    @Override
+    int vanillaImpl$updateRainTimeStart(final int newRainTime) {
+        if (!((WorldBridge) this).bridge$isFake()) {
+            if (this.worldInfo.getRainTime() - 1 != newRainTime) {
+                this.bridge$setWeatherStartTime(this.getTotalWorldTime());
+            }
+        }
+        return newRainTime;
+    }
+
+    @Override
+    int vanillaImpl$updateThunderTimeStart(final int newThunderTime) {
+        if (!((WorldBridge) this).bridge$isFake()) {
+            if (this.worldInfo.getThunderTime() - 1 != newThunderTime) {
+                this.bridge$setWeatherStartTime(this.getTotalWorldTime());
+            }
+        }
+        return newThunderTime;
+    }
+
 
 }
