@@ -34,7 +34,6 @@ import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
 import org.spongepowered.asm.mixin.Mixins;
 import org.spongepowered.asm.mixin.extensibility.IEnvironmentTokenProvider;
 import org.spongepowered.common.launch.SpongeLaunch;
-import org.spongepowered.common.launch.transformer.tracker.TrackerRegistry;
 import org.spongepowered.launch.JavaVersionCheckUtils;
 
 import java.io.File;
@@ -125,6 +124,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
         Launch.classLoader.addTransformerExclusion("org.spongepowered.mod.bridge.event.EventForgeBridge");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.common.event.tracking.PhaseTracker");
         Launch.classLoader.addTransformerExclusion("org.spongepowered.common.event.tracking.TrackingUtil");
+        Launch.classLoader.addTransformerExclusion("org.spongepowered.common.mixin.handler.TerminateVM");
         Launch.classLoader.addTransformerExclusion("scala.");
 
         SpongeLaunch.setupSuperClassTransformer();
