@@ -40,7 +40,7 @@ public abstract class EntityItemMixin_ForgeActivation extends EntityMixin_Activa
     @Shadow public abstract ItemStack getItem();
 
     @Shadow private int pickupDelay;
-    @Shadow public int age;
+    @Shadow private int age;
     @Shadow(remap = false) public int lifespan;
 
     @Override

@@ -24,10 +24,8 @@
  */
 package org.spongepowered.mod.mixin.core.server.management;
 
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.server.management.PlayerChunkMapEntry;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
 import org.spongepowered.asm.mixin.Final;
@@ -36,19 +34,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
-import org.spongepowered.mod.entity.PlayerChunkRunnable;
 import org.spongepowered.mod.bridge.server.management.PlayerChunkMapEntryBridge_Forge;
-
-import java.util.List;
+import org.spongepowered.mod.entity.PlayerChunkRunnable;
 
 @Mixin(value = PlayerChunkMapEntry.class, priority = 1001)
 public class PlayerChunkMapEntryMixin_Forge implements PlayerChunkMapEntryBridge_Forge {
 
-    @Shadow public Chunk chunk;
-    @Shadow @Final public PlayerChunkMap playerChunkMap;
-    @Shadow @Final public List<EntityPlayerMP> players;
-    @Shadow @Final public ChunkPos pos;
-    @Shadow public boolean sentToPlayers;
+    @Shadow private Chunk chunk;
+    @Shadow @Final private PlayerChunkMap playerChunkMap;
     @Shadow(remap = false) private Runnable loadedRunnable;
     @Shadow(remap = false) private boolean loading;
 

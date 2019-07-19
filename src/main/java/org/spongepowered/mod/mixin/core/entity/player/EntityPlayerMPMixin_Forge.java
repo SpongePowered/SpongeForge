@@ -48,12 +48,12 @@ import javax.annotation.Nullable;
 public abstract class EntityPlayerMPMixin_Forge extends EntityPlayerMixin implements ServerPlayerEntityBridge {
 
     @Shadow public NetHandlerPlayServer connection;
-    @Shadow public boolean invulnerableDimensionChange;
+    @Shadow private boolean invulnerableDimensionChange;
     @Shadow private Vec3d enteredNetherPosition;
     @Shadow public boolean queuedEndExit;
-    @Shadow public boolean seenCredits;
+    @Shadow private boolean seenCredits;
     @Shadow @Final public MinecraftServer server;
-    @Shadow public int lastExperience;
+    @Shadow private int lastExperience;
     @Shadow private float lastHealth;
     @Shadow private int lastFoodLevel;
 

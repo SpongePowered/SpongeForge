@@ -44,7 +44,7 @@ public abstract class EntityVillagerMixin_Forge extends EntityAgeableMixin imple
 
     @Shadow private int careerId;
     @Shadow private int careerLevel;
-    @Shadow @Nullable public MerchantRecipeList buyingList;
+    @Shadow @Nullable private MerchantRecipeList buyingList;
 
     @Shadow(remap = false) public abstract VillagerRegistry.VillagerProfession getProfessionForge();
 
