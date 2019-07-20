@@ -40,7 +40,7 @@ import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.common.entity.EntityUtil;
+import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
@@ -92,7 +92,7 @@ public abstract class ItemShearsMixin_Forge extends Item {
                     final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(drop);
                     original.add(snapshot);
                     try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
-                        item = EntityUtil.throwDropItemAndConstructEvent(entity, posX, posY, posZ, snapshot, original, frame);
+                        item = SpongeCommonEventFactory.throwDropItemAndConstructEvent(entity, posX, posY, posZ, snapshot, original, frame);
                     }
 
                     if (item == null || item.isEmpty()) {
