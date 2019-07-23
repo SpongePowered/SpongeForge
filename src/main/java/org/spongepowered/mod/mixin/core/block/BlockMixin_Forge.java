@@ -31,6 +31,7 @@ import net.minecraft.world.IBlockAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.mod.bridge.block.BlockBridge_Forge;
 
@@ -56,7 +57,7 @@ public abstract class BlockMixin_Forge implements BlockBridge_Forge {
             if (clazz.equals(Block.class)) {
                 this.requiresLocationCheckForLight = false;
             }
-        } catch (Throwable throwable) {
+        } catch (final Throwable throwable) {
             // Ignore
         }
 
@@ -67,9 +68,24 @@ public abstract class BlockMixin_Forge implements BlockBridge_Forge {
             if (clazz.equals(Block.class)) {
                 this.requiresLocationCheckForOpacity = false;
             }
-        } catch (Throwable throwable) {
+        } catch (final Throwable throwable) {
             // Ignore
         }
+    }
+
+    /**
+     * @author gabizou - July 23rd, 2019 - 1.12.2
+     * @reason Because of the PhaseTracker, we can capture the block
+     * drops much easier, but it also requires that we do not allow
+     * for Forge's capturedrops list to actually be used, otherwise
+     * we run into the issue of loss of positional information.
+     *
+     * @param threadLocal The thread local to ignore
+     * @return Always false, bypassing forge's capture logic
+     */
+    @Redirect(method = "spawnAsEntity", at = @At(value = "INVOKE", target = "Ljava/lang/ThreadLocal;get()Ljava/lang/Object;", ordinal = 0))
+    private static Object forgeImpl$bypassForgeCapture(final ThreadLocal<Boolean> threadLocal) {
+        return false; // We never have to bother with the threadlocal for the list if we return false on the "iscapturing" threadlocal.
     }
 
     @Override
