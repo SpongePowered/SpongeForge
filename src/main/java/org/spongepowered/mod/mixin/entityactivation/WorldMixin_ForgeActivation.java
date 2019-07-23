@@ -24,16 +24,31 @@
  */
 package org.spongepowered.mod.mixin.entityactivation;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSetMultimap;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.ForgeChunkManager;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.bridge.world.chunk.ActiveChunkReferantBridge;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
 import org.spongepowered.common.bridge.world.chunk.ChunkProviderBridge;
+import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.mixin.plugin.entityactivation.EntityActivationRange;
 import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.ActivationCapability;
 import org.spongepowered.common.relocate.co.aikar.timings.TimingHistory;
@@ -45,122 +60,81 @@ public abstract class WorldMixin_ForgeActivation {
 
     @Shadow public abstract void updateEntity(Entity ent);
 
-    /**
-     * @author blood
-     * @reason Activation range checks.
-     *
-     * @param entityIn The entity to update
-     * @param forceUpdate whether forced
-     */
-    @Overwrite
-    public void updateEntityWithOptionalForce(final Entity entityIn, final boolean forceUpdate)
-    {
+    @Inject(method = "updateEntityWithOptionalForce", at = @At("HEAD"), cancellable = true)
+    private void forgeActivationImpl$checkIfCanUpdate(final Entity ticking, final boolean forceUpdate, final CallbackInfo ci) {
         // Sponge start - area is handled in ActivationRange
         //int i = MathHelper.floor_double(entityIn.posX);
         //int j = MathHelper.floor_double(entityIn.posZ);
         //boolean isForced = getPersistentChunks().containsKey(new net.minecraft.util.math.ChunkPos(i >> 4, j >> 4));
         //int k = isForced ? 0 : 32;
         //boolean canUpdate = !forceUpdate || this.isAreaLoaded(i - k, 0, j - k, i + k, 0, j + k, true);
-        boolean canUpdate = EntityActivationRange.checkIfActive(entityIn);
+        boolean canUpdate = EntityActivationRange.checkIfActive(ticking);
         // Allow forge mods to force an update
-        if (!canUpdate) canUpdate = net.minecraftforge.event.ForgeEventFactory.canEntityUpdate(entityIn);
+        if (!canUpdate) {
+            canUpdate = net.minecraftforge.event.ForgeEventFactory.canEntityUpdate(ticking);
+        }
 
         if (!canUpdate) {
-            entityIn.ticksExisted++;
-            ((ActivationCapability) entityIn).activation$inactiveTick();
-            return;
+            ticking.ticksExisted++;
+            ((ActivationCapability) ticking).activation$inactiveTick();
+            ci.cancel();
         }
         // Sponge end
-        entityIn.lastTickPosX = entityIn.posX;
-        entityIn.lastTickPosY = entityIn.posY;
-        entityIn.lastTickPosZ = entityIn.posZ;
-        entityIn.prevRotationYaw = entityIn.rotationYaw;
-        entityIn.prevRotationPitch = entityIn.rotationPitch;
+    }
 
-        if (forceUpdate && entityIn.addedToChunk)
-        {
-            ++entityIn.ticksExisted;
-            ++TimingHistory.activatedEntityTicks; // Sponge
+    @Redirect(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getPersistentChunks()Lcom/google/common/collect/ImmutableSetMultimap;"))
+    private ImmutableSetMultimap<ChunkPos, ForgeChunkManager.Ticket> forgeActivationImpl$returnEmptyMap(final World world) {
+        return ImmutableSetMultimap.of();
+    }
 
-            if (entityIn.isRiding())
-            {
-                entityIn.updateRidden();
-            }
-            else
-            {
-                entityIn.onUpdate();
-            }
+    @Redirect(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isAreaLoaded(IIIIIIZ)Z"))
+    private boolean forgeActivationImpl$falseOutOfTheIf(final World world, final int xStart, final int yStart, final int zStart, final int xEnd,
+        final int yEnd, final int zEnd, final boolean allowEmpty) {
+        return true;
+    }
+
+    @Inject(method = "updateEntityWithOptionalForce",
+        at = @At(value = "FIELD",
+            target = "Lnet/minecraft/entity/Entity;ticksExisted:I",
+            opcode = Opcodes.PUTFIELD,
+            shift = At.Shift.AFTER
+        )
+    )
+    private void forgeActivationImpl$increaseActivatedEntityTicks(final Entity entityIn, final boolean forceUpdate, final CallbackInfo ci) {
+        // ++entityIn.ticksExisted;
+        ++TimingHistory.activatedEntityTicks; // Sponge
+    }
+
+    @Redirect(method = "updateEntityWithOptionalForce",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isChunkLoaded(IIZ)Z"),
+        slice = @Slice(
+            from = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;addedToChunk:Z"),
+            to = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;removeEntityAtIndex(Lnet/minecraft/entity/Entity;I)V")
+        )
+    )
+    private boolean forgeActivationImpl$rerouteToUseActiveChunkReferant(final World world, final int x, final int z, final boolean allowEmpty,
+        final Entity ticking, final boolean forceUpdated) {
+        // Sponge start - use cached chunk
+        final Chunk activeChunk = (Chunk) ((ActiveChunkReferantBridge) ticking).bridge$getActiveChunk();
+        if (activeChunk != null) {
+            activeChunk.removeEntityAtIndex(ticking, ticking.chunkCoordY);
         }
+        // Sponge end
+        return false; // always Return False To Bypass.
+    }
 
-        //this.theProfiler.startSection("chunkCheck");
-
-        if (Double.isNaN(entityIn.posX) || Double.isInfinite(entityIn.posX))
-        {
-            entityIn.posX = entityIn.lastTickPosX;
-        }
-
-        if (Double.isNaN(entityIn.posY) || Double.isInfinite(entityIn.posY))
-        {
-            entityIn.posY = entityIn.lastTickPosY;
-        }
-
-        if (Double.isNaN(entityIn.posZ) || Double.isInfinite(entityIn.posZ))
-        {
-            entityIn.posZ = entityIn.lastTickPosZ;
-        }
-
-        if (Double.isNaN(entityIn.rotationPitch) || Double.isInfinite(entityIn.rotationPitch))
-        {
-            entityIn.rotationPitch = entityIn.prevRotationPitch;
-        }
-
-        if (Double.isNaN(entityIn.rotationYaw) || Double.isInfinite(entityIn.rotationYaw))
-        {
-            entityIn.rotationYaw = entityIn.prevRotationYaw;
-        }
-
-        final int l = MathHelper.floor(entityIn.posX / 16.0D);
-        final int i1 = MathHelper.floor(entityIn.posY / 16.0D);
-        final int j1 = MathHelper.floor(entityIn.posZ / 16.0D);
-
-        if (!entityIn.addedToChunk || entityIn.chunkCoordX != l || entityIn.chunkCoordY != i1 || entityIn.chunkCoordZ != j1)
-        {
-            // Sponge start - use cached chunk
-            final Chunk activeChunk = (Chunk) ((ActiveChunkReferantBridge) entityIn).bridge$getActiveChunk();
-            if (activeChunk != null)
-            {
-                activeChunk.removeEntityAtIndex(entityIn, entityIn.chunkCoordY);
-            }
-            // Sponge end
-
-            final ChunkBridge
-                newChunk = (ChunkBridge) ((ChunkProviderBridge) entityIn.world.getChunkProvider()).bridge$getLoadedChunkWithoutMarkingActive(l, j1);
-            final boolean isPositionDirty = entityIn.setPositionNonDirty();
-            if (newChunk == null || (!isPositionDirty && newChunk.bridge$isQueuedForUnload() && !newChunk.bridge$isPersistedChunk())) {
-                entityIn.addedToChunk = false;
-            }
-            else
-            {
-                ((net.minecraft.world.chunk.Chunk) newChunk).addEntity(entityIn);
-            }
-        }
-
-        //this.theProfiler.endSection();
-
-        if (forceUpdate && entityIn.addedToChunk)
-        {
-            for (final Entity entity : entityIn.getPassengers())
-            {
-                if (!entity.isDead && entity.getRidingEntity() == entityIn)
-                {
-                    this.updateEntity(entity);
-                }
-                else
-                {
-                    entity.dismountRidingEntity();
-                }
-            }
-        }
+    @Redirect(method = "updateEntityWithOptionalForce",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isChunkLoaded(IIZ)Z"),
+        slice = @Slice(
+            from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;setPositionNonDirty()Z"),
+            to = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;addEntity(Lnet/minecraft/entity/Entity;)V")
+        )
+    )
+    private boolean forgeActivationImpl$routeIsLoadedToUseChunkReferant(final World world, final int x, final int z, final boolean allowEmpty,
+        final Entity ticking, final boolean forceUpdate) {
+        final ChunkBridge newChunk = (ChunkBridge) ((ChunkProviderBridge) ticking.world.getChunkProvider())
+            .bridge$getLoadedChunkWithoutMarkingActive(x, z);
+        return newChunk != null && newChunk.bridge$isQueuedForUnload() && !newChunk.bridge$isPersistedChunk();
     }
 
 }

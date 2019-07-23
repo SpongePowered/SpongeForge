@@ -38,14 +38,17 @@ import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.DimensionManager;
+import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
@@ -124,6 +127,20 @@ public abstract class WorldMixin_Forge implements WorldBridge_Forge {
                 return i;
             }
         }
+    }
+
+    @Redirect(method = "updateEntities",
+        at = @At(
+            value = "INVOKE",
+            // Forge adds the method change from isBlockLoaded(BlockPos) to isBlockLoaded(BlockPos,boolean)....
+            target = "Lnet/minecraft/world/World;isBlockLoaded(Lnet/minecraft/util/math/BlockPos;Z)Z"),
+        slice = @Slice(
+            from = @At(value = "INVOKE", target = "Lnet/minecraft/tileentity/TileEntity;isInvalid()Z", ordinal = 0),
+            to = @At(value = "INVOKE", target = "Lnet/minecraft/world/border/WorldBorder;contains(Lnet/minecraft/util/math/BlockPos;)Z")
+        )
+    )
+    private boolean forgeImpl$useTileActiveChunk(final World world, final BlockPos pos, final boolean allowEmpty) {
+        return true; // If we got to here, we already have the method `bridge$shouldTick()` passing
     }
 
     /**
