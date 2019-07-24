@@ -47,7 +47,7 @@ import org.spongepowered.mod.mixin.core.block.BlockMixin_Forge;
 
 import java.util.Map;
 
-@Mixin(value = BlockFluidBase.class)
+@Mixin(BlockFluidBase.class)
 public abstract class BlockFluidBaseMixin_Forge extends BlockMixin_Forge implements BlockBridge {
 
     @Shadow(remap = false) @Final public static PropertyInteger LEVEL;

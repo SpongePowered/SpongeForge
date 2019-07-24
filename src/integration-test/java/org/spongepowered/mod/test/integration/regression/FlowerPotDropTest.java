@@ -52,6 +52,7 @@ import org.spongepowered.mctester.internal.event.StandaloneEventListener;
 import org.spongepowered.mctester.junit.TestUtils;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RunWith(MinecraftRunner.class)
 @RegressionTest(ghIssue = "https://github.com/SpongePowered/SpongeCommon/issues/2144")
@@ -80,7 +81,7 @@ public class FlowerPotDropTest extends BaseTest {
         // There might be unrelated block changes events in the world,
         // so we explicitly check that our handler was called with the right one
         // at some point
-        final boolean[] gotPlayerEvent = new boolean[1];
+        final AtomicBoolean gotPlayerEvent = new AtomicBoolean(false);
 
         this.testUtils.listenOneShot(() -> this.client.leftClick(), new StandaloneEventListener<>(ConstructEntityEvent.Pre.class, (event) -> {
             final Cause cause = event.getCause();
@@ -98,8 +99,8 @@ public class FlowerPotDropTest extends BaseTest {
             final Vector3i targetPosition = event.getTransform().getPosition().toInt();
             final boolean isTargetEqualToDropped = targetPosition.getX() != droppedPosition.getX() || targetPosition.getZ() != droppedPosition.getZ();
             assertTrue("Positions do not match", isDroppedPotentiallyOrigin && isHitSameAsDropped && !isTargetEqualToDropped);
-            gotPlayerEvent[0] = true;
+            gotPlayerEvent.set(true);
         }));
-        assertTrue("ChangeBlockEvent.Break was not fired!", gotPlayerEvent[0]);
+        assertTrue("ChangeBlockEvent.Break was not fired!", gotPlayerEvent.get());
     }
 }
