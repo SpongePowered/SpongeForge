@@ -98,12 +98,15 @@ public abstract class EntityPlayerMPMixin_Forge extends EntityPlayerMixin implem
             //     dimensionIn = 1;
             // }
             // this.server.getPlayerList().transferPlayerToDimension(this, dimensionIn, teleporter);
-            EntityUtil.transferPlayerToWorld((EntityPlayerMP) (Object) this, null, this.server.getWorld(toDimensionId), (ForgeITeleporterBridge) teleporter);
-            // Sponge end
-            this.connection.sendPacket(new SPacketEffect(1032, BlockPos.ORIGIN, 0, false));
-            this.lastExperience = -1;
-            this.lastHealth = -1.0F;
-            this.lastFoodLevel = -1;
+            if (EntityUtil.transferPlayerToWorld((EntityPlayerMP) (Object) this, null, this.server.getWorld(toDimensionId), (ForgeITeleporterBridge) teleporter) != null) {
+                // Sponge end
+                this.connection.sendPacket(new SPacketEffect(1032, BlockPos.ORIGIN, 0, false));
+                this.lastExperience = -1;
+                this.lastHealth = -1.0F;
+                this.lastFoodLevel = -1;
+            } else {
+                this.invulnerableDimensionChange = false;
+            }
             return (EntityPlayerMP) (Object) this;
         }
     }
