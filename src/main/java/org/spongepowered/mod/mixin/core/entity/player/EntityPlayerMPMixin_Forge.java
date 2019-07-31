@@ -25,6 +25,8 @@
 package org.spongepowered.mod.mixin.core.entity.player;
 
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.server.SPacketChangeGameState;
 import net.minecraft.network.play.server.SPacketEffect;
@@ -33,11 +35,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.item.inventory.Slot;
+import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.bridge.entity.player.ServerPlayerEntityBridge;
+import org.spongepowered.common.bridge.inventory.ContainerBridge;
+import org.spongepowered.common.bridge.inventory.TrackedInventoryBridge;
 import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.mixin.core.entity.player.EntityPlayerMixin;
@@ -60,6 +71,42 @@ public abstract class EntityPlayerMPMixin_Forge extends EntityPlayerMixin implem
     @Override
     public boolean bridge$usesCustomClient() {
         return this.connection.getNetworkManager().channel().attr(NetworkRegistry.FML_MARKER).get();
+    }
+
+    @Inject(method = "sendSlotContents", at = @At("HEAD"))
+    private void forgeImpl$detectSentChangesDuringCapture(final Container containerToSend, final int slotInd, final ItemStack itemstack1, final CallbackInfo ci) {
+        final TrackedInventoryBridge tracked = (TrackedInventoryBridge) containerToSend;
+        // todo - write a detect if container overrides detectAndSendChanges.
+        final ContainerBridge bridge = (ContainerBridge) containerToSend;
+        final Slot slot = bridge.bridge$getContainerSlot(slotInd);
+        final ItemStack itemstack = ((net.minecraft.inventory.Slot) slot).getStack();
+        if (tracked.bridge$capturingInventory()) {
+            final ItemStackSnapshot originalItem = itemstack1.isEmpty() ? ItemStackSnapshot.NONE
+                                                                        : ((org.spongepowered.api.item.inventory.ItemStack) (Object) itemstack1).createSnapshot();
+            final ItemStackSnapshot newItem = itemstack.isEmpty() ? ItemStackSnapshot.NONE
+                                                                  : ((org.spongepowered.api.item.inventory.ItemStack) (Object) itemstack).createSnapshot();
+
+            org.spongepowered.api.item.inventory.Slot adapter = null;
+            try {
+                adapter = slot;
+                SlotTransaction newTransaction = new SlotTransaction(adapter, originalItem, newItem);
+                if (bridge.bridge$isShiftCrafting()) {
+                    bridge.bridge$getPreviewTransactions().add(newTransaction);
+                } else {
+                    if (!bridge.bridge$getPreviewTransactions().isEmpty()) { // Check if Preview transaction is this transaction
+                        final SlotTransaction previewTransaction = bridge.bridge$getPreviewTransactions().get(0);
+                        if (previewTransaction.equals(newTransaction)) {
+                            newTransaction = null;
+                        }
+                    }
+                    if (newTransaction != null) {
+                        tracked.bridge$getCapturedSlotTransactions().add(newTransaction);
+                    }
+                }
+            } catch (final IndexOutOfBoundsException e) {
+                SpongeImpl.getLogger().error("SlotIndex out of LensBounds! Did the Container change after creation?", e);
+            }
+        }
     }
 
     /**
