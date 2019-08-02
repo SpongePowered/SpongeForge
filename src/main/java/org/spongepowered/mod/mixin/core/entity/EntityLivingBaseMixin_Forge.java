@@ -68,6 +68,11 @@ public abstract class EntityLivingBaseMixin_Forge extends EntityMixin_Forge impl
     }
 
     @Override
+    public float bridge$applyModDamagePost(final EntityLivingBase entityLivingBase, final DamageSource source, final float damage) {
+        return ForgeHooks.onLivingDamage((EntityLivingBase) (Object) this, source, damage);
+    }
+
+    @Override
     public boolean bridge$hookModAttack(final EntityLivingBase entityLivingBase, final DamageSource source, final float amount) {
         return net.minecraftforge.common.ForgeHooks.onLivingAttack((EntityLivingBase) (Object) this, source, amount);
     }
