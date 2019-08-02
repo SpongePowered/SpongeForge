@@ -46,6 +46,7 @@ import net.minecraftforge.fml.client.FMLFolderResourcePack;
 import net.minecraftforge.fml.common.CertificateHelper;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
@@ -88,12 +89,14 @@ import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.bridge.block.BlockBridge;
 import org.spongepowered.common.bridge.world.biome.BiomeBridge;
 import org.spongepowered.common.bridge.world.chunk.ChunkBridge;
 import org.spongepowered.common.bridge.world.chunk.ChunkProviderBridge;
 import org.spongepowered.common.command.MinecraftCommandWrapper;
+import org.spongepowered.common.entity.SpongeEntityType;
 import org.spongepowered.common.entity.SpongeProfession;
 import org.spongepowered.common.entity.ai.SpongeEntityAICommonSuperclass;
 import org.spongepowered.common.event.registry.SpongeGameRegistryRegisterEvent;
@@ -116,6 +119,7 @@ import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
 import org.spongepowered.common.service.sql.SqlServiceImpl;
+import org.spongepowered.common.util.Constants;
 import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
@@ -248,6 +252,35 @@ public class SpongeMod extends MetaModContainer {
             }
             PotionTypeRegistryModule.getInstance().registerFromGameData(key.toString(), (PotionType) obj);
         });
+        SpongeGameData.addRegistryCallback(ForgeRegistries.ENTITIES, (owner, stage1, id, obj, oldObj) -> {
+            final ResourceLocation key = ForgeRegistries.ENTITIES.getKey(obj);
+            if (key == null) {
+                return;
+            }
+            // fix bad entity name registrations from mods
+            String entityName = obj.getName();
+            final String[] parts = entityName.split(":");
+            if (parts.length > 1) {
+                entityName = parts[1];
+            }
+            if (entityName.contains(".")) {
+                if ((entityName.indexOf(".") + 1) < entityName.length()) {
+                    entityName = entityName.substring(entityName.indexOf(".") + 1);
+                }
+            }
+
+            entityName = entityName.replace("entity", "");
+            entityName = entityName.replaceAll("[^A-Za-z0-9]", "");
+            String modId = key.getNamespace();
+            if (modId.isEmpty()) {
+                modId = "unknown";
+            }
+
+            if (!SpongeImpl.ECOSYSTEM_ID.equalsIgnoreCase(modId)) {
+                final SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, obj.getEntityClass(), null);
+                EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
+            }
+        });
         SpongeGameData.addRegistryCallback(ForgeRegistries.POTIONS, (owner, manager, id, obj, oldObj) -> {
             final ResourceLocation key = ForgeRegistries.POTIONS.getKey(obj);
             if (key == null) {
@@ -256,7 +289,7 @@ public class SpongeMod extends MetaModContainer {
             PotionEffectTypeRegistryModule.getInstance().registerFromGameData(key.toString(),
                     (PotionEffectType) obj);
         });
-        SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, ((owner, manager, id, obj, oldObj) -> {
+        SpongeGameData.addRegistryCallback(ForgeRegistries.VILLAGER_PROFESSIONS, (owner, manager, id, obj, oldObj) -> {
             final VillagerProfessionBridge_Forge mixinProfession = (VillagerProfessionBridge_Forge) obj;
             if (mixinProfession.forgeBridge$getSpongeProfession().isPresent()) {
                 return;
@@ -267,7 +300,7 @@ public class SpongeMod extends MetaModContainer {
             for (VillagerRegistry.VillagerCareer villagerCareer : mixinProfession.forgeBridge$getCareers()) {
                 SpongeForgeVillagerRegistry.fromNative(villagerCareer);
             }
-        }));
+        });
         SpongeGameData.addRegistryCallback(ForgeRegistries.SOUND_EVENTS, (owner, manager, id, obj, oldObj) ->
                 SoundRegistryModule.inst().registerAdditionalCatalog((SoundType) obj)
         );
