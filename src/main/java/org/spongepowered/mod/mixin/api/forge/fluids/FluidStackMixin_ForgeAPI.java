@@ -253,13 +253,12 @@ public class FluidStackMixin_ForgeAPI implements org.spongepowered.api.extra.flu
 
     @Override
     public boolean validateRawData(final DataView container) {
-        // TODO
-        return false;
+        throw new UnsupportedOperationException(); // TODO Data API
     }
 
     @Override
     public void setRawData(final DataView container) throws InvalidDataException {
-        // TODO
+        throw new UnsupportedOperationException(); // TODO Data API
     }
 
     @Override
