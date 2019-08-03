@@ -96,11 +96,13 @@ import org.spongepowered.common.bridge.world.ServerWorldBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.gen.FlaggedPopulatorBridge;
 import org.spongepowered.common.event.tracking.PhaseTracker;
+import org.spongepowered.common.event.tracking.phase.generation.GenerationCompatibileContext;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
 import org.spongepowered.common.event.tracking.phase.generation.PopulatorPhaseContext;
 import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimingsFactory;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.common.world.extent.SoftBufferExtentViewDownsize;
+import org.spongepowered.common.world.gen.InternalPopulatorTypes;
 import org.spongepowered.common.world.gen.SpongeChunkGenerator;
 import org.spongepowered.common.world.gen.SpongeGenerationPopulator;
 import org.spongepowered.common.world.gen.WorldGenConstants;
@@ -298,7 +300,13 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
                 timing = spongePopulator.bridge$getTimingsHandler();
                 timing.startTimingIfSync();
             }
-            chunkGenerator.populate(chunkX, chunkZ);
+            try (final GenerationCompatibileContext context = GenerationPhase.State.GENERATION_COMPATIBILITY.createPhaseContext()
+                    .populator(InternalPopulatorTypes.UNKNOWN)
+                    .assignModCompatiblity(this, this.world.getChunkProvider(),  chunkGenerator)
+                    .world(this.world)) {
+                context.buildAndSwitch();
+                chunkGenerator.populate(chunkX, chunkZ);
+            }
             if (Timings.isTimingsEnabled()) {
                 timing.stopTimingIfSync();
             }

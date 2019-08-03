@@ -36,6 +36,7 @@ import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.SoftOverride;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImplHooks;
@@ -139,8 +140,10 @@ public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements
         return false;
     }
 
-
-
+    @Override
+    public void bridge$setProviderGenerator(final SpongeChunkGenerator newGenerator) {
+        // We don't want to override the provider's generator.
+    }
 
     @Override
     public SpongeChunkGenerator bridge$createChunkGenerator(final SpongeWorldGenerator newGenerator) {

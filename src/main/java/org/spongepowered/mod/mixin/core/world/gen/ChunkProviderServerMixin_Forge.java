@@ -27,16 +27,20 @@ package org.spongepowered.mod.mixin.core.world.gen;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderServer;
+import net.minecraft.world.gen.IChunkGenerator;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.chunk.ServerChunkProviderBridge;
 import org.spongepowered.common.mixin.core.world.gen.ChunkProviderServerMixin;
 
@@ -57,6 +61,25 @@ public abstract class ChunkProviderServerMixin_Forge implements ServerChunkProvi
                 .world.provider.getDimensionType(), ((ServerWorldBridge) this.world).bridge$getDimensionId())) {
             net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
         }
+    }
+    @Redirect(method = "provideChunk",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/IChunkGenerator;generateChunk(II)Lnet/minecraft/world/chunk/Chunk;"))
+    private Chunk impl$generateChunkWithSponge(final IChunkGenerator generator, final int x, final int z) {
+        if (((WorldBridge) this.world).bridge$isFake()) {
+            return generator.generateChunk(x, z);
+        }
+        return ((ServerWorldBridge) this.world).bridge$getSpongeGenerator().generateChunk(x, z);
+    }
+
+    @Redirect(method = "provideChunk",
+        at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/chunk/Chunk;populate(Lnet/minecraft/world/chunk/IChunkProvider;Lnet/minecraft/world/gen/IChunkGenerator;)V"))
+    private void impl$populateChunkThroughSponge(final Chunk chunk, final IChunkProvider chunkProvider, final IChunkGenerator chunkGenrator) {
+        if (((WorldBridge) this.world).bridge$isFake()) {
+            chunk.populate(chunkProvider, chunkGenrator);
+            return;
+        }
+        chunk.populate(chunkProvider, ((ServerWorldBridge) this.world).bridge$getSpongeGenerator());
     }
 
     /**
