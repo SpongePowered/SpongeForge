@@ -30,7 +30,7 @@ import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.bridge.entity.item.MinecartEntityBridge;
+import org.spongepowered.common.bridge.entity.item.EntityMinecartBridge;
 
 @NonnullByDefault
 @Mixin(value = EntityMinecart.class, priority = 1111)
@@ -39,19 +39,19 @@ public abstract class EntityMinecartMixin_Forge {
     @Redirect(method = "moveDerailedMinecart",
         at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityMinecart;motionX:D", opcode = Opcodes.PUTFIELD, ordinal = 2))
     private void onGetDragAirX(final EntityMinecart self, final double modifier) {
-        self.motionX *= ((MinecartEntityBridge) this).bridge$getAirboneVelocityModifier().getX();
+        self.motionX *= ((EntityMinecartBridge) this).bridge$getAirboneVelocityModifier().getX();
     }
 
     @Redirect(method = "moveDerailedMinecart",
         at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityMinecart;motionY:D", opcode = Opcodes.PUTFIELD, ordinal = 2))
     private void onGetDragAirY(final EntityMinecart self, final double modifier) {
-        self.motionY *= ((MinecartEntityBridge) this).bridge$getAirboneVelocityModifier().getY();
+        self.motionY *= ((EntityMinecartBridge) this).bridge$getAirboneVelocityModifier().getY();
     }
 
     @Redirect(method = "moveDerailedMinecart",
         at = @At(value = "FIELD", target = "Lnet/minecraft/entity/item/EntityMinecart;motionZ:D", opcode = Opcodes.PUTFIELD, ordinal = 2))
     private void onGetDragAirZ(final EntityMinecart self, final double modifier) {
-        self.motionZ *= ((MinecartEntityBridge) this).bridge$getAirboneVelocityModifier().getZ();
+        self.motionZ *= ((EntityMinecartBridge) this).bridge$getAirboneVelocityModifier().getZ();
     }
 
 

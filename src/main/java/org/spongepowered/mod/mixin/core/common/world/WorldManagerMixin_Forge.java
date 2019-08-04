@@ -49,7 +49,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.bridge.entity.player.ServerPlayerEntityBridge;
+import org.spongepowered.common.bridge.entity.player.EntityPlayerMPBridge;
 import org.spongepowered.common.world.WorldManager;
 
 import java.nio.file.Path;
@@ -103,7 +103,7 @@ public abstract class WorldManagerMixin_Forge {
     @Overwrite
     public static void sendDimensionRegistration(EntityPlayerMP player, WorldProvider provider) {
         // register dimension on client-side
-        if (((ServerPlayerEntityBridge) player).bridge$usesCustomClient()) {
+        if (((EntityPlayerMPBridge) player).bridge$usesCustomClient()) {
             FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
             serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
             serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);

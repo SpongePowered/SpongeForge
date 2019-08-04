@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.common.bridge.entity.player.ServerPlayerEntityBridge;
+import org.spongepowered.common.bridge.entity.player.EntityPlayerMPBridge;
 import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.mixin.core.entity.player.EntityPlayerMixin;
@@ -45,7 +45,7 @@ import org.spongepowered.common.mixin.core.entity.player.EntityPlayerMixin;
 import javax.annotation.Nullable;
 
 @Mixin(value = EntityPlayerMP.class, priority = 1001)
-public abstract class EntityPlayerMPMixin_Forge extends EntityPlayerMixin implements ServerPlayerEntityBridge {
+public abstract class EntityPlayerMPMixin_Forge extends EntityPlayerMixin implements EntityPlayerMPBridge {
 
     @Shadow public NetHandlerPlayServer connection;
     @Shadow private boolean invulnerableDimensionChange;

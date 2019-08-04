@@ -37,7 +37,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.bridge.entity.BaseLivingEntityBridge;
+import org.spongepowered.common.bridge.entity.LivingEntityBaseBridge;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 import java.util.List;
@@ -45,7 +45,7 @@ import java.util.Optional;
 
 @NonnullByDefault
 @Mixin(value = EntityLivingBase.class, priority = 1001)
-public abstract class EntityLivingBaseMixin_Forge extends EntityMixin_Forge implements BaseLivingEntityBridge {
+public abstract class EntityLivingBaseMixin_Forge extends EntityMixin_Forge implements LivingEntityBaseBridge {
 
     @Override
     public Optional<List<DamageFunction>> bridge$provideArmorModifiers(final EntityLivingBase entityLivingBase,

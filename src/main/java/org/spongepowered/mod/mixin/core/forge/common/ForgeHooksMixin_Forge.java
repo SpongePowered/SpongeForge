@@ -69,7 +69,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.bridge.entity.player.ServerPlayerEntityBridge;
+import org.spongepowered.common.bridge.entity.player.EntityPlayerMPBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
@@ -113,7 +113,7 @@ public abstract class ForgeHooksMixin_Forge {
         final RayTraceResult result = SpongeImplHooks.rayTraceEyes(player, SpongeImplHooks.getBlockReachDistance((EntityPlayerMP) player));
         final Vector3d vec = result == null ? null : VecHelper.toVector3d(result.hitVec);
         if (SpongeCommonEventFactory.callInteractItemEventPrimary(player, stack, EnumHand.MAIN_HAND, vec, blockSnapshot).isCancelled()) {
-            ((ServerPlayerEntityBridge) player).bridge$sendBlockChange(pos, player.world.getBlockState(pos));
+            ((EntityPlayerMPBridge) player).bridge$sendBlockChange(pos, player.world.getBlockState(pos));
             evt.setCanceled(true);
             return evt;
         }
