@@ -41,7 +41,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
@@ -58,7 +58,7 @@ import javax.annotation.Nullable;
 public abstract class BlockFluidClassicMixin_Forge extends BlockFluidBaseMixin_Forge {
 
     @Override
-    public BiConsumer<CauseStackManager.StackFrame, ServerWorldBridge> bridge$getTickFrameModifier() {
+    public BiConsumer<CauseStackManager.StackFrame, WorldServerBridge> bridge$getTickFrameModifier() {
         return (frame, world) -> frame.addContext(EventContextKeys.LIQUID_FLOW, (org.spongepowered.api.world.World) world);
     }
 
@@ -68,7 +68,7 @@ public abstract class BlockFluidClassicMixin_Forge extends BlockFluidBaseMixin_F
     )
     private void onUpdateTickCheckSpongePre(final World world, final BlockPos pos, final IBlockState state, final Random rand, final CallbackInfo ci) {
         if (!((WorldBridge) world).bridge$isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
+            if (SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) world, pos).isCancelled()) {
                 ci.cancel();
             }
         }

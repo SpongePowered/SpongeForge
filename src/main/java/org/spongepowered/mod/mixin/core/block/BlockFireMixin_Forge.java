@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.mixin.core.block.BlockMixin;
 
@@ -51,7 +51,7 @@ public abstract class BlockFireMixin_Forge extends BlockMixin {
             // SpongeForge uses the firespread context key, todo verify if we want to use FireSpread or what.
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
-                if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
+                if (SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) world, pos).isCancelled()) {
                     callbackInfo.cancel();
                 }
             }
@@ -66,7 +66,7 @@ public abstract class BlockFireMixin_Forge extends BlockMixin {
             // SpongeForge uses the firespread context key, todo verify if we want to use FireSpread or what.
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
-                if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
+                if (SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) world, pos).isCancelled()) {
                     callbackInfo.cancel();
                 }
             }

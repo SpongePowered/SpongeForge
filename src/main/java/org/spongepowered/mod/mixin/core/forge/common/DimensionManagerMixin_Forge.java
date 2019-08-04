@@ -42,7 +42,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldInfoBridge;
 import org.spongepowered.common.bridge.world.WorldSettingsBridge;
 import org.spongepowered.common.world.WorldManager;
@@ -163,7 +163,7 @@ public abstract class DimensionManagerMixin_Forge {
                     SpongeImpl.getLogger().warn("World {} ({}/{}) (HASH: {}) may have leaked. Encountered [{}] times",
                         worldServer.getWorldInfo().getWorldName(),
                         ((org.spongepowered.api.world.DimensionType) (Object) worldServer.provider.getDimensionType()).getId(),
-                        ((ServerWorldBridge) worldServer).bridge$getDimensionId(), hashCode, leakCount);
+                        ((WorldServerBridge) worldServer).bridge$getDimensionId(), hashCode, leakCount);
                 }
             }
         }

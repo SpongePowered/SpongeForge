@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimingsFactory;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
@@ -79,7 +79,7 @@ public class GameRegistryMixin_Forge {
     private static void forgeImpl$startTiming(final int chunkX, final int chunkZ, final World world, final IChunkGenerator chunkGenerator,
         final IChunkProvider chunkProvider, final CallbackInfo ci) {
         if (Timings.isTimingsEnabled()) {
-            ((ServerWorldBridge) world).bridge$getTimingsHandler().chunkPopulate.startTimingIfSync();
+            ((WorldServerBridge) world).bridge$getTimingsHandler().chunkPopulate.startTimingIfSync();
         }
     }
 
@@ -87,7 +87,7 @@ public class GameRegistryMixin_Forge {
     private static void forgeImpl$StopTiming(final int chunkX, final int chunkZ, final World world, final IChunkGenerator chunkGenerator,
         final IChunkProvider chunkProvider, final CallbackInfo ci) {
         if (Timings.isTimingsEnabled()) {
-            ((ServerWorldBridge) world).bridge$getTimingsHandler().chunkPopulate.stopTimingIfSync();
+            ((WorldServerBridge) world).bridge$getTimingsHandler().chunkPopulate.stopTimingIfSync();
         }
     }
 

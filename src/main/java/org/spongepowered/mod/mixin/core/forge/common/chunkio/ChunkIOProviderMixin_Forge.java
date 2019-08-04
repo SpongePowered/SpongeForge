@@ -31,7 +31,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 
 @Mixin(targets = "net.minecraftforge.common.chunkio.ChunkIOProvider")
@@ -44,7 +44,7 @@ public class ChunkIOProviderMixin_Forge {
         if (((WorldBridge) this.chunk.getWorld()).bridge$isFake()) {
             return provider.chunkGenerator;
         }
-        return ((ServerWorldBridge) this.chunk.getWorld()).bridge$getSpongeGenerator();
+        return ((WorldServerBridge) this.chunk.getWorld()).bridge$getSpongeGenerator();
     }
 
 }

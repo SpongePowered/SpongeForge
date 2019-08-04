@@ -39,13 +39,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
-import org.spongepowered.common.bridge.world.chunk.ServerChunkProviderBridge;
+import org.spongepowered.common.bridge.world.chunk.ChunkProviderServerBridge;
 import org.spongepowered.common.mixin.core.world.gen.ChunkProviderServerMixin;
 
 @Mixin(value = ChunkProviderServer.class, priority = 1001)
-public abstract class ChunkProviderServerMixin_Forge implements ServerChunkProviderBridge {
+public abstract class ChunkProviderServerMixin_Forge implements ChunkProviderServerBridge {
 
     @Shadow @Final public WorldServer world;
     @Shadow @Final public Long2ObjectMap<Chunk> loadedChunks;
@@ -57,8 +57,8 @@ public abstract class ChunkProviderServerMixin_Forge implements ServerChunkProvi
         // Remove forge's persistent chunk check since we cache it in the chunk. Only unload the world if we're not the overworld and we're told that
         // we are not to keep spawn loaded (which is our flag to keep the world loaded)
         // TODO Consider splitting this into two flags: keep-spawn-loaded and keep-world-loaded
-        if (this.loadedChunks.size() == 0 && ((ServerWorldBridge) this.world).bridge$getDimensionId() != 0 && !SpongeImplHooks.shouldKeepSpawnLoaded(this
-                .world.provider.getDimensionType(), ((ServerWorldBridge) this.world).bridge$getDimensionId())) {
+        if (this.loadedChunks.size() == 0 && ((WorldServerBridge) this.world).bridge$getDimensionId() != 0 && !SpongeImplHooks.shouldKeepSpawnLoaded(this
+                .world.provider.getDimensionType(), ((WorldServerBridge) this.world).bridge$getDimensionId())) {
             net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
         }
     }
@@ -68,7 +68,7 @@ public abstract class ChunkProviderServerMixin_Forge implements ServerChunkProvi
         if (((WorldBridge) this.world).bridge$isFake()) {
             return generator.generateChunk(x, z);
         }
-        return ((ServerWorldBridge) this.world).bridge$getSpongeGenerator().generateChunk(x, z);
+        return ((WorldServerBridge) this.world).bridge$getSpongeGenerator().generateChunk(x, z);
     }
 
     @Redirect(method = "provideChunk",
@@ -79,7 +79,7 @@ public abstract class ChunkProviderServerMixin_Forge implements ServerChunkProvi
             chunk.populate(chunkProvider, chunkGenrator);
             return;
         }
-        chunk.populate(chunkProvider, ((ServerWorldBridge) this.world).bridge$getSpongeGenerator());
+        chunk.populate(chunkProvider, ((WorldServerBridge) this.world).bridge$getSpongeGenerator());
     }
 
     /**
@@ -91,10 +91,10 @@ public abstract class ChunkProviderServerMixin_Forge implements ServerChunkProvi
      * the original method to ensure that async loading gets handled properly (Forge's code properly
      * handles a concurrent asychronous load of the same chunk).
      *
-     * @see ChunkProviderServerMixin#impl$loadChunkForce(int, int)
+     * @see ChunkProviderServerMixin#bridge$loadChunkForce(int, int)
      */
     @Override
-    public Chunk impl$loadChunkForce(int x, int z) {
+    public Chunk bridge$loadChunkForce(int x, int z) {
         return this.loadChunk(x, z);
     }
 }

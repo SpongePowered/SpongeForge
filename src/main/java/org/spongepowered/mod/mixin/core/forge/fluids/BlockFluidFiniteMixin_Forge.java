@@ -48,7 +48,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
 import org.spongepowered.common.block.SpongeBlockSnapshotBuilder;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
@@ -64,7 +64,7 @@ import java.util.function.BiConsumer;
 public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Forge {
 
     @Override
-    public BiConsumer<CauseStackManager.StackFrame, ServerWorldBridge> bridge$getTickFrameModifier() {
+    public BiConsumer<CauseStackManager.StackFrame, WorldServerBridge> bridge$getTickFrameModifier() {
         return (frame, world) -> frame.addContext(EventContextKeys.LIQUID_FLOW, (org.spongepowered.api.world.World) world);
     }
 
@@ -75,7 +75,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
     )
     private void checkBeforeTick(final World world, final BlockPos pos, final IBlockState state, final Random rand, final CallbackInfo ci) {
         if (!((WorldBridge) world).bridge$isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos).isCancelled()) {
+            if (SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) world, pos).isCancelled()) {
                 ci.cancel();
             }
         }
@@ -188,7 +188,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         if (((WorldBridge) world).bridge$isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_PLACE) {
             return;
         }
-        if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, other).isCancelled()) {
+        if (SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) world, other).isCancelled()) {
             cir.setReturnValue(0);
         }
     }

@@ -36,11 +36,10 @@ import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.SoftOverride;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImplHooks;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.PhaseTracker;
@@ -50,7 +49,7 @@ import org.spongepowered.common.world.gen.SpongeWorldGenerator;
 import org.spongepowered.mod.world.gen.SpongeChunkGeneratorForge;
 
 @Mixin(value = WorldServer.class, priority = 1001)
-public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements ServerWorldBridge {
+public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements WorldServerBridge {
 
     @Override
     public int bridge$getDimensionId() {

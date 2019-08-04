@@ -42,7 +42,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.bridge.block.BlockBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.mod.mixin.core.block.BlockMixin_Forge;
 
 import java.util.Map;
@@ -68,7 +68,7 @@ public abstract class BlockFluidBaseMixin_Forge extends BlockMixin_Forge impleme
         if (!((Boolean) map.get(key))) {
             return Boolean.FALSE;
         }
-        final ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos);
+        final ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) world, pos);
         if (event.isCancelled()) {
             return Boolean.FALSE;
         }
@@ -90,7 +90,7 @@ public abstract class BlockFluidBaseMixin_Forge extends BlockMixin_Forge impleme
         if (!(world instanceof WorldBridge) || ((WorldBridge) world).bridge$isFake()) {
             return;
         }
-        final ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos);
+        final ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) world, pos);
         if (event.isCancelled()) {
             cir.setReturnValue(false);
         }

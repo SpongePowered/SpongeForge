@@ -38,7 +38,7 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
@@ -82,7 +82,7 @@ public abstract class BlockLeavesMixin_Forge extends BlockMixin {
                 context.buildAndSwitch();
             }
             frame.addContext(EventContextKeys.LEAVES_DECAY, (World) worldIn);
-            if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) worldIn, pos).isCancelled()) {
+            if (SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) worldIn, pos).isCancelled()) {
                 return;
             }
             block.beginLeavesDecay(state, worldIn, pos);

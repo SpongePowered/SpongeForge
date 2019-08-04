@@ -76,7 +76,7 @@ import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.bridge.network.NetHandlerPlayServerBridge;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -166,7 +166,7 @@ public abstract class ForgeHooksMixin_Forge {
             // If the event is cancelled, return true because then the item was "empty" and therefor, the tool cannot harvest the block.
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(stack));
-                return SpongeCommonEventFactory.callChangeBlockEventPre(((ServerWorldBridge) access), pos).isCancelled();
+                return SpongeCommonEventFactory.callChangeBlockEventPre(((WorldServerBridge) access), pos).isCancelled();
             }
         }
         return false;
@@ -211,7 +211,7 @@ public abstract class ForgeHooksMixin_Forge {
                 try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                     // Might as well provide the active item in use.
                     frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));
-                    if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) world, pos, source).isCancelled()) {
+                    if (SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) world, pos, source).isCancelled()) {
                         // Since a plugin cancelled it, go ahead and cancel it.
                         return false;
                     }

@@ -41,8 +41,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.bridge.server.MinecraftServerBridge;
 import org.spongepowered.common.bridge.server.management.PlayerProfileCacheBridge;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
-import org.spongepowered.common.bridge.world.ServerWorldBridge_AsyncLighting;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge_AsyncLighting;
 import org.spongepowered.common.world.WorldManager;
 
 import java.util.Hashtable;
@@ -82,7 +82,7 @@ public abstract class MinecraftServerMixin_Forge implements MinecraftServerBridg
         locals = LocalCapture.CAPTURE_FAILHARD)
     private void forgeImpl$UpdateChunkGC(final CallbackInfo ci, final Integer[] ids, final int x, final int id, final long i,
         final WorldServer worldServer) {
-        final ServerWorldBridge spongeWorld = (ServerWorldBridge) worldServer;
+        final WorldServerBridge spongeWorld = (WorldServerBridge) worldServer;
         if (spongeWorld.bridge$getChunkGCTickInterval() > 0) {
             spongeWorld.bridge$doChunkGC();
         }
@@ -157,8 +157,8 @@ public abstract class MinecraftServerMixin_Forge implements MinecraftServerBridg
                 if (worldserver1 != null)
                 {
                     // Turn off Async Lighting
-                    if (worldserver1 instanceof ServerWorldBridge_AsyncLighting) {
-                        final ExecutorService lightingExecutor = ((ServerWorldBridge_AsyncLighting) worldserver1).asyncLightingBridge$getLightingExecutor();
+                    if (worldserver1 instanceof WorldServerBridge_AsyncLighting) {
+                        final ExecutorService lightingExecutor = ((WorldServerBridge_AsyncLighting) worldserver1).asyncLightingBridge$getLightingExecutor();
                         lightingExecutor.shutdown();
                         try {
                             lightingExecutor.awaitTermination(1, TimeUnit.SECONDS);

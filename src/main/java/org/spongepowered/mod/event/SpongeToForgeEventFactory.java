@@ -101,7 +101,7 @@ import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.bridge.world.chunk.ServerChunkProviderBridge;
+import org.spongepowered.common.bridge.world.chunk.ChunkProviderServerBridge;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.UnwindingPhaseContext;
@@ -924,7 +924,7 @@ public class SpongeToForgeEventFactory {
         // This makes sure that mods dont attempt to save/read their data from the wrong location.
         final net.minecraft.world.World minecraftWorld = (net.minecraft.world.World) spongeEvent.getTargetWorld();
         ((WorldBridge_Forge) spongeEvent.getTargetWorld()).forgeBridge$setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
-        ((ServerChunkProviderBridge) minecraftWorld.getChunkProvider()).bridge$setForceChunkRequests(true);
+        ((ChunkProviderServerBridge) minecraftWorld.getChunkProvider()).bridge$setForceChunkRequests(true);
         try {
             if (forgeEvent == null) {
                 forgeEvent = new WorldEvent.Load(minecraftWorld);
@@ -935,7 +935,7 @@ public class SpongeToForgeEventFactory {
             ((WorldBridge_Forge) minecraftWorld).forgeBridge$setRedirectedWorldInfo(null);
             return true;
         } finally {
-            ((ServerChunkProviderBridge) minecraftWorld.getChunkProvider()).bridge$setForceChunkRequests(false);
+            ((ChunkProviderServerBridge) minecraftWorld.getChunkProvider()).bridge$setForceChunkRequests(false);
         }
     }
 

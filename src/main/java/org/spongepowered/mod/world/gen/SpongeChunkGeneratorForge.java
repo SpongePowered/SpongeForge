@@ -92,7 +92,7 @@ import org.spongepowered.api.world.gen.populator.Shrub;
 import org.spongepowered.api.world.gen.populator.WaterLily;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.bridge.TimingBridge;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.gen.FlaggedPopulatorBridge;
 import org.spongepowered.common.event.tracking.PhaseTracker;
@@ -143,7 +143,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             chunkGeneratorName = "chunkGenerator (" + modId + ":" + generationPopulator.getClass().getSimpleName().toLowerCase() + ")";
         }
 
-        this.chunkGeneratorTiming = SpongeTimingsFactory.ofSafe(chunkGeneratorName, ((ServerWorldBridge) world).bridge$getTimingsHandler().chunkPopulate);
+        this.chunkGeneratorTiming = SpongeTimingsFactory.ofSafe(chunkGeneratorName, ((WorldServerBridge) world).bridge$getTimingsHandler().chunkPopulate);
     }
 
     @Override
@@ -318,7 +318,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
         BlockFalling.fallInstantly = false;
         this.chunkGeneratorTiming.stopTimingIfSync();
-        ((ServerWorldBridge) spongeWorld).bridge$getTimingsHandler().chunkPopulate.stopTimingIfSync();
+        ((WorldServerBridge) spongeWorld).bridge$getTimingsHandler().chunkPopulate.stopTimingIfSync();
     }
 
     @SuppressWarnings("deprecation")

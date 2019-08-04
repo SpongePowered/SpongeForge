@@ -35,7 +35,7 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
@@ -61,7 +61,7 @@ public abstract class BlockLogMixin_Forge extends BlockMixin {
             block.beginLeavesDecay(state, worldIn, pos);
             return;
         }
-        if (SpongeCommonEventFactory.callChangeBlockEventPre((ServerWorldBridge) worldIn, pos).isCancelled()) {
+        if (SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) worldIn, pos).isCancelled()) {
             return;
         }
         final PhaseTracker phaseTracker = PhaseTracker.getInstance();
