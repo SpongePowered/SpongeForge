@@ -28,8 +28,7 @@
         "forge.items.wrapper.InvWrapperMixin_ForgeAPI",
         "minecraft.entity.vehicle.EntityMinecartMixin_ForgeAPI",
         "minecraft.server.MinecraftServerMixin_ForgeAPI",
-        "minecraft.world.WorldServerMixin_ForgeAPI",
-        "minecraft.world.chunk.ChunkMixin_ForgeAPI"
+        "minecraft.world.WorldServerMixin_ForgeAPI"
     ],
     "client": [
         "minecraft.client.network.NetHandlerPlayClientMixin_ForgeAPI",
