@@ -49,15 +49,16 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-@Mixin(value = BlockRailBase.class, remap = false)
+@Mixin(value = BlockRailBase.class)
 public abstract class BlockRailBaseMixin_Forge {
 
     @Shadow public abstract BlockRailBase.EnumRailDirection getRailDirection(IBlockAccess world, BlockPos pos, IBlockState state,
         @Nullable EntityMinecart cart);
 
     // Used to transfer tracking information from minecarts to block positions
-    @Inject(method = "onMinecartPass", at = @At(value = "HEAD"))
-    private void onMinecartRailPass(final World world, final net.minecraft.entity.item.EntityMinecart cart, final BlockPos pos, final CallbackInfo ci) {
+    @Inject(method = "onMinecartPass", at = @At(value = "HEAD"), remap = false)
+    private void forge$onMinecartRailPass(final World world, final net.minecraft.entity.item.EntityMinecart cart, final BlockPos pos,
+            final CallbackInfo ci) {
         if (!(cart instanceof OwnershipTrackedBridge)) {
             return;
         }
@@ -99,11 +100,12 @@ public abstract class BlockRailBaseMixin_Forge {
      */
     @Redirect(method = "neighborChanged",
         at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/block/BlockRailBase;getRailDirection(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/entity/item/EntityMinecart;)Lnet/minecraft/block/BlockRailBase$EnumRailDirection;",
-            remap = false)
+            target = "Lnet/minecraft/block/BlockRailBase;getRailDirection(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;"
+                    + "Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/entity/item/EntityMinecart;)"
+                    + "Lnet/minecraft/block/BlockRailBase$EnumRailDirection;")
     )
     @SuppressWarnings("RedundantCast")
-    private BlockRailBase.EnumRailDirection forgeImpl$fixRailNeighbor(final BlockRailBase blockRailBase, final IBlockAccess world, final BlockPos pos, final IBlockState state,
+    private BlockRailBase.EnumRailDirection forge$fixRailNeighbor(final BlockRailBase blockRailBase, final IBlockAccess world, final BlockPos pos, final IBlockState state,
         final EntityMinecart cart, final IBlockState original, final World worldIn, final BlockPos originalPos, final Block fromBlock, final BlockPos fromPos) {
         return getRailDirection(world, pos, state.getBlock() == (BlockRailBase) (Object) this ? state : original, cart);
     }
