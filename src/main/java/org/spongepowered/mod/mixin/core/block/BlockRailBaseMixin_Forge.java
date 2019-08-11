@@ -27,16 +27,18 @@ package org.spongepowered.mod.mixin.core.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.bridge.OwnershipTrackedBridge;
 import org.spongepowered.common.bridge.world.chunk.ActiveChunkReferantBridge;
@@ -45,8 +47,13 @@ import org.spongepowered.common.entity.PlayerTracker;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 @Mixin(value = BlockRailBase.class, remap = false)
-public class BlockRailBaseMixin_Forge {
+public abstract class BlockRailBaseMixin_Forge {
+
+    @Shadow public abstract BlockRailBase.EnumRailDirection getRailDirection(IBlockAccess world, BlockPos pos, IBlockState state,
+        @Nullable EntityMinecart cart);
 
     // Used to transfer tracking information from minecarts to block positions
     @Inject(method = "onMinecartPass", at = @At(value = "HEAD"))
@@ -88,27 +95,16 @@ public class BlockRailBaseMixin_Forge {
      * matching the block, or provide the passed in block state of the rail for the
      * "delayed" neighbor notification.
      *
-     * @param world The world being paseed in
-     * @param original The origina block position
-     * @param state The block state being notified of a neighbor change
-     * @param worldIn The world
-     * @param pos The position of the block state being notified
-     * @param blockIn The notifying block
-     * @param fromPos The notifying position
-     * @return The original block state if the current state is not actually matching this block type
+     *
      */
-    @SuppressWarnings("RedundantCast") @Redirect(method = "neighborChanged",
+    @Redirect(method = "neighborChanged",
         at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/state/IBlockState;"),
-        slice = @Slice(
-            from = @At("HEAD"),
-            to = @At(value = "INVOKE",
-                target = "Lnet/minecraft/block/BlockRailBase;getRailDirection(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/entity/item/EntityMinecart;)Lnet/minecraft/block/BlockRailBase$EnumRailDirection;")
-        )
+            target = "Lnet/minecraft/block/BlockRailBase;getRailDirection(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/entity/item/EntityMinecart;)Lnet/minecraft/block/BlockRailBase$EnumRailDirection;",
+            remap = false)
     )
-    private IBlockState forgeImpl$fixRailNeighbor(final World world, final BlockPos original, final IBlockState state, final World worldIn,
-        final BlockPos pos, final Block blockIn, final BlockPos fromPos) {
-        final IBlockState currentState = world.getBlockState(original);
-        return currentState.getBlock() == (BlockRailBase) (Object) this ? currentState : state;
+    @SuppressWarnings("RedundantCast")
+    private BlockRailBase.EnumRailDirection forgeImpl$fixRailNeighbor(final BlockRailBase blockRailBase, final IBlockAccess world, final BlockPos pos, final IBlockState state,
+        final EntityMinecart cart, final IBlockState original, final World worldIn, final BlockPos originalPos, final Block fromBlock, final BlockPos fromPos) {
+        return getRailDirection(world, pos, state.getBlock() == (BlockRailBase) (Object) this ? state : original, cart);
     }
 }
