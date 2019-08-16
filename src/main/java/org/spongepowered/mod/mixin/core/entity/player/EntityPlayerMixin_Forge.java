@@ -119,26 +119,33 @@ public abstract class EntityPlayerMixin_Forge extends EntityLivingBaseMixin_Forg
      */
     @Overwrite
     public void wakeUpPlayer(final boolean immediately, final boolean updateWorldFlag, final boolean setSpawn) {
-        final IBlockState iblockstate = this.world.getBlockState(this.bedLocation);
 
-        Transform<World> newLocation = null;
-        if (this.bedLocation != null && iblockstate.getBlock().isBed(iblockstate, this.world, this.bedLocation, (Entity) (Object) this)) {
-            iblockstate.getBlock().setBedOccupied(this.world, this.bedLocation, ((EntityPlayer) (Object) this), false);
-            BlockPos blockpos = iblockstate.getBlock().getBedSpawnPosition(iblockstate, this.world, this.bedLocation, ((EntityPlayer) (Object) this));
-
-            if (blockpos == null) {
-                blockpos = ((EntityPlayer) (Object) this).bedLocation.up();
-            }
-
-            newLocation = ((Humanoid) this).getTransform().setPosition(new Vector3d(blockpos.getX() + 0.5F, blockpos.getY() + 0.1F, blockpos.getZ() + 0.5F));
-        }
+        final boolean fakeWorld = ((WorldBridge) this.world).bridge$isFake();
 
         SleepingEvent.Post post = null;
-        if (!((WorldBridge) this.world).bridge$isFake()) {
+
+        if (!fakeWorld) {
+            final IBlockState iblockstate = this.world.getBlockState(this.bedLocation);
+
+            Transform<World> newLocation = null;
+            if (this.bedLocation != null && iblockstate.getBlock().isBed(iblockstate, this.world, this.bedLocation, (Entity) (Object) this)) {
+                iblockstate.getBlock().setBedOccupied(this.world, this.bedLocation, ((EntityPlayer) (Object) this), false);
+                BlockPos blockpos =
+                        iblockstate.getBlock().getBedSpawnPosition(iblockstate, this.world, this.bedLocation, ((EntityPlayer) (Object) this));
+
+                if (blockpos == null) {
+                    blockpos = ((EntityPlayer) (Object) this).bedLocation.up();
+                }
+
+                newLocation = ((Humanoid) this).getTransform()
+                        .setPosition(new Vector3d(blockpos.getX() + 0.5F, blockpos.getY() + 0.1F, blockpos.getZ() + 0.5F));
+            }
+
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.pushCause(this);
                 post = SpongeEventFactory.createSleepingEventPost(frame.getCurrentCause(),
-                    ((Humanoid) this).getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), Optional.ofNullable(newLocation), ((Humanoid) this), setSpawn);
+                        ((Humanoid) this).getWorld().createSnapshot(VecHelper.toVector3i(this.bedLocation)), Optional.ofNullable(newLocation),
+                        ((Humanoid) this), setSpawn);
                 Sponge.getEventManager().post(post);
                 if (post.isCancelled()) {
                     return;
@@ -157,7 +164,7 @@ public abstract class EntityPlayerMixin_Forge extends EntityLivingBaseMixin_Forg
 
         this.sleeping = false;
 
-        if (!this.world.isRemote && updateWorldFlag) {
+        if (!fakeWorld && updateWorldFlag) {
             this.world.updateAllPlayersSleepingFlag();
         }
 
