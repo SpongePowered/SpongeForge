@@ -30,6 +30,8 @@ import net.minecraftforge.common.util.ITeleporter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
+import org.spongepowered.common.event.tracking.PhaseTracker;
+import org.spongepowered.common.event.tracking.phase.entity.InvokingTeleporterContext;
 
 @Mixin(value = ITeleporter.class, remap = false)
 public interface ITeleporterMixin_Forge extends ForgeITeleporterBridge {
@@ -39,7 +41,16 @@ public interface ITeleporterMixin_Forge extends ForgeITeleporterBridge {
 
     @Override
     default void bridge$placeEntity(World world, Entity entity, float yaw) {
-        this.placeEntity(world, entity, yaw);
+        if (!this.isVanilla()) {
+
+            this.placeEntity(world, entity, yaw);
+
+            if (PhaseTracker.getInstance().getCurrentContext() instanceof InvokingTeleporterContext) {
+                if (!((InvokingTeleporterContext) PhaseTracker.getInstance().getCurrentContext()).getDidPort()) {
+                    ((InvokingTeleporterContext) PhaseTracker.getInstance().getCurrentContext()).setDidPort(true);
+                }
+            }
+        }
     }
 
     @Override

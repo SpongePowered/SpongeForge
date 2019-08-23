@@ -70,6 +70,7 @@
         "server.management.PlayerListMixin_Forge",
         "tileentity.TileEntityMixin_Forge",
         "world.DimensionTypeMixin_Forge",
+        "world.TeleporterMixin_Forge",
         "world.WorldMixin_Forge",
         "world.WorldServerMixin_Forge",
         "world.chunk.ChunkMixin_Forge",

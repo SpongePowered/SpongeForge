@@ -33,6 +33,9 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldProviderEnd;
+import net.minecraft.world.WorldProviderHell;
+import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraftforge.common.network.ForgeMessage;
@@ -97,17 +100,26 @@ public abstract class WorldManagerMixin_Forge {
     }
 
     /**
-     * @author unknown
+     * @author Zidane
      * @reason forge
      */
     @Overwrite
     public static void sendDimensionRegistration(EntityPlayerMP player, WorldProvider provider) {
         // register dimension on client-side
         if (((EntityPlayerMPBridge) player).bridge$usesCustomClient()) {
-            FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
-            serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
-            serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
-            serverChannel.writeOutbound(new ForgeMessage.DimensionRegisterMessage(provider.getDimension(), provider.getDimensionType().name()));
+            final int dimension = provider.getDimension();
+
+            boolean vanillaProvider = provider.getClass() == WorldProviderSurface.class || provider.getClass() == WorldProviderHell.class
+                    || provider.getClass() == WorldProviderEnd.class;
+            boolean modDimension = dimension < -1 || dimension > 1;
+
+            // We must send a dimension registration for plugins/mods that re-use Vanilla providers
+            if (vanillaProvider && modDimension) {
+                FMLEmbeddedChannel serverChannel = NetworkRegistry.INSTANCE.getChannel("FORGE", Side.SERVER);
+                serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
+                serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
+                serverChannel.writeOutbound(new ForgeMessage.DimensionRegisterMessage(dimension, provider.getDimensionType().name()));
+            }
         }
     }
 
