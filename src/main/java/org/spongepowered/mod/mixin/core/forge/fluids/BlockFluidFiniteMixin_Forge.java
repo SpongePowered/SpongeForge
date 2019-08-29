@@ -261,7 +261,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         if (((WorldBridge) world).bridge$isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_MODIFY) {
             return;
         }
-        final SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
+        final SpongeBlockSnapshotBuilder builder = SpongeBlockSnapshotBuilder.pooled();
         final UUID worldId = ((org.spongepowered.api.world.World) world).getUniqueId();
         final Vector3i myPosition = new Vector3i(myPos.getX(), myPos.getY(), myPos.getZ());
         final SpongeBlockSnapshot mySnapshot = builder.blockState(myState)

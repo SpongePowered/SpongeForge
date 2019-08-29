@@ -61,7 +61,7 @@ public class CapturedSnapshotWrapperList extends ArrayList<BlockSnapshot> implem
     private static final long serialVersionUID = -8973153582753299054L;
 
     private static SpongeBlockSnapshot toSponge(BlockSnapshot blockSnapshot) {
-        final SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
+        final SpongeBlockSnapshotBuilder builder = SpongeBlockSnapshotBuilder.pooled();
         final SpongeBlockSnapshot sponge = builder
             .worldId(((org.spongepowered.api.world.World) blockSnapshot.getWorld()).getUniqueId())
             .position(VecHelper.toVector3i(blockSnapshot.getPos()))

@@ -58,7 +58,7 @@ public abstract class BlockSnapshotMixin_Forge implements ForgeBlockSnapshotBrid
     @Override
     public BlockSnapshot forgeBridge$toSpongeSnapshot() {
         Location<World> location = new Location<>((World) this.getWorld(), VecHelper.toVector3i(this.pos));
-        SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
+        SpongeBlockSnapshotBuilder builder = SpongeBlockSnapshotBuilder.pooled();
         builder.blockState(this.replacedBlock)
                 .worldId(location.getExtent().getUniqueId())
                 .position(location.getBlockPosition());
