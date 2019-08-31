@@ -119,13 +119,13 @@ import org.spongepowered.common.registry.type.world.PortalAgentRegistryModule;
 import org.spongepowered.common.util.Constants;
 import org.spongepowered.common.util.SpawnerSpawnType;
 import org.spongepowered.common.util.TristateUtil;
+import org.spongepowered.mod.bridge.block.BlockBridge_Forge;
+import org.spongepowered.mod.bridge.event.EventBusBridge_Forge;
 import org.spongepowered.mod.bridge.item.ItemStackBridge_Forge;
+import org.spongepowered.mod.bridge.registry.VillagerProfessionBridge_Forge;
 import org.spongepowered.mod.command.SpongeForgeCommandFactory;
 import org.spongepowered.mod.event.SpongeModEventManager;
 import org.spongepowered.mod.event.SpongeToForgeEventData;
-import org.spongepowered.mod.bridge.block.BlockBridge_Forge;
-import org.spongepowered.mod.bridge.event.EventBusBridge_Forge;
-import org.spongepowered.mod.bridge.registry.VillagerProfessionBridge_Forge;
 import org.spongepowered.mod.item.inventory.adapter.IItemHandlerAdapter;
 import org.spongepowered.mod.mixin.core.fml.common.registry.VillagerRegistryAccessor;
 import org.spongepowered.mod.plugin.SpongeModPluginContainer;
@@ -890,7 +890,7 @@ public abstract class SpongeImplHooksMixin_Forge {
     @SuppressWarnings({"unchecked", "ConstantConditions"})
     @Overwrite
     public static TileEntityType getTileEntityType(final Class<? extends TileEntityBridge> aClass) {
-        final ResourceLocation location = TileEntity.REGISTRY.getNameForObject((Class<? extends TileEntity>) aClass);
+        final ResourceLocation location = TileEntity.getKey((Class<? extends TileEntity>) aClass);
         if (location == null) {
             // Means it's not properly registered either....
             return null;
