@@ -28,6 +28,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.item.inventory.fabric.InventoryTranslators;
 
 import java.util.HashSet;
 import java.util.Set;

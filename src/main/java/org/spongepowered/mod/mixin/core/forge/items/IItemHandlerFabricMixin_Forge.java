@@ -24,68 +24,11 @@
  */
 package org.spongepowered.mod.mixin.core.forge.items;
 
-import com.google.common.collect.ImmutableSet;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import org.spongepowered.api.text.translation.FixedTranslation;
-import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.common.bridge.item.inventory.InventoryBridge;
-import org.spongepowered.common.item.inventory.lens.Fabric;
-import org.spongepowered.mod.item.inventory.fabric.IItemHandlerFabricUtil;
-
-import java.util.Collection;
+import org.spongepowered.common.item.inventory.fabric.UniversalFabric;
 
 @Mixin(IItemHandler.class)
-public interface IItemHandlerFabricMixin_Forge extends Fabric, IItemHandler, InventoryBridge {
-
-    @Override
-    default Collection<InventoryBridge> fabric$allInventories() {
-        return ImmutableSet.of(this);
-    }
-
-    @Override
-    default InventoryBridge fabric$get(int index) {
-        return this;
-    }
-
-    @Override
-    default ItemStack fabric$getStack(int index) {
-        return this.getStackInSlot(index);
-    }
-
-    @Override
-    default void fabric$setStack(int index, ItemStack stack) {
-        IItemHandlerFabricUtil.setIItemHandlerStack(this, index, stack);
-    }
-
-    @Override
-    default int fabric$getMaxStackSize() {
-        return this.getSlotLimit(0);
-    }
-
-    @Override
-    default Translation fabric$getDisplayName() {
-        return new FixedTranslation(getClass().getName());
-    }
-
-    @Override
-    default int fabric$getSize() {
-        return this.getSlots();
-    }
-
-    @Override
-    default void fabric$clear() {
-        if (this instanceof IItemHandlerModifiable) {
-            for (int i = 0; i < this.getSlots(); i++) {
-                ((IItemHandlerModifiable) this).setStackInSlot(i, ItemStack.EMPTY);
-            }
-        }
-    }
-
-    @Override
-    default void fabric$markDirty() {
-    }
-
+public interface IItemHandlerFabricMixin_Forge extends UniversalFabric, InventoryBridge {
 }
