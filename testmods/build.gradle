@@ -1,11 +1,12 @@
-ext.api = parent.project('SpongeCommon:SpongeAPI')
-ext.common = parent.project('SpongeCommon')
-apply from: api.file('gradle/sponge.gradle')
+plugins {
+    id("org.spongepowered.gradle.sponge.dev")
+}
+
+ext.api = parent.project(':SpongeCommon:SpongeAPI')
 
 dependencies {
     compileOnly api
     compileOnly parent.sourceSets.main.compileClasspath
-
 }
 
 license {
