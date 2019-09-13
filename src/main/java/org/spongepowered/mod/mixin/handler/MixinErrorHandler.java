@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.common.ForgeVersion;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfig;
@@ -37,6 +38,7 @@ import org.spongepowered.asm.mixin.transformer.throwables.MixinTargetAlreadyLoad
 import org.spongepowered.asm.util.ConstraintParser.Constraint;
 import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.asm.util.throwables.ConstraintViolationException;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.mixin.handler.TerminateVM;
 import org.spongepowered.launch.Main;
 
@@ -198,10 +200,31 @@ public class MixinErrorHandler implements IMixinErrorHandler {
 
     @Override
     public ErrorAction onApplyError(String targetClassName, Throwable th, IMixinInfo mixin, ErrorAction action) {
+        if ("net.minecraft.util.math.BlockPos$MutableBlockPos".equals(targetClassName)) {
+            new PrettyPrinter(60).add("!!! FoamFix Incompatibility !!!").centre().hr()
+                .addWrapped("Hello! You are running SpongeForge and \"likely\" FoamFix on the same server, and we've discoverd"
+                            + " a missing field that would otherwise cause some of Sponge not to work, because foamfix removes "
+                            + "that field. As the issue stands, it's not possible to \"patch fix\", but we can suggest the "
+                            + "configuration option change in foamfix's config to allow your game to start! Please change the "
+                            + "following options in foamfix'es config.")
+                .add()
+                .add("In config/foamfix.cfg, change these values: ")
+                .add("B:optimizedBlockPos=false")
+                .add("B:patchChunkSerialization=false")
+                .add()
+                .addWrapped("We at Sponge appreciate your patience as this can be frustrating when the game doesn't start "
+                            + "right away, or that SpongeForge isn't an easy drop-in-and-get-running sometimes. Thank you "
+                            + "for your consideration, and have a nice day!")
+                .add()
+                .add(new IncompatibleClassChangeError("FoamFix Incompatibility Detected"))
+                .log(SpongeImpl.getLogger(), Level.FATAL);
+            TerminateVM.terminate("net.minecraftforge.fml", 1);
+        }
         if (action == ErrorAction.ERROR && mixin.getConfig().getMixinPackage().startsWith("org.spongepowered.")) {
             this.appendTechnicalInfo(this.getPrettyPrinter(th), targetClassName, th, mixin).log(this.log);
             TerminateVM.terminate("net.minecraftforge.fml", -1);
         }
+
         return null;
     }
 
