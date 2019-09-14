@@ -57,12 +57,13 @@ configurations { testCompile.extendsFrom(forgeGradleMcDeps) }
 
 // On Forge, we use the Forge build number as Minecraft version for ForgeGradle
 
-ext.minecraftVersion = forgeVersion + '.' + forgeBuild
+ext.common = project(":SpongeCommon")
+ext.minecraftVersion = common.minecraftVersion + "-" + forgeVersion + '.' + forgeBuild
 ext.testmods = project.project('testmods')
 ext.implementationId = "spongeforge"
 
 // Apply shared implementation Gradle config
-apply from: project(':SpongeCommon').file('gradle/implementation.gradle')
+apply from: common.file('gradle/implementation.gradle')
 
 version = "$minecraft.version-$forgeBuild-$implementationVersion"
 apply plugin: 'org.spongepowered.mctester'
