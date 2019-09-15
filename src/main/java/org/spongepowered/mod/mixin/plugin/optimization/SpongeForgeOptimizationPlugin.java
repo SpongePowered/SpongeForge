@@ -24,18 +24,24 @@
  */
 package org.spongepowered.mod.mixin.plugin.optimization;
 
+import com.google.common.collect.ImmutableMap;
 import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.config.category.OptimizationCategory;
+import org.spongepowered.common.config.type.GlobalConfig;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public class SpongeForgeOptimizationPlugin implements IMixinConfigPlugin {
 
     @Override
-    public void onLoad(String mixinPackage) {
+    public void onLoad(final String mixinPackage) {
 
     }
 
@@ -45,12 +51,23 @@ public class SpongeForgeOptimizationPlugin implements IMixinConfigPlugin {
     }
 
     @Override
-    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return SpongeImpl.getGlobalConfigAdapter().getConfig().getOptimizations().useFastThreadChecks();
+    public boolean shouldApplyMixin(final String targetClassName, final String mixinClassName) {
+        final GlobalConfig globalConfig = SpongeImpl.getGlobalConfigAdapter().getConfig();
+        if (globalConfig.getModules().useOptimizations()) {
+            final Function<OptimizationCategory, Boolean> optimizationCategoryBooleanFunction = mixinEnabledMappings.get(mixinClassName);
+            if (optimizationCategoryBooleanFunction == null) {
+                new PrettyPrinter(50).add("Could not find function for optimization patch").centre().hr()
+                    .add("Missing function for class: " + mixinClassName)
+                    .trace();
+                return false;
+            }
+            return optimizationCategoryBooleanFunction.apply(globalConfig.getOptimizations());
+        }
+        return false;
     }
 
     @Override
-    public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {
+    public void acceptTargets(final Set<String> myTargets, final Set<String> otherTargets) {
 
     }
 
@@ -60,12 +77,22 @@ public class SpongeForgeOptimizationPlugin implements IMixinConfigPlugin {
     }
 
     @Override
-    public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+    public void preApply(final String targetClassName, final ClassNode targetClass, final String mixinClassName, final IMixinInfo mixinInfo) {
 
     }
 
     @Override
-    public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+    public void postApply(final String targetClassName, final ClassNode targetClass, final String mixinClassName, final IMixinInfo mixinInfo) {
 
     }
+
+    private static final Map<String, Function<OptimizationCategory, Boolean>> mixinEnabledMappings = ImmutableMap.<String, Function<OptimizationCategory, Boolean >> builder()
+        .put("org.spongepowered.mod.mixin.optimization.threadchecks.MinecraftServerMixin_ForgeThreadChecks",
+            OptimizationCategory::useFastThreadChecks)
+        .put("org.spongepowered.mod.mixin.optimization.threadchecks.SpongeImplHooksMixin_ForgeThreadChecks",
+            OptimizationCategory::useFastThreadChecks)
+        .put("org.spongepowered.mod.mixin.optimization.logspam.ForgeHooksMixin_DisableLogSpamFromAdvancements",
+            OptimizationCategory::disableFailingAdvancementDeserialization)
+        .build();
+
 }

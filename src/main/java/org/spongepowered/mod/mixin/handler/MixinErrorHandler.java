@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinConfig;
 import org.spongepowered.asm.mixin.extensibility.IMixinErrorHandler;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.mixin.transformer.throwables.MixinTargetAlreadyLoadedException;
-import org.spongepowered.asm.util.ConstraintParser.Constraint;
+import org.spongepowered.asm.util.ConstraintParser;
 import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.asm.util.throwables.ConstraintViolationException;
 import org.spongepowered.common.SpongeImpl;
@@ -61,9 +61,9 @@ public class MixinErrorHandler implements IMixinErrorHandler {
      */
     private final Logger log = LogManager.getLogger("Sponge");
 
-    private PrettyPrinter forgeVersionNotValid(Constraint constraint) {
-        String forgeVer = Main.getManifestAttribute("TargetForgeVersion", null);
-        String forgeMessage = forgeVer == null ? String.valueOf(constraint.getMin()) : forgeVer;
+    private PrettyPrinter forgeVersionNotValid(final ConstraintParser.Constraint constraint) {
+        final String forgeVer = Main.getManifestAttribute("TargetForgeVersion", null);
+        final String forgeMessage = forgeVer == null ? String.valueOf(constraint.getMin()) : forgeVer;
 
         return new PrettyPrinter()
             .add()
@@ -85,7 +85,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
                     constraint.getRangeHumanReadable(), ForgeVersion.getBuildVersion());
     }
 
-    private PrettyPrinter patchConstraintFailed(Constraint constraint, ConstraintViolationException ex) {
+    private PrettyPrinter patchConstraintFailed(final ConstraintParser.Constraint constraint, final ConstraintViolationException ex) {
         return new PrettyPrinter().kvWidth(20)
             .add()
             .add("Oh dear. Sponge could not apply one or more patches. A constraint check failed!")
@@ -99,8 +99,8 @@ public class MixinErrorHandler implements IMixinErrorHandler {
             .kv("Allowed range", constraint.getRangeHumanReadable());
     }
 
-    private PrettyPrinter badCoreMod(MixinTargetAlreadyLoadedException ex) {
-        PrettyPrinter pp = new PrettyPrinter().kvWidth(20)
+    private PrettyPrinter badCoreMod(final MixinTargetAlreadyLoadedException ex) {
+        final PrettyPrinter pp = new PrettyPrinter().kvWidth(20)
             .add()
             .add("Oh dear. Sponge could not apply one or more patches. A required class was loaded prematurely!")
             .add()
@@ -114,7 +114,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
 
         if (ex.getTarget().startsWith("net.minecraftforge")) {
             pp.hr('-').add().add("Loaded forge classes: ").add();
-            for (String loadedClass : MixinErrorHandler.getLoadedClasses("net.minecraftforge")) {
+            for (final String loadedClass : MixinErrorHandler.getLoadedClasses("net.minecraftforge")) {
                 pp.add("    %s", loadedClass);
             }
         }
@@ -123,7 +123,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
     }
 
     private PrettyPrinter itsAllGoneHorriblyWrong() {
-        String forgeVer = Main.getManifestAttribute("TargetForgeVersion", null);
+        final String forgeVer = Main.getManifestAttribute("TargetForgeVersion", null);
         if (forgeVer != null && !forgeVer.equals(ForgeVersion.getVersion())) {
             return new PrettyPrinter()
                 .add()
@@ -144,7 +144,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
                 .addWrapped("  The patch which failed requires Forge build: %s", forgeVer)
                 .addWrapped("  but you are running build:                   %s", ForgeVersion.getVersion());
         }
-        String forgeMessage = forgeVer == null ? "is usually specified in the sponge mod's jar filename" : "version is for " + forgeVer;
+        final String forgeMessage = forgeVer == null ? "is usually specified in the sponge mod's jar filename" : "version is for " + forgeVer;
 
         return new PrettyPrinter()
             .add()
@@ -168,7 +168,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
             .add("   * Gremlins are invading your computer. Did you feed a Mogwai after midnight?");
     }
 
-    private PrettyPrinter appendTechnicalInfo(PrettyPrinter errorPrinter, String targetClassName, Throwable th, IMixinInfo mixin) {
+    private PrettyPrinter appendTechnicalInfo(final PrettyPrinter errorPrinter, final String targetClassName, final Throwable th, final IMixinInfo mixin) {
         return errorPrinter.kvWidth(20).add()
             .hr('-')
             .add()
@@ -185,9 +185,9 @@ public class MixinErrorHandler implements IMixinErrorHandler {
     }
 
     @Override
-    public ErrorAction onPrepareError(IMixinConfig config, Throwable th, IMixinInfo mixin, ErrorAction action) {
+    public ErrorAction onPrepareError(final IMixinConfig config, final Throwable th, final IMixinInfo mixin, final ErrorAction action) {
         if (action == ErrorAction.ERROR && mixin.getConfig().getMixinPackage().startsWith("org.spongepowered.")) {
-            PrettyPrinter errorPrinter = this.getPrettyPrinter(th);
+            final PrettyPrinter errorPrinter = this.getPrettyPrinter(th);
             String targetClassName = "N/A";
             if (th instanceof MixinTargetAlreadyLoadedException) {
                 targetClassName = ((MixinTargetAlreadyLoadedException) th).getTarget();
@@ -199,7 +199,7 @@ public class MixinErrorHandler implements IMixinErrorHandler {
     }
 
     @Override
-    public ErrorAction onApplyError(String targetClassName, Throwable th, IMixinInfo mixin, ErrorAction action) {
+    public ErrorAction onApplyError(final String targetClassName, final Throwable th, final IMixinInfo mixin, final ErrorAction action) {
         if ("net.minecraft.util.math.BlockPos$MutableBlockPos".equals(targetClassName)) {
             new PrettyPrinter(60).add("!!! FoamFix Incompatibility !!!").centre().hr()
                 .addWrapped("Hello! You are running SpongeForge and \"likely\" FoamFix on the same server, and we've discoverd"
@@ -228,10 +228,10 @@ public class MixinErrorHandler implements IMixinErrorHandler {
         return null;
     }
 
-    public PrettyPrinter getPrettyPrinter(Throwable th) {
+    public PrettyPrinter getPrettyPrinter(final Throwable th) {
         if (th.getCause() instanceof ConstraintViolationException) {
-            ConstraintViolationException ex = (ConstraintViolationException) th.getCause();
-            Constraint constraint = ex.getConstraint();
+            final ConstraintViolationException ex = (ConstraintViolationException) th.getCause();
+            final ConstraintParser.Constraint constraint = ex.getConstraint();
             if ("FORGE".equals(constraint.getToken())) {
                 return this.forgeVersionNotValid(constraint);
             }
@@ -250,16 +250,16 @@ public class MixinErrorHandler implements IMixinErrorHandler {
      * @param filter filter string or null
      * @return set of class names
      */
-    private static Set<String> getLoadedClasses(String filter) {
-        Map<String, Class<?>> cachedClasses = net.minecraftforge.fml.relauncher.ReflectionHelper.<Map<String, Class<?>>, LaunchClassLoader>getPrivateValue(LaunchClassLoader.class,
+    private static Set<String> getLoadedClasses(final String filter) {
+        final Map<String, Class<?>> cachedClasses = net.minecraftforge.fml.relauncher.ReflectionHelper.<Map<String, Class<?>>, LaunchClassLoader>getPrivateValue(LaunchClassLoader.class,
                 Launch.classLoader, "cachedClasses");
         
         if (cachedClasses == null) {
             return ImmutableSet.<String>of("Unable to determine classloader state");
         }
         
-        Set<String> loadedClasses = new HashSet<String>();
-        for (String className : cachedClasses.keySet()) {
+        final Set<String> loadedClasses = new HashSet<String>();
+        for (final String className : cachedClasses.keySet()) {
             if (filter == null || className.startsWith(filter)) {
                 loadedClasses.add(className);
             }
