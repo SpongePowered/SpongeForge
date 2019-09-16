@@ -87,7 +87,9 @@ public class SpongeForgeOptimizationPlugin implements IMixinConfigPlugin {
     }
 
     private static final Map<String, Function<OptimizationCategory, Boolean>> mixinEnabledMappings = ImmutableMap.<String, Function<OptimizationCategory, Boolean >> builder()
-        .put("org.spongepowered.mod.mixin.optimization.threadchecks.MinecraftServerMixin_ForgeThreadChecks",
+        .put("org.spongepowered.mod.mixin.optimization.threadchecks.MinecraftMixin_ForgeThreadChecks",
+            OptimizationCategory::useFastThreadChecks)
+            .put("org.spongepowered.mod.mixin.optimization.threadchecks.MinecraftServerMixin_ForgeThreadChecks",
             OptimizationCategory::useFastThreadChecks)
         .put("org.spongepowered.mod.mixin.optimization.threadchecks.SpongeImplHooksMixin_ForgeThreadChecks",
             OptimizationCategory::useFastThreadChecks)
