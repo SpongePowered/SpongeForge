@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(ForgeHooks.class)
 public class ForgeHooksMixin_DisableLogSpamFromAdvancements {
 
-    @Redirect(method = "loadAdvancements(Ljava/util/Map;Lnet/minecraftforge/fml/common/ModContainer;)Z",
+    @Redirect(method = "lambda$loadAdvancements$0(Ljava/util/Map;Lnet/minecraftforge/fml/common/ModContainer;)Z",
         remap = false,
         at = @At(value = "INVOKE",
             target = "Lorg/apache/logging/log4j/Logger;error(Ljava/lang/String;Ljava/lang/Throwable;)V",
