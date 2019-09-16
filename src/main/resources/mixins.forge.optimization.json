@@ -9,7 +9,8 @@
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "threadchecks.SpongeImplHooksMixin_ForgeThreadChecks",
-        "threadchecks.MinecraftServerMixin_ForgeThreadChecks"
+        "threadchecks.MinecraftServerMixin_ForgeThreadChecks",
+        "logspam.ForgeHooksMixin_DisableLogSpamFromAdvancements"
     ],
     "server": [
     ],
