@@ -2,6 +2,12 @@ pipeline {
     agent any
 
     stages {
+        stage('Prepare') {
+            steps {
+                sh './gradlew --refresh-dependencies -s clean setupDecompWorkspace'
+            }
+        }
+        
         stage('Build') {
             environment {
                 MAVEN = credentials('maven')
