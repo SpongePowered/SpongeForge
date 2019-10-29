@@ -15,7 +15,6 @@ buildscript {
         }
     }
 
-
     dependencies {
         classpath('net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT') {
             // The gradle Kotlin plugin depends on Intellij's custom fork
