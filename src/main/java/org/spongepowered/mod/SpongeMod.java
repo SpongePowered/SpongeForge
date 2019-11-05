@@ -140,6 +140,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.Nullable;
 
@@ -276,7 +277,10 @@ public class SpongeMod extends MetaModContainer {
                 modId = "unknown";
             }
 
-            if (!SpongeImpl.ECOSYSTEM_ID.equalsIgnoreCase(modId)) {
+            // Only register non-Sponge items, and those that have not already been registered.
+            if (!SpongeImpl.ECOSYSTEM_ID.equalsIgnoreCase(modId)
+                    && !EntityTypeRegistryModule.getInstance()
+                            .getById(modId.toLowerCase(Locale.ENGLISH) + ":" + entityName.toLowerCase(Locale.ENGLISH)).isPresent()) {
                 final SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, obj.getEntityClass(), null);
                 EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
             }
