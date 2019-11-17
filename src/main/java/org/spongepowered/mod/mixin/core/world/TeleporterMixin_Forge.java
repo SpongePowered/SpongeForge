@@ -35,8 +35,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.bridge.world.TeleporterBridge;
 import org.spongepowered.common.bridge.world.WorldServerBridge;
+import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseTracker;
-import org.spongepowered.common.event.tracking.phase.entity.InvokingTeleporterContext;
 
 @Mixin(Teleporter.class)
 public abstract class TeleporterMixin_Forge implements TeleporterBridge {
@@ -70,10 +70,8 @@ public abstract class TeleporterMixin_Forge implements TeleporterBridge {
             didPort = true;
         }
 
-        if (PhaseTracker.getInstance().getCurrentContext() instanceof InvokingTeleporterContext) {
-            if (!((InvokingTeleporterContext) PhaseTracker.getInstance().getCurrentContext()).getDidPort()) {
-                ((InvokingTeleporterContext) PhaseTracker.getInstance().getCurrentContext()).setDidPort(didPort);
-            }
+        if (didPort) {
+            ((IPhaseState) PhaseTracker.getInstance().getCurrentState()).markTeleported(PhaseTracker.getInstance().getCurrentContext());
         }
     }
 
