@@ -25,7 +25,7 @@
 package org.spongepowered.mod.mixin.plugin.optimization;
 
 import com.google.common.collect.ImmutableMap;
-import org.spongepowered.asm.lib.tree.ClassNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.util.PrettyPrinter;

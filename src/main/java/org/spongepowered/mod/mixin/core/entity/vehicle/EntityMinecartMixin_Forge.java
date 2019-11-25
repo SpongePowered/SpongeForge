@@ -26,7 +26,7 @@ package org.spongepowered.mod.mixin.core.entity.vehicle;
 
 import net.minecraft.entity.item.EntityMinecart;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
-import org.spongepowered.asm.lib.Opcodes;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;

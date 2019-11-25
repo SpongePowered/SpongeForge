@@ -24,7 +24,7 @@
  */
 package org.spongepowered.mod.mixin.plugin.bungee;
 
-import org.spongepowered.asm.lib.tree.ClassNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.common.SpongeImpl;
