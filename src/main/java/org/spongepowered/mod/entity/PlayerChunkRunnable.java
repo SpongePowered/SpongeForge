@@ -27,7 +27,7 @@ package org.spongepowered.mod.entity;
 import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.world.chunk.Chunk;
-import org.spongepowered.common.mixin.core.server.management.PlayerchunkMapEntryAccessor;
+import org.spongepowered.common.mixin.core.server.management.PlayerChunkMapEntryAccessor;
 import org.spongepowered.mod.bridge.server.management.PlayerChunkMapEntryBridge_Forge;
 
 public class PlayerChunkRunnable implements Runnable {
@@ -44,7 +44,7 @@ public class PlayerChunkRunnable implements Runnable {
     @Override
     public void run() {
         final PlayerChunkMapEntryBridge_Forge spongePlayerChunkMapEntry = (PlayerChunkMapEntryBridge_Forge) this.playerChunkMapEntry;
-        final PlayerchunkMapEntryAccessor accessor = (PlayerchunkMapEntryAccessor) this.playerChunkMapEntry;
+        final PlayerChunkMapEntryAccessor accessor = (PlayerChunkMapEntryAccessor) this.playerChunkMapEntry;
         final Chunk chunk = this.playerChunkMap.getWorldServer().getChunkProvider().getLoadedChunk(accessor.accessor$getPos().x,
             accessor.accessor$getPos().z);
         if (chunk != null) {

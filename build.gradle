@@ -37,6 +37,9 @@ buildscript {
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.30'
 }
+repositories {
+    mavenLocal()
+}
 
 // ForgeGradle tries to pull in typesafe config 1.2.1,
 // which causes issues when running Sponge from Intellij.
