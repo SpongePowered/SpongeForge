@@ -431,11 +431,23 @@ public class ForgeToSpongeEventFactory {
     private static InteractItemEvent.Secondary createAndPostInteractItemSecondaryEvent(CauseStackManager.StackFrame frame,
         ForgeToSpongeEventData eventData) {
         final PlayerInteractEvent.RightClickItem forgeEvent = (PlayerInteractEvent.RightClickItem) eventData.getForgeEvent();
-        final EntityPlayerMP player = (EntityPlayerMP) forgeEvent.getEntityPlayer();
         final ItemStack heldItem = forgeEvent.getItemStack();
         final BlockPos pos = forgeEvent.getPos();
         final EnumFacing face = forgeEvent.getFace();
         final Direction direction = face == null ? Direction.NONE : DirectionFacingProvider.getInstance().getKey(face).get();
+        final PhaseContext<?> currentContext = PhaseTracker.getInstance().getCurrentContext();
+        final EntityPlayerMP player = (EntityPlayerMP) forgeEvent.getEntityPlayer();
+        final User owner = currentContext.getOwner().orElse((User) player);
+        final User notifier = currentContext.getNotifier().orElse((User) player);
+
+        if (SpongeImplHooks.isFakePlayer(player)) {
+            frame.addContext(EventContextKeys.FAKE_PLAYER, (Player) player);
+        } else {
+            frame.pushCause(player);
+            frame.addContext(EventContextKeys.OWNER, owner);
+            frame.addContext(EventContextKeys.NOTIFIER, notifier);
+        }
+
         BlockSnapshot currentSnapshot;
         final RayTraceResult result = SpongeImplHooks.rayTraceEyes(player, SpongeImplHooks.getBlockReachDistance(player));
         if (result != null) {
@@ -469,11 +481,23 @@ public class ForgeToSpongeEventFactory {
     private static InteractBlockEvent.Primary createAndPostInteractBlockPrimaryEvent(CauseStackManager.StackFrame frame,
         ForgeToSpongeEventData eventData) {
         final PlayerInteractEvent.LeftClickBlock forgeEvent = (PlayerInteractEvent.LeftClickBlock) eventData.getForgeEvent();
-        final EntityPlayerMP player = (EntityPlayerMP) forgeEvent.getEntityPlayer();
         final BlockPos pos = forgeEvent.getPos();
         final BlockSnapshot blockSnapshot = ((World) forgeEvent.getWorld()).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         final EnumFacing face = forgeEvent.getFace();
         final Direction direction = face == null ? Direction.NONE : DirectionFacingProvider.getInstance().getKey(face).get();
+        final PhaseContext<?> currentContext = PhaseTracker.getInstance().getCurrentContext();
+        final EntityPlayerMP player = (EntityPlayerMP) forgeEvent.getEntityPlayer();
+        final User owner = currentContext.getOwner().orElse((User) player);
+        final User notifier = currentContext.getNotifier().orElse((User) player);
+
+        if (SpongeImplHooks.isFakePlayer(player)) {
+            frame.addContext(EventContextKeys.FAKE_PLAYER, (Player) player);
+        } else {
+            frame.pushCause(player);
+            frame.addContext(EventContextKeys.OWNER, owner);
+            frame.addContext(EventContextKeys.NOTIFIER, notifier);
+        }
+
         InteractBlockEvent.Primary spongeEvent;
         if (forgeEvent.getHand() == EnumHand.MAIN_HAND) {
             spongeEvent = SpongeEventFactory.createInteractBlockEventPrimaryMainHand(frame.getCurrentCause(), HandTypes.MAIN_HAND,
@@ -490,7 +514,6 @@ public class ForgeToSpongeEventFactory {
     private static InteractBlockEvent.Secondary createAndPostInteractBlockSecondaryEvent(
         CauseStackManager.StackFrame frame, ForgeToSpongeEventData eventData) {
         final PlayerInteractEvent.RightClickBlock forgeEvent = (PlayerInteractEvent.RightClickBlock) eventData.getForgeEvent();
-        final EntityPlayer player = forgeEvent.getEntityPlayer();
         final HandType hand = forgeEvent.getHand() == EnumHand.MAIN_HAND ? HandTypes.MAIN_HAND : HandTypes.OFF_HAND;
         final Tristate useBlockResult = getTristateFromResult(forgeEvent.getUseBlock());
         final Tristate useItemResult = getTristateFromResult(forgeEvent.getUseItem());
@@ -498,6 +521,19 @@ public class ForgeToSpongeEventFactory {
         final BlockPos pos = forgeEvent.getPos();
         final BlockSnapshot blockSnapshot = ((World) forgeEvent.getWorld()).createSnapshot(pos.getX(), pos.getY(), pos.getZ());
         final Direction direction = DirectionFacingProvider.getInstance().getKey(forgeEvent.getFace()).get();
+        final PhaseContext<?> currentContext = PhaseTracker.getInstance().getCurrentContext();
+        final EntityPlayerMP player = (EntityPlayerMP) forgeEvent.getEntityPlayer();
+        final User owner = currentContext.getOwner().orElse((User) player);
+        final User notifier = currentContext.getNotifier().orElse((User) player);
+
+        if (SpongeImplHooks.isFakePlayer(player)) {
+            frame.addContext(EventContextKeys.FAKE_PLAYER, (Player) player);
+        } else {
+            frame.pushCause(player);
+            frame.addContext(EventContextKeys.OWNER, owner);
+            frame.addContext(EventContextKeys.NOTIFIER, notifier);
+        }
+
         InteractBlockEvent.Secondary spongeEvent = null;
         if (hand == HandTypes.MAIN_HAND) {
             spongeEvent = SpongeEventFactory.createInteractBlockEventSecondaryMainHand(frame.getCurrentCause(), useBlockResult, useBlockResult, useItemResult, useItemResult, hand, Optional.ofNullable(interactionPoint), blockSnapshot, direction);
