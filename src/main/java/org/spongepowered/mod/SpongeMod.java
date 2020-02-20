@@ -46,7 +46,6 @@ import net.minecraftforge.fml.client.FMLFolderResourcePack;
 import net.minecraftforge.fml.common.CertificateHelper;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.LoadController;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
@@ -89,7 +88,6 @@ import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.SpongeGame;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.SpongeInternalListeners;
 import org.spongepowered.common.bridge.block.BlockBridge;
 import org.spongepowered.common.bridge.world.biome.BiomeBridge;
@@ -119,7 +117,6 @@ import org.spongepowered.common.scheduler.SpongeScheduler;
 import org.spongepowered.common.service.permission.SpongeContextCalculator;
 import org.spongepowered.common.service.permission.SpongePermissionService;
 import org.spongepowered.common.service.sql.SqlServiceImpl;
-import org.spongepowered.common.util.Constants;
 import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongePlayerDataHandler;
@@ -140,7 +137,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.List;
-import java.util.Locale;
 
 import javax.annotation.Nullable;
 
@@ -258,29 +254,17 @@ public class SpongeMod extends MetaModContainer {
             if (key == null) {
                 return;
             }
-            // fix bad entity name registrations from mods
-            String entityName = obj.getName();
-            final String[] parts = entityName.split(":");
-            if (parts.length > 1) {
-                entityName = parts[1];
-            }
-            if (entityName.contains(".")) {
-                if ((entityName.indexOf(".") + 1) < entityName.length()) {
-                    entityName = entityName.substring(entityName.indexOf(".") + 1);
-                }
-            }
 
-            entityName = entityName.replace("entity", "");
-            entityName = entityName.replaceAll("[^A-Za-z0-9]", "");
-            String modId = key.getNamespace();
-            if (modId.isEmpty()) {
-                modId = "unknown";
+            String namespace = key.getNamespace();
+            if (namespace.isEmpty()) {
+                namespace = "unknown";
             }
 
             // Only register non-Sponge items, and those that have not already been registered.
-            if (!SpongeImpl.ECOSYSTEM_ID.equalsIgnoreCase(modId)
+            if (!SpongeImpl.ECOSYSTEM_ID.equalsIgnoreCase(namespace)
                     && !EntityTypeRegistryModule.getInstance().hasRegistrationFor(obj.getEntityClass())) {
-                final SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, obj.getEntityClass(), null);
+                final String entityName = key.getPath();
+                final SpongeEntityType entityType = new SpongeEntityType(id, entityName, namespace, obj.getEntityClass(), null);
                 EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
             }
         });
