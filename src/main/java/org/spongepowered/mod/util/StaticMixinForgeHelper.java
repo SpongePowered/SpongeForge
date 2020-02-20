@@ -33,6 +33,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -346,39 +347,36 @@ public final class StaticMixinForgeHelper {
     }
 
     public static void registerCustomEntity(final EntityEntry entityEntry) {
-        if (EntityTypeRegistryModule.getInstance().entityClassToTypeMappings.get(entityEntry.getEntityClass()) != null) {
-            return;
-        }
-
         final ModContainer modContainer = getModContainerFromClass(entityEntry.getEntityClass());
         if (modContainer == null) {
             return;
         }
 
-        registerCustomEntity(entityEntry.getEntityClass(), entityEntry.getName(), EntityList.getID(entityEntry.getEntityClass()), modContainer);
+        final Class<? extends Entity> clazz = entityEntry.getEntityClass();
+
+        final ResourceLocation key = EntityList.getKey(clazz);
+        if (key == null) {
+            return;
+        }
+
+        final String entityName = key.getPath();
+        registerCustomEntity(clazz, entityName, EntityList.getID(clazz), modContainer);
     }
 
     public static void registerCustomEntity(final Class<? extends Entity> entityClass, String entityName, final int id, final ModContainer modContainer) {
-        // fix bad entity name registrations from mods
         final String[] parts = entityName.split(":");
         if (parts.length > 1) {
             entityName = parts[1];
         }
-        if (entityName.contains(".")) {
-            if ((entityName.indexOf(".") + 1) < entityName.length()) {
-                entityName = entityName.substring(entityName.indexOf(".") + 1, entityName.length());
-            }
-        }
 
-        entityName = entityName.replace("entity", "");
-        entityName = entityName.replaceAll("[^A-Za-z0-9]", "");
-        String modId = "unknown";
+        String namespace = "unknown";
         if (modContainer != null) {
-            modId = modContainer.getModId();
+            namespace = modContainer.getModId();
         }
 
-        if (!modContainer.equals(SpongeMod.instance)) {
-            final SpongeEntityType entityType = new SpongeEntityType(id, entityName, modId, entityClass, null);
+        if (!SpongeMod.instance.equals(modContainer)
+                && !EntityTypeRegistryModule.getInstance().hasRegistrationFor(entityClass)) {
+            final SpongeEntityType entityType = new SpongeEntityType(id, entityName, namespace, entityClass, null);
             EntityTypeRegistryModule.getInstance().registerAdditionalCatalog(entityType);
         }
     }

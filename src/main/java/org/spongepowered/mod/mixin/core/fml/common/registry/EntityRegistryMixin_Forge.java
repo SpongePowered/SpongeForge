@@ -42,6 +42,6 @@ public abstract class EntityRegistryMixin_Forge {
     @Inject(method = "doModEntityRegistration", at = @At(value = "RETURN", ordinal = 1))
     private void forgeImpl$RegsisterCustomEntity(final ResourceLocation registryName, final Class<? extends Entity> entityClass, final String entityName,
             final int id, final Object mod, final int trackingRange, final int updateFrequency, final boolean sendsVelocityUpdates, final CallbackInfo ci) {
-        StaticMixinForgeHelper.registerCustomEntity(entityClass, entityName, id, FMLCommonHandler.instance().findContainerFor(mod));
+        StaticMixinForgeHelper.registerCustomEntity(entityClass, registryName.getPath(), id, FMLCommonHandler.instance().findContainerFor(mod));
     }
 }
