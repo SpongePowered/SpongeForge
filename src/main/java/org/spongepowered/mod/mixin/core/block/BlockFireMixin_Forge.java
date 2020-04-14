@@ -35,7 +35,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.WorldServerBridge;
+import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.mixin.core.block.BlockMixin;
 
@@ -47,7 +49,7 @@ public abstract class BlockFireMixin_Forge extends BlockMixin {
     @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z"), cancellable = true)
     private void onCatchFirePreCheck(final World world, final BlockPos pos, final int chance, final Random random, final int age,
         final EnumFacing facing, final CallbackInfo callbackInfo) {
-        if (!world.isRemote) {
+        if (ShouldFire.CHANGE_BLOCK_EVENT_PRE && !((WorldBridge) world).bridge$isFake()) {
             // SpongeForge uses the firespread context key, todo verify if we want to use FireSpread or what.
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);
@@ -62,7 +64,7 @@ public abstract class BlockFireMixin_Forge extends BlockMixin {
     private void onCatchFirePreCheckOther(
         final World world, final BlockPos pos, final int chance, final Random random, final int age, final EnumFacing facing,
         final CallbackInfo callbackInfo) {
-        if (!world.isRemote) {
+        if (ShouldFire.CHANGE_BLOCK_EVENT_PRE && !((WorldBridge) world).bridge$isFake()) {
             // SpongeForge uses the firespread context key, todo verify if we want to use FireSpread or what.
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContextKeys.FIRE_SPREAD, (org.spongepowered.api.world.World) world);

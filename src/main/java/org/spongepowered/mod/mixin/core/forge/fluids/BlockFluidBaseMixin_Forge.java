@@ -39,6 +39,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.bridge.block.BlockBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
@@ -62,7 +63,7 @@ public abstract class BlockFluidBaseMixin_Forge extends BlockMixin_Forge impleme
         )
     )
     private Object getDisplacementWithSponge(final Map<?, ?> map, final Object key, final IBlockAccess world, final BlockPos pos) {
-        if (!(world instanceof WorldBridge) || ((WorldBridge) world).bridge$isFake()) {
+        if (!ShouldFire.CHANGE_BLOCK_EVENT_PRE || ((WorldBridge) world).bridge$isFake()) {
             return map.get(key);
         }
         if (!((Boolean) map.get(key))) {
@@ -87,7 +88,7 @@ public abstract class BlockFluidBaseMixin_Forge extends BlockMixin_Forge impleme
     )
     private void onSpongeInjectFailEvent(final IBlockAccess world, final BlockPos pos, final CallbackInfoReturnable<Boolean> cir,
         final IBlockState state, final Block block) {
-        if (!(world instanceof WorldBridge) || ((WorldBridge) world).bridge$isFake()) {
+        if (!ShouldFire.CHANGE_BLOCK_EVENT_PRE || ((WorldBridge) world).bridge$isFake()) {
             return;
         }
         final ChangeBlockEvent.Pre event = SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) world, pos);
