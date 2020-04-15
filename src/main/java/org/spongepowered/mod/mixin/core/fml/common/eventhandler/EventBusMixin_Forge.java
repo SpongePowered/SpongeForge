@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import co.aikar.timings.Timing;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
 import net.minecraft.world.World;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -87,7 +88,7 @@ public abstract class EventBusMixin_Forge implements EventBusBridge_Forge {
 
     // Because Forge can't be bothered to keep track of this information itself
     private static Map<IEventListener, Class<? extends Event>> forgeImpl$forgeListenerRegistry = new HashMap<>();
-    private static Set<Class<? extends Event>> forgeImpl$forgeListenerEventClasses = new HashSet<>();
+    private static Set<Class<? extends Event>> forgeImpl$forgeListenerEventClasses = Sets.newIdentityHashSet();
 
     @Shadow @Final private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;

@@ -44,7 +44,7 @@ import java.util.Set;
 class SpongeIndexedMessageChannel extends SpongeModChannelBinding implements ChannelBinding.IndexedMessageChannel {
 
     private SpongeMessageCodec packetCodec;
-    private final Set<Class<? extends Message>> knownClasses = Sets.newHashSet();
+    private final Set<Class<? extends Message>> knownClasses = Sets.newIdentityHashSet();
 
     public SpongeIndexedMessageChannel(ChannelRegistrar registrar, String channelName, PluginContainer owner) {
         super(registrar, channelName, owner);
