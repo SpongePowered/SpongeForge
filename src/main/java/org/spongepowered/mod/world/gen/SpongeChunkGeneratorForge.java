@@ -95,6 +95,7 @@ import org.spongepowered.common.bridge.TimingBridge;
 import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.gen.FlaggedPopulatorBridge;
+import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationCompatibileContext;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
@@ -221,7 +222,9 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             populators.add(snowPopulator);
         }
 
-        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(Sponge.getCauseStackManager().getCurrentCause(), populators, chunk));
+        if (ShouldFire.POPULATE_CHUNK_EVENT) {
+            Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(Sponge.getCauseStackManager().getCurrentCause(), populators, chunk));
+        }
 
         MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Pre(this, this.world, this.rand, chunkX, chunkZ, false));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(this.world, this.rand, blockpos));
@@ -258,8 +261,10 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
             final PopulatorType type = populator.getType();
 
-            if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(Sponge.getCauseStackManager().getCurrentCause(), populator, chunk))) {
-                continue;
+            if (ShouldFire.POPULATE_CHUNK_EVENT) {
+                if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(Sponge.getCauseStackManager().getCurrentCause(), populator, chunk))) {
+                    continue;
+                }
             }
 
             try (final PopulatorPhaseContext context = GenerationPhase.State.POPULATOR_RUNNING.createPhaseContext()
@@ -312,9 +317,11 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             }
         }
 
-        final org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
-                SpongeEventFactory.createPopulateChunkEventPost(Sponge.getCauseStackManager().getCurrentCause(), ImmutableList.copyOf(populators), chunk);
-        SpongeImpl.postEvent(event);
+        if (ShouldFire.POPULATE_CHUNK_EVENT) {
+            final org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
+                    SpongeEventFactory.createPopulateChunkEventPost(Sponge.getCauseStackManager().getCurrentCause(), ImmutableList.copyOf(populators), chunk);
+            SpongeImpl.postEvent(event);
+        }
 
         BlockFalling.fallInstantly = false;
         this.chunkGeneratorTiming.stopTimingIfSync();
