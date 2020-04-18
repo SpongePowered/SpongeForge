@@ -25,6 +25,7 @@
 package org.spongepowered.mod.item.inventory.fabric;
 
 import com.google.common.collect.Sets;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -39,7 +40,7 @@ import java.util.Set;
  */
 public class IItemHandlerFabricUtil {
 
-    private static Set<Class<?>> setStackUnsupported = Sets.newIdentityHashSet();
+    private static Set<Class<?>> setStackUnsupported = new ReferenceOpenHashSet<>();
 
     public static void setIItemHandlerStack(IItemHandler handler, int index, ItemStack stack) {
         if (setStackUnsupported.contains(handler.getClass())) {
