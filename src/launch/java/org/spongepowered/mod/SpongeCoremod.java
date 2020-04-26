@@ -49,7 +49,7 @@ public class SpongeCoremod implements IFMLLoadingPlugin {
 
         @Override
         public int getPriority() {
-            return IEnvironmentTokenProvider.DEFAULT_PRIORITY;
+            return DEFAULT_PRIORITY;
         }
 
         @Override

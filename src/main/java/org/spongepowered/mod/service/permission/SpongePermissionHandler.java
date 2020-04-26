@@ -58,7 +58,8 @@ public enum SpongePermissionHandler implements IPermissionHandler {
     public void forceAdoption() {
         SpongeImpl.getLogger().debug("Forcing adoption of the Sponge permission handler - previous handler was '{}'",
                 PermissionAPI.getPermissionHandler().getClass().getName());
-        RegistryHelper.setFinalStatic(PermissionAPI.class, "permissionHandler", this);
+        // TODO - Maybe use accessors, or during loader states where acceptable
+        PermissionAPI.setPermissionHandler(this);
     }
 
     @Override
@@ -90,7 +91,7 @@ public enum SpongePermissionHandler implements IPermissionHandler {
     @Override
     public String getNodeDescription(final String node) {
         @Nullable final PermissionDescription desc = this.getService().getDescription(node).orElse(null);
-        return desc == null ? "" : TextSerializers.FORMATTING_CODE.serialize(desc.getDescription().orElse(Text.EMPTY));
+        return desc == null ? "" : TextSerializers.FORMATTING_CODE.get().serialize(desc.getDescription().orElse(Text.empty()));
     }
 
     private PermissionService getService() {
