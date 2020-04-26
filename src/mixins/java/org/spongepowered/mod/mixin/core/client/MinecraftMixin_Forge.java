@@ -38,7 +38,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.serializer.TextSerializers;
-import org.spongepowered.asm.lib.Opcodes;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

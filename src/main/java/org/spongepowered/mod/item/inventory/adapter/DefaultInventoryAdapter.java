@@ -22,13 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.forge.items;
+package org.spongepowered.mod.item.inventory.adapter;
 
-import net.minecraftforge.items.IItemHandler;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.bridge.item.inventory.InventoryBridge;
-import org.spongepowered.common.item.inventory.fabric.UniversalFabric;
+import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
+import org.spongepowered.common.item.inventory.lens.Fabric;
+import org.spongepowered.common.item.inventory.lens.Lens;
+import org.spongepowered.common.item.inventory.lens.SlotProvider;
+import org.spongepowered.common.item.inventory.lens.impl.ReusableLens;
 
-@Mixin(IItemHandler.class)
-public interface IItemHandlerFabricMixin_Forge extends UniversalFabric, InventoryBridge {
+public interface DefaultInventoryAdapter extends InventoryAdapter {
+    @Override
+    default SlotProvider bridge$getSlotProvider() {
+        return ReusableLens.defaultReusableLens(this).getSlots();
+    }
+
+    @Override
+    default Lens bridge$getRootLens() {
+        return ReusableLens.defaultReusableLens(this).getLens();
+    }
+
+    @Override
+    default Fabric bridge$getFabric() {
+        return (Fabric) this;
+    }
+
+
 }

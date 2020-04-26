@@ -22,13 +22,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.core.forge.items;
+package org.spongepowered.mod.mixin.optimization.logspam;
 
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.common.ForgeHooks;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.bridge.item.inventory.InventoryBridge;
-import org.spongepowered.common.item.inventory.fabric.UniversalFabric;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(IItemHandler.class)
-public interface IItemHandlerFabricMixin_Forge extends UniversalFabric, InventoryBridge {
+@Mixin(ForgeHooks.class)
+public class ForgeHooksMixin_DisableLogSpamFromAdvancements {
+
+    @Redirect(method = "*",
+        remap = false,
+        at = @At(value = "INVOKE",
+            target = "Lorg/apache/logging/log4j/Logger;error(Ljava/lang/String;Ljava/lang/Throwable;)V",
+            remap = false),
+            require = 0,
+            expect = 2
+    )
+    private static void suppressLog$IgnoreThrowableSpamFromBuiltinAdvancements(final Logger logger, final String message, final Throwable t) {
+        // Throwable: "Trick or yeet!" Logger: "yeet?" Throwable: "Alright, yeet it is!"
+    }
+
 }

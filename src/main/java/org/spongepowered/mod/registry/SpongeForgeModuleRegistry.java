@@ -24,6 +24,7 @@
  */
 package org.spongepowered.mod.registry;
 
+import net.minecraftforge.items.IItemHandler;
 import org.spongepowered.api.data.property.block.LightEmissionProperty;
 import org.spongepowered.api.data.property.block.MatterProperty;
 import org.spongepowered.api.data.property.block.SolidCubeProperty;
@@ -34,12 +35,14 @@ import org.spongepowered.common.data.manipulator.immutable.extra.ImmutableSponge
 import org.spongepowered.common.data.manipulator.mutable.extra.SpongeFluidTankData;
 import org.spongepowered.common.data.property.SpongePropertyRegistry;
 import org.spongepowered.common.data.util.DataUtil;
+import org.spongepowered.common.item.inventory.fabric.InventoryTranslators;
 import org.spongepowered.common.registry.type.world.gen.PopulatorTypeRegistryModule;
 import org.spongepowered.common.world.gen.SpongePopulatorType;
 import org.spongepowered.mod.data.ForgeFluidTankDataProcessor;
 import org.spongepowered.mod.data.ForgeLightEmissionPropertyStore;
 import org.spongepowered.mod.data.ForgeMatterPropertyStore;
 import org.spongepowered.mod.data.ForgeSolidCubePropertyStore;
+import org.spongepowered.mod.item.inventory.fabric.IItemHandlerTranslator;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
 public class SpongeForgeModuleRegistry {
@@ -59,6 +62,8 @@ public class SpongeForgeModuleRegistry {
 
         // Value registration
 
+        // Inventory registration
+        InventoryTranslators.register(IItemHandler.class, new IItemHandlerTranslator());
     }
 
 }

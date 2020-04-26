@@ -32,26 +32,13 @@ import org.spongepowered.common.item.inventory.lens.Fabric;
 import org.spongepowered.common.item.inventory.lens.Lens;
 import org.spongepowered.common.item.inventory.lens.SlotProvider;
 import org.spongepowered.common.item.inventory.lens.impl.ReusableLens;
+import org.spongepowered.mod.item.inventory.adapter.DefaultInventoryAdapter;
 
 /**
  * Default implements {@link InventoryAdapter} for {@link IItemHandler} and {@link IInventory} using {@link ReusableLens}es.
  */
-@Mixin(value = {IItemHandler.class, IInventory.class})
-public interface DefaultInventoryAdaptersMixin_Forge extends InventoryAdapter {
+@Mixin(value = {IInventory.class, IItemHandler.class})
+public interface DefaultInventoryAdaptersMixin_Forge extends DefaultInventoryAdapter {
 
-    @Override
-    default SlotProvider bridge$getSlotProvider() {
-        return ReusableLens.defaultReusableLens(this).getSlots();
-    }
-
-    @Override
-    default Lens bridge$getRootLens() {
-        return ReusableLens.defaultReusableLens(this).getLens();
-    }
-
-    @Override
-    default Fabric bridge$getFabric() {
-        return (Fabric) this;
-    }
 
 }

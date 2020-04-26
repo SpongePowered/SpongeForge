@@ -124,7 +124,7 @@ public abstract class ForgeHooksMixin_Forge {
 
     @Inject(method = "onItemRightClick", at = @At(value = "HEAD"), cancellable = true)
     private static void forgeImpl$UpdatePacketDiff(final EntityPlayer player, final EnumHand hand, final CallbackInfoReturnable<EnumActionResult> cir) {
-        if (!player.world.isRemote && player instanceof EntityPlayerMP) {
+        if (!player.world.isRemote && player instanceof EntityPlayerMP && !SpongeImplHooks.isFakePlayer(player)) {
             final long packetDiff = System.currentTimeMillis() - ((NetHandlerPlayServerBridge) ((EntityPlayerMP) player).connection).bridge$getLastTryBlockPacketTimeStamp();
             // If the time between packets is small enough, use the last result.
             if (packetDiff < 100) {

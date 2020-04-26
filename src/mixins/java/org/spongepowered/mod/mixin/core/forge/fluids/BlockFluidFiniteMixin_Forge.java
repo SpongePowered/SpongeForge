@@ -226,7 +226,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         locals = LocalCapture.CAPTURE_FAILSOFT,
         slice = {
             @Slice(
-                id = "gropuB",
+                id = "groupB",
                 from = @At(
                     value = "FIELD",
                     target = "Lnet/minecraftforge/fluids/BlockFluidFinite;density:I",
