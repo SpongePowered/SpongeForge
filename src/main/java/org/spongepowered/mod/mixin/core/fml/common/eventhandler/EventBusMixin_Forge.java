@@ -30,6 +30,7 @@ import co.aikar.timings.Timing;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.world.World;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -88,7 +89,7 @@ import javax.annotation.Nullable;
 public abstract class EventBusMixin_Forge implements EventBusBridge_Forge {
 
     // Because Forge can't be bothered to keep track of this information itself
-    private static Map<IEventListener, Class<? extends Event>> forgeImpl$forgeListenerRegistry = new HashMap<>();
+    private static Map<IEventListener, Class<? extends Event>> forgeImpl$forgeListenerRegistry = new Reference2ReferenceOpenHashMap<>();
     private static Set<Class<? extends Event>> forgeImpl$forgeListenerEventClasses = new ReferenceOpenHashSet<>();
 
     @Shadow @Final private int busID;
