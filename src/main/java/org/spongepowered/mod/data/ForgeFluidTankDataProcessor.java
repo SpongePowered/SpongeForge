@@ -46,6 +46,7 @@ import org.spongepowered.common.data.value.immutable.ImmutableSpongeMapValue;
 import org.spongepowered.common.data.value.mutable.SpongeMapValue;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +94,7 @@ public class ForgeFluidTankDataProcessor extends AbstractSingleDataSingleTargetP
 
     @Override
     protected Optional<Map<Direction, List<FluidStackSnapshot>>> getVal(TileEntity dataHolder) {
-        Map<Direction, List<FluidStackSnapshot>> map = new HashMap<>();
+        Map<Direction, List<FluidStackSnapshot>> map = new EnumMap<>(Direction.class);
         for (EnumFacing facing : EnumFacing.values()) {
             final Direction direction = DirectionFacingProvider.getInstance().getKey(facing).get();
             if (dataHolder.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing)) {
