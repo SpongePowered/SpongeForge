@@ -115,7 +115,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         cancellable = true
     )
     private void setBlockToAirDueToWorldHeight(final World world, final BlockPos pos, final int amtToInput, final CallbackInfoReturnable<Integer> cir, final IBlockState myState, final BlockPos targetFlow) {
-        if (!((WorldBridge) world).bridge$isFake() && ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
+        if (!((WorldBridge) world).bridge$isFake() && ShouldFire.CHANGE_BLOCK_EVENT_BREAK) {
             if (SpongeCommonEventFactory.callChangeBlockEventModifyLiquidBreak(world, pos, myState, Blocks.AIR.getDefaultState()).isCancelled()) {
                 cir.setReturnValue(0);
             }
@@ -185,7 +185,7 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
         constraints = "FORGE(2821+)"
     )
     private void setNewStateWithMaximumQuantaWhileFlowing(final World world, final BlockPos pos, final int amtToInput, final CallbackInfoReturnable<Integer> cir, final IBlockState myState, final BlockPos other, final int newAmount) {
-        if (((WorldBridge) world).bridge$isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_PLACE) {
+        if (((WorldBridge) world).bridge$isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
             return;
         }
         if (SpongeCommonEventFactory.callChangeBlockEventPre((WorldServerBridge) world, other).isCancelled()) {
