@@ -29,6 +29,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.BiMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.DimensionType;
@@ -65,13 +66,13 @@ import javax.annotation.Nullable;
 @Mixin(value = WorldManager.class, priority = 999, remap = false)
 public abstract class WorldManagerMixin_Forge {
 
-    @Shadow @Final private static Int2ObjectMap<DimensionType> dimensionTypeByTypeId;
-    @Shadow @Final private static Int2ObjectMap<DimensionType> dimensionTypeByDimensionId;
+    @Shadow @Final private static Int2ReferenceMap<DimensionType> dimensionTypeByTypeId;
+    @Shadow @Final private static Int2ReferenceMap<DimensionType> dimensionTypeByDimensionId;
     @Shadow @Final private static Int2ObjectMap<Path> dimensionPathByDimensionId;
     @Shadow @Final private static Int2ObjectOpenHashMap<WorldServer> worldByDimensionId;
     @Shadow @Final private static Map<String, WorldProperties> worldPropertiesByFolderName;
     @Shadow @Final private static Map<UUID, WorldProperties> worldPropertiesByWorldUuid;
-    @Shadow @Final private static Map<Integer, String> worldFolderByDimensionId;
+    @Shadow @Final private static Int2ObjectMap<String> worldFolderByDimensionId;
     @Shadow @Final private static BiMap<String, UUID> worldUuidByFolderName;
     @Shadow @Final private static IntSet usedDimensionIds;
 
