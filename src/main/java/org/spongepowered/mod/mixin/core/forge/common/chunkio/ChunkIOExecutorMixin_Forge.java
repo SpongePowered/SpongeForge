@@ -40,7 +40,7 @@ import org.spongepowered.common.util.SpongeHooks;
 public class ChunkIOExecutorMixin_Forge {
 
     @Inject(method = "queueChunkLoad", at = @At(value = "INVOKE", target = "Ljava/util/concurrent/ThreadPoolExecutor;execute(Ljava/lang/Runnable;)V"))
-    private static void forgeImpl$onQueue(World world, AnvilChunkLoader loader, ChunkProviderServer provider, int x, int z, Runnable runnable, final CallbackInfo ci) {
+    private static void forgeImpl$logQueueLoading(World world, AnvilChunkLoader loader, ChunkProviderServer provider, int x, int z, Runnable runnable, final CallbackInfo ci) {
         SpongeHooks.logChunkQueueLoad(world, Vector3i.from(x, 0, z));
     }
 }
