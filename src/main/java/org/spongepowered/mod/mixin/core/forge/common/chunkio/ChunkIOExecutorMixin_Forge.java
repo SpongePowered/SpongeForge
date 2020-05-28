@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.util.SpongeHooks;
 
-@Mixin(ChunkIOExecutor.class)
+@Mixin(value = ChunkIOExecutor.class, remap = false)
 public class ChunkIOExecutorMixin_Forge {
 
     @Inject(method = "queueChunkLoad", at = @At(value = "INVOKE", target = "Ljava/util/concurrent/ThreadPoolExecutor;execute(Ljava/lang/Runnable;)V"))
