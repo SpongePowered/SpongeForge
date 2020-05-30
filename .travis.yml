@@ -1,9 +1,6 @@
 sudo: required
 dist: trusty
 
-services:
-  - docker
-
 language: java
 jdk:
   - openjdk8
@@ -13,15 +10,10 @@ git:
   submodules: false
 before_install:
   - scripts/travis-initialize-submodules
-  - scripts/run-xvfb
 
 install: ./gradlew setupDecompWorkspace
-script: DISPLAY=:99 ./gradlew build runMcTester --stacktrace
-after_failure: scripts/upload
+script: ./gradlew build
 
 notifications:
   email: false
-
-env:
-  - MCTESTER_UPLOAD_URL="https://openwhisk.ng.bluemix.net/api/v1/web/aa1ronham%40gmail.com_dev/default/image-upload.json"
 
