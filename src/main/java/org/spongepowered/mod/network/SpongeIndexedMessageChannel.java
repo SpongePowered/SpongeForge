@@ -29,6 +29,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Sets;
 import io.netty.channel.ChannelHandler;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
 import net.minecraftforge.fml.relauncher.Side;
 import org.spongepowered.api.Platform;
@@ -44,7 +45,7 @@ import java.util.Set;
 class SpongeIndexedMessageChannel extends SpongeModChannelBinding implements ChannelBinding.IndexedMessageChannel {
 
     private SpongeMessageCodec packetCodec;
-    private final Set<Class<? extends Message>> knownClasses = Sets.newHashSet();
+    private final Set<Class<? extends Message>> knownClasses = new ReferenceOpenHashSet<>();
 
     public SpongeIndexedMessageChannel(ChannelRegistrar registrar, String channelName, PluginContainer owner) {
         super(registrar, channelName, owner);
