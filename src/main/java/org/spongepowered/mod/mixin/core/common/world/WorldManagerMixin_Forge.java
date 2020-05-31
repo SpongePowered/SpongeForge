@@ -29,8 +29,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.BiMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldProviderEnd;
@@ -53,6 +55,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.bridge.entity.player.EntityPlayerMPBridge;
+import org.spongepowered.common.mixin.core.server.MinecraftServerAccessor;
 import org.spongepowered.common.world.WorldManager;
 
 import java.nio.file.Path;
@@ -65,13 +68,13 @@ import javax.annotation.Nullable;
 @Mixin(value = WorldManager.class, priority = 999, remap = false)
 public abstract class WorldManagerMixin_Forge {
 
-    @Shadow @Final private static Int2ObjectMap<DimensionType> dimensionTypeByTypeId;
-    @Shadow @Final private static Int2ObjectMap<DimensionType> dimensionTypeByDimensionId;
+    @Shadow @Final private static Int2ReferenceMap<DimensionType> dimensionTypeByTypeId;
+    @Shadow @Final private static Int2ReferenceMap<DimensionType> dimensionTypeByDimensionId;
     @Shadow @Final private static Int2ObjectMap<Path> dimensionPathByDimensionId;
     @Shadow @Final private static Int2ObjectOpenHashMap<WorldServer> worldByDimensionId;
     @Shadow @Final private static Map<String, WorldProperties> worldPropertiesByFolderName;
     @Shadow @Final private static Map<UUID, WorldProperties> worldPropertiesByWorldUuid;
-    @Shadow @Final private static Map<Integer, String> worldFolderByDimensionId;
+    @Shadow @Final private static Int2ObjectMap<String> worldFolderByDimensionId;
     @Shadow @Final private static BiMap<String, UUID> worldUuidByFolderName;
     @Shadow @Final private static IntSet usedDimensionIds;
 
@@ -93,8 +96,8 @@ public abstract class WorldManagerMixin_Forge {
             return Optional.ofNullable(FMLCommonHandler.instance().getSavesDirectory().toPath());
         }
         if (SpongeImpl.getGame().getState().ordinal() >= GameState.SERVER_ABOUT_TO_START.ordinal()) {
-            SaveHandler saveHandler = (SaveHandler) SpongeImpl.getServer().getActiveAnvilConverter().getSaveLoader(SpongeImpl.getServer().getFolderName(), false);
-            return Optional.of(saveHandler.getWorldDirectory().toPath());
+            MinecraftServer server = SpongeImpl.getServer();
+            return Optional.of(((MinecraftServerAccessor) server).accessor$getAnvilFile().toPath().resolve(server.getFolderName()));
         }
         return Optional.empty();
     }

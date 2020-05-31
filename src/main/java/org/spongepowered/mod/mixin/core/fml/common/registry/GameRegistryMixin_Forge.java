@@ -42,6 +42,7 @@ import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.relocate.co.aikar.timings.SpongeTimingsFactory;
 import org.spongepowered.mod.util.StaticMixinForgeHelper;
 
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -49,7 +50,7 @@ import java.util.Random;
 @Mixin(value = GameRegistry.class, remap = false)
 public class GameRegistryMixin_Forge {
 
-    private static final Map<Class<?>, Timing> forgeImpl$worldGeneratorTimings = Maps.newHashMap();
+    private static final Map<Class<?>, Timing> forgeImpl$worldGeneratorTimings = new IdentityHashMap<>();
 
     @Redirect(method = "generateWorld",
         at = @At(

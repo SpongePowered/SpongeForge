@@ -42,6 +42,7 @@
         "forge.common.ForgeChunkManager$TicketAccessor",
         "forge.common.ForgeHooksMixin_Forge",
         "forge.common.ForgeInternalHandlerMixin_Forge",
+        "forge.common.WorldSpecificSaveHandlerMixin_Forge",
         "forge.common.chunkio.ChunkIOProviderMixin_Forge",
         "forge.common.util.BlockSnapshotMixin_Forge",
         "forge.common.util.ITeleporterMixin_Forge",
