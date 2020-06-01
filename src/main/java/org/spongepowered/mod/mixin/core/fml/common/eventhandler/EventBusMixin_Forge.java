@@ -89,8 +89,8 @@ import javax.annotation.Nullable;
 public abstract class EventBusMixin_Forge implements EventBusBridge_Forge {
 
     // Because Forge can't be bothered to keep track of this information itself
-    private static Map<IEventListener, Class<? extends Event>> forgeImpl$forgeListenerRegistry = new Reference2ReferenceOpenHashMap<>();
-    private static Set<Class<? extends Event>> forgeImpl$forgeListenerEventClasses = new ReferenceOpenHashSet<>();
+    private static final Map<IEventListener, Class<? extends Event>> forgeImpl$forgeListenerRegistry = new Reference2ReferenceOpenHashMap<>();
+    private static final Set<Class<? extends Event>> forgeImpl$forgeListenerEventClasses = new ReferenceOpenHashSet<>();
 
     @Shadow @Final private int busID;
     @Shadow private IEventExceptionHandler exceptionHandler;
@@ -302,7 +302,8 @@ public abstract class EventBusMixin_Forge implements EventBusBridge_Forge {
 
         final SpongeModEventManager manager = ((SpongeModEventManager) SpongeImpl.getGame().getEventManager());
 
-        for (final Class clazz: TypeToken.of(checkNotNull(forgeImpl$forgeListenerRegistry.remove(listener))).getTypes().rawTypes()) {
+        final Class<? extends Event> type = checkNotNull(forgeImpl$forgeListenerRegistry.remove(listener));
+        for (final Class clazz: TypeToken.of(type).getTypes().rawTypes()) {
             final Collection<Class<? extends org.spongepowered.api.event.Event>> spongeEvents = manager.forgeToSpongeEventMapping.get(clazz);
             if (spongeEvents != null) {
                 for (final Class<? extends org.spongepowered.api.event.Event> event : spongeEvents) {
@@ -312,20 +313,8 @@ public abstract class EventBusMixin_Forge implements EventBusBridge_Forge {
         }
 
         // update event class cache
-        final Iterator<Class<? extends Event>> it = forgeImpl$forgeListenerEventClasses.iterator();
-        while (it.hasNext()) {
-            final Class clazz = it.next();
-
-            boolean found = false;
-            for (final Map.Entry<IEventListener, Class<? extends Event>> mapEntry : forgeImpl$forgeListenerRegistry.entrySet()) {
-                if (clazz.equals(mapEntry.getValue())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                it.remove();
-            }
+        if (!forgeImpl$forgeListenerRegistry.containsValue(type)) {
+            forgeImpl$forgeListenerEventClasses.remove(type);
         }
     }
 
