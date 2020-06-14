@@ -1,4 +1,5 @@
 import org.spongepowered.gradle.dev.SourceType
+import org.spongepowered.gradle.dev.sourceSet
 
 buildscript {
     repositories {
@@ -9,7 +10,7 @@ buildscript {
     }
 }
 plugins {
-    id("org.spongepowered.gradle.sponge.impl") version "0.11.3"
+    id("org.spongepowered.gradle.sponge.impl") version "0.11.4-SNAPSHOT"
     id("net.minecraftforge.gradle")
 }
 
@@ -29,13 +30,13 @@ spongeDev {
     addedSourceSets {
         register("mixins") {
             sourceType.set(SourceType.Mixin)
+            configurations += arrayOf("launch", "minecraft")
         }
         register("accessors") {
             sourceType.set(SourceType.Accessor)
         }
         register("launch") {
             sourceType.set(SourceType.Launch)
-            configurations += "launch"
         }
         register("modlauncher") {
             dependsOn += "launch"
@@ -43,6 +44,7 @@ spongeDev {
         }
         register("invalid") {
             sourceType.set(SourceType.Invalid)
+            configurations += arrayOf("launch", "minecraft")
         }
     }
 }
@@ -65,6 +67,11 @@ dependencies {
     "mixinsImplementation"(project(common.path)) {
         exclude(group = "net.minecraft", module = "server")
     }
+    // Annotation Processor
+    "accessorsAnnotationProcessor"(launch)
+    "mixinsAnnotationProcessor"(launch)
+    "accessorsAnnotationProcessor"("org.spongepowered:mixin:0.8")
+    "mixinsAnnotationProcessor"("org.spongepowered:mixin:0.8")
 }
 
 minecraft {
@@ -133,5 +140,12 @@ minecraft {
             .filter { it.name.endsWith("_at.cfg") }
             .files
             .forEach { accessTransformer(it) }
+
+    common.afterEvaluate {
+        common.sourceSets["main"].resources
+                    .filter { it.name.endsWith("_at.cfg") }
+                    .files
+                    .forEach { accessTransformer(it) }
+    }
 }
 
