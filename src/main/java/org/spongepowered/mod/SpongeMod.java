@@ -564,6 +564,7 @@ public class SpongeMod extends MetaModContainer {
 
     @Subscribe
     public void onServerStarted(FMLServerStartedEvent event) {
+        SpongeImpl.getRegistry().clear();
         // Flush what needs to be saved.
         SpongeImpl.getConfigSaveManager().flush();
 
