@@ -105,6 +105,7 @@ import org.spongepowered.api.event.statistic.ChangeStatisticEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.event.world.chunk.LoadChunkEvent;
+import org.spongepowered.api.event.world.chunk.UnloadChunkEvent;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeImpl;
@@ -240,6 +241,7 @@ public class SpongeModEventManager extends SpongeEventManager {
                     .put(BlockEvent.NeighborNotifyEvent.class, NotifyNeighborBlockEvent.class)
 
                     .put(ChunkEvent.Load.class, LoadChunkEvent.class)
+                    .put(ChunkEvent.Unload.class, UnloadChunkEvent.class)
                     .put(ExplosionEvent.Start.class, org.spongepowered.api.event.world.ExplosionEvent.Pre.class)
                     .put(ExplosionEvent.Detonate.class, org.spongepowered.api.event.world.ExplosionEvent.Detonate.class)
                     .put(WorldEvent.Load.class, LoadWorldEvent.class)
