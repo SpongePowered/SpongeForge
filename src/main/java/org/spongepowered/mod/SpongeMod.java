@@ -480,12 +480,6 @@ public class SpongeMod extends MetaModContainer {
         }
     }
 
-
-    @SubscribeEvent
-    public void onEntityDeathEvent(LivingDeathEvent event) {
-        SpongeHooks.logEntityDeath(event.getEntity());
-    }
-
     @SubscribeEvent
     public void onForceChunk(ForgeChunkManager.ForceChunkEvent event) {
         final net.minecraft.world.chunk.Chunk chunk = ((ChunkProviderBridge) event.getTicket().world.getChunkProvider())
