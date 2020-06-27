@@ -95,7 +95,6 @@ import org.spongepowered.common.bridge.TimingBridge;
 import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
 import org.spongepowered.common.bridge.world.gen.FlaggedPopulatorBridge;
-import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationCompatibileContext;
 import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
