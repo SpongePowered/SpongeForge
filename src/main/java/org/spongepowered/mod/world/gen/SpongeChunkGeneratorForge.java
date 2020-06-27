@@ -222,9 +222,7 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             populators.add(snowPopulator);
         }
 
-        if (ShouldFire.POPULATE_CHUNK_EVENT) {
-            Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(Sponge.getCauseStackManager().getCurrentCause(), populators, chunk));
-        }
+        Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(Sponge.getCauseStackManager().getCurrentCause(), populators, chunk));
 
         MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Pre(this, this.world, this.rand, chunkX, chunkZ, false));
         MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(this.world, this.rand, blockpos));
@@ -261,10 +259,8 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
 
             final PopulatorType type = populator.getType();
 
-            if (ShouldFire.POPULATE_CHUNK_EVENT) {
-                if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(Sponge.getCauseStackManager().getCurrentCause(), populator, chunk))) {
-                    continue;
-                }
+            if (Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPopulate(Sponge.getCauseStackManager().getCurrentCause(), populator, chunk))) {
+                continue;
             }
 
             try (final PopulatorPhaseContext context = GenerationPhase.State.POPULATOR_RUNNING.createPhaseContext()
@@ -317,11 +313,9 @@ public final class SpongeChunkGeneratorForge extends SpongeChunkGenerator {
             }
         }
 
-        if (ShouldFire.POPULATE_CHUNK_EVENT) {
-            final org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
-                    SpongeEventFactory.createPopulateChunkEventPost(Sponge.getCauseStackManager().getCurrentCause(), ImmutableList.copyOf(populators), chunk);
-            SpongeImpl.postEvent(event);
-        }
+        final org.spongepowered.api.event.world.chunk.PopulateChunkEvent.Post event =
+                SpongeEventFactory.createPopulateChunkEventPost(Sponge.getCauseStackManager().getCurrentCause(), ImmutableList.copyOf(populators), chunk);
+        SpongeImpl.postEvent(event);
 
         BlockFalling.fallInstantly = false;
         this.chunkGeneratorTiming.stopTimingIfSync();
