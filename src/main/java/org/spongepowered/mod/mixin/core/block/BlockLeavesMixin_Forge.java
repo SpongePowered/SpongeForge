@@ -40,6 +40,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
+import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
@@ -60,7 +61,7 @@ public abstract class BlockLeavesMixin_Forge extends BlockMixin {
             target = "Lnet/minecraft/block/Block;beginLeavesDecay(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V",
             remap = false))
     private void onSpongeBreakBlock(final Block block, final IBlockState state, final net.minecraft.world.World worldIn, final BlockPos pos) {
-        if (((WorldBridge) worldIn).bridge$isFake()) {
+        if (((WorldBridge) worldIn).bridge$isFake() || !ShouldFire.CHANGE_BLOCK_EVENT_PRE) {
             block.beginLeavesDecay(state, worldIn, pos);
             return;
         }

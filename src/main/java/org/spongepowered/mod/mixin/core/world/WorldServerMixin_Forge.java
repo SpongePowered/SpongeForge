@@ -41,6 +41,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
+import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.PhaseTracker;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
@@ -100,7 +101,7 @@ public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements
         if (server.isBlockProtected(worldIn, pos, playerIn)) {
             return true;
         }
-        if (!((WorldBridge) this).bridge$isFake() && SpongeImplHooks.isMainThread()) {
+        if (ShouldFire.CHANGE_BLOCK_EVENT_PRE && !((WorldBridge) this).bridge$isFake() && SpongeImplHooks.isMainThread()) {
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 // Might as well provide the active item in use.
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(playerIn.getActiveItemStack()));
@@ -129,7 +130,7 @@ public abstract class WorldServerMixin_Forge extends WorldMixin_Forge implements
         if (super.isBlockModifiable(player, pos)) {
             return true;
         }
-        if (!((WorldBridge) this).bridge$isFake() && SpongeImplHooks.isMainThread()) {
+        if (ShouldFire.CHANGE_BLOCK_EVENT_PRE && !((WorldBridge) this).bridge$isFake() && SpongeImplHooks.isMainThread()) {
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 // Might as well provide the active item in use.
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(player.getActiveItemStack()));

@@ -292,11 +292,13 @@ public abstract class BlockFluidFiniteMixin_Forge extends BlockFluidBaseMixin_Fo
             final Transaction<BlockSnapshot> otherReplacement = new Transaction<>(otherSnapshot, otherReplacementSnapshot);
             final Transaction<BlockSnapshot> ourReplacement = new Transaction<>(mySnapshot, ourReplacementSnapshot);
             final ImmutableList<Transaction<BlockSnapshot>> transactions = ImmutableList.of(otherReplacement, ourReplacement);
-            final ChangeBlockEvent.Modify event = SpongeEventFactory.createChangeBlockEventModify(frame.getCurrentCause(), transactions);
-            SpongeImpl.postEvent(event);
+            if (ShouldFire.CHANGE_BLOCK_EVENT_MODIFY) {
+                final ChangeBlockEvent.Modify event = SpongeEventFactory.createChangeBlockEventModify(frame.getCurrentCause(), transactions);
+                SpongeImpl.postEvent(event);
 
-            if (event.isCancelled()) {
-                cir.setReturnValue(0);
+                if (event.isCancelled()) {
+                    cir.setReturnValue(0);
+                }
             }
             if (otherReplacement.getCustom().isPresent() || ourReplacement.getCustom().isPresent()) {
                 // Basically, we gotta check if the states match, and if one of them doesn't, well,

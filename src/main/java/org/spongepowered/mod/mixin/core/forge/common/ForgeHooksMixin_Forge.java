@@ -71,6 +71,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.bridge.entity.player.EntityPlayerMPBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
+import org.spongepowered.common.event.ShouldFire;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
@@ -162,7 +163,7 @@ public abstract class ForgeHooksMixin_Forge {
         if (stack.isEmpty()) {
             return true;
         }
-        if (SpongeImplHooks.isMainThread() && access instanceof WorldBridge && !((WorldBridge) access).bridge$isFake()) {
+        if (ShouldFire.CHANGE_BLOCK_EVENT_PRE && SpongeImplHooks.isMainThread() && access instanceof WorldBridge && !((WorldBridge) access).bridge$isFake()) {
             // If the event is cancelled, return true because then the item was "empty" and therefor, the tool cannot harvest the block.
             try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContextKeys.USED_ITEM, ItemStackUtil.snapshotOf(stack));
@@ -205,7 +206,7 @@ public abstract class ForgeHooksMixin_Forge {
         // Many mods use this hook with fake players so we need to avoid passing them when possible
         // and instead pass the true source which is usually a TileEntity
         final Object source = context.getSource() == null ? player : context.getSource();
-        if (!phaseState.isInteraction()) {
+        if (ShouldFire.CHANGE_BLOCK_EVENT_PRE && !phaseState.isInteraction()) {
             // Sponge Start - Add the changeblockevent.pre check here before we bother with item stacks.
             if (world instanceof WorldBridge && !((WorldBridge) world).bridge$isFake() && SpongeImplHooks.isMainThread()) {
                 try (final CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
