@@ -363,15 +363,4 @@ public abstract class DimensionManagerMixin_Forge {
     public static void loadDimensionDataMap(final NBTTagCompound compoundTag) {
         WorldManager.loadDimensionDataMap(compoundTag);
     }
-
-    /**
-     * @author Zidane, blood
-     * @reason Reroute Forge's dimension manager to Sponge's, since we do dimension management in common.
-     */
-    @Overwrite
-    @Nullable
-    public static File getCurrentSaveRootDirectory() {
-        final Optional<Path> optCurrentSavesDir = WorldManager.getCurrentSavesDirectory();
-        return optCurrentSavesDir.map(Path::toFile).orElse(null);
-    }
 }
