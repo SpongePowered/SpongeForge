@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.bridge.data.DataCompoundHolder;
 import org.spongepowered.common.bridge.entity.EntityBridge;
+import org.spongepowered.common.bridge.world.ForgeITeleporterBridge;
 import org.spongepowered.common.bridge.world.TeleporterBridge;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.mod.util.WrappedArrayList;
@@ -83,7 +84,7 @@ public abstract class EntityMixin_Forge implements EntityBridge, DataCompoundHol
 
             // Sponge Start - Remove the rest of the method and call our common hook.
             final WorldServer world = this.getServer().getWorld(toDimensionId);
-            return EntityUtil.transferEntityToWorld((Entity) (Object) this, null, world, (TeleporterBridge) teleporter, true);
+            return EntityUtil.transferEntityToWorld((Entity) (Object) this, null, world, (ForgeITeleporterBridge) teleporter, true);
             // Sponge End
         }
         return null;
