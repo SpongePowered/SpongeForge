@@ -115,6 +115,7 @@ import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.common.world.WorldManager;
+import org.spongepowered.mod.bridge.world.DerivedWorldInfoBridge_Forge;
 import org.spongepowered.mod.bridge.world.WorldBridge_Forge;
 import org.spongepowered.mod.bridge.event.EventBusBridge_Forge;
 
@@ -927,7 +928,7 @@ public class SpongeToForgeEventFactory {
         final net.minecraft.world.World minecraftWorld = (net.minecraft.world.World) spongeEvent.getTargetWorld();
         if (minecraftWorld.provider.getDimension() != 0) {
             final DerivedWorldInfo info = new DerivedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
-            ((WorldInfoAccessor) info).accessor$setLevelName(minecraftWorld.getWorldInfo().getWorldName());
+            ((DerivedWorldInfoBridge_Forge) info).forgeBridge$setOverrideLevelName(minecraftWorld.getWorldInfo().getWorldName());
             ((WorldBridge_Forge) spongeEvent.getTargetWorld()).forgeBridge$setRedirectedWorldInfo(info);
         }
         ((ChunkProviderServerBridge) minecraftWorld.getChunkProvider()).bridge$setForceChunkRequests(true);

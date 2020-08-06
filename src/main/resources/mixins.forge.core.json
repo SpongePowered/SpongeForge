@@ -79,6 +79,7 @@
         "world.gen.ChunkGeneratorEndMixin_Forge",
         "world.gen.ChunkProviderServerMixin_Forge",
         "world.gen.feature.WorldGeneratorMixin_Forge",
+        "world.storage.DerivedWorldInfoMixin_Forge",
         "world.storage.SaveHandlerMixin_Forge"
     ],
     "client": [
