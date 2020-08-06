@@ -43,6 +43,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.Explosion;
+import net.minecraft.world.storage.DerivedWorldInfo;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -109,6 +110,7 @@ import org.spongepowered.common.event.tracking.phase.packet.PacketContext;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.mixin.core.entity.EntityLivingBaseAccessor;
 import org.spongepowered.common.mixin.core.world.ExplosionAccessor;
+import org.spongepowered.common.mixin.core.world.storage.WorldInfoAccessor;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -923,7 +925,11 @@ public class SpongeToForgeEventFactory {
         // Since Forge only uses a single save handler, we need to make sure to pass the overworld's handler.
         // This makes sure that mods dont attempt to save/read their data from the wrong location.
         final net.minecraft.world.World minecraftWorld = (net.minecraft.world.World) spongeEvent.getTargetWorld();
-        ((WorldBridge_Forge) spongeEvent.getTargetWorld()).forgeBridge$setRedirectedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
+        if (minecraftWorld.provider.getDimension() != 0) {
+            final DerivedWorldInfo info = new DerivedWorldInfo(WorldManager.getWorldByDimensionId(0).get().getWorldInfo());
+            ((WorldInfoAccessor) info).accessor$setLevelName(minecraftWorld.getWorldInfo().getWorldName());
+            ((WorldBridge_Forge) spongeEvent.getTargetWorld()).forgeBridge$setRedirectedWorldInfo(info);
+        }
         ((ChunkProviderServerBridge) minecraftWorld.getChunkProvider()).bridge$setForceChunkRequests(true);
         try {
             if (forgeEvent == null) {
@@ -932,10 +938,10 @@ public class SpongeToForgeEventFactory {
             }
 
             forgeEventBus.forgeBridge$post(forgeEvent, true);
-            ((WorldBridge_Forge) minecraftWorld).forgeBridge$setRedirectedWorldInfo(null);
             return true;
         } finally {
             ((ChunkProviderServerBridge) minecraftWorld.getChunkProvider()).bridge$setForceChunkRequests(false);
+            ((WorldBridge_Forge) minecraftWorld).forgeBridge$setRedirectedWorldInfo(null);
         }
     }
 
