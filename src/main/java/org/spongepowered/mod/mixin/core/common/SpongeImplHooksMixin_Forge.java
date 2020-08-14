@@ -55,6 +55,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
@@ -135,6 +136,7 @@ import org.spongepowered.mod.util.WrappedArrayList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -1137,5 +1139,19 @@ public abstract class SpongeImplHooksMixin_Forge {
         if (capabilities != null) {
             capabilities.deserializeNBT(compoundTag);
         }
+    }
+
+    /**
+     * @author JBYoshi
+     * @reason Forge compatibility
+     * @param world The world in which the event takes place
+     * @param entityIn The entity that called collisions
+     * @param aabb The bounding box
+     * @param collided The bounding boxes that were collided with
+     */
+    @Overwrite
+    public static void onForgeCollision(final World world, @Nullable final Entity entityIn, final AxisAlignedBB aabb,
+            final List<AxisAlignedBB> collided) {
+        MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.GetCollisionBoxesEvent(world, entityIn, aabb, collided));
     }
 }
