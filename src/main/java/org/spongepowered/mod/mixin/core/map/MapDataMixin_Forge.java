@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.mod.mixin.api.common.map;
+package org.spongepowered.mod.mixin.core.map;
 
 import net.minecraft.world.storage.MapData;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.bridge.world.storage.MapDataBridge;
 
 @Mixin(MapData.class)
-public abstract class MapDataBridgeForgeMixin_API implements MapDataBridge {
+public abstract class MapDataMixin_Forge implements MapDataBridge {
     @Shadow
     public int dimension;
 

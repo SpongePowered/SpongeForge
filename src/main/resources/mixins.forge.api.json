@@ -8,7 +8,6 @@
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "common.extra.fluid.SpongeFluidStackBuilderMixin_ForgeAPI",
-        "common.map.MapDataBridgeForgeMixin_API",
         "common.world.SpongeDimensionMixin_ForgeAPI",
         "fml.common.event.FMLConstructionEventMixin_ForgeAPI",
         "fml.common.event.FMLInitializationEventMixin_ForgeAPI",
