@@ -61,6 +61,7 @@
         "item.ItemLilyPadMixin_Forge",
         "item.ItemShearsMixin_Forge",
         "item.ItemStackMixin_Forge",
+        "map.MapDataMixin_Forge",
         "nbt.NBTTagCompoundMixin_Forge",
         "network.NetHandlerPlayServerMixin_Forge",
         "network.play.client.CPacketClickWindowMixin_Forge",
