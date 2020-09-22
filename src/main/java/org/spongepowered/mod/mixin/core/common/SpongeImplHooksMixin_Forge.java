@@ -276,7 +276,7 @@ public abstract class SpongeImplHooksMixin_Forge {
      * @reason Forge reachDistance attribute compatibility
      */
     @Overwrite
-    public static double getEntityReachDistanceSq(final EntityPlayerMP player) {
+    public static double getEntityReachDistanceSq(final EntityPlayerMP player, Entity entity) {
         double reach = getBlockReachDistance(player);
         return reach * reach;
     }
