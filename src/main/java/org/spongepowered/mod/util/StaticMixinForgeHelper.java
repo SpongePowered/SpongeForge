@@ -101,7 +101,7 @@ public final class StaticMixinForgeHelper {
     };
 
     public static Optional<List<DamageFunction>> createArmorModifiers(
-        final EntityLivingBase entityLivingBase, final DamageSource damageSource, double damage) {
+        final EntityLivingBase entityLivingBase, final DamageSource damageSource, final double damage) {
         final Iterable<ItemStack> inventory = entityLivingBase.getArmorInventoryList();
         final List<ItemStack> itemStacks = Lists.newArrayList(inventory);
         // Beware all ye who enter here, for there's nothing but black magic here.
