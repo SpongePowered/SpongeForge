@@ -101,10 +101,9 @@ public final class StaticMixinForgeHelper {
     };
 
     public static Optional<List<DamageFunction>> createArmorModifiers(
-        final EntityLivingBase entityLivingBase, final DamageSource damageSource, double damage) {
+        final EntityLivingBase entityLivingBase, final DamageSource damageSource, final double damage) {
         final Iterable<ItemStack> inventory = entityLivingBase.getArmorInventoryList();
         final List<ItemStack> itemStacks = Lists.newArrayList(inventory);
-        damage *= 25;
         // Beware all ye who enter here, for there's nothing but black magic here.
         final ArrayList<ISpecialArmor.ArmorProperties> dmgVals = new ArrayList<ISpecialArmor.ArmorProperties>();
         for (int x = 0; x < itemStacks.size(); x++) {
@@ -229,10 +228,12 @@ public final class StaticMixinForgeHelper {
         ISpecialArmor.ArmorProperties prop = null;
         if (armorStack.getItem() instanceof ISpecialArmor) {
             final ISpecialArmor armor = (ISpecialArmor) armorStack.getItem();
-            prop = armor.getProperties(base, armorStack, damageSource, damage / 25D, index).copy();
+            prop = armor.getProperties(base, armorStack, damageSource, damage, index).copy();
         } else if (armorStack.getItem() instanceof ItemArmor && !damageSource.isUnblockable()) {
             final ItemArmor armor = (ItemArmor) armorStack.getItem();
-            prop = new ISpecialArmor.ArmorProperties(0, armor.damageReduceAmount / 25D, Integer.MAX_VALUE);
+            prop = new ISpecialArmor.ArmorProperties(0, 0, Integer.MAX_VALUE);
+            prop.Armor = armor.damageReduceAmount;
+            prop.Toughness = armor.toughness;
         }
         if (prop != null) {
             prop.Slot = index;
