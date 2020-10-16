@@ -1,0 +1,64 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ stable-7 ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ${{ github.workspace }}/.gradle/minecraft
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: run number with offset
+        run: echo "BUILD_NUMBER=$(($GITHUB_RUN_NUMBER+4082))" >> $GITHUB_ENV
+      - name: Setup workspace
+        run : |
+          echo "GIT_COMMIT=${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          ./gradlew --refresh-dependencies setupDecompWorkspace
+      - name: Build with Gradle
+        run: |
+          ./gradlew -s build
+        env:
+          CI_SYSTEM: Github Actions
+      - name: Add artifacts to build
+        uses: actions/upload-artifact@v2
+        with:
+          name: Sponge Jars
+          path: |
+            ${{ github.workspace }}/SpongeCommon/SpongeAPI/build/libs/*.jar
+            ${{ github.workspace }}/SpongeCommon/build/libs/*.jar
+            ${{ github.workspace }}/build/libs/*.jar
+      # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
+      # the publishing section of your build.gradle
+      - name: Publish to Sponge Maven & GitHub Packages
+        run: ./gradlew :uploadArchives
+        env:
+          GITHUB_USERNAME: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_GRADLE_PROJECT_spongeRepo: ${{ secrets.SPONGE_INDEXER_URL }}
+          ORG_GRADLE_PROJECT_spongeSnapshotRepo: ${{ secrets.SPONGE_MAVEN_SNAPSHOT_REPO_URL }}
+          ORG_GRADLE_PROJECT_spongeReleaseRepo: ${{ secrets.SPONGE_MAVEN_RELEASE_REPO_URL }}
+          ORG_GRADLE_PROJECT_spongeUsername: ${{ secrets.SPONGE_INDEXER_USERNAME }}
+          ORG_GRADLE_PROJECT_spongePassword: ${{ secrets.SPONGE_INDEXER_PASSWORD }}
+
+
