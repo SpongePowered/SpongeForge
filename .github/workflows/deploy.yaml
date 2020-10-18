@@ -14,14 +14,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ${{ github.workspace }}/.gradle/minecraft
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
@@ -34,7 +26,7 @@ jobs:
         run : |
           echo "GIT_COMMIT=${GITHUB_SHA}" >> $GITHUB_ENV
           echo "GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          ./gradlew --refresh-dependencies setupDecompWorkspace
+          ./gradlew --refresh-dependencies clean setupDecompWorkspace
       - name: Build with Gradle
         run: |
           ./gradlew -s build
