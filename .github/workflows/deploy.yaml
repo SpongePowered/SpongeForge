@@ -40,6 +40,11 @@ jobs:
             ${{ github.workspace }}/SpongeCommon/SpongeAPI/build/libs/*.jar
             ${{ github.workspace }}/SpongeCommon/build/libs/*.jar
             ${{ github.workspace }}/build/libs/*.jar
+      - name: Production Ready Jar
+        uses: actions/upload-artifact@v2
+        with:
+          name: Sponge Production Jar
+          path: ${{ github.workspace }}/build/libs/*RC${{ env.BUILD_NUMBER }}.jar
       # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
       # the publishing section of your build.gradle
       - name: Publish to Sponge Maven & GitHub Packages

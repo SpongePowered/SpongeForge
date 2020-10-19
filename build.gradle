@@ -180,8 +180,6 @@ uploadArchives {
     }
 }
 
-apply from: 'changelog.gradle'
-
 tasks.withType(JavaCompile) {
    options.incremental = false
 }
