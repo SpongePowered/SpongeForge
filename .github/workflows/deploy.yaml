@@ -27,11 +27,17 @@ jobs:
           echo "GIT_COMMIT=${GITHUB_SHA}" >> $GITHUB_ENV
           echo "GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
           ./gradlew --refresh-dependencies clean setupDecompWorkspace
-      - name: Build with Gradle
-        run: |
-          ./gradlew -s build
+      - name: Publish to Sponge Maven & GitHub Packages
+        run: ./gradlew -s build :uploadArchives
         env:
           CI_SYSTEM: Github Actions
+          GITHUB_USERNAME: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_GRADLE_PROJECT_spongeRepo: ${{ secrets.SPONGE_INDEXER_URL }}
+          ORG_GRADLE_PROJECT_spongeSnapshotRepo: ${{ secrets.SPONGE_MAVEN_SNAPSHOT_REPO_URL }}
+          ORG_GRADLE_PROJECT_spongeReleaseRepo: ${{ secrets.SPONGE_MAVEN_RELEASE_REPO_URL }}
+          ORG_GRADLE_PROJECT_spongeUsername: ${{ secrets.SPONGE_INDEXER_USERNAME }}
+          ORG_GRADLE_PROJECT_spongePassword: ${{ secrets.SPONGE_INDEXER_PASSWORD }}
       - name: Add artifacts to build
         uses: actions/upload-artifact@v2
         with:
@@ -47,15 +53,4 @@ jobs:
           path: ${{ github.workspace }}/build/libs/*RC${{ env.BUILD_NUMBER }}.jar
       # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
       # the publishing section of your build.gradle
-      - name: Publish to Sponge Maven & GitHub Packages
-        run: ./gradlew :uploadArchives
-        env:
-          GITHUB_USERNAME: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ORG_GRADLE_PROJECT_spongeRepo: ${{ secrets.SPONGE_INDEXER_URL }}
-          ORG_GRADLE_PROJECT_spongeSnapshotRepo: ${{ secrets.SPONGE_MAVEN_SNAPSHOT_REPO_URL }}
-          ORG_GRADLE_PROJECT_spongeReleaseRepo: ${{ secrets.SPONGE_MAVEN_RELEASE_REPO_URL }}
-          ORG_GRADLE_PROJECT_spongeUsername: ${{ secrets.SPONGE_INDEXER_USERNAME }}
-          ORG_GRADLE_PROJECT_spongePassword: ${{ secrets.SPONGE_INDEXER_PASSWORD }}
-
 
