@@ -2,16 +2,8 @@
 buildscript {
     repositories {
         maven {
-            name = 'gradle-plugins'
-            url = 'https://plugins.gradle.org/m2'
-        }
-        maven {
             name = 'sponge'
-            url = 'https://repo.spongepowered.org/maven'
-        }
-        maven {
-            name = 'forge'
-            url = 'https://files.minecraftforge.net/maven'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
         }
     }
 
