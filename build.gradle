@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath('net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT') {
+        classpath('net.minecraftforge.gradle:ForgeGradle:2.3+') {
             // The gradle Kotlin plugin depends on Intellij's custom fork
             // of GNU Trove, which it doesn't relocate.
             // Therefore, we need to remove any other version of Trove
