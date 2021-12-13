@@ -69,6 +69,8 @@ import org.apache.logging.log4j.Level;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.SubstituteLoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.command.CommandManager;
@@ -407,6 +409,14 @@ public class SpongeMod extends MetaModContainer {
     @Subscribe
     public void onPreInit(FMLPreInitializationEvent event) {
         try {
+            // With later versions of forge for 1.12+ (2856+),  slf4j may not
+            // have picked up on log4j 2.15. We try to do a manual override here.
+            if (LoggerFactory.getILoggerFactory().getClass() == SubstituteLoggerFactory.class) {
+
+            }
+
+            org.apache.logging.log4j.LogManager.getLogger().info("Log test");
+
             SpongeImpl.getGame().getEventManager().registerListeners(SpongeImpl.getPlugin().getInstance().get(), SpongeInternalListeners.getInstance());
             this.registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
             SpongeBootstrap.initializeServices();
