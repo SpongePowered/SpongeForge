@@ -98,6 +98,8 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.bridge.tileentity.TileEntityBridge;
@@ -238,8 +240,8 @@ public abstract class SpongeImplHooksMixin_Forge {
      * @author unknown
      * @reason Forge compatibility
      */
-    @Overwrite
-    public static void firePlayerJoinSpawnEvent(final EntityPlayerMP playerMP) {
+    @Inject(method = "firePlayerJoinSpawnEvent(Lnet/minecraft/entity/player/EntityPlayerMP;Lorg/spongepowered/common/event/tracking/PhaseContext;)V", at = @At("RETURN"))
+    private static void forge$firePlayerJoinSpawnEvent(final EntityPlayerMP playerMP, final PhaseContext<?> context) {
         ((EventBusBridge_Forge) MinecraftForge.EVENT_BUS).forgeBridge$post(new EntityJoinWorldEvent(playerMP, playerMP.getEntityWorld()), true);
     }
 
