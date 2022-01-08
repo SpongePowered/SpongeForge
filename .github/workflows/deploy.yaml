@@ -28,7 +28,7 @@ jobs:
           echo "GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
           ./gradlew --refresh-dependencies clean setupDecompWorkspace
       - name: Publish to Sponge Maven & GitHub Packages
-        run: ./gradlew -s build :uploadArchives
+        run: ./gradlew -s clean build :uploadArchives
         env:
           CI_SYSTEM: Github Actions
           GITHUB_USERNAME: ${{ github.actor }}
