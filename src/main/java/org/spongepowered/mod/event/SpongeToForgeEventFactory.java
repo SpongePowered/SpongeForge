@@ -47,6 +47,7 @@ import net.minecraft.world.storage.DerivedWorldInfo;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -83,6 +84,7 @@ import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.entity.RideEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
@@ -230,6 +232,8 @@ public class SpongeToForgeEventFactory {
             }
         } else if (spongeEvent instanceof AdvancementEvent.Grant) {
             return net.minecraftforge.event.entity.player.AdvancementEvent.class;
+        } else if (spongeEvent instanceof RideEntityEvent) {
+            return net.minecraftforge.event.entity.EntityMountEvent.class;
         }
         return null;
     }
@@ -298,8 +302,33 @@ public class SpongeToForgeEventFactory {
             return createAndPostLivingUseItemEvent(spongeEventData);
         } else if (spongeEvent instanceof AdvancementEvent.Grant) {
             return createAndPostAdvancementGrantEvent(spongeEventData);
+        } else if (spongeEvent instanceof RideEntityEvent) {
+            return createAndPostRideEntityEvent(spongeEventData);
         }
         return false;
+    }
+
+    private static boolean createAndPostRideEntityEvent(final SpongeToForgeEventData eventData) {
+        final RideEntityEvent spongeEvent = (RideEntityEvent) eventData.getSpongeEvent();
+        EntityMountEvent forgeEvent = (EntityMountEvent) eventData.getForgeEvent();
+
+        final Entity rider = spongeEvent.getCause().first(Entity.class).orElse(null);
+        if (rider == null) {
+            return false;
+        }
+
+        if (forgeEvent == null) {
+            forgeEvent = new EntityMountEvent(rider, (Entity)spongeEvent.getTargetEntity(), (net.minecraft.world.World)spongeEvent.getTargetEntity().getWorld(), spongeEvent instanceof RideEntityEvent.Mount);
+            eventData.setForgeEvent(forgeEvent);
+        }
+
+        forgeEvent.setCanceled(spongeEvent.isCancelled());
+        forgeEventBus.forgeBridge$post(eventData);
+        if (forgeEvent.isCanceled()) {
+            spongeEvent.setCancelled(true);
+        }
+
+        return true;
     }
 
     private static boolean createAndPostServerChatEvent(final SpongeToForgeEventData eventData) {
