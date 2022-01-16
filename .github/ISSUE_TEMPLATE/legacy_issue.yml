@@ -1,0 +1,59 @@
+name: I am using SpongeForge for Minecraft 1.12.2
+description: File an issue. Please note that Github Issues is not for general support.
+body:
+  - type: markdown
+    attributes:
+      value: "## Before You Begin"
+  - type: markdown
+    attributes:
+      value: |
+        Github Issues are for filing bug reports and requesting new features only. If you need general support, please check out the following places first:
+        
+        * [Check to see if a mod you're running is incompatible here.](https://docs.spongepowered.org/stable/en/server/spongineer/incompatible.html)
+        * [Read more about how to set up a server on SpongeDocs.](https://docs.spongepowered.org/stable/en/server/index.html)
+        * [Need server support? Post on our official forums instead.](https://forums.spongepowered.org/)
+        * [Got a quick question? Ask us on our official Discord guild](https://discord.gg/sponge)
+        
+        If you are sure you have found a bug with SpongeForge for Miencraft 1.12.2, file an issue below!
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of SpongeForge are you running?
+      placeholder: ex. 7.4.7
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: e.g. Windows, macOS, Linux
+    validations:
+      required: true
+  - type: input
+    id: java
+    attributes:
+      label: Java Version
+      description: "You can get this by running `java -version` from the command line"
+    validations:
+      required: true
+  - type: textarea
+    id: plugins
+    attributes:
+      label: Plugins/Mods
+      description: List all plugins and mods that you are using
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Describe the bug
+      description: Explain what the bug is and how to reproduce it
+    validations:
+      required: true
+  - type: input
+    id: logs
+    attributes:
+      label: Link to logs
+      description: "Please paste relevant logs to [Github Gist](https://gist.github.com) or [paste.gg](https://paste.gg), and paste a link to it here."

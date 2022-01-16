@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: I am using SpongeForge for Minecraft 1.16.5 or later
+    url: https://github.com/SpongePowered/Sponge/issues/new
+    about: "Issues for SpongeForge for Minecraft 1.16.5 or later should be reported on the Sponge repository."
+  - name: Known Mod Incompatibilities
+    url: https://docs.spongepowered.org/stable/en/server/spongineer/incompatible.html
+    about: "If you're potentially having issues with mod conflicts, read this page. You may simply need to change a mod or sponge setting."
+  - name: Sponge Docs
+    url: https://docs.spongepowered.org/
+    about: "If you need help setting up a server, our Docs pages may help you."
+  - name: Sponge Forums
+    url: https://forums.spongepowered.org/
+    about: "If you need support running your server and want to ask a question, post on our official forums"
+  - name: Sponge Discord Guild
+    url: https://discord.gg/sponge
+    about: "For quick help, join our Discord channel!"

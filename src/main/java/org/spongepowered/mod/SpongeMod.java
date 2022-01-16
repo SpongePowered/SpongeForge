@@ -409,14 +409,6 @@ public class SpongeMod extends MetaModContainer {
     @Subscribe
     public void onPreInit(FMLPreInitializationEvent event) {
         try {
-            // With later versions of forge for 1.12+ (2856+),  slf4j may not
-            // have picked up on log4j 2.15. We try to do a manual override here.
-            if (LoggerFactory.getILoggerFactory().getClass() == SubstituteLoggerFactory.class) {
-
-            }
-
-            org.apache.logging.log4j.LogManager.getLogger().info("Log test");
-
             SpongeImpl.getGame().getEventManager().registerListeners(SpongeImpl.getPlugin().getInstance().get(), SpongeInternalListeners.getInstance());
             this.registerService(ChunkTicketManager.class, new SpongeChunkTicketManager());
             SpongeBootstrap.initializeServices();
