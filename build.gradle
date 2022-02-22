@@ -173,7 +173,7 @@ uploadArchives {
 }
 
 tasks.withType(JavaCompile) {
-   options.incremental = false
+   options.incremental = true
 }
 
 // Unfortunately, Mixin's annotation processor requires that SpongeCommon
