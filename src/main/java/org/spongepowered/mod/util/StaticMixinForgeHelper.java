@@ -231,7 +231,7 @@ public final class StaticMixinForgeHelper {
             prop = armor.getProperties(base, armorStack, damageSource, damage, index).copy();
         } else if (armorStack.getItem() instanceof ItemArmor && !damageSource.isUnblockable()) {
             final ItemArmor armor = (ItemArmor) armorStack.getItem();
-            prop = new ISpecialArmor.ArmorProperties(0, 0, Integer.MAX_VALUE);
+            prop = new ISpecialArmor.ArmorProperties(0, armor.damageReduceAmount / 25D, Integer.MAX_VALUE);
             prop.Armor = armor.damageReduceAmount;
             prop.Toughness = armor.toughness;
         }
